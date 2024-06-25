@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Your default theme */
+    --background: white;
+    --foreground: black;
+  }
+
+  [data-theme="dark"] {
+    --background: black;
+    --foreground: white;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
