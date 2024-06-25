@@ -17,8 +17,8 @@ export default getRequestConfig(async ({ locale }) => {
   const messages = {
     // Add messages from other language files here
 
-    global: {
-      ...(await import(`../messages/${locale}/global.json`)).default,
+    common: {
+      ...(await import(`../messages/${locale}/common.json`)).default,
     },
   }
 

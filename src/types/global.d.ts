@@ -1,13 +1,13 @@
 // Importing other language files...
 
-import global from "../../messages/en/global.json"
+import common from "../../messages/en/common.json"
 
 import { locales } from "@/i18n"
 
 type Locale = (typeof locales)[number]
 
 type Messages = {
-  global: typeof global
+  common: typeof common
   // Create a new type by combining all message types
 }
 
