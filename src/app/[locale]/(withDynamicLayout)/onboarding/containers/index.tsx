@@ -15,14 +15,13 @@ const OnboardingContainer = () => {
 
   const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
 
-  const { first, second, isShowAll } =
-    displayedRightDynamicLayout(rightDynamicLayout)
+  const { isShowAll } = displayedRightDynamicLayout(rightDynamicLayout)
 
   return (
-    <div className="flex justify-center w-full">
+    <div className="flex justify-center w-full mt-8">
       <div
         className={cn(
-          "text-wrap flex-1 flex flex-col items-center mt-16 duration-300",
+          "text-wrap flex-1 flex flex-col items-center duration-300",
           isShowAll ? "px-4" : "max-w-xl"
         )}
       >

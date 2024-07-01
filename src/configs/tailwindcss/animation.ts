@@ -4,4 +4,7 @@ export const animation = {
   "hide-effect": "hide-effect 1.5s ease-in-out forwards",
   "display-effect": "display-effect 1s ease-in-out forwards",
   "bounce-slow": "bounce-slow 2s infinite",
+
+  "opacity-hide-effect": "opacity-hide-effect 1.5s ease-in-out forwards",
+  "opacity-display-effect": "opacity-display-effect 1s ease-in-out forwards",
 }

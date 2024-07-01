@@ -37,9 +37,11 @@ export const useLayout = create<LayoutStore & LayoutStoreFunc>((set) => ({
     })),
 
   toggleDynamicLayout: (layoutKey) =>
-    set((prevState) => ({
-      dynamicLayouts: getNewLayouts(prevState.dynamicLayouts, layoutKey),
-    })),
+    set((prevState) => {
+      return {
+        dynamicLayouts: getNewLayouts(prevState.dynamicLayouts, layoutKey),
+      }
+    }),
 }))
 
 export const getNewLayouts = (
@@ -49,6 +51,16 @@ export const getNewLayouts = (
   let layouts = prevLayouts
   const isDisplayed = layouts.includes(keyHandler)
 
+  const isKeyOfCantDuplicated = KEYS_CANNOT_DUPLICATED.includes(
+    keyHandler as any
+  )
+
+  if (isKeyOfCantDuplicated) {
+    layouts = layouts.filter(
+      (layout) => !KEYS_CANNOT_DUPLICATED.includes(layout as any)
+    )
+  }
+
   if (isDisplayed) {
     layouts = layouts.filter((layout) => layout !== keyHandler)
   } else {
@@ -57,3 +69,8 @@ export const getNewLayouts = (
 
   return layouts
 }
+
+export const KEYS_CANNOT_DUPLICATED = [
+  NavigationEnums.DEVICES,
+  NavigationEnums.USER,
+]

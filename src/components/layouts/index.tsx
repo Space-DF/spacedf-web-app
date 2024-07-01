@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client"
 
-import { PropsWithChildren, useEffect, useRef } from "react"
+import { PropsWithChildren, useEffect, useMemo, useRef } from "react"
 
-import { COOKIES } from "@/constants"
+import { COOKIES, dynamicLayoutKeys } from "@/constants"
 import Devices from "@/containers/devices"
 import Widgets from "@/containers/widgets"
 import { cn } from "@/lib/utils"
@@ -23,6 +23,7 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable"
 import Sidebar from "./sidebar"
+import Users from "@/containers/users"
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -129,21 +130,30 @@ const DynamicLayout = ({
     return 0
   }
 
-  const { isShowAll } = displayedRightDynamicLayout(dynamicLayoutRight)
+  const layoutCannotDuplicate = useMemo(() => {
+    if (dynamicLayouts.includes("devices")) return <Devices />
+
+    return <Users />
+  }, [dynamicLayouts])
+
+  const { isShowAll, second, first } =
+    displayedRightDynamicLayout(dynamicLayoutRight)
 
   return (
     <EffectLayout>
-      <div className="flex">
+      <div className="flex max-w-full max-h-screen overflow-hidden">
         <Sidebar />
         <ResizablePanelGroup
           direction="horizontal"
-          className="w-full min-h-screen"
+          className="w-full min-h-screen overflow-auto"
           onLayout={handleMainLayoutChange}
           ref={refs}
           id="group"
         >
           <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-            <div className="flex h-full">{children}</div>
+            <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface">
+              {children}
+            </div>
           </ResizablePanel>
 
           <ResizableHandle
@@ -166,14 +176,31 @@ const DynamicLayout = ({
               direction="horizontal"
               ref={rightLayoutRefs}
               onLayout={handleRightLayoutChange}
-              className="duration-700"
             >
-              <ResizablePanel defaultSize={defaultRightLayout[0]}>
-                <Widgets />
+              <ResizablePanel
+                defaultSize={defaultRightLayout[0]}
+                minSize={first ? 45 : 0}
+                className={cn(
+                  first
+                    ? "animate-opacity-display-effect"
+                    : "animate-opacity-hide-effect"
+                )}
+              >
+                <div>
+                  <Widgets />
+                </div>
               </ResizablePanel>
               {isShowAll && <ResizableHandle />}
-              <ResizablePanel defaultSize={defaultRightLayout[1]}>
-                <Devices />
+              <ResizablePanel
+                defaultSize={defaultRightLayout[1]}
+                minSize={second ? 45 : 0}
+                className={cn(
+                  second
+                    ? "animate-opacity-display-effect"
+                    : "animate-opacity-hide-effect"
+                )}
+              >
+                {layoutCannotDuplicate}
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>

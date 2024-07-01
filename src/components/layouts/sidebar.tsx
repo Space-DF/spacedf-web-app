@@ -20,7 +20,9 @@ import { checkDisplayedDynamicLayout, getCookie, setCookie } from "@/utils"
 const Sidebar = () => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+
+  const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
+
   const setDynamicLayouts = useLayout(
     useShallow((state) => state.setDynamicLayouts)
   )
@@ -36,8 +38,9 @@ const Sidebar = () => {
   }, [defaultCollapsed])
 
   useEffect(() => {
+    if (cookieDirty) return
     setDynamicLayouts(defaultDynamicLayouts)
-  }, [defaultDynamicLayouts])
+  }, [defaultDynamicLayouts, cookieDirty])
 
   const [open, setOpen] = useState(false)
 

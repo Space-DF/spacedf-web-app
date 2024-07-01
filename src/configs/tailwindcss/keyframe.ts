@@ -25,4 +25,14 @@ export const keyframes = {
       transform: "translateY(-10px)",
     },
   },
+
+  "opacity-hide-effect": {
+    "0%": { opacity: "1" },
+    "50%": { opacity: "0" },
+    "100%": { opacity: "0" },
+  },
+  "opacity-display-effect": {
+    "0%": { opacity: "0" },
+    "100%": { opacity: "1" },
+  },
 }

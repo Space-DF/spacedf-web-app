@@ -4,4 +4,5 @@ export const brandColors = {
   "text-gray": "#667085",
   "fill-dark-soft": "#F0F1F3",
   "text-dark": "#1B2037",
+  "fill-surface": "#FAFAFA",
 }

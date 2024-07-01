@@ -14,7 +14,7 @@ export default function ImageWithBlur({
   const [isLoading, setLoading] = useState(true)
 
   return (
-    <div className="group w-max h-max overflow-hidden bg-transparent">
+    <div className="group w-full h-full overflow-hidden bg-transparent">
       <Image
         className={cn(
           "duration-300 ease-in-out w-full h-full",
