@@ -4,9 +4,10 @@ import { Locale } from "@/types/global"
 import type { Metadata } from "next"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, unstable_setRequestLocale } from "next-intl/server"
-import { Inter } from "next/font/google"
 
-const inter = Inter({ subsets: ["latin"] })
+import { Plus_Jakarta_Sans } from "next/font/google"
+
+const plus_jakarta_sans = Plus_Jakarta_Sans({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,7 +26,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={plus_jakarta_sans.className}>
         <NextIntlClientProvider messages={messages}>
           <AppProvider>{children}</AppProvider>
         </NextIntlClientProvider>

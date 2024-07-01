@@ -11,6 +11,8 @@ type Messages = {
   // Create a new type by combining all message types
 }
 
+export type SVGProps = React.SVGProps<SVGSVGElement>
+
 declare global {
   // Use type safe message keys with `next-intl`
   interface IntlMessages extends Messages {}

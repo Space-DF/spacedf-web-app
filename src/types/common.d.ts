@@ -1,0 +1,4 @@
+export type CommonModalProps = {
+  open: boolean
+  setOpen?: (open: boolean) => void
+}
