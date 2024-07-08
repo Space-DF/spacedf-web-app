@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
 import { CloudUpload, MapPin, UserRound } from "lucide-react"
 import React, { Suspense } from "react"
+import AvtUser from "/public/images/avt-user.svg"
 
 const Profile = () => {
   return (
@@ -16,10 +17,7 @@ const Profile = () => {
         <Avatar className="rounded-full flex items-center justify-center bg-purple-200 w-24 h-24">
           <Suspense fallback={<AvatarFallback>Avatar</AvatarFallback>}>
             <ImageWithBlur
-              src={
-                "https://s3-alpha-sig.figma.com/img/1988/998a/bc4621ffd7d2c54eda495c25245def73?Expires=1720396800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=cwj3zU6eexo5y-uVGbJ38R0w8Fc1XVFRASYhQJaRVah~M78shBE6~aKO5gCfogI-BZ3tk03LggZ8Cphg9enFV6W-hJ0O-PDCOXFgz3ZoHTQFCknhqMfZD0CKGx-DzOBuRZLnM9tx0dm36b6RsmbxZR2DySEOsWViZAAALpmw-RpqIR16ZUM8hrhXFgNzGzzaaoKS8lNMbW5Ju90zldZUaucAprugzPH1zOiksBQ4fpKgwUnKkUVia2RI3wYS9bxI7KAj7kmAoiwQsyrXijt3LIgBB7wcTZmH3jg3wjcy2OLyJcdVrsRcKOvxTB6mKIOwVBYBVkEfX2BM7nFLsXOQjQ__" ||
-                ""
-              }
+              src={AvtUser || ""}
               width={40}
               height={40}
               alt="space-df"
