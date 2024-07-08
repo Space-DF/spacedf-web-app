@@ -20,6 +20,12 @@ export default getRequestConfig(async ({ locale }) => {
     common: {
       ...(await import(`../messages/${locale}/common.json`)).default,
     },
+    onboarding: {
+      ...(await import(`../messages/${locale}/onboarding.json`)).default,
+    },
+    languageName: {
+      ...(await import(`../messages/${locale}/language-name.json`)).default,
+    },
   }
 
   // Return merged messages

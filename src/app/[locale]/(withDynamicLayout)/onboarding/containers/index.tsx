@@ -9,8 +9,11 @@ import { displayedRightDynamicLayout, getDynamicLayoutRight } from "@/utils"
 import React, { memo } from "react"
 import { useShallow } from "zustand/react/shallow"
 import SelectTemplate from "./SelectTemplate"
+import { useTranslations } from "next-intl"
 
 const OnboardingContainer = () => {
+  const t = useTranslations("onboarding")
+  const commonTranslate = useTranslations("common")
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
 
   const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
@@ -26,29 +29,30 @@ const OnboardingContainer = () => {
         )}
       >
         <p className="text-4xl text-center font-medium text-brand-heading">
-          Congrats! Your Space is ready
+          {t("welcome_title")}
         </p>
 
         <div className="mt-6 text-center">
           <Button size="xl">
             <div className="flex gap-2 items-center">
-              Create 3D from your 2D <MagicWand />
+              {t("create_3d_from_2d")} <MagicWand />
             </div>
           </Button>
           <p className="text-[13px]  mt-2 text-center text-brand-text-gray">
             <span className="font-semibold text-brand-text-dark">
-              Click to upload
+              {t("click_to_upload")}
             </span>{" "}
-            or drag and drop
+            {commonTranslate("or")} {t("drag_drop")}
           </p>
           <p className="font-normal text-[13px] text-center text-brand-text-gray">
-            SVG, PTS, DWF, CDR, SKP, XCF, DWG, DXF or AI (max. 300 MB)
+            SVG, PTS, DWF, CDR, SKP, XCF, DWG, DXF {commonTranslate("or")} AI (
+            {commonTranslate("max")}. 300 MB)
           </p>
         </div>
 
         <Separator
           orientation="horizontal"
-          className="w-[70%] my-[72px] bg-brand-strock-dark-soft"
+          className="w-[70%] my-[72px] bg-brand-stroke-dark-soft"
         />
 
         <SelectTemplate />

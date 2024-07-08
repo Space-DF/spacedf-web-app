@@ -1,3 +1,20 @@
 {
-  "welcome": "Welcome"
+  "dashboard": "Dashboard",
+  "devices": "Devices",
+  "maps": "Maps",
+  "digital_twin": "Digital Twin",
+  "user": "user",
+  "users": "users",
+  "workspace_settings": "Workspace settings",
+  "plan_and_billing": "Plan and billing",
+  "search": "Search",
+  "or": "or",
+  "max": "max",
+  "nodata": "No Data yet, let add {module}",
+  "widget": "widget",
+  "add": "add",
+  "selected_user": "Selected Users",
+  "selected_devices": "Selected Devices",
+  "light": "Light",
+  "dark": "Dark"
 }
