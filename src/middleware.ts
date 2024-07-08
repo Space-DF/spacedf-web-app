@@ -3,6 +3,7 @@ import { locales } from "./i18n"
 import createMiddleware from "next-intl/middleware"
 import { NextRequest, NextResponse } from "next/server"
 import { Locale } from "./types/global"
+import { getCookieServer } from "./utils/server-actions"
 
 export default async function middleware(request: NextRequest) {
   const defaultLocale = "en" as Locale
@@ -27,7 +28,7 @@ export default async function middleware(request: NextRequest) {
     // Extract the locale from the pathname or use defaultLocale if pathname is "/"
     const currentLocale = isLocaleRootPath
       ? pathname.replace("/", "")
-      : defaultLocale
+      : getCookieServer("NEXT_LOCALE", defaultLocale)
 
     // Redirect to "/onboarding" with the current locale
     const redirectUrl = `/${currentLocale}/onboarding`
