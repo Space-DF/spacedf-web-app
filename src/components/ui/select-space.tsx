@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select"
 import { SelectProps } from "@radix-ui/react-select"
 import { Suspense, useState } from "react"
-import LogoSVG from "/public/space_df_logo.svg"
+import AvtUser from "/public/images/avt-user.svg"
 import ImageWithBlur from "@/components/ui/image-blur"
 import { cn } from "@/lib/utils"
 
@@ -83,7 +83,7 @@ const Space = ({ thumbnail, title, role }: User) => (
     <Avatar className="rounded-lg flex items-center justify-center bg-purple-300">
       <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
         <ImageWithBlur
-          src={thumbnail || ""}
+          src={AvtUser || ""}
           width={40}
           height={40}
           alt="space-df"
