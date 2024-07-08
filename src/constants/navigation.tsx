@@ -7,6 +7,7 @@ import {
   Users,
   Warehouse,
 } from "@/components/icons"
+import { useTranslations } from "next-intl"
 
 export enum NavigationEnums {
   DASHBOARD = "dashboard",
@@ -30,45 +31,47 @@ export type DynamicLayout =
   | `${NavigationEnums.DEVICES}`
   | `${NavigationEnums.USER}`
 
-export const navigations: Navigation[] = [
+export const navigations = (
+  translateFn: ReturnType<typeof useTranslations>
+): Navigation[] => [
   {
     href: NavigationEnums.DASHBOARD,
-    title: "Dashboard",
+    title: translateFn("dashboard"),
     icon: <CodeSandbox />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.DEVICES,
-    title: "Devices",
+    title: translateFn("devices"),
     icon: <Devices />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.MAPS,
-    title: "Maps",
+    title: translateFn("maps"),
     icon: <Maptrifold />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.DIGITAL_TWIN,
-    title: "Digital Twin",
+    title: translateFn("digital_twin"),
     icon: <CubeFocus />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.USER,
-    title: "User",
+    title: translateFn("user"),
     icon: <Users />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.WORKSPACE_SETTINGS,
-    title: "Workspace Settings",
+    title: translateFn("workspace_settings"),
     icon: <Warehouse />,
   },
   {
     href: NavigationEnums.PLAN_BILLING,
-    title: "Plan and billing",
+    title: translateFn("plan_and_billing"),
     icon: <CreditCard />,
   },
 ]

@@ -7,43 +7,45 @@ import SmartOffice from "/public/images/smart-office.svg"
 import IndoorTracking from "/public/images/indoor-tracking.svg"
 import FleetTracking from "/public/images/fleet-tracking.svg"
 import WaterManagement from "/public/images/water-management.svg"
+import { useTranslations } from "next-intl"
 
-const templates = [
+const templates = (translateFn: ReturnType<typeof useTranslations>) => [
   {
     href: "/warehouse-tracking",
-    title: "Warehouse tracking",
+    title: translateFn("warehouse_tracking"),
     thumbnail: Warehouse,
   },
   {
     href: "/smart-office",
-    title: "Smart Office",
+    title: translateFn("smart_office"),
     thumbnail: SmartOffice,
   },
   {
     href: "/indoor-tracking",
-    title: "Indoor Asset Tracking",
+    title: translateFn("indoor_asset_tracking"),
     thumbnail: IndoorTracking,
   },
   {
     href: "/fleet-tracking",
-    title: "Fleet Tracking",
+    title: translateFn("fleet_tracking"),
     thumbnail: FleetTracking,
   },
   {
     href: "/water-management",
-    title: "Water Pressure Management",
+    title: translateFn("water_pressure_management"),
     thumbnail: WaterManagement,
   },
 ]
 
 const SelectTemplate = () => {
+  const t = useTranslations("onboarding")
   return (
     <div className="w-full">
       <div className="mb-6 text-center text-2xl font-medium text-brand-heading">
-        You can get started with a template
+        {t("you_can_get_started_with_template")}
       </div>
       <div className="flex justify-center flex-wrap gap-6 duration-300 mb-8">
-        {templates.map((template) => (
+        {templates(t).map((template) => (
           <Template {...template} key={template.href} />
         ))}
       </div>
@@ -51,7 +53,11 @@ const SelectTemplate = () => {
   )
 }
 
-const Template = ({ href, title, thumbnail }: (typeof templates)[number]) => {
+const Template = ({
+  href,
+  title,
+  thumbnail,
+}: ReturnType<typeof templates>[number]) => {
   return (
     <div className="transition-all bg-white min-w-36 sm:w-[30%] min-h-36 p-2 rounded-lg group cursor-pointer flex-shrink hover:shadow-lg duration-300">
       <div className="flex flex-col w-full h-full gap-2">

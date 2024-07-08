@@ -3,8 +3,9 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from "react"
 
-import { COOKIES, dynamicLayoutKeys } from "@/constants"
+import { COOKIES } from "@/constants"
 import Devices from "@/containers/devices"
+import Users from "@/containers/users"
 import Widgets from "@/containers/widgets"
 import { cn } from "@/lib/utils"
 import { DynamicLayout as TDynamicLayout, useLayout } from "@/stores"
@@ -23,12 +24,13 @@ import {
   ResizablePanelGroup,
 } from "../ui/resizable"
 import Sidebar from "./sidebar"
-import Users from "@/containers/users"
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
   defaultDynamicLayout: TDynamicLayout[]
   defaultRightLayout: number[]
+  defaultMainLayout: number[]
+  defaultCollapsed: boolean
 } & PropsWithChildren
 
 const DynamicLayout = ({
@@ -36,16 +38,23 @@ const DynamicLayout = ({
   defaultLayout,
   defaultDynamicLayout,
   defaultRightLayout,
+  defaultMainLayout,
+  defaultCollapsed,
 }: DynamicLayoutProps) => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
+  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
+  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+
+  useEffect(() => {
+    setCollapsed(defaultCollapsed)
+  }, [])
+
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
   const refs = useRef<ImperativePanelGroupHandle | null>(null)
   const rightLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
-
-  const handleMainLayoutChange = (sizes: number[]) =>
-    setCookie(COOKIES.LAYOUTS, sizes)
+  const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
 
   const dynamicLayoutRight = getDynamicLayoutRight(dynamicLayouts)
 
@@ -118,6 +127,21 @@ const DynamicLayout = ({
   const handleRightLayoutChange = (sizes: number[]) =>
     setCookie(COOKIES.SUB_DYNAMIC_LAYOUTS, sizes)
 
+  const handleDynamicLayoutChanges = (sizes: number[]) =>
+    setCookie(COOKIES.LAYOUTS, sizes)
+
+  const handleMainLayoutChanges = (sizes: number[]) => {
+    if (sizes[0] <= 12 && !isCollapsed) {
+      setCollapsed(true)
+      setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
+    } else if (sizes[0] > 12 && isCollapsed) {
+      setCollapsed(false)
+      setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+    }
+
+    setCookie(COOKIES.MAIN_LAYOUTS, sizes)
+  }
+
   //todo: need to refactor this code -> 36, 25 need to move to the constants
   const getRightMinSize = () => {
     const { first, second, isShowAll } =
@@ -142,65 +166,81 @@ const DynamicLayout = ({
   return (
     <EffectLayout>
       <div className="flex max-w-full max-h-screen overflow-hidden">
-        <Sidebar />
         <ResizablePanelGroup
+          onLayout={handleMainLayoutChanges}
           direction="horizontal"
-          className="w-full min-h-screen overflow-auto"
-          onLayout={handleMainLayoutChange}
-          ref={refs}
-          id="group"
+          ref={mainLayoutRefs}
         >
-          <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-            <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface">
-              {children}
-            </div>
-          </ResizablePanel>
-
-          <ResizableHandle
-            className={cn(
-              "duration-300",
-              isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
-            )}
-          />
-
           <ResizablePanel
-            defaultSize={defaultLayout[1]}
-            className={cn(
-              "duration-300 transition-all",
-              isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
-            )}
-            minSize={getRightMinSize()}
-            maxSize={60}
+            minSize={4}
+            maxSize={25}
+            defaultSize={defaultMainLayout[0]}
+            className="duration-200"
           >
+            <Sidebar ref={mainLayoutRefs} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel>
             <ResizablePanelGroup
               direction="horizontal"
-              ref={rightLayoutRefs}
-              onLayout={handleRightLayoutChange}
+              className="w-full min-h-screen overflow-auto"
+              onLayout={handleDynamicLayoutChanges}
+              ref={refs}
+              id="group"
             >
-              <ResizablePanel
-                defaultSize={defaultRightLayout[0]}
-                minSize={first ? 45 : 0}
-                className={cn(
-                  first
-                    ? "animate-opacity-display-effect"
-                    : "animate-opacity-hide-effect"
-                )}
-              >
-                <div>
-                  <Widgets />
+              <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
+                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface">
+                  {children}
                 </div>
               </ResizablePanel>
-              {isShowAll && <ResizableHandle />}
-              <ResizablePanel
-                defaultSize={defaultRightLayout[1]}
-                minSize={second ? 45 : 0}
+
+              <ResizableHandle
                 className={cn(
-                  second
-                    ? "animate-opacity-display-effect"
-                    : "animate-opacity-hide-effect"
+                  "duration-300",
+                  isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
                 )}
+              />
+
+              <ResizablePanel
+                defaultSize={defaultLayout[1]}
+                className={cn(
+                  "duration-300 transition-all",
+                  isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
+                )}
+                minSize={getRightMinSize()}
+                maxSize={60}
               >
-                {layoutCannotDuplicate}
+                <ResizablePanelGroup
+                  direction="horizontal"
+                  ref={rightLayoutRefs}
+                  onLayout={handleRightLayoutChange}
+                >
+                  <ResizablePanel
+                    defaultSize={defaultRightLayout[0]}
+                    minSize={first ? 45 : 0}
+                    className={cn(
+                      first
+                        ? "animate-opacity-display-effect"
+                        : "animate-opacity-hide-effect"
+                    )}
+                  >
+                    <div>
+                      <Widgets />
+                    </div>
+                  </ResizablePanel>
+                  {isShowAll && <ResizableHandle />}
+                  <ResizablePanel
+                    defaultSize={defaultRightLayout[1]}
+                    minSize={second ? 45 : 0}
+                    className={cn(
+                      second
+                        ? "animate-opacity-display-effect"
+                        : "animate-opacity-hide-effect"
+                    )}
+                  >
+                    {layoutCannotDuplicate}
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
