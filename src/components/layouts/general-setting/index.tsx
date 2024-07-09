@@ -63,7 +63,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
           <DialogTitle>General Setting</DialogTitle>
         </DialogHeader>
         <div className="flex ">
-          <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4">
+          <div className="w-[200px] border-r border-brand-stroke-dark-soft dark:border-brand-stroke-outermost py-4">
             <div className="flex flex-col gap-1">
               {settings().map((setting) => {
                 const isActive = setting.key === currentSetting
@@ -72,9 +72,9 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                   <div
                     key={setting.key}
                     className={cn(
-                      "py-[6px] px-4 flex items-center gap-2 cursor-pointer duration-300 hover:bg-brand-fill-dark-soft hover:text-brand-text-dark",
+                      "py-[6px] px-4 font-medium flex items-center gap-2 cursor-pointer duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80",
                       isActive
-                        ? "border-r-2 border-black bg-brand-fill-dark-soft"
+                        ? "border-r-2 border-black dark:border-brand-heading bg-brand-fill-dark-soft dark:bg-brand-text-dark dark:text-white"
                         : "border-none bg-transparent text-brand-text-gray"
                     )}
                     onClick={() => setCurrentSetting(setting.key)}
@@ -89,10 +89,13 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
           <div
             className={cn(
               "flex-1 p-4 min-h-[350px]",
-              currentSetting === "appearance" && "bg-brand-fill-surface"
+              currentSetting === "appearance" &&
+                "bg-brand-fill-surface dark:bg-brand-fill-outermost"
             )}
           >
-            {renderSetting}
+            <div className="text-brand-text-dark dark:text-brand-dark-text-gray">
+              {renderSetting}
+            </div>
           </div>
         </div>
       </DialogContent>

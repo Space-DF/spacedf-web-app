@@ -131,10 +131,10 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    if (sizes[0] <= 12 && !isCollapsed) {
+    if (sizes[0] <= 8 && !isCollapsed) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
-    } else if (sizes[0] > 12 && isCollapsed) {
+    } else if (sizes[0] > 8 && isCollapsed) {
       setCollapsed(false)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
     }
@@ -173,7 +173,7 @@ const DynamicLayout = ({
         >
           <ResizablePanel
             minSize={4}
-            maxSize={25}
+            maxSize={18}
             defaultSize={defaultMainLayout[0]}
             className="duration-200"
           >
@@ -189,7 +189,7 @@ const DynamicLayout = ({
               id="group"
             >
               <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface">
+                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface dark:bg-brand-heading">
                   {children}
                 </div>
               </ResizablePanel>
@@ -219,6 +219,7 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[0]}
                     minSize={first ? 45 : 0}
                     className={cn(
+                      "dark:bg-brand-fill-outermost",
                       first
                         ? "animate-opacity-display-effect"
                         : "animate-opacity-hide-effect"
@@ -233,6 +234,7 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[1]}
                     minSize={second ? 45 : 0}
                     className={cn(
+                      "dark:bg-brand-fill-outermost",
                       second
                         ? "animate-opacity-display-effect"
                         : "animate-opacity-hide-effect"

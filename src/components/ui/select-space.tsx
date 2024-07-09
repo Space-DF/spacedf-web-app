@@ -80,7 +80,7 @@ const SelectSpace = ({
 
 const Space = ({ thumbnail, title, role }: User) => (
   <div className="flex gap-2">
-    <Avatar className="rounded-lg flex items-center justify-center bg-purple-300">
+    <Avatar className="rounded-lg flex items-center justify-center bg-purple-200 dark:bg-purple-700">
       <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
         <ImageWithBlur
           src={AvtUser || ""}
@@ -91,8 +91,12 @@ const Space = ({ thumbnail, title, role }: User) => (
       </Suspense>
     </Avatar>
     <div className="flex flex-col justify-between">
-      <p className="font-semibold text-brand-heading">{title}</p>
-      <span className="text-xs font-medium text-brand-text-gray">{role}</span>
+      <p className="font-semibold text-brand-heading dark:text-white">
+        {title}
+      </p>
+      <span className="text-xs font-medium text-brand-text-gray dark:text-brand-dark-text-gray">
+        {role}
+      </span>
     </div>
   </div>
 )

@@ -19,7 +19,7 @@ export const RightSideBarLayout = ({
     <div className="p-4">
       <div className="flex gap-2">
         <div className="flex flex-wrap gap-2 duration-300 flex-1 justify-between items-center">
-          <p className="text-base text-brand-text-dark font-semibold">
+          <p className="text-base text-brand-text-dark font-semibold dark:text-white">
             {title}
           </p>
           {headerButton}
@@ -27,18 +27,18 @@ export const RightSideBarLayout = ({
 
         {allowClose && (
           <div
-            className="p-2 hover:bg-brand-fill-surface rounded-sm group h-max cursor-pointer"
+            className="p-2 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost rounded-sm group h-max cursor-pointer"
             onClick={onClose}
           >
             <PlusIcon
               width={24}
               height={24}
-              className="rotate-45 group-hover:scale-110 duration-300 group-hover:-rotate-45"
+              className="rotate-45 group-hover:scale-110 duration-300 group-hover:-rotate-45 dark:text-brand-dark-text-gray"
             />
           </div>
         )}
       </div>
-      <div className="my-6">{children}</div>
+      <div className="my-6 dark:text-brand-dark-text-gray">{children}</div>
     </div>
   )
 }
