@@ -74,7 +74,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `min-h-screen border-r border-brand-stroke-dark-soft shadow-md p-4 duration-300 transition-all text-brand-text-dark flex`
+          `min-h-screen border-r border-brand-stroke-dark-soft dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex`
           // isCollapsed ? "w-14" : "w-[25%] max-w-96"
         )}
       >
@@ -126,7 +126,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <Button
           onClick={() => setOpen?.(true)}
           className={cn(
-            "rounded-lg justify-between bg-brand-fill-dark-soft duration-200 h-10 w-full my-3"
+            "rounded-lg justify-between bg-brand-fill-dark-soft dark:bg-brand-fill-outermost duration-200 h-10 w-full my-3"
           )}
           variant="ghost"
         >
@@ -147,7 +147,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="my-1 justify-start p-0 hover:bg-transparent gap-3"
+            className="duration-300 my-1 justify-start p-0 hover:bg-transparent gap-3 text-brand-text-gray dark:text-brand-dark-text-gray dark:hover:text-white"
           >
             {/* <Navigation
               navigation={{
@@ -204,7 +204,7 @@ const CollapsedSidebar = ({
           <Button
             variant="ghost"
             size="icon"
-            className="my-5 text-brand-text-gray"
+            className="my-5 text-brand-text-gray !rounded-lg"
             onClick={() => setOpen?.(true)}
           >
             <MagnifyingGlassIcon className="w-5 h-5" />
@@ -221,7 +221,7 @@ const CollapsedSidebar = ({
             <Button
               variant="outline"
               size="icon"
-              className="border-none shadow-none "
+              className="border-none shadow-none !rounded-lg dark:text-brand-dark-text-gray hover:dark:text-white"
             >
               <SettingIcon />
             </Button>
@@ -274,13 +274,15 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
     >
       <label
         className={cn(
-          "flex items-center gap-2 cursor-pointer flex-1 overflow-hidden"
-          // isCollapsed ? "w-0 h-0 pointer-events-none" : "flex-1"
+          "flex duration-300 items-center gap-2 cursor-pointer flex-1 overflow-hidden",
+          isDisplayed
+            ? "text-brand-text-dark dark:text-white"
+            : "text-brand-text-gray dark:text-brand-dark-text-gray"
         )}
         htmlFor={navigation.href}
       >
         <div className={cn("duration-200")}>{navigation.icon}</div>
-        <div className="p-1 flex-1 max-w-[90%] truncate ">
+        <div className="p-1 flex-1 max-w-[90%] truncate">
           {uppercaseFirstLetter(navigation.title)}
         </div>
       </label>
@@ -326,7 +328,9 @@ const CollapsedNavigation = () => {
             onClick={handleDynamicLayoutChange}
             className={cn(
               "p-2 rounded-lg duration-300 cursor-pointer",
-              isDisplayed ? "bg-brand-heading text-white" : "bg-transparent"
+              isDisplayed
+                ? "bg-brand-heading text-white dark:bg-brand-dark-fill-secondary "
+                : "bg-transparent dark:text-brand-dark-text-gray hover:bg-slate-500/20 hover:dark:bg-slate-500/40 hover:dark:!text-white"
             )}
             key={navigation.href}
           >

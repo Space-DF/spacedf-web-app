@@ -108,7 +108,9 @@ const Language = (country: Country) => {
           />
         </Suspense>
       </Avatar>
-      <p className="font-semibold text-brand-heading">{country.name}</p>
+      <p className="font-semibold text-brand-heading  dark:text-white">
+        {country.name}
+      </p>
     </div>
   )
 }

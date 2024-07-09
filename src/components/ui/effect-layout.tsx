@@ -13,7 +13,7 @@ const EffectLayout = ({ children }: PropsWithChildren) => {
     <div className="min-h-screen w-full relative overflow-hidden">
       <div
         className={cn(
-          "absolute inset-0 transition-all bg-white",
+          "absolute inset-0 transition-all bg-white dark:bg-brand-fill-outermost",
           startRender && "animate-hide-effect"
         )}
       >

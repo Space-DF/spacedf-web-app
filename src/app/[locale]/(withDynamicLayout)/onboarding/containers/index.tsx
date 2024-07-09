@@ -28,7 +28,7 @@ const OnboardingContainer = () => {
           isShowAll ? "px-4" : "max-w-xl"
         )}
       >
-        <p className="text-4xl text-center font-medium text-brand-heading">
+        <p className="text-4xl text-center font-medium text-brand-heading dark:text-white">
           {t("welcome_title")}
         </p>
 
@@ -39,12 +39,12 @@ const OnboardingContainer = () => {
             </div>
           </Button>
           <p className="text-[13px]  mt-2 text-center text-brand-text-gray">
-            <span className="font-semibold text-brand-text-dark">
+            <span className="font-semibold text-brand-text-dark dark:text-brand-stroke-outermost">
               {t("click_to_upload")}
             </span>{" "}
             {commonTranslate("or")} {t("drag_drop")}
           </p>
-          <p className="font-normal text-[13px] text-center text-brand-text-gray">
+          <p className="font-normal text-[13px] text-center text-brand-text-gray dark:text-brand-dark-text-gray">
             SVG, PTS, DWF, CDR, SKP, XCF, DWG, DXF {commonTranslate("or")} AI (
             {commonTranslate("max")}. 300 MB)
           </p>

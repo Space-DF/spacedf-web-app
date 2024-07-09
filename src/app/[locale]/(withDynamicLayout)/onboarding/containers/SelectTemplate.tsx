@@ -41,7 +41,7 @@ const SelectTemplate = () => {
   const t = useTranslations("onboarding")
   return (
     <div className="w-full">
-      <div className="mb-6 text-center text-2xl font-medium text-brand-heading">
+      <div className="mb-6 text-center text-2xl font-medium text-brand-heading  dark:text-white">
         {t("you_can_get_started_with_template")}
       </div>
       <div className="flex justify-center flex-wrap gap-6 duration-300 mb-8">
@@ -59,7 +59,7 @@ const Template = ({
   thumbnail,
 }: ReturnType<typeof templates>[number]) => {
   return (
-    <div className="transition-all bg-white min-w-36 sm:w-[30%] min-h-36 p-2 rounded-lg group cursor-pointer flex-shrink hover:shadow-lg duration-300">
+    <div className="transition-all bg-white dark:bg-brand-stroke-outermost min-w-36 sm:w-[30%] min-h-36 p-2 rounded-lg group cursor-pointer flex-shrink hover:shadow-lg duration-300">
       <div className="flex flex-col w-full h-full gap-2">
         <div className="min-h-2/3 w-full">
           <ImageWithBlur
@@ -68,7 +68,7 @@ const Template = ({
             alt="template"
           />
         </div>
-        <div className="h-1/3 text-center max-w-[80%] m-auto text-brand-text-dark font-semibold text-sm duration-200">
+        <div className="h-1/3 text-center max-w-[80%] m-auto dark:text-white text-brand-text-dark font-semibold text-sm duration-200">
           {title}
         </div>
       </div>

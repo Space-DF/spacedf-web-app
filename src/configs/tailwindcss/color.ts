@@ -6,4 +6,8 @@ export const brandColors = {
   "fill-dark-soft": "#F0F1F3",
   "text-dark": "#1B2037",
   "fill-surface": "#FAFAFA",
+  "fill-outermost": "#171A28",
+  "stroke-outermost": "#242A46",
+  "dark-text-gray": "#6A749C",
+  "dark-fill-secondary": "#4006AA",
 }

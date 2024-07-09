@@ -8,17 +8,17 @@ const Language = () => {
     <div className="animate-opacity-display-effect">
       <div className="space-y-4">
         <div className="grid w-full items-center gap-1.5 flex-1">
-          <Label htmlFor="email" className="gap-2 text-brand-text-gray">
+          <Label htmlFor="email" className="gap-2">
             Language
           </Label>
           <SelectCountry />
-          <p className="text-xs text-brand-text-gray font-normal">
+          <p className="text-xs font-normal">
             Choose the language you’d like to use.
           </p>
         </div>
 
         <div className="grid w-full items-center gap-1.5 flex-1">
-          <Label htmlFor="email" className="gap-2 text-brand-text-gray">
+          <Label htmlFor="email" className="gap-2">
             Time zone
           </Label>
 
@@ -26,7 +26,7 @@ const Language = () => {
             <Checkbox id="terms" defaultChecked />
             <label
               htmlFor="terms"
-              className="text-xs font-medium text-brand-text-dark leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Set time zone automatically
             </label>

@@ -12,9 +12,9 @@ import AvtUser from "/public/images/avt-user.svg"
 const Profile = () => {
   return (
     <div className="animate-opacity-display-effect">
-      <p className="font-semibold text-brand-text-gray mb-3">Avatar</p>
+      <p className="font-semibold mb-3">Avatar</p>
       <div className="flex gap-3 mb-4">
-        <Avatar className="rounded-full flex items-center justify-center bg-purple-200 w-24 h-24">
+        <Avatar className="rounded-full flex items-center justify-center bg-purple-200 w-24 h-24 dark:bg-purple-600">
           <Suspense fallback={<AvatarFallback>Avatar</AvatarFallback>}>
             <ImageWithBlur
               src={AvtUser || ""}
@@ -27,7 +27,7 @@ const Profile = () => {
         <div className="flex flex-col items-stretch justify-between py-3">
           <Button
             variant="outline"
-            className="rounded-lg items-center gap-2 w-max"
+            className="rounded-lg items-center gap-2 w-max dark:text-white"
             size="lg"
           >
             Upload new image <CloudUpload size={16} />
@@ -39,46 +39,38 @@ const Profile = () => {
       </div>
       <div className="space-y-4">
         <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="email" className="text-brand-text-gray">
-            Name
-          </Label>
+          <Label htmlFor="email">Name</Label>
           <InputWithIcon
             defaultValue={"Space User"}
             className="border-none shadow-none bg-brand-fill-dark-soft rounded-lg h-10"
-            prefixCpn={<UserRound size={16} className="text-brand-text-gray" />}
+            prefixCpn={<UserRound size={16} />}
           />
         </div>
 
         <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="email" className="text-brand-text-gray">
-            Location
-          </Label>
+          <Label htmlFor="email">Location</Label>
           <InputWithIcon
             defaultValue={"Space Location"}
             className="border-none shadow-none bg-brand-fill-dark-soft rounded-lg h-10"
-            prefixCpn={<MapPin size={16} className="text-brand-text-gray" />}
+            prefixCpn={<MapPin size={16} />}
           />
         </div>
 
         <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="email" className="text-brand-text-gray">
-            Company Name
-          </Label>
+          <Label htmlFor="email">Company Name</Label>
           <InputWithIcon
             defaultValue={"Digital Fortress"}
             className="border-none shadow-none bg-brand-fill-dark-soft rounded-lg h-10"
-            prefixCpn={<Building className="text-brand-text-gray" />}
+            prefixCpn={<Building />}
           />
         </div>
 
         <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="email" className="text-brand-text-gray">
-            Title
-          </Label>
+          <Label htmlFor="email">Title</Label>
           <InputWithIcon
             defaultValue={"Software Engineer"}
             className="border-none shadow-none bg-brand-fill-dark-soft rounded-lg h-10"
-            prefixCpn={<UserList className="text-brand-text-gray" />}
+            prefixCpn={<UserList />}
           />
         </div>
       </div>
