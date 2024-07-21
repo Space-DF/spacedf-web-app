@@ -4,7 +4,7 @@ import LogoSVG from "/public/space_df_logo.svg"
 
 const LoadingFullScreen = () => {
   return (
-    <div className="w-full h-full flex items-center justify-center flex-col">
+    <div className="w-full h-full flex items-center justify-center flex-col pointer-events-none">
       <Image
         src={LogoSVG}
         width={186}

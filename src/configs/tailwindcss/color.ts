@@ -10,4 +10,6 @@ export const brandColors = {
   "stroke-outermost": "#242A46",
   "dark-text-gray": "#6A749C",
   "dark-fill-secondary": "#4006AA",
+  "very-light-blue": "#6E4AFF",
+  "bright-lavender": "#A78BF6",
 }
