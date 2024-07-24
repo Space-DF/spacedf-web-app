@@ -31,7 +31,7 @@ const SignIn = ({ isCollapsed }: SignInProps) => {
       </DrawerTrigger>
       <DrawerContent className="h-[95%] dark:bg-brand-fill-outermost text-brand-text-dark dark:text-white">
         <div className="px-4 pb-4 border-b border-b-brand-stroke-dark-soft dark:border-b-brand-stroke-outermost flex items-center justify-between">
-          <p className="font-semibold ">Sign in</p>
+          <p className="font-semibold text-base">Sign in</p>
 
           <DrawerPrimitive.Close>
             <X
@@ -44,7 +44,7 @@ const SignIn = ({ isCollapsed }: SignInProps) => {
         <div className="flex items-center justify-center w-full h-full p-10 md:p-0 overflow-auto">
           <div className="w-full md:max-w-md flex items-center flex-col">
             <SpaceDFLogoFull />
-            <p className="text-2xl font-semibold my-6">Sign in</p>
+            <p className="text-3xl font-semibold my-6">Sign in</p>
 
             <SignInWithGoogle />
 

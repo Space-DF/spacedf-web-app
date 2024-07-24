@@ -1,24 +1,22 @@
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input, InputWithIcon } from "@/components/ui/input"
-import { LockKeyhole, Mail } from "lucide-react"
-import React from "react"
-import { SubmitHandler, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Checkbox } from "@/components/ui/checkbox"
+import { InputWithIcon } from "@/components/ui/input"
 import {
   TypographyPrimary,
   TypographySecondary,
 } from "@/components/ui/typography"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { LockKeyhole, Mail } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
 const singInSchema = z.object({
   email: z
@@ -50,56 +48,55 @@ const SignInForm = () => {
   return (
     <div className="self-start w-full">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
-      <TypographyPrimary className=" font-semibold">
+      <TypographyPrimary className=" font-medium">
         Or continue with email address
       </TypographyPrimary>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-3 mt-5 mb-2"
-        >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="">Email</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    prefixCpn={<Mail size={16} />}
-                    {...field}
-                    placeholder="Email"
-                    className=""
-                  />
-                </FormControl>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
+          <div className="space-y-3">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Email</FormLabel>
+                  <FormControl>
+                    <InputWithIcon
+                      prefixCpn={<Mail size={16} />}
+                      {...field}
+                      placeholder="Email"
+                      className=""
+                    />
+                  </FormControl>
 
-                <FormMessage className="" />
-              </FormItem>
-            )}
-          />
+                  <FormMessage className="" />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="">Password</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    type="password"
-                    prefixCpn={<LockKeyhole size={16} />}
-                    {...field}
-                    placeholder="Password"
-                    className=""
-                  />
-                </FormControl>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">Password</FormLabel>
+                  <FormControl>
+                    <InputWithIcon
+                      type="password"
+                      prefixCpn={<LockKeyhole size={16} />}
+                      {...field}
+                      placeholder="Password"
+                      className=""
+                    />
+                  </FormControl>
 
-                <FormMessage className="" />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-between items-center">
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex justify-between items-center mt-4 mb-5">
             <FormField
               control={form.control}
               name="remember_me"
