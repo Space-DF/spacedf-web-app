@@ -14,3 +14,7 @@ export const getCookieServer = <TDefaultValue = any>(
 
   return defaultValue
 }
+
+export const getOrganization = () => {
+  return cookies().get("organization")
+}

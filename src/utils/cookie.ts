@@ -1,4 +1,5 @@
 import Cookies from "js-cookie"
+import { isJsonString } from "./validate"
 
 export const getCookie = <TDefaultValue = any>(
   key: string,
@@ -6,7 +7,10 @@ export const getCookie = <TDefaultValue = any>(
 ) => {
   const cookie = Cookies.get(key)
 
-  if (cookie) return JSON.parse(cookie) as TDefaultValue
+  if (cookie)
+    return isJsonString(cookie)
+      ? (JSON.parse(cookie) as TDefaultValue)
+      : (cookie as TDefaultValue)
 
   return defaultValue
 }
