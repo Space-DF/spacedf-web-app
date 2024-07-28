@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import LoadingFullScreen from "@/components/ui/loading-fullscreen"
 
 const EffectLayout = ({ children }: PropsWithChildren) => {
-  const [startRender] = usePageTransition({ duation: 1000 })
+  const { startRender } = usePageTransition({ duration: 1000 })
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">

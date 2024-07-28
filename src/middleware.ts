@@ -8,28 +8,38 @@ import { getCookieServer } from "./utils/server-actions"
 export default async function middleware(request: NextRequest) {
   const defaultLocale = "en" as Locale
 
-  // Extract the pathname from the request
-  const { pathname } = request.nextUrl
+  const { pathname, hostname, origin, basePath, href, host } = request.nextUrl
 
-  // Step 2: Create and call the next-intl middleware (example)
+  const headerHost = request.headers.get("x-forwarded-host")
+  const headerHostSegments = headerHost?.split(".")
+
+  // Create and call the next-intl middleware (example)
   const handleI18nRouting = createMiddleware({
     locales,
     defaultLocale,
-    // localeDetection: false,
-    // alternateLinks: false,
   })
 
   // Handle the locale routing
   let response = handleI18nRouting(request)
+  let env = "production"
+  let organization = (hostname !== "localhost" && headerHostSegments?.[0]) || ""
 
-  // Step 3: Check if the current path is undefined, "/", or a locale root path (e.g., "/en")
+  if (headerHost?.startsWith("dev")) {
+    env = "development"
+    organization = (hostname !== "localhost" && headerHostSegments?.[1]) || ""
+  }
+
+  response.cookies.set("organization", organization)
+  response.cookies.set("env", env)
+
+  //Check if the current path is undefined, "/", or a locale root path (e.g., "/en")
   const isLocaleRootPath = locales.some((locale) => pathname === `/${locale}`)
+  const currentLocale = isLocaleRootPath
+    ? pathname.replace("/", "")
+    : getCookieServer("NEXT_LOCALE", defaultLocale)
+
   if (!pathname || pathname === "/" || isLocaleRootPath) {
     // Extract the locale from the pathname or use defaultLocale if pathname is "/"
-    const currentLocale = isLocaleRootPath
-      ? pathname.replace("/", "")
-      : getCookieServer("NEXT_LOCALE", defaultLocale)
-
     // Redirect to "/onboarding" with the current locale
     const redirectUrl = `/${currentLocale}/onboarding`
     response = NextResponse.redirect(new URL(redirectUrl, request.url))

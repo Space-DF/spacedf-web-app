@@ -2,6 +2,7 @@ import AppProvider from "@/components/providers"
 import "@/styles/globals.css"
 import { Locale } from "@/types/global"
 import type { Metadata } from "next"
+import { getServerSession } from "next-auth"
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages, unstable_setRequestLocale } from "next-intl/server"
 
@@ -24,11 +25,13 @@ export default async function RootLayout({
   const messages = await getMessages()
   unstable_setRequestLocale(locale)
 
+  const session = await getServerSession()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={plus_jakarta_sans.className}>
         <NextIntlClientProvider messages={messages}>
-          <AppProvider>{children}</AppProvider>
+          <AppProvider session={session}>{children}</AppProvider>
         </NextIntlClientProvider>
       </body>
     </html>

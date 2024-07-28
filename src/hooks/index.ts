@@ -1,3 +1,3 @@
 export * from "./usePageTransition"
-export * from "./useCommand"
+export * from "./useKeyboardShortcut"
 export * from "./useMounted"

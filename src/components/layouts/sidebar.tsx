@@ -2,12 +2,14 @@
 "use client"
 
 import { COOKIES, Navigation as TNavigation, navigations } from "@/constants"
-import { useCommand } from "@/hooks"
+
+import { useKeyboardShortcut } from "@/hooks"
 import { cn } from "@/lib/utils"
 import { DynamicLayout, getNewLayouts, useLayout } from "@/stores"
 import { CommonModalProps } from "@/types/common"
 import { getCookie, setCookie, uppercaseFirstLetter } from "@/utils"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
+import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { forwardRef, useEffect, useState } from "react"
 import { ImperativePanelGroupHandle } from "react-resizable-panels"
@@ -19,12 +21,12 @@ import {
 } from "../icons"
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
-import SelectSpace from "../ui/select-space"
 import { Separator } from "../ui/separator"
-import ModalSearch from "./modal-search"
-import { useTheme } from "next-themes"
-import ThemeToggle from "./theme-toggle"
+import IdentityButton from "./identity-button"
 import GeneralSetting from "./general-setting"
+import ModalSearch from "./modal-search"
+import SwitchSpace from "./switch-space"
+import ThemeToggle from "./theme-toggle"
 
 type SidebarChildProps = {
   setOpen: CommonModalProps["setOpen"]
@@ -32,7 +34,6 @@ type SidebarChildProps = {
 }
 
 const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
   const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
@@ -42,7 +43,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     useShallow((state) => state.setDynamicLayouts)
   )
 
-  const defaultCollapsed = getCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+  const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
     COOKIES.DYNAMIC_LAYOUTS,
     [] as DynamicLayout[]
@@ -68,14 +69,16 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     ref?.current?.setLayout([25, 75])
   }
 
-  useCommand("k", handleCommandSearch)
+  useKeyboardShortcut({
+    keys: ["k"],
+    onPress: handleCommandSearch,
+  })
 
   return (
     <>
       <div
         className={cn(
-          `min-h-screen border-r border-brand-stroke-dark-soft dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex`
-          // isCollapsed ? "w-14" : "w-[25%] max-w-96"
+          `min-h-screen border-r border-brand-stroke-dark-soft dark:bg-brand-fill-outermost dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex`
         )}
       >
         <ExpandedSidebar
@@ -95,8 +98,11 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
 const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
   const t = useTranslations("common")
+
+  const { status } = useSession()
+
+  const isAuth = status === "authenticated"
 
   const handleCollapsedChange = () => {
     setCollapsed(true)
@@ -116,7 +122,11 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
       <div className="flex-1">
         <div className={cn("flex gap-3 items-center justify-between")}>
           <div className="flex-1 min-w-14">
-            <SelectSpace defaultValue="1" />
+            {isAuth ? (
+              <SwitchSpace />
+            ) : (
+              <IdentityButton isCollapsed={isCollapsed} />
+            )}
           </div>
           <SidebarSimpleIcon
             className="text-brand-text-gray cursor-pointer justify-self-end"
@@ -174,6 +184,10 @@ const CollapsedSidebar = ({
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
+  const { status } = useSession()
+
+  const isAuth = status === "authenticated"
+
   const handleCollapsedChange = () => {
     setCollapsed(false)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
@@ -194,17 +208,24 @@ const CollapsedSidebar = ({
           "flex items-center justify-center flex-col duration-200 grow"
         )}
       >
-        <div className="flex-1">
-          <div className="flex items-center justify-center">
+        <div className="flex-1 flex flex-col items-center gap-3">
+          <div className="flex my-2 items-center justify-center">
             <SidebarCollapsedSimple
               className="text-brand-text-gray cursor-pointer col-span-1 justify-self-end"
               onClick={handleCollapsedChange}
             />
           </div>
+
+          {isAuth ? (
+            <SwitchSpace isCollapsed={isCollapsed} />
+          ) : (
+            <IdentityButton isCollapsed={isCollapsed} />
+          )}
+
           <Button
             variant="ghost"
             size="icon"
-            className="my-5 text-brand-text-gray !rounded-lg"
+            className="my-2 text-brand-text-gray !rounded-lg"
             onClick={() => setOpen?.(true)}
           >
             <MagnifyingGlassIcon className="w-5 h-5" />
