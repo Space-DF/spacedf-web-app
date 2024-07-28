@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 
 export const usePageTransition = (
-  { duation }: { duation?: number } = { duation: 500 }
+  { duration }: { duration?: number } = { duration: 500 }
 ) => {
   const [startRender, setStartRender] = useState(false)
   const timeoutId = useRef<any>(null)
@@ -9,12 +9,12 @@ export const usePageTransition = (
     clearTimeout(timeoutId.current)
     timeoutId.current = setTimeout(() => {
       setStartRender(true)
-    }, duation)
+    }, duration)
 
     return () => {
       clearTimeout(timeoutId.current)
     }
-  }, [duation])
+  }, [duration])
 
-  return [startRender]
+  return { startRender }
 }

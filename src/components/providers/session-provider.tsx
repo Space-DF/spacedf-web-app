@@ -1,7 +1,8 @@
 "use client"
 
+import Identity from "@/containers/identity"
 import { Session } from "next-auth"
-import { SessionProvider, signIn, useSession } from "next-auth/react"
+import { SessionProvider } from "next-auth/react"
 import { PropsWithChildren } from "react"
 
 export const NextAuthSessionProvider = ({
@@ -10,5 +11,10 @@ export const NextAuthSessionProvider = ({
 }: PropsWithChildren & {
   session: Session | null
 }) => {
-  return <SessionProvider session={session}>{children}</SessionProvider>
+  return (
+    <SessionProvider session={session}>
+      {children}
+      <Identity />
+    </SessionProvider>
+  )
 }

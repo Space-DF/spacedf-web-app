@@ -1,6 +1,6 @@
+import { NEXTAUTH_SECRET } from "@/shared/env"
 import { NextAuthOptions } from "next-auth"
 import Auth0Provider from "next-auth/providers/auth0"
-import { NEXTAUTH_SECRET } from "./env"
 
 export const authOptions: NextAuthOptions = {
   session: {

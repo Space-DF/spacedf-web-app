@@ -9,6 +9,7 @@ import { DynamicLayout, getNewLayouts, useLayout } from "@/stores"
 import { CommonModalProps } from "@/types/common"
 import { getCookie, setCookie, uppercaseFirstLetter } from "@/utils"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
+import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { forwardRef, useEffect, useState } from "react"
 import { ImperativePanelGroupHandle } from "react-resizable-panels"
@@ -21,12 +22,11 @@ import {
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
 import { Separator } from "../ui/separator"
+import IdentityButton from "./identity-button"
 import GeneralSetting from "./general-setting"
 import ModalSearch from "./modal-search"
 import SwitchSpace from "./switch-space"
 import ThemeToggle from "./theme-toggle"
-import { useSession } from "next-auth/react"
-import SignIn from "./sign-in"
 
 type SidebarChildProps = {
   setOpen: CommonModalProps["setOpen"]
@@ -43,7 +43,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     useShallow((state) => state.setDynamicLayouts)
   )
 
-  const defaultCollapsed = getCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+  const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
     COOKIES.DYNAMIC_LAYOUTS,
     [] as DynamicLayout[]
@@ -122,7 +122,11 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
       <div className="flex-1">
         <div className={cn("flex gap-3 items-center justify-between")}>
           <div className="flex-1 min-w-14">
-            {isAuth ? <SwitchSpace /> : <SignIn />}
+            {isAuth ? (
+              <SwitchSpace />
+            ) : (
+              <IdentityButton isCollapsed={isCollapsed} />
+            )}
           </div>
           <SidebarSimpleIcon
             className="text-brand-text-gray cursor-pointer justify-self-end"
@@ -215,7 +219,7 @@ const CollapsedSidebar = ({
           {isAuth ? (
             <SwitchSpace isCollapsed={isCollapsed} />
           ) : (
-            <SignIn isCollapsed={isCollapsed} />
+            <IdentityButton isCollapsed={isCollapsed} />
           )}
 
           <Button
