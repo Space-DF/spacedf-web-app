@@ -3,6 +3,11 @@ import { NEXT_PUBLIC_CONSOLE_API } from "@/shared/env"
 interface FetchOptions extends RequestInit {}
 type Headers = Pick<FetchOptions, "headers">["headers"]
 
+export type FullResponse<TResponse = any> = {
+  status: Response["status"]
+  response_data: TResponse
+}
+
 export class FetchAPI {
   // protected async
   private headers: Headers = {
@@ -37,12 +42,15 @@ export class FetchAPI {
     const error: any = new Error("An error occurred while sending data.")
 
     error.code = responseJson?.code || null
-    error.message = responseJson?.message || "Something went wrong"
+    error.message = responseJson || "Something went wrong"
 
     throw error
   }
 
-  async get<T = any>(url: string, options: FetchOptions = {}): Promise<T> {
+  async get<T = any>(
+    url: string,
+    options: FetchOptions = {}
+  ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
       headers: {
@@ -60,7 +68,10 @@ export class FetchAPI {
       await this.handleError(response)
     }
 
-    return response.json()
+    return {
+      status: response.status,
+      response_data: await response.json(),
+    }
   }
 
   private getDomain = (url: string): RequestInfo | URL => {
@@ -73,7 +84,7 @@ export class FetchAPI {
     url: string,
     payload: Record<string, any> | null,
     options: FetchOptions = {}
-  ): Promise<T> {
+  ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       body: payload ? JSON.stringify(payload) : "",
       ...options,
@@ -94,10 +105,16 @@ export class FetchAPI {
 
     if (response.status === 204) return response as any
 
-    return response.json()
+    return {
+      status: response.status,
+      response_data: await response.json(),
+    }
   }
 
-  async delete<T = any>(url: string, options: FetchOptions = {}): Promise<T> {
+  async delete<T = any>(
+    url: string,
+    options: FetchOptions = {}
+  ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
       headers: {
@@ -115,6 +132,9 @@ export class FetchAPI {
       await this.handleError(response)
     }
 
-    return response.json()
+    return {
+      status: response.status,
+      response_data: await response.json(),
+    }
   }
 }

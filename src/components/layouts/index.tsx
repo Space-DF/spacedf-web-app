@@ -189,7 +189,7 @@ const DynamicLayout = ({
               id="group"
             >
               <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface dark:bg-brand-heading">
+                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface dark:bg-brand-heading text-sm">
                   {children}
                 </div>
               </ResizablePanel>

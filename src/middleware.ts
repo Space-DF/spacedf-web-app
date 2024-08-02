@@ -4,11 +4,19 @@ import createMiddleware from "next-intl/middleware"
 import { NextRequest, NextResponse } from "next/server"
 import { Locale } from "./types/global"
 import { getCookieServer } from "./utils/server-actions"
+import { getToken } from "next-auth/jwt"
 
-export default async function middleware(request: NextRequest) {
+export default async function middleware(
+  request: NextRequest,
+  nextResponse: NextResponse
+) {
+  const session = await getToken({
+    req: request,
+  })
+
   const defaultLocale = "en" as Locale
 
-  const { pathname, hostname, origin, basePath, href, host } = request.nextUrl
+  const { pathname, hostname } = request.nextUrl
 
   const headerHost = request.headers.get("x-forwarded-host")
   const headerHostSegments = headerHost?.split(".")
@@ -22,7 +30,11 @@ export default async function middleware(request: NextRequest) {
   // Handle the locale routing
   let response = handleI18nRouting(request)
   let env = "production"
-  let organization = (hostname !== "localhost" && headerHostSegments?.[0]) || ""
+  let organization = headerHostSegments?.[0] || ""
+
+  if (headerHostSegments?.[0] === request.nextUrl.host) {
+    organization = ""
+  }
 
   if (headerHost?.startsWith("dev")) {
     env = "development"

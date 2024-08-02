@@ -12,6 +12,7 @@ import { useShallow } from "zustand/react/shallow"
 import Authentication from "./auth"
 import { IdentityStepEnum } from "@/constants"
 import OrganizationSetting from "./organization-setting"
+import InitializingOrganization from "./initializing-organization"
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   let data = {
@@ -27,15 +28,23 @@ const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
         children: <OrganizationSetting />,
       }
 
+    case IdentityStepEnum.INITIAL_ORGANIZATION:
+      return {
+        title: "Initializing Organization",
+        children: <InitializingOrganization />,
+      }
+
     default:
       return data
   }
 }
 
 const Identity = () => {
-  const { openDrawer, setOpenDrawer } = useIdentityStore(
+  const { openDrawer, setOpenDrawer, organizationDomain } = useIdentityStore(
     useShallow((state) => ({
       openDrawer: state.openDrawerIdentity,
+      organizationDomain: state.organizationDomain,
+
       setOpenDrawer: state.setOpenDrawerIdentity,
     }))
   )
@@ -50,8 +59,9 @@ const Identity = () => {
   useEffect(() => {
     if (!isAuthenticated) return setIdentityStep("authentication")
 
+    if (!!organizationDomain) return setIdentityStep("initial-organization")
     if (!isOrganization) return setIdentityStep("create-organization")
-  }, [isAuthenticated])
+  }, [isAuthenticated, organizationDomain])
 
   const dataDrawer = getDrawerData(identityStep)
 

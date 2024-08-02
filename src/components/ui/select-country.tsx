@@ -29,8 +29,6 @@ export const SelectCountry = (props: SelectProps) => {
   const pathName = usePathname()
   const router = useRouter()
 
-  console.log({ pathName })
-
   // const segments = pathName.split("/")
 
   const getCountries = (): Country[] => {

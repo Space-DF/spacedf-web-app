@@ -5,6 +5,7 @@ import ImageWithBlur from "@/components/ui/image-blur"
 import { TSpace } from "@/types/common"
 import AvtUser from "/public/images/avt-user.svg"
 import { cn } from "@/lib/utils"
+import { OrganizationLogo } from "@/components/icons/organization-logo"
 
 type SpaceProps = {
   spaceData: TSpace
@@ -23,14 +24,15 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
 
   return (
     <div className="p-[2px] border border-brand-stroke-dark-soft dark:border-brand-stroke-outermost rounded-[12px] flex gap-2">
-      <Avatar className="rounded-[12px] flex items-center justify-center bg-purple-200 dark:bg-purple-700">
+      <Avatar className="rounded-[12px] flex items-center justify-center bg-purple-200 dark:bg-purple-700 p-1">
         <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-          <ImageWithBlur
-            src={thumbnail || AvtUser}
+          {/* <ImageWithBlur
+            src={}
             width={40}
             height={40}
             alt="space-df"
-          />
+          /> */}
+          <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
         </Suspense>
       </Avatar>
 
