@@ -58,7 +58,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] text-brand-text-dark">
+      <DialogContent className="sm:max-w-[800px] text-brand-text-dark text-sm">
         <DialogHeader>
           <DialogTitle>General Setting</DialogTitle>
         </DialogHeader>

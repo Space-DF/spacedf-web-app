@@ -8,4 +8,5 @@ export const animation = {
   "opacity-hide-effect": "opacity-hide-effect 1.5s ease-in-out forwards",
   "opacity-display-effect": "opacity-display-effect 1s ease-in-out forwards",
   typing: "typing 2s steps(20) infinite alternate, blink .7s infinite",
+  "loading-blink": "loading-blink 1.4s infinite both",
 }

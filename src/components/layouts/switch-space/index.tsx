@@ -1,3 +1,5 @@
+"use client"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,8 +54,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const customMatchKeys = useCallback(
     (keys: string[], event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
-
-      console.log({ code })
 
       const numberFromCode = code[code.length - 1]
 

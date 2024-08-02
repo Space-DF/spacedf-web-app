@@ -1,4 +1,5 @@
 import AppProvider from "@/components/providers"
+import { authOptions } from "@/lib/auth"
 import "@/styles/globals.css"
 import { Locale } from "@/types/global"
 import type { Metadata } from "next"
@@ -25,7 +26,7 @@ export default async function RootLayout({
   const messages = await getMessages()
   unstable_setRequestLocale(locale)
 
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
   return (
     <html lang="en" suppressHydrationWarning>

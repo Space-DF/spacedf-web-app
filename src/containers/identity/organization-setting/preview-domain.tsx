@@ -1,4 +1,5 @@
 import { AppWireFrame } from "@/components/ui/app-wire-frame"
+import { AppWireFrameDark } from "@/components/ui/app-wire-frame-dark"
 import { usePageTransition } from "@/hooks"
 import { cn } from "@/lib/utils"
 import { useIdentityStore } from "@/stores/identity-store"
@@ -24,9 +25,19 @@ const PreviewDomain = () => {
       )}
     >
       <div className="pt-14 pl-14 w-full h-full overflow-hidden">
+        <AppWireFrameDark
+          className={cn(
+            "w-full h-full duration-700 transition-all hidden dark:block",
+            startRender
+              ? "translate-x-0 opacity-100"
+              : "translate-x-full opacity-0"
+          )}
+          organization={organizationName}
+        />
+
         <AppWireFrame
           className={cn(
-            "w-full h-full duration-700 transition-all",
+            "w-full h-full duration-700 transition-all block dark:hidden",
             startRender
               ? "translate-x-0 opacity-100"
               : "translate-x-full opacity-0"

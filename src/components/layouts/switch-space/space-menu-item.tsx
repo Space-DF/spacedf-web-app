@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { TSpace } from "@/types/common"
 import { Suspense } from "react"
 import AvtUser from "/public/images/avt-user.svg"
+import { OrganizationLogo } from "@/components/icons/organization-logo"
 
 type SpaceMenuItemProps = {
   spaceData: TSpace
@@ -19,14 +20,15 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
   return (
     <>
       <div className="p-[2px] flex gap-2">
-        <Avatar className="rounded-[12px] flex items-center justify-center bg-purple-200 dark:bg-purple-700">
+        <Avatar className="rounded-[12px] flex items-center justify-center bg-purple-200 dark:bg-purple-700 p-1">
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-            <ImageWithBlur
+            {/* <ImageWithBlur
               src={thumbnail || AvtUser}
               width={40}
               height={40}
               alt="space-df"
-            />
+            /> */}
+            <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
           </Suspense>
         </Avatar>
 

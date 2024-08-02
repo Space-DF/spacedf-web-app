@@ -10,11 +10,14 @@ import React, { memo } from "react"
 import { useShallow } from "zustand/react/shallow"
 import SelectTemplate from "./SelectTemplate"
 import { useTranslations } from "next-intl"
+import { useSession } from "next-auth/react"
 
 const OnboardingContainer = () => {
   const t = useTranslations("onboarding")
   const commonTranslate = useTranslations("common")
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+
+  const { data } = useSession()
 
   const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
 

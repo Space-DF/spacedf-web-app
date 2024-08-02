@@ -24,3 +24,7 @@ export const setCookie = <TValue = any>(key: string, value: TValue) => {
 
   document.cookie = `${key}=${JSON.stringify(value)}`
 }
+
+export const deleteCookie = <TValue = any>(key: string) => {
+  Cookies.remove(key)
+}

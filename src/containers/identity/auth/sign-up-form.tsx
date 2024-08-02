@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -13,15 +12,19 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from "@/components/ui/typography"
-import { usePathname, useRouter } from "@/navigation"
+import { FetchAPI } from "@/lib/fecth"
+import { uppercaseFirstLetter } from "@/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LockKeyhole, Mail } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
-import { AuthenticationMethod } from "."
-import { FetchAPI } from "@/lib/fecth"
+import { AuthData } from "."
+import { SignUpResponse } from "../types/response"
+import { signIn } from "next-auth/react"
+import { useState, useTransition } from "react"
 
-const singInSchema = z
+export const singInSchema = z
   .object({
     email: z
       .string({
@@ -38,8 +41,8 @@ const singInSchema = z
       .string({
         required_error: "Password is required",
       })
-      .min(8, {
-        message: "Password must have at least 8 characters",
+      .min(3, {
+        message: "Password must have at least 3 characters",
       })
       .max(150, {
         message: "Password must be less than or equal to 150 characters",
@@ -63,23 +66,54 @@ const fetchAPI = new FetchAPI()
 const SignUpForm = ({
   setAuthMethod,
 }: {
-  setAuthMethod: (method: AuthenticationMethod) => void
+  setAuthMethod: (data: AuthData) => void
 }) => {
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
   })
 
-  const router = useRouter()
-  const pathName = usePathname()
+  const [isAuthenticating, setIsAuthenticating] = useState(false)
 
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
+    setIsAuthenticating(true)
     try {
-      const res = await fetchAPI.post("api/auth/register", {
-        email: value.email,
-        password: value.password,
-      })
+      await toast.promise(
+        fetchAPI.post<SignUpResponse>("api/auth/register", {
+          email: value.email,
+          password: value.password,
+        }),
+        {
+          loading: "Signing up...",
+          finally() {
+            setIsAuthenticating(false)
+          },
+          success: (res) => {
+            if (res.status === 201) {
+              signIn("credentials", {
+                redirect: false,
+                sigUpSuccessfully: true,
+                dataUser: JSON.stringify({
+                  ...res.response_data.user,
+                  accessToken: res.response_data.access,
+                  refreshToken: res.response_data.refresh,
+                }),
+              })
+
+              return "Sign up successful!"
+            }
+          },
+          error: (error: any) => {
+            return (
+              (error.message?.email?.[0] &&
+                uppercaseFirstLetter(error.message?.email?.[0])) ||
+              "Something went wrong"
+            )
+          },
+        }
+      )
     } catch (error) {}
   }
+
   return (
     <div className="self-start w-full animate-opacity-display-effect">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
@@ -153,7 +187,11 @@ const SignUpForm = ({
             />
           </div>
 
-          <Button type="submit" className="w-full h-11 mb-2  mt-5">
+          <Button
+            type="submit"
+            className="w-full h-11 mb-2  mt-5"
+            loading={isAuthenticating}
+          >
             Sign up
           </Button>
         </form>
@@ -165,7 +203,9 @@ const SignUpForm = ({
         <span
           className="font-semibold cursor-pointer hover:underline"
           onClick={() => {
-            setAuthMethod("signIn")
+            setAuthMethod({
+              method: "signIn",
+            })
           }}
         >
           Sign in
