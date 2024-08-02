@@ -3,6 +3,10 @@ import React, { memo } from "react"
 import PreviewDomain from "./preview-domain"
 import Settings from "./settings"
 
+type OrganizationSettingProps = {
+  createdOrganizationSuccessfully: () => void
+}
+
 const OrganizationSetting = () => {
   return (
     <div className="p-4 w-full h-full flex overflow-hidden">

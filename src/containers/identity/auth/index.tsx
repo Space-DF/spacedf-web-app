@@ -7,12 +7,18 @@ import SignInForm from "./sign-in-form"
 import QrCode from "./qr-code"
 
 export type AuthenticationMethod = "signIn" | "signUp"
+export type AuthData = {
+  method: AuthenticationMethod
+  data?: Record<string, string>
+}
 
 const Authentication = () => {
-  const [authenticateMethod, setAuthenticateMethod] =
-    useState<AuthenticationMethod>("signIn")
+  const [authData, setAuthenticateMethod] = useState<AuthData>({
+    method: "signIn",
+    data: {},
+  })
 
-  const isSignUp = authenticateMethod === "signUp"
+  const isSignUp = authData.method === "signUp"
 
   return (
     <div className="w-full md:max-w-md h-full flex items-center flex-col justify-center my-10">
@@ -28,7 +34,10 @@ const Authentication = () => {
       {isSignUp ? (
         <SignUpForm setAuthMethod={setAuthenticateMethod} />
       ) : (
-        <SignInForm setAuthMethod={setAuthenticateMethod} />
+        <SignInForm
+          setAuthMethod={setAuthenticateMethod}
+          initialData={authData.data}
+        />
       )}
 
       <div className="mt-6">

@@ -50,8 +50,6 @@ export const useKeyboardShortcut = ({
     if (altKey) currentKeys.push("shift")
     if (metaKey) currentKeys.push("meta")
 
-    console.log({ currentKeys })
-
     return expectedKeys.every((k) => currentKeys.includes(k))
   }
 

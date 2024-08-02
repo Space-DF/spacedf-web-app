@@ -3,13 +3,13 @@
 
 import { COOKIES, Navigation as TNavigation, navigations } from "@/constants"
 
-import { useKeyboardShortcut } from "@/hooks"
+import { useKeyboardShortcut, useMounted } from "@/hooks"
 import { cn } from "@/lib/utils"
 import { DynamicLayout, getNewLayouts, useLayout } from "@/stores"
 import { CommonModalProps } from "@/types/common"
 import { getCookie, setCookie, uppercaseFirstLetter } from "@/utils"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { forwardRef, useEffect, useState } from "react"
 import { ImperativePanelGroupHandle } from "react-resizable-panels"
@@ -27,6 +27,8 @@ import GeneralSetting from "./general-setting"
 import ModalSearch from "./modal-search"
 import SwitchSpace from "./switch-space"
 import ThemeToggle from "./theme-toggle"
+import { LogOut } from "lucide-react"
+import { useOrganization } from "@/hooks/useOrganization"
 
 type SidebarChildProps = {
   setOpen: CommonModalProps["setOpen"]
@@ -78,7 +80,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `min-h-screen border-r border-brand-stroke-dark-soft dark:bg-brand-fill-outermost dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex`
+          `min-h-screen border-r border-brand-stroke-dark-soft dark:bg-brand-fill-outermost dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex text-sm`
         )}
       >
         <ExpandedSidebar
@@ -98,7 +100,10 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
 const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+
   const t = useTranslations("common")
+  const { isOrganization } = useOrganization()
+  const { mounted } = useMounted()
 
   const { status } = useSession()
 
@@ -122,9 +127,11 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
       <div className="flex-1">
         <div className={cn("flex gap-3 items-center justify-between")}>
           <div className="flex-1 min-w-14">
-            {isAuth ? (
-              <SwitchSpace />
-            ) : (
+            {/* <IdentityButton isCollapsed={isCollapsed} /> */}
+            {isOrganization && mounted && (
+              <SwitchSpace isCollapsed={isCollapsed} />
+            )}
+            {!isOrganization && mounted && (
               <IdentityButton isCollapsed={isCollapsed} />
             )}
           </div>
@@ -136,7 +143,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <Button
           onClick={() => setOpen?.(true)}
           className={cn(
-            "rounded-lg justify-between bg-brand-fill-dark-soft dark:bg-brand-fill-outermost duration-200 h-10 w-full my-3"
+            "rounded-lg justify-between bg-brand-fill-dark-soft dark:bg-brand-heading duration-200 h-10 w-full my-3"
           )}
           variant="ghost"
         >
@@ -153,23 +160,27 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <Navigations />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2">
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="duration-300 my-1 justify-start p-0 hover:bg-transparent gap-3 text-brand-text-gray dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="duration-300 justify-start p-0 hover:bg-transparent gap-2 text-brand-text-gray dark:text-brand-dark-text-gray dark:hover:text-white"
           >
-            {/* <Navigation
-              navigation={{
-                href: "" as any,
-                title: "General Setting",
-                icon: <SettingIcon />,
-              }}
-            /> */}
             <SettingIcon />
-            General Setting
+            <p className="text-sm">General Setting</p>
           </Button>
         </GeneralSetting>
+
+        {isAuth && (
+          <Button
+            variant="ghost"
+            className="duration-300 justify-start p-0 hover:bg-transparent gap-2 text-destructive hover:text-destructive/80"
+            onClick={() => signOut()}
+          >
+            <LogOut size={16} />
+            <p className="text-sm">Logout</p>
+          </Button>
+        )}
 
         <ThemeToggle isCollapsed={isCollapsed} />
       </div>
@@ -185,6 +196,8 @@ const CollapsedSidebar = ({
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
   const { status } = useSession()
+  const { isOrganization } = useOrganization()
+  const { mounted } = useMounted()
 
   const isAuth = status === "authenticated"
 
@@ -216,9 +229,11 @@ const CollapsedSidebar = ({
             />
           </div>
 
-          {isAuth ? (
+          {isOrganization && mounted && (
             <SwitchSpace isCollapsed={isCollapsed} />
-          ) : (
+          )}
+
+          {!isOrganization && mounted && (
             <IdentityButton isCollapsed={isCollapsed} />
           )}
 
@@ -247,6 +262,17 @@ const CollapsedSidebar = ({
               <SettingIcon />
             </Button>
           </GeneralSetting>
+
+          {isAuth && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-none shadow-none !rounded-lg hover:bg-red-200 text-destructive hover:text-destructive/80"
+              onClick={() => signOut()}
+            >
+              <LogOut size={16} />
+            </Button>
+          )}
           <ThemeToggle isCollapsed={isCollapsed} />
         </div>
       </div>
@@ -259,7 +285,7 @@ const Navigations = () => {
   return (
     <div
       className={cn(
-        "py-2 duration-200 transition-all flex flex-col gap-1 mt-4 flex-1"
+        "py-2 duration-200 transition-all flex flex-col gap-1 mt-3 flex-1"
       )}
     >
       {navigations(t).map((navigation) => {
@@ -290,7 +316,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 
   return (
     <div
-      className={cn("flex items-center justify-between w-full")}
+      className={cn("flex items-center justify-between w-full py-[2px]")}
       // onClick={onSelect}
     >
       <label

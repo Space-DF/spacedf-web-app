@@ -18,8 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { LockKeyhole, Mail } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AuthenticationMethod } from "."
+import { AuthData, AuthenticationMethod } from "."
 import { FetchAPI } from "@/lib/fecth"
+import { signIn } from "next-auth/react"
+import { useFormState } from "react-dom"
+import { toast } from "sonner"
+import { useTransition } from "react"
 
 const singInSchema = z.object({
   email: z
@@ -37,33 +41,45 @@ const singInSchema = z.object({
     .string({
       required_error: "Password is required",
     })
-    .min(8, {
-      message: "Password must have at least 8 characters",
+    .min(3, {
+      message: "Password must have at least 3 characters",
     })
     .max(150, {
       message: "Password must be less than or equal to 150 characters",
     }),
-  remember_me: z.boolean(),
+  remember_me: z.boolean().optional(),
 })
 
 const fetchAPI = new FetchAPI()
 
 const SignInForm = ({
   setAuthMethod,
+  initialData,
 }: {
-  setAuthMethod: (method: AuthenticationMethod) => void
+  setAuthMethod: (data: AuthData) => void
+  initialData: AuthData["data"]
 }) => {
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
   })
 
-  const onSubmit = async (value: z.infer<typeof singInSchema>) => {
-    // try {
-    //   const res = await fetchAPI.post("auth/register", {
-    //     email: value.email,
-    //     password: value.password,
-    //   })
-    // } catch (error) {}
+  const [isAuthenticating, startAuthentication] = useTransition()
+
+  const onSubmit = (value: z.infer<typeof singInSchema>) => {
+    startAuthentication(async () => {
+      try {
+        const res = await signIn("credentials", {
+          redirect: false,
+          email: value.email,
+          password: value.password,
+        })
+        if (!res?.ok) {
+          toast.error(res?.error)
+        }
+      } catch (error) {
+        console.log({ error })
+      }
+    })
   }
   return (
     <div className="self-start w-full animate-opacity-display-effect">
@@ -78,6 +94,7 @@ const SignInForm = ({
             <FormField
               control={form.control}
               name="email"
+              defaultValue={initialData?.email}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="">Email</FormLabel>
@@ -98,6 +115,7 @@ const SignInForm = ({
             <FormField
               control={form.control}
               name="password"
+              defaultValue={initialData?.password}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="">Password</FormLabel>
@@ -141,7 +159,11 @@ const SignInForm = ({
               Forgot password?
             </p>
           </div>
-          <Button type="submit" className="w-full h-11 mb-2">
+          <Button
+            type="submit"
+            className="w-full h-11 mb-2"
+            loading={isAuthenticating}
+          >
             Login
           </Button>
         </form>
@@ -152,7 +174,11 @@ const SignInForm = ({
         </TypographySecondary>
         <span
           className="font-semibold cursor-pointer hover:underline"
-          onClick={() => setAuthMethod("signUp")}
+          onClick={() =>
+            setAuthMethod({
+              method: "signUp",
+            })
+          }
         >
           Sign up
         </span>
