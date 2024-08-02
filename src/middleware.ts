@@ -22,7 +22,6 @@ export default async function middleware(
   const headerHost = request.headers.get("x-forwarded-host")
   const headerHostSegments = headerHost?.split(".")
   const rootHost = request.nextUrl.host
-  console.log({ request })
 
   // Create and call the next-intl middleware (example)
   const handleI18nRouting = createMiddleware({
