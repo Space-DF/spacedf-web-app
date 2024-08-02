@@ -67,8 +67,7 @@ const CreateOrganization = () => {
         </TypographyPrimary>
 
         <Input
-          key={organizationName}
-          defaultValue={organizationDomain}
+          value={organizationDomain}
           className="border-none h-10"
           placeholder="digitalfortress"
           disabled={!errorSlug}
