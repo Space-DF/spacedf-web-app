@@ -1,7 +1,7 @@
 import ImageWithBlur from "@/components/ui/image-blur"
 import { Input } from "@/components/ui/input"
 import { useIdentityStore } from "@/stores/identity-store"
-import React, { useState, useTransition } from "react"
+import React, { useRef, useState, useTransition } from "react"
 import { useShallow } from "zustand/react/shallow"
 import OrganizationThumb from "/public/images/organization-thumb.svg"
 import { Camera, XCircle } from "lucide-react"
@@ -23,6 +23,8 @@ const CreateOrganization = () => {
     )
 
   const [errorSlug, setErrorSlug] = useState("")
+
+  // const enableManualDomain = useRef(!!errorSlug)
 
   const [isCreating, startCreateOrganization] = useTransition()
 
@@ -68,6 +70,7 @@ const CreateOrganization = () => {
           placeholder="digitalfortress"
           disabled={!errorSlug}
           endAdornment={<div>.spacedf.com</div>}
+          // onChange={() => setErrorSlug("")}
         />
         {errorSlug && (
           <div className="flex gap-2 text-destructive">
