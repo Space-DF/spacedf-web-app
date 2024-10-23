@@ -1,17 +1,24 @@
 /* eslint-disable jsx-a11y/alt-text */
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import Image, { ImageProps } from "next/image"
-import { useState } from "react"
+import { cn } from "@/lib/utils";
+import Image, { ImageProps } from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function ImageWithBlur({
   className,
+  redirect,
   ...imageProps
 }: ImageProps & {
-  addParentClass?: string
+  addParentClass?: string;
+  redirect?: string;
 }) {
-  const [isLoading, setLoading] = useState(true)
+  const [isLoading, setLoading] = useState(true);
+  const router = useRouter();
+  const handleRedirect = () => {
+    redirect && router.push(redirect);
+  };
 
   return (
     <div className="group w-full h-full overflow-hidden bg-transparent">
@@ -24,8 +31,9 @@ export default function ImageWithBlur({
           className
         )}
         onLoad={() => setLoading(false)}
+        onClick={handleRedirect}
         {...imageProps}
       />
     </div>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-import React from "react"
+import React from "react";
 
-import ImageWithBlur from "@/components/ui/image-blur"
+import ImageWithBlur from "@/components/ui/image-blur";
 
-import Warehouse from "/public/images/warehouse-tracking.svg"
-import SmartOffice from "/public/images/smart-office.svg"
-import IndoorTracking from "/public/images/indoor-tracking.svg"
-import FleetTracking from "/public/images/fleet-tracking.svg"
-import WaterManagement from "/public/images/water-management.svg"
-import { useTranslations } from "next-intl"
+import Warehouse from "/public/images/warehouse-tracking.svg";
+import SmartOffice from "/public/images/smart-office.svg";
+import IndoorTracking from "/public/images/indoor-tracking.svg";
+import FleetTracking from "/public/images/fleet-tracking.svg";
+import WaterManagement from "/public/images/water-management.svg";
+import { useTranslations } from "next-intl";
 
 const templates = (translateFn: ReturnType<typeof useTranslations>) => [
   {
@@ -35,10 +35,10 @@ const templates = (translateFn: ReturnType<typeof useTranslations>) => [
     title: translateFn("water_pressure_management"),
     thumbnail: WaterManagement,
   },
-]
+];
 
 const SelectTemplate = () => {
-  const t = useTranslations("onboarding")
+  const t = useTranslations("onboarding");
   return (
     <div className="w-full">
       <div className="mb-6 text-center text-2xl font-medium text-brand-heading  dark:text-white">
@@ -50,8 +50,8 @@ const SelectTemplate = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Template = ({
   href,
@@ -66,6 +66,7 @@ const Template = ({
             src={thumbnail}
             className="w-full h-full object-cover group-hover:scale-125 duration-300"
             alt="template"
+            redirect={href}
           />
         </div>
         <div className="h-1/3 text-center max-w-[80%] m-auto dark:text-white text-brand-text-dark font-semibold text-sm duration-200">
@@ -73,7 +74,7 @@ const Template = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SelectTemplate
+export default SelectTemplate;
