@@ -1,37 +1,37 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client"
+'use client'
 
-import { COOKIES, Navigation as TNavigation, navigations } from "@/constants"
+import { COOKIES, Navigation as TNavigation, navigations } from '@/constants'
 
-import { useKeyboardShortcut, useMounted } from "@/hooks"
-import { cn } from "@/lib/utils"
-import { DynamicLayout, getNewLayouts, useLayout } from "@/stores"
-import { CommonModalProps } from "@/types/common"
-import { getCookie, setCookie, uppercaseFirstLetter } from "@/utils"
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
-import { signOut, useSession } from "next-auth/react"
-import { useTranslations } from "next-intl"
-import { forwardRef, useEffect, useState } from "react"
-import { ImperativePanelGroupHandle } from "react-resizable-panels"
-import { useShallow } from "zustand/react/shallow"
+import { useKeyboardShortcut, useMounted } from '@/hooks'
+import { cn } from '@/lib/utils'
+import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
+import { CommonModalProps } from '@/types/common'
+import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { signOut, useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import { forwardRef, useEffect, useState } from 'react'
+import { ImperativePanelGroupHandle } from 'react-resizable-panels'
+import { useShallow } from 'zustand/react/shallow'
 import {
   SettingIcon,
   SidebarCollapsedSimple,
   SidebarSimpleIcon,
-} from "../icons"
-import { Button } from "../ui/button"
-import { Checkbox } from "../ui/checkbox"
-import { Separator } from "../ui/separator"
-import IdentityButton from "./identity-button"
-import GeneralSetting from "./general-setting"
-import ModalSearch from "./modal-search"
-import SwitchSpace from "./switch-space"
-import ThemeToggle from "./theme-toggle"
-import { LogOut } from "lucide-react"
-import { useOrganization } from "@/hooks/useOrganization"
+} from '../icons'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
+import { Separator } from '../ui/separator'
+import IdentityButton from './identity-button'
+import GeneralSetting from './general-setting'
+import ModalSearch from './modal-search'
+import SwitchSpace from './switch-space'
+import ThemeToggle from './theme-toggle'
+import { LogOut } from 'lucide-react'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type SidebarChildProps = {
-  setOpen: CommonModalProps["setOpen"]
+  setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
 }
 
@@ -42,13 +42,13 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   const [open, setOpen] = useState(false)
 
   const setDynamicLayouts = useLayout(
-    useShallow((state) => state.setDynamicLayouts)
+    useShallow((state) => state.setDynamicLayouts),
   )
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
     COOKIES.DYNAMIC_LAYOUTS,
-    [] as DynamicLayout[]
+    [] as DynamicLayout[],
   )
 
   useEffect(() => {
@@ -65,14 +65,14 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   }
 
   const handleCollapseChanges = (isCollapsed: boolean) => {
-    if (!ref || !("current" in ref)) return
+    if (!ref || !('current' in ref)) return
 
     if (isCollapsed) return ref?.current?.setLayout([4, 96])
     ref?.current?.setLayout([25, 75])
   }
 
   useKeyboardShortcut({
-    keys: ["k"],
+    keys: ['k'],
     onPress: handleCommandSearch,
   })
 
@@ -80,7 +80,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `min-h-screen border-r border-brand-stroke-dark-soft dark:bg-brand-fill-outermost dark:border-brand-stroke-outermost shadow-md p-4 duration-300 transition-all text-brand-text-dark flex text-sm`
+          `flex min-h-screen border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`,
         )}
       >
         <ExpandedSidebar
@@ -101,13 +101,13 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
-  const t = useTranslations("common")
+  const t = useTranslations('common')
   const { isOrganization } = useOrganization()
   const { mounted } = useMounted()
 
   const { status } = useSession()
 
-  const isAuth = status === "authenticated"
+  const isAuth = status === 'authenticated'
 
   const handleCollapsedChange = () => {
     setCollapsed(true)
@@ -118,15 +118,15 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   return (
     <div
       className={cn(
-        "duration-300 transition-all grow flex flex-col",
+        'flex grow flex-col transition-all duration-300',
         isCollapsed
-          ? "!w-0 !h-0 opacity-0 -translate-x- overflow-hidden animate-opacity-hide-effect"
-          : "w-full opacity-100 translate-x-0 animate-opacity-display-effect"
+          ? '-translate-x- !h-0 !w-0 animate-opacity-hide-effect overflow-hidden opacity-0'
+          : 'w-full translate-x-0 animate-opacity-display-effect opacity-100',
       )}
     >
       <div className="flex-1">
-        <div className={cn("flex gap-3 items-center justify-between")}>
-          <div className="flex-1 min-w-14">
+        <div className={cn('flex items-center justify-between gap-3')}>
+          <div className="min-w-14 flex-1">
             {/* <IdentityButton isCollapsed={isCollapsed} /> */}
             {isOrganization && mounted && (
               <SwitchSpace isCollapsed={isCollapsed} />
@@ -136,22 +136,22 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
             )}
           </div>
           <SidebarSimpleIcon
-            className="text-brand-text-gray cursor-pointer justify-self-end"
+            className="cursor-pointer justify-self-end text-brand-text-gray"
             onClick={handleCollapsedChange}
           />
         </div>
         <Button
           onClick={() => setOpen?.(true)}
           className={cn(
-            "rounded-lg justify-between bg-brand-fill-dark-soft dark:bg-brand-heading duration-200 h-10 w-full my-3"
+            'my-3 h-10 w-full justify-between rounded-lg bg-brand-fill-dark-soft duration-200 dark:bg-brand-heading',
           )}
           variant="ghost"
         >
           <div className="flex items-center gap-2 text-brand-text-gray">
-            <MagnifyingGlassIcon className="w-5 h-5" />
-            {t("search")}
+            <MagnifyingGlassIcon className="h-5 w-5" />
+            {t('search')}
           </div>
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center font-medium text-muted-foreground opacity-100 bg-transparent text-sm">
+          <kbd className="pointer-events-none inline-flex h-5 select-none items-center bg-transparent text-sm font-medium text-muted-foreground opacity-100">
             <span className="text-lg">⌘</span>K
           </kbd>
         </Button>
@@ -164,7 +164,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="duration-300 justify-start p-0 hover:bg-transparent gap-2 text-brand-text-gray dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
           >
             <SettingIcon />
             <p className="text-sm">General Setting</p>
@@ -174,7 +174,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         {isAuth && (
           <Button
             variant="ghost"
-            className="duration-300 justify-start p-0 hover:bg-transparent gap-2 text-destructive hover:text-destructive/80"
+            className="justify-start gap-2 p-0 text-destructive duration-300 hover:bg-transparent hover:text-destructive/80"
             onClick={() => signOut()}
           >
             <LogOut size={16} />
@@ -199,7 +199,7 @@ const CollapsedSidebar = ({
   const { isOrganization } = useOrganization()
   const { mounted } = useMounted()
 
-  const isAuth = status === "authenticated"
+  const isAuth = status === 'authenticated'
 
   const handleCollapsedChange = () => {
     setCollapsed(false)
@@ -210,21 +210,21 @@ const CollapsedSidebar = ({
   return (
     <div
       className={cn(
-        "py-2 duration-200 transition-all flex flex-col",
+        'flex flex-col py-2 transition-all duration-200',
         isCollapsed
-          ? "w-full opacity-100 translate-x-0 animate-opacity-display-effect"
-          : "!w-0 !h-0 opacity-0 -translate-x-full overflow-hidden animate-opacity-hide-effect"
+          ? 'w-full translate-x-0 animate-opacity-display-effect opacity-100'
+          : '!h-0 !w-0 -translate-x-full animate-opacity-hide-effect overflow-hidden opacity-0',
       )}
     >
       <div
         className={cn(
-          "flex items-center justify-center flex-col duration-200 grow"
+          'flex grow flex-col items-center justify-center duration-200',
         )}
       >
-        <div className="flex-1 flex flex-col items-center gap-3">
-          <div className="flex my-2 items-center justify-center">
+        <div className="flex flex-1 flex-col items-center gap-3">
+          <div className="my-2 flex items-center justify-center">
             <SidebarCollapsedSimple
-              className="text-brand-text-gray cursor-pointer col-span-1 justify-self-end"
+              className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
               onClick={handleCollapsedChange}
             />
           </div>
@@ -240,24 +240,24 @@ const CollapsedSidebar = ({
           <Button
             variant="ghost"
             size="icon"
-            className="my-2 text-brand-text-gray !rounded-lg"
+            className="my-2 !rounded-lg text-brand-text-gray"
             onClick={() => setOpen?.(true)}
           >
-            <MagnifyingGlassIcon className="w-5 h-5" />
+            <MagnifyingGlassIcon className="h-5 w-5" />
           </Button>
           <Separator orientation="horizontal" />
           <CollapsedNavigation />
         </div>
         <div
           className={cn(
-            "p-2 rounded-lg duration-300 cursor-pointer, bg-transparent cursor-pointer flex items-center justify-center flex-col gap-3"
+            'cursor-pointer, flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-transparent p-2 duration-300',
           )}
         >
           <GeneralSetting>
             <Button
               variant="outline"
               size="icon"
-              className="border-none shadow-none !rounded-lg dark:text-brand-dark-text-gray hover:dark:text-white"
+              className="!rounded-lg border-none shadow-none dark:text-brand-dark-text-gray hover:dark:text-white"
             >
               <SettingIcon />
             </Button>
@@ -267,7 +267,7 @@ const CollapsedSidebar = ({
             <Button
               variant="outline"
               size="icon"
-              className="border-none shadow-none !rounded-lg hover:bg-red-200 text-destructive hover:text-destructive/80"
+              className="!rounded-lg border-none text-destructive shadow-none hover:bg-red-200 hover:text-destructive/80"
               onClick={() => signOut()}
             >
               <LogOut size={16} />
@@ -281,11 +281,11 @@ const CollapsedSidebar = ({
 }
 
 const Navigations = () => {
-  const t = useTranslations("common")
+  const t = useTranslations('common')
   return (
     <div
       className={cn(
-        "py-2 duration-200 transition-all flex flex-col gap-1 mt-3 flex-1"
+        'mt-3 flex flex-1 flex-col gap-1 py-2 transition-all duration-200',
       )}
     >
       {navigations(t).map((navigation) => {
@@ -299,7 +299,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
+    useShallow((state) => state.toggleDynamicLayout),
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
@@ -316,20 +316,20 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 
   return (
     <div
-      className={cn("flex items-center justify-between w-full py-[2px]")}
+      className={cn('flex w-full items-center justify-between py-[2px]')}
       // onClick={onSelect}
     >
       <label
         className={cn(
-          "flex duration-300 items-center gap-2 cursor-pointer flex-1 overflow-hidden",
+          'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
           isDisplayed
-            ? "text-brand-text-dark dark:text-white"
-            : "text-brand-text-gray dark:text-brand-dark-text-gray"
+            ? 'text-brand-text-dark dark:text-white'
+            : 'text-brand-text-gray dark:text-brand-dark-text-gray',
         )}
         htmlFor={navigation.href}
       >
-        <div className={cn("duration-200")}>{navigation.icon}</div>
-        <div className="p-1 flex-1 max-w-[90%] truncate">
+        <div className={cn('duration-200')}>{navigation.icon}</div>
+        <div className="max-w-[90%] flex-1 truncate p-1">
           {uppercaseFirstLetter(navigation.title)}
         </div>
       </label>
@@ -347,16 +347,16 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 }
 
 const CollapsedNavigation = () => {
-  const t = useTranslations("common")
+  const t = useTranslations('common')
 
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
+    useShallow((state) => state.toggleDynamicLayout),
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
   return (
-    <div className="flex items-center justify-center flex-col w-full gap-2 my-4">
+    <div className="my-4 flex w-full flex-col items-center justify-center gap-2">
       {navigations(t).map((navigation) => {
         const isDisplayed = dynamicLayouts.includes(navigation.href)
 
@@ -374,10 +374,10 @@ const CollapsedNavigation = () => {
           <div
             onClick={handleDynamicLayoutChange}
             className={cn(
-              "p-2 rounded-lg duration-300 cursor-pointer",
+              'cursor-pointer rounded-lg p-2 duration-300',
               isDisplayed
-                ? "bg-brand-heading text-white dark:bg-brand-dark-fill-secondary "
-                : "bg-transparent dark:text-brand-dark-text-gray hover:bg-slate-500/20 hover:dark:bg-slate-500/40 hover:dark:!text-white"
+                ? 'bg-brand-heading text-white dark:bg-brand-dark-fill-secondary'
+                : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white',
             )}
             key={navigation.href}
           >
@@ -389,6 +389,6 @@ const CollapsedNavigation = () => {
   )
 }
 
-Sidebar.displayName = "Sidebar"
+Sidebar.displayName = 'Sidebar'
 
 export default Sidebar

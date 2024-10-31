@@ -1,9 +1,9 @@
-import Cookies from "js-cookie"
-import { isJsonString } from "./validate"
+import Cookies from 'js-cookie'
+import { isJsonString } from './validate'
 
 export const getCookie = <TDefaultValue = any>(
   key: string,
-  defaultValue: TDefaultValue
+  defaultValue: TDefaultValue,
 ) => {
   const cookie = Cookies.get(key)
 
@@ -16,7 +16,7 @@ export const getCookie = <TDefaultValue = any>(
 }
 
 export const setCookie = <TValue = any>(key: string, value: TValue) => {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     document.cookie = `${key}=${value}`
 
     return

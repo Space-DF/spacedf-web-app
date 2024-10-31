@@ -1,9 +1,9 @@
-import { Logo } from "@/components/ui/logo"
+import { Logo } from '@/components/ui/logo'
 import {
   TypographyPrimary,
   TypographySecondary,
-} from "@/components/ui/typography"
-import React, { PropsWithChildren } from "react"
+} from '@/components/ui/typography'
+import React, { PropsWithChildren } from 'react'
 
 type SettingLayoutProps = {
   title?: string
@@ -16,18 +16,18 @@ const SettingLayout = ({
   subscription,
 }: SettingLayoutProps) => {
   return (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <div className="w-[80%]">
-        <div className="w-44 h-44 mb-4">
+        <div className="mb-4 h-44 w-44">
           <Logo allowAnimation={false} />
         </div>
         {title && (
-          <TypographyPrimary className="text-3xl 2xl:text-4xl font-medium mb-4 2xl:mb-6">
+          <TypographyPrimary className="mb-4 text-3xl font-medium 2xl:mb-6 2xl:text-4xl">
             {title}
           </TypographyPrimary>
         )}
         {subscription && (
-          <TypographySecondary className="text-base 2xl:text-lg font-normal">
+          <TypographySecondary className="text-base font-normal 2xl:text-lg">
             {subscription}
           </TypographySecondary>
         )}

@@ -1,12 +1,12 @@
-import { SpaceDFLogoFull } from "@/components/icons"
-import React, { useState } from "react"
-import AuthenticateWithGoogle from "./authenticate-with-google"
-import { Separator } from "@/components/ui/separator"
-import SignUpForm from "./sign-up-form"
-import SignInForm from "./sign-in-form"
-import QrCode from "./qr-code"
+import { SpaceDFLogoFull } from '@/components/icons'
+import React, { useState } from 'react'
+import AuthenticateWithGoogle from './authenticate-with-google'
+import { Separator } from '@/components/ui/separator'
+import SignUpForm from './sign-up-form'
+import SignInForm from './sign-in-form'
+import QrCode from './qr-code'
 
-export type AuthenticationMethod = "signIn" | "signUp"
+export type AuthenticationMethod = 'signIn' | 'signUp'
 export type AuthData = {
   method: AuthenticationMethod
   data?: Record<string, string>
@@ -14,17 +14,17 @@ export type AuthData = {
 
 const Authentication = () => {
   const [authData, setAuthenticateMethod] = useState<AuthData>({
-    method: "signIn",
+    method: 'signIn',
     data: {},
   })
 
-  const isSignUp = authData.method === "signUp"
+  const isSignUp = authData.method === 'signUp'
 
   return (
-    <div className="w-full md:max-w-md h-full flex items-center flex-col justify-center my-10">
+    <div className="my-10 flex h-full w-full flex-col items-center justify-center md:max-w-md">
       <SpaceDFLogoFull />
-      <p className="text-3xl font-semibold my-6">
-        {isSignUp ? "Sign up" : "Sign in"}
+      <p className="my-6 text-3xl font-semibold">
+        {isSignUp ? 'Sign up' : 'Sign in'}
       </p>
 
       <AuthenticateWithGoogle isSignUp={isSignUp} />

@@ -1,9 +1,9 @@
-import { cookies } from "next/headers"
-import { isJsonString } from "./validate"
+import { cookies } from 'next/headers'
+import { isJsonString } from './validate'
 
 export const getCookieServer = <TDefaultValue = any>(
   key: string,
-  defaultValue: TDefaultValue
+  defaultValue: TDefaultValue,
 ) => {
   const cookie = cookies().get(key)
 
@@ -16,5 +16,5 @@ export const getCookieServer = <TDefaultValue = any>(
 }
 
 export const getOrganization = () => {
-  return cookies().get("organization")
+  return cookies().get('organization')
 }

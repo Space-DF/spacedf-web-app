@@ -1,4 +1,4 @@
-import OnboardingContainer from "./containers"
+import OnboardingContainer from './containers'
 
 export default function OnBoardingPage() {
   return <OnboardingContainer />

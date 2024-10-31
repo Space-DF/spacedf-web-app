@@ -6,17 +6,17 @@ import {
   Maptrifold,
   Users,
   Warehouse,
-} from "@/components/icons"
-import { useTranslations } from "next-intl"
+} from '@/components/icons'
+import { useTranslations } from 'next-intl'
 
 export enum NavigationEnums {
-  DASHBOARD = "dashboard",
-  DEVICES = "devices",
-  MAPS = "maps",
-  DIGITAL_TWIN = "digital-twin",
-  USER = "user",
-  WORKSPACE_SETTINGS = "/workspace-settings",
-  PLAN_BILLING = "plan-billing",
+  DASHBOARD = 'dashboard',
+  DEVICES = 'devices',
+  MAPS = 'maps',
+  DIGITAL_TWIN = 'digital-twin',
+  USER = 'user',
+  WORKSPACE_SETTINGS = '/workspace-settings',
+  PLAN_BILLING = 'plan-billing',
 }
 
 export type Navigation = {
@@ -32,46 +32,46 @@ export type DynamicLayout =
   | `${NavigationEnums.USER}`
 
 export const navigations = (
-  translateFn: ReturnType<typeof useTranslations>
+  translateFn: ReturnType<typeof useTranslations>,
 ): Navigation[] => [
   {
     href: NavigationEnums.DASHBOARD,
-    title: translateFn("dashboard"),
+    title: translateFn('dashboard'),
     icon: <CodeSandbox />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.DEVICES,
-    title: translateFn("devices"),
+    title: translateFn('devices'),
     icon: <Devices />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.MAPS,
-    title: translateFn("maps"),
+    title: translateFn('maps'),
     icon: <Maptrifold />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.DIGITAL_TWIN,
-    title: translateFn("digital_twin"),
+    title: translateFn('digital_twin'),
     icon: <CubeFocus />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.USER,
-    title: translateFn("user"),
+    title: translateFn('user'),
     icon: <Users />,
     isDynamic: true,
   },
   {
     href: NavigationEnums.WORKSPACE_SETTINGS,
-    title: translateFn("workspace_settings"),
+    title: translateFn('workspace_settings'),
     icon: <Warehouse />,
   },
   {
     href: NavigationEnums.PLAN_BILLING,
-    title: translateFn("plan_and_billing"),
+    title: translateFn('plan_and_billing'),
     icon: <CreditCard />,
   },
 ]

@@ -1,10 +1,10 @@
 // Importing other language files...
 
-import common from "../../messages/en/common.json"
-import onboarding from "../../messages/en/onboarding.json"
-import languageName from "../../messages/en/language-name.json"
+import common from '../../messages/en/common.json'
+import onboarding from '../../messages/en/onboarding.json'
+import languageName from '../../messages/en/language-name.json'
 
-import { locales } from "@/i18n"
+import { locales } from '@/i18n'
 
 type Locale = (typeof locales)[number]
 

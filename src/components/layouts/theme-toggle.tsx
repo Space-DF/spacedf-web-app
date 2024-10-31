@@ -1,10 +1,10 @@
-"use client"
-import { cn } from "@/lib/utils"
-import { Moon, Sun } from "lucide-react"
-import { useTranslations } from "next-intl"
-import { useTheme } from "next-themes"
-import { Button } from "../ui/button"
-import { useMounted } from "@/hooks"
+'use client'
+import { cn } from '@/lib/utils'
+import { Moon, Sun } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useTheme } from 'next-themes'
+import { Button } from '../ui/button'
+import { useMounted } from '@/hooks'
 
 type ThemeToggleProps = {
   isCollapsed: boolean
@@ -17,49 +17,49 @@ const ThemeToggle = ({ isCollapsed }: ThemeToggleProps) => {
 }
 
 const ExpandedToggle = () => {
-  const t = useTranslations("common")
+  const t = useTranslations('common')
   const { theme: currentTheme, setTheme, themes, systemTheme } = useTheme()
   const { mounted } = useMounted()
 
-  const themesWithOutSystem = themes.filter((theme) => theme !== "system")
+  const themesWithOutSystem = themes.filter((theme) => theme !== 'system')
 
   if (!mounted) return null
 
   return (
-    <div className="bg-brand-fill-dark-soft dark:bg-brand-heading rounded-lg p-1 w-full flex">
+    <div className="flex w-full rounded-lg bg-brand-fill-dark-soft p-1 dark:bg-brand-heading">
       {themesWithOutSystem.map((theme) => {
         const isActive =
-          theme === (currentTheme === "system" ? systemTheme : currentTheme)
+          theme === (currentTheme === 'system' ? systemTheme : currentTheme)
 
         return (
           <div
             key={theme}
             onClick={() => setTheme(theme)}
             className={cn(
-              "flex-1 p-1 rounded-[6px] flex items-center justify-center cursor-pointer duration-300 capitalize gap-2",
+              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[6px] p-1 capitalize duration-300',
               isActive
-                ? "bg-white dark:bg-brand-fill-outermost dark:text-white text-brand-text-dark"
-                : "bg-transparent dark:text-brand-dark-text-gray text-brand-text-gray"
+                ? 'bg-white text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white'
+                : 'bg-transparent text-brand-text-gray dark:text-brand-dark-text-gray',
             )}
           >
-            {theme === "light" ? (
+            {theme === 'light' ? (
               <Sun
                 size={16}
                 className={cn(
-                  "duration-300",
+                  'duration-300',
                   isActive
-                    ? "fill-brand-text-dark dark:fill-white"
-                    : "bg-transparent"
+                    ? 'fill-brand-text-dark dark:fill-white'
+                    : 'bg-transparent',
                 )}
               />
             ) : (
               <Moon
                 size={16}
                 className={cn(
-                  "duration-300",
+                  'duration-300',
                   isActive
-                    ? "fill-brand-text-dark dark:fill-white"
-                    : "bg-transparent"
+                    ? 'fill-brand-text-dark dark:fill-white'
+                    : 'bg-transparent',
                 )}
               />
             )}
@@ -78,13 +78,13 @@ const CollapsedToggle = () => {
     <Button
       variant="outline"
       size="icon"
-      className="p-0 border-0 shadow-none bg-transparent"
-      onClick={() => setTheme((currentTheme === "light" && "dark") || "light")}
+      className="border-0 bg-transparent p-0 shadow-none"
+      onClick={() => setTheme((currentTheme === 'light' && 'dark') || 'light')}
     >
-      {currentTheme === "light" ? (
-        <Sun size={16} className="duration-300 fill-black dark:fill-white" />
+      {currentTheme === 'light' ? (
+        <Sun size={16} className="fill-black duration-300 dark:fill-white" />
       ) : (
-        <Moon size={16} className="duration-300 fill-black dark:fill-white" />
+        <Moon size={16} className="fill-black duration-300 dark:fill-white" />
       )}
     </Button>
   )

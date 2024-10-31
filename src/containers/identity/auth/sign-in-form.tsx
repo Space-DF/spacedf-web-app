@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
@@ -7,45 +7,44 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { InputWithIcon } from "@/components/ui/input"
+} from '@/components/ui/form'
+import { InputWithIcon } from '@/components/ui/input'
 import {
   TypographyPrimary,
   TypographySecondary,
-} from "@/components/ui/typography"
-import { usePathname, useRouter } from "@/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LockKeyhole, Mail } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { AuthData, AuthenticationMethod } from "."
-import { FetchAPI } from "@/lib/fecth"
-import { signIn } from "next-auth/react"
-import { useFormState } from "react-dom"
-import { toast } from "sonner"
-import { useTransition } from "react"
+} from '@/components/ui/typography'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LockKeyhole, Mail } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { AuthData, AuthenticationMethod } from '.'
+import { FetchAPI } from '@/lib/fecth'
+import { signIn } from 'next-auth/react'
+import { useFormState } from 'react-dom'
+import { toast } from 'sonner'
+import { useTransition } from 'react'
 
 const singInSchema = z.object({
   email: z
     .string({
-      required_error: "Email is required",
+      required_error: 'Email is required',
     })
     .email({
-      message: "Please enter a valid email address",
+      message: 'Please enter a valid email address',
     })
     .max(50, {
-      message: "Email must be less than or equal to 50 characters",
+      message: 'Email must be less than or equal to 50 characters',
     }),
 
   password: z
     .string({
-      required_error: "Password is required",
+      required_error: 'Password is required',
     })
     .min(3, {
-      message: "Password must have at least 3 characters",
+      message: 'Password must have at least 3 characters',
     })
     .max(150, {
-      message: "Password must be less than or equal to 150 characters",
+      message: 'Password must be less than or equal to 150 characters',
     }),
   remember_me: z.boolean().optional(),
 })
@@ -57,7 +56,7 @@ const SignInForm = ({
   initialData,
 }: {
   setAuthMethod: (data: AuthData) => void
-  initialData: AuthData["data"]
+  initialData: AuthData['data']
 }) => {
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
@@ -68,7 +67,7 @@ const SignInForm = ({
   const onSubmit = (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
       try {
-        const res = await signIn("credentials", {
+        const res = await signIn('credentials', {
           redirect: false,
           email: value.email,
           password: value.password,
@@ -82,9 +81,9 @@ const SignInForm = ({
     })
   }
   return (
-    <div className="self-start w-full animate-opacity-display-effect">
+    <div className="w-full animate-opacity-display-effect self-start">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
-      <TypographyPrimary className=" font-medium">
+      <TypographyPrimary className="font-medium">
         Or continue with email address
       </TypographyPrimary>
 
@@ -134,7 +133,7 @@ const SignInForm = ({
               )}
             />
           </div>
-          <div className="flex justify-between items-center mt-4 mb-5">
+          <div className="mb-5 mt-4 flex items-center justify-between">
             <FormField
               control={form.control}
               name="remember_me"
@@ -146,7 +145,7 @@ const SignInForm = ({
 
                       <label
                         htmlFor="remember_me"
-                        className="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-xs"
+                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Remember me
                       </label>
@@ -155,28 +154,28 @@ const SignInForm = ({
                 </FormItem>
               )}
             />
-            <p className="text-xs font-semibold cursor-pointer hover:underline">
+            <p className="cursor-pointer text-xs font-semibold hover:underline">
               Forgot password?
             </p>
           </div>
           <Button
             type="submit"
-            className="w-full h-11 mb-2"
+            className="mb-2 h-11 w-full"
             loading={isAuthenticating}
           >
             Login
           </Button>
         </form>
       </Form>
-      <div className="text-center flex items-center justify-center gap-2 text-xs">
-        <TypographySecondary className=" font-semibold">
+      <div className="flex items-center justify-center gap-2 text-center text-xs">
+        <TypographySecondary className="font-semibold">
           Don’t have an account?
         </TypographySecondary>
         <span
-          className="font-semibold cursor-pointer hover:underline"
+          className="cursor-pointer font-semibold hover:underline"
           onClick={() =>
             setAuthMethod({
-              method: "signUp",
+              method: 'signUp',
             })
           }
         >
