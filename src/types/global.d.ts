@@ -3,6 +3,7 @@
 import common from '../../messages/en/common.json'
 import onboarding from '../../messages/en/onboarding.json'
 import languageName from '../../messages/en/language-name.json'
+import signUp from '../../messages/en/sign-up.json'
 
 import { locales } from '@/i18n'
 
@@ -12,6 +13,7 @@ type Messages = {
   common: typeof common
   onboarding: typeof onboarding
   languageName: typeof languageName
+  signUp: typeof signUp
   // Create a new type by combining all message types
 }
 
@@ -20,4 +22,14 @@ export type SVGProps = React.SVGProps<SVGSVGElement>
 declare global {
   // Use type safe message keys with `next-intl`
   interface IntlMessages extends Messages {}
+}
+
+export type ApiResponse<T = any> = {
+  data?: T
+  error?: {
+    detail: string
+    code: string
+  }
+  message: string
+  status: number
 }

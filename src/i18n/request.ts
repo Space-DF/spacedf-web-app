@@ -27,6 +27,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     languageName: {
       ...(await import(`../../messages/${locale}/language-name.json`)).default,
     },
+    signUp: {
+      ...(await import(`../../messages/${locale}/sign-up.json`)).default,
+    },
   }
 
   // Return merged messages

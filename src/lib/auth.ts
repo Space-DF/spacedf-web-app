@@ -1,8 +1,13 @@
-import { getUserByEmail } from '@/data/user'
 import { NEXTAUTH_SECRET } from '@/shared/env'
-import { SpaceUser } from '@/types/common'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+
+import SpacedfClient from 'spacedf-sdk'
+import { ApiResponse } from '@/types/global'
+
+const client = new SpacedfClient({
+  organization: 'spacedf-fe',
+})
 
 export const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
@@ -21,43 +26,25 @@ export const authOptions: NextAuthOptions = {
         dataUser: { label: 'DataUser', type: 'string' },
       },
 
-      async authorize(credentials, req) {
-        const credentialDetails = {
-          email: credentials?.email,
-          password: credentials?.password,
+      async authorize(credentials) {
+        if (!credentials) return null
+
+        const { dataUser, email, password, sigUpSuccessfully } = credentials
+
+        if (sigUpSuccessfully === 'true') {
+          return JSON.parse(dataUser)
         }
 
-        if (credentials?.sigUpSuccessfully === 'true') {
-          const dataUserParsed = JSON.parse(credentials.dataUser)
-
-          return dataUserParsed
-        }
-
-        const resp = await fetch(
-          process.env.NEXT_PUBLIC_CONSOLE_API + '/api/auth/login',
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentialDetails),
-          },
-        )
-
-        if (!resp.ok) {
-          const response = await resp.json()
-          throw new Error(response.detail)
-        } else {
-          const response = await resp.json()
-
+        try {
+          const data = await client.auth.login({ email, password })
           return {
-            // ...user,
-            ...response.user,
             name: '',
-            accessToken: response.access,
-            refreshToken: response.refresh,
+            accessToken: data.access,
+            refreshToken: data.refresh,
           }
+        } catch (err) {
+          const { error } = (err as ApiResponse) || {}
+          throw new Error(error?.detail || 'Something went wrong')
         }
       },
     }),

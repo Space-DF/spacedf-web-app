@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LockKeyhole, Mail } from 'lucide-react'
+import { signIn } from 'next-auth/react'
+import { useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -13,43 +20,19 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { LockKeyhole, Mail } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { AuthData, AuthenticationMethod } from '.'
-import { FetchAPI } from '@/lib/fecth'
-import { signIn } from 'next-auth/react'
-import { useFormState } from 'react-dom'
-import { toast } from 'sonner'
-import { useTransition } from 'react'
+import { AuthData } from '.'
+import { passwordSchema } from './sign-up-form'
 
 const singInSchema = z.object({
   email: z
-    .string({
-      required_error: 'Email is required',
-    })
-    .email({
-      message: 'Please enter a valid email address',
-    })
-    .max(50, {
-      message: 'Email must be less than or equal to 50 characters',
-    }),
+    .string()
+    .email({ message: 'Please enter a valid email address' })
+    .min(1, { message: 'Email is required' })
+    .max(50, { message: 'Email must be less than or equal to 50 characters' }),
 
-  password: z
-    .string({
-      required_error: 'Password is required',
-    })
-    .min(3, {
-      message: 'Password must have at least 3 characters',
-    })
-    .max(150, {
-      message: 'Password must be less than or equal to 150 characters',
-    }),
+  password: passwordSchema,
   remember_me: z.boolean().optional(),
 })
-
-const fetchAPI = new FetchAPI()
 
 const SignInForm = ({
   setAuthMethod,
@@ -67,11 +50,7 @@ const SignInForm = ({
   const onSubmit = (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
       try {
-        const res = await signIn('credentials', {
-          redirect: false,
-          email: value.email,
-          password: value.password,
-        })
+        const res = await signIn('credentials', { redirect: false, ...value })
         if (!res?.ok) {
           toast.error(res?.error)
         }
