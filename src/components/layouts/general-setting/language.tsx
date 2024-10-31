@@ -1,13 +1,13 @@
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { SelectCountry } from "@/components/ui/select-country"
-import React from "react"
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { SelectCountry } from '@/components/ui/select-country'
+import React from 'react'
 
 const Language = () => {
   return (
     <div className="animate-opacity-display-effect">
       <div className="space-y-4">
-        <div className="grid w-full items-center gap-1.5 flex-1">
+        <div className="grid w-full flex-1 items-center gap-1.5">
           <Label htmlFor="email" className="gap-2">
             Language
           </Label>
@@ -17,7 +17,7 @@ const Language = () => {
           </p>
         </div>
 
-        <div className="grid w-full items-center gap-1.5 flex-1">
+        <div className="grid w-full flex-1 items-center gap-1.5">
           <Label htmlFor="email" className="gap-2">
             Time zone
           </Label>

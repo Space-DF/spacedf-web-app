@@ -1,7 +1,7 @@
-import { DynamicLayout, NavigationEnums, dynamicLayoutKeys } from "@/constants"
+import { DynamicLayout, NavigationEnums, dynamicLayoutKeys } from '@/constants'
 
 export const getLocalStorage = (key: string, initialValue: any) => {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     return localStorage.getItem(key)
   }
 
@@ -9,18 +9,18 @@ export const getLocalStorage = (key: string, initialValue: any) => {
 }
 
 export const checkDisplayedDynamicLayout = (
-  currentLayouts: DynamicLayout[]
+  currentLayouts: DynamicLayout[],
 ) => {
   return currentLayouts.some((layoutKey) =>
-    dynamicLayoutKeys.includes(layoutKey)
+    dynamicLayoutKeys.includes(layoutKey),
   )
 }
 
 export const getDynamicLayoutRight = (
-  dynamicLayouts: `${NavigationEnums}`[]
+  dynamicLayouts: `${NavigationEnums}`[],
 ) => {
   return dynamicLayouts.filter((layoutKey) =>
-    dynamicLayoutKeys.includes(layoutKey as any)
+    dynamicLayoutKeys.includes(layoutKey as any),
   )
 }
 

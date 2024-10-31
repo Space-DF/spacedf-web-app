@@ -1,29 +1,29 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client"
+'use client'
 
-import { PropsWithChildren, useEffect, useMemo, useRef } from "react"
+import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { COOKIES } from "@/constants"
-import Devices from "@/containers/devices"
-import Users from "@/containers/users"
-import Widgets from "@/containers/widgets"
-import { cn } from "@/lib/utils"
-import { DynamicLayout as TDynamicLayout, useLayout } from "@/stores"
+import { COOKIES } from '@/constants'
+import Devices from '@/containers/devices'
+import Users from '@/containers/users'
+import Widgets from '@/containers/widgets'
+import { cn } from '@/lib/utils'
+import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
   getDynamicLayoutRight,
   setCookie,
-} from "@/utils"
-import { ImperativePanelGroupHandle } from "react-resizable-panels"
-import { useShallow } from "zustand/react/shallow"
-import EffectLayout from "../ui/effect-layout"
+} from '@/utils'
+import { ImperativePanelGroupHandle } from 'react-resizable-panels'
+import { useShallow } from 'zustand/react/shallow'
+import EffectLayout from '../ui/effect-layout'
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "../ui/resizable"
-import Sidebar from "./sidebar"
+} from '../ui/resizable'
+import Sidebar from './sidebar'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -71,7 +71,7 @@ const DynamicLayout = ({
 
   const handleSetDataFromCookie = () => {
     const isDefaultDisplayed = checkDisplayedDynamicLayout(
-      defaultDynamicLayout as any
+      defaultDynamicLayout as any,
     )
 
     if (isDefaultDisplayed) {
@@ -155,7 +155,7 @@ const DynamicLayout = ({
   }
 
   const layoutCannotDuplicate = useMemo(() => {
-    if (dynamicLayouts.includes("devices")) return <Devices />
+    if (dynamicLayouts.includes('devices')) return <Devices />
 
     return <Users />
   }, [dynamicLayouts])
@@ -165,7 +165,7 @@ const DynamicLayout = ({
 
   return (
     <EffectLayout>
-      <div className="flex max-w-full max-h-screen overflow-hidden">
+      <div className="flex max-h-screen max-w-full overflow-hidden">
         <ResizablePanelGroup
           onLayout={handleMainLayoutChanges}
           direction="horizontal"
@@ -183,29 +183,29 @@ const DynamicLayout = ({
           <ResizablePanel>
             <ResizablePanelGroup
               direction="horizontal"
-              className="w-full min-h-screen overflow-auto"
+              className="min-h-screen w-full overflow-auto"
               onLayout={handleDynamicLayoutChanges}
               ref={refs}
               id="group"
             >
               <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface dark:bg-brand-heading text-sm">
+                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading">
                   {children}
                 </div>
               </ResizablePanel>
 
               <ResizableHandle
                 className={cn(
-                  "duration-300",
-                  isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
+                  'duration-300',
+                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0',
                 )}
               />
 
               <ResizablePanel
                 defaultSize={defaultLayout[1]}
                 className={cn(
-                  "duration-300 transition-all",
-                  isDisplayDynamicLayout ? "opacity-100" : "w-0 h-0 opacity-0"
+                  'transition-all duration-300',
+                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0',
                 )}
                 minSize={getRightMinSize()}
                 maxSize={60}
@@ -219,10 +219,10 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[0]}
                     minSize={first ? 45 : 0}
                     className={cn(
-                      "dark:bg-brand-fill-outermost",
+                      'dark:bg-brand-fill-outermost',
                       first
-                        ? "animate-opacity-display-effect"
-                        : "animate-opacity-hide-effect"
+                        ? 'animate-opacity-display-effect'
+                        : 'animate-opacity-hide-effect',
                     )}
                   >
                     <div>
@@ -234,10 +234,10 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[1]}
                     minSize={second ? 45 : 0}
                     className={cn(
-                      "dark:bg-brand-fill-outermost",
+                      'dark:bg-brand-fill-outermost',
                       second
-                        ? "animate-opacity-display-effect"
-                        : "animate-opacity-hide-effect"
+                        ? 'animate-opacity-display-effect'
+                        : 'animate-opacity-hide-effect',
                     )}
                   >
                     {layoutCannotDuplicate}

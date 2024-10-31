@@ -1,7 +1,7 @@
-import DynamicLayout from "@/components/layouts"
-import { COOKIES } from "@/constants"
-import { DynamicLayout as TDynamicLayout } from "@/stores"
-import { getCookieServer } from "@/utils/server-actions"
+import DynamicLayout from '@/components/layouts'
+import { COOKIES } from '@/constants'
+import { DynamicLayout as TDynamicLayout } from '@/stores'
+import { getCookieServer } from '@/utils/server-actions'
 
 export default function Layout(props: { children: React.ReactNode }) {
   const { children } = props
@@ -10,12 +10,12 @@ export default function Layout(props: { children: React.ReactNode }) {
 
   const defaultDynamicLayout = getCookieServer(
     COOKIES.DYNAMIC_LAYOUTS,
-    [] as TDynamicLayout[]
+    [] as TDynamicLayout[],
   )
 
   const defaultRightLayout = getCookieServer(
     COOKIES.SUB_DYNAMIC_LAYOUTS,
-    [50, 50]
+    [50, 50],
   )
 
   const defaultMainLayout = getCookieServer(COOKIES.MAIN_LAYOUTS, [25, 75])

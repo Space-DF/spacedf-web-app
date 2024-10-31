@@ -17,14 +17,19 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
-import { TypographyPrimary, TypographySecondary } from '@/components/ui/typography'
+import {
+  TypographyPrimary,
+  TypographySecondary,
+} from '@/components/ui/typography'
 import { AuthData } from '.'
 import { ApiResponse } from '@/types/global'
 
 export const passwordSchema = z
   .string()
   .min(3, { message: 'Password must have at least 3 characters' })
-  .max(150, { message: 'Password must be less than or equal to 150 characters' })
+  .max(150, {
+    message: 'Password must be less than or equal to 150 characters',
+  })
   .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/, {
     message:
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
@@ -35,16 +40,22 @@ export const singInSchema = z
     first_name: z
       .string()
       .min(1, { message: 'First name is required' })
-      .max(50, { message: 'First name must be less than or equal to 50 characters' }),
+      .max(50, {
+        message: 'First name must be less than or equal to 50 characters',
+      }),
     last_name: z
       .string({ required_error: 'Last name is required' })
       .min(1, { message: 'Last name is required' })
-      .max(50, { message: 'Last name must be less than or equal to 50 characters' }),
+      .max(50, {
+        message: 'Last name must be less than or equal to 50 characters',
+      }),
     email: z
       .string()
       .email({ message: 'Please enter a valid email address' })
       .min(1, { message: 'Email is required' })
-      .max(50, { message: 'Email must be less than or equal to 50 characters' }),
+      .max(50, {
+        message: 'Email must be less than or equal to 50 characters',
+      }),
     password: passwordSchema,
     confirm_password: passwordSchema,
   })
@@ -65,7 +76,11 @@ interface SignUpResponse {
   access: string
 }
 
-const SignUpForm = ({ setAuthMethod }: { setAuthMethod: (data: AuthData) => void }) => {
+const SignUpForm = ({
+  setAuthMethod,
+}: {
+  setAuthMethod: (data: AuthData) => void
+}) => {
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
@@ -165,7 +180,11 @@ const SignUpForm = ({ setAuthMethod }: { setAuthMethod: (data: AuthData) => void
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <InputWithIcon prefixCpn={<Mail size={16} />} {...field} placeholder="Email" />
+                    <InputWithIcon
+                      prefixCpn={<Mail size={16} />}
+                      {...field}
+                      placeholder="Email"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

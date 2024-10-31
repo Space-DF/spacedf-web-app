@@ -1,1 +1,1 @@
-export * from "./tailwindcss"
+export * from './tailwindcss'

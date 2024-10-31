@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/alt-text */
-"use client"
+'use client'
 
-import { cn } from "@/lib/utils"
-import Image, { ImageProps } from "next/image"
-import { useState } from "react"
+import { cn } from '@/lib/utils'
+import Image, { ImageProps } from 'next/image'
+import { useState } from 'react'
 
 export default function ImageWithBlur({
   className,
@@ -14,14 +14,14 @@ export default function ImageWithBlur({
   const [isLoading, setLoading] = useState(true)
 
   return (
-    <div className="group w-full h-full overflow-hidden bg-transparent">
+    <div className="group h-full w-full overflow-hidden bg-transparent">
       <Image
         className={cn(
-          "duration-300 ease-in-out w-full h-full",
+          'h-full w-full duration-300 ease-in-out',
           isLoading
-            ? "scale-110 blur-2xl grayscale"
-            : "scale-100 blur-0 grayscale-0",
-          className
+            ? 'scale-110 blur-2xl grayscale'
+            : 'scale-100 blur-0 grayscale-0',
+          className,
         )}
         onLoad={() => setLoading(false)}
         {...imageProps}

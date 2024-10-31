@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import Identity from "@/containers/identity"
-import { Session } from "next-auth"
-import { SessionProvider } from "next-auth/react"
-import { PropsWithChildren } from "react"
+import Identity from '@/containers/identity'
+import { Session } from 'next-auth'
+import { SessionProvider } from 'next-auth/react'
+import { PropsWithChildren } from 'react'
 
 export const NextAuthSessionProvider = ({
   children,

@@ -1,6 +1,6 @@
-import { getRequestConfig } from "next-intl/server"
-import { notFound } from "next/navigation"
-import { Locale } from "./types/global"
+import { Locale } from '@/types/global'
+import { getRequestConfig } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 
 /**
  * @see: importants!!
@@ -8,9 +8,10 @@ import { Locale } from "./types/global"
  * @tutorial:  If you add a new language file, move to types/global.d.ts in the types folder to define its
  */
 
-export const locales = ["en", "vi"] as const
+export const locales = ['en', 'vi'] as const
 
-export default getRequestConfig(async ({ locale }) => {
+export default getRequestConfig(async ({ requestLocale }) => {
+  let locale = await requestLocale
   if (!locales.includes(locale as Locale)) notFound()
 
   // Combine all messages into a single object
@@ -18,21 +19,22 @@ export default getRequestConfig(async ({ locale }) => {
     // Add messages from other language files here
 
     common: {
-      ...(await import(`../messages/${locale}/common.json`)).default,
+      ...(await import(`../../messages/${locale}/common.json`)).default,
     },
     onboarding: {
-      ...(await import(`../messages/${locale}/onboarding.json`)).default,
+      ...(await import(`../../messages/${locale}/onboarding.json`)).default,
     },
     languageName: {
-      ...(await import(`../messages/${locale}/language-name.json`)).default,
+      ...(await import(`../../messages/${locale}/language-name.json`)).default,
     },
     signUp: {
-      ...(await import(`../messages/${locale}/sign-up.json`)).default,
+      ...(await import(`../../messages/${locale}/sign-up.json`)).default,
     },
   }
 
   // Return merged messages
   return {
+    locale,
     messages,
   }
 })

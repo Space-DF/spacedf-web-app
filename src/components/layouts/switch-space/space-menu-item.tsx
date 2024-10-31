@@ -1,11 +1,11 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DropdownMenuShortcut } from "@/components/ui/dropdown-menu"
-import ImageWithBlur from "@/components/ui/image-blur"
-import { cn } from "@/lib/utils"
-import { TSpace } from "@/types/common"
-import { Suspense } from "react"
-import AvtUser from "/public/images/avt-user.svg"
-import { OrganizationLogo } from "@/components/icons/organization-logo"
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
+import ImageWithBlur from '@/components/ui/image-blur'
+import { cn } from '@/lib/utils'
+import { TSpace } from '@/types/common'
+import { Suspense } from 'react'
+import AvtUser from '/public/images/avt-user.svg'
+import { OrganizationLogo } from '@/components/icons/organization-logo'
 
 type SpaceMenuItemProps = {
   spaceData: TSpace
@@ -19,8 +19,8 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
 
   return (
     <>
-      <div className="p-[2px] flex gap-2">
-        <Avatar className="rounded-[12px] flex items-center justify-center bg-purple-200 dark:bg-purple-700 p-1">
+      <div className="flex gap-2 p-[2px]">
+        <Avatar className="flex items-center justify-center rounded-[12px] bg-purple-200 p-1 dark:bg-purple-700">
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
               src={thumbnail || AvtUser}
@@ -33,7 +33,7 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
         </Avatar>
 
         <div className="flex flex-col justify-between font-medium">
-          <p className={cn("text-xs")}>{title}</p>
+          <p className={cn('text-xs')}>{title}</p>
           <span className="text-xs font-medium text-gray-400 dark:text-brand-dark-text-gray">
             {count_device} devices
           </span>

@@ -1,5 +1,5 @@
-import { ThemeProvider } from "next-themes"
-import React, { PropsWithChildren } from "react"
+import { ThemeProvider } from 'next-themes'
+import React, { PropsWithChildren } from 'react'
 
 const NextThemeProvider = ({ children }: PropsWithChildren) => {
   return (

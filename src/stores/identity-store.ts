@@ -1,4 +1,4 @@
-import { create } from "zustand"
+import { create } from 'zustand'
 
 type IdentityState = {
   openDrawerIdentity: boolean
@@ -15,8 +15,8 @@ type IdentityAction = {
 export const useIdentityStore = create<IdentityState & IdentityAction>(
   (set) => ({
     openDrawerIdentity: false,
-    organizationName: "",
-    organizationDomain: "",
+    organizationName: '',
+    organizationDomain: '',
     setOrganizationName: (organizationName) =>
       set(() => ({
         organizationName,
@@ -29,5 +29,5 @@ export const useIdentityStore = create<IdentityState & IdentityAction>(
       set(() => ({
         organizationDomain: domain,
       })),
-  })
+  }),
 )

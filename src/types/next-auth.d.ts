@@ -1,7 +1,7 @@
-import NextAuth from "next-auth/next"
-import { SpaceUser } from "./common"
+import NextAuth from 'next-auth/next'
+import { SpaceUser } from './common'
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: User
   }

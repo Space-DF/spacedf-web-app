@@ -1,5 +1,5 @@
-import { SVGProps } from "@/types/global"
-import React from "react"
+import { SVGProps } from '@/types/global'
+import React from 'react'
 
 export const UserList = (props: SVGProps) => {
   return (

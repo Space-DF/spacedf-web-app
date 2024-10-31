@@ -1,4 +1,4 @@
-import React from "react"
+import React from 'react'
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,7 +8,7 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "../ui/command"
+} from '../ui/command'
 import {
   CalendarIcon,
   EnvelopeClosedIcon,
@@ -16,8 +16,8 @@ import {
   GearIcon,
   PersonIcon,
   RocketIcon,
-} from "@radix-ui/react-icons"
-import { CommonModalProps } from "@/types/common"
+} from '@radix-ui/react-icons'
+import { CommonModalProps } from '@/types/common'
 
 const ModalSearch = ({ open, setOpen }: CommonModalProps) => {
   return (

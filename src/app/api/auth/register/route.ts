@@ -7,7 +7,9 @@ const client = new SpacedfClient({
   organization: 'spacedf-fe',
 })
 
-export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
+export async function POST(
+  req: NextRequest,
+): Promise<NextResponse<ApiResponse>> {
   try {
     const body = await req.json()
     const data = await client.auth.register(body)

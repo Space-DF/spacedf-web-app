@@ -1,6 +1,6 @@
-import { SVGProps } from "@/types/global"
-import { generateOrganizationDomain } from "@/utils"
-import React from "react"
+import { SVGProps } from '@/types/global'
+import { generateOrganizationDomain } from '@/utils'
+import React from 'react'
 
 //TODO: add validate organization name: no special characters, replace whitespace
 
@@ -12,7 +12,7 @@ export const AppWireFrame = ({
   organization,
   ...resSVGProps
 }: AppWireFrameProps) => {
-  const organizationName = generateOrganizationDomain(organization || "")
+  const organizationName = generateOrganizationDomain(organization || '')
 
   return (
     <>
@@ -294,7 +294,7 @@ export const AppWireFrame = ({
               // textAnchor="middle"
               className="fill-white"
             >
-              https://{organizationName || "digitalfortress"}.spacedf.com
+              https://{organizationName || 'digitalfortress'}.spacedf.com
             </text>
 
             <path

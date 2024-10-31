@@ -1,9 +1,9 @@
-import { ComponentType, PropsWithChildren, ReactElement } from "react"
+import { ComponentType, PropsWithChildren, ReactElement } from 'react'
 
 type ProviderWithProps<P = {}> = [ComponentType<P>, P?]
 
 export const buildProvidersTree = <P extends {}>(
-  componentWithProps: ProviderWithProps<P>[]
+  componentWithProps: ProviderWithProps<P>[],
 ): React.FC<PropsWithChildren> => {
   // initial component
   const initialComponent: React.FC<PropsWithChildren> = ({ children }) => (
@@ -19,6 +19,6 @@ export const buildProvidersTree = <P extends {}>(
         </AccumulatedComponents>
       )
     },
-    initialComponent
+    initialComponent,
   )
 }

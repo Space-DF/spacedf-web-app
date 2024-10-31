@@ -9,7 +9,10 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
-import { TypographyPrimary, TypographySecondary } from '@/components/ui/typography'
+import {
+  TypographyPrimary,
+  TypographySecondary,
+} from '@/components/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LockKeyhole, Mail } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -59,7 +62,9 @@ const SignInForm = ({
   return (
     <div className="w-full animate-opacity-display-effect self-start">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
-      <TypographyPrimary className="font-medium">Or continue with email address</TypographyPrimary>
+      <TypographyPrimary className="font-medium">
+        Or continue with email address
+      </TypographyPrimary>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
@@ -128,15 +133,23 @@ const SignInForm = ({
                 </FormItem>
               )}
             />
-            <p className="cursor-pointer text-xs font-semibold hover:underline">Forgot password?</p>
+            <p className="cursor-pointer text-xs font-semibold hover:underline">
+              Forgot password?
+            </p>
           </div>
-          <Button type="submit" className="mb-2 h-11 w-full" loading={isAuthenticating}>
+          <Button
+            type="submit"
+            className="mb-2 h-11 w-full"
+            loading={isAuthenticating}
+          >
             Login
           </Button>
         </form>
       </Form>
       <div className="flex items-center justify-center gap-2 text-center text-xs">
-        <TypographySecondary className="font-semibold">Don’t have an account?</TypographySecondary>
+        <TypographySecondary className="font-semibold">
+          Don’t have an account?
+        </TypographySecondary>
         <span
           className="cursor-pointer font-semibold hover:underline"
           onClick={() =>

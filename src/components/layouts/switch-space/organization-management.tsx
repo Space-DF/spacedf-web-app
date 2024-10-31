@@ -1,6 +1,6 @@
-import { DropdownMenuShortcut } from "@/components/ui/dropdown-menu"
-import { Settings } from "lucide-react"
-import React from "react"
+import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
+import { Settings } from 'lucide-react'
+import React from 'react'
 
 const OrganizationManagement = () => {
   return (
