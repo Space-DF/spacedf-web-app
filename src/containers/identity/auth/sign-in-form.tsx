@@ -20,8 +20,8 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import type { AuthData } from '.'
-import type { passwordSchema } from './sign-up-form'
+import { AuthData } from '.'
+import { passwordSchema } from './sign-up-form'
 
 const singInSchema = z.object({
   email: z
