@@ -1,0 +1,14 @@
+{
+  "we_sent_a_code_to_email": "We sent a code to {email}",
+  "continue": "Continue",
+  "resend_code": "Resend code ({time})",
+  "guideline": "Guideline",
+  "or_continue_with_email_address": "Or continue with email address",
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "password": "Password",
+  "confirm_password": "Confirm password",
+  "sign_up": "Sign up",
+  "already_have_an_account": "Already have an account?",
+  "sign_in": "Sign in"
+}
