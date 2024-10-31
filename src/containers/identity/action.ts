@@ -1,7 +1,7 @@
-"use server"
+'use server'
 
-import { authOptions } from "@/lib/auth"
-import { getServerSession } from "next-auth"
+import { authOptions } from '@/lib/auth'
+import { getServerSession } from 'next-auth'
 
 type CreateOrganizationActionPayload = {
   name: string
@@ -10,25 +10,25 @@ type CreateOrganizationActionPayload = {
 }
 
 export const createOrganizationAction = async (
-  payload: CreateOrganizationActionPayload
+  payload: CreateOrganizationActionPayload,
 ) => {
   const session = await getServerSession(authOptions)
 
   const resp = await fetch(
-    process.env.NEXT_PUBLIC_CONSOLE_API + "/api/organizations",
+    process.env.NEXT_PUBLIC_CONSOLE_API + '/api/organizations',
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${session?.user.accessToken}`,
       },
       body: JSON.stringify(payload),
-    }
+    },
   )
 
   if (resp.ok) {
-    return "Success"
+    return 'Success'
   } else {
     const responseJson = await resp.json()
 

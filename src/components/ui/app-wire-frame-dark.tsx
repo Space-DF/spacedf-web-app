@@ -1,5 +1,5 @@
-import { SVGProps } from "@/types/global"
-import { generateOrganizationDomain } from "@/utils"
+import { SVGProps } from '@/types/global'
+import { generateOrganizationDomain } from '@/utils'
 
 //TODO: add validate organization name: no special characters, replace whitespace
 
@@ -11,7 +11,7 @@ export const AppWireFrameDark = ({
   organization,
   ...resSVGProps
 }: AppWireFrameDarkProps) => {
-  const organizationName = generateOrganizationDomain(organization || "")
+  const organizationName = generateOrganizationDomain(organization || '')
 
   return (
     <>
@@ -295,7 +295,7 @@ export const AppWireFrameDark = ({
               // textAnchor="middle"
               className="fill-white"
             >
-              https://{organizationName || "digitalfortress"}.spacedf.com
+              https://{organizationName || 'digitalfortress'}.spacedf.com
             </text>
             <path
               d="M150.318 34.5021H156.631C157.515 34.5021 157.949 34.0685 157.949 33.1094V28.2554C157.949 27.4048 157.599 26.9627 156.898 26.8793V25.228C156.898 22.6676 155.18 21.5 153.479 21.5C151.769 21.5 150.059 22.6676 150.059 25.228V26.9044C149.4 27.0295 149 27.4631 149 28.2554V33.1094C149 34.0685 149.442 34.5021 150.318 34.5021ZM151.435 25.0779C151.435 23.585 152.386 22.8177 153.479 22.8177C154.563 22.8177 155.522 23.585 155.522 25.0779V26.8626L151.435 26.871V25.0779Z"

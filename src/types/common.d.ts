@@ -1,5 +1,5 @@
-import { IdentityStepEnum } from "@/constants"
-import { FullResponse } from "@/lib/fecth"
+import { IdentityStepEnum } from '@/constants'
+import { FullResponse } from '@/lib/fecth'
 
 export type CommonModalProps = {
   open: boolean

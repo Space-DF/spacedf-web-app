@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
 export interface TypographyProps
   extends React.DetailedHTMLProps<
@@ -10,7 +10,7 @@ const TypographyPrimary = ({ className, ...resProps }: TypographyProps) => {
   return (
     <p
       {...resProps}
-      className={cn("text-brand-text-dark dark:text-white", className)}
+      className={cn('text-brand-text-dark dark:text-white', className)}
     />
   )
 }
@@ -20,8 +20,8 @@ const TypographySecondary = ({ className, ...resProps }: TypographyProps) => {
     <p
       {...resProps}
       className={cn(
-        "text-brand-text-gray dark:text-brand-dark-text-gray",
-        className
+        'text-brand-text-gray dark:text-brand-dark-text-gray',
+        className,
       )}
     />
   )

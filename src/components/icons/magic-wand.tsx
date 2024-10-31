@@ -1,5 +1,5 @@
-import { SVGProps } from "@/types/global"
-import React from "react"
+import { SVGProps } from '@/types/global'
+import React from 'react'
 
 export const MagicWand = (props: SVGProps) => {
   return (

@@ -1,36 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-"use client"
+'use client'
 
-import { Drawer, DrawerContent } from "@/components/ui/drawer"
-import { useOrganization } from "@/hooks/useOrganization"
-import { useIdentityStore } from "@/stores/identity-store"
-import { X } from "lucide-react"
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import { Drawer as DrawerPrimitive } from "vaul"
-import { useShallow } from "zustand/react/shallow"
-import Authentication from "./auth"
-import { IdentityStepEnum } from "@/constants"
-import OrganizationSetting from "./organization-setting"
-import InitializingOrganization from "./initializing-organization"
+import { Drawer, DrawerContent } from '@/components/ui/drawer'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useIdentityStore } from '@/stores/identity-store'
+import { X } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { Drawer as DrawerPrimitive } from 'vaul'
+import { useShallow } from 'zustand/react/shallow'
+import Authentication from './auth'
+import { IdentityStepEnum } from '@/constants'
+import OrganizationSetting from './organization-setting'
+import InitializingOrganization from './initializing-organization'
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   let data = {
-    title: "Authentication",
+    title: 'Authentication',
     children: <Authentication />,
   }
 
   switch (currentStep) {
-    case "create-organization":
+    case 'create-organization':
       return {
         ...data,
-        title: "Organization Setting",
+        title: 'Organization Setting',
         children: <OrganizationSetting />,
       }
 
     case IdentityStepEnum.INITIAL_ORGANIZATION:
       return {
-        title: "Initializing Organization",
+        title: 'Initializing Organization',
         children: <InitializingOrganization />,
       }
 
@@ -46,41 +46,41 @@ const Identity = () => {
       organizationDomain: state.organizationDomain,
 
       setOpenDrawer: state.setOpenDrawerIdentity,
-    }))
+    })),
   )
   const { status } = useSession()
   const { isOrganization } = useOrganization()
 
   const [identityStep, setIdentityStep] =
-    useState<`${IdentityStepEnum}`>("authentication")
+    useState<`${IdentityStepEnum}`>('authentication')
 
-  const isAuthenticated = status === "authenticated"
+  const isAuthenticated = status === 'authenticated'
 
   useEffect(() => {
-    if (!isAuthenticated) return setIdentityStep("authentication")
+    if (!isAuthenticated) return setIdentityStep('authentication')
 
-    if (!!organizationDomain) return setIdentityStep("initial-organization")
-    if (!isOrganization) return setIdentityStep("create-organization")
+    if (!!organizationDomain) return setIdentityStep('initial-organization')
+    if (!isOrganization) return setIdentityStep('create-organization')
   }, [isAuthenticated, organizationDomain])
 
   const dataDrawer = getDrawerData(identityStep)
 
   return (
     <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-      <DrawerContent className="h-[95vh] dark:bg-brand-fill-outermost text-brand-text-dark dark:text-white">
-        <div className="w-full h-full overflow-auto flex flex-col">
-          <div className="px-4 pb-4 border-b border-b-brand-stroke-dark-soft dark:border-b-brand-stroke-outermost flex items-center justify-between sticky top-0 bg-white dark:bg-brand-fill-outermost z-40">
-            <p className="font-semibold text-base">{dataDrawer.title}</p>
+      <DrawerContent className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white">
+        <div className="flex h-full w-full flex-col overflow-auto">
+          <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
+            <p className="text-base font-semibold">{dataDrawer.title}</p>
 
             <DrawerPrimitive.Close>
               <X
                 size={20}
-                className="hover:scale-110 duration-300 hover:-rotate-90 dark:text-brand-dark-text-gray cursor-pointer"
+                className="cursor-pointer duration-300 hover:-rotate-90 hover:scale-110 dark:text-brand-dark-text-gray"
               />
             </DrawerPrimitive.Close>
           </div>
           <div className="flex-1">
-            <div className="flex items-center justify-center w-full h-full">
+            <div className="flex h-full w-full items-center justify-center">
               {dataDrawer.children}
             </div>
           </div>

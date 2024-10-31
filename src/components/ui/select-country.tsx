@@ -1,11 +1,10 @@
-import { locales } from "@/i18n"
-import { cn } from "@/lib/utils"
-import { Locale } from "@/types/global"
-import { SelectProps } from "@radix-ui/react-select"
-import { useLocale, useTranslations } from "next-intl"
-import { Suspense, useState, useTransition } from "react"
-import { Avatar, AvatarFallback } from "./avatar"
-import ImageWithBlur from "./image-blur"
+import { cn } from '@/lib/utils'
+import { Locale } from '@/types/global'
+import { SelectProps } from '@radix-ui/react-select'
+import { useLocale, useTranslations } from 'next-intl'
+import { Suspense, useState, useTransition } from 'react'
+import { Avatar, AvatarFallback } from './avatar'
+import ImageWithBlur from './image-blur'
 import {
   Select,
   SelectContent,
@@ -13,9 +12,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./select"
-import Link from "next/link"
-import { usePathname, useRouter } from "@/navigation"
+} from './select'
+import Link from 'next/link'
+import { locales } from '@/i18n/request'
+import { usePathname, useRouter } from '@/i18n/routing'
 
 type Country = {
   code: Locale
@@ -25,7 +25,7 @@ type Country = {
 
 export const SelectCountry = (props: SelectProps) => {
   const currentLocale = useLocale()
-  const t = useTranslations("languageName")
+  const t = useTranslations('languageName')
   const pathName = usePathname()
   const router = useRouter()
 
@@ -33,8 +33,8 @@ export const SelectCountry = (props: SelectProps) => {
 
   const getCountries = (): Country[] => {
     const differenceCountryCode = (code: Locale) => {
-      if (code === "en") return "gb"
-      if (code === "vi") return "vn"
+      if (code === 'en') return 'gb'
+      if (code === 'vi') return 'vn'
       return code
     }
 
@@ -68,7 +68,7 @@ export const SelectCountry = (props: SelectProps) => {
     >
       <SelectTrigger
         className={cn(
-          "h-12 rounded-xl py-2 px-3 text-start bg-brand-fill-dark-soft border-none"
+          'h-12 rounded-xl border-none bg-brand-fill-dark-soft px-3 py-2 text-start',
         )}
       >
         <SelectValue>
@@ -94,11 +94,11 @@ export const SelectCountry = (props: SelectProps) => {
 
 const Language = (country: Country) => {
   return (
-    <div className="flex gap-2 items-center">
-      <Avatar className="rounded-full flex items-center justify-center bg-purple-300 w-6 h-6">
+    <div className="flex items-center gap-2">
+      <Avatar className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-300">
         <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
           <ImageWithBlur
-            src={country.flag || ""}
+            src={country.flag || ''}
             width={24}
             height={24}
             alt="country"
@@ -106,7 +106,7 @@ const Language = (country: Country) => {
           />
         </Suspense>
       </Avatar>
-      <p className="font-semibold text-brand-heading  dark:text-white">
+      <p className="font-semibold text-brand-heading dark:text-white">
         {country.name}
       </p>
     </div>

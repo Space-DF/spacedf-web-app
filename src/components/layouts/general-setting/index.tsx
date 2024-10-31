@@ -1,54 +1,54 @@
-import { PropsWithChildren, useMemo, useState } from "react"
+import { PropsWithChildren, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../../ui/dialog"
-import { CircleUser, Globe } from "lucide-react"
-import { Laptop, SettingIcon } from "../../icons"
-import { cn } from "@/lib/utils"
-import Profile from "./profile"
-import Account from "./account"
-import Appearance from "./appearance"
-import Language from "./language"
+} from '../../ui/dialog'
+import { CircleUser, Globe } from 'lucide-react'
+import { Laptop, SettingIcon } from '../../icons'
+import { cn } from '@/lib/utils'
+import Profile from './profile'
+import Account from './account'
+import Appearance from './appearance'
+import Language from './language'
 
 const settings = () => [
   {
-    key: "profile",
+    key: 'profile',
     icon: <CircleUser size={16} />,
-    label: "Profile",
+    label: 'Profile',
   },
   {
-    key: "account",
+    key: 'account',
     icon: <SettingIcon />,
-    label: "Account",
+    label: 'Account',
   },
   {
-    key: "appearance",
+    key: 'appearance',
     icon: <Laptop />,
-    label: "Appearance",
+    label: 'Appearance',
   },
   {
-    key: "language",
+    key: 'language',
     icon: <Globe size={16} />,
-    label: "Language",
+    label: 'Language',
   },
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
-  const [currentSetting, setCurrentSetting] = useState("profile")
+  const [currentSetting, setCurrentSetting] = useState('profile')
 
   const renderSetting = useMemo(() => {
     switch (currentSetting) {
-      case "profile":
+      case 'profile':
         return <Profile />
-      case "account":
+      case 'account':
         return <Account />
-      case "appearance":
+      case 'appearance':
         return <Appearance />
-      case "language":
+      case 'language':
         return <Language />
       default:
         return <></>
@@ -58,12 +58,12 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] text-brand-text-dark text-sm">
+      <DialogContent className="text-sm text-brand-text-dark sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>General Setting</DialogTitle>
         </DialogHeader>
-        <div className="flex ">
-          <div className="w-[200px] border-r border-brand-stroke-dark-soft dark:border-brand-stroke-outermost py-4">
+        <div className="flex">
+          <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
             <div className="flex flex-col gap-1">
               {settings().map((setting) => {
                 const isActive = setting.key === currentSetting
@@ -72,10 +72,10 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                   <div
                     key={setting.key}
                     className={cn(
-                      "py-[6px] px-4 font-medium flex items-center gap-2 cursor-pointer duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80",
+                      'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',
                       isActive
-                        ? "border-r-2 border-black dark:border-brand-heading bg-brand-fill-dark-soft dark:bg-brand-text-dark dark:text-white"
-                        : "border-none bg-transparent text-brand-text-gray"
+                        ? 'border-r-2 border-black bg-brand-fill-dark-soft dark:border-brand-heading dark:bg-brand-text-dark dark:text-white'
+                        : 'border-none bg-transparent text-brand-text-gray',
                     )}
                     onClick={() => setCurrentSetting(setting.key)}
                   >
@@ -88,9 +88,9 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
           </div>
           <div
             className={cn(
-              "flex-1 p-4 min-h-[350px]",
-              currentSetting === "appearance" &&
-                "bg-brand-fill-surface dark:bg-brand-fill-outermost"
+              'min-h-[350px] flex-1 p-4',
+              currentSetting === 'appearance' &&
+                'bg-brand-fill-surface dark:bg-brand-fill-outermost',
             )}
           >
             <div className="text-brand-text-dark dark:text-brand-dark-text-gray">

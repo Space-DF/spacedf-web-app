@@ -1,23 +1,23 @@
-"use client"
+'use client'
 
-import { useIdentityStore } from "@/stores/identity-store"
-import { LogIn } from "lucide-react"
-import { useShallow } from "zustand/react/shallow"
+import { useIdentityStore } from '@/stores/identity-store'
+import { LogIn } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 
 const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity)
+    useShallow((state) => state.setOpenDrawerIdentity),
   )
   return (
     <div
-      className="h-10 w-full p-[2px] bg-transparent border border-brand-bright-lavender rounded-xl min-w-10 text-white cursor-pointer group"
+      className="group h-10 w-full min-w-10 cursor-pointer rounded-xl border border-brand-bright-lavender bg-transparent p-[2px] text-white"
       onClick={() => setOpenDrawerIdentity(true)}
     >
-      <div className="flex items-center justify-center border-brand-bright-lavender rounded-lg bg-gradient-to-r from-brand-very-light-blue to-brand-bright-lavender h-full group-hover:opacity-80 duration-300">
+      <div className="flex h-full items-center justify-center rounded-lg border-brand-bright-lavender bg-gradient-to-r from-brand-very-light-blue to-brand-bright-lavender duration-300 group-hover:opacity-80">
         {isCollapsed ? (
           <LogIn size={18} />
         ) : (
-          <p className="text-xs truncate max-w-[90%] font-medium">
+          <p className="max-w-[90%] truncate text-xs font-medium">
             Register your own organization
           </p>
         )}

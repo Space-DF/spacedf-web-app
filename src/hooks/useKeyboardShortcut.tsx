@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useRef, useState } from 'react'
 
 //TODO: Add tutorial to this hook
 export const useKeyboardShortcut = ({
@@ -17,18 +18,18 @@ export const useKeyboardShortcut = ({
       if (isSingle) return handleSingleKey(e)
 
       if (
-        typeof matchKeysCallback?.(keys, e) === "boolean" &&
+        typeof matchKeysCallback?.(keys, e) === 'boolean' &&
         !!matchKeysCallback?.(keys, e)
       ) {
-        console.log("press callback")
+        console.log('press callback')
 
         e.preventDefault()
         onPress?.()
       }
     }
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
   }, [])
 
   const handleSingleKey = (event: KeyboardEvent) => {
@@ -47,8 +48,8 @@ export const useKeyboardShortcut = ({
     const expectedKeys = keys.map((k) => k.toLowerCase())
     const currentKeys = [key.toLowerCase()]
 
-    if (altKey) currentKeys.push("shift")
-    if (metaKey) currentKeys.push("meta")
+    if (altKey) currentKeys.push('shift')
+    if (metaKey) currentKeys.push('meta')
 
     return expectedKeys.every((k) => currentKeys.includes(k))
   }

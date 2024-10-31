@@ -1,10 +1,10 @@
-import { NEXT_PUBLIC_CONSOLE_API } from "@/shared/env"
+import { NEXT_PUBLIC_CONSOLE_API } from '@/shared/env'
 
 interface FetchOptions extends RequestInit {}
-type Headers = Pick<FetchOptions, "headers">["headers"]
+type Headers = Pick<FetchOptions, 'headers'>['headers']
 
 export type FullResponse<TResponse = any> = {
-  status: Response["status"]
+  status: Response['status']
   response_data: TResponse
 }
 
@@ -12,7 +12,7 @@ export class FetchAPI {
   // protected async
   private headers: Headers = {
     // "Access-Control-Allow-Origin": "*",
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   }
 
   constructor(options: Headers = {}) {
@@ -39,17 +39,17 @@ export class FetchAPI {
   async handleError(response: Response) {
     const responseJson: any = await response.json()
 
-    const error: any = new Error("An error occurred while sending data.")
+    const error: any = new Error('An error occurred while sending data.')
 
     error.code = responseJson?.code || null
-    error.message = responseJson || "Something went wrong"
+    error.message = responseJson || 'Something went wrong'
 
     throw error
   }
 
   async get<T = any>(
     url: string,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
@@ -60,7 +60,7 @@ export class FetchAPI {
     }
 
     const response = await fetch(`${this.mainURL}/${url}`, {
-      method: "GET",
+      method: 'GET',
       ...mergedOptions,
     })
 
@@ -83,10 +83,10 @@ export class FetchAPI {
   async post<T = any>(
     url: string,
     payload: Record<string, any> | null,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
-      body: payload ? JSON.stringify(payload) : "",
+      body: payload ? JSON.stringify(payload) : '',
       ...options,
       headers: {
         ...this.headers,
@@ -95,7 +95,7 @@ export class FetchAPI {
     }
 
     const response = await fetch(this.getDomain(url), {
-      method: "POST",
+      method: 'POST',
       ...mergedOptions,
     })
 
@@ -113,7 +113,7 @@ export class FetchAPI {
 
   async delete<T = any>(
     url: string,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
@@ -124,7 +124,7 @@ export class FetchAPI {
     }
 
     const response = await fetch(`${this.mainURL}/${url}`, {
-      method: "DELETE",
+      method: 'DELETE',
       ...mergedOptions,
     })
 

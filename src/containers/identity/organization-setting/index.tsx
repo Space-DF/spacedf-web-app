@@ -1,7 +1,7 @@
-import React, { memo } from "react"
+import React, { memo } from 'react'
 
-import PreviewDomain from "./preview-domain"
-import Settings from "./settings"
+import PreviewDomain from './preview-domain'
+import Settings from './settings'
 
 type OrganizationSettingProps = {
   createdOrganizationSuccessfully: () => void
@@ -9,12 +9,12 @@ type OrganizationSettingProps = {
 
 const OrganizationSetting = () => {
   return (
-    <div className="p-4 w-full h-full flex overflow-hidden">
-      <div className="w-1/2 ">
+    <div className="flex h-full w-full overflow-hidden p-4">
+      <div className="w-1/2">
         <Settings />
       </div>
 
-      <div className="w-1/2 ">
+      <div className="w-1/2">
         <PreviewDomain />
       </div>
     </div>

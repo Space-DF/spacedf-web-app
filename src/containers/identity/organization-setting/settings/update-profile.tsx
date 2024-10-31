@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -6,13 +6,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { TypographySecondary } from "@/components/ui/typography"
-import { zodResolver } from "@hookform/resolvers/zod"
-import React from "react"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { TypographySecondary } from '@/components/ui/typography'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const profileSchema = z.object({
   first_name: z.string().optional(),
@@ -33,12 +33,12 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmitProfile)}>
-        <div className="flex gap-4 items-center w-full mb-8">
+        <div className="mb-8 flex w-full items-center gap-4">
           <FormField
             control={form.control}
             name="first_name"
             render={({ field }) => (
-              <FormItem className="flex-1" defaultValue={""}>
+              <FormItem className="flex-1" defaultValue={''}>
                 <FormLabel className="">First name</FormLabel>
                 <FormControl>
                   <Input

@@ -1,4 +1,4 @@
-import { create } from "zustand"
+import { create } from 'zustand'
 
 type GlobalStore = {
   currentSpace: string
@@ -10,7 +10,7 @@ type ActionsGlobalStore = {
 
 export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
   (set) => ({
-    currentSpace: "1",
+    currentSpace: '1',
     setCurrentSpace: (newSpace) => set({ currentSpace: newSpace }),
-  })
+  }),
 )

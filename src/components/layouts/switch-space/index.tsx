@@ -1,4 +1,5 @@
-"use client"
+/* eslint-disable react-hooks/exhaustive-deps */
+'use client'
 
 import {
   DropdownMenu,
@@ -7,17 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
-import { spaceList } from "@/data/dummy-data"
-import { useGlobalStore } from "@/stores"
-import { TSpace } from "@/types/common"
-import React, { useCallback } from "react"
-import { useShallow } from "zustand/react/shallow"
-import AddNewSpace from "./add-new-space"
-import OrganizationManagement from "./organization-management"
-import Space from "./space"
-import SpaceMenuItem from "./space-menu-item"
+} from '@/components/ui/dropdown-menu'
+import { Separator } from '@/components/ui/separator'
+import { spaceList } from '@/data/dummy-data'
+import { useGlobalStore } from '@/stores'
+import { TSpace } from '@/types/common'
+import React, { useCallback } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import AddNewSpace from './add-new-space'
+import OrganizationManagement from './organization-management'
+import Space from './space'
+import SpaceMenuItem from './space-menu-item'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -28,7 +29,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     useShallow((state) => ({
       currentSpace: state.currentSpace,
       setCurrentSpace: state.setCurrentSpace,
-    }))
+    })),
   )
 
   React.useEffect(() => {
@@ -47,8 +48,8 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       }
     }
 
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
   }, [])
 
   const customMatchKeys = useCallback(
@@ -60,12 +61,12 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       const expectedKeys = keys.map((k) => k.toLowerCase())
       const currentKeys = [numberFromCode.toLowerCase()]
 
-      if (metaKey) currentKeys.push("meta")
-      if (altKey) currentKeys.push("alt")
+      if (metaKey) currentKeys.push('meta')
+      if (altKey) currentKeys.push('alt')
 
       return expectedKeys.every((k) => currentKeys.includes(k))
     },
-    []
+    [],
   )
 
   const spaceSelected =
@@ -83,7 +84,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="backdrop-blur-sm bg-brand-fill-outermost/70 w-80 text-white border-brand-stroke-dark-soft dark:border-brand-stroke-outermost"
+        className="w-80 border-brand-stroke-dark-soft bg-brand-fill-outermost/70 text-white backdrop-blur-sm dark:border-brand-stroke-outermost"
         sideOffset={10}
         collisionPadding={10}
       >
@@ -100,13 +101,13 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
           ))}
         </DropdownMenuGroup>
 
-        <Separator className="bg-zinc-500 dark:bg-brand-stroke-outermost my-3" />
+        <Separator className="my-3 bg-zinc-500 dark:bg-brand-stroke-outermost" />
 
         <DropdownMenuItem className="py-2">
           <AddNewSpace />
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="py-2 mb-2">
+        <DropdownMenuItem className="mb-2 py-2">
           <OrganizationManagement />
         </DropdownMenuItem>
       </DropdownMenuContent>

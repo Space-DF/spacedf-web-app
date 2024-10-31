@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -6,59 +6,59 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { InputWithIcon } from "@/components/ui/input"
+} from '@/components/ui/form'
+import { InputWithIcon } from '@/components/ui/input'
 import {
   TypographyPrimary,
   TypographySecondary,
-} from "@/components/ui/typography"
-import { FetchAPI } from "@/lib/fecth"
-import { uppercaseFirstLetter } from "@/utils"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LockKeyhole, Mail } from "lucide-react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { z } from "zod"
-import { AuthData } from "."
-import { SignUpResponse } from "../types/response"
-import { signIn } from "next-auth/react"
-import { useState, useTransition } from "react"
+} from '@/components/ui/typography'
+import { FetchAPI } from '@/lib/fecth'
+import { uppercaseFirstLetter } from '@/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LockKeyhole, Mail } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import { AuthData } from '.'
+import { SignUpResponse } from '../types/response'
+import { signIn } from 'next-auth/react'
+import { useState, useTransition } from 'react'
 
 export const singInSchema = z
   .object({
     email: z
       .string({
-        required_error: "Email is required",
+        required_error: 'Email is required',
       })
       .email({
-        message: "Please enter a valid email address",
+        message: 'Please enter a valid email address',
       })
       .max(50, {
-        message: "Email must be less than or equal to 50 characters",
+        message: 'Email must be less than or equal to 50 characters',
       }),
 
     password: z
       .string({
-        required_error: "Password is required",
+        required_error: 'Password is required',
       })
       .min(3, {
-        message: "Password must have at least 3 characters",
+        message: 'Password must have at least 3 characters',
       })
       .max(150, {
-        message: "Password must be less than or equal to 150 characters",
+        message: 'Password must be less than or equal to 150 characters',
       }),
 
     confirm_password: z
       .string({
-        required_error: "Confirm password is required",
+        required_error: 'Confirm password is required',
       })
       .max(150, {
-        message: "Password must be less than or equal to 150 characters",
+        message: 'Password must be less than or equal to 150 characters',
       }),
   })
   .refine((data) => data.password === data.confirm_password, {
-    message: "Password do not match",
-    path: ["confirm_password"],
+    message: 'Password do not match',
+    path: ['confirm_password'],
   })
 
 const fetchAPI = new FetchAPI()
@@ -78,18 +78,18 @@ const SignUpForm = ({
     setIsAuthenticating(true)
     try {
       await toast.promise(
-        fetchAPI.post<SignUpResponse>("api/auth/register", {
+        fetchAPI.post<SignUpResponse>('api/auth/register', {
           email: value.email,
           password: value.password,
         }),
         {
-          loading: "Signing up...",
+          loading: 'Signing up...',
           finally() {
             setIsAuthenticating(false)
           },
           success: (res) => {
             if (res.status === 201) {
-              signIn("credentials", {
+              signIn('credentials', {
                 redirect: false,
                 sigUpSuccessfully: true,
                 dataUser: JSON.stringify({
@@ -99,25 +99,25 @@ const SignUpForm = ({
                 }),
               })
 
-              return "Sign up successful!"
+              return 'Sign up successful!'
             }
           },
           error: (error: any) => {
             return (
               (error.message?.email?.[0] &&
                 uppercaseFirstLetter(error.message?.email?.[0])) ||
-              "Something went wrong"
+              'Something went wrong'
             )
           },
-        }
+        },
       )
     } catch (error) {}
   }
 
   return (
-    <div className="self-start w-full animate-opacity-display-effect">
+    <div className="w-full animate-opacity-display-effect self-start">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
-      <TypographyPrimary className=" font-medium">
+      <TypographyPrimary className="font-medium">
         Or continue with email address
       </TypographyPrimary>
 
@@ -189,22 +189,22 @@ const SignUpForm = ({
 
           <Button
             type="submit"
-            className="w-full h-11 mb-2  mt-5"
+            className="mb-2 mt-5 h-11 w-full"
             loading={isAuthenticating}
           >
             Sign up
           </Button>
         </form>
       </Form>
-      <div className="text-center flex items-center justify-center gap-2 text-xs">
-        <TypographySecondary className=" font-semibold">
+      <div className="flex items-center justify-center gap-2 text-center text-xs">
+        <TypographySecondary className="font-semibold">
           Already have an account?
         </TypographySecondary>
         <span
-          className="font-semibold cursor-pointer hover:underline"
+          className="cursor-pointer font-semibold hover:underline"
           onClick={() => {
             setAuthMethod({
-              method: "signIn",
+              method: 'signIn',
             })
           }}
         >

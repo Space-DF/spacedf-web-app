@@ -1,6 +1,6 @@
-import { DropdownMenuShortcut } from "@/components/ui/dropdown-menu"
-import { CirclePlus } from "lucide-react"
-import React from "react"
+import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
+import { CirclePlus } from 'lucide-react'
+import React from 'react'
 
 const AddNewSpace = () => {
   return (

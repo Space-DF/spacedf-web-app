@@ -1,24 +1,24 @@
-import { getUserByEmail } from "@/data/user"
-import { NEXTAUTH_SECRET } from "@/shared/env"
-import { SpaceUser } from "@/types/common"
-import { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+import { getUserByEmail } from '@/data/user'
+import { NEXTAUTH_SECRET } from '@/shared/env'
+import { SpaceUser } from '@/types/common'
+import { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 export const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
 
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     // maxAge: 30 * 24 * 60 * 60,
   },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" },
-        sigUpSuccessfully: { label: "signUpSuccess", type: "boolean" },
-        dataUser: { label: "DataUser", type: "string" },
+        email: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+        password: { label: 'Password', type: 'password' },
+        sigUpSuccessfully: { label: 'signUpSuccess', type: 'boolean' },
+        dataUser: { label: 'DataUser', type: 'string' },
       },
 
       async authorize(credentials, req) {
@@ -27,22 +27,22 @@ export const authOptions: NextAuthOptions = {
           password: credentials?.password,
         }
 
-        if (credentials?.sigUpSuccessfully === "true") {
+        if (credentials?.sigUpSuccessfully === 'true') {
           const dataUserParsed = JSON.parse(credentials.dataUser)
 
           return dataUserParsed
         }
 
         const resp = await fetch(
-          process.env.NEXT_PUBLIC_CONSOLE_API + "/api/auth/login",
+          process.env.NEXT_PUBLIC_CONSOLE_API + '/api/auth/login',
           {
-            method: "POST",
+            method: 'POST',
             headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify(credentialDetails),
-          }
+          },
         )
 
         if (!resp.ok) {
@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
           return {
             // ...user,
             ...response.user,
-            name: "",
+            name: '',
             accessToken: response.access,
             refreshToken: response.refresh,
           }
