@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LockKeyhole, Mail } from 'lucide-react'
+import { signIn } from 'next-auth/react'
+import { useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -13,15 +20,8 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { LockKeyhole, Mail } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { AuthData } from '.'
-import { signIn } from 'next-auth/react'
-import { toast } from 'sonner'
-import { useTransition } from 'react'
-import { passwordSchema } from './sign-up-form'
+import type { AuthData } from '.'
+import type { passwordSchema } from './sign-up-form'
 
 const singInSchema = z.object({
   email: z
