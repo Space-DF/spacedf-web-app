@@ -1,0 +1,15 @@
+{
+  "add_new_space": "Add new space",
+  "space_image": "Space Image",
+  "space_name": "Space Name",
+  "invite_member_by_email_comma_separated": "Invite member by Email, comma separated ",
+  "name": "Name",
+  "action": "Action",
+  "previous": "Previous",
+  "page_number": "Page {number}",
+  "next": "Next",
+  "cancel": "Cancel",
+  "create_space": "Create Space",
+  "role": "Role",
+  "viewer": "Viewer"
+}

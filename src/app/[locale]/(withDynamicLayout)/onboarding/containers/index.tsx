@@ -12,6 +12,7 @@ import SelectTemplate from './SelectTemplate'
 import { useTranslations } from 'next-intl'
 import { useSession } from 'next-auth/react'
 
+import AddNewSpace from '@/components/layouts/switch-space/add-new-space'
 const OnboardingContainer = () => {
   const t = useTranslations('onboarding')
   const commonTranslate = useTranslations('common')
@@ -58,6 +59,7 @@ const OnboardingContainer = () => {
           className="my-[72px] w-[70%] bg-brand-stroke-dark-soft"
         />
 
+        <AddNewSpace />
         <SelectTemplate />
       </div>
     </div>

@@ -30,6 +30,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     signUp: {
       ...(await import(`../../messages/${locale}/sign-up.json`)).default,
     },
+    addNewSpace: {
+      ...(await import(`../../messages/${locale}/add-new-space.json`)).default,
+    },
   }
 
   // Return merged messages

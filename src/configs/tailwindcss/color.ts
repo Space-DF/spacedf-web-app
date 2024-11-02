@@ -12,4 +12,5 @@ export const brandColors = {
   'dark-fill-secondary': '#4006AA',
   'very-light-blue': '#6E4AFF',
   'bright-lavender': '#A78BF6',
+  'semantic-accent': '#D73E3D',
 }
