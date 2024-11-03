@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from '@radix-ui/react-icons'
-import { ArrowLeft, CircleCheck } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Pencil, Trash2, Map } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -9,6 +9,17 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,6 +45,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
 import { uppercaseFirstLetter } from '@/utils'
+import { Switch } from '@/components/ui/switch'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -51,16 +63,20 @@ const Devices = () => {
       }}
       title={t('selected_devices')}
     >
-      <Nodata content={t('nodata', { module: t('devices') })} />
-      <div className="flex items-center justify-center">
-        <Dialog open>
-          <DialogTrigger asChild>
-            <Button size="default" className="mt-3 gap-2 rounded-lg">
-              {uppercaseFirstLetter(t('add'))} {t('devices')} <PlusIcon />
-            </Button>
-          </DialogTrigger>
-          <AddDeviceDialog />
-        </Dialog>
+      <div className="h-screen overflow-y-auto pb-20">
+        <DeviceSelected />
+        <DevicesList />
+        <Nodata content={t('nodata', { module: t('devices') })} />
+        <div className="flex items-center justify-center">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="default" className="mt-3 gap-2 rounded-lg">
+                {uppercaseFirstLetter(t('add'))} {t('devices')} <PlusIcon />
+              </Button>
+            </DialogTrigger>
+            <AddDeviceDialog />
+          </Dialog>
+        </div>
       </div>
     </RightSideBarLayout>
   )
@@ -164,6 +180,117 @@ const AddDeviceDialog = () => {
   )
 }
 
+const DeviceSelected = () => {
+  const t = useTranslations('addNewDevice')
+
+  const InformationItem = (props: { label: string; content: string }) => {
+    return (
+      <div className="flex gap-4 text-sm">
+        <span className="font-semibold text-brand-text-dark">
+          {props.label}
+        </span>
+        <span className="text-brand-text-gray">{props.content}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded-xl bg-brand-fill-dark-soft p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="bg-brand-semantic-success size-2 rounded-full" />
+          <span className="text-xs font-medium text-brand-text-dark">
+            {t('online')}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <Button size="icon" className="size-8">
+            <Pencil size={16} />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="icon"
+                variant="destructive"
+                className="border-brand-semantic-accent-dark size-8 border-2"
+              >
+                <Trash2 size={16} />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="sm:max-w-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                  {t('are_you_sure')}
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
+                  {t('are_you_sure_you_want_to_remove_this_device')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
+                  {t('cancel')}
+                </AlertDialogCancel>
+                <AlertDialogAction className="border-brand-semantic-accent-dark h-12 flex-1 border-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  {t('delete')}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <InformationItem label={t('device_id')} content={'DMZ 01 12312123'} />
+        <InformationItem label={t('site_name')} content={'Jln Ramaya Terawi'} />
+        <InformationItem
+          label={t('pipe_material')}
+          content={'Mild Steel Cement Lined'}
+        />
+        <InformationItem label={t('pipe_normal_dia_meter')} content={'150'} />
+      </div>
+    </div>
+  )
+}
+
+const DevicesList = () => {
+  const t = useTranslations('common')
+  const devices = Array.from({ length: 16 }).map((_, id) => ({ id }))
+
+  return (
+    <div className="mt-6 flex flex-col gap-4">
+      <div>{t('devices')}</div>
+      <div className="-mx-2 flex flex-wrap gap-y-4">
+        {devices.map((item) => (
+          <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
+            <div
+              className={cn(
+                'rounded-xl border border-transparent bg-brand-fill-dark-soft p-2 text-brand-text-dark',
+                // TODO: handle border selected
+                { 'border-brand-heading': item.id === 0 },
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="size-8">
+                  <img src="https://placehold.co/32x32" />
+                </div>
+                <div>
+                  <Switch className="bg-brand-fill-gray-light" />
+                </div>
+              </div>
+              <div className="mb-7 mt-2 text-xs font-medium">
+                DMZ 01 -1511-M01
+              </div>
+              <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium">
+                <Map size={16} className="text-brand-text-gray" />
+                Jln Ramaya Terawi
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const AddDeviceScanQR = () => {
   return <div className="rounded-[20px] bg-brand-stroke-gray"></div>
 }
@@ -238,7 +365,7 @@ const AddDeviceForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
         {isModeAuto && (
-          <div className="text-brand-semantic-success bg-brand-semantic-success-light flex items-center gap-1 p-2 text-xs font-semibold">
+          <div className="bg-brand-semantic-success-light text-brand-semantic-success flex items-center gap-1 p-2 text-xs font-semibold">
             <CircleCheck size={16} />
             {t('scan_qr_code_successfully')}
           </div>

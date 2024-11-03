@@ -15,5 +15,13 @@
   "auto": "Auto",
   "manual": "Manual",
   "auto_scan_devices_near_you": "Auto scan devices near you",
-  "connect_devices_manual": "Connect devices manual"
+  "connect_devices_manual": "Connect devices manual",
+  "online": "Online",
+  "device_id": "ID",
+  "site_name": "Site name:",
+  "pipe_material": "Pipe material:",
+  "pipe_normal_dia_meter": "Pipe normal dia (meter):",
+  "are_you_sure": "Are you sure",
+  "are_you_sure_you_want_to_remove_this_device": "Are you sure you want to remove this device?",
+  "delete": "Delete"
 }
