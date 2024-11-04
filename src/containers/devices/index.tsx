@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from '@radix-ui/react-icons'
+import { Scanner } from '@yudiel/react-qr-scanner'
 import { ArrowLeft, CircleCheck, Pencil, Trash2, Map } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
@@ -9,6 +10,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
+import { RightSideBarLayout } from '@/components/ui'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +22,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -41,11 +42,11 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
 import { uppercaseFirstLetter } from '@/utils'
-import { Switch } from '@/components/ui/switch'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -67,16 +68,6 @@ const Devices = () => {
         <DeviceSelected />
         <DevicesList />
         <Nodata content={t('nodata', { module: t('devices') })} />
-        <div className="flex items-center justify-center">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="default" className="mt-3 gap-2 rounded-lg">
-                {uppercaseFirstLetter(t('add'))} {t('devices')} <PlusIcon />
-              </Button>
-            </DialogTrigger>
-            <AddDeviceDialog />
-          </Dialog>
-        </div>
       </div>
     </RightSideBarLayout>
   )
@@ -98,7 +89,7 @@ interface Steps {
 
 const AddDeviceDialog = () => {
   const t = useTranslations()
-  const [step, setStep] = useState<Step>('add_device_success')
+  const [step, setStep] = useState<Step>('select_mode')
   // const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
 
@@ -112,7 +103,7 @@ const AddDeviceDialog = () => {
             title={t('addNewDevice.auto')}
             description={t('addNewDevice.auto_scan_devices_near_you')}
             handleNextStep={() => {
-              setStep('add_device_auto')
+              setStep('scan_qr')
               setMode('auto')
             }}
             isSelected={mode === 'auto'}
@@ -158,30 +149,49 @@ const AddDeviceDialog = () => {
   }
 
   return (
-    <DialogContent className="sm:max-w-[530px]">
-      {isShowHeader && (
-        <DialogHeader className="border-0">
-          <DialogTitle className="flex items-center gap-2.5">
-            {isShowArrow && (
-              <ArrowLeft
-                className="cursor-pointer"
-                onClick={handleBackButton}
-                size={20}
-              />
-            )}
-            {steps[step].label}
-          </DialogTitle>
-        </DialogHeader>
-      )}
-      <div className={cn('flex gap-4 px-4 pb-4', { 'pt-4': !isShowHeader })}>
-        {steps[step].component}
-      </div>
-    </DialogContent>
+    <div className="flex items-center justify-center">
+      <Dialog
+        onOpenChange={() => {
+          setStep('select_mode')
+        }}
+      >
+        <DialogTrigger asChild>
+          <Button size="default" className="h-8 gap-2 rounded-lg">
+            {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
+            <PlusIcon />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[530px]">
+          {isShowHeader && (
+            <DialogHeader className="border-0">
+              <DialogTitle className="flex items-center gap-2.5">
+                {isShowArrow && (
+                  <ArrowLeft
+                    className="cursor-pointer"
+                    onClick={handleBackButton}
+                    size={20}
+                  />
+                )}
+                {steps[step].label}
+              </DialogTitle>
+            </DialogHeader>
+          )}
+          <div
+            className={cn('flex gap-4 px-4 pb-4', { 'pt-4': !isShowHeader })}
+          >
+            {steps[step].component}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
+
+  // @TODO: handle device selected
+  const deviceSelected = undefined
 
   const InformationItem = (props: { label: string; content: string }) => {
     return (
@@ -190,6 +200,14 @@ const DeviceSelected = () => {
           {props.label}
         </span>
         <span className="text-brand-text-gray">{props.content}</span>
+      </div>
+    )
+  }
+
+  if (!deviceSelected) {
+    return (
+      <div className="rounded-xl bg-brand-fill-dark-soft p-4">
+        <Nodata content={t('no_selected_devices')} />
       </div>
     )
   }
@@ -252,12 +270,17 @@ const DeviceSelected = () => {
 }
 
 const DevicesList = () => {
-  const t = useTranslations('common')
+  const t = useTranslations('addNewDevice')
   const devices = Array.from({ length: 16 }).map((_, id) => ({ id }))
 
   return (
     <div className="mt-6 flex flex-col gap-4">
-      <div>{t('devices')}</div>
+      <div className="flex items-center justify-between">
+        <div className="font-semibold text-brand-text-dark">
+          {t('devices_list')}
+        </div>
+        <AddDeviceDialog />
+      </div>
       <div className="-mx-2 flex flex-wrap gap-y-4">
         {devices.map((item) => (
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
@@ -292,7 +315,18 @@ const DevicesList = () => {
 }
 
 const AddDeviceScanQR = () => {
-  return <div className="rounded-[20px] bg-brand-stroke-gray"></div>
+  return (
+    <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray">
+      <Scanner
+        onScan={(result) => {
+          console.info(`\x1b[34mFunc: Scanner - PARAMS: result\x1b[0m`, result)
+        }}
+        onError={(err) => {
+          console.info(`\x1b[34mFunc: Scanner - PARAMS: err\x1b[0m`, err)
+        }}
+      />
+    </div>
+  )
 }
 
 const AddDeviceSuccess = () => {

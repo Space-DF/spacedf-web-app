@@ -23,5 +23,7 @@
   "pipe_normal_dia_meter": "Pipe normal dia (meter):",
   "are_you_sure": "Are you sure",
   "are_you_sure_you_want_to_remove_this_device": "Are you sure you want to remove this device?",
-  "delete": "Delete"
+  "delete": "Delete",
+  "devices_list": "Devices list",
+  "no_selected_devices": "No Selected Devices"
 }
