@@ -87,22 +87,37 @@ const CreateOrganization = () => {
         loading={isCreating}
         onClick={() => {
           startCreateOrganization(async () => {
-            const responseMessage = await createOrganizationAction({
-              name: organizationName,
-              slug_name: organizationDomain,
-              logo: '123',
+            const response = await fetch('/api/console/organization', {
+              method: 'POST',
+              body: JSON.stringify({
+                name: organizationName,
+                slug_name: organizationDomain,
+                logo: '123',
+              }),
             })
 
-            if (responseMessage === 'Success') {
-              setOrganizationDomain(organizationDomain)
-            }
-            if (responseMessage.detail) {
-              toast.error(responseMessage.detail)
+            const dataResponse = await response.json()
+
+            if (response.ok) {
+              toast.success('Organization created successfully!')
+              setOrganization(dataResponse.data.slug_name)
             }
 
-            if (responseMessage.slug_name) {
-              setErrorSlug(responseMessage.slug_name[0])
-            }
+            // if (response.ok) {
+            //   toast.success('Organization created successfully!')
+            //   setOrganization('digital-fortress')
+            // }
+
+            // if (responseMessage === 'Success') {
+            //   setOrganizationDomain(organizationDomain)
+            // }
+            // if (responseMessage.detail) {
+            //   toast.error(responseMessage.detail)
+            // }
+
+            // if (responseMessage.slug_name) {
+            //   setErrorSlug(responseMessage.slug_name[0])
+            // }
           })
         }}
       >
