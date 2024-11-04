@@ -2,6 +2,7 @@
 
 import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
+import { NextResponse } from 'next/server'
 
 type CreateOrganizationActionPayload = {
   name: string
@@ -13,6 +14,15 @@ export const createOrganizationAction = async (
   payload: CreateOrganizationActionPayload,
 ) => {
   const session = await getServerSession(authOptions)
+
+  // return new NextResponse(
+  //   JSON.stringify({
+  //     message: 'Success',
+  //   }),
+  //   {
+  //     status: 200,
+  //   },
+  // )
 
   const resp = await fetch(
     process.env.NEXT_PUBLIC_CONSOLE_API + '/api/organizations',
