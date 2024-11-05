@@ -65,7 +65,8 @@ const Template = ({
           <ImageWithBlur
             src={thumbnail}
             className="h-full w-full object-cover duration-300 group-hover:scale-125"
-            alt="template"
+            alt={title}
+            redirect={href}
           />
         </div>
         <div className="m-auto h-1/3 max-w-[80%] text-center text-sm font-semibold text-brand-text-dark duration-200 dark:text-white">
