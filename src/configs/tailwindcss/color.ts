@@ -4,6 +4,7 @@ export const brandColors = {
   heading: '#090C18',
   'text-gray': '#667085',
   'fill-dark-soft': '#F0F1F3',
+  'fill-gray-light': '#C2C6CE',
   'text-dark': '#1B2037',
   'fill-surface': '#FAFAFA',
   'fill-outermost': '#171A28',
@@ -12,4 +13,9 @@ export const brandColors = {
   'dark-fill-secondary': '#4006AA',
   'very-light-blue': '#6E4AFF',
   'bright-lavender': '#A78BF6',
+  'semantic-accent-light': '#FFF8F7',
+  'semantic-accent': '#D73E3D',
+  'semantic-accent-dark': '#7F0800',
+  'semantic-success': '#08B94E',
+  'semantic-success-light': '#F4FCF7',
 }

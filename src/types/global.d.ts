@@ -4,6 +4,7 @@ import common from '../../messages/en/common.json'
 import onboarding from '../../messages/en/onboarding.json'
 import languageName from '../../messages/en/language-name.json'
 import signUp from '../../messages/en/sign-up.json'
+import generalSettings from '../../messages/en/general-settings.json'
 
 import { locales } from '@/i18n'
 
@@ -14,6 +15,7 @@ type Messages = {
   onboarding: typeof onboarding
   languageName: typeof languageName
   signUp: typeof signUp
+  generalSettings: typeof generalSettings
   // Create a new type by combining all message types
 }
 
