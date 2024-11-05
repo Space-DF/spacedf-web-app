@@ -1,8 +1,9 @@
-import { cn } from '@/lib/utils'
-import { Locale } from '@/types/global'
 import { SelectProps } from '@radix-ui/react-select'
 import { useLocale, useTranslations } from 'next-intl'
-import { Suspense, useState, useTransition } from 'react'
+import { Suspense, useState } from 'react'
+import { locales } from '@/i18n/request'
+import { usePathname, useRouter } from '@/i18n/routing'
+import { Locale } from '@/types/global'
 import { Avatar, AvatarFallback } from './avatar'
 import ImageWithBlur from './image-blur'
 import {
@@ -13,9 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select'
-import Link from 'next/link'
-import { locales } from '@/i18n/request'
-import { usePathname, useRouter } from '@/i18n/routing'
 
 type Country = {
   code: Locale
@@ -91,7 +89,7 @@ export const SelectCountry = (props: SelectProps) => {
 const Language = (country: Country) => {
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-300">
+      <Avatar className="flex size-6 items-center justify-center rounded-full bg-purple-300">
         <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
           <ImageWithBlur
             src={country.flag || ''}

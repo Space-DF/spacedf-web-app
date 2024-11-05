@@ -1,7 +1,7 @@
+import React from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { SelectCountry } from '@/components/ui/select-country'
-import React from 'react'
 import { SelectTimezone } from '@/components/ui/select-timezone'
 
 const Language = () => {

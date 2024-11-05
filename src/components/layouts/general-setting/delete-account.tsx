@@ -1,11 +1,10 @@
-import { Button } from '@/components/ui/button'
-import { InputWithIcon } from '@/components/ui/input'
-import { Mail, TriangleAlert } from 'lucide-react'
-import React from 'react'
-import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Mail, TriangleAlert } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -14,6 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { InputWithIcon } from '@/components/ui/input'
 
 const profileSchema = z.object({
   email: z

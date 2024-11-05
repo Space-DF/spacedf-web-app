@@ -206,7 +206,7 @@ const Profile = () => {
                 <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
                   {t('cancel')}
                 </AlertDialogCancel>
-                <AlertDialogAction className="border-brand-semantic-accent-dark h-12 flex-1 border-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <AlertDialogAction className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   {t('confirm')}
                 </AlertDialogAction>
               </AlertDialogFooter>

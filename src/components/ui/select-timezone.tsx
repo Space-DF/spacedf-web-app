@@ -1,4 +1,3 @@
-import { Locale } from '@/types/global'
 import { SelectProps } from '@radix-ui/react-select'
 import { useState } from 'react'
 import {
