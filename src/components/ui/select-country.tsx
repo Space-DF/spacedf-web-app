@@ -66,11 +66,7 @@ export const SelectCountry = (props: SelectProps) => {
       {...props}
       defaultValue={currentLocale}
     >
-      <SelectTrigger
-        className={cn(
-          'h-12 rounded-xl border-none bg-brand-fill-dark-soft px-3 py-2 text-start',
-        )}
-      >
+      <SelectTrigger className="rounded-xl border-none bg-brand-fill-dark-soft px-3 py-2 text-start">
         <SelectValue>
           <Language {...regionSelected} />
         </SelectValue>
@@ -106,7 +102,7 @@ const Language = (country: Country) => {
           />
         </Suspense>
       </Avatar>
-      <p className="font-semibold text-brand-heading dark:text-white">
+      <p className="text-sm font-medium text-brand-heading dark:text-white">
         {country.name}
       </p>
     </div>

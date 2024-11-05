@@ -2,26 +2,27 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { SelectCountry } from '@/components/ui/select-country'
 import React from 'react'
+import { SelectTimezone } from '@/components/ui/select-timezone'
 
 const Language = () => {
   return (
     <div className="animate-opacity-display-effect">
       <div className="space-y-4">
         <div className="grid w-full flex-1 items-center gap-1.5">
-          <Label htmlFor="email" className="gap-2">
+          <Label htmlFor="email" className="font-semibold">
             Language
           </Label>
           <SelectCountry />
-          <p className="text-xs font-normal">
+
+          <p className="text-xs font-normal text-brand-text-gray">
             Choose the language you’d like to use.
           </p>
         </div>
 
         <div className="grid w-full flex-1 items-center gap-1.5">
-          <Label htmlFor="email" className="gap-2">
+          <Label htmlFor="email" className="font-semibold">
             Time zone
           </Label>
-
           <div className="flex items-center space-x-2">
             <Checkbox id="terms" defaultChecked />
             <label
@@ -31,6 +32,7 @@ const Language = () => {
               Set time zone automatically
             </label>
           </div>
+          <SelectTimezone />
         </div>
       </div>
     </div>
