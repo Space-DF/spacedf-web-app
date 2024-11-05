@@ -30,6 +30,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     signUp: {
       ...(await import(`../../messages/${locale}/sign-up.json`)).default,
     },
+    generalSettings: {
+      ...(await import(`../../messages/${locale}/general-settings.json`))
+        .default,
+    },
   }
 
   // Return merged messages
