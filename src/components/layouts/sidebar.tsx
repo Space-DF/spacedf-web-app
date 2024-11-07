@@ -164,7 +164,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
           >
             <SettingIcon />
             <p className="text-sm">General Setting</p>
@@ -174,7 +174,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         {isAuth && (
           <Button
             variant="ghost"
-            className="justify-start gap-2 p-0 text-destructive duration-300 hover:bg-transparent hover:text-destructive/80"
+            className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
             onClick={() => signOut()}
           >
             <LogOut size={16} />

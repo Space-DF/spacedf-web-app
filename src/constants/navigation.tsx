@@ -46,12 +46,12 @@ export const navigations = (
     icon: <Devices />,
     isDynamic: true,
   },
-  {
-    href: NavigationEnums.MAPS,
-    title: translateFn('maps'),
-    icon: <Maptrifold />,
-    isDynamic: true,
-  },
+  // {
+  //   href: NavigationEnums.MAPS,
+  //   title: translateFn('maps'),
+  //   icon: <Maptrifold />,
+  //   isDynamic: true,
+  // },
   {
     href: NavigationEnums.DIGITAL_TWIN,
     title: translateFn('digital_twin'),
