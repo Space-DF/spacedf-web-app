@@ -4,10 +4,11 @@ import React from 'react'
 import { locales } from '@/i18n/request'
 import addNewDevice from '../../messages/en/add-new-device.json'
 import common from '../../messages/en/common.json'
+import dashboard from '../../messages/en/dashboard.json'
+import generalSettings from '../../messages/en/general-settings.json'
 import languageName from '../../messages/en/language-name.json'
 import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
-import generalSettings from '../../messages/en/general-settings.json'
 
 type Locale = (typeof locales)[number]
 
@@ -18,6 +19,7 @@ type Messages = {
   languageName: typeof languageName
   signUp: typeof signUp
   generalSettings: typeof generalSettings
+  dashboard: typeof dashboard
   // Create a new type by combining all message types
 }
 

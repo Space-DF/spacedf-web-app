@@ -38,6 +38,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ...(await import(`../../messages/${locale}/general-settings.json`))
         .default,
     },
+    dashboard: {
+      ...(await import(`../../messages/${locale}/dashboard.json`)).default,
+    },
   }
 
   // Return merged messages

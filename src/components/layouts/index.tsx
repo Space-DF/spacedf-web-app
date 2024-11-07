@@ -219,7 +219,7 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[0]}
                     minSize={first ? 45 : 0}
                     className={cn(
-                      'dark:bg-brand-fill-outermost',
+                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       first
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
@@ -234,7 +234,7 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[1]}
                     minSize={second ? 45 : 0}
                     className={cn(
-                      'dark:bg-brand-fill-outermost',
+                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       second
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
