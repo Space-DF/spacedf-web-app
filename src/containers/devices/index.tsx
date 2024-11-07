@@ -216,7 +216,7 @@ const DeviceSelected = () => {
     <div className="flex flex-col gap-3 rounded-xl bg-brand-fill-dark-soft p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-brand-semantic-success" />
+          <span className="bg-brand-semantic-success size-2 rounded-full" />
           <span className="text-xs font-medium text-brand-text-dark">
             {t('online')}
           </span>
@@ -230,7 +230,7 @@ const DeviceSelected = () => {
               <Button
                 size="icon"
                 variant="destructive"
-                className="size-8 border-2 border-brand-semantic-accent-dark"
+                className="border-brand-semantic-accent-dark size-8 border-2"
               >
                 <Trash2 size={16} />
               </Button>
@@ -248,7 +248,7 @@ const DeviceSelected = () => {
                 <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
                   {t('cancel')}
                 </AlertDialogCancel>
-                <AlertDialogAction className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <AlertDialogAction className="border-brand-semantic-accent-dark h-12 flex-1 border-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   {t('delete')}
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -388,9 +388,9 @@ const AddDeviceForm = ({
   })
 
   function onSubmit(values: z.infer<typeof addDeviceSchema>) {
+    console.info(`\x1b[34mFunc: onSubmit - PARAMS: values\x1b[0m`, values)
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
   }
 
   const isModeAuto = mode === 'auto'
@@ -399,7 +399,7 @@ const AddDeviceForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
         {isModeAuto && (
-          <div className="flex items-center gap-1 bg-brand-semantic-success-light p-2 text-xs font-semibold text-brand-semantic-success">
+          <div className="bg-brand-semantic-success-light text-brand-semantic-success flex items-center gap-1 p-2 text-xs font-semibold">
             <CircleCheck size={16} />
             {t('scan_qr_code_successfully')}
           </div>
