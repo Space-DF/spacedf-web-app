@@ -1,0 +1,92 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Mail, TriangleAlert } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { InputWithIcon } from '@/components/ui/input'
+
+const profileSchema = z.object({
+  email: z
+    .string()
+    .email({ message: 'Please enter a valid email address' })
+    .min(1, { message: 'Email is required' })
+    .max(50, {
+      message: 'Email must be less than or equal to 50 characters',
+    }),
+})
+
+const Account = () => {
+  const t = useTranslations('generalSettings')
+
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+  })
+
+  const { isDirty, isValid } = form.formState
+
+  function onSubmit(values: z.infer<typeof profileSchema>) {
+    // Upon click this button:
+    //   If 2.3, 2.4, 2.4 correct → Update Successfully → Redirect to [A.I.6 HOME SCREEN (Organization)]
+    // Other case → Error Message
+    console.log(values)
+  }
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="animate-opacity-display-effect"
+      >
+        <div className="space-y-4">
+          <div className="bg-brand-semantic-accent-light text-brand-semantic-accent flex items-center gap-1 rounded p-2 text-xs font-semibold">
+            <TriangleAlert size={16} />
+            {t('warning_this_is_a_potentially_destructive_action')}
+          </div>
+          <div className="text-brand-text-dark">
+            {t('to_confirm_please_enter_your_email_below')}
+          </div>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <InputWithIcon
+                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                    prefixCpn={<Mail size={16} />}
+                    placeholder="Email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="mt-4 flex gap-2">
+            <Button
+              disabled={!isDirty || !isValid}
+              size="lg"
+              className="border-brand-semantic-accent-dark h-12 w-full border-2"
+              variant="destructive"
+            >
+              {t('permanently_delete_account')}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </Form>
+  )
+}
+
+export default Account

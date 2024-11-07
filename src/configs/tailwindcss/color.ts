@@ -13,6 +13,7 @@ export const brandColors = {
   'dark-fill-secondary': '#4006AA',
   'very-light-blue': '#6E4AFF',
   'bright-lavender': '#A78BF6',
+  'semantic-accent-light': '#FFF8F7',
   'semantic-accent': '#D73E3D',
   'semantic-accent-dark': '#7F0800',
   'semantic-success': '#08B94E',
