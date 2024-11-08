@@ -112,27 +112,27 @@ const SignInForm = ({
               )}
             />
           </div>
-          <div className="mb-5 mt-4 flex items-center justify-between">
-            <FormField
-              control={form.control}
-              name="remember_me"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="remember_me" />
+          <div className="mb-5 mt-4 flex items-center justify-end">
+            {/*<FormField*/}
+            {/*  control={form.control}*/}
+            {/*  name="remember_me"*/}
+            {/*  render={({ field }) => (*/}
+            {/*    <FormItem>*/}
+            {/*      <FormControl>*/}
+            {/*        <div className="flex items-center space-x-2">*/}
+            {/*          <Checkbox id="remember_me" />*/}
 
-                      <label
-                        htmlFor="remember_me"
-                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Remember me
-                      </label>
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            {/*          <label*/}
+            {/*            htmlFor="remember_me"*/}
+            {/*            className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
+            {/*          >*/}
+            {/*            Remember me*/}
+            {/*          </label>*/}
+            {/*        </div>*/}
+            {/*      </FormControl>*/}
+            {/*    </FormItem>*/}
+            {/*  )}*/}
+            {/*/>*/}
             <p className="cursor-pointer text-xs font-semibold hover:underline">
               Forgot password?
             </p>
