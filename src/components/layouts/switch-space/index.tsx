@@ -1,6 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
+import { useTranslations } from 'next-intl'
+import React, { useCallback, useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +16,7 @@ import { Separator } from '@/components/ui/separator'
 import { spaceList } from '@/data/dummy-data'
 import { useGlobalStore } from '@/stores'
 import { TSpace } from '@/types/common'
-import React, { useCallback } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import AddNewSpace from './add-new-space'
-import OrganizationManagement from './organization-management'
 import Space from './space'
 import SpaceMenuItem from './space-menu-item'
 
@@ -25,6 +25,7 @@ type SwitchSpaceProps = {
 }
 
 const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
+  const t = useTranslations('space')
   const { currentSpace, setCurrentSpace } = useGlobalStore(
     useShallow((state) => ({
       currentSpace: state.currentSpace,
@@ -32,7 +33,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     })),
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
       const numberFromCode = code[code.length - 1]
@@ -84,31 +85,30 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 border-brand-stroke-dark-soft bg-brand-fill-outermost/70 text-white backdrop-blur-sm dark:border-brand-stroke-outermost"
+        className="w-80 rounded-xl border-brand-stroke-outermost bg-brand-dark-bg-space p-3 text-white backdrop-blur-xl"
         sideOffset={10}
         collisionPadding={10}
       >
-        <DropdownMenuLabel>Switch Space</DropdownMenuLabel>
+        <DropdownMenuLabel className="p-0 text-xs font-semibold leading-normal">
+          {t('switch_space')}
+        </DropdownMenuLabel>
 
-        <DropdownMenuGroup>
+        <DropdownMenuGroup className="mt-2 space-y-1">
           {spaceList.map((space, index) => (
             <DropdownMenuItem
               key={space.id}
               onClick={() => setCurrentSpace(space.id)}
+              className="cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost"
             >
               <SpaceMenuItem spaceData={space} position={index} />
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
 
-        <Separator className="my-3 bg-zinc-500 dark:bg-brand-stroke-outermost" />
+        <Separator className="my-2 bg-zinc-500 dark:bg-brand-stroke-outermost" />
 
-        <DropdownMenuItem className="py-2">
+        <DropdownMenuItem className="p-0 focus:bg-transparent">
           <AddNewSpace />
-        </DropdownMenuItem>
-
-        <DropdownMenuItem className="mb-2 py-2">
-          <OrganizationManagement />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

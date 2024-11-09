@@ -1,0 +1,23 @@
+{
+  "create_new_space": "",
+  "space_name": "",
+  "space_image": "",
+  "switch_space": "",
+  "create_space": "",
+  "devices": "{count} devices",
+  "upload_image": "",
+  "800x800_png_jpg_is_recommended_maximum_file_size_5mb": "",
+  "were_setting_up_your_space": "",
+  "please_wait_a_couple_second": "",
+  "are_you_sure": "",
+  "are_you_sure_you_want_to_go_back_you_can_still_add_your_member_later": "",
+  "cancel": "",
+  "confirm": "",
+  "congratulations_youve_created_your_new_space_take_the_next_step_by_inviting_members_to_join_and_collaborate": "",
+  "ill_do_it_later": "",
+  "invite": "",
+  "invite_member_by_email_comma_separated": "",
+  "name": "",
+  "role": "",
+  "action": ""
+}
