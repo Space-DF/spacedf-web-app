@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChevronsUpDown, PlusIcon } from 'lucide-react'
+import { ArrowUpRight, ChevronsUpDown, Pencil, PlusIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -23,38 +23,60 @@ import {
 } from '@/components/ui/popover'
 import { useLayout } from '@/stores'
 
-const dashboards = [
+interface Dashboard {
+  value: string
+  label: string
+  isDefault: boolean
+}
+
+let dashboards: Dashboard[] = [
   {
     value: 'next.js',
     label: 'Dashboard 1',
+    isDefault: true,
   },
   {
     value: 'sveltekit',
     label: 'Dashboard 2',
+    isDefault: false,
   },
   {
     value: 'nuxt.js',
     label: 'Dashboard 3',
+    isDefault: false,
   },
   {
     value: 'remix',
     label: 'Dashboard 4',
+    isDefault: false,
   },
   {
     value: 'astro',
     label: 'Dashboard 5',
+    isDefault: false,
   },
 ]
 
 const Widgets = () => {
   const t = useTranslations()
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState('')
+  const [selected, setSelected] = useState<Dashboard>(dashboards[0])
 
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+
+  const handleCreateNewDashBoard = () => {
+    setOpen(false)
+    const value = {
+      value: 'new-dashboard',
+      label: 'Unamed Dashboard',
+      isDefault: false,
+    }
+    dashboards = [value, ...dashboards]
+    setSelected(value)
+  }
 
   return (
     <RightSideBarLayout
@@ -71,9 +93,10 @@ const Widgets = () => {
               aria-expanded={open}
               className="h-8 justify-between gap-0 bg-brand-fill-dark-soft px-2 py-1 text-brand-text-dark"
             >
-              {value
-                ? dashboards.find((dashboard) => dashboard.value === value)
-                    ?.label
+              {selected
+                ? dashboards.find(
+                    (dashboard) => dashboard.value === selected.value,
+                  )?.label
                 : 'Dashboard 1'}
               <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
             </Button>
@@ -92,7 +115,10 @@ const Widgets = () => {
                       key={dashboard.value}
                       value={dashboard.value}
                       onSelect={(currentValue) => {
-                        setValue(currentValue === value ? '' : currentValue)
+                        const itemSelect = dashboards.find(
+                          (dashboard) => dashboard.value === currentValue,
+                        )
+                        setSelected(itemSelect!)
                         setOpen(false)
                       }}
                       className="rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
@@ -109,7 +135,10 @@ const Widgets = () => {
                   {t('dashboard.view_all_dashboard')}
                   <ArrowUpRight />
                 </Button>
-                <Button className="h-8 w-full gap-2 rounded-lg text-sm font-semibold">
+                <Button
+                  className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
+                  onClick={handleCreateNewDashBoard}
+                >
                   {t('dashboard.create_new_dashboard')}
                   <PlusIcon size={16} />
                 </Button>
@@ -120,21 +149,25 @@ const Widgets = () => {
       }
       externalButton={
         <Button size="icon" className="size-8 gap-2 rounded-lg">
-          <PlusIcon />
+          <Pencil size={16} />
         </Button>
       }
     >
       <div className="flex gap-3">
-        <DashboardInfo
-          icon={<DashboardTotalDevices className="size-10" />}
-          title={t('dashboard.total_devices')}
-          content="N/A"
-        />
-        <DashboardInfo
-          icon={<DashboardTotalMembers className="size-10" />}
-          title={t('dashboard.total_members')}
-          content="30"
-        />
+        {selected.isDefault && (
+          <>
+            <DashboardInfo
+              icon={<DashboardTotalDevices className="size-10" />}
+              title={t('dashboard.total_devices')}
+              content="N/A"
+            />
+            <DashboardInfo
+              icon={<DashboardTotalMembers className="size-10" />}
+              title={t('dashboard.total_members')}
+              content="30"
+            />
+          </>
+        )}
       </div>
       <Nodata content={t('common.nodata', { module: t('common.widget') })} />
     </RightSideBarLayout>
