@@ -11,7 +11,7 @@
   "you_have_successfully_added_the_gps_tracker_to_the_space": "You have successfully added the “<span>{device}</span>” to the space",
   "done": "Done",
   "add_devices_manually": "Add Devices Manually",
-  "scan_qr_code": "Scan QR Code",
+  "scan_qr_code": "Scan Your Device's QR Code",
   "auto": "Auto",
   "manual": "Manual",
   "auto_scan_devices_near_you": "Auto scan devices near you",
