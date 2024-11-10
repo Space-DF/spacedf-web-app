@@ -52,11 +52,20 @@ export const SearchMember = ({
 
       // This is not a default behaviour of the <input /> field
       if (comma?.includes(event.key) && input.value !== '') {
-        const optionToSelect = options.find(
+        let optionToSelect = options.find(
           (option) => option.label === input.value,
         )
+        const isEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(input.value)
+        if (!optionToSelect && isEmail) {
+          optionToSelect = {
+            email: input.value,
+            value: input.value,
+            label: input.value,
+          }
+        }
         if (optionToSelect) {
           onValueChange?.(optionToSelect)
+          setInputValue('')
         }
       }
 
@@ -118,7 +127,7 @@ export const SearchMember = ({
                   return (
                     <CommandItem
                       key={option.value}
-                      value={option.value}
+                      value={option.email}
                       onMouseDown={(event) => {
                         event.preventDefault()
                         event.stopPropagation()

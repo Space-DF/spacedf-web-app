@@ -132,14 +132,17 @@ export default function EnterMember() {
           onValueChange={(value) => {
             setValue(value)
             setData((prev) => {
-              const isExist = prev.find((item) => item.id === value.value)
+              const existingIds = new Set(prev.map((item) => item.id))
+              const isExist = existingIds.has(value.value)
               if (isExist) {
                 return prev.filter((item) => item.id !== value.value)
               }
-              return [
-                ...prev,
-                ...users.filter((item) => item.id === value.value),
-              ]
+              const user = users.find((item) => item.id === value.value) || {
+                id: value.value,
+                name: value.label,
+                email: value.email,
+              }
+              return [...prev, user]
             })
           }}
           value={value}
