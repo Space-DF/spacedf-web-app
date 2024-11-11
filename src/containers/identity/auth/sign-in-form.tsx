@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LockKeyhole, Mail } from 'lucide-react'
+import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import { signIn } from 'next-auth/react'
-import { useTransition } from 'react'
+import { useTranslations } from 'next-intl'
+import React, { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
@@ -20,8 +20,8 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { AuthData } from '.'
 import { passwordSchema } from './sign-up-form'
+import { AuthData } from '.'
 
 const singInSchema = z.object({
   email: z
@@ -41,9 +41,11 @@ const SignInForm = ({
   setAuthMethod: (data: AuthData) => void
   initialData: AuthData['data']
 }) => {
+  const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
   })
+  const [isShowPassword, setIsShowPassword] = useState(false)
 
   const [isAuthenticating, startAuthentication] = useTransition()
 
@@ -52,7 +54,7 @@ const SignInForm = ({
       try {
         const res = await signIn('credentials', { redirect: false, ...value })
         if (!res?.ok) {
-          toast.error(res?.error)
+          toast.error(t('sign_in_failed_please_try_again'))
         }
       } catch (error) {
         console.log({ error })
@@ -63,7 +65,7 @@ const SignInForm = ({
     <div className="w-full animate-opacity-display-effect self-start">
       {/* <p className=" font-semibold">Or continue with email address</p> */}
       <TypographyPrimary className="font-medium">
-        Or continue with email address
+        {t('or_continue_with_email_address')}
       </TypographyPrimary>
 
       <Form {...form}>
@@ -96,14 +98,25 @@ const SignInForm = ({
               defaultValue={initialData?.password}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="">Password</FormLabel>
+                  <FormLabel className="">{t('password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type="password"
+                      type={isShowPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                        >
+                          {isShowPassword ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
+                        </span>
+                      }
                       {...field}
-                      placeholder="Password"
-                      className=""
+                      placeholder="{t('password')}"
                     />
                   </FormControl>
 
@@ -134,31 +147,27 @@ const SignInForm = ({
             {/*  )}*/}
             {/*/>*/}
             <p className="cursor-pointer text-xs font-semibold hover:underline">
-              Forgot password?
+              {t('forgot_password')}
             </p>
           </div>
           <Button
             type="submit"
-            className="mb-2 h-11 w-full"
+            className="mb-2 h-11 w-full rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm"
             loading={isAuthenticating}
           >
-            Login
+            {t('login')}
           </Button>
         </form>
       </Form>
       <div className="flex items-center justify-center gap-2 text-center text-xs">
         <TypographySecondary className="font-semibold">
-          Don’t have an account?
+          {t('dont_have_an_account')}
         </TypographySecondary>
         <span
           className="cursor-pointer font-semibold hover:underline"
-          onClick={() =>
-            setAuthMethod({
-              method: 'signUp',
-            })
-          }
+          onClick={() => setAuthMethod({ method: 'signUp' })}
         >
-          Sign up
+          {t('sign_up')}
         </span>
       </div>
     </div>
