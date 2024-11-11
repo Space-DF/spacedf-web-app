@@ -23,6 +23,8 @@ import {
 } from '@/components/ui/typography'
 import { ApiResponse } from '@/types/global'
 import { AuthData } from '.'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
 
 export const passwordSchema = z
   .string()
@@ -101,6 +103,14 @@ const SignUpForm = ({
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
+
+  const { setOpenDrawer } = useIdentityStore(
+    useShallow((state) => ({
+      openDrawer: state.openDrawerIdentity,
+      setOpenDrawer: state.setOpenDrawerIdentity,
+    })),
+  )
+
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     setIsAuthenticating(true)
 
@@ -127,6 +137,8 @@ const SignUpForm = ({
             refreshToken: res?.data?.refresh,
           }),
         })
+
+        setOpenDrawer(false)
 
         return res?.data?.message || 'Sign up successful!'
       },
