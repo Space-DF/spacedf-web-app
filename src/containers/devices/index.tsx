@@ -117,7 +117,7 @@ const AddDeviceDialog = () => {
               setStep('add_device_manual')
               setMode('manual')
             }}
-            isSelected={mode === 'auto'}
+            isSelected={mode === 'manual'}
           />
         </>
       ),
@@ -369,9 +369,7 @@ const addDeviceSchema = z.object({
   dev_ui: z.string().min(2, {
     message: 'Username must be at least 2 characters.',
   }),
-  description: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
+  description: z.string().optional(),
 })
 
 const AddDeviceForm = ({
@@ -454,6 +452,7 @@ const AddDeviceForm = ({
                 <Textarea
                   disabled={isModeAuto}
                   placeholder={t('enter_description')}
+                  className="resize-none"
                   {...field}
                 />
               </FormControl>

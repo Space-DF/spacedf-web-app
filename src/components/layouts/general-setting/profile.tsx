@@ -36,7 +36,7 @@ const nameSchema = z
     message: 'First name must be less than or equal to 50 characters',
   })
   .regex(/^[A-Za-z\s]*$/, {
-    message: 'Only alphabetic characters and spaces are allowed',
+    message: 'Only alphabetic characters and spaces are accepted',
   })
 
 const profileSchema = z.object({

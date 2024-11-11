@@ -68,23 +68,29 @@ const InputWithIcon = React.forwardRef<
   HTMLInputElement,
   InputProps & {
     prefixCpn?: React.ReactNode
+    suffixCpn?: React.ReactNode
   }
->(({ className, type, prefixCpn, ...props }, ref) => {
+>(({ className, type, prefixCpn, suffixCpn, ...props }, ref) => {
   return (
     <div className="relative flex max-w-2xl items-center">
-      <div className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 transform text-brand-text-gray">
+      <div className="absolute left-2 top-1/2 size-4 -translate-y-1/2 transform text-brand-text-gray">
         {prefixCpn}
       </div>
       <Input
         className={cn(
           'h-10 rounded-lg border-none bg-brand-fill-dark-soft pl-8 shadow-none',
-
+          {
+            'pr-8': !!suffixCpn,
+          },
           className,
         )}
         type={type}
         ref={ref}
         {...props}
       />
+      <div className="absolute right-2 top-1/2 size-4 -translate-y-1/2 transform text-brand-text-gray">
+        {suffixCpn}
+      </div>
     </div>
   )
 })

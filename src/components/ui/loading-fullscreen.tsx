@@ -1,12 +1,16 @@
-import Image from 'next/image'
 import React from 'react'
-import LogoSVG from '/public/space_df_logo.svg'
+import { cn } from '@/lib/utils'
 import { Logo } from './logo'
 
-const LoadingFullScreen = () => {
+const LoadingFullScreen = ({ className }: { className?: string }) => {
   return (
-    <div className="pointer-events-none flex h-full w-full flex-col items-center justify-center">
-      <div className="h-48 w-48">
+    <div
+      className={cn(
+        'pointer-events-none flex size-full flex-col items-center justify-center',
+        className,
+      )}
+    >
+      <div className="size-48">
         <Logo />
       </div>
     </div>

@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleUserRound, LockKeyhole, Mail } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
+import { CircleUserRound, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import { signIn } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,46 +21,57 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { AuthData } from '.'
 import { ApiResponse } from '@/types/global'
+import { AuthData } from '.'
 
 export const passwordSchema = z
   .string()
-  .min(3, { message: 'Password must have at least 3 characters' })
+  .min(1, { message: 'Password cannot be empty' })
   .max(150, {
     message: 'Password must be less than or equal to 150 characters',
   })
   .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/, {
     message:
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+      'The password must has least 8 character, including uppercase letters, numbers, and special characters.',
   })
 
 export const singInSchema = z
   .object({
     first_name: z
       .string()
-      .min(1, { message: 'First name is required' })
+      .min(1, { message: 'First Name cannot be empty' })
       .max(50, {
-        message: 'First name must be less than or equal to 50 characters',
+        message: 'First Name must not exceed 50 characters',
+      })
+      .regex(/^[A-Za-z\s]*$/, {
+        message: 'Only alphabetic characters and spaces are accepted',
       }),
     last_name: z
-      .string({ required_error: 'Last name is required' })
-      .min(1, { message: 'Last name is required' })
+      .string()
+      .min(1, { message: 'Last Name cannot be empty ' })
       .max(50, {
-        message: 'Last name must be less than or equal to 50 characters',
+        message: 'Last Name must not exceed 50 characters',
+      })
+      .regex(/^[A-Za-z\s]*$/, {
+        message: 'Only alphabetic characters and spaces are accepted',
       }),
     email: z
       .string()
-      .email({ message: 'Please enter a valid email address' })
-      .min(1, { message: 'Email is required' })
-      .max(50, {
-        message: 'Email must be less than or equal to 50 characters',
+      .email({ message: 'Invalid Email' })
+      .min(1, { message: 'Email cannot be empty' })
+      .refine((value) => value.split('@')[0].length <= 64, {
+        message: 'Invalid Email', // Local part max length
+      })
+      .refine((value) => value.split('@')[1]?.length <= 255, {
+        message: 'Invalid Email', // Domain part max length
       }),
     password: passwordSchema,
-    confirm_password: passwordSchema,
+    confirm_password: z
+      .string()
+      .min(1, { message: 'Confirm password cannot be empty ' }),
   })
   .refine((data) => data.password === data.confirm_password, {
-    message: 'Password do not match',
+    message: 'Confirm password must match the password entered above.',
     path: ['confirm_password'],
   })
 
@@ -84,12 +95,12 @@ const SignUpForm = ({
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
-    mode: 'all',
   })
 
   const { isDirty, isValid } = form.formState
   const [isAuthenticating, setIsAuthenticating] = useState(false)
-
+  const [isShowPassword, setIsShowPassword] = useState(false)
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     setIsAuthenticating(true)
 
@@ -119,8 +130,10 @@ const SignUpForm = ({
 
         return res?.data?.message || 'Sign up successful!'
       },
-      error: (error: ApiResponse) => {
-        return error?.message || 'Something went wrong'
+      error: () => {
+        return t(
+          'this_email_is_already_registered_please_use_a_different_email_or_log_in',
+        )
       },
       finally() {
         setIsAuthenticating(false)
@@ -199,8 +212,20 @@ const SignUpForm = ({
                   <FormLabel>{t('password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type="password"
+                      type={isShowPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                        >
+                          {isShowPassword ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
+                        </span>
+                      }
                       {...field}
                       placeholder={t('password')}
                     />
@@ -217,8 +242,22 @@ const SignUpForm = ({
                   <FormLabel>{t('confirm_password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type="password"
+                      type={isShowPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() =>
+                            setIsShowConfirmPassword(!isShowConfirmPassword)
+                          }
+                        >
+                          {isShowConfirmPassword ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
+                        </span>
+                      }
                       {...field}
                       placeholder={t('password')}
                     />

@@ -1,19 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { LogOut } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import React, { forwardRef, useEffect, useState } from 'react'
+import { ImperativePanelGroupHandle } from 'react-resizable-panels'
+import { useShallow } from 'zustand/react/shallow'
 import { COOKIES, Navigation as TNavigation, navigations } from '@/constants'
-
 import { useKeyboardShortcut, useMounted } from '@/hooks'
+import { useOrganization } from '@/hooks/useOrganization'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
 import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { signOut, useSession } from 'next-auth/react'
-import { useTranslations } from 'next-intl'
-import { forwardRef, useEffect, useState } from 'react'
-import { ImperativePanelGroupHandle } from 'react-resizable-panels'
-import { useShallow } from 'zustand/react/shallow'
 import {
   SettingIcon,
   SidebarCollapsedSimple,
@@ -22,13 +23,11 @@ import {
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import { Separator } from '../ui/separator'
-import IdentityButton from './identity-button'
 import GeneralSetting from './general-setting'
+import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
-import { LogOut } from 'lucide-react'
-import { useOrganization } from '@/hooks/useOrganization'
 
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
@@ -128,12 +127,8 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <div className={cn('flex items-center justify-between gap-3')}>
           <div className="min-w-14 flex-1">
             {/* <IdentityButton isCollapsed={isCollapsed} /> */}
-            {isOrganization && mounted && (
-              <SwitchSpace isCollapsed={isCollapsed} />
-            )}
-            {!isOrganization && mounted && (
-              <IdentityButton isCollapsed={isCollapsed} />
-            )}
+            {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
+            {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
           </div>
           <SidebarSimpleIcon
             className="cursor-pointer justify-self-end text-brand-text-gray"
@@ -148,7 +143,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
           variant="ghost"
         >
           <div className="flex items-center gap-2 text-brand-text-gray">
-            <MagnifyingGlassIcon className="h-5 w-5" />
+            <MagnifyingGlassIcon className="size-5" />
             {t('search')}
           </div>
           <kbd className="pointer-events-none inline-flex h-5 select-none items-center bg-transparent text-sm font-medium text-muted-foreground opacity-100">
@@ -243,7 +238,7 @@ const CollapsedSidebar = ({
             className="my-2 !rounded-lg text-brand-text-gray"
             onClick={() => setOpen?.(true)}
           >
-            <MagnifyingGlassIcon className="h-5 w-5" />
+            <MagnifyingGlassIcon className="size-5" />
           </Button>
           <Separator orientation="horizontal" />
           <CollapsedNavigation />

@@ -6,6 +6,7 @@ import { TSpace } from '@/types/common'
 import AvtUser from '/public/images/avt-user.svg'
 import { cn } from '@/lib/utils'
 import { OrganizationLogo } from '@/components/icons/organization-logo'
+import { ChevronsUpDown } from 'lucide-react'
 
 type SpaceProps = {
   spaceData: TSpace
@@ -23,34 +24,38 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
   const { thumbnail, title, count_device } = spaceData
 
   return (
-    <div className="flex gap-2 rounded-[12px] border border-brand-stroke-dark-soft p-[2px] dark:border-brand-stroke-outermost">
-      <Avatar className="flex items-center justify-center rounded-[12px] bg-purple-200 p-1 dark:bg-purple-700">
-        <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-          {/* <ImageWithBlur
+    <div className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-brand-stroke-dark-soft p-1 dark:border-brand-stroke-outermost">
+      <div className="flex gap-2">
+        <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700">
+          <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
+            {/* <ImageWithBlur
             src={}
             width={40}
             height={40}
             alt="space-df"
           /> */}
-          <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
-        </Suspense>
-      </Avatar>
-
-      {!hiddenOption && (
-        <div className="flex flex-col justify-between font-medium">
-          <p
-            className={cn(
-              'text-xs',
-              isSelected ? 'text-brand-heading dark:text-white' : 'text-white',
-            )}
-          >
-            {title}
-          </p>
-          <span className="text-xs font-medium text-gray-400 dark:text-brand-dark-text-gray">
-            {count_device} devices
-          </span>
-        </div>
-      )}
+            <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
+          </Suspense>
+        </Avatar>
+        {!hiddenOption && (
+          <div className="flex flex-col items-start justify-between font-medium">
+            <p
+              className={cn(
+                'text-sm font-semibold',
+                isSelected
+                  ? 'text-brand-heading dark:text-white'
+                  : 'text-white',
+              )}
+            >
+              {title}
+            </p>
+            <span className="rounded bg-brand-dark-fill-secondary px-2 text-xs font-semibold leading-normal text-white dark:text-brand-dark-text-gray">
+              Admin
+            </span>
+          </div>
+        )}
+      </div>
+      <ChevronsUpDown size={20} className="text-brand-text-gray" />
     </div>
   )
 }
