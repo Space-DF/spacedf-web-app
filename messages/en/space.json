@@ -1,0 +1,23 @@
+{
+  "create_new_space": "Create New Space",
+  "space_name": "Space Name",
+  "space_image": "Space Image",
+  "switch_space": "Switch Space",
+  "create_space": "Create space",
+  "devices": "{count} devices",
+  "upload_image": "Upload image",
+  "800x800_png_jpg_is_recommended_maximum_file_size_5mb": "800x800 PNG, JPG is recommended. Maximum file size: 5MB",
+  "were_setting_up_your_space": "We’re setting up your space.",
+  "please_wait_a_couple_second": "Please wait a couple second",
+  "are_you_sure": "Are you sure",
+  "are_you_sure_you_want_to_go_back_you_can_still_add_your_member_later": "Are you sure you want to go back? You can still add your member later.",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "congratulations_youve_created_your_new_space_take_the_next_step_by_inviting_members_to_join_and_collaborate": "Congratulations! You've created your new space. Take the next step by inviting members to join and collaborate!",
+  "ill_do_it_later": "I’ll do it later",
+  "invite": "Invite",
+  "invite_member_by_email_comma_separated": "Invite member by Email, comma separated ",
+  "name": "Name",
+  "role": "Role",
+  "action": "Action"
+}

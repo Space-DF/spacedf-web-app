@@ -1,3 +1,4 @@
+import React from 'react'
 import { SVGProps } from '@/types/global'
 import { generateOrganizationDomain } from '@/utils'
 
@@ -24,10 +25,10 @@ export const AppWireFrameDark = ({
         {...resSVGProps}
       >
         <g
-          clip-path="url(#clip0_3609_60605)"
+          clipPath="url(#clip0_3609_60605)"
           filter="url(#filter0_d_3609_60605)"
         >
-          <g clip-path="url(#clip1_3609_60605)">
+          <g clipPath="url(#clip1_3609_60605)">
             <mask id="path-1-inside-1_3609_60605" fill="white">
               <path d="M4 54H284V1065H4V54Z" />
             </mask>
@@ -274,7 +275,7 @@ export const AppWireFrameDark = ({
             <path
               d="M4 14C4 7.37258 9.37258 2 16 2H1432C1438.63 2 1444 7.37258 1444 14V54H4V14Z"
               fill="#202124"
-              fill-opacity="0.9"
+              fillOpacity="0.9"
             />
             <path
               d="M112 36.5C112.116 36.5 112.328 36.4574 112.561 36.3298C117.316 33.7128 119 32.5213 119 29.3723V22.9681C119 22.0958 118.587 21.8298 117.93 21.5426C117.073 21.1702 113.567 19.9255 112.71 19.6277C112.487 19.5532 112.244 19.5 112 19.5C111.756 19.5 111.502 19.5745 111.29 19.6277C110.433 19.8404 106.927 21.1809 106.07 21.5426C105.413 21.8191 105 22.0958 105 22.9681V29.3723C105 32.5213 106.684 33.7021 111.439 36.3298C111.672 36.4574 111.884 36.5 112 36.5ZM112.286 21.0957C113.631 21.6383 115.887 22.4362 117.274 22.9043C117.454 22.9681 117.486 23.0638 117.486 23.2553V29C117.486 31.5851 116.352 32.266 112.53 34.5638C112.265 34.7234 112.138 34.7553 112.011 34.7553V21.0426C112.085 21.0426 112.18 21.0532 112.286 21.0957Z"
@@ -305,8 +306,8 @@ export const AppWireFrameDark = ({
             <path
               d="M767.994 22.3555L770.33 24.6917L767.994 27.0279M773 28.9747C773 31.5552 770.908 33.6471 768.328 33.6471C765.747 33.6471 763.655 31.5552 763.655 28.9747C763.655 26.3942 765.747 24.3023 768.328 24.3023C768.874 24.3023 769.496 24.3023 770.274 24.6917"
               stroke="#737373"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <path
               d="M35.5 28C35.5 31.0376 33.0376 33.5 30 33.5C26.9624 33.5 24.5 31.0376 24.5 28C24.5 24.9624 26.9624 22.5 30 22.5C33.0376 22.5 35.5 24.9624 35.5 28Z"
@@ -333,9 +334,9 @@ export const AppWireFrameDark = ({
             width="1448"
             height="1068"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feColorMatrix
               in="SourceAlpha"
               type="matrix"
@@ -374,9 +375,9 @@ export const AppWireFrameDark = ({
             width="1846.39"
             height="187.914"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
-            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feGaussianBlur in="BackgroundImageFix" stdDeviation="33.9785" />
             <feComposite
               in2="SourceAlpha"
