@@ -105,7 +105,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
           ))}
         </DropdownMenuGroup>
 
-        <Separator className="my-2 bg-zinc-500 dark:bg-brand-stroke-outermost" />
+        <Separator className="my-2 bg-brand-stroke-outermost dark:bg-brand-stroke-outermost" />
 
         <DropdownMenuItem className="p-0 focus:bg-transparent">
           <AddNewSpace />

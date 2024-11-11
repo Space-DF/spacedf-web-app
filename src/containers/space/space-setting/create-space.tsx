@@ -18,10 +18,11 @@ import {
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
+import { SpaceFormValues } from '.'
 
 const Settings = ({ isCreating }: { isCreating: boolean }) => {
   const t = useTranslations('space')
-  const form = useFormContext()
+  const form = useFormContext<SpaceFormValues>()
 
   const { isDirty, isValid } = form.formState
 
@@ -43,6 +44,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
               </div>
               <div className="flex flex-col items-start gap-2">
                 <Button
+                  type="button"
                   variant="outline"
                   className="gap-2 rounded-lg text-base font-semibold text-brand-text-dark shadow-none"
                 >
@@ -78,6 +80,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
           <div>
             <Button
               type="submit"
+              className="h-12 items-center rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
               disabled={!isDirty || !isValid}
               loading={isCreating}
             >

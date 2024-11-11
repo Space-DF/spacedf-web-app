@@ -87,6 +87,9 @@ export const SearchMember = ({
     (selectedOption: Option) => {
       setInputValue(selectedOption.label)
       onValueChange?.(selectedOption)
+      setTimeout(() => {
+        inputRef?.current?.blur()
+      }, 0)
     },
     [onValueChange],
   )
@@ -103,7 +106,7 @@ export const SearchMember = ({
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border rounded-lg"
+          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary"
         />
       </div>
       <div className="relative">

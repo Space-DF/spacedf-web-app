@@ -13,9 +13,14 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
-  space_name: z.string().min(2, {
-    message: 'Space name must be at least 2 characters.',
-  }),
+  space_name: z
+    .string()
+    .min(1, {
+      message: 'This field cannot be empty',
+    })
+    .max(50, {
+      message: 'This field must be less than or equal to 50 characters',
+    }),
 })
 
 export type SpaceFormValues = z.infer<typeof formSchema>
