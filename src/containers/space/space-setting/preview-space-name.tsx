@@ -5,16 +5,15 @@ import { AppWireFrame } from '@/components/ui/app-wire-frame'
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
+import { getCookie } from '@/utils'
+import { AppWireFrameSpace } from '@/components/ui/app-wire-frame-space'
+import { useFormContext } from 'react-hook-form'
+import { z } from 'zod'
+import { SpaceFormValues } from '.'
 
 const PreviewSpaceName = () => {
-  const { organizationName } = useIdentityStore(
-    useShallow((state) => ({
-      organizationName: state.organizationName,
-      openDrawerIdentity: state.openDrawerIdentity,
-    })),
-  )
-
   const { startRender } = usePageTransition({ duration: 200 })
+  const { watch } = useFormContext<SpaceFormValues>()
 
   return (
     <div
@@ -24,12 +23,13 @@ const PreviewSpaceName = () => {
       )}
     >
       <div className="size-full overflow-hidden">
-        <AppWireFrame
+        <AppWireFrameSpace
           className={cn(
             'h-full w-full translate-x-36 opacity-0 transition-all duration-700',
             { 'translate-x-0 opacity-100': startRender },
           )}
-          organization={organizationName}
+          organization={getCookie('organization', '')}
+          spaceName={watch('space_name')}
         />
       </div>
     </div>

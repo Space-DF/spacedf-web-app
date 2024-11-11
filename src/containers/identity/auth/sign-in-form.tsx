@@ -22,6 +22,8 @@ import {
 } from '@/components/ui/typography'
 import { passwordSchema } from './sign-up-form'
 import { AuthData } from '.'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
 
 const singInSchema = z.object({
   email: z
@@ -49,12 +51,21 @@ const SignInForm = ({
 
   const [isAuthenticating, startAuthentication] = useTransition()
 
+  const { setOpenDrawer } = useIdentityStore(
+    useShallow((state) => ({
+      openDrawer: state.openDrawerIdentity,
+      setOpenDrawer: state.setOpenDrawerIdentity,
+    })),
+  )
+
   const onSubmit = (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
       try {
         const res = await signIn('credentials', { redirect: false, ...value })
         if (!res?.ok) {
           toast.error(t('sign_in_failed_please_try_again'))
+        } else {
+          setOpenDrawer(false)
         }
       } catch (error) {
         console.log({ error })
@@ -116,7 +127,7 @@ const SignInForm = ({
                         </span>
                       }
                       {...field}
-                      placeholder="{t('password')}"
+                      placeholder={t('password')}
                     />
                   </FormControl>
 

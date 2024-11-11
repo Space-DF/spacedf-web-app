@@ -36,7 +36,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
-      const numberFromCode = code[code.length - 1]
+      const numberFromCode = code?.[code?.length - 1]
 
       const isDetectShortCut =
         Number(numberFromCode) < 10 &&
