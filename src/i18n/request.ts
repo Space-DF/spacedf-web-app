@@ -41,6 +41,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     space: {
       ...(await import(`../../messages/${locale}/space.json`)).default,
     },
+    dashboard: {
+      ...(await import(`../../messages/${locale}/dashboard.json`)).default,
+    },
   }
 
   // Return merged messages

@@ -3,8 +3,9 @@ import React, { PropsWithChildren } from 'react'
 
 type RightSideBarLayoutProps = {
   onClose?: () => void
-  title?: string
+  title?: React.ReactNode | string
   headerButton?: React.ReactNode | string
+  externalButton?: React.ReactNode
   allowClose?: boolean
 } & PropsWithChildren
 
@@ -14,10 +15,11 @@ export const RightSideBarLayout = ({
   headerButton,
   allowClose = true,
   children,
+  externalButton,
 }: RightSideBarLayoutProps) => {
   return (
     <div className="p-4">
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <div className="flex flex-1 flex-wrap items-center justify-between gap-2 duration-300">
           <p className="text-base font-semibold text-brand-text-dark dark:text-white">
             {title}
@@ -25,6 +27,7 @@ export const RightSideBarLayout = ({
           {headerButton}
         </div>
 
+        {externalButton}
         {allowClose && (
           <div
             className="group h-max cursor-pointer rounded-sm p-2 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
