@@ -6,15 +6,19 @@ import { Button } from '@/components/ui/button'
 import { DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
-import Guideline1 from '/public/images/guideline-1.png'
-import Guideline2 from '/public/images/guideline-2.png'
-import Guideline3 from '/public/images/guideline-3.png'
+import GuidelineDark1 from '/public/images/guideline-dark-1.png'
+import GuidelineDark2 from '/public/images/guideline-dark-2.png'
+import GuidelineDark3 from '/public/images/guideline-dark-3.png'
+import GuidelineLight1 from '/public/images/guideline-light-1.png'
+import GuidelineLight2 from '/public/images/guideline-light-2.png'
+import GuidelineLight3 from '/public/images/guideline-light-3.png'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { ChevronsRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { wrap } from 'popmotion'
+import { useTheme } from 'next-themes'
 
 const variants = {
   enter: (direction: number) => {
@@ -50,6 +54,8 @@ export default function Guideline() {
     useShallow((state) => state),
   )
 
+  const { theme = 'light' } = useTheme()
+
   const handleNextPage = () => {
     paginate(1)
     if (page === 2) {
@@ -69,15 +75,18 @@ export default function Guideline() {
   const steps = [
     {
       label: 'Welcome to GPS Tracking Template ',
-      src: Guideline1,
+      light: GuidelineLight1,
+      dark: GuidelineDark1,
     },
     {
       label: 'Welcome to GPS Tracking Template ',
-      src: Guideline2,
+      light: GuidelineLight2,
+      dark: GuidelineDark2,
     },
     {
       label: 'Welcome to GPS Tracking Template ',
-      src: Guideline3,
+      light: GuidelineLight3,
+      dark: GuidelineDark3,
     },
   ]
 
@@ -138,7 +147,7 @@ export default function Guideline() {
               <AnimatePresence initial={false} custom={direction}>
                 <motion.img
                   key={page}
-                  src={steps[imageIndex].src.src}
+                  src={steps[imageIndex][theme as 'light' | 'dark'].src}
                   custom={direction}
                   variants={variants}
                   initial="enter"
