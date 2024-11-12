@@ -120,9 +120,9 @@ const SignInForm = ({
                           onClick={() => setIsShowPassword(!isShowPassword)}
                         >
                           {isShowPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }

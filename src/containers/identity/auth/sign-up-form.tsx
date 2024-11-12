@@ -231,9 +231,9 @@ const SignUpForm = ({
                           onClick={() => setIsShowPassword(!isShowPassword)}
                         >
                           {isShowPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }
@@ -263,9 +263,9 @@ const SignUpForm = ({
                           }
                         >
                           {isShowConfirmPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }
