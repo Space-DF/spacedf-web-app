@@ -56,6 +56,8 @@ const Devices = () => {
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
+  const [selected, setSelected] = useState<number>()
+
   return (
     <RightSideBarLayout
       onClose={() => {
@@ -65,8 +67,11 @@ const Devices = () => {
       title={t('selected_devices')}
     >
       <div className="h-screen overflow-y-auto pb-20">
-        <DeviceSelected />
-        <DevicesList />
+        <DeviceSelected selected={selected} />
+        <DevicesList
+          selected={selected}
+          handleSelected={(id: number) => setSelected(id)}
+        />
         <Nodata content={t('nodata', { module: t('devices') })} />
       </div>
     </RightSideBarLayout>
@@ -187,12 +192,8 @@ const AddDeviceDialog = () => {
   )
 }
 
-const DeviceSelected = () => {
+const DeviceSelected = ({ selected }: { selected?: number }) => {
   const t = useTranslations('addNewDevice')
-
-  // @TODO: handle device selected
-  const deviceSelected = undefined
-
   const InformationItem = (props: { label: string; content: string }) => {
     return (
       <div className="flex gap-4 text-sm">
@@ -204,7 +205,7 @@ const DeviceSelected = () => {
     )
   }
 
-  if (!deviceSelected) {
+  if (!selected) {
     return (
       <div className="rounded-xl bg-brand-fill-dark-soft p-4">
         <Nodata content={t('no_selected_devices')} />
@@ -269,9 +270,15 @@ const DeviceSelected = () => {
   )
 }
 
-const DevicesList = () => {
+const DevicesList = ({
+  handleSelected,
+  selected,
+}: {
+  handleSelected: (id: number) => void
+  selected?: number
+}) => {
   const t = useTranslations('addNewDevice')
-  const devices = Array.from({ length: 16 }).map((_, id) => ({ id }))
+  const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
     <div className="mt-6 flex flex-col gap-4">
@@ -286,10 +293,10 @@ const DevicesList = () => {
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
             <div
               className={cn(
-                'rounded-xl border border-transparent bg-brand-fill-dark-soft p-2 text-brand-text-dark',
-                // TODO: handle border selected
-                { 'border-brand-heading': item.id === 0 },
+                'cursor-pointer rounded-xl border border-transparent bg-brand-fill-dark-soft p-2 text-brand-text-dark',
+                { 'border-brand-heading': item.id === selected },
               )}
+              onClick={() => handleSelected(item.id)}
             >
               <div className="flex items-center justify-between">
                 <div className="size-8">
