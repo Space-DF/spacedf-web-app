@@ -18,10 +18,14 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
 
   return (
     <>
-      <div className="flex gap-2">
-        <Avatar className="flex items-center justify-center rounded-xl bg-purple-200 p-1 dark:bg-purple-700">
+      <div className="flex gap-3">
+        <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700">
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-            <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
+            <OrganizationLogo
+              className="text-purple-900 dark:text-purple-400"
+              width={28}
+              height={28}
+            />
           </Suspense>
         </Avatar>
 
@@ -29,7 +33,7 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
           <p className={cn('text-xs font-medium leading-normal text-white')}>
             {title}
           </p>
-          <span className="text-xs font-medium leading-normal text-brand-dark-text-gray">
+          <span className="text-xs font-medium capitalize leading-normal text-brand-dark-text-gray">
             {t('devices', { count: count_device })}
           </span>
         </div>

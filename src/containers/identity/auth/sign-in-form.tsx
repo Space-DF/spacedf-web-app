@@ -27,7 +27,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 const singInSchema = z.object({
   email: z
-    .string()
+    .string({ message: 'Email cannot be empty' })
     .email({ message: 'Please enter a valid email address' })
     .min(1, { message: 'Email is required' })
     .max(50, { message: 'Email must be less than or equal to 50 characters' }),
@@ -120,9 +120,9 @@ const SignInForm = ({
                           onClick={() => setIsShowPassword(!isShowPassword)}
                         >
                           {isShowPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }

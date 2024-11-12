@@ -110,7 +110,7 @@ export default function EnterMember() {
     <div className="mx-auto flex w-full max-w-[600px] animate-display-effect flex-col gap-4 pt-4">
       <div>
         <Firework className="mx-auto block" />
-        <div className="mt-2 text-center text-brand-text-dark">
+        <div className="mt-2 text-center text-xl font-semibold text-brand-text-dark">
           {t(
             'congratulations_youve_created_your_new_space_take_the_next_step_by_inviting_members_to_join_and_collaborate',
           )}

@@ -27,7 +27,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 
 export const passwordSchema = z
-  .string()
+  .string({ message: 'Password cannot be empty' })
   .min(1, { message: 'Password cannot be empty' })
   .max(150, {
     message: 'Password must be less than or equal to 150 characters',
@@ -40,7 +40,7 @@ export const passwordSchema = z
 export const singInSchema = z
   .object({
     first_name: z
-      .string()
+      .string({ message: 'First Name cannot be empty' })
       .min(1, { message: 'First Name cannot be empty' })
       .max(50, {
         message: 'First Name must not exceed 50 characters',
@@ -49,7 +49,7 @@ export const singInSchema = z
         message: 'Only alphabetic characters and spaces are accepted',
       }),
     last_name: z
-      .string()
+      .string({ message: 'Last Name cannot be empty' })
       .min(1, { message: 'Last Name cannot be empty ' })
       .max(50, {
         message: 'Last Name must not exceed 50 characters',
@@ -58,7 +58,7 @@ export const singInSchema = z
         message: 'Only alphabetic characters and spaces are accepted',
       }),
     email: z
-      .string()
+      .string({ message: 'Email cannot be empty' })
       .email({ message: 'Invalid Email' })
       .min(1, { message: 'Email cannot be empty' })
       .refine((value) => value.split('@')[0].length <= 64, {
@@ -69,7 +69,7 @@ export const singInSchema = z
       }),
     password: passwordSchema,
     confirm_password: z
-      .string()
+      .string({ message: 'Confirm password cannot be empty ' })
       .min(1, { message: 'Confirm password cannot be empty ' }),
   })
   .refine((data) => data.password === data.confirm_password, {
@@ -99,7 +99,6 @@ const SignUpForm = ({
     resolver: zodResolver(singInSchema),
   })
 
-  const { isDirty, isValid } = form.formState
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
@@ -232,9 +231,9 @@ const SignUpForm = ({
                           onClick={() => setIsShowPassword(!isShowPassword)}
                         >
                           {isShowPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }
@@ -254,7 +253,7 @@ const SignUpForm = ({
                   <FormLabel>{t('confirm_password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type={isShowPassword ? 'text' : 'password'}
+                      type={isShowConfirmPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
@@ -264,9 +263,9 @@ const SignUpForm = ({
                           }
                         >
                           {isShowConfirmPassword ? (
-                            <EyeOff size={16} />
-                          ) : (
                             <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
                           )}
                         </span>
                       }
@@ -283,7 +282,6 @@ const SignUpForm = ({
             type="submit"
             className="mb-2 mt-5 h-11 w-full"
             loading={isAuthenticating}
-            disabled={!isDirty || !isValid}
           >
             {t('sign_up')}
           </Button>
