@@ -13,6 +13,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import Authentication from './auth'
 import InitializingOrganization from './initializing-organization'
 import OrganizationSetting from './organization-setting'
+import Guideline from '@/containers/identity/guideline'
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   const data = {
@@ -66,27 +67,30 @@ const Identity = () => {
   const dataDrawer = getDrawerData(identityStep)
 
   return (
-    <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-      <DrawerContent className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white">
-        <div className="flex size-full flex-col overflow-auto">
-          <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
-            <p className="text-base font-semibold">{dataDrawer.title}</p>
+    <>
+      <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
+        <DrawerContent className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white">
+          <div className="flex size-full flex-col overflow-auto">
+            <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
+              <p className="text-base font-semibold">{dataDrawer.title}</p>
 
-            <DrawerPrimitive.Close>
-              <X
-                size={20}
-                className="cursor-pointer duration-300 hover:-rotate-90 hover:scale-110 dark:text-brand-dark-text-gray"
-              />
-            </DrawerPrimitive.Close>
-          </div>
-          <div className="flex-1">
-            <div className="flex size-full items-center justify-center">
-              {dataDrawer.children}
+              <DrawerPrimitive.Close>
+                <X
+                  size={20}
+                  className="cursor-pointer duration-300 hover:-rotate-90 hover:scale-110 dark:text-brand-dark-text-gray"
+                />
+              </DrawerPrimitive.Close>
+            </div>
+            <div className="flex-1">
+              <div className="flex size-full items-center justify-center">
+                {dataDrawer.children}
+              </div>
             </div>
           </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
+        </DrawerContent>
+      </Drawer>
+      <Guideline />
+    </>
   )
 }
 
