@@ -68,7 +68,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="shadcn"
+                    placeholder={t('space_name')}
                     className="border-0 shadow-none"
                     {...field}
                   />
