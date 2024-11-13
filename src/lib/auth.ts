@@ -2,7 +2,7 @@ import { NEXTAUTH_SECRET } from '@/shared/env'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
-import SpacedfClient from 'spacedf-sdk'
+import SpacedfClient from '@space-df/sdk'
 import { ApiResponse } from '@/types/global'
 
 const client = new SpacedfClient({

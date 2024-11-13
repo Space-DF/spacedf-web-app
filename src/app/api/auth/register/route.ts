@@ -1,5 +1,5 @@
 // pages/api/submit-form.ts
-import SpacedfClient from 'spacedf-sdk'
+import SpacedfClient from '@space-df/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 import { ApiResponse } from '@/types/global'
 
