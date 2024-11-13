@@ -48,7 +48,7 @@ const Account = () => {
         className="animate-opacity-display-effect"
       >
         <div className="space-y-4">
-          <div className="dark:text-brand-semantic-accent-300 dark:bg-brand-semantic-accent-dark-300 flex items-center gap-1 rounded bg-brand-semantic-accent-light p-2 text-xs font-semibold text-brand-semantic-accent">
+          <div className="flex items-center gap-1 rounded bg-brand-semantic-accent-light p-2 text-xs font-semibold text-brand-semantic-accent dark:bg-brand-semantic-accent-dark-300 dark:text-brand-semantic-accent-300">
             <TriangleAlert size={16} />
             {t('warning_this_is_a_potentially_destructive_action')}
           </div>
@@ -77,7 +77,7 @@ const Account = () => {
             <Button
               disabled={!isDirty || !isValid}
               size="lg"
-              className="dark:bg-brand-semantic-accent-400 bg-brand-semantic-accent-300 h-12 w-full border-2 border-brand-semantic-accent-dark"
+              className="h-12 w-full border-2 border-brand-semantic-accent-dark bg-brand-semantic-accent-300 dark:bg-brand-semantic-accent-400"
               variant="destructive"
             >
               {t('permanently_delete_account')}

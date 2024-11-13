@@ -127,7 +127,7 @@ export default function EnterMember() {
             email: item.email,
             value: item.id,
           }))}
-          placeholder="Find something"
+          placeholder="Invite member by Email"
           onValueChange={(value) => {
             setValue(value)
             setData((prev) => {
