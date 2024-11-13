@@ -26,7 +26,7 @@ const formSchema = z.object({
 export type SpaceFormValues = z.infer<typeof formSchema>
 
 const OrganizationSetting = () => {
-  const [steps, setSteps] = useState<keyof typeof layouts>('member')
+  const [steps, setSteps] = useState<keyof typeof layouts>('create')
   const { isLoading } = useSpaceStore(useShallow((state) => state))
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
