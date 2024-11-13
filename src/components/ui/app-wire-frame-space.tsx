@@ -36,7 +36,6 @@ export const AppWireFrameSpace = ({
     <>
       <svg
         width="636"
-        height="874"
         viewBox="0 0 636 874"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

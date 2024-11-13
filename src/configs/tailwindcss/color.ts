@@ -2,6 +2,7 @@ export const brandColors = {
   'stroke-dark-soft': '#E0E2E7',
   'stroke-gray': '#667085',
   heading: '#090C18',
+  'heading-200': '#171B1D',
   'text-gray': '#667085',
   'fill-dark-soft': '#F0F1F3',
   'fill-gray-light': '#C2C6CE',
@@ -16,7 +17,10 @@ export const brandColors = {
   'bright-lavender': '#A78BF6',
   'semantic-accent-light': '#FFF8F7',
   'semantic-accent': '#D73E3D',
+  'semantic-accent-300': '#E5372B',
+  'semantic-accent-400': '#C72D22',
   'semantic-accent-dark': '#7F0800',
+  'semantic-accent-dark-300': '#431815',
   'semantic-success': '#08B94E',
   'semantic-success-light': '#F4FCF7',
 }

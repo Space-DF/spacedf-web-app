@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select'
+import { ChevronDown } from 'lucide-react'
 
 type Timezone = {
   code: string
@@ -33,7 +34,10 @@ export const SelectTimezone = (props: SelectProps) => {
       {...props}
       defaultValue={selectedValue}
     >
-      <SelectTrigger className="h-10 rounded-xl border-none bg-brand-fill-dark-soft px-3 py-2 text-start">
+      <SelectTrigger
+        className="h-10 rounded-lg border-none bg-brand-fill-dark-soft px-3 py-2 text-start shadow-none"
+        icon={<ChevronDown size={16} className="text-brand-text-gray" />}
+      >
         <SelectValue>
           <Timezone {...timezoneSelected} />
         </SelectValue>

@@ -3,8 +3,8 @@ import { InputWithIcon } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { LockKeyhole, Mail, UserRound } from 'lucide-react'
-import React from 'react'
+import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -18,7 +18,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { passwordSchema } from '@/containers/identity/auth/sign-up-form'
+import {
+  confirmPasswordSchema,
+  currentPasswordSchema,
+  newPasswordSchema,
+} from '@/utils'
 
 const profileSchema = z
   .object({
@@ -28,19 +32,22 @@ const profileSchema = z
       .min(1, { message: 'Email is required' })
       .max(50, {
         message: 'Email must be less than or equal to 50 characters',
-      }),
-    current_password: passwordSchema,
-    new_password: passwordSchema,
-    confirm_password: passwordSchema,
+      })
+      .optional(),
+    current_password: currentPasswordSchema,
+    new_password: newPasswordSchema,
+    confirm_password: confirmPasswordSchema,
   })
   .refine((data) => data.new_password === data.confirm_password, {
-    message: 'Password do not match',
+    message: 'Confirm new password must match the new password entered above',
     path: ['confirm_password'],
   })
 
 const Account = () => {
   const t = useTranslations('generalSettings')
-
+  const [isShowPassword, setIsShowPassword] = useState(false)
+  const [isShowNewPassword, setIsShowNewPassword] = useState(false)
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
@@ -81,7 +88,10 @@ const Account = () => {
 
           <div className="flex items-center gap-2">
             <div className="grid w-full flex-1 items-center gap-1.5">
-              <Label htmlFor="email" className="gap-2">
+              <Label
+                htmlFor="email"
+                className="gap-2 text-xs font-semibold text-brand-heading"
+              >
                 {t('authenticator_app')}
               </Label>
               <p className="text-xs font-normal text-brand-text-gray">
@@ -103,6 +113,19 @@ const Account = () => {
                   <InputWithIcon
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<LockKeyhole size={16} />}
+                    type={isShowPassword ? 'text' : 'password'}
+                    suffixCpn={
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => setIsShowPassword(!isShowPassword)}
+                      >
+                        {isShowPassword ? (
+                          <Eye size={16} />
+                        ) : (
+                          <EyeOff size={16} />
+                        )}
+                      </span>
+                    }
                     placeholder={t('current_password')}
                     {...field}
                   />
@@ -121,6 +144,19 @@ const Account = () => {
                   <InputWithIcon
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<LockKeyhole size={16} />}
+                    type={isShowNewPassword ? 'text' : 'password'}
+                    suffixCpn={
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => setIsShowNewPassword(!isShowNewPassword)}
+                      >
+                        {isShowNewPassword ? (
+                          <Eye size={16} />
+                        ) : (
+                          <EyeOff size={16} />
+                        )}
+                      </span>
+                    }
                     placeholder={t('new_password')}
                     {...field}
                   />
@@ -142,6 +178,21 @@ const Account = () => {
                   <InputWithIcon
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<LockKeyhole size={16} />}
+                    type={isShowConfirmPassword ? 'text' : 'password'}
+                    suffixCpn={
+                      <span
+                        className="cursor-pointer"
+                        onClick={() =>
+                          setIsShowConfirmPassword(!isShowConfirmPassword)
+                        }
+                      >
+                        {isShowConfirmPassword ? (
+                          <Eye size={16} />
+                        ) : (
+                          <EyeOff size={16} />
+                        )}
+                      </span>
+                    }
                     placeholder={t('confirm_new_password')}
                     {...field}
                   />

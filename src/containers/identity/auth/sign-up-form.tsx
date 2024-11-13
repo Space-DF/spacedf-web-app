@@ -25,38 +25,17 @@ import { ApiResponse } from '@/types/global'
 import { AuthData } from '.'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
-
-export const passwordSchema = z
-  .string({ message: 'Password cannot be empty' })
-  .min(1, { message: 'Password cannot be empty' })
-  .max(150, {
-    message: 'Password must be less than or equal to 150 characters',
-  })
-  .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/, {
-    message:
-      'The password must has least 8 character, including uppercase letters, numbers, and special characters.',
-  })
+import {
+  confirmPasswordSchema,
+  firstNameSchema,
+  lastNameSchema,
+  passwordSchema,
+} from '@/utils'
 
 export const singInSchema = z
   .object({
-    first_name: z
-      .string({ message: 'First Name cannot be empty' })
-      .min(1, { message: 'First Name cannot be empty' })
-      .max(50, {
-        message: 'First Name must not exceed 50 characters',
-      })
-      .regex(/^[A-Za-z\s]*$/, {
-        message: 'Only alphabetic characters and spaces are accepted',
-      }),
-    last_name: z
-      .string({ message: 'Last Name cannot be empty' })
-      .min(1, { message: 'Last Name cannot be empty ' })
-      .max(50, {
-        message: 'Last Name must not exceed 50 characters',
-      })
-      .regex(/^[A-Za-z\s]*$/, {
-        message: 'Only alphabetic characters and spaces are accepted',
-      }),
+    first_name: firstNameSchema,
+    last_name: lastNameSchema,
     email: z
       .string({ message: 'Email cannot be empty' })
       .email({ message: 'Invalid Email' })
@@ -68,9 +47,7 @@ export const singInSchema = z
         message: 'Invalid Email', // Domain part max length
       }),
     password: passwordSchema,
-    confirm_password: z
-      .string({ message: 'Confirm password cannot be empty ' })
-      .min(1, { message: 'Confirm password cannot be empty ' }),
+    confirm_password: confirmPasswordSchema,
   })
   .refine((data) => data.password === data.confirm_password, {
     message: 'Confirm password must match the password entered above.',

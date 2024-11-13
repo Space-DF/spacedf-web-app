@@ -20,10 +20,10 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { passwordSchema } from './sign-up-form'
 import { AuthData } from '.'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
+import { passwordSchema } from '@/utils'
 
 const singInSchema = z.object({
   email: z
@@ -166,7 +166,7 @@ const SignInForm = ({
             className="mb-2 h-11 w-full rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm"
             loading={isAuthenticating}
           >
-            {t('login')}
+            {t('sign_in')}
           </Button>
         </form>
       </Form>

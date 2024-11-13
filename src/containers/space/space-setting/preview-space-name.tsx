@@ -26,7 +26,7 @@ const PreviewSpaceName = () => {
       <div className="size-full overflow-hidden">
         <AppWireFrameSpace
           className={cn(
-            'h-full w-full translate-x-36 opacity-0 transition-all duration-700 dark:hidden',
+            'w-full translate-x-36 object-cover opacity-0 transition-all duration-700 dark:hidden',
             { 'translate-x-0 opacity-100': startRender },
           )}
           organization={getCookie('organization', '')}

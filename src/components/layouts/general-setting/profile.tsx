@@ -28,27 +28,24 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-
-const nameSchema = z
-  .string()
-  .min(1, { message: 'First name is required' })
-  .max(50, {
-    message: 'First name must be less than or equal to 50 characters',
-  })
-  .regex(/^[A-Za-z\s]*$/, {
-    message: 'Only alphabetic characters and spaces are accepted',
-  })
+import { firstNameSchema, lastNameSchema } from '@/utils'
 
 const profileSchema = z.object({
-  first_name: nameSchema,
-  last_name: nameSchema,
-  location: z.string().max(50),
-  company_name: z.string().max(100, {
-    message: 'Company name must be less than or equal to 100 characters',
-  }),
-  title: z.string().max(100, {
-    message: 'Company name must be less than or equal to 100 characters',
-  }),
+  first_name: firstNameSchema,
+  last_name: lastNameSchema,
+  location: z.string().optional(),
+  company_name: z
+    .string()
+    .max(100, {
+      message: 'Company name must not exceed 100 characters',
+    })
+    .optional(),
+  title: z
+    .string()
+    .max(100, {
+      message: 'Title must not exceed 100 characters',
+    })
+    .optional(),
 })
 
 const Profile = () => {
@@ -192,7 +189,12 @@ const Profile = () => {
         <div className="mt-4 flex gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" size="lg" variant="outline">
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className="h-12 rounded-lg border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
+              >
                 {t('cancel')}
               </Button>
             </AlertDialogTrigger>
@@ -212,7 +214,11 @@ const Profile = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Button type="submit" size="lg" className="flex-1">
+          <Button
+            type="submit"
+            size="lg"
+            className="h-12 w-full items-center gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
+          >
             {t('save_changes')}
           </Button>
         </div>

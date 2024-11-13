@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from '@radix-ui/react-icons'
 import { Scanner } from '@yudiel/react-qr-scanner'
-import { ArrowLeft, CircleCheck, Pencil, Trash2, Map } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Map, Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -42,7 +42,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
@@ -236,10 +235,10 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
                 <Trash2 size={16} />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="sm:max-w-md">
+            <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
-                  {t('are_you_sure')}
+                  {t('remove_device')}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
                   {t('are_you_sure_you_want_to_remove_this_device')}
@@ -258,13 +257,19 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <InformationItem label={t('device_id')} content={'DMZ 01 12312123'} />
-        <InformationItem label={t('site_name')} content={'Jln Ramaya Terawi'} />
         <InformationItem
-          label={t('pipe_material')}
+          label={`${t('device_id')}:`}
+          content={'DMZ 01 12312123'}
+        />
+        <InformationItem
+          label={`${t('device_name')}:`}
+          content={'Jln Ramaya Terawi'}
+        />
+        <InformationItem
+          label={`${t('deveui')}`}
           content={'Mild Steel Cement Lined'}
         />
-        <InformationItem label={t('pipe_normal_dia_meter')} content={'150'} />
+        <InformationItem label={`${t('description')}:`} content={'150'} />
       </div>
     </div>
   )
@@ -301,9 +306,6 @@ const DevicesList = ({
               <div className="flex items-center justify-between">
                 <div className="size-8">
                   <img src="https://placehold.co/32x32" />
-                </div>
-                <div>
-                  <Switch className="bg-brand-fill-gray-light" />
                 </div>
               </div>
               <div className="mb-7 mt-2 text-xs font-medium">

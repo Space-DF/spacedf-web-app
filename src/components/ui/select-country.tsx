@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select'
+import { ChevronDown } from 'lucide-react'
 
 type Country = {
   code: Locale
@@ -64,7 +65,10 @@ export const SelectCountry = (props: SelectProps) => {
       {...props}
       defaultValue={currentLocale}
     >
-      <SelectTrigger className="rounded-xl border-none bg-brand-fill-dark-soft px-3 py-2 text-start">
+      <SelectTrigger
+        className="rounded-lg border-none bg-brand-fill-dark-soft px-3 py-2 text-start shadow-none"
+        icon={<ChevronDown size={16} className="text-brand-text-gray" />}
+      >
         <SelectValue>
           <Language {...regionSelected} />
         </SelectValue>
@@ -89,17 +93,6 @@ export const SelectCountry = (props: SelectProps) => {
 const Language = (country: Country) => {
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="flex size-6 items-center justify-center rounded-full bg-purple-300">
-        <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-          <ImageWithBlur
-            src={country.flag || ''}
-            width={24}
-            height={24}
-            alt="country"
-            className="object-cover"
-          />
-        </Suspense>
-      </Avatar>
       <p className="text-sm font-medium text-brand-heading dark:text-white">
         {country.name}
       </p>
