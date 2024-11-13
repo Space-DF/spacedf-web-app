@@ -32,7 +32,7 @@ interface Dashboard {
 let dashboards: Dashboard[] = [
   {
     value: 'next.js',
-    label: 'Dashboard 1',
+    label: 'SpaceDF IoT Dashboard',
     isDefault: true,
   },
   {
@@ -71,7 +71,7 @@ const Widgets = () => {
     setOpen(false)
     const value = {
       value: 'new-dashboard',
-      label: 'Unamed Dashboard',
+      label: 'Unnamed Dashboard',
       isDefault: false,
     }
     dashboards = [value, ...dashboards]
