@@ -10,13 +10,15 @@ import {
 } from '@/components/ui/command'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { generateOrganizationDomain } from '@/utils'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
 
 export type Option = Record<'value' | 'label' | 'email', string> &
   Record<string, string>
 
 type AutoCompleteProps = {
   options: Option[]
-  emptyMessage: string
   value?: Option
   onValueChange?: (value: Option) => void
   isLoading?: boolean
@@ -28,7 +30,6 @@ type AutoCompleteProps = {
 export const SearchMember = ({
   options,
   placeholder,
-  emptyMessage,
   value,
   onValueChange,
   disabled,
@@ -39,6 +40,12 @@ export const SearchMember = ({
 
   const [isOpen, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState<string>(value?.label || '')
+  const { organizationName } = useIdentityStore(
+    useShallow((state) => ({
+      organizationName: state.organizationName,
+    })),
+  )
+  const organization = generateOrganizationDomain(organizationName || '')
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
@@ -66,6 +73,7 @@ export const SearchMember = ({
         if (optionToSelect) {
           onValueChange?.(optionToSelect)
           setInputValue('')
+          handleBlur()
         }
       }
 
@@ -141,7 +149,7 @@ export const SearchMember = ({
                       }}
                       className="flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
                     >
-                      <Avatar className="flex size-12 items-center justify-center rounded-lg">
+                      <Avatar className="flex size-11 items-center justify-center rounded-lg">
                         <AvatarImage
                           src="https://github.com/shadcn.png"
                           alt="@shadcn"
@@ -162,8 +170,24 @@ export const SearchMember = ({
               </CommandGroup>
             ) : null}
             {!isLoading ? (
-              <CommandPrimitive.Empty className="select-none rounded-sm px-2 py-3 text-center text-sm">
-                {emptyMessage}
+              <CommandPrimitive.Empty className="p-2">
+                <div className="flex w-full items-center gap-2 rounded-md bg-brand-fill-dark-soft p-2">
+                  <Avatar className="flex size-11 items-center justify-center rounded-lg">
+                    <AvatarImage
+                      src="https://github.com/shadcn.png"
+                      alt="@shadcn"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col gap-1">
+                    <div className="text-sm font-semibold text-brand-text-dark">
+                      {inputValue}
+                    </div>
+                    <div className="text-sm font-medium text-brand-text-gray">
+                      Invite to {organization || 'danang'}.spacedf
+                    </div>
+                  </div>
+                </div>
               </CommandPrimitive.Empty>
             ) : null}
           </CommandList>

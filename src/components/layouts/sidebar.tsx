@@ -162,7 +162,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
             className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
           >
             <SettingIcon />
-            <p className="text-sm">General Setting</p>
+            <p className="text-sm">{t('general_settings')}</p>
           </Button>
         </GeneralSetting>
 
@@ -173,7 +173,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
             onClick={() => signOut()}
           >
             <LogOut size={16} />
-            <p className="text-sm">Logout</p>
+            <p className="text-sm">{t('sign_out')}</p>
           </Button>
         )}
 

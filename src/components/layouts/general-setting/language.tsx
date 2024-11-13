@@ -14,7 +14,7 @@ const Language = () => {
           </Label>
           <SelectCountry />
 
-          <p className="text-xs font-normal text-brand-text-gray">
+          <p className="text-xs font-medium text-brand-text-gray">
             Choose the language you’d like to use.
           </p>
         </div>

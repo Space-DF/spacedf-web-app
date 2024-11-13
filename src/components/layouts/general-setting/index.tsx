@@ -15,6 +15,8 @@ import Appearance from './appearance'
 import Language from './language'
 import DeleteAccount from './delete-account'
 import React from 'react'
+import { Separator } from '@/components/ui/separator'
+import { useTranslations } from 'next-intl'
 
 const settings = () => [
   {
@@ -46,6 +48,7 @@ const settings = () => [
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
   const [currentSetting, setCurrentSetting] = useState('profile')
+  const t = useTranslations('common')
 
   const renderSetting = useMemo(() => {
     switch (currentSetting) {
@@ -69,7 +72,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="text-sm text-brand-text-dark sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>General Setting</DialogTitle>
+          <DialogTitle>{t('general_settings')}</DialogTitle>
         </DialogHeader>
         <div className="flex">
           <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
@@ -79,6 +82,9 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
 
                 return (
                   <React.Fragment key={setting.key}>
+                    {setting.key === 'delete' && (
+                      <Separator className="my-1.5" />
+                    )}
                     <div
                       className={cn(
                         'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',

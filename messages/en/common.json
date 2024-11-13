@@ -2,10 +2,10 @@
   "dashboard": "Dashboard",
   "devices": "Devices",
   "maps": "Maps",
-  "digital_twin": "Digital Twin",
+  "digital_twin": "Digital Twins",
   "user": "user",
   "users": "users",
-  "workspace_settings": "Space settings",
+  "workspace_settings": "Space Settings",
   "plan_and_billing": "Plan and billing",
   "search": "Search",
   "or": "or",
@@ -16,5 +16,7 @@
   "selected_user": "Selected Users",
   "selected_devices": "Selected Devices",
   "light": "Light",
-  "dark": "Dark"
+  "dark": "Dark",
+  "general_settings": "General Settings",
+  "sign_out": "Sign out"
 }

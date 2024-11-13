@@ -85,9 +85,10 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 rounded-xl border-brand-stroke-outermost bg-brand-dark-bg-space p-3 text-white backdrop-blur-xl"
-        sideOffset={10}
-        collisionPadding={10}
+        side="bottom"
+        align="start"
+        className="w-72 rounded-xl border-brand-stroke-outermost bg-brand-dark-bg-space p-3 text-white backdrop-blur-xl"
+        sideOffset={3}
       >
         <DropdownMenuLabel className="p-0 text-xs font-semibold leading-normal">
           {t('switch_space')}

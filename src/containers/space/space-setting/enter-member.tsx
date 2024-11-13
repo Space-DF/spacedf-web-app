@@ -127,7 +127,6 @@ export default function EnterMember() {
             email: item.email,
             value: item.id,
           }))}
-          emptyMessage="No resulsts."
           placeholder="Find something"
           onValueChange={(value) => {
             setValue(value)

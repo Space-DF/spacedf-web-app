@@ -1,7 +1,7 @@
 {
   "avatar": "Avatar",
   "upload_new_image": "Upload new image",
-  "800x800_png_jpg_is_recommended_maximum_file_size_2mb": "800x800 PNG, JPG is recommended. Maximum file size: 2Mb",
+  "800x800_png_jpg_is_recommended_maximum_file_size_2mb": "800x800 PNG, JPG is recommended. Maximum file size: 5Mb",
   "first_name": "First Name",
   "last_name": "Last Name",
   "location": "Location",
