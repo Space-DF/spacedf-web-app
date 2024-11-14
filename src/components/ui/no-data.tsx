@@ -23,7 +23,7 @@ export const Nodata = ({
       >
         <ImageWithBlur src={NodataSVG} alt="nodata" className="h-full w-full" />
       </div>
-      <p className="text-brand-component-text-dark mt-3 text-wrap text-center text-base font-normal">
+      <p className="mt-3 text-wrap text-center text-base font-normal text-brand-component-text-dark">
         {content || 'No Data yet'}
       </p>
     </div>
