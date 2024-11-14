@@ -101,7 +101,6 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
   const t = useTranslations('common')
-  const { isOrganization } = useOrganization()
   const { mounted } = useMounted()
 
   const { status } = useSession()

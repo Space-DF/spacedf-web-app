@@ -16,5 +16,7 @@
   "selected_user": "Người dùng đã chọn",
   "selected_devices": "Thiết bị đã chọn",
   "light": "Sáng",
-  "dark": "Tối"
+  "dark": "Tối",
+  "general_settings": "Cài đặt chung",
+  "sign_out": "Đăng xuất"
 }
