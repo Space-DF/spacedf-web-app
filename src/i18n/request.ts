@@ -1,6 +1,7 @@
-import { Locale } from '@/types/global'
-import { getRequestConfig } from 'next-intl/server'
+// eslint-disable-next-line import/named
 import { notFound } from 'next/navigation'
+import { getRequestConfig } from 'next-intl/server'
+import type { Locale } from '@/types/global'
 
 /**
  * @see: importants!!
@@ -11,13 +12,16 @@ import { notFound } from 'next/navigation'
 export const locales = ['en', 'vi'] as const
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale
+  const locale = await requestLocale
   if (!locales.includes(locale as Locale)) notFound()
 
   // Combine all messages into a single object
   const messages = {
     // Add messages from other language files here
 
+    addNewDevice: {
+      ...(await import(`../../messages/${locale}/add-new-device.json`)).default,
+    },
     common: {
       ...(await import(`../../messages/${locale}/common.json`)).default,
     },
@@ -29,6 +33,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
     },
     signUp: {
       ...(await import(`../../messages/${locale}/sign-up.json`)).default,
+    },
+    generalSettings: {
+      ...(await import(`../../messages/${locale}/general-settings.json`))
+        .default,
+    },
+    space: {
+      ...(await import(`../../messages/${locale}/space.json`)).default,
+    },
+    dashboard: {
+      ...(await import(`../../messages/${locale}/dashboard.json`)).default,
     },
   }
 

@@ -12,13 +12,12 @@ export const generateOrganizationDomain = (organizationName: string) => {
 }
 
 export function getSubdomain(fullUrl: string, rootDomain: string) {
-  fullUrl = fullUrl.replace(/^https?:\/\//, '').replace(/^www\./, '')
+  const envDomain = ['localhost', 'develop']
+  const prodDomain = ['danang', 'spacedf']
 
-  if (fullUrl === rootDomain) return ''
+  if (envDomain.some((domain) => fullUrl.includes(domain))) return 'develop'
 
-  const [hostname] = fullUrl.split('/')
+  if (prodDomain.some((domain) => fullUrl.includes(domain))) return 'danang'
 
-  const subdomain = hostname.replace(`.${rootDomain}`, '')
-
-  return subdomain
+  return ''
 }

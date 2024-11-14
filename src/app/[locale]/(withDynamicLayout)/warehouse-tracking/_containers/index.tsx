@@ -1,4 +1,5 @@
 'use client'
+
 import React from 'react'
 import CustomMap from '@/components/ui/custom-map'
 import { ArcLayer, ScatterplotLayer } from 'deck.gl'

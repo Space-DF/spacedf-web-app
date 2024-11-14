@@ -13,12 +13,12 @@ const AppProvider = ({
   session: Session | null
 }) => {
   return (
-    <NextAuthSessionProvider session={session}>
-      <NextThemeProvider>
+    <NextThemeProvider>
+      <NextAuthSessionProvider session={session}>
         {children}
         <Toaster position="top-right" richColors />
-      </NextThemeProvider>
-    </NextAuthSessionProvider>
+      </NextAuthSessionProvider>
+    </NextThemeProvider>
   )
 }
 

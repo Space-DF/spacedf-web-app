@@ -1,11 +1,10 @@
+import { useTranslations } from 'next-intl'
+import React, { Suspense } from 'react'
+import { OrganizationLogo } from '@/components/icons/organization-logo'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
-import ImageWithBlur from '@/components/ui/image-blur'
 import { cn } from '@/lib/utils'
 import { TSpace } from '@/types/common'
-import { Suspense } from 'react'
-import AvtUser from '/public/images/avt-user.svg'
-import { OrganizationLogo } from '@/components/icons/organization-logo'
 
 type SpaceMenuItemProps = {
   spaceData: TSpace
@@ -13,33 +12,35 @@ type SpaceMenuItemProps = {
 }
 
 const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
-  const { thumbnail, title, count_device, id } = spaceData
-
+  const t = useTranslations('space')
+  const { title, count_device = 0 } = spaceData
   const shortCutText = `⌘⌥${position + 1}`
 
   return (
     <>
-      <div className="flex gap-2 p-[2px]">
-        <Avatar className="flex items-center justify-center rounded-[12px] bg-purple-200 p-1 dark:bg-purple-700">
+      <div className="flex gap-3">
+        <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700">
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-            {/* <ImageWithBlur
-              src={thumbnail || AvtUser}
-              width={40}
-              height={40}
-              alt="space-df"
-            /> */}
-            <OrganizationLogo className="text-purple-900 dark:text-purple-400" />
+            <OrganizationLogo
+              className="text-purple-900 dark:text-purple-400"
+              width={28}
+              height={28}
+            />
           </Suspense>
         </Avatar>
 
         <div className="flex flex-col justify-between font-medium">
-          <p className={cn('text-xs')}>{title}</p>
-          <span className="text-xs font-medium text-gray-400 dark:text-brand-dark-text-gray">
-            {count_device} devices
+          <p className={cn('text-xs font-medium leading-normal text-white')}>
+            {title}
+          </p>
+          <span className="text-xs font-medium capitalize leading-normal text-brand-dark-text-gray">
+            {t('devices', { count: count_device })}
           </span>
         </div>
       </div>
-      <DropdownMenuShortcut>{shortCutText}</DropdownMenuShortcut>
+      <DropdownMenuShortcut className="text-brand-dark-text-gray">
+        {shortCutText}
+      </DropdownMenuShortcut>
     </>
   )
 }

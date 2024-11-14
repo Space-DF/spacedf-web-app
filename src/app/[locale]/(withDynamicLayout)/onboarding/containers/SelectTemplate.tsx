@@ -8,6 +8,7 @@ import IndoorTracking from '/public/images/indoor-tracking.svg'
 import FleetTracking from '/public/images/fleet-tracking.svg'
 import WaterManagement from '/public/images/water-management.svg'
 import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 
 const templates = (translateFn: ReturnType<typeof useTranslations>) => [
   {
@@ -58,6 +59,7 @@ const Template = ({
   title,
   thumbnail,
 }: ReturnType<typeof templates>[number]) => {
+  const router = useRouter()
   return (
     <div className="group min-h-36 min-w-36 flex-shrink cursor-pointer rounded-lg bg-white p-2 transition-all duration-300 hover:shadow-lg dark:bg-brand-stroke-outermost sm:w-[30%]">
       <div className="flex h-full w-full flex-col gap-2">
@@ -66,7 +68,7 @@ const Template = ({
             src={thumbnail}
             className="h-full w-full object-cover duration-300 group-hover:scale-125"
             alt={title}
-            redirect={href}
+            onClick={() => router.push(href)}
           />
         </div>
         <div className="m-auto h-1/3 max-w-[80%] text-center text-sm font-semibold text-brand-text-dark duration-200 dark:text-white">
