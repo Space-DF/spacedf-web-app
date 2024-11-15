@@ -17,11 +17,11 @@ class MapInstance {
   public initializeMap({
     container,
     center = [108.2204122, 16.0608127],
-    zoom = 15,
+    zoom = 5,
     maxZoom = 19,
     pitch = 45,
     antialias = true,
-    style = 'mapbox://styles/mapbox/dark-v11',
+    style = 'mapbox://styles/mapbox/light-v11',
   }: {
     container: HTMLElement
     center?: [number, number]
@@ -61,7 +61,7 @@ class MapInstance {
           'source-layer': 'building',
           filter: ['==', 'extrude', 'true'],
           type: 'fill-extrusion',
-          minzoom: 15,
+          minzoom: 10,
           paint: {
             'fill-extrusion-color': '#aaa',
             'fill-extrusion-height': [

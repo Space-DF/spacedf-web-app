@@ -27,7 +27,7 @@ export default async function middleware(request: NextRequest) {
     !segments.length &&
     locales.includes(locale as Locale)
   ) {
-    request.nextUrl.pathname = `/${locale}/onboarding`
+    request.nextUrl.pathname = `/${locale}/digital-twins`
   }
 
   // Handle the locale routing

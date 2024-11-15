@@ -5,20 +5,20 @@ import CustomMap from '@/components/ui/custom-map'
 import { ArcLayer, ScatterplotLayer } from 'deck.gl'
 
 const layers = [
-  new ScatterplotLayer({
-    id: 'deckgl-circle',
-    data: [
-      {
-        position: [108.2204122, 16.0608127],
-        color: [255, 0, 0],
-        radius: 1000,
-      },
-    ],
-    getPosition: (d) => d.position,
-    getFillColor: (d) => d.color,
-    getRadius: (d) => d.radius,
-    opacity: 0.3,
-  }),
+  // new ScatterplotLayer({
+  //   id: 'deckgl-circle',
+  //   data: [
+  //     {
+  //       position: [108.2204122, 16.0608127],
+  //       color: [255, 0, 0],
+  //       radius: 1000,
+  //     },
+  //   ],
+  //   getPosition: (d) => d.position,
+  //   getFillColor: (d) => d.color,
+  //   getRadius: (d) => d.radius,
+  //   opacity: 0.3,
+  // }),
   new ArcLayer({
     id: 'deckgl-arc',
     data: [

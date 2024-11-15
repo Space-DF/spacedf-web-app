@@ -618,6 +618,11 @@
     "@luma.gl/constants" "9.0.27"
     "@probe.gl/env" "^4.0.2"
 
+"@mantine/hooks@^7.14.0":
+  version "7.14.0"
+  resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-7.14.0.tgz#fe835fc789f0a517d17b563ec964d6ccfc6568ef"
+  integrity sha512-BJ577AoQ5KnvbuaG174TYAmL2UqcX9qh9aL0aOx+gqyMM6GWeBXUXWx1kcMCzaDbYZwfQptU476fpSjHdcLjMw==
+
 "@mapbox/jsonlint-lines-primitives@^2.0.2", "@mapbox/jsonlint-lines-primitives@~2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@mapbox/jsonlint-lines-primitives/-/jsonlint-lines-primitives-2.0.2.tgz#ce56e539f83552b58d10d672ea4d6fc9adc7b234"
@@ -1399,7 +1404,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.4.tgz#427d5549943a9c6fce808e39ea64dbe60d4047f1"
   integrity sha512-WJgX9nzTqknM393q1QJDJmoW28kUfEnybeTfVNcNAPnIx210RXm2DiXiHzfNPJNIUUb1tJnz/l4QGtJ30PgWmA==
 
-"@space-df/sdk@^0.0.1-dev.0":
+"@space-df/sdk@latest":
   version "0.0.1-dev.2"
   resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.2.tgz#45e8ab2b8231c98d6e0c131b4e5d6f554a846dc9"
   integrity sha512-ao0ZbWq/5YoLi5i6wZJGeGFBmbviqnGnP/OB6kiv34VudhevP1y3ssntoQjw/0vqTMoIk4BEAXvqC1iKHzRWjA==

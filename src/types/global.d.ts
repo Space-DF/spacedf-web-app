@@ -10,6 +10,7 @@ import languageName from '../../messages/en/language-name.json'
 import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
+import MapInstance from '@/utils/map-instance'
 
 type Locale = (typeof locales)[number]
 
@@ -40,4 +41,10 @@ export type ApiResponse<T = any> = {
   }
   message: string
   status: number
+}
+
+declare global {
+  interface Window {
+    mapInstance: MapInstance
+  }
 }
