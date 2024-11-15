@@ -81,6 +81,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
         className={cn(
           `flex min-h-screen border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`,
         )}
+        id="sidebar-id"
       >
         <ExpandedSidebar
           setOpen={setOpen}
@@ -101,7 +102,6 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
   const t = useTranslations('common')
-  const { isOrganization } = useOrganization()
   const { mounted } = useMounted()
 
   const { status } = useSession()
@@ -301,11 +301,14 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const isDisplayed = dynamicLayouts.includes(navigation.href)
 
   const handleCheckedChange = () => {
+    // window.mapInstance.resize()
+
     const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
 
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
 
     toggleDynamicLayout(navigation.href)
+
     setCookieDirty(true)
   }
 
@@ -335,7 +338,12 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           key={String(isDisplayed)}
           id={navigation.href}
           defaultChecked={isDisplayed}
-          onCheckedChange={handleCheckedChange}
+          checked={navigation.isAlwayEnabled}
+          onCheckedChange={() => {
+            if (!navigation.isAlwayEnabled) {
+              handleCheckedChange()
+            }
+          }}
         />
       )}
     </div>

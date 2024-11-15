@@ -25,6 +25,7 @@ export type Navigation = {
   title: string
   icon?: React.ReactElement
   isDynamic?: boolean
+  isAlwayEnabled?: boolean
   onClick?: () => void
 }
 
@@ -43,6 +44,7 @@ export const navigations = (
       title: translateFn('digital_twin'),
       icon: <CubeFocus />,
       isDynamic: true,
+      isAlwayEnabled: true,
     },
     {
       href: NavigationEnums.DEVICES,

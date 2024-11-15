@@ -124,8 +124,9 @@ const DynamicLayout = ({
     rightLayoutRefs.current?.setLayout(rightLayout)
   }
 
-  const handleRightLayoutChange = (sizes: number[]) =>
+  const handleRightLayoutChange = (sizes: number[]) => {
     setCookie(COOKIES.SUB_DYNAMIC_LAYOUTS, sizes)
+  }
 
   const handleDynamicLayoutChanges = (sizes: number[]) =>
     setCookie(COOKIES.LAYOUTS, sizes)
@@ -189,7 +190,10 @@ const DynamicLayout = ({
               id="group"
             >
               <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading">
+                <div
+                  className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
+                  id="ele-main-content"
+                >
                   {children}
                 </div>
               </ResizablePanel>
@@ -214,6 +218,7 @@ const DynamicLayout = ({
                   direction="horizontal"
                   ref={rightLayoutRefs}
                   onLayout={handleRightLayoutChange}
+                  id="region-dynamic-layout"
                 >
                   <ResizablePanel
                     defaultSize={defaultRightLayout[0]}

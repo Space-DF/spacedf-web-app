@@ -89,7 +89,7 @@ const Identity = () => {
           </div>
         </DrawerContent>
       </Drawer>
-      <Guideline />
+      {/* <Guideline /> */}
     </>
   )
 }

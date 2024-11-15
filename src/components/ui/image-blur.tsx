@@ -1,20 +1,32 @@
-/* eslint-disable jsx-a11y/alt-text */
 'use client'
 
 import { cn } from '@/lib/utils'
 import Image, { ImageProps } from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function ImageWithBlur({
   className,
+  redirect,
   ...imageProps
 }: ImageProps & {
   addParentClass?: string
+  redirect?: string
 }) {
   const [isLoading, setLoading] = useState(true)
+  const router = useRouter()
+
+  const handleRedirect = () => {
+    if (redirect) {
+      router.push(`${redirect}`)
+    }
+  }
 
   return (
-    <div className="group h-full w-full overflow-hidden bg-transparent">
+    <div
+      className="group h-full w-full overflow-hidden bg-transparent"
+      onClick={handleRedirect}
+    >
       <Image
         className={cn(
           'h-full w-full duration-300 ease-in-out',
