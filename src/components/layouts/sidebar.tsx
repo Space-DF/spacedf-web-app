@@ -322,6 +322,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
             : 'text-brand-text-gray dark:text-brand-dark-text-gray',
         )}
         htmlFor={navigation.href}
+        onClick={navigation?.onClick}
       >
         <div className={cn('duration-200')}>{navigation.icon}</div>
         <div className="max-w-[90%] flex-1 truncate p-1">
