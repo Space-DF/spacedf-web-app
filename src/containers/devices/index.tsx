@@ -160,7 +160,7 @@ const AddDeviceDialog = () => {
         }}
       >
         <DialogTrigger asChild>
-          <Button size="default" className="h-8 gap-2 rounded-lg">
+          <Button className="h-8 gap-2 rounded-lg">
             {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
             <PlusIcon />
           </Button>
@@ -196,28 +196,28 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
   const InformationItem = (props: { label: string; content: string }) => {
     return (
       <div className="flex gap-4 text-sm">
-        <span className="font-semibold text-brand-text-dark">
+        <span className="font-semibold text-brand-component-text-dark">
           {props.label}
         </span>
-        <span className="text-brand-text-gray">{props.content}</span>
+        <span className="text-brand-component-text-gray">{props.content}</span>
       </div>
     )
   }
 
   if (!selected) {
     return (
-      <div className="rounded-xl bg-brand-fill-dark-soft p-4">
+      <div className="rounded-xl bg-brand-component-fill-gray-soft">
         <Nodata content={t('no_selected_devices')} />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-brand-fill-dark-soft p-4">
+    <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-brand-semantic-success" />
-          <span className="text-xs font-medium text-brand-text-dark">
+          <span className="size-2 rounded-full bg-brand-component-fill-positive" />
+          <span className="text-xs font-medium text-brand-component-text-dark">
             {t('online')}
           </span>
         </div>
@@ -288,7 +288,7 @@ const DevicesList = ({
   return (
     <div className="mt-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div className="font-semibold text-brand-text-dark">
+        <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
@@ -298,8 +298,8 @@ const DevicesList = ({
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
             <div
               className={cn(
-                'cursor-pointer rounded-xl border border-transparent bg-brand-fill-dark-soft p-2 text-brand-text-dark',
-                { 'border-brand-heading': item.id === selected },
+                'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                { 'border-brand-component-stroke-dark': item.id === selected },
               )}
               onClick={() => handleSelected(item.id)}
             >
@@ -372,13 +372,14 @@ const AddDeviceSuccess = () => {
 }
 
 const addDeviceSchema = z.object({
-  device_name: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
+  device_name: z.string({ message: 'This field cannot be empty' }),
+  dev_ui: z.string({ message: 'This field cannot be empty' }).min(16, {
+    message: 'Must be at least 16 characters long.',
   }),
-  dev_ui: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(500, { message: 'This field must not exceed 500 characters' })
+    .optional(),
 })
 
 const AddDeviceForm = ({
@@ -416,9 +417,9 @@ const AddDeviceForm = ({
           name="device_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-brand-text-dark dark:text-white">
+              <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('device_name')}
-                <span className="text-brand-semantic-accent">*</span>
+                <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -436,9 +437,9 @@ const AddDeviceForm = ({
           name="dev_ui"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-brand-text-dark dark:text-white">
+              <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('devui')}
-                <span className="text-brand-semantic-accent">*</span>
+                <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -456,7 +457,9 @@ const AddDeviceForm = ({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('description')}</FormLabel>
+              <FormLabel className="font-semibold text-brand-component-text-dark">
+                {t('description')}
+              </FormLabel>
               <FormControl>
                 <Textarea
                   disabled={isModeAuto}
@@ -504,8 +507,8 @@ const AddDeviceContainer = (
   return (
     <div
       className={cn(
-        'relative flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-transparent bg-brand-fill-dark-soft px-4 py-10 text-center',
-        { 'border-black': isSelected },
+        'relative flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-transparent bg-brand-component-fill-gray-soft px-4 py-10 text-center',
+        { 'border-brand-component-stroke-dark': isSelected },
       )}
       onClick={handleNextStep}
     >
@@ -515,8 +518,12 @@ const AddDeviceContainer = (
         </div>
       )}
       {icon}
-      <div className="font-semibold">{title}</div>
-      <div className="text-[13px] text-brand-text-gray">{description}</div>
+      <div className="font-semibold text-brand-component-text-dark">
+        {title}
+      </div>
+      <div className="text-[13px] text-brand-component-text-gray">
+        {description}
+      </div>
     </div>
   )
 }

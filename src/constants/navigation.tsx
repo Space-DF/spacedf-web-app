@@ -8,6 +8,7 @@ import {
   Warehouse,
 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 
 export enum NavigationEnums {
   DASHBOARD = 'dashboard',
@@ -25,6 +26,7 @@ export type Navigation = {
   icon?: React.ReactElement
   isDynamic?: boolean
   isAlwayEnabled?: boolean
+  onClick?: () => void
 }
 
 export type DynamicLayout =
@@ -34,49 +36,53 @@ export type DynamicLayout =
 
 export const navigations = (
   translateFn: ReturnType<typeof useTranslations>,
-): Navigation[] => [
-  {
-    href: NavigationEnums.DIGITAL_TWIN,
-    title: translateFn('digital_twin'),
-    icon: <CubeFocus />,
-    isDynamic: true,
-    isAlwayEnabled: true,
-  },
-  {
-    href: NavigationEnums.DEVICES,
-    title: translateFn('devices'),
-    icon: <Devices />,
-    isDynamic: true,
-  },
-  {
-    href: NavigationEnums.DASHBOARD,
-    title: translateFn('dashboard'),
-    icon: <CodeSandbox />,
-    isDynamic: true,
-  },
-  // {
-  //   href: NavigationEnums.MAPS,
-  //   title: translateFn('maps'),
-  //   icon: <Maptrifold />,
-  //   isDynamic: true,
-  // },
-  // {
-  //   href: NavigationEnums.USER,
-  //   title: translateFn('user'),
-  //   icon: <Users />,
-  //   isDynamic: true,
-  // },
-  {
-    href: NavigationEnums.WORKSPACE_SETTINGS,
-    title: translateFn('workspace_settings'),
-    icon: <Warehouse />,
-  },
-  // {
-  //   href: NavigationEnums.PLAN_BILLING,
-  //   title: translateFn('plan_and_billing'),
-  //   icon: <CreditCard />,
-  // },
-]
+): Navigation[] => {
+  const router = useRouter()
+  return [
+    {
+      href: NavigationEnums.DIGITAL_TWIN,
+      title: translateFn('digital_twin'),
+      icon: <CubeFocus />,
+      isDynamic: true,
+      isAlwayEnabled: true,
+    },
+    {
+      href: NavigationEnums.DEVICES,
+      title: translateFn('devices'),
+      icon: <Devices />,
+      isDynamic: true,
+    },
+    {
+      href: NavigationEnums.DASHBOARD,
+      title: translateFn('dashboard'),
+      icon: <CodeSandbox />,
+      isDynamic: true,
+    },
+    // {
+    //   href: NavigationEnums.MAPS,
+    //   title: translateFn('maps'),
+    //   icon: <Maptrifold />,
+    //   isDynamic: true,
+    // },
+    // {
+    //   href: NavigationEnums.USER,
+    //   title: translateFn('user'),
+    //   icon: <Users />,
+    //   isDynamic: true,
+    // },
+    {
+      href: NavigationEnums.WORKSPACE_SETTINGS,
+      title: translateFn('workspace_settings'),
+      icon: <Warehouse />,
+      onClick: () => router.push(NavigationEnums.WORKSPACE_SETTINGS),
+    },
+    // {
+    //   href: NavigationEnums.PLAN_BILLING,
+    //   title: translateFn('plan_and_billing'),
+    //   icon: <CreditCard />,
+    // },
+  ]
+}
 
 export const dynamicLayoutKeys: DynamicLayout[] = [
   NavigationEnums.DASHBOARD,

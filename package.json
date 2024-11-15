@@ -33,6 +33,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-switch": "^1.1.0",
     "@space-df/sdk": "latest",
+    "@radix-ui/react-tabs": "^1.1.1",
     "@tanstack/react-table": "^8.20.5",
     "@types/mapbox-gl": "^3.4.0",
     "@yudiel/react-qr-scanner": "^2.0.8",
