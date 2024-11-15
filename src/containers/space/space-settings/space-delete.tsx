@@ -19,10 +19,11 @@ import { useSpaceSettings } from '@/stores/space-settings-store'
 
 const formSchema = z
   .object({
-    text: z.string(),
+    text: z.string({ message: 'This field cannot be empty' }),
   })
   .refine((data) => data.text === 'DELETE', {
-    message: 'Confirm password must match the password entered above.',
+    message:
+      "Incorrect confirmation. Please type 'Delete' to confirm deletion.",
     path: ['text'],
   })
 
@@ -70,7 +71,6 @@ export function SpaceDelete() {
                     <FormControl>
                       <Input
                         className="h-10 rounded-lg border-0 bg-brand-component-fill-dark-soft shadow-none"
-                        placeholder="shadcn"
                         {...field}
                       />
                     </FormControl>
