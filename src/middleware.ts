@@ -5,11 +5,11 @@ import { locales } from './i18n/request'
 import { Locale } from './types/global'
 import { getSubdomain } from './utils'
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 
 export default async function middleware(request: NextRequest) {
   // Step 1: Use the incoming request (example)
-  const defaultLocale = (request.headers.get('x-your-custom-locale') ||
-    'en') as Locale
+  const defaultLocale = (cookies().get('NEXT_LOCALE')?.value || 'en') as Locale
 
   const [, locale, ...segments] = request.nextUrl.pathname.split('/')
 
@@ -22,8 +22,12 @@ export default async function middleware(request: NextRequest) {
     defaultLocale,
   })
 
-  if (locale != null && !segments.length) {
-    request.nextUrl.pathname = `/${locale}/onboarding`
+  if (
+    locale != null &&
+    !segments.length &&
+    locales.includes(locale as Locale)
+  ) {
+    request.nextUrl.pathname = `/${locale}/digital-twins`
   }
 
   // Handle the locale routing

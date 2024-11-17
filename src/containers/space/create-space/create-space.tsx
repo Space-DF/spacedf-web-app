@@ -1,14 +1,11 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
 import { UploadCloud } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { useTransition } from 'react'
-import { useForm, useFormContext } from 'react-hook-form'
-import { z } from 'zod'
+import React from 'react'
+import { useFormContext } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,

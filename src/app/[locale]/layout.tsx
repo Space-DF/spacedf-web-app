@@ -11,6 +11,8 @@ import { routing } from '@/i18n/routing'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
+import 'mapbox-gl/dist/mapbox-gl.css'
+
 const plus_jakarta_sans = Plus_Jakarta_Sans({ subsets: ['latin'] })
 
 export const metadata: Metadata = {

@@ -2,7 +2,6 @@
 
 import React, { memo, useState, useTransition } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import SettingsLoading from '@/containers/space/space-setting/loading'
 import { useSpaceStore } from '@/stores'
 import CreateSpace from './create-space'
 import EnterMember from './enter-member'
@@ -11,6 +10,7 @@ import { Form } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import SettingsLoading from '@/containers/space/create-space/loading'
 
 const formSchema = z.object({
   space_name: z
