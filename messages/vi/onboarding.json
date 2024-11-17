@@ -8,5 +8,9 @@
   "indoor_asset_tracking": "Theo dõi tài sản trong nhà",
   "fleet_tracking": "Theo dõi đội xe",
   "water_pressure_management": "Quản lý áp lực nước",
-  "create_3d_from_2d": "Tạo 3D từ 2D của bạn"
+  "create_3d_from_2d": "Tạo 3D từ 2D của bạn",
+  "skip": "Bỏ qua",
+  "welcome_to_gps_tracking_template": "Chào mừng đến với Mẫu theo dõi GPS ",
+  "finish": "Kết thúc",
+  "next": "Kế tiếp"
 }
