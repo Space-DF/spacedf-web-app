@@ -24,9 +24,24 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
   const { thumbnail, title, count_device } = spaceData
 
   return (
-    <div className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-brand-stroke-dark-soft p-1 dark:border-brand-stroke-outermost">
+    <div
+      className={cn(
+        'flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-brand-stroke-dark-soft p-1 dark:border-brand-stroke-outermost',
+        {
+          'rounded-lg border-brand-component-stroke-secondary p-px':
+            hiddenOption,
+        },
+      )}
+    >
       <div className="flex gap-2">
-        <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700">
+        <Avatar
+          className={cn(
+            'flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700',
+            {
+              'size-7': hiddenOption,
+            },
+          )}
+        >
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
             src={}
@@ -55,7 +70,9 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
           </div>
         )}
       </div>
-      <ChevronsUpDown size={20} className="text-brand-text-gray" />
+      {!hiddenOption && (
+        <ChevronsUpDown size={20} className="text-brand-text-gray" />
+      )}
     </div>
   )
 }

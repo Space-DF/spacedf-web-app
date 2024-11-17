@@ -86,19 +86,21 @@ const Widgets = () => {
       }}
       title={
         <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild className="overflow-hidden">
             <Button
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="h-8 justify-between gap-0 bg-brand-fill-dark-soft px-2 py-1 text-brand-text-dark"
+              className="line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal bg-brand-fill-dark-soft px-2 py-1 text-brand-text-dark"
             >
-              {selected
-                ? dashboards.find(
-                    (dashboard) => dashboard.value === selected.value,
-                  )?.label
-                : 'Dashboard 1'}
-              <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+              <div className="line-clamp-1 w-full flex-1 text-left">
+                {selected
+                  ? dashboards.find(
+                      (dashboard) => dashboard.value === selected.value,
+                    )?.label
+                  : 'Dashboard 1'}
+              </div>
+              <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-60 rounded-lg p-2" align="start">
@@ -148,9 +150,11 @@ const Widgets = () => {
         </Popover>
       }
       externalButton={
-        <Button size="icon" className="size-8 gap-2 rounded-lg">
-          <Pencil size={16} />
-        </Button>
+        <div>
+          <Button size="icon" className="size-8 gap-2 rounded-lg">
+            <Pencil size={16} />
+          </Button>
+        </div>
       }
     >
       <div className="flex gap-3">
