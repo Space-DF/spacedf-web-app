@@ -13,12 +13,14 @@ import { cn } from '@/lib/utils'
 import { generateOrganizationDomain } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
+import { Check } from 'lucide-react'
 
 export type Option = Record<'value' | 'label' | 'email', string> &
   Record<string, string>
 
 type AutoCompleteProps = {
   options: Option[]
+  selectedItems: string[]
   value?: Option
   onValueChange?: (value: Option) => void
   isLoading?: boolean
@@ -33,6 +35,7 @@ export const SearchMember = ({
   value,
   onValueChange,
   disabled,
+  selectedItems,
   isLoading = false,
   comma = ['Enter'],
 }: AutoCompleteProps) => {
@@ -114,7 +117,7 @@ export const SearchMember = ({
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary"
+          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary h-10"
         />
       </div>
       <div className="relative">
@@ -147,7 +150,14 @@ export const SearchMember = ({
                         handleSelectOption(option)
                         setInputValue('')
                       }}
-                      className="flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
+                      className={cn(
+                        'relative flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft',
+                        {
+                          'bg-brand-fill-dark-soft': selectedItems.includes(
+                            option.value,
+                          ),
+                        },
+                      )}
                     >
                       <Avatar className="flex size-11 items-center justify-center rounded-lg">
                         <AvatarImage
@@ -164,6 +174,11 @@ export const SearchMember = ({
                           {option.email}
                         </div>
                       </div>
+                      <Check
+                        className={cn('ml-auto h-4 w-4 opacity-0', {
+                          'opacity-100': selectedItems.includes(option.value),
+                        })}
+                      />
                     </CommandItem>
                   )
                 })}

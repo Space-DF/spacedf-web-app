@@ -63,6 +63,9 @@ const config = {
       },
       keyframes,
       animation,
+      boxShadow: {
+        button: '0px 1px 0px 2px #FFFFFF1F inset',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

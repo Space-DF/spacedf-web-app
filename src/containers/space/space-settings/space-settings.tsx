@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useTranslations } from 'next-intl'
 import { SpaceDelete } from './space-delete'
 import { SpaceInformation } from './space-information'
 import { useSpaceSettings } from '@/stores/space-settings-store'
@@ -9,7 +8,6 @@ import { useSpaceSettings } from '@/stores/space-settings-store'
 type Step = 'information' | 'delete'
 
 export function SpaceSettings() {
-  const t = useTranslations()
   const { step } = useSpaceSettings()
 
   const steps: Record<Step, { component: React.ReactNode }> = {
