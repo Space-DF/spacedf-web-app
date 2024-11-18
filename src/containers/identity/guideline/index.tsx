@@ -129,36 +129,6 @@ export default function Guideline() {
           </div>
           <div className="flex h-full flex-1 flex-col overflow-hidden px-14 py-8">
             <div className="flex flex-col items-center justify-center gap-3 font-semibold leading-6">
-              <div className="flex gap-6">
-                <Button
-                  size="icon"
-                  disabled={imageIndex === 0}
-                  onClick={() => handleGoToStep(-1)}
-                  className={cn(
-                    'size-10 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
-                    {
-                      'border-brand-component-stroke-disabled':
-                        imageIndex === 0,
-                    },
-                  )}
-                >
-                  <ChevronLeft size={20} />
-                </Button>
-                <Button
-                  size="icon"
-                  disabled={imageIndex === 2}
-                  onClick={() => handleGoToStep(1)}
-                  className={cn(
-                    'size-10 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
-                    {
-                      'border-brand-component-stroke-disabled':
-                        imageIndex === 2,
-                    },
-                  )}
-                >
-                  <ChevronRight size={20} />
-                </Button>
-              </div>
               <div>{`${imageIndex + 1}/3`}</div>
               <div className="flex justify-center gap-3">
                 {steps.map((_, index) => (
@@ -176,6 +146,32 @@ export default function Guideline() {
               <div className="mb-6">{steps[imageIndex].label}</div>
             </div>
             <div className="relative flex h-full flex-1 items-center justify-center overflow-hidden text-center">
+              <Button
+                size="icon"
+                disabled={imageIndex === 0}
+                onClick={() => handleGoToStep(-1)}
+                className={cn(
+                  'absolute left-14 top-1/2 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                  {
+                    'border-brand-component-stroke-disabled': imageIndex === 0,
+                  },
+                )}
+              >
+                <ChevronLeft size={20} />
+              </Button>
+              <Button
+                size="icon"
+                disabled={imageIndex === 2}
+                onClick={() => handleGoToStep(1)}
+                className={cn(
+                  'absolute right-14 top-1/2 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                  {
+                    'border-brand-component-stroke-disabled': imageIndex === 2,
+                  },
+                )}
+              >
+                <ChevronRight size={20} />
+              </Button>
               <AnimatePresence initial={false} custom={direction}>
                 <motion.img
                   key={page}

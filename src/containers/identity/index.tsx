@@ -103,6 +103,7 @@ const Identity = () => {
         </DrawerContent>
       </Drawer>
       {isOpenGuideline && <Guideline />}
+      <Guideline />
     </>
   )
 }
