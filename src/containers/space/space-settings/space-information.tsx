@@ -29,7 +29,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -328,12 +327,19 @@ export const useColumns = (props: ColumnProps): ColumnDef<User>[] => {
       header: t('name'),
       cell: ({ row: { original } }) => {
         return (
-          <div className="flex items-center gap-2 text-xs text-brand-text-gray">
+          <div className="flex items-center gap-2">
             <Avatar className="flex size-6 items-center justify-center rounded">
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            {original.name}
+            <div>
+              <div className="text-sm font-semibold text-brand-component-text-dark">
+                {original.name}
+              </div>
+              <div className="text-xs font-medium text-brand-component-text-gray">
+                {original.email}
+              </div>
+            </div>
           </div>
         )
       },
@@ -434,7 +440,6 @@ const usersData: User[] = [
 function MemberTab() {
   const t = useTranslations('space')
   const [deleteId, setDeleteId] = useState<string | undefined>()
-  const [value, setValue] = useState<Option>()
   const [data, setData] = useState<User[]>([])
   const [users, setUsers] = useState<User[]>(usersData)
 
@@ -453,7 +458,7 @@ function MemberTab() {
     setDeleteId(undefined)
     setUsers((prev) => prev.filter((item) => item.id !== deleteId))
   }
-
+  console.info(`\x1b[34mFunc: MemberTab - PARAMS: data\x1b[0m`, data)
   return (
     <div className="p-4">
       <div className="mb-3 space-y-2">
@@ -466,32 +471,29 @@ function MemberTab() {
               {t('invite_member_by_email')}
             </Label>
             <SearchMember
-              options={usersData.map((item) => ({
-                label: item.name,
-                email: item.email,
-                value: item.id,
-              }))}
+              options={usersData as Option[]}
               selectedItems={data.map((item) => item.id)}
               placeholder="Invite member by Email"
-              onValueChange={(value) => {
-                setValue(value)
+              onValueChange={(values) => {
                 setData((prev) => {
-                  const existingIds = new Set(prev.map((item) => item.id))
-                  const isExist = existingIds.has(value.value)
-                  if (isExist) {
-                    return prev.filter((item) => item.id !== value.value)
-                  }
-                  const user = users.find(
-                    (item) => item.id === value.value,
-                  ) || {
-                    id: value.value,
-                    name: value.label,
-                    email: value.email,
-                  }
-                  return [...prev, user]
+                  const removedItems = prev.filter(
+                    ({ email: oldEmail }) =>
+                      !values.some(({ email }) => oldEmail === email),
+                  )
+
+                  const addedItems = values.filter(
+                    ({ email: newEmail }) =>
+                      !prev.some(({ email }) => email === newEmail),
+                  )
+
+                  return [...removedItems, ...addedItems].map((item) => {
+                    const userExists = usersData.find(
+                      ({ email }) => item.email === email,
+                    )
+                    return userExists || item
+                  })
                 })
               }}
-              value={value}
             />
           </div>
           <div className="flex flex-1 flex-col gap-1.5">

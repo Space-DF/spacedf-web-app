@@ -15,14 +15,14 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { Check } from 'lucide-react'
 
-export type Option = Record<'value' | 'label' | 'email', string> &
+export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
 
 type AutoCompleteProps = {
   options: Option[]
   selectedItems: string[]
-  value?: Option
-  onValueChange?: (value: Option) => void
+  value?: Option[]
+  onValueChange?: (value: Option[]) => void
   isLoading?: boolean
   disabled?: boolean
   placeholder?: string
@@ -42,7 +42,7 @@ export const SearchMember = ({
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [isOpen, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState<string>(value?.label || '')
+  const [inputValue, setInputValue] = useState<string>('')
   const { organizationName } = useIdentityStore(
     useShallow((state) => ({
       organizationName: state.organizationName,
@@ -62,21 +62,25 @@ export const SearchMember = ({
 
       // This is not a default behaviour of the <input /> field
       if (comma?.includes(event.key) && input.value !== '') {
-        let optionToSelect = options.find(
+        let optionToSelect = options.filter(
           (option) => option.label === input.value,
         )
-        const isEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(input.value)
-        if (!optionToSelect && isEmail) {
-          optionToSelect = {
-            email: input.value,
-            value: input.value,
-            label: input.value,
-          }
+        const users = input.value
+          .split(',')
+          .filter((item) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(item))
+        if (users.length > 0) {
+          users.forEach((item) => {
+            optionToSelect.push({
+              id: item,
+              name: item,
+              email: item,
+            })
+          })
         }
-        if (optionToSelect) {
+        if (optionToSelect.length) {
           onValueChange?.(optionToSelect)
           setInputValue('')
-          handleBlur()
+          setOpen(false)
         }
       }
 
@@ -97,10 +101,8 @@ export const SearchMember = ({
   const handleSelectOption = useCallback(
     (selectedOption: Option) => {
       setInputValue(selectedOption.label)
-      onValueChange?.(selectedOption)
-      setTimeout(() => {
-        inputRef?.current?.blur()
-      }, 0)
+      onValueChange?.([selectedOption])
+      setOpen(false)
     },
     [onValueChange],
   )
@@ -113,7 +115,7 @@ export const SearchMember = ({
           value={inputValue}
           onValueChange={isLoading ? undefined : setInputValue}
           onBlur={handleBlur}
-          onFocus={() => setOpen(true)}
+          // onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
