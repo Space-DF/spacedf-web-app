@@ -30,7 +30,7 @@ const PreviewSpaceName = () => {
         />
         <AppWireFrameSpaceDark
           className={cn(
-            'hidden h-full w-full translate-x-36 opacity-0 transition-all duration-700 dark:block',
+            'hidden w-full translate-x-36 object-cover opacity-0 transition-all duration-700 dark:block',
             { 'translate-x-0 opacity-100': startRender },
           )}
           organization={getCookie('organization', '')}

@@ -13,12 +13,11 @@ import GuidelineLight1 from '/public/images/guideline-light-1.webp'
 import GuidelineLight2 from '/public/images/guideline-light-2.webp'
 import GuidelineLight3 from '/public/images/guideline-light-3.webp'
 import { cn } from '@/lib/utils'
-import { useIdentityStore } from '@/stores/identity-store'
-import { useShallow } from 'zustand/react/shallow'
-import { ChevronsRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsRight } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { wrap } from 'popmotion'
 import { useTheme } from 'next-themes'
+import { useTranslations } from 'next-intl'
 
 const variants = {
   enter: (direction: number) => {
@@ -49,42 +48,36 @@ const swipePower = (offset: number, velocity: number) => {
 
 export default function Guideline() {
   const [[page, direction], setPage] = useState([0, 0])
+  const t = useTranslations('onboarding')
   const [open, setOpen] = useState(true)
-  const { setOpenDrawerIdentity } = useIdentityStore(
-    useShallow((state) => state),
-  )
 
   const { theme = 'light' } = useTheme()
 
-  const handleNextPage = () => {
-    paginate(1)
-    if (page === 2) {
-      handleGoToSignIn()
-    }
-  }
-
-  const handleGoToSignIn = useCallback(() => {
+  const handleCloseGuideline = useCallback(() => {
     setOpen(false)
-    setOpenDrawerIdentity(true)
   }, [])
 
   const handleGoToPage = useCallback((page: number) => {
     setPage([page, 0])
   }, [])
 
+  const handleGoToStep = useCallback((page: number) => {
+    setPage((prev) => [prev[0] + page, page])
+  }, [])
+
   const steps = [
     {
-      label: 'Welcome to GPS Tracking Template ',
+      label: t('welcome_to_gps_tracking_template'),
       light: GuidelineLight1,
       dark: GuidelineDark1,
     },
     {
-      label: 'Welcome to GPS Tracking Template ',
+      label: t('welcome_to_gps_tracking_template'),
       light: GuidelineLight2,
       dark: GuidelineDark2,
     },
     {
-      label: 'Welcome to GPS Tracking Template ',
+      label: t('welcome_to_gps_tracking_template'),
       light: GuidelineLight3,
       dark: GuidelineDark3,
     },
@@ -108,36 +101,75 @@ export default function Guideline() {
         <div className="flex size-full flex-col overflow-auto">
           <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
             <Button
-              onClick={handleGoToSignIn}
+              onClick={handleCloseGuideline}
               variant="outline"
               size="lg"
-              className="items-center gap-2 rounded-lg border-brand-stroke-dark-soft text-brand-dark-fill-secondary shadow-none dark:border-brand-stroke-outermost dark:text-white"
+              className={cn(
+                'visible items-center gap-2 rounded-lg border-brand-stroke-dark-soft text-brand-dark-fill-secondary opacity-100 shadow-none transition-all duration-300 dark:border-brand-stroke-outermost dark:text-white',
+                {
+                  'invisible opacity-0': imageIndex === 2,
+                },
+              )}
             >
-              Go to Sign in
+              {t('skip')}
               <ChevronsRight size={20} />
             </Button>
             <Button
               size="lg"
-              className="gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm dark:border-brand-stroke-outermost"
-              onClick={handleNextPage}
+              className={cn(
+                'invisible gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost opacity-0 shadow-sm transition-all duration-300 dark:border-brand-stroke-outermost',
+                {
+                  'visible opacity-100': imageIndex === 2,
+                },
+              )}
+              onClick={handleCloseGuideline}
             >
-              Next
+              {t('finish')}
             </Button>
           </div>
           <div className="flex h-full flex-1 flex-col overflow-hidden px-14 py-8">
             <div className="flex flex-col items-center justify-center gap-3 font-semibold leading-6">
-              <div>{`${page + 1}/3`}</div>
+              <div className="flex gap-6">
+                <Button
+                  size="icon"
+                  disabled={imageIndex === 0}
+                  onClick={() => handleGoToStep(-1)}
+                  className={cn(
+                    'size-10 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                    {
+                      'border-brand-component-stroke-disabled':
+                        imageIndex === 0,
+                    },
+                  )}
+                >
+                  <ChevronLeft size={20} />
+                </Button>
+                <Button
+                  size="icon"
+                  disabled={imageIndex === 2}
+                  onClick={() => handleGoToStep(1)}
+                  className={cn(
+                    'size-10 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                    {
+                      'border-brand-component-stroke-disabled':
+                        imageIndex === 2,
+                    },
+                  )}
+                >
+                  <ChevronRight size={20} />
+                </Button>
+              </div>
+              <div>{`${imageIndex + 1}/3`}</div>
               <div className="flex justify-center gap-3">
                 {steps.map((_, index) => (
-                  <button
+                  <span
                     key={index}
                     className={cn(
                       'size-2 rounded-full bg-brand-fill-dark-soft transition-all duration-300',
                       {
-                        'bg-brand-dark-fill-secondary': page === index,
+                        'bg-brand-dark-fill-secondary': imageIndex === index,
                       },
                     )}
-                    onClick={() => handleGoToPage(index)}
                   />
                 ))}
               </div>
