@@ -458,7 +458,7 @@ function MemberTab() {
     setDeleteId(undefined)
     setUsers((prev) => prev.filter((item) => item.id !== deleteId))
   }
-  console.info(`\x1b[34mFunc: MemberTab - PARAMS: data\x1b[0m`, data)
+
   return (
     <div className="p-4">
       <div className="mb-3 space-y-2">
@@ -495,28 +495,6 @@ function MemberTab() {
                 })
               }}
             />
-          </div>
-          <div className="flex flex-1 flex-col gap-1.5">
-            <Label className="text-sm font-semibold text-brand-component-text-dark">
-              {t('role')}
-            </Label>
-            <Select>
-              <SelectTrigger
-                className="hover:text-brand-icon-gray-hover h-10 rounded-lg border-none bg-brand-component-fill-dark-soft text-brand-icon-gray shadow-none focus:ring-0 dark:bg-brand-component-fill-light"
-                icon={<ChevronDown size={18} className="" />}
-              >
-                <div className="text-brand-component-text-dark">
-                  <SelectValue placeholder="Select role" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="editor">Editor</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
           </div>
           <div>
             <Button
