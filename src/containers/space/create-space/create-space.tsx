@@ -21,8 +21,6 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
   const t = useTranslations('space')
   const form = useFormContext<SpaceFormValues>()
 
-  const { isDirty, isValid } = form.formState
-
   return (
     <>
       <div className="flex size-full items-center justify-center">
@@ -65,7 +63,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="shadcn"
+                    placeholder={t('space_name')}
                     className="border-0 shadow-none"
                     {...field}
                   />
@@ -77,8 +75,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
           <div>
             <Button
               type="submit"
-              className="h-12 items-center rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
-              disabled={!isDirty || !isValid}
+              className="h-12 items-center rounded-lg border-2 border-brand-heading bg-brand-fill-outermost text-base font-semibold text-white shadow-sm dark:border-brand-stroke-outermost"
               loading={isCreating}
             >
               {t('create_space')}

@@ -9,12 +9,11 @@ import { Form } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import SettingsLoading from '@/containers/space/create-space/loading'
+import CreateLoading from '@/containers/space/create-space/loading'
 
 const formSchema = z.object({
   space_name: z
-    .string()
-    .min(1, {
+    .string({
       message: 'This field cannot be empty',
     })
     .max(50, {
@@ -64,7 +63,7 @@ const OrganizationSetting = () => {
           </div>
         </form>
       </Form>
-      {isLoading && <SettingsLoading />}
+      {isLoading && <CreateLoading />}
     </div>
   )
 }
