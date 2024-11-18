@@ -518,7 +518,7 @@ function MemberTab() {
           </div>
           <div>
             <Button
-              className="shadow-button gap-2 rounded-lg border-t-2 border-brand-heading bg-brand-fill-outermost transition-all duration-300 dark:border-brand-stroke-outermost"
+              className="gap-2 rounded-lg border-t-2 border-brand-heading bg-brand-fill-outermost shadow-button transition-all duration-300 dark:border-brand-stroke-outermost"
               size="lg"
             >
               {t('invite')}
