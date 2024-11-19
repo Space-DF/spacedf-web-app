@@ -16,10 +16,9 @@ class MapInstance {
 
   public initializeMap({
     container,
-    center = [108.2204122, 16.0608127],
-    zoom = 5,
+    zoom = 3,
     maxZoom = 19,
-    pitch = 45,
+    pitch = 40,
     antialias = true,
     style = 'mapbox://styles/mapbox/light-v11',
   }: {
@@ -34,25 +33,31 @@ class MapInstance {
     if (this.map) return
     this.map = new mapboxgl.Map({
       container: container,
-      style: style,
-      center: center,
       maxZoom: maxZoom,
       pitch: pitch,
       antialias: antialias,
       zoom: zoom,
+      style,
     })
 
-    this.map.on('load', () => {
-      this.apply3DBuildingLayer()
-    })
+    // this.map.on('load', () => {
+    //   this.apply3DBuildingLayer()
+    // })
   }
 
-  private apply3DBuildingLayer(): void {
+  public getMapStyle(): Record<string, any> {
+    return (this.map?.getStyle() || {}) as Record<string, any>
+  }
+
+  public apply3DBuildingLayer(): void {
     if (!this.map) return
     //@ts-ignore
-    const firstLabelLayerId = this.map
-      .getStyle()
-      .layers?.find((layer) => layer.type === 'symbol')?.id
+    const mapStyle = this.getMapStyle()
+
+    const firstLabelLayerId = mapStyle?.layers?.find(
+      (layer: any) => layer.type === 'symbol',
+    )?.id
+
     if (firstLabelLayerId) {
       this.map.addLayer(
         {
@@ -82,7 +87,7 @@ class MapInstance {
               15.05,
               ['get', 'min_height'],
             ],
-            'fill-extrusion-opacity': 0.6,
+            'fill-extrusion-opacity': 0.3,
           },
         },
         firstLabelLayerId,
@@ -95,6 +100,10 @@ class MapInstance {
       this.map.remove()
       this.map = null
     }
+  }
+
+  public changeMapTheme(currentTheme: 'dark' | 'light'): void {
+    this.map?.setStyle(`mapbox://styles/mapbox/${currentTheme}-v11`)
   }
 
   public resize(): void {

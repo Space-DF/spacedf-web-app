@@ -36,3 +36,13 @@ export const displayedRightDynamicLayout = (dynamicLayout: string[]) => {
     isShowAll: first && second,
   }
 }
+
+export const delay = async (delayMsTime: number = 0) => {
+  await new Promise((resolveOuter) => {
+    resolveOuter(
+      new Promise((resolveInner) => {
+        setTimeout(resolveInner, delayMsTime)
+      }),
+    )
+  })
+}
