@@ -160,12 +160,12 @@ const Widgets = () => {
       <div className="flex gap-3">
         {selected.isDefault && (
           <>
-            <DashboardInfo
+            <WidgetInfo
               icon={<DashboardTotalDevices className="size-10" />}
               title={t('dashboard.total_devices')}
               content="N/A"
             />
-            <DashboardInfo
+            <WidgetInfo
               icon={<DashboardTotalMembers className="size-10" />}
               title={t('dashboard.total_members')}
               content="30"
@@ -178,7 +178,7 @@ const Widgets = () => {
   )
 }
 
-const DashboardInfo = (props: {
+const WidgetInfo = (props: {
   icon: React.ReactNode
   title: string
   content: string | number

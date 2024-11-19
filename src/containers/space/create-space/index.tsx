@@ -11,6 +11,8 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import CreateLoading from '@/containers/space/create-space/loading'
+import { ApiResponse } from '@/types/global'
+import { toSlug } from '@/utils'
 
 const formSchema = z.object({
   space_name: z
@@ -35,6 +37,22 @@ const OrganizationSetting = () => {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     startCreateSpace(async () => {
+      const fetchPromise = await fetch('/api/spaces', {
+        method: 'POST',
+        body: JSON.stringify({
+          // @TODO: implement upload image
+          logo: 'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
+          name: values.space_name,
+          slug_name: toSlug(values.space_name),
+          is_active: true,
+        }),
+      })
+
+      console.info(
+        `\x1b[34mFunc: fetchPromise - PARAMS: fetchPromise\x1b[0m`,
+        fetchPromise,
+      )
+
       // const response = await fetch('/api/console/organization', {
       //   method: 'POST',
       //   body: JSON.stringify({
