@@ -18,7 +18,7 @@ class MapInstance {
     container,
     zoom = 3,
     maxZoom = 19,
-    pitch = 40,
+    pitch = 70,
     antialias = true,
     style = 'mapbox://styles/mapbox/light-v11',
   }: {
