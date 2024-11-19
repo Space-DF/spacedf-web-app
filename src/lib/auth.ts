@@ -37,6 +37,8 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const data = await client.auth.login({ email, password })
+          client.setAccessToken(data.access)
+
           return {
             name: '',
             accessToken: data.access,

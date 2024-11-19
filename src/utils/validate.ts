@@ -51,10 +51,13 @@ export const passwordSchema = z
   .max(150, {
     message: 'Password must be less than or equal to 150 characters',
   })
-  .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/, {
-    message:
-      'The password must has least 8 character, including uppercase letters, numbers, and special characters.',
-  })
+  .regex(
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/,
+    {
+      message:
+        'The password must has least 8 character, including uppercase letters, numbers, and special characters.',
+    },
+  )
 
 export const confirmPasswordSchema = z
   .string({ message: 'Confirm password cannot be empty' })
