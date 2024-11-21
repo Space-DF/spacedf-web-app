@@ -39,10 +39,6 @@ const OrganizationSetting = () => {
     startCreateSpace(async () => {
       const fetchPromise = await fetch('/api/spaces', {
         method: 'POST',
-        headers: {
-          Authorization:
-            'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ0eXAiOiJKV1QifQ.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMxOTkzMDI1LCJpYXQiOjE3MzE5ODk0MjUsImp0aSI6IjA3MzJkZDEzNjY3OTRlZmRiMjE1YzYyNmFmOThmODM3IiwidXNlcl9pZCI6NSwiaXNzIjoiaHR0cHM6Ly9zcGFjZWRmLWZlLmFwaS52MC5zcGFjZWRmLm5ldC8iLCJwZXJtaXNzaW9ucyI6WyJSRUFEX0RBU0hCT0FSRCIsIlJFQURfREVWSUNFX1NUQVRFIiwiVVBEQVRFX0RBU0hCT0FSRCIsIkRFTEVURV9TUEFDRSIsIkRFTEVURV9TUEFDRV9ST0xFIiwiUkVBRF9TUEFDRV9ST0xFIiwiUkVBRF9TUEFDRV9NRU1CRVIiLCJDUkVBVEVfREFTSEJPQVJEIiwiVVBEQVRFX1NQQUNFIiwiSU5WSVRFX1NQQUNFX01FTUJFUiIsIkNSRUFURV9TUEFDRV9ST0xFIiwiUkVNT1ZFX1NQQUNFX01FTUJFUiIsIlVQREFURV9TUEFDRV9ST0xFIiwiVVBEQVRFX1NQQUNFX01FTUJFUl9ST0xFIiwiREVMRVRFX0RBU0hCT0FSRCJdLCJzcGFjZSI6ImRlZmF1bHQtNSJ9.dPdfrTz2uYq0nGiubjfZ54n3GmF9wqsI4X883vDSxyYfZuwlSa5Sf6MmAgcj4N5UKXuXw0UFNvjFC2jQPwjCNg',
-        },
         body: JSON.stringify({
           // @TODO: implement upload image
           logo: 'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
@@ -51,11 +47,6 @@ const OrganizationSetting = () => {
           is_active: true,
         }),
       })
-
-      console.info(
-        `\x1b[34mFunc: fetchPromise - PARAMS: fetchPromise\x1b[0m`,
-        fetchPromise,
-      )
 
       // const response = await fetch('/api/console/organization', {
       //   method: 'POST',
