@@ -259,7 +259,7 @@ export const AppWireFrameSpaceDark = ({
             width="640"
             height="880"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feColorMatrix
@@ -300,7 +300,7 @@ export const AppWireFrameSpaceDark = ({
             width="1030.91"
             height="187.914"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             <feFlood floodOpacity="0" result="BackgroundImageFix" />
             <feGaussianBlur in="BackgroundImageFix" stdDeviation="33.9785" />
