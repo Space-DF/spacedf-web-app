@@ -1,0 +1,291 @@
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  ChevronsUpDown,
+  Pencil,
+  PlusIcon,
+} from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import React, { memo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { DashboardTotalDevices } from '@/components/icons/dashboard-total-devices'
+import { DashboardTotalMembers } from '@/components/icons/dashboard-total-members'
+import { RightSideBarLayout } from '@/components/ui'
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '@/components/ui/command'
+import { Nodata } from '@/components/ui/no-data'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { useLayout } from '@/stores'
+import { useDashboardStore } from '@/stores/dashboard-store'
+import { DataTable } from '@/components/ui/data-table'
+import { useColumns } from '@/containers/dashboard/column'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+
+export interface Dashboard {
+  value: string
+  label: string
+  isDefault: boolean
+  id: number
+}
+
+let dashboards: Dashboard[] = [
+  {
+    value: 'next.js',
+    label: 'SpaceDF IoT Dashboard',
+    isDefault: true,
+    id: 1,
+  },
+  {
+    value: 'sveltekit',
+    label: 'Dashboard 2',
+    isDefault: false,
+    id: 2,
+  },
+  {
+    value: 'nuxt.js',
+    label: 'Dashboard 3',
+    isDefault: false,
+    id: 3,
+  },
+  {
+    value: 'remix',
+    label: 'Dashboard 4',
+    isDefault: false,
+    id: 4,
+  },
+  {
+    value: 'astro',
+    label: 'Dashboard 5',
+    isDefault: false,
+    id: 5,
+  },
+]
+
+const Dashboard = () => {
+  const t = useTranslations()
+  const [open, setOpen] = useState(false)
+  const [selected, setSelected] = useState<Dashboard>(dashboards[0])
+
+  const toggleDynamicLayout = useLayout(
+    useShallow((state) => state.toggleDynamicLayout),
+  )
+  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+
+  const { isViewAllDashboard, setViewAllDashboard, deleteId, setDeleteId } =
+    useDashboardStore()
+
+  const handleCreateNewDashBoard = () => {
+    setOpen(false)
+    const value = {
+      value: 'new-dashboard',
+      label: 'Unnamed Dashboard',
+      isDefault: false,
+      id: 10,
+    }
+    dashboards = [value, ...dashboards]
+    setSelected(value)
+  }
+
+  const handleViewAllDashboard = () => {
+    setOpen(false)
+    setViewAllDashboard(true)
+  }
+
+  const handleDeleteSpace = (id: number) => {
+    setDeleteId(id)
+  }
+
+  return (
+    <RightSideBarLayout
+      onClose={() => {
+        setCookieDirty(true)
+        toggleDynamicLayout('dashboard')
+      }}
+      title={
+        isViewAllDashboard ? (
+          <div className="flex items-center gap-2">
+            <ArrowLeft
+              size={20}
+              onClick={() => setViewAllDashboard(false)}
+              className="cursor-pointer"
+            />
+            <div>{t('dashboard.all_dashboard')}</div>
+          </div>
+        ) : (
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild className="overflow-hidden">
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal bg-brand-fill-dark-soft px-2 py-1 text-brand-text-dark"
+              >
+                <div className="line-clamp-1 w-full flex-1 text-left">
+                  {selected
+                    ? dashboards.find(
+                        (dashboard) => dashboard.value === selected.value,
+                      )?.label
+                    : 'Dashboard 1'}
+                </div>
+                <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60 rounded-lg p-2" align="start">
+              <Command>
+                <CommandInput
+                  classNameContainer="border-0 rounded-lg bg-brand-fill-dark-soft"
+                  placeholder={t('dashboard.search')}
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    {t('dashboard.no_dashboard_found')}
+                  </CommandEmpty>
+                  <CommandGroup className="mt-3 p-0">
+                    {dashboards.map((dashboard) => (
+                      <CommandItem
+                        key={dashboard.value}
+                        value={dashboard.value}
+                        onSelect={(currentValue) => {
+                          const itemSelect = dashboards.find(
+                            (dashboard) => dashboard.value === currentValue,
+                          )
+                          setSelected(itemSelect!)
+                          setOpen(false)
+                        }}
+                        className="rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
+                      >
+                        {dashboard.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  <CommandSeparator className="my-3" />
+                  <Button
+                    className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
+                    variant="outline"
+                    onClick={handleViewAllDashboard}
+                  >
+                    {t('dashboard.view_all_dashboard')}
+                    <ArrowUpRight />
+                  </Button>
+                  <Button
+                    className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
+                    onClick={handleCreateNewDashBoard}
+                  >
+                    {t('dashboard.create_new_dashboard')}
+                    <PlusIcon size={16} />
+                  </Button>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )
+      }
+      externalButton={
+        !isViewAllDashboard && (
+          <div>
+            <Button size="icon" className="size-8 gap-2 rounded-lg">
+              <Pencil size={16} />
+            </Button>
+          </div>
+        )
+      }
+    >
+      {isViewAllDashboard ? (
+        <DataTable
+          columns={useColumns({ handleDeleteSpace, t })}
+          data={dashboards}
+        />
+      ) : (
+        <>
+          <div className="flex gap-3">
+            {selected.isDefault && (
+              <>
+                <DashboardInfo
+                  icon={<DashboardTotalDevices className="size-10" />}
+                  title={t('dashboard.total_devices')}
+                  content="N/A"
+                />
+                <DashboardInfo
+                  icon={<DashboardTotalMembers className="size-10" />}
+                  title={t('dashboard.total_members')}
+                  content="30"
+                />
+              </>
+            )}
+          </div>
+          <Nodata
+            content={t('common.nodata', { module: t('common.widget') })}
+          />
+        </>
+      )}
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(undefined)}
+      >
+        <AlertDialogContent className="dark:bg-brand-component-fill-outermost p-4 sm:max-w-[402px] sm:rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-lg font-bold text-brand-component-text-dark">
+              {t('dashboard.are_you_sure')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium text-brand-component-text-gray">
+              {t(
+                'dashboard.the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored',
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-4">
+            <AlertDialogCancel className="h-12 flex-1 border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none">
+              {t('dashboard.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="h-12 flex-1 items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative text-base font-semibold text-white shadow-sm transition-all hover:bg-brand-component-fill-negative hover:opacity-70 dark:border-brand-component-stroke-light"
+              // onClick={() => router.push('/')}
+            >
+              {t('dashboard.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </RightSideBarLayout>
+  )
+}
+
+const DashboardInfo = (props: {
+  icon: React.ReactNode
+  title: string
+  content: string | number
+}) => {
+  const { icon, content, title } = props
+  return (
+    <div className="flex flex-1 gap-2 rounded-lg bg-white p-2">
+      <div>{icon}</div>
+      <div className="font-semibold text-brand-text-dark">
+        <div className="text-xs">{title}</div>
+        <div>{content}</div>
+      </div>
+    </div>
+  )
+}
+
+export default memo(Dashboard)
