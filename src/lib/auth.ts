@@ -1,13 +1,8 @@
 import { NEXTAUTH_SECRET } from '@/shared/env'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-
-import SpacedfClient from '@space-df/sdk'
 import { ApiResponse } from '@/types/global'
-
-const client = new SpacedfClient({
-  organization: 'spacedf-fe',
-})
+import { SpaceDFClient } from '@/lib/spacedf'
 
 export const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
@@ -36,7 +31,11 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          const spaceDFInstance = await SpaceDFClient.getInstance()
+          const client = spaceDFInstance.getClient()
           const data = await client.auth.login({ email, password })
+          spaceDFInstance.setToken(data.access)
+
           return {
             name: '',
             accessToken: data.access,

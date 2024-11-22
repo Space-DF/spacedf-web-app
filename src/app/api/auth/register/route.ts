@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ApiResponse } from '@/types/global'
 
 const client = new SpacedfClient({
-  organization: 'spacedf-fe',
+  organization: 'develop',
 })
 
 export async function POST(
