@@ -11,7 +11,7 @@ import CreateLoading from '@/containers/space/create-space/loading'
 import { ApiResponse } from '@/types/global'
 import { toSlug } from '@/utils'
 import { useRouter } from '@/i18n/routing'
-import { SpaceCreateResponse } from '@/types/space'
+import { Space } from '@/types/space'
 import { toast } from 'sonner'
 
 const formSchema = z.object({
@@ -49,7 +49,7 @@ const OrganizationSetting = () => {
             is_active: true,
           }),
         }).then(async (response) => {
-          const result: ApiResponse<SpaceCreateResponse> = await response.json()
+          const result: ApiResponse<Space> = await response.json()
           if (!response.ok) {
             throw new Error(result.message || 'Something went wrong')
           }

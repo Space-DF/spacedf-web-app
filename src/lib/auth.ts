@@ -53,6 +53,8 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      const spaceDfInstance = await SpaceDFClient.getInstance()
+      spaceDfInstance.setToken((token as any)?.accessToken)
       return { ...token, ...user }
     },
     async session({ session, token }) {
@@ -60,8 +62,6 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.firstName = token.firstName
         session.user.lastName = token.lastName
-        session.user.accessToken = token.accessToken
-        session.user.refreshToken = token.refreshToken
       }
 
       return session
