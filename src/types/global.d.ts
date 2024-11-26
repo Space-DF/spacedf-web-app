@@ -35,13 +35,25 @@ declare global {
 
 export type ApiResponse<T = any> = {
   data?: T
-  error?: {
-    detail: string
-    code: string
+  message?: string
+  status?: number
+  error?: ApiErrorResponse
+}
+
+export type DataResponse<T = unknown> = {
+  data?: {
+    count?: number
+    next?: any
+    previous?: any
+    results?: T[]
   }
-  message: string
   status: number
 }
+
+export type ApiErrorResponse = {
+  detail: string
+  code?: number
+} & Record<string, any>
 
 declare global {
   interface Window {
