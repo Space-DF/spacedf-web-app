@@ -6,7 +6,7 @@ import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 import { COOKIES } from '@/constants'
 import Devices from '@/containers/devices'
 import Users from '@/containers/users'
-import Widgets from '@/containers/widgets'
+import Dashboard from '@/containers/dashboard'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import {
@@ -231,7 +231,7 @@ const DynamicLayout = ({
                     )}
                   >
                     <div>
-                      <Widgets />
+                      <Dashboard />
                     </div>
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}

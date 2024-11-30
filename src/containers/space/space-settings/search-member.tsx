@@ -13,14 +13,16 @@ import { cn } from '@/lib/utils'
 import { generateOrganizationDomain } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
+import { Check } from 'lucide-react'
 
-export type Option = Record<'value' | 'label' | 'email', string> &
+export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
 
 type AutoCompleteProps = {
   options: Option[]
-  value?: Option
-  onValueChange?: (value: Option) => void
+  selectedItems: string[]
+  value?: Option[]
+  onValueChange?: (value: Option[]) => void
   isLoading?: boolean
   disabled?: boolean
   placeholder?: string
@@ -33,13 +35,14 @@ export const SearchMember = ({
   value,
   onValueChange,
   disabled,
+  selectedItems,
   isLoading = false,
   comma = ['Enter'],
 }: AutoCompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [isOpen, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState<string>(value?.label || '')
+  const [inputValue, setInputValue] = useState<string>('')
   const { organizationName } = useIdentityStore(
     useShallow((state) => ({
       organizationName: state.organizationName,
@@ -59,21 +62,25 @@ export const SearchMember = ({
 
       // This is not a default behaviour of the <input /> field
       if (comma?.includes(event.key) && input.value !== '') {
-        let optionToSelect = options.find(
+        let optionToSelect = options.filter(
           (option) => option.label === input.value,
         )
-        const isEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(input.value)
-        if (!optionToSelect && isEmail) {
-          optionToSelect = {
-            email: input.value,
-            value: input.value,
-            label: input.value,
-          }
+        const users = input.value
+          .split(',')
+          .filter((item) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(item))
+        if (users.length > 0) {
+          users.forEach((item) => {
+            optionToSelect.push({
+              id: item,
+              name: item,
+              email: item,
+            })
+          })
         }
-        if (optionToSelect) {
+        if (optionToSelect.length) {
           onValueChange?.(optionToSelect)
           setInputValue('')
-          handleBlur()
+          setOpen(false)
         }
       }
 
@@ -94,10 +101,8 @@ export const SearchMember = ({
   const handleSelectOption = useCallback(
     (selectedOption: Option) => {
       setInputValue(selectedOption.label)
-      onValueChange?.(selectedOption)
-      setTimeout(() => {
-        inputRef?.current?.blur()
-      }, 0)
+      onValueChange?.([selectedOption])
+      setOpen(false)
     },
     [onValueChange],
   )
@@ -110,11 +115,11 @@ export const SearchMember = ({
           value={inputValue}
           onValueChange={isLoading ? undefined : setInputValue}
           onBlur={handleBlur}
-          onFocus={() => setOpen(true)}
+          // onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary"
+          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary h-10"
         />
       </div>
       <div className="relative">
@@ -147,7 +152,14 @@ export const SearchMember = ({
                         handleSelectOption(option)
                         setInputValue('')
                       }}
-                      className="flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
+                      className={cn(
+                        'relative flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft',
+                        {
+                          'bg-brand-fill-dark-soft': selectedItems.includes(
+                            option.value,
+                          ),
+                        },
+                      )}
                     >
                       <Avatar className="flex size-11 items-center justify-center rounded-lg">
                         <AvatarImage
@@ -164,6 +176,11 @@ export const SearchMember = ({
                           {option.email}
                         </div>
                       </div>
+                      <Check
+                        className={cn('ml-auto h-4 w-4 opacity-0', {
+                          'opacity-100': selectedItems.includes(option.value),
+                        })}
+                      />
                     </CommandItem>
                   )
                 })}
