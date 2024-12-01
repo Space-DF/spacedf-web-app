@@ -1,16 +1,17 @@
 import { create } from 'zustand'
+import { Space } from '@/types/space'
 
 type GlobalStore = {
-  currentSpace: string
+  currentSpace: Space | null
 }
 
 type ActionsGlobalStore = {
-  setCurrentSpace: (newSpace: string) => void
+  setCurrentSpace: (newSpace: Space) => void
 }
 
 export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
   (set) => ({
-    currentSpace: '1',
+    currentSpace: null,
     setCurrentSpace: (newSpace) => set({ currentSpace: newSpace }),
   }),
 )

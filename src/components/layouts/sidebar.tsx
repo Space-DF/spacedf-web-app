@@ -10,7 +10,6 @@ import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
 import { COOKIES, Navigation as TNavigation, navigations } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
-import { useOrganization } from '@/hooks/useOrganization'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
 import { CommonModalProps } from '@/types/common'
@@ -191,7 +190,6 @@ const CollapsedSidebar = ({
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
   const { status } = useSession()
-  const { isOrganization } = useOrganization()
   const { mounted } = useMounted()
 
   const isAuth = status === 'authenticated'
@@ -224,13 +222,9 @@ const CollapsedSidebar = ({
             />
           </div>
 
-          {isOrganization && mounted && (
-            <SwitchSpace isCollapsed={isCollapsed} />
-          )}
+          {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
 
-          {!isOrganization && mounted && (
-            <IdentityButton isCollapsed={isCollapsed} />
-          )}
+          {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
 
           <Button
             variant="ghost"

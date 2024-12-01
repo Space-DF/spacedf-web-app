@@ -1,12 +1,10 @@
 import React, { Suspense } from 'react'
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import ImageWithBlur from '@/components/ui/image-blur'
-import { TSpace } from '@/types/common'
-import AvtUser from '/public/images/avt-user.svg'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 import { OrganizationLogo } from '@/components/icons/organization-logo'
 import { ChevronsUpDown } from 'lucide-react'
+import { Space as TSpace } from '@/types/space'
 
 type SpaceProps = {
   spaceData: TSpace
@@ -15,13 +13,8 @@ type SpaceProps = {
   hiddenOption?: boolean
 }
 
-// thumbnail,
-//   isSelected,
-//   title,
-//   count_device,
-
 const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
-  const { thumbnail, title, count_device } = spaceData
+  const { logo, name } = spaceData || {}
 
   return (
     <div
@@ -42,6 +35,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             },
           )}
         >
+          <AvatarImage src={logo} alt={name} className="mix-blend-darken" />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
             src={}
@@ -62,7 +56,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
                   : 'text-white',
               )}
             >
-              {title}
+              {name}
             </p>
             <span className="rounded bg-brand-dark-fill-secondary px-2 text-xs font-semibold leading-normal text-white dark:text-brand-dark-text-gray">
               Admin
