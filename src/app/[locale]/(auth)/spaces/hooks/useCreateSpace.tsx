@@ -27,44 +27,44 @@ export async function createSpace(
 }
 
 export const useCreateSpace = (configs?: SWRConfiguration) => {
-  const { mutate } = useGetSpaces()
-
-  const { trigger } = useSWRMutation('/api/spaces', createSpace, {
-    onSuccess(newSpace) {
-      mutate((prevData: UseGetSpaceResponse): UseGetSpaceResponse => {
-        const newData: UseGetSpaceResponse = {
-          ...prevData,
-          data: {
-            ...prevData.data,
-            count: (prevData.data?.count || 0) + 1,
-            results: [...(prevData.data?.results || []), newSpace],
-          },
-        }
-        return newData
-      })
-      toast.success('Space created successfully')
-    },
-    onError: (error) => {
-      const errors = JSON.parse(error.message)
-
-      const isSlugError = 'slug_name' in errors
-
-      if (!isSlugError) {
-        toast.error(errors.detail || 'Something went wrong')
-      } else {
-        toast(
-          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
-            {errors.slug_name.map((error: string) => (
-              <li key={error} className="capitalize">
-                {error}
-              </li>
-            ))}
-          </ul>,
-        )
-      }
-    },
-    revalidate: false,
-  })
-
-  return { createSpaceTrigger: trigger }
+  // const { mutate } = useGetSpaces()
+  //
+  // const { trigger } = useSWRMutation('/api/spaces', createSpace, {
+  //   onSuccess(newSpace) {
+  //     mutate((prevData: UseGetSpaceResponse): UseGetSpaceResponse => {
+  //       const newData: UseGetSpaceResponse = {
+  //         ...prevData,
+  //         data: {
+  //           ...prevData.data,
+  //           count: (prevData.data?.count || 0) + 1,
+  //           results: [...(prevData.data?.results || []), newSpace],
+  //         },
+  //       }
+  //       return newData
+  //     })
+  //     toast.success('Space created successfully')
+  //   },
+  //   onError: (error) => {
+  //     const errors = JSON.parse(error.message)
+  //
+  //     const isSlugError = 'slug_name' in errors
+  //
+  //     if (!isSlugError) {
+  //       toast.error(errors.detail || 'Something went wrong')
+  //     } else {
+  //       toast(
+  //         <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+  //           {errors.slug_name.map((error: string) => (
+  //             <li key={error} className="capitalize">
+  //               {error}
+  //             </li>
+  //           ))}
+  //         </ul>,
+  //       )
+  //     }
+  //   },
+  //   revalidate: false,
+  // })
+  //
+  // return { createSpaceTrigger: trigger }
 }
