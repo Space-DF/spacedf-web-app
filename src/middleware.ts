@@ -1,23 +1,16 @@
-import { locales } from './i18n/request'
-import { getToken } from 'next-auth/jwt'
-import createMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
+
+import createMiddleware from 'next-intl/middleware'
+import { locales } from './i18n/request'
 import { Locale } from './types/global'
 import { getSubdomain } from './utils'
+import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 
-export default async function middleware(
-  request: NextRequest,
-  nextResponse: NextResponse,
-) {
-  const session = await getToken({
-    req: request,
-  })
-
+export default async function middleware(request: NextRequest) {
   // Step 1: Use the incoming request (example)
-  const defaultLocale = (request.headers.get('x-your-custom-locale') ||
-    'en') as Locale
+  const defaultLocale = (cookies().get('NEXT_LOCALE')?.value || 'en') as Locale
 
-  const { pathname } = request.nextUrl
   const [, locale, ...segments] = request.nextUrl.pathname.split('/')
 
   const headerHost = request.headers.get('x-forwarded-host')
@@ -29,18 +22,21 @@ export default async function middleware(
     defaultLocale,
   })
 
-  if (locale != null && !segments.length) {
-    request.nextUrl.pathname = `/${locale}/onboarding`
+  if (
+    locale != null &&
+    !segments.length &&
+    locales.includes(locale as Locale)
+  ) {
+    request.nextUrl.pathname = `/${locale}/digital-twins`
   }
 
   // Handle the locale routing
-  let response = handleI18nRouting(request)
+  const response = handleI18nRouting(request)
   let env = 'production'
   const organization = getSubdomain(headerHost || '', rootHost || '')
 
   if (headerHost?.startsWith('dev')) {
     env = 'development'
-    // organization = (hostname !== "localhost" && headerHostSegments?.[1]) || ""
   }
 
   response.cookies.set('organization', organization)

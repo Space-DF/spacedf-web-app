@@ -71,6 +71,8 @@ export const getNewLayouts = (
 }
 
 export const KEYS_CANNOT_DUPLICATED = [
-  NavigationEnums.DEVICES,
-  NavigationEnums.USER,
+  'devices',
+  'user',
+  // NavigationEnums.DEVICES,
+  // NavigationEnums.USER,
 ]

@@ -8,5 +8,9 @@
   "indoor_asset_tracking": "Indoor Asset Tracking",
   "fleet_tracking": "Fleet Tracking",
   "water_pressure_management": "Water Pressure Management",
-  "create_3d_from_2d": "Create 3D from your 2D"
+  "create_3d_from_2d": "Create 3D from your 2D",
+  "skip": "Skip",
+  "welcome_to_gps_tracking_template": "Welcome to GPS Tracking Template ",
+  "finish": "Finish",
+  "next": "Next"
 }

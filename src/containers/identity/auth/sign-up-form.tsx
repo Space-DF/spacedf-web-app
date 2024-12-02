@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleUserRound, LockKeyhole, Mail } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
+import { CircleUserRound, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import { signIn } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,46 +21,36 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { AuthData } from '.'
 import { ApiResponse } from '@/types/global'
-
-export const passwordSchema = z
-  .string()
-  .min(3, { message: 'Password must have at least 3 characters' })
-  .max(150, {
-    message: 'Password must be less than or equal to 150 characters',
-  })
-  .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/, {
-    message:
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-  })
+import { AuthData } from '.'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
+import {
+  confirmPasswordSchema,
+  firstNameSchema,
+  lastNameSchema,
+  passwordSchema,
+} from '@/utils'
 
 export const singInSchema = z
   .object({
-    first_name: z
-      .string()
-      .min(1, { message: 'First name is required' })
-      .max(50, {
-        message: 'First name must be less than or equal to 50 characters',
-      }),
-    last_name: z
-      .string({ required_error: 'Last name is required' })
-      .min(1, { message: 'Last name is required' })
-      .max(50, {
-        message: 'Last name must be less than or equal to 50 characters',
-      }),
+    first_name: firstNameSchema,
+    last_name: lastNameSchema,
     email: z
-      .string()
-      .email({ message: 'Please enter a valid email address' })
-      .min(1, { message: 'Email is required' })
-      .max(50, {
-        message: 'Email must be less than or equal to 50 characters',
+      .string({ message: 'Email cannot be empty' })
+      .email({ message: 'Invalid Email' })
+      .min(1, { message: 'Email cannot be empty' })
+      .refine((value) => value.split('@')[0].length <= 64, {
+        message: 'Invalid Email', // Local part max length
+      })
+      .refine((value) => value.split('@')[1]?.length <= 255, {
+        message: 'Invalid Email', // Domain part max length
       }),
     password: passwordSchema,
-    confirm_password: passwordSchema,
+    confirm_password: confirmPasswordSchema,
   })
   .refine((data) => data.password === data.confirm_password, {
-    message: 'Password do not match',
+    message: 'Confirm password must match the password entered above.',
     path: ['confirm_password'],
   })
 
@@ -84,11 +74,18 @@ const SignUpForm = ({
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
-    mode: 'all',
   })
 
-  const { isDirty, isValid } = form.formState
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [isShowPassword, setIsShowPassword] = useState(false)
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
+
+  const { setOpenDrawer } = useIdentityStore(
+    useShallow((state) => ({
+      openDrawer: state.openDrawerIdentity,
+      setOpenDrawer: state.setOpenDrawerIdentity,
+    })),
+  )
 
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     setIsAuthenticating(true)
@@ -117,10 +114,14 @@ const SignUpForm = ({
           }),
         })
 
+        setOpenDrawer(false)
+
         return res?.data?.message || 'Sign up successful!'
       },
-      error: (error: ApiResponse) => {
-        return error?.message || 'Something went wrong'
+      error: () => {
+        return t(
+          'this_email_is_already_registered_please_use_a_different_email_or_log_in',
+        )
       },
       finally() {
         setIsAuthenticating(false)
@@ -199,8 +200,20 @@ const SignUpForm = ({
                   <FormLabel>{t('password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type="password"
+                      type={isShowPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                        >
+                          {isShowPassword ? (
+                            <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
+                          )}
+                        </span>
+                      }
                       {...field}
                       placeholder={t('password')}
                     />
@@ -217,8 +230,22 @@ const SignUpForm = ({
                   <FormLabel>{t('confirm_password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      type="password"
+                      type={isShowConfirmPassword ? 'text' : 'password'}
                       prefixCpn={<LockKeyhole size={16} />}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() =>
+                            setIsShowConfirmPassword(!isShowConfirmPassword)
+                          }
+                        >
+                          {isShowConfirmPassword ? (
+                            <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
+                          )}
+                        </span>
+                      }
                       {...field}
                       placeholder={t('password')}
                     />
@@ -232,7 +259,6 @@ const SignUpForm = ({
             type="submit"
             className="mb-2 mt-5 h-11 w-full"
             loading={isAuthenticating}
-            disabled={!isDirty || !isValid}
           >
             {t('sign_up')}
           </Button>

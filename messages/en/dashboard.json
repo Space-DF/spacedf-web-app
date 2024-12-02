@@ -1,0 +1,15 @@
+{
+  "search": "Search",
+  "no_dashboard_found": "No dashboard found.",
+  "view_all_dashboard": "View all dashboard",
+  "all_dashboard": "All Dashboard",
+  "create_new_dashboard": "Create new dashboard",
+  "total_devices": "Total Devices",
+  "total_members": "Total members",
+  "name": "Name",
+  "action": "Action",
+  "are_you_sure": "Are you sure?",
+  "the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored": "The dashboard will be deleted from the system and cannot be restored.",
+  "delete": "Delete",
+  "cancel": "Cancel"
+}

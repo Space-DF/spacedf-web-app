@@ -5,6 +5,9 @@ import { Session } from 'next-auth'
 import { PropsWithChildren } from 'react'
 import NextThemeProvider from './next-theme'
 import { NextAuthSessionProvider } from './session-provider'
+import { MapProvider } from './map-provider'
+import SWRProvider from './swr-provider'
+import { SWRDevTools } from 'swr-devtools'
 
 const AppProvider = ({
   children,
@@ -13,12 +16,16 @@ const AppProvider = ({
   session: Session | null
 }) => {
   return (
-    <NextAuthSessionProvider session={session}>
+    <SWRDevTools>
       <NextThemeProvider>
-        {children}
-        <Toaster position="top-right" richColors />
+        <NextAuthSessionProvider session={session}>
+          <SWRProvider>
+            <MapProvider>{children}</MapProvider>
+          </SWRProvider>
+          <Toaster position="top-right" richColors />
+        </NextAuthSessionProvider>
       </NextThemeProvider>
-    </NextAuthSessionProvider>
+    </SWRDevTools>
   )
 }
 

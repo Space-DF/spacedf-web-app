@@ -1,4 +1,6 @@
-const config = require('js-rules').eslint
+const eslintLib = await import('js-rules')
+
+const config = eslintLib.eslint
 
 // You can update the ESLint config by modifying the properties
 // If you want to extend ESLint with another configuration

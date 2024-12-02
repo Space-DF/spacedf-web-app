@@ -1,10 +1,12 @@
-import { SpaceDFLogoFull } from '@/components/icons'
+import { useTranslations } from 'next-intl'
 import React, { useState } from 'react'
-import AuthenticateWithGoogle from './authenticate-with-google'
+import { SpaceDFLogoFull } from '@/components/icons'
 import { Separator } from '@/components/ui/separator'
-import SignUpForm from './sign-up-form'
+import AuthenticateWithApple from './authenticate-with-apple'
+import AuthenticateWithGoogle from './authenticate-with-google'
+// import QrCode from './qr-code'
 import SignInForm from './sign-in-form'
-import QrCode from './qr-code'
+import SignUpForm from './sign-up-form'
 
 export type AuthenticationMethod = 'signIn' | 'signUp'
 export type AuthData = {
@@ -17,17 +19,19 @@ const Authentication = () => {
     method: 'signIn',
     data: {},
   })
+  const t = useTranslations('signUp')
 
   const isSignUp = authData.method === 'signUp'
 
   return (
-    <div className="my-10 flex h-full w-full flex-col items-center justify-center md:max-w-md">
+    <div className="my-10 flex size-full flex-col items-center justify-center md:max-w-md">
       <SpaceDFLogoFull />
       <p className="my-6 text-3xl font-semibold">
-        {isSignUp ? 'Sign up' : 'Sign in'}
+        {isSignUp ? t('sign_up') : t('sign_in')}
       </p>
 
-      <AuthenticateWithGoogle isSignUp={isSignUp} />
+      <AuthenticateWithGoogle />
+      <AuthenticateWithApple />
 
       <Separator className="my-6" />
 
@@ -40,9 +44,9 @@ const Authentication = () => {
         />
       )}
 
-      <div className="mt-6">
-        <QrCode />
-      </div>
+      {/*<div className="mt-6">*/}
+      {/*  <QrCode />*/}
+      {/*</div>*/}
     </div>
   )
 }

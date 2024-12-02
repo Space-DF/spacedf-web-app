@@ -6,7 +6,7 @@ import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 import { COOKIES } from '@/constants'
 import Devices from '@/containers/devices'
 import Users from '@/containers/users'
-import Widgets from '@/containers/widgets'
+import Dashboard from '@/containers/dashboard'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import {
@@ -124,8 +124,9 @@ const DynamicLayout = ({
     rightLayoutRefs.current?.setLayout(rightLayout)
   }
 
-  const handleRightLayoutChange = (sizes: number[]) =>
+  const handleRightLayoutChange = (sizes: number[]) => {
     setCookie(COOKIES.SUB_DYNAMIC_LAYOUTS, sizes)
+  }
 
   const handleDynamicLayoutChanges = (sizes: number[]) =>
     setCookie(COOKIES.LAYOUTS, sizes)
@@ -189,7 +190,10 @@ const DynamicLayout = ({
               id="group"
             >
               <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
-                <div className="flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading">
+                <div
+                  className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
+                  id="ele-main-content"
+                >
                   {children}
                 </div>
               </ResizablePanel>
@@ -214,19 +218,20 @@ const DynamicLayout = ({
                   direction="horizontal"
                   ref={rightLayoutRefs}
                   onLayout={handleRightLayoutChange}
+                  id="region-dynamic-layout"
                 >
                   <ResizablePanel
                     defaultSize={defaultRightLayout[0]}
                     minSize={first ? 45 : 0}
                     className={cn(
-                      'dark:bg-brand-fill-outermost',
+                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       first
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
                   >
                     <div>
-                      <Widgets />
+                      <Dashboard />
                     </div>
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
@@ -234,7 +239,7 @@ const DynamicLayout = ({
                     defaultSize={defaultRightLayout[1]}
                     minSize={second ? 45 : 0}
                     className={cn(
-                      'dark:bg-brand-fill-outermost',
+                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       second
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',

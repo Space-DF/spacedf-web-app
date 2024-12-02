@@ -6,13 +6,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
-import { CircleUser, Globe } from 'lucide-react'
+import { CircleUser, Globe, Trash } from 'lucide-react'
 import { Laptop, SettingIcon } from '../../icons'
 import { cn } from '@/lib/utils'
 import Profile from './profile'
 import Account from './account'
 import Appearance from './appearance'
 import Language from './language'
+import DeleteAccount from './delete-account'
+import React from 'react'
+import { Separator } from '@/components/ui/separator'
+import { useTranslations } from 'next-intl'
 
 const settings = () => [
   {
@@ -35,10 +39,16 @@ const settings = () => [
     icon: <Globe size={16} />,
     label: 'Language',
   },
+  {
+    key: 'delete',
+    icon: <Trash size={16} />,
+    label: 'Delete account',
+  },
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
   const [currentSetting, setCurrentSetting] = useState('profile')
+  const t = useTranslations('common')
 
   const renderSetting = useMemo(() => {
     switch (currentSetting) {
@@ -50,6 +60,8 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         return <Appearance />
       case 'language':
         return <Language />
+      case 'delete':
+        return <DeleteAccount />
       default:
         return <></>
     }
@@ -60,7 +72,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="text-sm text-brand-text-dark sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>General Setting</DialogTitle>
+          <DialogTitle>{t('general_settings')}</DialogTitle>
         </DialogHeader>
         <div className="flex">
           <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
@@ -69,19 +81,27 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                 const isActive = setting.key === currentSetting
 
                 return (
-                  <div
-                    key={setting.key}
-                    className={cn(
-                      'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',
-                      isActive
-                        ? 'border-r-2 border-black bg-brand-fill-dark-soft dark:border-brand-heading dark:bg-brand-text-dark dark:text-white'
-                        : 'border-none bg-transparent text-brand-text-gray',
+                  <React.Fragment key={setting.key}>
+                    {setting.key === 'delete' && (
+                      <Separator className="my-1.5" />
                     )}
-                    onClick={() => setCurrentSetting(setting.key)}
-                  >
-                    {setting.icon}
-                    {setting.label}
-                  </div>
+                    <div
+                      className={cn(
+                        'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',
+                        isActive
+                          ? 'border-r-2 border-black bg-brand-fill-dark-soft dark:border-brand-heading dark:bg-brand-text-dark dark:text-white'
+                          : 'border-none bg-transparent text-brand-text-gray',
+                        {
+                          'text-brand-semantic-accent':
+                            setting.key === 'delete',
+                        },
+                      )}
+                      onClick={() => setCurrentSetting(setting.key)}
+                    >
+                      {setting.icon}
+                      {setting.label}
+                    </div>
+                  </React.Fragment>
                 )
               })}
             </div>

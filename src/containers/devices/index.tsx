@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from '@radix-ui/react-icons'
 import { Scanner } from '@yudiel/react-qr-scanner'
-import { ArrowLeft, CircleCheck, Pencil, Trash2, Map } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Map, Pencil, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -42,7 +42,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
@@ -56,6 +55,8 @@ const Devices = () => {
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
+  const [selected, setSelected] = useState<number>()
+
   return (
     <RightSideBarLayout
       onClose={() => {
@@ -65,8 +66,11 @@ const Devices = () => {
       title={t('selected_devices')}
     >
       <div className="h-screen overflow-y-auto pb-20">
-        <DeviceSelected />
-        <DevicesList />
+        <DeviceSelected selected={selected} />
+        <DevicesList
+          selected={selected}
+          handleSelected={(id: number) => setSelected(id)}
+        />
         <Nodata content={t('nodata', { module: t('devices') })} />
       </div>
     </RightSideBarLayout>
@@ -117,7 +121,7 @@ const AddDeviceDialog = () => {
               setStep('add_device_manual')
               setMode('manual')
             }}
-            isSelected={mode === 'auto'}
+            isSelected={mode === 'manual'}
           />
         </>
       ),
@@ -156,7 +160,7 @@ const AddDeviceDialog = () => {
         }}
       >
         <DialogTrigger asChild>
-          <Button size="default" className="h-8 gap-2 rounded-lg">
+          <Button className="h-8 gap-2 rounded-lg">
             {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
             <PlusIcon />
           </Button>
@@ -187,37 +191,33 @@ const AddDeviceDialog = () => {
   )
 }
 
-const DeviceSelected = () => {
+const DeviceSelected = ({ selected }: { selected?: number }) => {
   const t = useTranslations('addNewDevice')
-
-  // @TODO: handle device selected
-  const deviceSelected = undefined
-
   const InformationItem = (props: { label: string; content: string }) => {
     return (
       <div className="flex gap-4 text-sm">
-        <span className="font-semibold text-brand-text-dark">
+        <span className="font-semibold text-brand-component-text-dark">
           {props.label}
         </span>
-        <span className="text-brand-text-gray">{props.content}</span>
+        <span className="text-brand-component-text-gray">{props.content}</span>
       </div>
     )
   }
 
-  if (!deviceSelected) {
+  if (!selected) {
     return (
-      <div className="rounded-xl bg-brand-fill-dark-soft p-4">
+      <div className="rounded-xl bg-brand-component-fill-gray-soft">
         <Nodata content={t('no_selected_devices')} />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-brand-fill-dark-soft p-4">
+    <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-brand-semantic-success" />
-          <span className="text-xs font-medium text-brand-text-dark">
+          <span className="size-2 rounded-full bg-brand-component-fill-positive" />
+          <span className="text-xs font-medium text-brand-component-text-dark">
             {t('online')}
           </span>
         </div>
@@ -235,10 +235,10 @@ const DeviceSelected = () => {
                 <Trash2 size={16} />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="sm:max-w-md">
+            <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
-                  {t('are_you_sure')}
+                  {t('remove_device')}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
                   {t('are_you_sure_you_want_to_remove_this_device')}
@@ -257,26 +257,38 @@ const DeviceSelected = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <InformationItem label={t('device_id')} content={'DMZ 01 12312123'} />
-        <InformationItem label={t('site_name')} content={'Jln Ramaya Terawi'} />
         <InformationItem
-          label={t('pipe_material')}
+          label={`${t('device_id')}:`}
+          content={'DMZ 01 12312123'}
+        />
+        <InformationItem
+          label={`${t('device_name')}:`}
+          content={'Jln Ramaya Terawi'}
+        />
+        <InformationItem
+          label={`${t('deveui')}`}
           content={'Mild Steel Cement Lined'}
         />
-        <InformationItem label={t('pipe_normal_dia_meter')} content={'150'} />
+        <InformationItem label={`${t('description')}:`} content={'150'} />
       </div>
     </div>
   )
 }
 
-const DevicesList = () => {
+const DevicesList = ({
+  handleSelected,
+  selected,
+}: {
+  handleSelected: (id: number) => void
+  selected?: number
+}) => {
   const t = useTranslations('addNewDevice')
-  const devices = Array.from({ length: 16 }).map((_, id) => ({ id }))
+  const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
     <div className="mt-6 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div className="font-semibold text-brand-text-dark">
+        <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
@@ -286,17 +298,14 @@ const DevicesList = () => {
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
             <div
               className={cn(
-                'rounded-xl border border-transparent bg-brand-fill-dark-soft p-2 text-brand-text-dark',
-                // TODO: handle border selected
-                { 'border-brand-heading': item.id === 0 },
+                'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                { 'border-brand-component-stroke-dark': item.id === selected },
               )}
+              onClick={() => handleSelected(item.id)}
             >
               <div className="flex items-center justify-between">
                 <div className="size-8">
                   <img src="https://placehold.co/32x32" />
-                </div>
-                <div>
-                  <Switch className="bg-brand-fill-gray-light" />
                 </div>
               </div>
               <div className="mb-7 mt-2 text-xs font-medium">
@@ -363,15 +372,14 @@ const AddDeviceSuccess = () => {
 }
 
 const addDeviceSchema = z.object({
-  device_name: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
+  device_name: z.string({ message: 'This field cannot be empty' }),
+  dev_ui: z.string({ message: 'This field cannot be empty' }).min(16, {
+    message: 'Must be at least 16 characters long.',
   }),
-  dev_ui: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
-  description: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
+  description: z
+    .string()
+    .max(500, { message: 'This field must not exceed 500 characters' })
+    .optional(),
 })
 
 const AddDeviceForm = ({
@@ -388,9 +396,9 @@ const AddDeviceForm = ({
   })
 
   function onSubmit(values: z.infer<typeof addDeviceSchema>) {
+    console.info(`\x1b[34mFunc: onSubmit - PARAMS: values\x1b[0m`, values)
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
   }
 
   const isModeAuto = mode === 'auto'
@@ -409,9 +417,9 @@ const AddDeviceForm = ({
           name="device_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-brand-text-dark dark:text-white">
+              <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('device_name')}
-                <span className="text-brand-semantic-accent">*</span>
+                <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -429,9 +437,9 @@ const AddDeviceForm = ({
           name="dev_ui"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold text-brand-text-dark dark:text-white">
+              <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('devui')}
-                <span className="text-brand-semantic-accent">*</span>
+                <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -449,11 +457,14 @@ const AddDeviceForm = ({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('description')}</FormLabel>
+              <FormLabel className="font-semibold text-brand-component-text-dark">
+                {t('description')}
+              </FormLabel>
               <FormControl>
                 <Textarea
                   disabled={isModeAuto}
                   placeholder={t('enter_description')}
+                  className="resize-none"
                   {...field}
                 />
               </FormControl>
@@ -496,8 +507,8 @@ const AddDeviceContainer = (
   return (
     <div
       className={cn(
-        'relative flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-transparent bg-brand-fill-dark-soft px-4 py-10 text-center',
-        { 'border-black': isSelected },
+        'relative flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-transparent bg-brand-component-fill-gray-soft px-4 py-10 text-center',
+        { 'border-brand-component-stroke-dark': isSelected },
       )}
       onClick={handleNextStep}
     >
@@ -507,8 +518,12 @@ const AddDeviceContainer = (
         </div>
       )}
       {icon}
-      <div className="font-semibold">{title}</div>
-      <div className="text-[13px] text-brand-text-gray">{description}</div>
+      <div className="font-semibold text-brand-component-text-dark">
+        {title}
+      </div>
+      <div className="text-[13px] text-brand-component-text-gray">
+        {description}
+      </div>
     </div>
   )
 }

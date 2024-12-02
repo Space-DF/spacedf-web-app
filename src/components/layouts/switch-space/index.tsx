@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
+import { useTranslations } from 'next-intl'
+import React, { useCallback, useEffect } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,32 +12,36 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
-import { spaceList } from '@/data/dummy-data'
-import { useGlobalStore } from '@/stores'
-import { TSpace } from '@/types/common'
-import React, { useCallback } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import AddNewSpace from './add-new-space'
-import OrganizationManagement from './organization-management'
 import Space from './space'
 import SpaceMenuItem from './space-menu-item'
+import { useGetSpaces } from '@/app/[locale]/(auth)/spaces/hooks'
+import { useRouter } from '@/i18n/routing'
+import { useParams } from 'next/navigation'
+import { useGlobalStore } from '@/stores'
+import { useShallow } from 'zustand/react/shallow'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
 
 const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
-  const { currentSpace, setCurrentSpace } = useGlobalStore(
-    useShallow((state) => ({
-      currentSpace: state.currentSpace,
-      setCurrentSpace: state.setCurrentSpace,
-    })),
-  )
+  const t = useTranslations('space')
+  const params = useParams()
+  const router = useRouter()
+  const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
+  const { data: spaces } = useGetSpaces()
+  const spaceList = spaces?.data?.results || []
 
-  React.useEffect(() => {
+  const spaceSelected =
+    spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
+    spaceList[0]
+
+  useEffect(() => {
+    setCurrentSpace(spaceList[0])
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
-      const numberFromCode = code[code.length - 1]
+      const numberFromCode = code?.[code?.length - 1]
 
       const isDetectShortCut =
         Number(numberFromCode) < 10 &&
@@ -44,12 +50,17 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       if (!isDetectShortCut) return
 
       if (metaKey && altKey) {
-        setCurrentSpace(spaceList[Number(numberFromCode) - 1].id)
+        const space = spaceList[Number(numberFromCode) - 1]
+        handleGoToSpace(space.slug_name)
       }
     }
 
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
+  }, [spaceList])
+
+  const handleGoToSpace = useCallback((spaceSlug: string) => {
+    router.push(`/spaces/${spaceSlug}`)
   }, [])
 
   const customMatchKeys = useCallback(
@@ -69,9 +80,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     [],
   )
 
-  const spaceSelected =
-    spaceList.find((space) => space.id === currentSpace) || ({} as TSpace)
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -84,31 +92,33 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-80 border-brand-stroke-dark-soft bg-brand-fill-outermost/70 text-white backdrop-blur-sm dark:border-brand-stroke-outermost"
-        sideOffset={10}
-        collisionPadding={10}
+        side="bottom"
+        align="start"
+        className="w-72 rounded-xl border-brand-stroke-outermost bg-brand-dark-bg-space p-3 text-white backdrop-blur-xl"
+        sideOffset={3}
       >
-        <DropdownMenuLabel>Switch Space</DropdownMenuLabel>
+        <DropdownMenuLabel className="p-0 text-xs font-semibold leading-normal">
+          {t('switch_space')}
+        </DropdownMenuLabel>
 
-        <DropdownMenuGroup>
+        <DropdownMenuGroup className="mt-2 space-y-1">
           {spaceList.map((space, index) => (
             <DropdownMenuItem
               key={space.id}
-              onClick={() => setCurrentSpace(space.id)}
+              onClick={() => {
+                handleGoToSpace(space.slug_name)
+              }}
+              className="cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost"
             >
               <SpaceMenuItem spaceData={space} position={index} />
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
 
-        <Separator className="my-3 bg-zinc-500 dark:bg-brand-stroke-outermost" />
+        <Separator className="my-2 bg-brand-stroke-outermost dark:bg-brand-stroke-outermost" />
 
-        <DropdownMenuItem className="py-2">
+        <DropdownMenuItem className="p-0 focus:bg-transparent">
           <AddNewSpace />
-        </DropdownMenuItem>
-
-        <DropdownMenuItem className="mb-2 py-2">
-          <OrganizationManagement />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
