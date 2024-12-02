@@ -49,18 +49,21 @@ const OrganizationSetting = () => {
             is_active: true,
           }),
         }).then(async (response) => {
-          const result: ApiResponse<Space> = await response.json()
+          const result = await response.json()
           if (!response.ok) {
-            throw new Error(result.message || 'Something went wrong')
+            const [errorData] = result.slug_name
+
+            throw new Error(errorData || 'Something went wrong')
           }
           return result
         })
         await sleep(3000)
         if (fetchPromise.data) {
-          router.push(`/spaces/${fetchPromise.data.id}`)
+          router.push(`/spaces/${fetchPromise.data.slug_name}`)
         }
       } catch (err) {
-        toast.error('Something went wrong')
+        const { message } = err as Error
+        toast.error(message)
       }
     })
   }

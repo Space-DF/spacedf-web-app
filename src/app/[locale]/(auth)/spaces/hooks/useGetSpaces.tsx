@@ -6,7 +6,7 @@ export type UseGetSpaceResponse = DataResponse<Space>
 
 export const SWR_GET_SPACE_ENDPOINT = '/api/spaces'
 
-export async function getSpaces(url: string): Promise<UseGetSpaceResponse> {
+export async function getSpaces<T>(url: string): Promise<T> {
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -18,5 +18,9 @@ export async function getSpaces(url: string): Promise<UseGetSpaceResponse> {
 }
 
 export function useGetSpaces(configs: SWRConfiguration = {}) {
-  return useSWR(SWR_GET_SPACE_ENDPOINT, getSpaces, configs)
+  return useSWR(SWR_GET_SPACE_ENDPOINT, getSpaces<UseGetSpaceResponse>, configs)
+}
+
+export function useGetSpaceDetails(slug: string) {
+  return useSWR(`${SWR_GET_SPACE_ENDPOINT}/${slug}`, getSpaces<{ data: Space }>)
 }

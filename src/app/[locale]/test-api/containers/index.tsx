@@ -10,7 +10,7 @@ import { DataResponse } from '@/types/global'
 import { Space } from '@/types/space'
 
 const TestContainer = () => {
-  const { data, isLoading } = useGetSpaces<DataResponse<Space>>()
+  const { data, isLoading } = useGetSpaces()
 
   const spaceList = data?.data?.results || []
 

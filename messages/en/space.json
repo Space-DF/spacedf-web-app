@@ -31,7 +31,7 @@
   "save_changes": "Save changes",
   "delete_space": "Delete Space",
   "warning_this_is_a_potentially_destructive_action": "Warning: This is a potentially destructive action",
-  "to_confirm_please_type_delete_below": "To confirm, please  type your Space Name below",
+  "to_confirm_please_type_delete_below": "To confirm, please  type your {spaceName} below",
   "are_you_sure_you_want_to_cancel_all_changes_made_will_not_be_saved": "Are you sure you want to cancel? All changes made will not be saved.",
   "delete_member": "Delete member",
   "are_you_sure_you_want_to_delete_this_member": "Are you sure you want to delete this member?",
