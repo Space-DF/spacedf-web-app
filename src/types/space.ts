@@ -1,10 +1,11 @@
 export interface Space {
-  id: number
+  id: string
   created_at: string
   updated_at: string
   name: string
   logo: string
   slug_name: string
   is_active: boolean
-  created_by: number
+  total_devices: number
+  created_by: string
 }

@@ -3,7 +3,6 @@
 
 import { useTranslations } from 'next-intl'
 import React, { useCallback, useEffect } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
-import { spaceList } from '@/data/dummy-data'
-import { useGlobalStore } from '@/stores'
-import { TSpace } from '@/types/common'
 import AddNewSpace from './add-new-space'
 import Space from './space'
 import SpaceMenuItem from './space-menu-item'
+import { useGetSpaces } from '@/app/[locale]/(auth)/spaces/hooks'
+import { useRouter } from '@/i18n/routing'
+import { useParams } from 'next/navigation'
+import { useGlobalStore } from '@/stores'
+import { useShallow } from 'zustand/react/shallow'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -26,14 +27,18 @@ type SwitchSpaceProps = {
 
 const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const t = useTranslations('space')
-  const { currentSpace, setCurrentSpace } = useGlobalStore(
-    useShallow((state) => ({
-      currentSpace: state.currentSpace,
-      setCurrentSpace: state.setCurrentSpace,
-    })),
-  )
+  const params = useParams()
+  const router = useRouter()
+  const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
+  const { data: spaces } = useGetSpaces()
+  const spaceList = spaces?.data?.results || []
+
+  const spaceSelected =
+    spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
+    spaceList[0]
 
   useEffect(() => {
+    setCurrentSpace(spaceList[0])
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
       const numberFromCode = code?.[code?.length - 1]
@@ -45,12 +50,17 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       if (!isDetectShortCut) return
 
       if (metaKey && altKey) {
-        setCurrentSpace(spaceList[Number(numberFromCode) - 1].id)
+        const space = spaceList[Number(numberFromCode) - 1]
+        handleGoToSpace(space.slug_name)
       }
     }
 
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
+  }, [spaceList])
+
+  const handleGoToSpace = useCallback((spaceSlug: string) => {
+    router.push(`/spaces/${spaceSlug}`)
   }, [])
 
   const customMatchKeys = useCallback(
@@ -69,9 +79,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     },
     [],
   )
-
-  const spaceSelected =
-    spaceList.find((space) => space.id === currentSpace) || ({} as TSpace)
 
   return (
     <DropdownMenu>
@@ -98,7 +105,9 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
           {spaceList.map((space, index) => (
             <DropdownMenuItem
               key={space.id}
-              onClick={() => setCurrentSpace(space.id)}
+              onClick={() => {
+                handleGoToSpace(space.slug_name)
+              }}
               className="cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost"
             >
               <SpaceMenuItem spaceData={space} position={index} />

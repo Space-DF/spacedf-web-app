@@ -19,9 +19,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useParams } from 'next/navigation'
 
 export function SpacePreviewImage() {
   const router = useRouter()
+  const params = useParams()
   const t = useTranslations('space')
   const { step, shouldBackToHome, isOpenAlertDialog, setOpenAlertDialog } =
     useSpaceSettings()
@@ -31,7 +33,7 @@ export function SpacePreviewImage() {
       setOpenAlertDialog(true)
       return
     }
-    router.push('/')
+    router.push(params.spaceSlug ? `/spaces/${params.spaceSlug}` : '/')
   }
 
   return (
@@ -46,13 +48,14 @@ export function SpacePreviewImage() {
       </Button>
 
       <div>
-        {step === 'delete' ? (
+        {step === 'delete' && (
           <ImageWithBlur
             src={SpaceDelete}
             className="size-full object-contain"
             alt=""
           />
-        ) : (
+        )}
+        {step !== 'delete' && (
           <ImageWithBlur
             src={SpaceInformation}
             className="size-full object-contain"
