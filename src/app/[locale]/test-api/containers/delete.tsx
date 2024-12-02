@@ -3,13 +3,13 @@ import React from 'react'
 import { useDeleteSpace } from '../../(auth)/spaces/hooks'
 
 const MethodDelete = () => {
-  const { deleteSpaceTrigger } = useDeleteSpace()
+  // const { deleteSpaceTrigger } = useDeleteSpace()
   const handleDeleteSpace = async () => {
-    try {
-      await deleteSpaceTrigger({
-        slug_name: 'default-9',
-      })
-    } catch (error) {}
+    // try {
+    //   await deleteSpaceTrigger({
+    //     slug_name: 'default-9',
+    //   })
+    // } catch (error) {}
   }
   return (
     <div>
