@@ -1,4 +1,4 @@
-import { ChevronDown, ScrollText, Trash, UploadCloud } from 'lucide-react'
+import { ChevronDown, Trash, UploadCloud } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
@@ -13,14 +13,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import { Textarea } from '@/components/ui/textarea'
 import { useSpaceSettings } from '@/stores/space-settings-store'
-import { UserList } from '@/components/icons'
 import { useRouter } from '@/i18n/routing'
 import { Label } from '@/components/ui/label'
 
@@ -47,46 +45,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ColumnDef } from '@tanstack/react-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-export function SpaceInformation() {
-  const t = useTranslations()
-  return (
-    <div className="flex h-full animate-display-effect flex-col">
-      <div className="flex items-center border-b border-brand-component-stroke-dark-soft p-4 font-semibold text-brand-component-text-dark">
-        {t('common.workspace_settings')}
-      </div>
-      <div className="grow-1 flex-1 shrink-0 basis-0">
-        <Tabs
-          defaultValue="member"
-          className="flex h-full animate-display-effect flex-col"
-        >
-          <TabsList className="relative flex h-auto w-full items-center justify-start rounded-none bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-brand-component-stroke-dark-soft">
-            <TabsTrigger
-              value="information"
-              className="relative inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-none border-b-2 border-b-transparent px-4 py-3 text-sm font-semibold text-brand-component-text-dark shadow-none ring-offset-background transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:text-brand-component-text-dark data-[state=active]:shadow-none"
-            >
-              <ScrollText size={16} />
-              {t('space.informations')}
-            </TabsTrigger>
-            <TabsTrigger
-              value="member"
-              className="relative inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-none border-b-2 border-b-transparent px-4 py-3 text-sm font-semibold text-brand-component-text-dark shadow-none ring-offset-background transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-b-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              <UserList />
-              {t('space.members')}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent className="mt-0 h-full" value="information">
-            <InformationTab />
-          </TabsContent>
-          <TabsContent className="mt-0 h-full" value="member">
-            <MemberTab />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  )
-}
+import { Space } from '@/types/space'
+import dayjs from 'dayjs'
+import { useParams } from 'next/navigation'
 
 const formSchema = z.object({
   space_name: z
@@ -110,17 +71,18 @@ const formSchema = z.object({
   description: z.string().optional(),
 })
 
-function InformationTab() {
+export function InformationTab({ space }: { space: Space }) {
   const t = useTranslations('space')
   const { setStep } = useSpaceSettings()
   const { setShouldBackToHome, setOpenAlertDialog } = useSpaceSettings()
   const router = useRouter()
+  const params = useParams()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      space_name: 'Space ABCD',
-      created_at: '2024/10/29',
+      space_name: space?.name,
+      created_at: dayjs(space?.created_at).format('YYYY/MM/DD'),
       owner: 'Digital Fortress',
       space_member: '10',
       description: '',
@@ -137,7 +99,7 @@ function InformationTab() {
       setOpenAlertDialog(true)
       return
     }
-    router.push('/')
+    router.push(`/spaces/${params.spaceSlug}`)
   }
 
   function onSubmit() {}
@@ -154,11 +116,13 @@ function InformationTab() {
               {t('space_image')}
             </FormLabel>
             <div className="flex gap-3">
-              <div className="size-24 rounded-lg">
+              <div className="size-24 rounded-lg border border-brand-component-stroke-dark-soft">
                 <ImageWithBlur
-                  src={OrganizationThumb}
+                  src={space.logo || OrganizationThumb}
                   className="size-full rounded-lg object-cover"
                   alt=""
+                  width={96}
+                  height={96}
                 />
               </div>
               <div className="flex flex-col items-start gap-2">
@@ -437,7 +401,7 @@ const usersData: User[] = [
   },
 ]
 
-function MemberTab() {
+export function MemberTab({ space }: { space: Space }) {
   const t = useTranslations('space')
   const [deleteId, setDeleteId] = useState<string | undefined>()
   const [data, setData] = useState<User[]>([])

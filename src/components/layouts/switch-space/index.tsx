@@ -18,6 +18,8 @@ import SpaceMenuItem from './space-menu-item'
 import { useGetSpaces } from '@/app/[locale]/(auth)/spaces/hooks'
 import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
+import { useGlobalStore } from '@/stores'
+import { useShallow } from 'zustand/react/shallow'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -27,12 +29,16 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const t = useTranslations('space')
   const params = useParams()
   const router = useRouter()
+  const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
+
   const spaceSelected =
-    spaceList.find(({ id }) => id === params.spaceId) || spaceList[0]
+    spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
+    spaceList[0]
 
   useEffect(() => {
+    setCurrentSpace(spaceList[0])
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
       const numberFromCode = code?.[code?.length - 1]
@@ -45,7 +51,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
 
       if (metaKey && altKey) {
         const space = spaceList[Number(numberFromCode) - 1]
-        handleGoToSpace(space.id)
+        handleGoToSpace(space.slug_name)
       }
     }
 
@@ -53,8 +59,8 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     return () => document.removeEventListener('keydown', down)
   }, [spaceList])
 
-  const handleGoToSpace = useCallback((spaceId: string) => {
-    router.push(`/spaces/${spaceId}`)
+  const handleGoToSpace = useCallback((spaceSlug: string) => {
+    router.push(`/spaces/${spaceSlug}`)
   }, [])
 
   const customMatchKeys = useCallback(
@@ -100,7 +106,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
             <DropdownMenuItem
               key={space.id}
               onClick={() => {
-                handleGoToSpace(space.id)
+                handleGoToSpace(space.slug_name)
               }}
               className="cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost"
             >

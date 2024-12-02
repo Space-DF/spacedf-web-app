@@ -16,27 +16,36 @@ import {
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
 import { useSpaceSettings } from '@/stores/space-settings-store'
+import { Space } from '@/types/space'
+import { useDeleteSpace } from '@/app/[locale]/(auth)/spaces/hooks'
+import { useRouter } from '@/i18n/routing'
 
-const formSchema = z
-  .object({
-    text: z.string({ message: 'This field cannot be empty' }),
-  })
-  .refine((data) => data.text === 'DELETE', {
-    message:
-      "Incorrect confirmation. Please type 'Delete' to confirm deletion.",
-    path: ['text'],
-  })
+const formSchema = z.object({
+  text: z.string({ message: 'This field cannot be empty' }),
+})
 
-export function SpaceDelete() {
+export function SpaceDelete({ space }: { space: Space }) {
   const t = useTranslations('space')
+  const deleteSpace = useDeleteSpace()
+  const router = useRouter()
   const { setStep } = useSpaceSettings()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
 
   // 2. Define a submit handler.
-  function onSubmit() {
-    // @TODO: handle delete space
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (values.text !== space.name) {
+      form.setError('text', {
+        message: `Incorrect confirmation. Please type '${space.name}' to confirm deletion.`,
+      })
+      return
+    }
+    await deleteSpace.trigger({
+      slug_name: space.slug_name,
+      name: space.name,
+    })
+    router.push('/')
   }
 
   return (
@@ -66,7 +75,9 @@ export function SpaceDelete() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
-                      {t('to_confirm_please_type_delete_below')}
+                      {t.rich('to_confirm_please_type_delete_below', {
+                        spaceName: space.name,
+                      })}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -79,6 +90,7 @@ export function SpaceDelete() {
                 )}
               />
               <Button
+                disabled={deleteSpace.isMutating}
                 type="submit"
                 variant="destructive"
                 className="h-12 w-full rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative text-base font-semibold text-brand-component-text-light-fixed dark:border-brand-component-stroke-light"

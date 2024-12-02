@@ -46,6 +46,10 @@ const SignInForm = ({
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
+    defaultValues: {
+      email: 'sgt+02@yopmail.com',
+      password: '@Aa123123',
+    },
   })
   const [isShowPassword, setIsShowPassword] = useState(false)
 
