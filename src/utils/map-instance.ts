@@ -35,7 +35,7 @@ class MapInstance {
       container: container,
       maxZoom: maxZoom,
       pitch: pitch,
-      antialias: antialias,
+      antialias: false,
       zoom: zoom,
       style,
     })
