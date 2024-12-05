@@ -462,7 +462,7 @@ export function MemberTab({ space }: { space: Space }) {
           </div>
           <div>
             <Button
-              className="gap-2 rounded-lg border-t-2 border-brand-heading bg-brand-fill-outermost shadow-button transition-all duration-300 dark:border-brand-stroke-outermost"
+              className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
               size="lg"
             >
               {t('invite')}

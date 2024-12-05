@@ -17,7 +17,10 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
 import { useSpaceSettings } from '@/stores/space-settings-store'
 import { Space } from '@/types/space'
-import { useDeleteSpace } from '@/app/[locale]/(auth)/spaces/hooks'
+import {
+  useDeleteSpace,
+  useGetSpaces,
+} from '@/app/[locale]/(auth)/spaces/hooks'
 import { useRouter } from '@/i18n/routing'
 
 const formSchema = z.object({
@@ -32,6 +35,8 @@ export function SpaceDelete({ space }: { space: Space }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const { data: spaces } = useGetSpaces()
+  const spaceList = spaces?.data?.results || []
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -45,7 +50,11 @@ export function SpaceDelete({ space }: { space: Space }) {
       slug_name: space.slug_name,
       name: space.name,
     })
-    router.push('/')
+    setStep('information')
+    const spaceFirst = spaceList.filter(
+      ({ slug_name }) => slug_name !== space.slug_name,
+    )[0]
+    router.push(spaceFirst?.slug_name ? `/spaces/${spaceFirst.slug_name}` : '/')
   }
 
   return (
@@ -76,7 +85,7 @@ export function SpaceDelete({ space }: { space: Space }) {
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t.rich('to_confirm_please_type_delete_below', {
-                        spaceName: space.name,
+                        spaceName: `"${space.name}"`,
                       })}
                     </FormLabel>
                     <FormControl>

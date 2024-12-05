@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
         </Button>
         <div className="text-sm font-semibold text-brand-component-text-gray">
           Page {table.getState().pagination.pageIndex + 1}/
-          {table.getPageCount().toLocaleString()}
+          {Math.max(table.getPageCount(), 1)}
         </div>
         <Button
           variant="outline"

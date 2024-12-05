@@ -80,10 +80,11 @@ const SignUpForm = ({
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
 
-  const { setOpenDrawer } = useIdentityStore(
+  const { setOpenDrawer, setOpenGuideline } = useIdentityStore(
     useShallow((state) => ({
       openDrawer: state.openDrawerIdentity,
       setOpenDrawer: state.setOpenDrawerIdentity,
+      setOpenGuideline: state.setOpenGuideline,
     })),
   )
 
@@ -115,7 +116,7 @@ const SignUpForm = ({
         })
 
         setOpenDrawer(false)
-
+        setOpenGuideline(true)
         return res?.data?.message || 'Sign up successful!'
       },
       error: () => {
