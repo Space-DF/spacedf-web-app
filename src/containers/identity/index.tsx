@@ -7,14 +7,13 @@ import React, { useEffect, useState } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { useShallow } from 'zustand/react/shallow'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
-import { IdentityStepEnum, LOCAL_STORAGE_KEYS } from '@/constants'
+import { IdentityStepEnum } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useIdentityStore } from '@/stores/identity-store'
 import Authentication from './auth'
 import InitializingOrganization from './initializing-organization'
 import OrganizationSetting from './organization-setting'
 import Guideline from '@/containers/identity/guideline'
-import { getFromLocalStorage, setToLocalStorage } from '@/utils/storage'
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   const data = {
@@ -42,21 +41,20 @@ const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
 }
 
 const Identity = () => {
-  const { openDrawer, setOpenDrawer, organizationDomain } = useIdentityStore(
-    useShallow((state) => ({
-      openDrawer: state.openDrawerIdentity,
-      organizationDomain: state.organizationDomain,
-
-      setOpenDrawer: state.setOpenDrawerIdentity,
-    })),
-  )
+  const { openDrawer, setOpenDrawer, organizationDomain, openGuideline } =
+    useIdentityStore(
+      useShallow((state) => ({
+        openDrawer: state.openDrawerIdentity,
+        organizationDomain: state.organizationDomain,
+        openGuideline: state.openGuideline,
+        setOpenDrawer: state.setOpenDrawerIdentity,
+      })),
+    )
   const { status } = useSession()
   const { isOrganization } = useOrganization()
 
   const [identityStep, setIdentityStep] =
     useState<`${IdentityStepEnum}`>('authentication')
-
-  const [isOpenGuideline, setOpenGuideline] = useState(false)
 
   const isAuthenticated = status === 'authenticated'
 
@@ -68,16 +66,6 @@ const Identity = () => {
   }, [isAuthenticated, organizationDomain])
 
   const dataDrawer = getDrawerData(identityStep)
-
-  useEffect(() => {
-    const shouldShowGuideline =
-      isAuthenticated &&
-      !getFromLocalStorage(LOCAL_STORAGE_KEYS.SHOULD_SHOW_GUIDELINE)
-    if (shouldShowGuideline) {
-      setToLocalStorage(LOCAL_STORAGE_KEYS.SHOULD_SHOW_GUIDELINE, 1)
-      setOpenGuideline(true)
-    }
-  }, [isAuthenticated])
 
   return (
     <>
@@ -102,7 +90,7 @@ const Identity = () => {
           </div>
         </DrawerContent>
       </Drawer>
-      {isOpenGuideline && <Guideline />}
+      {openGuideline && <Guideline />}
     </>
   )
 }
