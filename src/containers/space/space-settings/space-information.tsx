@@ -1,4 +1,4 @@
-import { ChevronDown, Trash, UploadCloud } from 'lucide-react'
+import { ChevronDown, Search, Trash, UploadCloud } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Input, InputWithIcon } from '@/components/ui/input'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import { Textarea } from '@/components/ui/textarea'
 import { useSpaceSettings } from '@/stores/space-settings-store'
@@ -48,6 +48,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Space } from '@/types/space'
 import dayjs from 'dayjs'
 import { useParams } from 'next/navigation'
+import { InputIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 
 const formSchema = z.object({
   space_name: z
@@ -402,7 +403,7 @@ const usersData: User[] = [
 ]
 
 export function MemberTab({ space }: { space: Space }) {
-  const t = useTranslations('space')
+  const t = useTranslations()
   const [deleteId, setDeleteId] = useState<string | undefined>()
   const [data, setData] = useState<User[]>([])
   const [users, setUsers] = useState<User[]>(usersData)
@@ -427,12 +428,12 @@ export function MemberTab({ space }: { space: Space }) {
     <div className="p-4">
       <div className="mb-3 space-y-2">
         <Label className="text-sm font-semibold text-brand-component-text-dark">
-          {t('invite_list')}
+          {t('space.invite_list')}
         </Label>
         <div className="flex items-end gap-3 rounded-lg border border-brand-component-stroke-dark-soft p-3">
           <div className="flex flex-1 flex-col gap-1.5">
             <Label className="text-sm font-semibold text-brand-component-text-dark">
-              {t('invite_member_by_email')}
+              {t('space.invite_member_by_email')}
             </Label>
             <SearchMember
               options={usersData as Option[]}
@@ -462,16 +463,27 @@ export function MemberTab({ space }: { space: Space }) {
           </div>
           <div>
             <Button
-              className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+              className="h-10 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
               size="lg"
             >
-              {t('invite')}
+              {t('space.invite')}
             </Button>
           </div>
         </div>
       </div>
       <DataTable columns={useColumns({ handleRemoveMember })} data={data} />
       <Separator className="my-4" />
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-sm font-semibold text-brand-component-text-dark">
+          {t('space.space_members')}
+        </div>
+        <div>
+          <InputWithIcon
+            prefixCpn={<Search size={18} />}
+            placeholder={t('common.search')}
+          />
+        </div>
+      </div>
       <DataTable
         columns={useColumns({
           handleRemoveMember: (id) => handleRemoveMember(id, true),
@@ -486,21 +498,21 @@ export function MemberTab({ space }: { space: Space }) {
         <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
-              {t('delete_member')}
+              {t('space.delete_member')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
-              {t('are_you_sure_you_want_to_delete_this_member')}
+              {t('space.are_you_sure_you_want_to_delete_this_member')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
-              {t('cancel')}
+              {t('space.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {t('delete')}
+              {t('space.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
