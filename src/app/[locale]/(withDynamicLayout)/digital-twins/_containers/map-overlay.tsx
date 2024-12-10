@@ -8,13 +8,13 @@ import mapboxgl from 'mapbox-gl'
 
 import { cn } from '@/lib/utils'
 import { delay } from '@/utils'
-import { load } from '@loaders.gl/core'
-import { GLTFLoader } from '@loaders.gl/gltf'
 import { useTheme } from 'next-themes'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+import { useDeviceStore } from '@/stores/device-store'
 import { animate, linear } from 'popmotion'
+import { useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -22,14 +22,19 @@ interface CustomMapProps {
 
 const centerPoint: [number, number] = [108.22003, 16.05486]
 
-const radius = 0.0005 // Radius of circular path
-const speed = 0.01 // Speed of rotation
-
 const MapOverlay: React.FC<CustomMapProps> = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
   const { mounted } = useMounted()
   const [startBlur, setStartBlur] = useState(false)
   const { theme, systemTheme } = useTheme()
+
+  const { startShowDevice3D } = useLoadDeviceModels()
+
+  const { rakModel } = useDeviceStore(
+    useShallow((state) => ({
+      rakModel: state.models.rak,
+    })),
+  )
 
   function createRotatingLayer(rotation: number, model: any) {
     return new ScenegraphLayer({
@@ -128,19 +133,16 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     map?.on('load', async () => {
       mapInstance.apply3DBuildingLayer()
 
-      const response = await fetch('/3d-model/RAK_3D.glb')
-      const arrayBuffer = await response.arrayBuffer()
+      const layers = [createRotatingLayer(90, rakModel)]
 
-      const model = await load(arrayBuffer, GLTFLoader)
+      // const deckOverlay = new MapboxOverlay({
+      //   interleaved: true,
+      //   layers: [layers],
+      // })
 
-      const layers = [createRotatingLayer(90, model)]
+      // map.addControl(deckOverlay)
 
-      const deckOverlay = new MapboxOverlay({
-        interleaved: true,
-        layers: [layers],
-      })
-
-      map.addControl(deckOverlay)
+      startShowDevice3D(map)
 
       map.addControl(new mapboxgl.NavigationControl())
 
@@ -169,19 +171,19 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
       map?.resize()
 
-      animate({
-        from: 0,
-        to: 360,
-        repeat: Infinity,
-        ease: linear,
-        duration: 5000,
-        onUpdate: (rotation) => {
-          //update the layers after rotation
-          deckOverlay.setProps({
-            layers: [createRotatingLayer(rotation, model)],
-          })
-        },
-      })
+      // animate({
+      //   from: 0,
+      //   to: 360,
+      //   repeat: Infinity,
+      //   ease: linear,
+      //   duration: 5000,
+      //   onUpdate: (rotation) => {
+      //     //update the layers after rotation
+      //     deckOverlay.setProps({
+      //       layers: [createRotatingLayer(rotation, rakModel)],
+      //     })
+      //   },
+      // })
     })
 
     await delay(2000)

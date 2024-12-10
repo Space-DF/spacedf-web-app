@@ -1,0 +1,151 @@
+import { Device, useDeviceStore as useDeviceStore } from '@/stores/device-store'
+import { MapboxOverlay } from '@deck.gl/mapbox'
+import { GLTFBuffer, GLTFWithBuffers } from '@loaders.gl/gltf'
+import { LayersList, ScenegraphLayer } from 'deck.gl'
+import { animate, linear } from 'popmotion'
+import {
+  MutableRefObject,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
+import { useShallow } from 'zustand/react/shallow'
+
+const centerPoint: [number, number] = [108.22003, 16.05486]
+
+type CreateRotatingLayerProps = {
+  device: Device
+  rotation?: number
+  model: GLTFWithBuffers
+}
+
+function createRotatingLayer(rotation: number, model: any) {
+  return new ScenegraphLayer()
+}
+
+export const useLoadDeviceModels = () => {
+  const map = useRef<mapboxgl.Map | null>(null)
+  const deckOverlayRef = useRef<MapboxOverlay | null>(null)
+  const layersRef = useRef<LayersList>([])
+
+  const { devices, models, deviceSelected, setDeviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      devices: state.devices,
+      models: state.models,
+      deviceSelected: state.deviceSelected,
+      setDeviceSelected: state.setDeviceSelected,
+    })),
+  )
+
+  const startAnimation = useCallback(
+    (device: Device, model: GLTFWithBuffers) => {
+      const deckLayers =
+        (deckOverlayRef.current as any)?._props?.layers[0] || []
+
+      animate({
+        from: 0,
+        to: 360,
+        repeat: Infinity,
+        ease: linear,
+        duration: 5000,
+        onUpdate: (rotation) => {
+          const newLayers = deckLayers.map((layer: any) => {
+            if (layer.id === device.id) {
+              return createRotatingLayer({
+                device,
+                rotation,
+                model: models[device.type],
+              })
+            }
+            return createRotatingLayer({
+              device: devices[layer.id],
+              model: models[devices[layer.id].type],
+            })
+          })
+
+          //update the layers after rotation
+          deckOverlayRef.current?.setProps({
+            layers: [newLayers],
+          })
+        },
+      })
+    },
+    [],
+  )
+
+  useEffect(() => {
+    if (!map.current || !deckOverlayRef.current) return
+
+    map.current.flyTo({
+      center: devices[deviceSelected].location,
+      zoom: 19,
+      duration: 2000,
+      essential: true,
+      pitch: 77,
+    })
+
+    const currentDevice = devices[deviceSelected]
+
+    startAnimation(currentDevice, models[currentDevice.type])
+  }, [deviceSelected])
+
+  const createRotatingLayer = ({
+    device,
+    model,
+    rotation,
+  }: CreateRotatingLayerProps) => {
+    if (!model) return new ScenegraphLayer()
+
+    const isPassedRotation = typeof rotation === 'number'
+
+    const getOrientation = () => {
+      if (isPassedRotation) return [0, rotation, 90]
+
+      if (!device.layerProps?.getOrientation) return [0, 90, 90]
+
+      return device.layerProps.getOrientation
+    }
+
+    return new ScenegraphLayer({
+      id: device.id,
+      data: [{ position: [...(device.location as [number, number]), 20] }],
+      scenegraph: model,
+      getPosition: (d) => d.position,
+      sizeScale: 15,
+      pickable: true,
+      _lighting: 'pbr',
+      ...(device.layerProps || {}),
+      getOrientation: getOrientation(),
+      onClick: () => {
+        setDeviceSelected(device.id)
+        console.log({ device: device.id })
+      },
+    })
+  }
+
+  const startShowDevice3D = (mapInstance: mapboxgl.Map) => {
+    // Implement logic to show device 3D model
+
+    let layers: LayersList = []
+
+    map.current = mapInstance
+
+    Object.values(devices).forEach((device) => {
+      const model = models[device.type]
+      layers.push(createRotatingLayer({ device, model }))
+    })
+
+    const deckOverlay = new MapboxOverlay({
+      interleaved: true,
+      layers: [layers],
+    })
+
+    deckOverlayRef.current = deckOverlay
+
+    mapInstance.addControl(deckOverlay)
+  }
+
+  return { startShowDevice3D }
+}
