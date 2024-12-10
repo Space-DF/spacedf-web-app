@@ -8,6 +8,7 @@ import { NextAuthSessionProvider } from './session-provider'
 import { MapProvider } from './map-provider'
 import SWRProvider from './swr-provider'
 import { SWRDevTools } from 'swr-devtools'
+import { DeviceProvider } from './device-provider'
 
 const AppProvider = ({
   children,
@@ -20,7 +21,9 @@ const AppProvider = ({
       <NextThemeProvider>
         <NextAuthSessionProvider session={session}>
           <SWRProvider>
-            <MapProvider>{children}</MapProvider>
+            <DeviceProvider>
+              <MapProvider>{children}</MapProvider>
+            </DeviceProvider>
           </SWRProvider>
           <Toaster position="top-right" richColors />
         </NextAuthSessionProvider>
