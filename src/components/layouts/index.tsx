@@ -221,6 +221,19 @@ const DynamicLayout = ({
                   id="region-dynamic-layout"
                 >
                   <ResizablePanel
+                    defaultSize={defaultRightLayout[1]}
+                    minSize={second ? 45 : 0}
+                    className={cn(
+                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
+                      second
+                        ? 'animate-opacity-display-effect'
+                        : 'animate-opacity-hide-effect',
+                    )}
+                  >
+                    {layoutCannotDuplicate}
+                  </ResizablePanel>
+                  {isShowAll && <ResizableHandle />}
+                  <ResizablePanel
                     defaultSize={defaultRightLayout[0]}
                     minSize={first ? 45 : 0}
                     className={cn(
@@ -233,19 +246,6 @@ const DynamicLayout = ({
                     <div>
                       <Dashboard />
                     </div>
-                  </ResizablePanel>
-                  {isShowAll && <ResizableHandle />}
-                  <ResizablePanel
-                    defaultSize={defaultRightLayout[1]}
-                    minSize={second ? 45 : 0}
-                    className={cn(
-                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
-                      second
-                        ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect',
-                    )}
-                  >
-                    {layoutCannotDuplicate}
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>

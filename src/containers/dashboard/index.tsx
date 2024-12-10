@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   ArrowUpRight,
   ChevronsUpDown,
+  Grid2x2Plus,
   Pencil,
   PlusIcon,
 } from 'lucide-react'
@@ -92,8 +93,14 @@ const Dashboard = () => {
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
-  const { isViewAllDashboard, setViewAllDashboard, deleteId, setDeleteId } =
-    useDashboardStore()
+  const {
+    isViewAllDashboard,
+    setViewAllDashboard,
+    deleteId,
+    setDeleteId,
+    isEdit,
+    setEdit,
+  } = useDashboardStore()
 
   const handleCreateNewDashBoard = () => {
     setOpen(false)
@@ -139,7 +146,7 @@ const Dashboard = () => {
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal bg-brand-fill-dark-soft px-2 py-1 text-brand-text-dark"
+                className="line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface"
               >
                 <div className="line-clamp-1 w-full flex-1 text-left">
                   {selected
@@ -172,6 +179,7 @@ const Dashboard = () => {
                           )
                           setSelected(itemSelect!)
                           setOpen(false)
+                          setEdit(false)
                         }}
                         className="rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
                       >
@@ -203,10 +211,32 @@ const Dashboard = () => {
       }
       externalButton={
         !isViewAllDashboard && (
-          <div>
-            <Button size="icon" className="size-8 gap-2 rounded-lg">
-              <Pencil size={16} />
-            </Button>
+          <div className="flex gap-2">
+            {isEdit ? (
+              <>
+                <Button
+                  onClick={() => setEdit(false)}
+                  variant="outline"
+                  className="dark:bg-transparent"
+                >
+                  {t('dashboard.cancel')}
+                </Button>
+                <Button
+                  onClick={() => setEdit(false)}
+                  className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
+                >
+                  {t('dashboard.save')}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setEdit(true)}
+                size="icon"
+                className="size-8 gap-2 rounded-lg"
+              >
+                <Pencil size={16} />
+              </Button>
+            )}
           </div>
         )
       }
@@ -218,16 +248,36 @@ const Dashboard = () => {
         />
       ) : (
         <>
+          {isEdit && (
+            <div className="mb-6 flex flex-col items-center gap-3">
+              {!selected.isDefault && (
+                <div className="text-brand-component-text-dark">
+                  {t('dashboard.let_add_some_widget')}
+                </div>
+              )}
+              <Button
+                className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+                onClick={() => setEdit(false)}
+              >
+                {t('dashboard.add_widget')}
+                <Grid2x2Plus size={16} />
+              </Button>
+            </div>
+          )}
           <div className="flex gap-3">
             {selected.isDefault && (
               <>
                 <DashboardInfo
-                  icon={<DashboardTotalDevices className="size-10" />}
+                  icon={
+                    <DashboardTotalDevices className="size-10 text-[#D4F1FD] dark:text-[#00374E]" />
+                  }
                   title={t('dashboard.total_devices')}
                   content="N/A"
                 />
                 <DashboardInfo
-                  icon={<DashboardTotalMembers className="size-10" />}
+                  icon={
+                    <DashboardTotalMembers className="size-10 text-[#FDEED4] dark:text-[#432A00]" />
+                  }
                   title={t('dashboard.total_members')}
                   content="30"
                 />
@@ -278,9 +328,9 @@ const DashboardInfo = (props: {
 }) => {
   const { icon, content, title } = props
   return (
-    <div className="flex flex-1 gap-2 rounded-lg bg-white p-2">
+    <div className="flex flex-1 gap-2 rounded-lg bg-white p-2 dark:bg-brand-background-fill-surface">
       <div>{icon}</div>
-      <div className="font-semibold text-brand-text-dark">
+      <div className="font-semibold text-brand-component-text-dark">
         <div className="text-xs">{title}</div>
         <div>{content}</div>
       </div>
