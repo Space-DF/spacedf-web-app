@@ -11,5 +11,8 @@
   "are_you_sure": "Are you sure?",
   "the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored": "The dashboard will be deleted from the system and cannot be restored.",
   "delete": "Delete",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "save": "Save",
+  "add_widget": "Add widget",
+  "let_add_some_widget": "Let’s add some widget."
 }
