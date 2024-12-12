@@ -29,6 +29,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 
 import {
@@ -45,8 +46,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
 import { uppercaseFirstLetter } from '@/utils'
-import { useIdentityStore } from '@/stores/identity-store'
-import { useSession } from 'next-auth/react'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -72,7 +71,7 @@ const Devices = () => {
           selected={selected}
           handleSelected={(id: number) => setSelected(id)}
         />
-        {/*<Nodata content={t('nodata', { module: t('devices') })} />*/}
+        <Nodata content={t('nodata', { module: t('devices') })} />
       </div>
     </RightSideBarLayout>
   )
@@ -94,13 +93,6 @@ interface Steps {
 
 const AddDeviceDialog = () => {
   const t = useTranslations()
-  const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
-  )
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
-
-  const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>('select_mode')
   // const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
@@ -162,26 +154,17 @@ const AddDeviceDialog = () => {
 
   return (
     <div className="flex items-center justify-center">
-      <Button
-        className="h-8 gap-2 rounded-lg"
-        onClick={() => {
-          if (!isAuth) {
-            setOpenDrawerIdentity(true)
-            return
-          }
-          setOpen(true)
-        }}
-      >
-        {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
-        <PlusIcon />
-      </Button>
       <Dialog
-        open={open}
-        onOpenChange={(open) => {
-          setOpen(open)
+        onOpenChange={() => {
           setStep('select_mode')
         }}
       >
+        <DialogTrigger asChild>
+          <Button className="h-8 gap-2 rounded-lg">
+            {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
+            <PlusIcon />
+          </Button>
+        </DialogTrigger>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
             <DialogHeader className="border-0">
@@ -209,12 +192,6 @@ const AddDeviceDialog = () => {
 }
 
 const DeviceSelected = ({ selected }: { selected?: number }) => {
-  const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
-  )
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
-
   const t = useTranslations('addNewDevice')
   const InformationItem = (props: { label: string; content: string }) => {
     return (
@@ -223,57 +200,6 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
           {props.label}
         </span>
         <span className="text-brand-component-text-gray">{props.content}</span>
-      </div>
-    )
-  }
-
-  if (!isAuth) {
-    return (
-      <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-brand-component-fill-positive" />
-            <span className="text-xs font-medium text-brand-component-text-dark">
-              {t('online')}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="icon"
-              className="size-8"
-              onClick={() => {
-                setOpenDrawerIdentity(true)
-              }}
-            >
-              <Pencil size={16} />
-            </Button>
-            <Button
-              size="icon"
-              variant="destructive"
-              className="size-8 border-2 border-brand-semantic-accent-dark"
-              onClick={() => {
-                setOpenDrawerIdentity(true)
-              }}
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <InformationItem
-            label={`${t('device_id')}:`}
-            content={'DMZ 01 12312123'}
-          />
-          <InformationItem
-            label={`${t('device_name')}:`}
-            content={'DF Sticker Tracker'}
-          />
-          <InformationItem
-            label={`${t('deveui')}`}
-            content={'A591DEA6EB25DB6C'}
-          />
-          <InformationItem label={`${t('description')}:`} content={'Bus'} />
-        </div>
       </div>
     )
   }
@@ -357,7 +283,7 @@ const DevicesList = ({
   selected?: number
 }) => {
   const t = useTranslations('addNewDevice')
-  const devices = Array.from({ length: 10 }).map((_, id) => ({ id: id + 1 }))
+  const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
     <div className="mt-6 flex flex-col gap-4">
