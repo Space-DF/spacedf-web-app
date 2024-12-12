@@ -5,7 +5,6 @@ import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
-import { useSession } from 'next-auth/react'
 
 export enum NavigationEnums {
   DASHBOARD = 'dashboard',
@@ -36,8 +35,6 @@ export const navigations = (
 ): Navigation[] => {
   const router = useRouter()
   const params = useParams()
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
 
   const { currentSpace } = useGlobalStore(useShallow((state) => state))
   return [
@@ -72,19 +69,15 @@ export const navigations = (
     //   icon: <Users />,
     //   isDynamic: true,
     // },
-    ...(isAuth
-      ? [
-          {
-            href: NavigationEnums.WORKSPACE_SETTINGS,
-            title: translateFn('workspace_settings'),
-            icon: <Warehouse />,
-            onClick: () =>
-              router.push(
-                `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`,
-              ),
-          },
-        ]
-      : []),
+    {
+      href: NavigationEnums.WORKSPACE_SETTINGS,
+      title: translateFn('workspace_settings'),
+      icon: <Warehouse />,
+      onClick: () =>
+        router.push(
+          `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`,
+        ),
+    },
     // {
     //   href: NavigationEnums.PLAN_BILLING,
     //   title: translateFn('plan_and_billing'),
