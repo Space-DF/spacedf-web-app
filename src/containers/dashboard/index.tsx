@@ -20,7 +20,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from '@/components/ui/command'
 import { Nodata } from '@/components/ui/no-data'
 import {
@@ -42,6 +41,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useSession } from 'next-auth/react'
+import { cn } from '@/lib/utils'
+import { Separator } from '@/components/ui/separator'
+import { MockData } from '@/containers/dashboard/mock-data'
 
 export interface Dashboard {
   value: string
@@ -92,6 +96,11 @@ const Dashboard = () => {
     useShallow((state) => state.toggleDynamicLayout),
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setOpenDrawerIdentity = useIdentityStore(
+    useShallow((state) => state.setOpenDrawerIdentity),
+  )
+  const { status } = useSession()
+  const isAuth = status === 'authenticated'
 
   const {
     isViewAllDashboard,
@@ -140,13 +149,24 @@ const Dashboard = () => {
             <div>{t('dashboard.all_dashboard')}</div>
           </div>
         ) : (
-          <Popover open={open} onOpenChange={setOpen}>
+          <Popover open={isAuth && open} onOpenChange={setOpen}>
             <PopoverTrigger asChild className="overflow-hidden">
               <Button
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface"
+                onClick={() => {
+                  if (!isAuth) {
+                    setOpen(false)
+                    setOpenDrawerIdentity(true)
+                  }
+                }}
+                className={cn(
+                  'line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface',
+                  {
+                    'shadow-dashboard border-brand-component-stroke-dark': open,
+                  },
+                )}
               >
                 <div className="line-clamp-1 w-full flex-1 text-left">
                   {selected
@@ -172,22 +192,28 @@ const Dashboard = () => {
                     {dashboards.map((dashboard) => (
                       <CommandItem
                         key={dashboard.value}
-                        value={dashboard.value}
+                        // value={dashboard.value}
                         onSelect={(currentValue) => {
                           const itemSelect = dashboards.find(
-                            (dashboard) => dashboard.value === currentValue,
+                            (dashboard) => dashboard.label === currentValue,
                           )
                           setSelected(itemSelect!)
                           setOpen(false)
                           setEdit(false)
                         }}
-                        className="rounded-md data-[selected=true]:bg-brand-fill-dark-soft"
+                        className={cn(
+                          'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft',
+                          {
+                            'bg-brand-fill-dark-soft':
+                              selected.value === dashboard.value,
+                          },
+                        )}
                       >
                         {dashboard.label}
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                  <CommandSeparator className="my-3" />
+                  <Separator className="my-3" />
                   <Button
                     className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
                     variant="outline"
@@ -230,7 +256,13 @@ const Dashboard = () => {
               </>
             ) : (
               <Button
-                onClick={() => setEdit(true)}
+                onClick={() => {
+                  if (!isAuth) {
+                    setOpenDrawerIdentity(true)
+                    return
+                  }
+                  setEdit(true)
+                }}
                 size="icon"
                 className="size-8 gap-2 rounded-lg"
               >
@@ -272,7 +304,7 @@ const Dashboard = () => {
                     <DashboardTotalDevices className="size-10 text-[#D4F1FD] dark:text-[#00374E]" />
                   }
                   title={t('dashboard.total_devices')}
-                  content="N/A"
+                  content="10"
                 />
                 <DashboardInfo
                   icon={
@@ -284,9 +316,8 @@ const Dashboard = () => {
               </>
             )}
           </div>
-          <Nodata
-            content={t('common.nodata', { module: t('common.widget') })}
-          />
+          {!isAuth && <MockData />}
+          {!selected.isDefault && <Nodata content={t('common.no_widget')} />}
         </>
       )}
       <AlertDialog

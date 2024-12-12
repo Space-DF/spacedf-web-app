@@ -18,5 +18,7 @@
   "light": "Light",
   "dark": "Dark",
   "general_settings": "General Settings",
-  "sign_out": "Sign out"
+  "sign_out": "Sign out",
+  "get_started": "Get Started",
+  "no_widget": "No widget"
 }
