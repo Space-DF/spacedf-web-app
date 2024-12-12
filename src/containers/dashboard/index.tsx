@@ -164,7 +164,7 @@ const Dashboard = () => {
                 className={cn(
                   'line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface',
                   {
-                    'shadow-dashboard border-brand-component-stroke-dark': open,
+                    'border-brand-component-stroke-dark shadow-dashboard': open,
                   },
                 )}
               >

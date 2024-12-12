@@ -258,7 +258,7 @@ const DynamicLayout = ({
         </ResizablePanelGroup>
       </div>
       {!isAuth && (
-        <div className="shadow-toast fixed left-0 right-0 top-4 z-20 mx-auto max-w-2xl rounded-lg border border-brand-component-stroke-dark bg-brand-component-fill-gray px-3 py-2 text-sm font-semibold text-brand-component-text-light-fixed">
+        <div className="fixed left-0 right-0 top-4 z-20 mx-auto max-w-2xl rounded-lg border border-brand-component-stroke-dark bg-brand-component-fill-gray px-3 py-2 text-sm font-semibold text-brand-component-text-light-fixed shadow-toast">
           You're viewing dummy data. To customize and add your own data and
           device, please sign in!
         </div>
