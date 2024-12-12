@@ -3,10 +3,8 @@
 import { useIdentityStore } from '@/stores/identity-store'
 import { LogIn } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
-import { useTranslations } from 'next-intl'
 
 const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
-  const t = useTranslations('common')
   const setOpenDrawerIdentity = useIdentityStore(
     useShallow((state) => state.setOpenDrawerIdentity),
   )
@@ -19,8 +17,8 @@ const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
         {isCollapsed ? (
           <LogIn size={18} />
         ) : (
-          <p className="max-w-[90%] truncate text-xs font-semibold uppercase">
-            {t('get_started')}
+          <p className="max-w-[90%] truncate text-xs font-medium">
+            Register your own organization
           </p>
         )}
       </div>
