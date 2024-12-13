@@ -13,6 +13,8 @@ import {
 } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+import Supercluster from 'supercluster'
+
 const centerPoint: [number, number] = [108.22003, 16.05486]
 
 type CreateRotatingLayerProps = {
@@ -24,6 +26,12 @@ type CreateRotatingLayerProps = {
 function createRotatingLayer(rotation: number, model: any) {
   return new ScenegraphLayer()
 }
+
+const cluster = new Supercluster({
+  radius: 60,
+  maxZoom: 16,
+  minZoom: 0,
+})
 
 export const useLoadDeviceModels = () => {
   const map = useRef<mapboxgl.Map | null>(null)
@@ -137,6 +145,24 @@ export const useLoadDeviceModels = () => {
       layers.push(createRotatingLayer({ device, model }))
     })
 
+    const devicePoints = Object.values(devices)
+      .filter(
+        (device) =>
+          Array.isArray(device.location) && device.location.length === 2,
+      ) // Ensure valid locations
+      .map((device) => ({
+        type: 'Feature',
+        properties: { id: device.id, type: device.type },
+        geometry: {
+          type: 'Point',
+          coordinates: device.location as [number, number],
+        },
+      }))
+
+    cluster.load(devicePoints as any)
+
+    window.cluster = cluster
+
     const deckOverlay = new MapboxOverlay({
       interleaved: true,
       layers: [layers],
@@ -148,4 +174,11 @@ export const useLoadDeviceModels = () => {
   }
 
   return { startShowDevice3D }
+}
+
+export const getClusters = (
+  bounds: [number, number, number, number],
+  zoom: number,
+) => {
+  return cluster.getClusters(bounds, zoom)
 }
