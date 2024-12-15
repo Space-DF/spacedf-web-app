@@ -36,7 +36,6 @@ export const navigations = (
 ): Navigation[] => {
   const router = useRouter()
   const params = useParams()
-
   const { currentSpace } = useGlobalStore(useShallow((state) => state))
   return [
     {

@@ -225,11 +225,11 @@ const DynamicLayout = ({
                   id="region-dynamic-layout"
                 >
                   <ResizablePanel
-                    defaultSize={defaultRightLayout[0]}
-                    minSize={first ? 45 : 0}
+                    defaultSize={defaultRightLayout[1]}
+                    minSize={second ? 45 : 0}
                     className={cn(
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
-                      first
+                      second
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
