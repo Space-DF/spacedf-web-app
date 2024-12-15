@@ -58,5 +58,6 @@ export type ApiErrorResponse = {
 declare global {
   interface Window {
     mapInstance: MapInstance
+    cluster: Supercluster<Supercluster.AnyProps, Supercluster.AnyProps>
   }
 }

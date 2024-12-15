@@ -13,6 +13,8 @@ import {
 } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+import Supercluster from 'supercluster'
+
 const centerPoint: [number, number] = [108.22003, 16.05486]
 
 type CreateRotatingLayerProps = {
@@ -24,6 +26,13 @@ type CreateRotatingLayerProps = {
 function createRotatingLayer(rotation: number, model: any) {
   return new ScenegraphLayer()
 }
+
+const cluster = new Supercluster({
+  radius: 10,
+  maxZoom: 13,
+  extent: 256, // Kích thước lưới
+  nodeSize: 64, // Kích thước node trong R-tree
+})
 
 export const useLoadDeviceModels = () => {
   const map = useRef<mapboxgl.Map | null>(null)
@@ -101,12 +110,16 @@ export const useLoadDeviceModels = () => {
     const isPassedRotation = typeof rotation === 'number'
 
     const getOrientation = () => {
-      if (isPassedRotation) return [0, rotation, 90]
+      if (isPassedRotation)
+        return {
+          ...(device?.layerProps?.orientation || {}),
+          [device?.layerProps?.rotation || '']: rotation,
+        }
 
-      if (!device.layerProps?.getOrientation) return [0, 90, 90]
-
-      return device.layerProps.getOrientation
+      return device?.layerProps?.orientation
     }
+
+    const { pitch = 0, yaw = 0, roll = 0 } = getOrientation()
 
     return new ScenegraphLayer({
       id: device.id,
@@ -117,7 +130,7 @@ export const useLoadDeviceModels = () => {
       pickable: true,
       _lighting: 'pbr',
       ...(device.layerProps || {}),
-      getOrientation: getOrientation(),
+      getOrientation: [pitch, yaw, roll],
       onClick: () => {
         setDeviceSelected(device.id)
         console.log({ device: device.id })
@@ -137,6 +150,24 @@ export const useLoadDeviceModels = () => {
       layers.push(createRotatingLayer({ device, model }))
     })
 
+    const devicePoints = Object.values(devices)
+      .filter(
+        (device) =>
+          Array.isArray(device.location) && device.location.length === 2,
+      ) // Ensure valid locations
+      .map((device) => ({
+        type: 'Feature',
+        properties: { id: device.id, type: device.type },
+        geometry: {
+          type: 'Point',
+          coordinates: device.location as [number, number],
+        },
+      }))
+
+    cluster.load(devicePoints as any)
+
+    window.cluster = cluster
+
     const deckOverlay = new MapboxOverlay({
       interleaved: true,
       layers: [layers],
@@ -148,4 +179,11 @@ export const useLoadDeviceModels = () => {
   }
 
   return { startShowDevice3D }
+}
+
+export const getClusters = (
+  bounds: [number, number, number, number],
+  zoom: number,
+) => {
+  return cluster.getClusters(bounds, zoom)
 }

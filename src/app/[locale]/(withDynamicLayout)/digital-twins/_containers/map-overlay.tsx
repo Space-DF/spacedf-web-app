@@ -4,6 +4,8 @@ import { useLayout } from '@/stores'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ScenegraphLayer, type Layer } from 'deck.gl'
 
+import Supercluster from 'supercluster'
+
 import mapboxgl from 'mapbox-gl'
 
 import { cn } from '@/lib/utils'
@@ -14,7 +16,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useDeviceStore } from '@/stores/device-store'
 import { animate, linear } from 'popmotion'
-import { useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
+import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -35,19 +37,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       rakModel: state.models.rak,
     })),
   )
-
-  function createRotatingLayer(rotation: number, model: any) {
-    return new ScenegraphLayer({
-      id: 'rotating-model',
-      data: [{ position: [...centerPoint, 20] }],
-      scenegraph: model,
-      getPosition: (d) => d.position,
-      getOrientation: [0, rotation, 90],
-      sizeScale: 200,
-      pickable: true,
-      _lighting: 'pbr',
-    })
-  }
 
   const currentTheme = (theme === 'system' ? systemTheme : theme) as
     | 'dark'
@@ -133,18 +122,109 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     map?.on('load', async () => {
       mapInstance.apply3DBuildingLayer()
 
-      const layers = [createRotatingLayer(90, rakModel)]
-
-      // const deckOverlay = new MapboxOverlay({
-      //   interleaved: true,
-      //   layers: [layers],
-      // })
-
-      // map.addControl(deckOverlay)
-
       startShowDevice3D(map)
 
       map.addControl(new mapboxgl.NavigationControl())
+
+      const updateClusters = () => {
+        const bounds = map?.getBounds?.()?.toArray().flat() as [
+          number,
+          number,
+          number,
+          number,
+        ]
+        const zoom = Math.floor(map.getZoom())
+
+        const clusters = getClusters(bounds, zoom)
+
+        // console.log({ clusters, bounds })
+
+        const source = map.getSource(
+          'clusters-source',
+        ) as mapboxgl.GeoJSONSource
+
+        if (source) {
+          source.setData({
+            type: 'FeatureCollection',
+            features: clusters,
+          })
+        }
+      }
+
+      addMapClusters(map)
+
+      map.on('click', 'clusters', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['clusters'], // Ensure this matches the layer ID
+        })
+
+        if (!features.length) {
+          console.error('No cluster feature found.')
+          return
+        }
+
+        const clusterFeature = features[0]
+
+        console.log({ clusterFeature })
+        const clusterId = clusterFeature?.properties?.cluster_id
+
+        if (!clusterId) {
+          console.error('Invalid cluster ID:', clusterFeature)
+          return
+        }
+
+        const source = map.getSource(
+          'clusters-source',
+        ) as mapboxgl.GeoJSONSource
+
+        if (clusterId) {
+          const coordinates = (clusterFeature.geometry as any).coordinates
+
+          // Sử dụng Supercluster để tính toán mức zoom
+          onClusterClick(clusterId, coordinates)
+        } else {
+          console.error('Cluster ID not found.')
+        }
+
+        // if (source && 'getClusterExpansionZoom' in source) {
+        //   source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        //     if (err) {
+        //       console.error('Error expanding cluster:', err)
+        //       return
+        //     }
+
+        //     map.easeTo({
+        //       center: clusterFeature.geometry.coordinates,
+        //       zoom: zoom,
+        //     })
+        //   })
+        // } else {
+        //   console.error('Source does not support getClusterExpansionZoom.')
+        // }
+        // map
+        //   ?.getSource?.('clusters-source')
+        //   ?.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        //     if (err) return
+
+        //     map.easeTo({
+        //       center: features[0].geometry.coordinates,
+        //       zoom: zoom,
+        //     })
+        //   })
+      })
+
+      map.on('move', updateClusters)
+      map.on('zoom', updateClusters)
+
+      // map.on('mouseenter', 'clusters', () => {
+      //   map.getCanvas().style.cursor = 'pointer'
+      // })
+
+      // map.on('mouseleave', 'clusters', () => {
+      //   map.getCanvas().style.cursor = ''
+      // })
+
+      // updateClusters()
 
       map.addControl(
         new mapboxgl.GeolocateControl({
@@ -167,26 +247,98 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         essential: true,
       })
 
-      // center = [108.2204122, 16.0608127],
-
       map?.resize()
-
-      // animate({
-      //   from: 0,
-      //   to: 360,
-      //   repeat: Infinity,
-      //   ease: linear,
-      //   duration: 5000,
-      //   onUpdate: (rotation) => {
-      //     //update the layers after rotation
-      //     deckOverlay.setProps({
-      //       layers: [createRotatingLayer(rotation, rakModel)],
-      //     })
-      //   },
-      // })
     })
 
     await delay(2000)
+  }
+
+  const addMapClusters = (map: any) => {
+    map.addSource('clusters-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [],
+      },
+      cluster: true,
+      clusterMaxZoom: 16,
+      clusterRadius: 50,
+      extent: 256, // Kích thước lưới
+      nodeSize: 64, // Kích thước node trong R-tree
+    })
+
+    map.addLayer({
+      id: 'clusters',
+      type: 'circle',
+      source: 'clusters-source',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': [
+          'step',
+          ['get', 'point_count'],
+          '#51bbd6',
+          100,
+          '#f1f075',
+          750,
+          '#f28cb1',
+        ],
+        'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
+      },
+    })
+
+    map.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: 'clusters-source',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+      },
+    })
+
+    map.addLayer({
+      id: 'unclustered-point',
+      type: 'circle',
+      source: 'clusters-source',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-color': '#11b4da',
+        'circle-radius': 4,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#fff',
+      },
+    })
+  }
+
+  const onClusterClick = (
+    clusterId: number,
+    clusterCoordinates: [number, number],
+  ) => {
+    try {
+      const zoom = window.cluster.getClusterExpansionZoom(clusterId) + 4
+      const map = window.mapInstance?.getMapInstance()
+
+      if (map) {
+        if (
+          ['mercator', 'equirectangular'].includes(map.getProjection().name)
+        ) {
+          while (Math.abs(clusterCoordinates[0] - map.getCenter().lng) > 180) {
+            clusterCoordinates[0] +=
+              clusterCoordinates[0] > map.getCenter().lng ? -360 : 360
+          }
+        }
+
+        map?.flyTo({
+          center: clusterCoordinates,
+          zoom: zoom,
+          duration: 2000,
+        })
+      }
+    } catch (error) {
+      console.error('Error calculating expansion zoom:', error)
+    }
   }
 
   const resizeSidebar = () => {
@@ -237,6 +389,8 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     await delay(200)
 
     setStartBlur(false)
+
+    addMapClusters(allMapInstance)
   }
 
   if (!mounted) return <></>

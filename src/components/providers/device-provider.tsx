@@ -28,7 +28,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const initialTrackiModel = async () => {
     try {
-      const response = await fetch('/3d-model/phone-frame.glb')
+      const response = await fetch('/3d-model/airtag.glb')
       const arrayBuffer = await response.arrayBuffer()
 
       const model = await load(arrayBuffer, GLTFLoader)
