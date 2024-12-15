@@ -151,68 +151,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         }
       }
 
-      map.addSource('clusters-source', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [],
-        },
-        cluster: true,
-        clusterMaxZoom: 16,
-        clusterRadius: 50,
-      })
-
-      map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'clusters-source',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#51bbd6',
-            100,
-            '#f1f075',
-            750,
-            '#f28cb1',
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            100,
-            30,
-            750,
-            40,
-          ],
-        },
-      })
-
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'clusters-source',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12,
-        },
-      })
-
-      map.addLayer({
-        id: 'unclustered-point',
-        type: 'circle',
-        source: 'clusters-source',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#11b4da',
-          'circle-radius': 4,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': '#fff',
-        },
-      })
+      addMapClusters(map)
 
       map.on('click', 'clusters', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
@@ -277,15 +216,15 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       map.on('move', updateClusters)
       map.on('zoom', updateClusters)
 
-      map.on('mouseenter', 'clusters', () => {
-        map.getCanvas().style.cursor = 'pointer'
-      })
+      // map.on('mouseenter', 'clusters', () => {
+      //   map.getCanvas().style.cursor = 'pointer'
+      // })
 
-      map.on('mouseleave', 'clusters', () => {
-        map.getCanvas().style.cursor = ''
-      })
+      // map.on('mouseleave', 'clusters', () => {
+      //   map.getCanvas().style.cursor = ''
+      // })
 
-      updateClusters()
+      // updateClusters()
 
       map.addControl(
         new mapboxgl.GeolocateControl({
@@ -314,15 +253,71 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     await delay(2000)
   }
 
+  const addMapClusters = (map: any) => {
+    map.addSource('clusters-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [],
+      },
+      cluster: true,
+      clusterMaxZoom: 16,
+      clusterRadius: 50,
+      extent: 256, // Kích thước lưới
+      nodeSize: 64, // Kích thước node trong R-tree
+    })
+
+    map.addLayer({
+      id: 'clusters',
+      type: 'circle',
+      source: 'clusters-source',
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': [
+          'step',
+          ['get', 'point_count'],
+          '#51bbd6',
+          100,
+          '#f1f075',
+          750,
+          '#f28cb1',
+        ],
+        'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
+      },
+    })
+
+    map.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: 'clusters-source',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-size': 12,
+      },
+    })
+
+    map.addLayer({
+      id: 'unclustered-point',
+      type: 'circle',
+      source: 'clusters-source',
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-color': '#11b4da',
+        'circle-radius': 4,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#fff',
+      },
+    })
+  }
+
   const onClusterClick = (
     clusterId: number,
     clusterCoordinates: [number, number],
   ) => {
     try {
-      const zoom = window.cluster.getClusterExpansionZoom(clusterId)
-      console.log('zoom', zoom)
-
-      // Sử dụng Mapbox để thay đổi mức zoom
+      const zoom = window.cluster.getClusterExpansionZoom(clusterId) + 4
       const map = window.mapInstance?.getMapInstance()
 
       if (map) {
@@ -334,9 +329,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
               clusterCoordinates[0] > map.getCenter().lng ? -360 : 360
           }
         }
-
-        console.log('Zoom Level:', zoom)
-        console.log('Cluster Coordinates:', clusterCoordinates)
 
         map?.flyTo({
           center: clusterCoordinates,
@@ -397,6 +389,8 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     await delay(200)
 
     setStartBlur(false)
+
+    addMapClusters(allMapInstance)
   }
 
   if (!mounted) return <></>

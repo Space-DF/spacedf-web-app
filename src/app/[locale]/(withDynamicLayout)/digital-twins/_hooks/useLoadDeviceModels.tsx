@@ -28,9 +28,10 @@ function createRotatingLayer(rotation: number, model: any) {
 }
 
 const cluster = new Supercluster({
-  radius: 60,
-  maxZoom: 16,
-  minZoom: 0,
+  radius: 10,
+  maxZoom: 13,
+  extent: 256, // Kích thước lưới
+  nodeSize: 64, // Kích thước node trong R-tree
 })
 
 export const useLoadDeviceModels = () => {
@@ -109,12 +110,16 @@ export const useLoadDeviceModels = () => {
     const isPassedRotation = typeof rotation === 'number'
 
     const getOrientation = () => {
-      if (isPassedRotation) return [0, rotation, 90]
+      if (isPassedRotation)
+        return {
+          ...(device?.layerProps?.orientation || {}),
+          [device?.layerProps?.rotation || '']: rotation,
+        }
 
-      if (!device.layerProps?.getOrientation) return [0, 90, 90]
-
-      return device.layerProps.getOrientation
+      return device?.layerProps?.orientation
     }
+
+    const { pitch = 0, yaw = 0, roll = 0 } = getOrientation()
 
     return new ScenegraphLayer({
       id: device.id,
@@ -125,7 +130,7 @@ export const useLoadDeviceModels = () => {
       pickable: true,
       _lighting: 'pbr',
       ...(device.layerProps || {}),
-      getOrientation: getOrientation(),
+      getOrientation: [pitch, yaw, roll],
       onClick: () => {
         setDeviceSelected(device.id)
         console.log({ device: device.id })
