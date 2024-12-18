@@ -25,6 +25,7 @@ import {
 } from '../ui/resizable'
 import Sidebar from './sidebar'
 import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -42,6 +43,7 @@ const DynamicLayout = ({
   defaultMainLayout,
   defaultCollapsed,
 }: DynamicLayoutProps) => {
+  const t = useTranslations('common')
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
@@ -160,7 +162,12 @@ const DynamicLayout = ({
   }
 
   const layoutCannotDuplicate = useMemo(() => {
-    if (dynamicLayouts.includes('devices')) return <Devices />
+    if (dynamicLayouts.includes('devices'))
+      return (
+        <div>
+          <Dashboard />
+        </div>
+      )
 
     return <Users />
   }, [dynamicLayouts])
@@ -210,7 +217,7 @@ const DynamicLayout = ({
               />
 
               <ResizablePanel
-                defaultSize={defaultLayout[1]}
+                defaultSize={defaultLayout[0]}
                 className={cn(
                   'transition-all duration-300',
                   isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0',
@@ -225,18 +232,16 @@ const DynamicLayout = ({
                   id="region-dynamic-layout"
                 >
                   <ResizablePanel
-                    defaultSize={defaultRightLayout[1]}
-                    minSize={second ? 45 : 0}
+                    defaultSize={defaultRightLayout[0]}
+                    minSize={first ? 45 : 0}
                     className={cn(
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
-                      second
+                      first
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
                   >
-                    <div>
-                      <Dashboard />
-                    </div>
+                    <Devices />
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel
@@ -258,9 +263,8 @@ const DynamicLayout = ({
         </ResizablePanelGroup>
       </div>
       {!isAuth && (
-        <div className="fixed left-0 right-0 top-4 z-20 mx-auto max-w-2xl rounded-lg border border-brand-component-stroke-dark bg-brand-component-fill-gray px-3 py-2 text-sm font-semibold text-brand-component-text-light-fixed shadow-toast">
-          You're viewing dummy data. To customize and add your own data and
-          device, please sign in!
+        <div className="shadow-toast fixed left-0 right-0 top-4 z-20 mx-auto max-w-2xl rounded-lg border border-brand-component-stroke-dark bg-brand-component-fill-gray px-3 py-2 text-sm font-semibold text-brand-component-text-light-fixed">
+          {t('viewing_dummy')}
         </div>
       )}
     </EffectLayout>

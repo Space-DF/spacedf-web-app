@@ -38,6 +38,12 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     spaceList[0]
 
   useEffect(() => {
+    if (!params.spaceSlug && spaceList[0]) {
+      router.replace(`/spaces/${spaceList[0]?.slug_name}`)
+    }
+  }, [spaceList])
+
+  useEffect(() => {
     setCurrentSpace(spaceList[0])
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event

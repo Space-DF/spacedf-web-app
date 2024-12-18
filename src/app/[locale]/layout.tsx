@@ -8,12 +8,9 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
 
-import { Plus_Jakarta_Sans } from 'next/font/google'
 import { notFound } from 'next/navigation'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
-
-const plus_jakarta_sans = Plus_Jakarta_Sans({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Space DF',
@@ -38,7 +35,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={plus_jakarta_sans.className}>
+      <body>
         <NextIntlClientProvider messages={messages}>
           <AppProvider session={session}>{children}</AppProvider>
         </NextIntlClientProvider>
