@@ -4,6 +4,7 @@
   "enter_description": "Enter Description",
   "description": "Description:",
   "devui": "DevUI",
+  "joineui": "JoinEUI",
   "device_name": "Device name:",
   "scan_qr_code_successfully": "Scan QR Code Successfully",
   "device_informations": "Device Informations",

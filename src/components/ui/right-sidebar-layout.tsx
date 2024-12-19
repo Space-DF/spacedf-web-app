@@ -18,8 +18,8 @@ export const RightSideBarLayout = ({
   externalButton,
 }: RightSideBarLayoutProps) => {
   return (
-    <div className="p-4">
-      <div className="flex items-center gap-2">
+    <div className="flex h-screen flex-col">
+      <div className="flex items-center gap-2 px-4 pt-4">
         <div className="flex flex-1 flex-wrap items-center justify-between gap-2 duration-300">
           <p className="text-base font-semibold text-brand-text-dark dark:text-white">
             {title}
@@ -41,7 +41,9 @@ export const RightSideBarLayout = ({
           </div>
         )}
       </div>
-      <div className="my-6 dark:text-brand-dark-text-gray">{children}</div>
+      <div className="flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray">
+        {children}
+      </div>
     </div>
   )
 }

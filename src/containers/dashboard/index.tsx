@@ -273,55 +273,57 @@ const Dashboard = () => {
         )
       }
     >
-      {isViewAllDashboard ? (
-        <DataTable
-          columns={useColumns({ handleDeleteSpace, t })}
-          data={dashboards}
-        />
-      ) : (
-        <>
-          {isEdit && (
-            <div className="mb-6 flex flex-col items-center gap-3">
-              {!selected.isDefault && (
-                <div className="text-brand-component-text-dark">
-                  {t('dashboard.let_add_some_widget')}
-                </div>
-              )}
-              <Button
-                className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
-                onClick={() => setEdit(false)}
-              >
-                {t('dashboard.add_widget')}
-                <Grid2x2Plus size={16} />
-              </Button>
-            </div>
-          )}
-          {isAuth && (
-            <div className="flex gap-3">
-              {selected.isDefault && (
-                <>
-                  <DashboardInfo
-                    icon={
-                      <DashboardTotalDevices className="size-10 text-[#D4F1FD] dark:text-[#00374E]" />
-                    }
-                    title={t('dashboard.total_devices')}
-                    content="10"
-                  />
-                  <DashboardInfo
-                    icon={
-                      <DashboardTotalMembers className="size-10 text-[#FDEED4] dark:text-[#432A00]" />
-                    }
-                    title={t('dashboard.total_members')}
-                    content="30"
-                  />
-                </>
-              )}
-            </div>
-          )}
-          {!isAuth && <MockData />}
-          {!selected.isDefault && <Nodata content={t('common.no_widget')} />}
-        </>
-      )}
+      <div className="mt-6 px-4">
+        {isViewAllDashboard ? (
+          <DataTable
+            columns={useColumns({ handleDeleteSpace, t })}
+            data={dashboards}
+          />
+        ) : (
+          <>
+            {isEdit && (
+              <div className="mb-6 flex flex-col items-center gap-3">
+                {!selected.isDefault && (
+                  <div className="text-brand-component-text-dark">
+                    {t('dashboard.let_add_some_widget')}
+                  </div>
+                )}
+                <Button
+                  className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+                  onClick={() => setEdit(false)}
+                >
+                  {t('dashboard.add_widget')}
+                  <Grid2x2Plus size={16} />
+                </Button>
+              </div>
+            )}
+            {isAuth && (
+              <div className="flex gap-3">
+                {selected.isDefault && (
+                  <>
+                    <DashboardInfo
+                      icon={
+                        <DashboardTotalDevices className="size-10 text-[#D4F1FD] dark:text-[#00374E]" />
+                      }
+                      title={t('dashboard.total_devices')}
+                      content="10"
+                    />
+                    <DashboardInfo
+                      icon={
+                        <DashboardTotalMembers className="size-10 text-[#FDEED4] dark:text-[#432A00]" />
+                      }
+                      title={t('dashboard.total_members')}
+                      content="30"
+                    />
+                  </>
+                )}
+              </div>
+            )}
+            {!isAuth && <MockData />}
+            {!selected.isDefault && <Nodata content={t('common.no_widget')} />}
+          </>
+        )}
+      </div>
       <AlertDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(undefined)}

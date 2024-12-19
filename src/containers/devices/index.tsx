@@ -69,8 +69,10 @@ const Devices = () => {
       }}
       title={t('selected_devices')}
     >
-      <div className="h-screen overflow-y-auto pb-20">
-        <DeviceSelected selected={selected} />
+      <div className="flex h-full flex-col pt-6">
+        <div className="px-4">
+          <DeviceSelected selected={selected} />
+        </div>
         <DevicesList
           selected={selected}
           handleSelected={(id: number) => setSelected(id)}
@@ -360,17 +362,17 @@ const DevicesList = ({
   selected?: number
 }) => {
   const t = useTranslations('addNewDevice')
-  const devices = Array.from({ length: 10 }).map((_, id) => ({ id: id + 1 }))
+  const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
-    <div className="mt-6 flex flex-col gap-4">
+    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
       </div>
-      <div className="-mx-2 flex flex-wrap gap-y-4">
+      <div className="-mx-2 flex flex-wrap gap-y-4 pb-6">
         {devices.map((item) => (
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
             <div
@@ -450,7 +452,10 @@ const AddDeviceSuccess = () => {
 
 const addDeviceSchema = z.object({
   device_name: z.string({ message: 'This field cannot be empty' }),
-  dev_ui: z.string({ message: 'This field cannot be empty' }).min(16, {
+  dev_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
+    message: 'Must be at least 16 characters long.',
+  }),
+  join_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
     message: 'Must be at least 16 characters long.',
   }),
   description: z
@@ -491,11 +496,11 @@ const AddDeviceForm = ({
         )}
         <FormField
           control={form.control}
-          name="device_name"
+          name="dev_eui"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('device_name')}
+                {t('devui')}
                 <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
@@ -511,11 +516,31 @@ const AddDeviceForm = ({
         />
         <FormField
           control={form.control}
-          name="dev_ui"
+          name="join_eui"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('devui')}
+                {t('joineui')}
+                <span className="text-brand-component-text-accent">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  disabled={isModeAuto}
+                  placeholder="00 04 A3 0B  00 1B B0 DF"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="device_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-semibold text-brand-component-text-dark">
+                {t('device_name')}
                 <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
