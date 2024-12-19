@@ -18,5 +18,8 @@
   "light": "Light",
   "dark": "Dark",
   "general_settings": "General Settings",
-  "sign_out": "Sign out"
+  "sign_out": "Sign out",
+  "get_started": "GET STARTED",
+  "no_widget": "No widget",
+  "viewing_dummy": "You're viewing dummy data. To customize and add your own data and device, please sign in!"
 }

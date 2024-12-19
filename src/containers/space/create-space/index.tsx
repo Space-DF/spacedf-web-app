@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useTransition } from 'react'
+import React, { memo, useState } from 'react'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
 import { Form } from '@/components/ui/form'
@@ -32,40 +32,39 @@ const OrganizationSetting = () => {
   })
   const router = useRouter()
 
-  const [isCreating, startCreateSpace] = useTransition()
+  const [isCreating, setCreating] = useState(false)
 
   const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    startCreateSpace(async () => {
-      try {
-        const fetchPromise = await fetch('/api/spaces', {
-          method: 'POST',
-          body: JSON.stringify({
-            // TODO: handle upload logo
-            logo: 'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
-            name: values.space_name,
-            slug_name: toSlug(values.space_name),
-            is_active: true,
-          }),
-        }).then(async (response) => {
-          const result = await response.json()
-          if (!response.ok) {
-            const [errorData] = result.slug_name
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const fetchPromise = await fetch('/api/spaces', {
+        method: 'POST',
+        body: JSON.stringify({
+          // TODO: handle upload logo
+          logo: 'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
+          name: values.space_name,
+          slug_name: toSlug(values.space_name),
+          is_active: true,
+        }),
+      }).then(async (response) => {
+        const result = await response.json()
+        if (!response.ok) {
+          const [errorData] = result.slug_name
 
-            throw new Error(errorData || 'Something went wrong')
-          }
-          return result
-        })
-        await sleep(3000)
-        if (fetchPromise.data) {
-          router.push(`/spaces/${fetchPromise.data.slug_name}`)
+          throw new Error(errorData || 'Something went wrong')
         }
-      } catch (err) {
-        const { message } = err as Error
-        toast.error(message)
+        return result
+      })
+      setCreating(true)
+      await sleep(3000)
+      if (fetchPromise.data) {
+        router.push(`/spaces/${fetchPromise.data.slug_name}`)
       }
-    })
+    } catch (err) {
+      const { message } = err as Error
+      toast.error(message)
+    }
   }
 
   return (

@@ -25,9 +25,9 @@ export const getDynamicLayoutRight = (
 }
 
 export const displayedRightDynamicLayout = (dynamicLayout: string[]) => {
-  const first = dynamicLayout.includes(NavigationEnums.DASHBOARD)
+  const first = dynamicLayout.includes(NavigationEnums.DEVICES)
   const second =
-    dynamicLayout.includes(NavigationEnums.DEVICES) ||
+    dynamicLayout.includes(NavigationEnums.DASHBOARD) ||
     dynamicLayout.includes(NavigationEnums.USER)
 
   return {

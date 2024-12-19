@@ -18,5 +18,8 @@
   "light": "Sáng",
   "dark": "Tối",
   "general_settings": "Cài đặt chung",
-  "sign_out": "Đăng xuất"
+  "sign_out": "Đăng xuất",
+  "get_started": "BẮT ĐẦU",
+  "no_widget": "No widget",
+  "viewing_dummy": "You're viewing dummy data. To customize and add your own data and device, please sign in!"
 }

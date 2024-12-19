@@ -270,6 +270,9 @@ const CollapsedSidebar = ({
 }
 
 const Navigations = () => {
+  const { status } = useSession()
+
+  const isAuth = status === 'authenticated'
   const t = useTranslations('common')
   return (
     <div
@@ -277,7 +280,10 @@ const Navigations = () => {
         'mt-3 flex flex-1 flex-col gap-1 py-2 transition-all duration-200',
       )}
     >
-      {navigations(t).map((navigation) => {
+      {(isAuth
+        ? navigations(t)
+        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+      ).map((navigation) => {
         return <Navigation navigation={navigation} key={navigation.href} />
       })}
     </div>
@@ -352,10 +358,16 @@ const CollapsedNavigation = () => {
     useShallow((state) => state.toggleDynamicLayout),
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const { status } = useSession()
+
+  const isAuth = status === 'authenticated'
 
   return (
     <div className="my-4 flex w-full flex-col items-center justify-center gap-2">
-      {navigations(t).map((navigation) => {
+      {(isAuth
+        ? navigations(t)
+        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+      ).map((navigation) => {
         const isDisplayed = dynamicLayouts.includes(navigation.href)
 
         const handleDynamicLayoutChange = () => {
