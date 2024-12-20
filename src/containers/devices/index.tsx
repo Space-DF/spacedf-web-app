@@ -45,11 +45,12 @@ import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { useLayout } from '@/stores'
-import { uppercaseFirstLetter } from '@/utils'
+import { getNewLayouts, useLayout } from '@/stores'
+import { setCookie, uppercaseFirstLetter } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useSession } from 'next-auth/react'
 import ImageWithBlur from '@/components/ui/image-blur'
+import { COOKIES, NavigationEnums } from '@/constants'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -57,6 +58,7 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
   )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
   const [selected, setSelected] = useState<number>()
@@ -64,6 +66,8 @@ const Devices = () => {
   return (
     <RightSideBarLayout
       onClose={() => {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
         setCookieDirty(true)
         toggleDynamicLayout('devices')
       }}

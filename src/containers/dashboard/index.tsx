@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { useLayout } from '@/stores'
+import { getNewLayouts, useLayout } from '@/stores'
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { DataTable } from '@/components/ui/data-table'
 import { useColumns } from '@/containers/dashboard/column'
@@ -46,6 +46,8 @@ import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { MockData } from '@/containers/dashboard/mock-data'
+import { COOKIES, NavigationEnums } from '@/constants'
+import { setCookie } from '@/utils'
 
 export interface Dashboard {
   value: string
@@ -95,6 +97,7 @@ const Dashboard = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
   )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   const setOpenDrawerIdentity = useIdentityStore(
     useShallow((state) => state.setOpenDrawerIdentity),
@@ -117,7 +120,7 @@ const Dashboard = () => {
       value: 'new-dashboard',
       label: 'Unnamed Dashboard',
       isDefault: false,
-      id: 10,
+      id: Math.floor(Math.random() * 1000) + 1,
     }
     dashboards = [value, ...dashboards]
     setSelected(value)
@@ -135,6 +138,11 @@ const Dashboard = () => {
   return (
     <RightSideBarLayout
       onClose={() => {
+        const newLayout = getNewLayouts(
+          dynamicLayouts,
+          NavigationEnums.DASHBOARD,
+        )
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
         setCookieDirty(true)
         toggleDynamicLayout('dashboard')
       }}

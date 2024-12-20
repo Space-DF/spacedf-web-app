@@ -162,14 +162,15 @@ const DynamicLayout = ({
   }
 
   const layoutCannotDuplicate = useMemo(() => {
-    if (dynamicLayouts.includes('devices'))
-      return (
-        <div>
-          <Dashboard />
-        </div>
-      )
-
-    return <Users />
+    return <Dashboard />
+    // if (dynamicLayouts.includes('devices'))
+    //   return (
+    //     <div>
+    //       <Dashboard />
+    //     </div>
+    //   )
+    //
+    // return <Users />
   }, [dynamicLayouts])
 
   const { isShowAll, second, first } =
