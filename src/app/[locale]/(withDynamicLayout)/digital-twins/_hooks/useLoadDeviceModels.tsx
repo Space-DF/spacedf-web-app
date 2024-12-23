@@ -91,9 +91,7 @@ export const useLoadDeviceModels = () => {
   )
 
   useEffect(() => {
-    if (!map.current || !deckOverlayRef.current) return
-
-    console.log({ models })
+    if (!map.current || !deckOverlayRef.current || !deviceSelected) return
 
     map.current.flyTo({
       center: devices[deviceSelected].location,
@@ -106,7 +104,7 @@ export const useLoadDeviceModels = () => {
     const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models[currentDevice.type])
-  }, [deviceSelected])
+  }, [deviceSelected, models])
 
   const createRotatingLayer = ({
     device,
