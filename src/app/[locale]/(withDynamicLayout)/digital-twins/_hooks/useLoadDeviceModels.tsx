@@ -37,14 +37,20 @@ const cluster = new Supercluster({
 export const useLoadDeviceModels = () => {
   const map = useRef<mapboxgl.Map | null>(null)
   const deckOverlayRef = useRef<MapboxOverlay | null>(null)
-  const layersRef = useRef<LayersList>([])
 
-  const { devices, models, deviceSelected, setDeviceSelected } = useDeviceStore(
+  const {
+    devices,
+    models,
+    deviceSelected,
+    initializedSuccess,
+    setDeviceSelected,
+  } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       models: state.models,
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
+      initializedSuccess: state.initializedSuccess,
     })),
   )
 
@@ -85,7 +91,7 @@ export const useLoadDeviceModels = () => {
   )
 
   useEffect(() => {
-    if (!map.current || !deckOverlayRef.current) return
+    if (!map.current || !deckOverlayRef.current || !initializedSuccess) return
 
     map.current.flyTo({
       center: devices[deviceSelected].location,
@@ -98,7 +104,7 @@ export const useLoadDeviceModels = () => {
     const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models[currentDevice.type])
-  }, [deviceSelected])
+  }, [deviceSelected, initializedSuccess])
 
   const createRotatingLayer = ({
     device,
