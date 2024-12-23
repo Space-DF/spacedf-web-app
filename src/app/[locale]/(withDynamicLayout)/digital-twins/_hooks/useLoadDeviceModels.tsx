@@ -66,7 +66,6 @@ export const useLoadDeviceModels = () => {
         ease: linear,
         duration: 5000,
         onUpdate: (rotation) => {
-          console.log({ rotation })
           const newLayers = deckLayers.map((layer: any) => {
             if (layer.id === device.id) {
               return createRotatingLayer({
