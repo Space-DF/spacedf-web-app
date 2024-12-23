@@ -91,7 +91,9 @@ export const useLoadDeviceModels = () => {
   )
 
   useEffect(() => {
-    if (!map.current || !deckOverlayRef.current || !initializedSuccess) return
+    if (!map.current || !deckOverlayRef.current) return
+
+    console.log({ models })
 
     map.current.flyTo({
       center: devices[deviceSelected].location,
@@ -104,7 +106,7 @@ export const useLoadDeviceModels = () => {
     const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models[currentDevice.type])
-  }, [deviceSelected, initializedSuccess])
+  }, [deviceSelected])
 
   const createRotatingLayer = ({
     device,
@@ -143,45 +145,46 @@ export const useLoadDeviceModels = () => {
     })
   }
 
-  const startShowDevice3D = (mapInstance: mapboxgl.Map) => {
-    // Implement logic to show device 3D model
+  const startShowDevice3D = useCallback(
+    (mapInstance: mapboxgl.Map) => {
+      let layers: LayersList = []
 
-    let layers: LayersList = []
+      map.current = mapInstance
 
-    map.current = mapInstance
+      Object.values(devices).forEach((device) => {
+        const model = models[device.type]
+        layers.push(createRotatingLayer({ device, model }))
+      })
 
-    Object.values(devices).forEach((device) => {
-      const model = models[device.type]
-      layers.push(createRotatingLayer({ device, model }))
-    })
+      const devicePoints = Object.values(devices)
+        .filter(
+          (device) =>
+            Array.isArray(device.location) && device.location.length === 2,
+        ) // Ensure valid locations
+        .map((device) => ({
+          type: 'Feature',
+          properties: { id: device.id, type: device.type },
+          geometry: {
+            type: 'Point',
+            coordinates: device.location as [number, number],
+          },
+        }))
 
-    const devicePoints = Object.values(devices)
-      .filter(
-        (device) =>
-          Array.isArray(device.location) && device.location.length === 2,
-      ) // Ensure valid locations
-      .map((device) => ({
-        type: 'Feature',
-        properties: { id: device.id, type: device.type },
-        geometry: {
-          type: 'Point',
-          coordinates: device.location as [number, number],
-        },
-      }))
+      cluster.load(devicePoints as any)
 
-    cluster.load(devicePoints as any)
+      window.cluster = cluster
 
-    window.cluster = cluster
+      const deckOverlay = new MapboxOverlay({
+        interleaved: true,
+        layers: [layers],
+      })
 
-    const deckOverlay = new MapboxOverlay({
-      interleaved: true,
-      layers: [layers],
-    })
+      deckOverlayRef.current = deckOverlay
 
-    deckOverlayRef.current = deckOverlay
-
-    mapInstance.addControl(deckOverlay)
-  }
+      mapInstance.addControl(deckOverlay)
+    },
+    [models],
+  )
 
   return { startShowDevice3D }
 }
