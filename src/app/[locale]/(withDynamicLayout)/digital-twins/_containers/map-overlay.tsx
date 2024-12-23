@@ -32,9 +32,9 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
   const { startShowDevice3D } = useLoadDeviceModels()
 
-  const { rakModel } = useDeviceStore(
+  const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
-      rakModel: state.models.rak,
+      initializedSuccess: state.initializedSuccess,
     })),
   )
 
@@ -91,7 +91,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   }, [isCollapsed])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || !initializedSuccess) return
     const mapInstance = window.mapInstance
 
     if (!mapContainerRef.current || !mapInstance) return
@@ -104,7 +104,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         mapInstance.destroyMap()
       }
     }
-  }, [mounted])
+  }, [mounted, initializedSuccess])
 
   const initialMapInstance = async () => {
     // Only initialize if not already initialized
@@ -136,9 +136,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         const zoom = Math.floor(map.getZoom())
 
         const clusters = getClusters(bounds, zoom)
-
-        // console.log({ clusters, bounds })
-
         const source = map.getSource(
           'clusters-source',
         ) as mapboxgl.GeoJSONSource
@@ -165,7 +162,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
         const clusterFeature = features[0]
 
-        console.log({ clusterFeature })
         const clusterId = clusterFeature?.properties?.cluster_id
 
         if (!clusterId) {

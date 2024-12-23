@@ -133,7 +133,6 @@ export const useLoadDeviceModels = () => {
       getOrientation: [pitch, yaw, roll],
       onClick: () => {
         setDeviceSelected(device.id)
-        console.log({ device: device.id })
       },
     })
   }
