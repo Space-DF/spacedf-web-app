@@ -104,6 +104,10 @@ export const useLoadDeviceModels = () => {
     const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models[currentDevice.type])
+
+    return () => {
+      window.mapInstance.destroyMap()
+    }
   }, [deviceSelected, models])
 
   const createRotatingLayer = ({
