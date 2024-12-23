@@ -55,11 +55,9 @@ export const useLoadDeviceModels = () => {
   )
 
   const startAnimation = useCallback(
-    (device: Device, model: GLTFWithBuffers) => {
+    (device: Device, modelsProps: Record<string, GLTFWithBuffers>) => {
       const deckLayers =
         (deckOverlayRef.current as any)?._props?.layers[0] || []
-
-      console.log({ device, models })
 
       animate({
         from: 0,
@@ -74,12 +72,12 @@ export const useLoadDeviceModels = () => {
               return createRotatingLayer({
                 device,
                 rotation,
-                model: model,
+                model: modelsProps[device.type],
               })
             }
             return createRotatingLayer({
               device: devices[layer.id],
-              model: models[devices[layer.id].type],
+              model: modelsProps[devices[layer.id].type],
             })
           })
 
@@ -106,7 +104,7 @@ export const useLoadDeviceModels = () => {
 
     const currentDevice = devices[deviceSelected]
 
-    startAnimation(currentDevice, models[currentDevice.type])
+    startAnimation(currentDevice, models)
   }, [deviceSelected, models])
 
   const createRotatingLayer = ({
