@@ -59,6 +59,8 @@ export const useLoadDeviceModels = () => {
       const deckLayers =
         (deckOverlayRef.current as any)?._props?.layers[0] || []
 
+      console.log({ device, models })
+
       animate({
         from: 0,
         to: 360,
@@ -66,12 +68,13 @@ export const useLoadDeviceModels = () => {
         ease: linear,
         duration: 5000,
         onUpdate: (rotation) => {
+          console.log({ rotation })
           const newLayers = deckLayers.map((layer: any) => {
             if (layer.id === device.id) {
               return createRotatingLayer({
                 device,
                 rotation,
-                model: models[device.type],
+                model: model,
               })
             }
             return createRotatingLayer({
@@ -104,10 +107,6 @@ export const useLoadDeviceModels = () => {
     const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models[currentDevice.type])
-
-    return () => {
-      window.mapInstance.destroyMap()
-    }
   }, [deviceSelected, models])
 
   const createRotatingLayer = ({
