@@ -297,7 +297,7 @@ const Dashboard = () => {
                 </Button>
               </div>
             )}
-            {isAuth && (
+            {/* {isAuth && (
               <div className="flex gap-3">
                 {selected.isDefault && (
                   <>
@@ -318,8 +318,8 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-            )}
-            {!isAuth && <MockData />}
+            )} */}
+            <MockData />
             {!selected.isDefault && <Nodata content={t('common.no_widget')} />}
           </>
         )}
