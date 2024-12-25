@@ -21,6 +21,8 @@ type DeviceModelState = {
   models: Record<SupportedModels, GLTFWithBuffers>
   devices: Record<string, Device>
   deviceSelected: string
+  initializedSuccess: boolean
+  setInitializedSuccess: (newState: boolean) => void
 }
 
 type DeviceModelAction = {
@@ -35,6 +37,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     devices: {},
     models: {} as Record<SupportedModels, GLTFWithBuffers>,
     deviceSelected: '',
+    initializedSuccess: false,
 
     setDeviceModel(key, bufferModel) {
       return set((state) => ({
@@ -63,5 +66,10 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
         ),
       }))
     },
+
+    setInitializedSuccess: (newState) =>
+      set(() => ({
+        initializedSuccess: newState,
+      })),
   }),
 )

@@ -1,41 +1,46 @@
 import { devices } from '@/data/dummy-data'
 import { useDeviceStore } from '@/stores/device-store'
+import { SupportedModels } from '@/utils/model-objects/devices/gps-tracker/type'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
 import React, { PropsWithChildren, useEffect } from 'react'
 
+const Rak3DModel = '/3d-model/RAK_3D.glb'
+const Tracki3DModel = '/3d-model/airtag.glb'
+
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
-  const { setDeviceModel, setDevices } = useDeviceStore()
+  const { setDeviceModel, setDevices, setInitializedSuccess } = useDeviceStore()
 
   useEffect(() => {
     getDevice()
-    initialRakModel()
-    initialTrackiModel()
+    loadModels()
   }, [])
 
-  const initialRakModel = async () => {
+  const loadModels = async () => {
     try {
-      const response = await fetch('/3d-model/RAK_3D.glb')
-      const arrayBuffer = await response.arrayBuffer()
+      //add new device model to here
+      const rakModelResource = fetch(Rak3DModel)
+      const trackiModelResource = fetch(Tracki3DModel)
 
-      const model = await load(arrayBuffer, GLTFLoader)
+      const [rakModel, trackiModel] = await Promise.all([
+        rakModelResource,
+        trackiModelResource,
+      ])
+        .then((responses) =>
+          Promise.all(
+            responses.map((modelResponse) => modelResponse.arrayBuffer()),
+          ),
+        )
+        .then((buffers) =>
+          Promise.all(buffers.map((buffer) => load(buffer, GLTFLoader))),
+        )
 
-      setDeviceModel('rak', model)
+      setDeviceModel('rak', rakModel)
+      setDeviceModel('tracki', trackiModel)
     } catch (error) {
-      console.error('Error loading RAK model:', error)
-    }
-  }
-
-  const initialTrackiModel = async () => {
-    try {
-      const response = await fetch('/3d-model/airtag.glb')
-      const arrayBuffer = await response.arrayBuffer()
-
-      const model = await load(arrayBuffer, GLTFLoader)
-
-      setDeviceModel('tracki', model)
-    } catch (error) {
-      console.error('Error loading tracki model:', error)
+      console.error({ error })
+    } finally {
+      setInitializedSuccess(true)
     }
   }
 
