@@ -1,9 +1,19 @@
 {
-  "search": "Search",
-  "no_dashboard_found": "No dashboard found.",
-  "view_all_dashboard": "View all dashboard",
-  "all_dashboard": "All Dashboard",
-  "create_new_dashboard": "Create new dashboard",
-  "total_devices": "Total Devices",
-  "total_members": "Total members"
+  "search": "Tìm kiếm",
+  "no_dashboard_found": "Không tìm thấy Dashboard.",
+  "view_all_dashboard": "Xem toàn bộ Dashboard",
+  "all_dashboard": "Toàn bộ Dashboard",
+  "create_new_dashboard": "Tạo mẫu Dashboard",
+  "name": "Tên",
+  "total_devices": "Tổng số thiết bị",
+  "total_members": "Tổng số người dùng",
+  "action": "Thao tác",
+  "are_you_sure": "Bạn có chắc chắn không?",
+  "the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored": "Dashboard sẽ bị xóa khỏi hệ thống và không thể khôi phục lại.",
+  "delete": "Xoá",
+  "cancel": "Huỷ",
+  "save": "Lưu",
+  "add_widget": "Thêm tiện ích",
+  "let_add_some_widget": "Hãy thêm một số tiện ích.",
+  "search_for_widget": "Tìm kiếm tiện ích"
 }
