@@ -369,7 +369,7 @@ const DevicesList = ({
   const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
-    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
@@ -382,7 +382,9 @@ const DevicesList = ({
             <div
               className={cn(
                 'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                { 'border-brand-component-stroke-dark': item.id === selected },
+                {
+                  'border-brand-component-stroke-dark': item.id === selected,
+                },
               )}
               onClick={() => handleSelected(item.id)}
             >

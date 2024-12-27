@@ -176,6 +176,16 @@ const DynamicLayout = ({
   const { isShowAll, second, first } =
     displayedRightDynamicLayout(dynamicLayoutRight)
 
+  console.info(
+    `\x1b[34mFunc: DynamicLayout - PARAMS: defaultRightLayout\x1b[0m`,
+    {
+      defaultRightLayout,
+      isShowAll,
+      second,
+      first,
+      dynamicLayoutRight,
+    },
+  )
   return (
     <EffectLayout>
       <div className="flex max-h-screen max-w-full overflow-hidden">
@@ -241,6 +251,7 @@ const DynamicLayout = ({
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
+                    hidden={!first}
                   >
                     <Devices />
                   </ResizablePanel>
@@ -254,6 +265,7 @@ const DynamicLayout = ({
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
+                    hidden={!second}
                   >
                     {layoutCannotDuplicate}
                   </ResizablePanel>

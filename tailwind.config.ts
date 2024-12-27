@@ -20,6 +20,10 @@ const config = {
       },
     },
     extend: {
+      fontSize: {
+        base: '13px',
+        sm: '13px',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
