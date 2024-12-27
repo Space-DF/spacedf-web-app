@@ -47,7 +47,6 @@ import { Separator } from '@/components/ui/separator'
 import { MockData } from '@/containers/dashboard/mock-data'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { setCookie } from '@/utils'
-
 import WidgetSelection from './components/widget-selection'
 
 export interface Dashboard {
@@ -145,166 +144,167 @@ const Dashboard = () => {
         <RightSideBarLayout
           onClose={() => {
             const newLayout = getNewLayouts(
-          dynamicLayouts,
-          NavigationEnums.DASHBOARD,
-        )
-        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-        setCookieDirty(true)
-        toggleDynamicLayout('dashboard')
-      }}
-      title={
-        isViewAllDashboard ? (
-          <div className="flex items-center gap-2">
-            <ArrowLeft
-              size={20}
-              onClick={() => setViewAllDashboard(false)}
-              className="cursor-pointer"
-            />
-            <div>{t('dashboard.all_dashboard')}</div>
-          </div>
-        ) : (
-          <Popover
-            open={isAuth && open}
-            onOpenChange={(open) => {
-              if (!isAuth) return
-              setOpen(open)
-            }}
-          >
-            <PopoverTrigger asChild className="overflow-hidden">
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className={cn(
-                  'line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface',
-                  {
-                    'border-brand-component-stroke-dark shadow-dashboard': open,
-                  },
-                )}
-              >
-                <div className="line-clamp-1 w-full flex-1 text-left">
-                  {selected
-                    ? dashboards.find(
-                        (dashboard) => dashboard.value === selected.value,
-                      )?.label
-                    : 'Dashboard 1'}
-                </div>
-                <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-60 rounded-lg p-2" align="start">
-              <Command>
-                <CommandInput
-                  classNameContainer="border-0 rounded-lg bg-brand-fill-dark-soft"
-                  placeholder={t('dashboard.search')}
+              dynamicLayouts,
+              NavigationEnums.DASHBOARD,
+            )
+            setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+            setCookieDirty(true)
+            toggleDynamicLayout('dashboard')
+          }}
+          title={
+            isViewAllDashboard ? (
+              <div className="flex items-center gap-2">
+                <ArrowLeft
+                  size={20}
+                  onClick={() => setViewAllDashboard(false)}
+                  className="cursor-pointer"
                 />
-                <CommandList>
-                  <CommandEmpty>
-                    {t('dashboard.no_dashboard_found')}
-                  </CommandEmpty>
-                  <CommandGroup className="mt-3 p-0">
-                    {dashboards.map((dashboard) => (
-                      <CommandItem
-                        key={dashboard.value}
-                        // value={dashboard.value}
-                        onSelect={(currentValue) => {
-                          const itemSelect = dashboards.find(
-                            (dashboard) => dashboard.label === currentValue,
-                          )
-                          setSelected(itemSelect!)
-                          setOpen(false)
-                          setEdit(false)
-                        }}
-                        className={cn(
-                          'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft',
-                          {
-                            'bg-brand-fill-dark-soft':
-                              selected.value === dashboard.value,
-                          },
-                        )}
-                      >
-                        {dashboard.label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                  <Separator className="my-3" />
-                  <Button
-                    className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
-                    variant="outline"
-                    onClick={handleViewAllDashboard}
-                  >
-                    {t('dashboard.view_all_dashboard')}
-                    <ArrowUpRight />
-                  </Button>
-                  <Button
-                    className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
-                    onClick={handleCreateNewDashBoard}
-                  >
-                    {t('dashboard.create_new_dashboard')}
-                    <PlusIcon size={16} />
-                  </Button>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        )
-      }
-      externalButton={
-        !isViewAllDashboard && (
-          <div className="flex gap-2">
-            {isEdit ? (
-              <>
-                <Button
-                  onClick={() => setEdit(false)}
-                  variant="outline"
-                  className="dark:bg-transparent"
-                >
-                  {t('dashboard.cancel')}
-                </Button>
-                <Button
-                  onClick={() => setEdit(false)}
-                  className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
-                >
-                  {t('dashboard.save')}
-                </Button>
-              </>
+                <div>{t('dashboard.all_dashboard')}</div>
+              </div>
             ) : (
-              <Button
-                onClick={() => {
-                  if (!isAuth) {
-                    setOpenDrawerIdentity(true)
-                    return
-                  }
-                  setEdit(true)
+              <Popover
+                open={isAuth && open}
+                onOpenChange={(open) => {
+                  if (!isAuth) return
+                  setOpen(open)
                 }}
-                size="icon"
-                className="size-8 gap-2 rounded-lg"
               >
-                <Pencil size={16} />
-              </Button>
-            )}
-          </div>
-        )
-      }
-    >
-      <div className="mt-6 px-4">
-        {isViewAllDashboard ? (
-          <DataTable
-            columns={useColumns({ handleDeleteSpace, t })}
-            data={dashboards}
-          />
-        ) : (
-          <>
-            {isEdit && (
-              <div className="mb-6 flex flex-col items-center gap-3">
-                {!selected.isDefault && (
-                  <div className="text-brand-component-text-dark">
-                    {t('dashboard.let_add_some_widget')}
-                  </div>
+                <PopoverTrigger asChild className="overflow-hidden">
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className={cn(
+                      'line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface',
+                      {
+                        'border-brand-component-stroke-dark shadow-dashboard':
+                          open,
+                      },
+                    )}
+                  >
+                    <div className="line-clamp-1 w-full flex-1 text-left">
+                      {selected
+                        ? dashboards.find(
+                            (dashboard) => dashboard.value === selected.value,
+                          )?.label
+                        : 'Dashboard 1'}
+                    </div>
+                    <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-60 rounded-lg p-2" align="start">
+                  <Command>
+                    <CommandInput
+                      classNameContainer="border-0 rounded-lg bg-brand-fill-dark-soft"
+                      placeholder={t('dashboard.search')}
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        {t('dashboard.no_dashboard_found')}
+                      </CommandEmpty>
+                      <CommandGroup className="mt-3 p-0">
+                        {dashboards.map((dashboard) => (
+                          <CommandItem
+                            key={dashboard.value}
+                            // value={dashboard.value}
+                            onSelect={(currentValue) => {
+                              const itemSelect = dashboards.find(
+                                (dashboard) => dashboard.label === currentValue,
+                              )
+                              setSelected(itemSelect!)
+                              setOpen(false)
+                              setEdit(false)
+                            }}
+                            className={cn(
+                              'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft',
+                              {
+                                'bg-brand-fill-dark-soft':
+                                  selected.value === dashboard.value,
+                              },
+                            )}
+                          >
+                            {dashboard.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                      <Separator className="my-3" />
+                      <Button
+                        className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
+                        variant="outline"
+                        onClick={handleViewAllDashboard}
+                      >
+                        {t('dashboard.view_all_dashboard')}
+                        <ArrowUpRight />
+                      </Button>
+                      <Button
+                        className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
+                        onClick={handleCreateNewDashBoard}
+                      >
+                        {t('dashboard.create_new_dashboard')}
+                        <PlusIcon size={16} />
+                      </Button>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )
+          }
+          externalButton={
+            !isViewAllDashboard && (
+              <div className="flex gap-2">
+                {isEdit ? (
+                  <>
+                    <Button
+                      onClick={() => setEdit(false)}
+                      variant="outline"
+                      className="dark:bg-transparent"
+                    >
+                      {t('dashboard.cancel')}
+                    </Button>
+                    <Button
+                      onClick={() => setEdit(false)}
+                      className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
+                    >
+                      {t('dashboard.save')}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      if (!isAuth) {
+                        setOpenDrawerIdentity(true)
+                        return
+                      }
+                      setEdit(true)
+                    }}
+                    size="icon"
+                    className="size-8 gap-2 rounded-lg"
+                  >
+                    <Pencil size={16} />
+                  </Button>
                 )}
-                <Button
-                  className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
-                  onClick={() => setIsAddWidgetOpen(true)}
+              </div>
+            )
+          }
+        >
+          <div className="mt-6 px-4">
+            {isViewAllDashboard ? (
+              <DataTable
+                columns={useColumns({ handleDeleteSpace, t })}
+                data={dashboards}
+              />
+            ) : (
+              <>
+                {isEdit && (
+                  <div className="mb-6 flex flex-col items-center gap-3">
+                    {!selected.isDefault && (
+                      <div className="text-brand-component-text-dark">
+                        {t('dashboard.let_add_some_widget')}
+                      </div>
+                    )}
+                    <Button
+                      className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+                      onClick={() => setIsAddWidgetOpen(true)}
                     >
                       {t('dashboard.add_widget')}
                       <Grid2x2Plus size={16} />
@@ -350,6 +350,11 @@ const Dashboard = () => {
       ) : (
         <RightSideBarLayout
           onClose={() => {
+            const newLayout = getNewLayouts(
+              dynamicLayouts,
+              NavigationEnums.DASHBOARD,
+            )
+            setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
             setIsAddWidgetOpen(false)
             toggleDynamicLayout('dashboard')
             setSelectedWidget('')
