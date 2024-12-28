@@ -1,19 +1,20 @@
 import { create } from 'zustand'
-type IdentityState = {
+type SpaceState = {
   shouldBackPreviousPage: boolean
   isLoading: boolean
 }
 
-type IdentityAction = {
+type SpaceAction = {
   setBackPreviousPage: (newState: boolean) => void
   setLoading: () => void
 }
 
-export const useSpaceStore = create<IdentityState & IdentityAction>((set) => ({
+export const useSpaceStore = create<SpaceState & SpaceAction>((set) => ({
   shouldBackPreviousPage: false,
   isLoading: false,
-  setBackPreviousPage: (newState) =>
-    set(() => ({ shouldBackPreviousPage: newState })),
+  setBackPreviousPage: (newState) => {
+    set(() => ({ shouldBackPreviousPage: newState }))
+  },
   setLoading: () => {
     set(() => ({ isLoading: true }))
     setTimeout(() => {

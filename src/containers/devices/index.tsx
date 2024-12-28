@@ -45,11 +45,12 @@ import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { useLayout } from '@/stores'
-import { uppercaseFirstLetter } from '@/utils'
+import { getNewLayouts, useLayout } from '@/stores'
+import { setCookie, uppercaseFirstLetter } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useSession } from 'next-auth/react'
 import ImageWithBlur from '@/components/ui/image-blur'
+import { COOKIES, NavigationEnums } from '@/constants'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -57,6 +58,7 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
   )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
   const [selected, setSelected] = useState<number>()
@@ -64,6 +66,8 @@ const Devices = () => {
   return (
     <RightSideBarLayout
       onClose={() => {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
         setCookieDirty(true)
         toggleDynamicLayout('devices')
       }}
@@ -365,7 +369,7 @@ const DevicesList = ({
   const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
-    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
@@ -378,7 +382,9 @@ const DevicesList = ({
             <div
               className={cn(
                 'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                { 'border-brand-component-stroke-dark': item.id === selected },
+                {
+                  'border-brand-component-stroke-dark': item.id === selected,
+                },
               )}
               onClick={() => handleSelected(item.id)}
             >

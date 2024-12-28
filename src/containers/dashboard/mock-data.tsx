@@ -55,7 +55,7 @@ const polarData = [{ desktop: 215 }]
 const chartConfig = {
   desktop: {
     label: 'Temperature',
-    color: '#FCACB9',
+    color: '#171A28',
   },
 } satisfies ChartConfig
 
@@ -64,7 +64,7 @@ export const MockData = () => {
     <div className="mt-1">
       <div className="grid grid-cols-5 items-start gap-1">
         <div className="col-span-3">
-          <WidgetSensor status="off" className="text-[#8D9DF5]">
+          <WidgetSensor status="off">
             <WidgetTitle>Text</WidgetTitle>
           </WidgetSensor>
         </div>
@@ -72,12 +72,12 @@ export const MockData = () => {
           <WidgetText />
         </div>
         <div className="col-span-1">
-          <WidgetSwitch className="data-[state=checked]:bg-[#95E1D9] data-[state=checked]:dark:bg-[#95E1D9]">
+          <WidgetSwitch>
             <WidgetTitle>Text</WidgetTitle>
           </WidgetSwitch>
         </div>
         <div className="col-span-3">
-          <WidgetSensor status="on" className="text-[#A0CFE1]">
+          <WidgetSensor status="on">
             <WidgetTitle>Text</WidgetTitle>
           </WidgetSensor>
         </div>
@@ -91,33 +91,33 @@ export const MockData = () => {
           <WidgetSlider />
         </div>
         <div className="col-span-4">
-          <WidgetChart>
+          <WidgetChart className="dark:stroke-[#4006AA] dark:text-[#4006AA]">
             <WidgetTitle className="mb-2">New Chart Widget</WidgetTitle>
           </WidgetChart>
         </div>
         <div className="col-span-1 flex flex-col gap-1">
-          <WidgetSwitch className="data-[state=checked]:bg-[#E0ACF6] data-[state=checked]:dark:bg-[#E0ACF6]">
+          <WidgetSwitch>
             <WidgetTitle>Water Sensor</WidgetTitle>
           </WidgetSwitch>
-          <WidgetSwitch className="data-[state=checked]:bg-[#99D689] data-[state=checked]:dark:bg-[#99D689]">
+          <WidgetSwitch>
             <WidgetTitle>Water Sensor</WidgetTitle>
           </WidgetSwitch>
-          <WidgetSwitch className="data-[state=checked]:bg-[#FDD9D9] data-[state=checked]:dark:bg-[#FDD9D9]">
+          <WidgetSwitch>
             <WidgetTitle>Water Sensor</WidgetTitle>
           </WidgetSwitch>
         </div>
         <div className="col-span-2 flex flex-col gap-1">
-          <WidgetChart>
+          <WidgetChart className="dark:text-[#4006AA]">
             <WidgetTitle>Water Flood Level</WidgetTitle>
           </WidgetChart>
         </div>
         <div className="col-span-2">
-          <PolarChart className="aspect-square" fillColor="#99D689">
+          <PolarChart className="aspect-square dark:text-[#4006AA]">
             <WidgetTitle>New Gauge Widget</WidgetTitle>
           </PolarChart>
         </div>
         <div className="col-span-5">
-          <PolarChart fillColor="#FAC5AF">
+          <PolarChart className="dark:text-[#4006AA]">
             <WidgetTitle>New Gauge Widget</WidgetTitle>
           </PolarChart>
         </div>
@@ -160,16 +160,8 @@ const WidgetChart = ({ children }: WidgetProp) => (
       <AreaChart accessibilityLayer data={chartData}>
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="15%"
-              stopColor="var(--color-desktop)"
-              stopOpacity={0.8}
-            />
-            <stop
-              offset="95%"
-              stopColor="var(--color-desktop)"
-              stopOpacity={0}
-            />
+            <stop offset="15%" stopColor="currentColor" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="currentColor" stopOpacity={0} />
           </linearGradient>
         </defs>
         <YAxis axisLine={false} tickLine={false} width={20} />
@@ -183,7 +175,7 @@ const WidgetChart = ({ children }: WidgetProp) => (
         <Area
           type="linear"
           dataKey="uv"
-          stroke="var(--color-desktop)"
+          stroke="currentColor"
           strokeWidth={2}
           fillOpacity={1}
           fill="url(#colorUv)"
@@ -193,11 +185,7 @@ const WidgetChart = ({ children }: WidgetProp) => (
   </WidgetContainer>
 )
 
-const PolarChart = ({
-  children,
-  className,
-  fillColor,
-}: WidgetProp & { fillColor: string }) => (
+const PolarChart = ({ children, className }: WidgetProp) => (
   <WidgetContainer>
     {children}
     <ChartContainer
@@ -255,8 +243,8 @@ const PolarChart = ({
           dataKey="desktop"
           stackId="a"
           cornerRadius={10}
-          fill={fillColor}
-          className="stroke-transparent stroke-2"
+          fill="currentColor"
+          className="size-full stroke-transparent"
         />
       </RadialBarChart>
     </ChartContainer>
@@ -271,8 +259,8 @@ const WidgetSlider = () => (
     </div>
     <Slider
       className="my-1"
-      classNameRange="bg-[#8D9DF5] dark:bg-[#8D9DF5]"
-      classNameThumb="bg-[#8D9DF5] dark:bg-[#8D9DF5]"
+      classNameRange="bg-[#171A28] dark:bg-[#4006AA]"
+      classNameThumb="bg-[#171A28] dark:bg-[#4006AA]"
       defaultValue={[50]}
       max={100}
       step={1}
