@@ -48,6 +48,8 @@ import { MockData } from '@/containers/dashboard/mock-data'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
+import WidgetSelected from './components/widget-selected'
+import { WidgetType } from '@/widget-models/widget'
 
 export interface Dashboard {
   value: string
@@ -94,7 +96,7 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Dashboard>(dashboards[0])
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
-  const [selectedWidget, setSelectedWidget] = useState<string>('')
+  const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
 
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
@@ -134,7 +136,7 @@ const Dashboard = () => {
   const handleDeleteSpace = (id: number) => {
     setDeleteId(id)
   }
-  const onSelectWidget = (widgetTitle: string) => {
+  const onSelectWidget = (widgetTitle: WidgetType) => {
     setSelectedWidget(widgetTitle)
   }
 
@@ -347,6 +349,11 @@ const Dashboard = () => {
             </AlertDialogContent>
           </AlertDialog>
         </RightSideBarLayout>
+      ) : selectedWidget ? (
+        <WidgetSelected
+          selectedWidget={selectedWidget}
+          onClose={() => setSelectedWidget('')}
+        />
       ) : (
         <RightSideBarLayout
           onClose={() => {

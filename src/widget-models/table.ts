@@ -1,3 +1,5 @@
+import { WidgetInfo } from './widget'
+
 class Column {
   column_name: string
   column_type: string

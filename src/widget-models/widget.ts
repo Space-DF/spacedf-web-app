@@ -1,4 +1,4 @@
-enum WidgetType {
+export enum WidgetType {
   Chart = 'chart',
   Table = 'table',
   Map = 'map',
@@ -6,7 +6,7 @@ enum WidgetType {
   Value = 'value',
 }
 
-class Widget {
+export class Widget {
   id: string
   type: WidgetType
   created_at: string
@@ -28,17 +28,17 @@ class Widget {
   }
 }
 
-class Sources {
+export class Sources {
   device_id: string
-  device_type: string
+  device_type?: string
 
-  constructor(device_id: string, device_type: string) {
+  constructor(device_id: string, device_type?: string) {
     this.device_id = device_id
     this.device_type = device_type
   }
 }
 
-class WidgetInfo {
+export class WidgetInfo {
   name: string
   appearance: object | null
 
@@ -48,7 +48,7 @@ class WidgetInfo {
   }
 }
 
-class TimeFrame {
+export class TimeFrame {
   aggregation_function: string
 
   constructor(aggregation_function: string) {

@@ -124,6 +124,7 @@ const SelectItem = React.forwardRef<
     customCheckIcon?: React.ReactNode
     shortCut?: string | React.ReactNode
     shortCutClassName?: string
+    showCheckIcon?: boolean
   }
 >(
   (
@@ -133,6 +134,7 @@ const SelectItem = React.forwardRef<
       shortCut,
       shortCutClassName,
       children,
+      showCheckIcon = true,
       ...props
     },
     ref,
@@ -146,9 +148,11 @@ const SelectItem = React.forwardRef<
       {...props}
     >
       <span className="absolute right-2 flex h-3.5 w-max items-center justify-center gap-4">
-        <SelectPrimitive.ItemIndicator>
-          {customCheckIcon || <CheckIcon className="h-4 w-4" />}
-        </SelectPrimitive.ItemIndicator>
+        {showCheckIcon && (
+          <SelectPrimitive.ItemIndicator>
+            {customCheckIcon || <CheckIcon className="h-4 w-4" />}
+          </SelectPrimitive.ItemIndicator>
+        )}
 
         {shortCut && (
           <span

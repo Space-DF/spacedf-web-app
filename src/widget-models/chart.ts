@@ -1,4 +1,5 @@
-enum ChartType {
+import { Sources, TimeFrame, WidgetInfo } from './widget'
+export enum ChartType {
   LineChart = 'line-chart',
   AreaChart = 'area-chart',
   BarChart = 'bar-chart',
@@ -16,24 +17,27 @@ class Axes {
   }
 }
 
-class ChartSources extends Sources {
+export class ChartSources extends Sources {
   field: string
   legend: string
   color: string
   chart_type: ChartType
+  show_legend: boolean
   constructor(
     device_id: string,
-    device_type: string,
     field: string,
     legend: string,
     color: string,
     chart_type: ChartType,
+    show_legend: boolean,
+    device_type?: string,
   ) {
     super(device_id, device_type)
     this.field = field
     this.legend = legend
     this.color = color
     this.chart_type = chart_type
+    this.show_legend = show_legend
   }
 }
 
