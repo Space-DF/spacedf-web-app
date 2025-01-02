@@ -1,34 +1,28 @@
 import React from 'react'
 import { Form } from '@/components/ui/form'
 
-import { useFieldArray, UseFormReturn } from 'react-hook-form'
-import { defaultSourceChartValues } from '@/validator'
-import { Plus, PlusIcon } from 'lucide-react'
-import { ChartSources } from '@/widget-models/chart'
+import { useFieldArray, useFormContext, UseFormReturn } from 'react-hook-form'
+import { defaultSourceChartValues, SourceChartPayload } from '@/validator'
+import { PlusIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SingleSource from './single-source'
 import { useTranslations } from 'next-intl'
+import { ChartSources } from '@/widget-models/chart'
 
-interface Props {
-  form: UseFormReturn<
-    {
-      sources: ChartSources[]
-    },
-    any,
-    undefined
-  >
-}
+interface Props {}
 
-const ChartSource: React.FC<Props> = ({ form }) => {
+const ChartSource: React.FC<Props> = () => {
+  const form = useFormContext<SourceChartPayload>()
+  const { control } = form
   const { fields, append, remove } = useFieldArray({
-    control: form.control,
+    control,
     name: 'sources',
   })
   const t = useTranslations()
 
   const onSubmit = () => {}
 
-  const onAddSource = () => {
+  const handleAddSource = () => {
     if (fields.length === 5) return
     append(defaultSourceChartValues)
   }
@@ -45,13 +39,12 @@ const ChartSource: React.FC<Props> = ({ form }) => {
               <SingleSource
                 field={field}
                 index={index}
-                form={form}
                 onRemove={() => remove(index)}
               />
             ))}
           </form>
         </Form>
-        <Button disabled={fields.length >= 5} onClick={onAddSource}>
+        <Button disabled={fields.length >= 5} onClick={handleAddSource}>
           <div className="flex items-center space-x-2">
             <span>{t('dashboard.add')}</span>
             <PlusIcon />

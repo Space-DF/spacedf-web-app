@@ -29,5 +29,4 @@ export const SourceColor = [
   'C6BEE7',
   'F6F1F5',
   'FFFFFF',
-  '171A28',
 ]

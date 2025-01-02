@@ -4,9 +4,9 @@ import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
-import TabWidget from './components/tab-widget'
+import TabWidget, { ChartTabKey } from '../tab-widget'
 import { PreviewChart, dailyOrders } from './components/preview-chart'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import {
   defaultSourceChartValues,
   SourceChartPayload,
@@ -14,10 +14,41 @@ import {
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { mockFieldData } from './components/single-source'
+import { TabsContent } from '@/components/ui/tabs'
+import ChartSource from './components/sources'
 
 interface Props {
   selectedWidget: WidgetType
   onClose: () => void
+}
+
+const chartTabKeys = [
+  ChartTabKey.Sources,
+  ChartTabKey.Info,
+  ChartTabKey.Axes,
+  ChartTabKey.TimeFrame,
+]
+
+const TabContents = () => {
+  return (
+    <>
+      <TabsContent
+        value={ChartTabKey.Sources}
+        className="flex-1 overflow-y-scroll px-4"
+      >
+        <ChartSource />
+      </TabsContent>
+      <TabsContent value={ChartTabKey.Info} className="mt-4 p-4">
+        <p>Content for Widget Info</p>
+      </TabsContent>
+      <TabsContent value={ChartTabKey.Axes} className="mt-4 p-4">
+        <p>Axes</p>
+      </TabsContent>
+      <TabsContent value={ChartTabKey.TimeFrame} className="mt-4 p-4">
+        <p>Content for Timeframe</p>
+      </TabsContent>
+    </>
+  )
 }
 
 const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
@@ -73,7 +104,9 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
             </div>
           </div>
         </div>
-        <TabWidget form={form} />
+        <FormProvider {...form}>
+          <TabWidget tabKeys={chartTabKeys} tabContents={<TabContents />} />
+        </FormProvider>
       </div>
     </RightSideBarLayout>
   )

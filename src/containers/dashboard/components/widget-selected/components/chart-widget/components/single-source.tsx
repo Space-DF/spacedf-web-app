@@ -29,7 +29,7 @@ import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ChartSources, ChartType } from '@/widget-models/chart'
-import { FieldArrayWithId, UseFormReturn } from 'react-hook-form'
+import { FieldArrayWithId, useFormContext } from 'react-hook-form'
 import { Trash } from '@/components/icons/trash'
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
+import DefaultColor from '@/components/icons/default-color'
 
 const mockDeviceData = [
   {
@@ -74,13 +75,6 @@ export const mockFieldData = [
 
 interface Props {
   index: number
-  form: UseFormReturn<
-    {
-      sources: ChartSources[]
-    },
-    any,
-    undefined
-  >
   field: FieldArrayWithId<
     {
       sources: ChartSources[]
@@ -91,7 +85,8 @@ interface Props {
   onRemove: () => void
 }
 
-const SingleSource: React.FC<Props> = ({ index, form, field, onRemove }) => {
+const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
+  const form = useFormContext()
   const [openDialog, setOpenDialog] = useState(false)
   const t = useTranslations()
   const deviceId = form.watch(`sources.${index}.device_id`)
@@ -159,7 +154,7 @@ const SingleSource: React.FC<Props> = ({ index, form, field, onRemove }) => {
           className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
         >
           <AccordionTrigger
-            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft px-3 text-xs font-semibold hover:no-underline"
+            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-xs font-semibold hover:no-underline"
             dropdownIcon={
               <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
             }
@@ -330,7 +325,7 @@ const SingleSource: React.FC<Props> = ({ index, form, field, onRemove }) => {
                               </span>
                             }
                           >
-                            {colorValue && (
+                            {colorValue && colorValue !== '171A28' ? (
                               <div className="flex items-center space-x-2">
                                 <div
                                   className="h-4 w-4 rounded-full"
@@ -342,11 +337,34 @@ const SingleSource: React.FC<Props> = ({ index, form, field, onRemove }) => {
                                   {form.watch(`sources.${index}.color`)}
                                 </p>
                               </div>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <div className="flex h-4 w-4 items-center justify-center overflow-hidden rounded-full">
+                                  <DefaultColor width={100} height={100} />
+                                </div>
+                                <p className="text-brand-component-text-dark">
+                                  Default
+                                </p>
+                              </div>
                             )}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)] bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                           <SelectGroup className="flex flex-wrap gap-2">
+                            <SelectItem
+                              showCheckIcon={false}
+                              value="171A28"
+                              className="m-0 h-6 w-6 rounded-md border-brand-component-stroke-dark p-0"
+                            >
+                              <DefaultColor
+                                className={cn(
+                                  'stroke-brand-component-stroke-dark-soft hover:stroke-brand-component-stroke-dark',
+                                  colorValue === '171A28'
+                                    ? 'stroke-brand-component-stroke-dark dark:stroke-brand-stroke-gray'
+                                    : '',
+                                )}
+                              />
+                            </SelectItem>
                             {SourceColor.map((color) => (
                               <SelectItem
                                 key={color}
