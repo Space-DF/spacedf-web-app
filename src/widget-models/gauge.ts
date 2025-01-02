@@ -1,3 +1,5 @@
+import { Sources, TimeFrame } from './widget'
+
 class GaugeTimeFrame extends TimeFrame {
   date_range: string
   is_show_time_frame: boolean

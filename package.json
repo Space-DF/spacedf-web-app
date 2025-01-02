@@ -20,6 +20,7 @@
     "@loaders.gl/core": "^4.3.2",
     "@loaders.gl/gltf": "^4.3.2",
     "@loaders.gl/obj": "^4.3.1",
+    "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.1.0",

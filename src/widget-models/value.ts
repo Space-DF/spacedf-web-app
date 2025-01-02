@@ -1,3 +1,5 @@
+import { Sources, WidgetInfo } from './widget'
+
 class ValueSources extends Sources {
   decimal: string
   unit: string
