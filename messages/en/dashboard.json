@@ -41,5 +41,10 @@
   "bar_chart": "Bar Chart",
   "confirm_delete_source": "Do you really want to delete this source and its configuration?",
   "preview": "Preview",
-  "add": "Add"
+  "add": "Add",
+  "widget_name_require_error": "Please enter widget name",
+  "widget_name": "Widget Name",
+  "show_value": "Show Value",
+  "appearance": "Appearance",
+  "add_device": "Add Device"
 }
