@@ -13,7 +13,6 @@ import {
   sourceChartSchema,
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { mockFieldData } from './components/single-source'
 import { TabsContent } from '@/components/ui/tabs'
 import ChartSource from './components/sources'
 import ChartWidgetInfo from './components/widget-info'
@@ -59,6 +58,7 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
     defaultValues: {
       sources: defaultSourceChartValues,
       widget_info: {
+        name: 'New chart widget',
         appearance: {
           show_value: true,
         },
@@ -71,21 +71,7 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
 
   const isSingleSource = sourcesData.length === 1
 
-  const widgetCurrentName = form.watch('widget_info.name')
-
-  const widgetName = useMemo(() => {
-    const defaultWidgetName = 'New chart widget'
-
-    const widgetNewName =
-      isSingleSource && !widgetCurrentName
-        ? (mockFieldData.find((field) => field.id === sourcesData[0].field)
-            ?.name ?? defaultWidgetName)
-        : (widgetCurrentName ?? defaultWidgetName)
-
-    if (widgetNewName === widgetCurrentName) return widgetNewName
-    form.setValue('widget_info.name', widgetNewName)
-    return widgetNewName
-  }, [sourcesData, isSingleSource, widgetCurrentName])
+  const widgetName = form.watch('widget_info.name')
 
   const showData = form.watch('widget_info.appearance.show_value')
 
