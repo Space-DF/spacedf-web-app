@@ -38,11 +38,15 @@ export class Sources {
   }
 }
 
+export type Appearance = {
+  show_value: boolean
+}
+
 export class WidgetInfo {
   name: string
-  appearance: object | null
+  appearance: Appearance
 
-  constructor(name: string, appearance: object | null) {
+  constructor(name: string, appearance: Appearance) {
     this.name = name
     this.appearance = appearance
   }

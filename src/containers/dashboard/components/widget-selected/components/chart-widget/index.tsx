@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo } from 'react'
+import React, { memo, useMemo } from 'react'
 import TabWidget, { ChartTabKey } from '../tab-widget'
 import { PreviewChart, dailyOrders } from './components/preview-chart'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { mockFieldData } from './components/single-source'
 import { TabsContent } from '@/components/ui/tabs'
 import ChartSource from './components/sources'
+import ChartWidgetInfo from './components/widget-info'
 
 interface Props {
   selectedWidget: WidgetType
@@ -39,7 +40,7 @@ const TabContents = () => {
         <ChartSource />
       </TabsContent>
       <TabsContent value={ChartTabKey.Info} className="mt-4 p-4">
-        <p>Content for Widget Info</p>
+        <ChartWidgetInfo />
       </TabsContent>
       <TabsContent value={ChartTabKey.Axes} className="mt-4 p-4">
         <p>Axes</p>
@@ -52,40 +53,65 @@ const TabContents = () => {
 }
 
 const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
   const form = useForm<SourceChartPayload>({
     resolver: zodResolver(sourceChartSchema),
     defaultValues: {
       sources: defaultSourceChartValues,
+      widget_info: {
+        appearance: {
+          show_value: true,
+        },
+      },
     },
+    mode: 'onChange',
   })
 
   const sourcesData = form.watch('sources')
 
   const isSingleSource = sourcesData.length === 1
 
-  const widgetName = isSingleSource
-    ? mockFieldData.find((field) => field.id === sourcesData[0].field)?.name
-    : 'New chart widget'
+  const widgetCurrentName = form.watch('widget_info.name')
+
+  const widgetName = useMemo(() => {
+    const defaultWidgetName = 'New chart widget'
+
+    const widgetNewName =
+      isSingleSource && !widgetCurrentName
+        ? (mockFieldData.find((field) => field.id === sourcesData[0].field)
+            ?.name ?? defaultWidgetName)
+        : (widgetCurrentName ?? defaultWidgetName)
+
+    if (widgetNewName === widgetCurrentName) return widgetNewName
+    form.setValue('widget_info.name', widgetNewName)
+    return widgetNewName
+  }, [sourcesData, isSingleSource, widgetCurrentName])
+
+  const showData = form.watch('widget_info.appearance.show_value')
+
+  const handleSaveForm = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) return
+  }
 
   return (
     <RightSideBarLayout
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
-          <div>{t(`dashboard.add_chart_widget`)}</div>
+          <div>{t(`add_chart_widget`)}</div>
         </div>
       }
-      externalButton={<Button>{t('dashboard.save')}</Button>}
+      externalButton={<Button onClick={handleSaveForm}>{t('save')}</Button>}
       onClose={onClose}
     >
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">
           <div className="gap-y-2">
-            <p className="text-xs font-semibold">{t('dashboard.preview')}</p>
+            <p className="text-xs font-semibold">{t('preview')}</p>
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">
               <div className="space-y-3 rounded-md bg-brand-background-fill-outermost p-3">
-                <p className="font-semibold text-brand-component-text-dark">
+                <p className="truncate font-semibold text-brand-component-text-dark">
                   {widgetName}
                 </p>
                 <div className="grid grid-cols-1">
@@ -98,6 +124,7 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
                   <PreviewChart
                     sources={sourcesData}
                     isSingleSource={isSingleSource}
+                    showData={showData}
                   />
                 </div>
               </div>

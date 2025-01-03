@@ -41,5 +41,10 @@
   "bar_chart": "Biểu đồ cột",
   "confirm_delete_source": "Bạn có thực sự muốn xóa nguồn này và cấu hình của nó không?",
   "preview": "Xem trước",
-  "add": "Thêm"
+  "add": "Thêm",
+  "widget_name_require_error": "Hãy nhập tên tiện ích",
+  "widget_name": "Tên tiện ích",
+  "show_value": "Hiển thị giá trị",
+  "appearance": "Xuất hiện",
+  "add_device": "Thêm thết bị"
 }
