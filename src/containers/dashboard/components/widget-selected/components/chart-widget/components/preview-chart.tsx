@@ -14,6 +14,7 @@ import {
   Legend,
   ComposedChart,
   Tooltip,
+  LabelList,
 } from 'recharts'
 
 const chartConfig = {
@@ -85,12 +86,14 @@ export const dailyOrders = [
 interface PreviewLineChartProps {
   sources: SourceChartPayload['sources']
   isSingleSource?: boolean
+  showData?: boolean
 }
 
 const renderChartComponents = (
   chartType: ChartType,
   source: ChartSources,
   index: number,
+  showData?: boolean,
 ) => {
   switch (chartType) {
     case ChartType.LineChart:
@@ -107,7 +110,11 @@ const renderChartComponents = (
           legendType={
             !source.show_legend || !source.legend ? 'none' : undefined
           }
-        />
+        >
+          {showData && (
+            <LabelList dataKey={`source.${index}`} position={'top'} />
+          )}
+        </Line>
       )
     case ChartType.AreaChart:
       return (
@@ -123,7 +130,11 @@ const renderChartComponents = (
           legendType={
             !source.show_legend || !source.legend ? 'none' : undefined
           }
-        />
+        >
+          {showData && (
+            <LabelList dataKey={`source.${index}`} position={'top'} />
+          )}
+        </Area>
       )
     case ChartType.BarChart:
       return (
@@ -138,7 +149,11 @@ const renderChartComponents = (
           legendType={
             !source.show_legend || !source.legend ? 'none' : undefined
           }
-        />
+        >
+          {showData && (
+            <LabelList dataKey={`source.${index}`} position={'top'} />
+          )}
+        </Bar>
       )
   }
 }
@@ -146,6 +161,7 @@ const renderChartComponents = (
 const PreviewChart: React.FC<PreviewLineChartProps> = ({
   sources,
   isSingleSource,
+  showData,
 }) => {
   return (
     <ChartContainer
@@ -191,7 +207,7 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
         />
         <CartesianGrid horizontal={!isSingleSource} vertical={false} />
         {sources.map((source, index) =>
-          renderChartComponents(source.chart_type, source, index),
+          renderChartComponents(source.chart_type, source, index, showData),
         )}
         <Legend />
         <Tooltip />

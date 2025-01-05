@@ -6,7 +6,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -44,6 +43,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
+import { SourceChartPayload } from '@/validator'
 
 const mockDeviceData = [
   {
@@ -86,15 +86,15 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
-  const form = useFormContext()
+  const form = useFormContext<SourceChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
   const deviceId = form.watch(`sources.${index}.device_id`)
 
   const selectDevice = useMemo(
     () =>
       mockDeviceData.find((device) => device.id === deviceId)?.name ||
-      t('addNewDevice.add_device'),
+      t('add_device'),
     [deviceId],
   )
 
@@ -120,15 +120,15 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
         <AlertDialogContent className="border border-[#0000003B]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center">
-              {t('dashboard.delete_source')}
+              {t('delete_source')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              {t('dashboard.confirm_delete_source')}
+              {t('confirm_delete_source')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="grid w-full grid-cols-2 gap-2">
             <AlertDialogCancel className="border-brand-component-stroke-dark-soft text-brand-component-text-gray">
-              {t('dashboard.cancel')}
+              {t('cancel')}
             </AlertDialogCancel>
             <Button
               variant={'destructive'}
@@ -138,7 +138,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
               }}
               className="border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative"
             >
-              {t('dashboard.delete_source')}
+              {t('delete_source')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -183,7 +183,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                         className="text-xs font-semibold text-brand-component-text-dark"
                         required
                       >
-                        {t('dashboard.device')}
+                        {t('device')}
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -199,7 +199,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <SelectValue
                               placeholder={
                                 <span className="text-brand-component-text-gray">
-                                  {t('dashboard.select_device')}
+                                  {t('select_device')}
                                 </span>
                               }
                             />
@@ -228,7 +228,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                         className="text-xs font-semibold text-brand-component-text-dark"
                         required
                       >
-                        {t('dashboard.field')}
+                        {t('field')}
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -244,7 +244,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <SelectValue
                               placeholder={
                                 <span className="text-brand-component-text-gray">
-                                  {t('dashboard.select_field')}
+                                  {t('select_field')}
                                 </span>
                               }
                             />
@@ -272,7 +272,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                   <FormItem>
                     <div className="flex items-center justify-between">
                       <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
-                        {t('dashboard.legend')}
+                        {t('legend')}
                       </FormLabel>
                       <FormField
                         control={form.control}
@@ -305,7 +305,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
-                      {t('dashboard.color')}
+                      {t('color')}
                     </FormLabel>
                     <FormControl>
                       <Select
@@ -321,7 +321,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                           <SelectValue
                             placeholder={
                               <span className="text-brand-component-text-gray">
-                                {t('dashboard.select_color')}
+                                {t('select_color')}
                               </span>
                             }
                           >
@@ -399,7 +399,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                 render={({ field }) => (
                   <FormItem className="space-y-3">
                     <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
-                      {t('dashboard.type')}
+                      {t('type')}
                     </FormLabel>
                     <FormControl>
                       <RadioGroup
@@ -412,7 +412,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <RadioGroupItem value={ChartType.LineChart} />
                           </FormControl>
                           <FormLabel className="text-sm font-medium text-brand-component-text-dark">
-                            {t('dashboard.line_chart')}
+                            {t('line_chart')}
                           </FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2.5 space-y-0">
@@ -420,7 +420,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <RadioGroupItem value={ChartType.AreaChart} />
                           </FormControl>
                           <FormLabel className="text-sm font-medium text-brand-component-text-dark">
-                            {t('dashboard.area_chart')}
+                            {t('area_chart')}
                           </FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2.5 space-y-0">
@@ -428,7 +428,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <RadioGroupItem value={ChartType.BarChart} />
                           </FormControl>
                           <FormLabel className="text-sm font-medium text-brand-component-text-dark">
-                            {t('dashboard.bar_chart')}
+                            {t('bar_chart')}
                           </FormLabel>
                         </FormItem>
                       </RadioGroup>

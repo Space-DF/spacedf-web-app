@@ -1,4 +1,4 @@
-import { Sources, WidgetInfo } from './widget'
+import { Appearance, Sources, WidgetInfo } from './widget'
 
 class ValueSources extends Sources {
   decimal: string
@@ -23,7 +23,7 @@ class ValueSources extends Sources {
 
 class ValueWidgetInfo extends WidgetInfo {
   color: string
-  constructor(name: string, appearance: object, color: string) {
+  constructor(name: string, appearance: Appearance, color: string) {
     super(name, appearance)
     this.color = color
   }

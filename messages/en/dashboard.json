@@ -49,6 +49,10 @@
   "column_type": "Column Type",
   "general": "General",
   "specific": "Specific",
+  "no_data": "No Data",
+  "widget_name_require_error": "Please enter widget name",
   "widget_name": "Widget Name",
-  "no_data": "No Data"
+  "show_value": "Show Value",
+  "appearance": "Appearance",
+  "add_device": "Add Device"
 }
