@@ -20,6 +20,8 @@
   "sources": "Sources",
   "widget_info": "Widget Info",
   "axes": "Axes",
+  "columns": "Columns",
+  "conditional": "Conditional",
   "timeframe": "Timeframe",
   "add_gauge_widget": "Add Gauge Widget",
   "add_value_widget": "Add Value Widget",
@@ -41,5 +43,12 @@
   "bar_chart": "Bar Chart",
   "confirm_delete_source": "Do you really want to delete this source and its configuration?",
   "preview": "Preview",
-  "add": "Add"
+  "add": "Add",
+  "add_column": "Add Column",
+  "column_name": "Column Name",
+  "column_type": "Column Type",
+  "general": "General",
+  "specific": "Specific",
+  "widget_name": "Widget Name",
+  "no_data": "No Data"
 }

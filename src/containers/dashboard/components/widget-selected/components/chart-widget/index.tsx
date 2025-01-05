@@ -4,7 +4,7 @@ import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
-import TabWidget, { ChartTabKey } from '../tab-widget'
+import TabWidget, { TabKey } from '../tab-widget'
 import { PreviewChart, dailyOrders } from './components/preview-chart'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
@@ -23,28 +23,28 @@ interface Props {
 }
 
 const chartTabKeys = [
-  ChartTabKey.Sources,
-  ChartTabKey.Info,
-  ChartTabKey.Axes,
-  ChartTabKey.TimeFrame,
+  TabKey.Sources,
+  TabKey.Info,
+  TabKey.Axes,
+  TabKey.TimeFrame,
 ]
 
 const TabContents = () => {
   return (
     <>
       <TabsContent
-        value={ChartTabKey.Sources}
+        value={TabKey.Sources}
         className="flex-1 overflow-y-scroll px-4"
       >
         <ChartSource />
       </TabsContent>
-      <TabsContent value={ChartTabKey.Info} className="mt-4 p-4">
+      <TabsContent value={TabKey.Info} className="mt-4 p-4">
         <p>Content for Widget Info</p>
       </TabsContent>
-      <TabsContent value={ChartTabKey.Axes} className="mt-4 p-4">
+      <TabsContent value={TabKey.Axes} className="mt-4 p-4">
         <p>Axes</p>
       </TabsContent>
-      <TabsContent value={ChartTabKey.TimeFrame} className="mt-4 p-4">
+      <TabsContent value={TabKey.TimeFrame} className="mt-4 p-4">
         <p>Content for Timeframe</p>
       </TabsContent>
     </>

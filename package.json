@@ -38,7 +38,7 @@
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
     "@space-df/sdk": "latest",
-    "@tanstack/react-table": "^8.20.5",
+    "@tanstack/react-table": "^8.20.6",
     "@types/mapbox-gl": "^3.4.0",
     "@yudiel/react-qr-scanner": "^2.0.8",
     "class-variance-authority": "^0.7.0",

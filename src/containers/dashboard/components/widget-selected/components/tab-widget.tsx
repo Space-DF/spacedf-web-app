@@ -8,18 +8,22 @@ interface Props {
   tabContents: React.ReactNode
 }
 
-export enum ChartTabKey {
+export enum TabKey {
   Sources = 'sources',
   Info = 'info',
   Axes = 'axes',
   TimeFrame = 'timeframe',
+  Columns = 'columns',
+  Conditional = 'conditional',
 }
 
 const TABS = [
-  { value: ChartTabKey.Sources, label: 'dashboard.sources' },
-  { value: ChartTabKey.Info, label: 'dashboard.widget_info' },
-  { value: ChartTabKey.Axes, label: 'dashboard.axes' },
-  { value: ChartTabKey.TimeFrame, label: 'dashboard.timeframe' },
+  { value: TabKey.Sources, label: 'dashboard.sources' },
+  { value: TabKey.Columns, label: 'dashboard.columns' },
+  { value: TabKey.Info, label: 'dashboard.widget_info' },
+  { value: TabKey.Axes, label: 'dashboard.axes' },
+  { value: TabKey.TimeFrame, label: 'dashboard.timeframe' },
+  { value: TabKey.Conditional, label: 'dashboard.conditional' },
 ]
 
 const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {

@@ -4,6 +4,7 @@ class Column {
   column_name: string
   column_type: string
   field: string
+
   constructor(column_name: string, column_type: string, field: string) {
     this.column_name = column_name
     this.column_type = column_type
@@ -16,6 +17,7 @@ class Condition {
   text_color: string
   bg_color: string
   is_limit: boolean
+
   constructor(
     condition_type: string,
     text_color: string,
@@ -33,10 +35,11 @@ class Table {
   widget_info: WidgetInfo
   conditions: Condition[]
   columns: Column[]
+
   constructor(
     widget_info: WidgetInfo,
     conditions: Condition[],
-    columns: Column[],
+    columns: Column[] = [],
   ) {
     this.columns = columns
     this.widget_info = widget_info

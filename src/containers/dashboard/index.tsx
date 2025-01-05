@@ -377,11 +377,11 @@ const Dashboard = () => {
                 }}
                 className="cursor-pointer"
               />
-              <div>{t('dashboard.add_widget')}</div>
+              <div>{t('dashboard.add_widget')} </div>
             </div>
           }
         >
-          <div className="mt-6 px-4">
+          <div className="mt-6 size-full overflow-hidden">
             {isAuth && (
               <WidgetSelection
                 onSelectWidget={onSelectWidget}

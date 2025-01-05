@@ -20,6 +20,8 @@
   "sources": "Nguồn",
   "widget_info": "Thông tin tiện ích",
   "axes": "Trục",
+  "columns": "Cột",
+  "conditional": "Điều kiện",
   "timeframe": "Khung thời gian",
   "add_gauge_widget": "Thêm tiện ích đo lường",
   "add_value_widget": "Thêm tiện ích giá trị",
@@ -41,5 +43,12 @@
   "bar_chart": "Biểu đồ cột",
   "confirm_delete_source": "Bạn có thực sự muốn xóa nguồn này và cấu hình của nó không?",
   "preview": "Xem trước",
-  "add": "Thêm"
+  "add": "Thêm",
+  "add_column": "Thêm cột mới",
+  "column_name": "Tên cột",
+  "column_type": "Loại giá trị",
+  "general": "Chung",
+  "specific": "Riêng",
+  "widget_name": "Tên tiện ích",
+  "no_data": "Không có dữ liệu"
 }
