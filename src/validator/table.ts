@@ -30,8 +30,8 @@ export const dataTableSchema = z.object({
   widget_info: z.object({
     name: z
       .string()
-      .min(1, { message: 'enter_widget_name' })
-      .max(100, { message: 'widget_name_too_long' }),
+      .min(1, { message: 'Please enter widget name' })
+      .max(100, { message: 'Widget name is too long' }),
   }),
   conditional: z.string().optional().nullable(),
 })

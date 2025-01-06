@@ -54,5 +54,8 @@
   "widget_name": "Widget Name",
   "show_value": "Show Value",
   "appearance": "Appearance",
-  "add_device": "Add Device"
+  "add_device": "Add Device",
+  "delete_column": "Delete Column",
+  "confirm_delete_column": "Do you really want to delete this column and its configuration?",
+  "enter_widget_name": "Enter widget name"
 }

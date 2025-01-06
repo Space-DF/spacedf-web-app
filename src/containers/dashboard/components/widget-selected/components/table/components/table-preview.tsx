@@ -21,14 +21,13 @@ const TablePreview: React.FC<TablePreviewProps> = ({
   columns,
   conditional = '',
 }) => {
-  const hasValidColumn = columns.some((col) => col.column_name && col.field)
-  const isEmptyData = source.length === 0 || !hasValidColumn
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
+  const isEmptyData = source.length === 0 || !columns.some((col) => col.field)
 
   if (isEmptyData) {
     return (
       <div className="text-center text-sm text-brand-component-text-gray">
-        {t('dashboard.no_data')}
+        {t('no_data')}
       </div>
     )
   }
@@ -57,8 +56,7 @@ const TablePreview: React.FC<TablePreviewProps> = ({
             <TableHead className="h-full min-h-6 px-2 py-1" key={index}>
               {FIELDDISPLAYNAME[column.column_name] ||
                 column.column_name ||
-                column.field ||
-                'Unnamed Column'}
+                '------'}
             </TableHead>
           ))}
         </TableRow>

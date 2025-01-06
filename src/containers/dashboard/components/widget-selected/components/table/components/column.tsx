@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useCallback, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { ChevronDown } from 'lucide-react'
 import { Trash } from '@/components/icons/trash'
 import {
@@ -34,17 +43,18 @@ interface ColumnProps {
   index: number
   generalFields: string[]
   specificFields: string[]
-  remove: (index: number) => void
+  onRemove: () => void
 }
 
 const Column: React.FC<ColumnProps> = ({
   index,
   generalFields,
   specificFields,
-  remove,
+  onRemove,
 }) => {
+  const t = useTranslations('dashboard')
   const { control, setValue } = useFormContext<dataTablePayload>()
-  const t = useTranslations()
+  const [openDialog, setOpenDialog] = useState(false)
 
   const type = useWatch({
     control,
@@ -56,19 +66,63 @@ const Column: React.FC<ColumnProps> = ({
     Specific: specificFields[0],
   })
 
-  const handleTypeChange = (newType: 'General' | 'Specific') => {
-    setValue(`columns.${index}.type`, newType)
+  const fieldOptions = useMemo(
+    () => (type === 'General' ? generalFields : specificFields),
+    [type, generalFields, specificFields],
+  )
 
-    const newFieldValue =
-      previousValues.current[newType] ||
-      (newType === 'General' ? generalFields[0] : specificFields[0])
+  const renderedFieldOptions = useMemo(
+    () =>
+      fieldOptions.map((fieldOption) => (
+        <SelectItem key={fieldOption} value={fieldOption}>
+          {fieldOption}
+        </SelectItem>
+      )),
+    [fieldOptions],
+  )
 
-    setValue(`columns.${index}.field`, newFieldValue)
-    previousValues.current[newType] = newFieldValue
-  }
+  const handleTypeChange = useCallback(
+    (newType: 'General' | 'Specific') => {
+      setValue(`columns.${index}.type`, newType)
+      const newFieldValue =
+        previousValues.current[newType] ||
+        (newType === 'General' ? generalFields[0] : specificFields[0])
+
+      setValue(`columns.${index}.field`, newFieldValue)
+      previousValues.current[newType] = newFieldValue
+    },
+    [index, setValue, generalFields, specificFields],
+  )
 
   return (
     <>
+      <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+        <AlertDialogContent className="border border-[#0000003B]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center">
+              {t('delete_column')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              {t('confirm_delete_column')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="grid w-full grid-cols-2 gap-2">
+            <AlertDialogCancel className="border-brand-component-stroke-dark-soft text-brand-component-text-gray">
+              {t('cancel')}
+            </AlertDialogCancel>
+            <Button
+              variant={'destructive'}
+              onClick={() => {
+                onRemove()
+                setOpenDialog(false)
+              }}
+              className="border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative"
+            >
+              {t('delete_column')}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Accordion
         type="single"
         collapsible
@@ -95,7 +149,7 @@ const Column: React.FC<ColumnProps> = ({
                 height={20}
                 onClick={(e) => {
                   e.stopPropagation()
-                  remove(index)
+                  setOpenDialog(true)
                 }}
               />
             </div>
@@ -110,7 +164,7 @@ const Column: React.FC<ColumnProps> = ({
                     className="text-xs font-semibold !text-brand-component-text-dark"
                     required
                   >
-                    {t('dashboard.column_name')}
+                    {t('column_name')}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -132,33 +186,33 @@ const Column: React.FC<ColumnProps> = ({
                     className="text-xs font-semibold !text-brand-component-text-dark"
                     required
                   >
-                    {t('dashboard.column_type')}
+                    {t('column_type')}
                   </FormLabel>
                   <FormControl>
                     <div className="items-between flex w-full justify-center gap-1">
                       <Button
                         onClick={() => handleTypeChange('General')}
                         className={cn(
-                          'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors',
+                          'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors hover:bg-accent',
                           field.value === 'General'
-                            ? 'border-brand-component-stroke-dark dark:border-brand-component-stroke-secondary'
+                            ? 'border-brand-component-stroke-dark dark:border-brand-component-fill-secondary-soft'
                             : '',
                         )}
                       >
                         <PushPin />
-                        {t('dashboard.general')}
+                        {t('general')}
                       </Button>
                       <Button
                         onClick={() => handleTypeChange('Specific')}
                         className={cn(
-                          'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors',
+                          'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors hover:bg-accent',
                           field.value === 'Specific'
-                            ? 'border-brand-component-stroke-dark dark:border-brand-component-stroke-secondary'
+                            ? 'border-brand-component-stroke-dark dark:border-brand-component-fill-secondary-soft'
                             : '',
                         )}
                       >
                         <Scales />
-                        {t('dashboard.specific')}
+                        {t('specific')}
                       </Button>
                     </div>
                   </FormControl>
@@ -175,7 +229,7 @@ const Column: React.FC<ColumnProps> = ({
                     className="text-xs font-semibold !text-brand-component-text-dark"
                     required
                   >
-                    {t('dashboard.field')}
+                    {t('field')}
                   </FormLabel>
                   <FormControl>
                     <Select
@@ -185,16 +239,7 @@ const Column: React.FC<ColumnProps> = ({
                       <SelectTrigger>
                         <SelectValue placeholder="Select Field" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {(type === 'General'
-                          ? generalFields
-                          : specificFields
-                        ).map((fieldOption) => (
-                          <SelectItem key={fieldOption} value={fieldOption}>
-                            {fieldOption}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                      <SelectContent>{renderedFieldOptions}</SelectContent>
                     </Select>
                   </FormControl>
                   <FormMessage />

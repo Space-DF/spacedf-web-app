@@ -54,5 +54,8 @@
   "column_type": "Loại giá trị",
   "general": "Chung",
   "specific": "Riêng",
-  "no_data": "Không có dữ liệu"
+  "no_data": "Không có dữ liệu",
+  "delete_column": "Xoá cột",
+  "confirm_delete_column": "Bạn có thực sự muốn xóa cột này và cấu hình của nó không?",
+  "enter_widget_name": "Nhập tên tiện ích"
 }
