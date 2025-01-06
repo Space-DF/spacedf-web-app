@@ -11,6 +11,7 @@ import { Color, Position, ScenegraphLayer, TripsLayer } from 'deck.gl'
 import { animate } from 'popmotion'
 import React, { useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { realTimeLocations } from './dummy-locations'
 
 const devices = [
   {
@@ -61,6 +62,15 @@ const getCurrentLocation = (
     return null
   }
 
+  if (currentTime <= timestamps[0]) {
+    return path[0]
+  }
+
+  if (currentTime >= timestamps[timestamps.length - 1]) {
+    // Returns the last position if currentTime is after the last timestamp
+    return path[path.length - 1]
+  }
+
   // Use `findIndex` to locate the segment where the currentTime falls
   const segmentIndex = timestamps.findIndex(
     (t, i) => currentTime >= t && currentTime <= timestamps[i + 1],
@@ -106,56 +116,56 @@ const getDeviceLayer = (
   })
 }
 
-const data: Trip[] = [
-  {
-    timestamps: [0, 15, 30, 45, 60, 75, 90, 105],
-    vendor: 1,
-    deviceId: '10',
-    path: [
-      [108.223065, 16.067789], // Start near Dragon Bridge
-      [108.223492, 16.068198], // Move along Bach Dang Street
-      [108.224398, 16.068689], // Continue on Bach Dang
-      [108.225945, 16.070017], // Pass Han Market
-      [108.227567, 16.072003], // Near Da Nang Museum
-      [108.22938, 16.07345], // Towards Da Nang City Hall
-      [108.230583, 16.0739], // Da Nang Administrative Center
-      [108.2317, 16.075], // End at nearby park
-    ],
-  },
-  {
-    timestamps: [0, 20, 40, 60, 80, 100, 120, 140],
-    vendor: 2,
-    deviceId: '11',
-    path: [
-      [108.203089, 16.04329], // Start near My Khe Beach
-      [108.20449, 16.04412], // Walk towards Vo Nguyen Giap street
-      [108.20659, 16.0455], // Near Vinpearl Luxury Hotel
-      [108.20986, 16.04673], // Approaching East Sea Park
-      [108.21314, 16.04789], // Along Pham Van Dong Street
-      [108.2175, 16.05013], // Cross Han River Bridge
-      [108.22177, 16.05221], // Towards the city center
-      [108.223065, 16.067789], // End back at Dragon Bridge
-    ],
-  },
-  //   {
-  //     timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
-  //     vendor: 3,
-  //     path: [
-  //       [108.21178, 16.074728], // Start at Da Nang Train Station
-  //       [108.21259, 16.07387], // Move along Hai Phong Street
-  //       [108.2134, 16.0729], // Near Big C Supermarket
-  //       [108.21421, 16.07193], // Along Dien Bien Phu Street
-  //       [108.21502, 16.07097], // Near Con Market
-  //       [108.21583, 16.07], // Towards Phan Chu Trinh Street
-  //       [108.21664, 16.06905], // Near Nguyen Van Linh Street
-  //       [108.21745, 16.06809], // Approach Cham Museum
-  //       [108.21826, 16.06714], // Continue along Bach Dang Street
-  //       [108.223065, 16.067789], // End near Dragon Bridge
-  //     ],
-  //   },
-]
+// const data: Trip[] = [
+//   {
+//     timestamps: [0, 15, 30, 45, 60, 75, 90, 105],
+//     vendor: 1,
+//     deviceId: '10',
+//     path: [
+//       [108.223065, 16.067789], // Start near Dragon Bridge
+//       [108.223492, 16.068198], // Move along Bach Dang Street
+//       [108.224398, 16.068689], // Continue on Bach Dang
+//       [108.225945, 16.070017], // Pass Han Market
+//       [108.227567, 16.072003], // Near Da Nang Museum
+//       [108.22938, 16.07345], // Towards Da Nang City Hall
+//       [108.230583, 16.0739], // Da Nang Administrative Center
+//       [108.2317, 16.075], // End at nearby park
+//     ],
+//   },
+//   {
+//     timestamps: [0, 20, 40, 60, 80, 100, 120, 140],
+//     vendor: 2,
+//     deviceId: '11',
+//     path: [
+//       [108.203089, 16.04329], // Start near My Khe Beach
+//       [108.20449, 16.04412], // Walk towards Vo Nguyen Giap street
+//       [108.20659, 16.0455], // Near Vinpearl Luxury Hotel
+//       [108.20986, 16.04673], // Approaching East Sea Park
+//       [108.21314, 16.04789], // Along Pham Van Dong Street
+//       [108.2175, 16.05013], // Cross Han River Bridge
+//       [108.22177, 16.05221], // Towards the city center
+//       [108.223065, 16.067789], // End back at Dragon Bridge
+//     ],
+//   },
+//   //   {
+//   //     timestamps: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+//   //     vendor: 3,
+//   //     path: [
+//   //       [108.21178, 16.074728], // Start at Da Nang Train Station
+//   //       [108.21259, 16.07387], // Move along Hai Phong Street
+//   //       [108.2134, 16.0729], // Near Big C Supermarket
+//   //       [108.21421, 16.07193], // Along Dien Bien Phu Street
+//   //       [108.21502, 16.07097], // Near Con Market
+//   //       [108.21583, 16.07], // Towards Phan Chu Trinh Street
+//   //       [108.21664, 16.06905], // Near Nguyen Van Linh Street
+//   //       [108.21745, 16.06809], // Approach Cham Museum
+//   //       [108.21826, 16.06714], // Continue along Bach Dang Street
+//   //       [108.223065, 16.067789], // End near Dragon Bridge
+//   //     ],
+//   //   },
+// ]
 
-type Trip = {
+export type Trip = {
   vendor: number
   path: Position[]
   timestamps: number[]
@@ -206,7 +216,7 @@ export const useLoadTrip = () => {
     const animation = animate({
       from: 0,
       to: 1800,
-      duration: (1800 * 60) / 0.5,
+      duration: (1800 * 60) / 0.8,
       repeat: Infinity,
       onUpdate: animationUpdate,
     })
@@ -214,7 +224,7 @@ export const useLoadTrip = () => {
   }, [])
 
   const animationUpdate = (time: number) => {
-    const locations = data.map((trip) => ({
+    const locations = realTimeLocations.map((trip) => ({
       deviceId: trip.deviceId,
       location: getCurrentLocation(trip, time),
     }))
@@ -255,7 +265,7 @@ export const useLoadTrip = () => {
   const createTripLayer = (time: number) => {
     return new TripsLayer<Trip>({
       id: 'trips',
-      data,
+      data: realTimeLocations,
       getPath: (d) => d.path,
       getTimestamps: (d) => d.timestamps,
       getColor: (d) =>
