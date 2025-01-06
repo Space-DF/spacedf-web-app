@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -9,15 +9,21 @@ import {
   PolarRadiusAxis,
   RadialBar,
   RadialBarChart,
+  ResponsiveContainer,
   XAxis,
   YAxis,
 } from 'recharts'
 
-import { ChartConfig, ChartContainer } from '@/components/ui/chart'
+import { ChartConfig } from '@/components/ui/chart'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { Equalizer } from '@/components/icons/equalizer'
+import ReactGridLayout, { Responsive, WidthProvider } from 'react-grid-layout'
+
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
+import { useMounted } from '@/hooks'
 
 const chartData = [
   {
@@ -59,68 +65,120 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const ResponsiveReactGridLayout = WidthProvider(Responsive)
+
+const screenLayout: ReactGridLayout.Layout[] = [
+  { i: '1', x: 0, y: 0, w: 3, h: 1 },
+  { i: '2', x: 3, y: 0, w: 1, h: 1 },
+  { i: '3', x: 4, y: 0, w: 1, h: 1 },
+  { i: '4', x: 0, y: 1, w: 3, h: 1 },
+  { i: '5', x: 3, y: 1, w: 1, h: 1 },
+  { i: '6', x: 4, y: 1, w: 1, h: 1 },
+  { i: '7', x: 0, y: 2, w: 5, h: 1, minW: 2 },
+  { i: '8', x: 0, y: 3, w: 4, h: 3, minH: 2, minW: 3 },
+  { i: '9', x: 4, y: 3, w: 1, h: 1 },
+  { i: '10', x: 4, y: 4, w: 1, h: 1 },
+  { i: '11', x: 4, y: 5, w: 1, h: 1 },
+  { i: '12', x: 0, y: 6, w: 2, h: 2, minW: 2, minH: 2 },
+  { i: '13', x: 2, y: 7, w: 2, h: 3, minW: 2, minH: 3 },
+  { i: '14', x: 0, y: 9, w: 5, h: 4, minW: 2, minH: 3 },
+]
+
 export const MockData = () => {
+  const { mounted } = useMounted()
+  const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>({
+    lg: screenLayout,
+    md: screenLayout,
+    sm: screenLayout,
+    xxs: screenLayout,
+  })
+
+  const onLayoutChange = (
+    _: ReactGridLayout.Layout[],
+    layouts: ReactGridLayout.Layouts,
+  ) => {
+    setLayouts({ ...layouts })
+  }
+
   return (
-    <div className="mt-1">
-      <div className="grid grid-cols-5 items-start gap-1">
-        <div className="col-span-3">
-          <WidgetSensor status="off">
-            <WidgetTitle>Text</WidgetTitle>
-          </WidgetSensor>
-        </div>
-        <div className="col-span-1">
-          <WidgetText />
-        </div>
-        <div className="col-span-1">
-          <WidgetSwitch>
-            <WidgetTitle>Text</WidgetTitle>
-          </WidgetSwitch>
-        </div>
-        <div className="col-span-3">
-          <WidgetSensor status="on">
-            <WidgetTitle>Text</WidgetTitle>
-          </WidgetSensor>
-        </div>
-        <div className="col-span-1">
-          <WidgetText />
-        </div>
-        <div className="col-span-1">
-          <WidgetText />
-        </div>
-        <div className="col-span-5">
-          <WidgetSlider />
-        </div>
-        <div className="col-span-4">
-          <WidgetChart className="dark:stroke-[#4006AA] dark:text-[#4006AA]">
-            <WidgetTitle className="mb-2">New Chart Widget</WidgetTitle>
-          </WidgetChart>
-        </div>
-        <div className="col-span-1 flex flex-col gap-1">
-          <WidgetSwitch>
-            <WidgetTitle>Water Sensor</WidgetTitle>
-          </WidgetSwitch>
-          <WidgetSwitch>
-            <WidgetTitle>Water Sensor</WidgetTitle>
-          </WidgetSwitch>
-          <WidgetSwitch>
-            <WidgetTitle>Water Sensor</WidgetTitle>
-          </WidgetSwitch>
-        </div>
-        <div className="col-span-2 flex flex-col gap-1">
-          <WidgetChart className="dark:text-[#4006AA]">
-            <WidgetTitle>Water Flood Level</WidgetTitle>
-          </WidgetChart>
-        </div>
-        <div className="col-span-2">
-          <PolarChart className="aspect-square dark:text-[#4006AA]">
-            <WidgetTitle>New Gauge Widget</WidgetTitle>
-          </PolarChart>
-        </div>
-        <div className="col-span-5">
-          <PolarChart className="dark:text-[#4006AA]">
-            <WidgetTitle>New Gauge Widget</WidgetTitle>
-          </PolarChart>
-        </div>
+    <div className="mt-1 h-dvh overflow-y-scroll scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+      <div className="w-full pb-28">
+        <ResponsiveReactGridLayout
+          layouts={layouts}
+          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 5 }}
+          rowHeight={60}
+          margin={[5, 5]}
+          containerPadding={[0, 0]}
+          onLayoutChange={onLayoutChange}
+          measureBeforeMount={false}
+          useCSSTransforms={mounted}
+          compactType="vertical"
+          preventCollision={false}
+        >
+          <div key="1">
+            <WidgetSensor status="off">
+              <WidgetTitle>Text</WidgetTitle>{' '}
+            </WidgetSensor>
+          </div>
+          <div key="2">
+            <WidgetText />
+          </div>
+          <div key="3">
+            <WidgetSwitch>
+              <WidgetTitle>Text</WidgetTitle>
+            </WidgetSwitch>
+          </div>
+          <div key="4">
+            <WidgetSensor status="on">
+              <WidgetTitle>Text</WidgetTitle>{' '}
+            </WidgetSensor>
+          </div>
+          <div key="5">
+            <WidgetText />
+          </div>
+          <div key="6">
+            <WidgetText />
+          </div>
+          <div key="7">
+            <WidgetSlider />
+          </div>
+          <div key="8">
+            <WidgetChart className="dark:stroke-[#4006AA] dark:text-[#4006AA]">
+              <WidgetTitle className="mb-2">New Chart Widget</WidgetTitle>
+            </WidgetChart>
+          </div>
+          <div key={'9'}>
+            <WidgetSwitch>
+              <WidgetTitle>Water Sensor</WidgetTitle>
+            </WidgetSwitch>
+          </div>
+          <div key={'10'}>
+            <WidgetSwitch>
+              <WidgetTitle>Water Sensor</WidgetTitle>
+            </WidgetSwitch>
+          </div>
+          <div key={'11'}>
+            <WidgetSwitch>
+              <WidgetTitle>Water Sensor</WidgetTitle>
+            </WidgetSwitch>
+          </div>
+          <div key={'12'}>
+            <WidgetChart className="dark:text-[#4006AA]">
+              <WidgetTitle>Water Flood Level</WidgetTitle>
+            </WidgetChart>
+          </div>
+          <div key={'13'}>
+            <PolarChart className="aspect-square dark:text-[#4006AA]">
+              <WidgetTitle>New Gauge Widget</WidgetTitle>
+            </PolarChart>
+          </div>
+          <div key={'14'}>
+            <PolarChart className="aspect-square dark:text-[#4006AA]">
+              <WidgetTitle>New Gauge Widget</WidgetTitle>
+            </PolarChart>
+          </div>
+        </ResponsiveReactGridLayout>
       </div>
     </div>
   )
@@ -156,7 +214,7 @@ const WidgetTitle = ({ children, className }: WidgetProp) => (
 const WidgetChart = ({ children }: WidgetProp) => (
   <WidgetContainer>
     {children}
-    <ChartContainer config={chartConfig}>
+    <ResponsiveContainer className={'pb-3'}>
       <AreaChart accessibilityLayer data={chartData}>
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -164,14 +222,20 @@ const WidgetChart = ({ children }: WidgetProp) => (
             <stop offset="95%" stopColor="currentColor" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <YAxis axisLine={false} tickLine={false} width={20} />
+        <YAxis
+          axisLine={false}
+          tickLine={false}
+          width={20}
+          tick={{ fontSize: 12 }}
+        />
         <XAxis
           dataKey="day"
           axisLine={false}
           tickLine={false}
           tickFormatter={(value) => value.slice(0, 3)}
+          tick={{ fontSize: 12 }}
         />
-        <CartesianGrid vertical={false} />
+        <CartesianGrid vertical={false} opacity={0.3} />
         <Area
           type="linear"
           dataKey="uv"
@@ -181,15 +245,14 @@ const WidgetChart = ({ children }: WidgetProp) => (
           fill="url(#colorUv)"
         />
       </AreaChart>
-    </ChartContainer>
+    </ResponsiveContainer>
   </WidgetContainer>
 )
 
 const PolarChart = ({ children, className }: WidgetProp) => (
   <WidgetContainer>
     {children}
-    <ChartContainer
-      config={chartConfig}
+    <ResponsiveContainer
       className={cn('mx-auto w-full object-contain', className)}
     >
       <RadialBarChart
@@ -247,7 +310,7 @@ const PolarChart = ({ children, className }: WidgetProp) => (
           className="size-full stroke-transparent"
         />
       </RadialBarChart>
-    </ChartContainer>
+    </ResponsiveContainer>
   </WidgetContainer>
 )
 
