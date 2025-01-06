@@ -162,14 +162,15 @@ const DynamicLayout = ({
   }
 
   const layoutCannotDuplicate = useMemo(() => {
-    if (dynamicLayouts.includes('devices'))
-      return (
-        <div>
-          <Dashboard />
-        </div>
-      )
-
-    return <Users />
+    return <Dashboard />
+    // if (dynamicLayouts.includes('devices'))
+    //   return (
+    //     <div>
+    //       <Dashboard />
+    //     </div>
+    //   )
+    //
+    // return <Users />
   }, [dynamicLayouts])
 
   const { isShowAll, second, first } =
@@ -240,6 +241,7 @@ const DynamicLayout = ({
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
+                    hidden={!first}
                   >
                     <Devices />
                   </ResizablePanel>
@@ -253,6 +255,7 @@ const DynamicLayout = ({
                         ? 'animate-opacity-display-effect'
                         : 'animate-opacity-hide-effect',
                     )}
+                    hidden={!second}
                   >
                     {layoutCannotDuplicate}
                   </ResizablePanel>
