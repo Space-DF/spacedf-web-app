@@ -60,9 +60,9 @@ const WidgetSelection = ({
             <div
               key={widget.title}
               onClick={() => onSelectWidget(widget.value)}
-              className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-sm bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
+              className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
             >
-              <div className="flex w-full items-center justify-center rounded-sm bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+              <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
                 {widget.icon}
               </div>
               <div className="text-center text-xs">{widget.title}</div>
