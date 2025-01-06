@@ -11,6 +11,8 @@ import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
 import MapInstance from '@/utils/map-instance'
+import { MapboxOverlay } from '@deck.gl/mapbox'
+import { LayersList } from 'deck.gl'
 
 type Locale = (typeof locales)[number]
 
@@ -59,5 +61,8 @@ declare global {
   interface Window {
     mapInstance: MapInstance
     cluster: Supercluster<Supercluster.AnyProps, Supercluster.AnyProps>
+    devicesMapOverlay: MapboxOverlay
+    devicesHistoryOverlay: MapboxOverlay
+    mapLayer: LayersList[]
   }
 }

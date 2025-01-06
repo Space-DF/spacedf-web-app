@@ -17,12 +17,13 @@ import { useShallow } from 'zustand/react/shallow'
 import { useDeviceStore } from '@/stores/device-store'
 import { animate, linear } from 'popmotion'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
+import { useLoadTrip } from '../_hooks/useLoadTrip'
 
 interface CustomMapProps {
   layers?: Layer[]
 }
 
-const centerPoint: [number, number] = [108.22003, 16.05486]
+const centerPoint: [number, number] = [108.223, 16.067]
 
 const MapOverlay: React.FC<CustomMapProps> = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
@@ -31,6 +32,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   const { theme, systemTheme } = useTheme()
 
   const { startShowDevice3D } = useLoadDeviceModels()
+  const { startLoadTrip } = useLoadTrip()
 
   const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
@@ -124,6 +126,8 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
       startShowDevice3D(map)
 
+      startLoadTrip()
+
       map.addControl(new mapboxgl.NavigationControl())
 
       const updateClusters = () => {
@@ -176,51 +180,14 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         if (clusterId) {
           const coordinates = (clusterFeature.geometry as any).coordinates
 
-          // Sử dụng Supercluster để tính toán mức zoom
           onClusterClick(clusterId, coordinates)
         } else {
           console.error('Cluster ID not found.')
         }
-
-        // if (source && 'getClusterExpansionZoom' in source) {
-        //   source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        //     if (err) {
-        //       console.error('Error expanding cluster:', err)
-        //       return
-        //     }
-
-        //     map.easeTo({
-        //       center: clusterFeature.geometry.coordinates,
-        //       zoom: zoom,
-        //     })
-        //   })
-        // } else {
-        //   console.error('Source does not support getClusterExpansionZoom.')
-        // }
-        // map
-        //   ?.getSource?.('clusters-source')
-        //   ?.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        //     if (err) return
-
-        //     map.easeTo({
-        //       center: features[0].geometry.coordinates,
-        //       zoom: zoom,
-        //     })
-        //   })
       })
 
       map.on('move', updateClusters)
       map.on('zoom', updateClusters)
-
-      // map.on('mouseenter', 'clusters', () => {
-      //   map.getCanvas().style.cursor = 'pointer'
-      // })
-
-      // map.on('mouseleave', 'clusters', () => {
-      //   map.getCanvas().style.cursor = ''
-      // })
-
-      // updateClusters()
 
       map.addControl(
         new mapboxgl.GeolocateControl({
@@ -238,9 +205,10 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
       map.flyTo({
         center: centerPoint,
-        zoom: 18,
-        duration: 8000,
-        essential: true,
+        zoom: 13,
+        pitch: 45,
+        bearing: 0,
+        duration: 5000,
       })
 
       map?.resize()
