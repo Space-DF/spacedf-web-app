@@ -121,7 +121,7 @@ const Dashboard = () => {
   const handleCreateNewDashBoard = () => {
     setOpen(false)
     const value = {
-      value: 'new-dashboard',
+      value: `new-dashboard-${Math.floor(Math.random() * 1000) + 1}`,
       label: 'Unnamed Dashboard',
       isDefault: false,
       id: Math.floor(Math.random() * 1000) + 1,

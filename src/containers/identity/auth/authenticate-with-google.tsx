@@ -11,7 +11,9 @@ const AuthenticateWithGoogle = () => {
   // const { toast } = useToast()
   return (
     <div className="w-full animate-opacity-display-effect self-start">
-      <p className="mb-2 font-medium">{t('continue_with_social_account')}</p>
+      <p className="mb-2 text-sm font-medium">
+        {t('continue_with_social_account')}
+      </p>
       <Button
         variant="outline"
         className="h-12 w-full items-center gap-2 rounded-lg border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"

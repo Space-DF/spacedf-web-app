@@ -5,6 +5,7 @@ type IdentityState = {
   organizationName: string
   organizationDomain: string
   openGuideline: boolean
+  rootAuth: ['sign-up' | 'verify-code', string]
 }
 
 type IdentityAction = {
@@ -12,6 +13,7 @@ type IdentityAction = {
   setOrganizationName: (organizationName: string) => void
   setOrganizationDomain: (organization: string) => void
   setOpenGuideline: (open: boolean) => void
+  setRootAuth: (state: IdentityState['rootAuth']) => void
 }
 
 export const useIdentityStore = create<IdentityState & IdentityAction>(
@@ -20,6 +22,7 @@ export const useIdentityStore = create<IdentityState & IdentityAction>(
     openDrawerIdentity: false,
     organizationName: '',
     organizationDomain: '',
+    rootAuth: ['sign-up', ''],
     setOrganizationName: (organizationName) =>
       set(() => ({
         organizationName,
@@ -34,6 +37,9 @@ export const useIdentityStore = create<IdentityState & IdentityAction>(
       })),
     setOpenGuideline: (open) => {
       set(() => ({ openGuideline: open }))
+    },
+    setRootAuth: (state) => {
+      set(() => ({ rootAuth: state }))
     },
   }),
 )
