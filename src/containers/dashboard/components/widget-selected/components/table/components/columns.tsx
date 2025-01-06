@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { useFormContext, useFieldArray } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { dataTablePayload } from '@/validator'
@@ -40,14 +40,10 @@ const Columns: React.FC = () => {
 
   const source = watch('source.devices')
 
-  const memoizedFieldTypes = useMemo(() => getFieldTypes(source), [source])
-  const [generalFields, setGeneralFields] = useState<string[]>([])
-  const [specificFields, setSpecificFields] = useState<string[]>([])
-
-  useEffect(() => {
-    setGeneralFields(memoizedFieldTypes.generalFields)
-    setSpecificFields(memoizedFieldTypes.specificFields)
-  }, [memoizedFieldTypes])
+  const { generalFields, specificFields } = useMemo(
+    () => getFieldTypes(source),
+    [source],
+  )
 
   const handleAddColumn = useCallback(() => {
     append({
@@ -57,13 +53,6 @@ const Columns: React.FC = () => {
     })
   }, [append, generalFields])
 
-  const onRemove = useCallback(
-    (index: number) => {
-      remove(index)
-    },
-    [remove],
-  )
-
   return (
     <div className="mt-4 size-full space-y-4 px-4">
       {fields.map((column, index) => (
@@ -72,7 +61,7 @@ const Columns: React.FC = () => {
           index={index}
           generalFields={generalFields}
           specificFields={specificFields}
-          onRemove={() => onRemove(index)}
+          onRemove={remove}
         />
       ))}
       <Button className="flex items-center gap-2" onClick={handleAddColumn}>

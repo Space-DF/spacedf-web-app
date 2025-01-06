@@ -34,7 +34,7 @@ export const DEVICES: Device[] = [
   },
 ]
 
-export const FIELDDISPLAYNAME: { [key: string]: string } = {
+export const FIELD_DISPLAY_NAME: { [key: string]: string } = {
   device_id: 'Device ID',
   device_name: 'Device Name',
   last_seen: 'Last Seen',

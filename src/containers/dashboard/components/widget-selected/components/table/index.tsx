@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RightSideBarLayout } from '@/components/ui'
 import { WidgetType } from '@/widget-models/widget'
 import {
-  columnTableDefault,
+  dataTableDefault,
   dataTablePayload,
   dataTableSchema,
 } from '@/validator'
@@ -53,7 +53,7 @@ const TableWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
   const t = useTranslations('dashboard')
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
-    defaultValues: columnTableDefault,
+    defaultValues: dataTableDefault,
     mode: 'onChange',
   })
 

@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table'
 import { dataTablePayload } from '@/validator'
 import { useTranslations } from 'next-intl'
-import { FIELDDISPLAYNAME } from '../table.const'
+import { FIELD_DISPLAY_NAME } from '../table.const'
 
 interface TablePreviewProps {
   source: dataTablePayload['source']['devices']
@@ -22,7 +22,7 @@ const TablePreview: React.FC<TablePreviewProps> = ({
   conditional = '',
 }) => {
   const t = useTranslations('dashboard')
-  const isEmptyData = source.length === 0 || !columns.some((col) => col.field)
+  const isEmptyData = !source.length || !columns.some((col) => col.field)
 
   if (isEmptyData) {
     return (
@@ -54,7 +54,7 @@ const TablePreview: React.FC<TablePreviewProps> = ({
         <TableRow>
           {columns.map((column, index) => (
             <TableHead className="h-full min-h-6 px-2 py-1" key={index}>
-              {FIELDDISPLAYNAME[column.column_name] ||
+              {FIELD_DISPLAY_NAME[column.column_name] ||
                 column.column_name ||
                 '------'}
             </TableHead>

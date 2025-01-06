@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTranslations } from 'next-intl'
-import ChartSource from './chart-widget/components/sources'
 
 interface Props {
-  tabKeys: string[]
+  tabKeys: `${TabKey}`[]
   tabContents: React.ReactNode
 }
 

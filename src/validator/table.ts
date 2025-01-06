@@ -38,7 +38,7 @@ export const dataTableSchema = z.object({
 
 export type dataTablePayload = z.infer<typeof dataTableSchema>
 
-export const columnTableDefault: dataTablePayload = {
+export const dataTableDefault: dataTablePayload = {
   widget_info: {
     name: 'New Data Table',
   },

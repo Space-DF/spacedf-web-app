@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo } from 'react'
+import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,19 +37,19 @@ import {
 } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
 import { Drag, PushPin, Scales } from '@/components/icons'
-import { FIELDDISPLAYNAME } from '../table.const'
+import { FIELD_DISPLAY_NAME } from '../table.const'
 
 interface ColumnProps {
   index: number
-  generalFields: string[]
-  specificFields: string[]
-  onRemove: () => void
+  generalFields?: string[]
+  specificFields?: string[]
+  onRemove?: (index: number) => void
 }
 
 const Column: React.FC<ColumnProps> = ({
   index,
-  generalFields,
-  specificFields,
+  generalFields = [],
+  specificFields = [],
   onRemove,
 }) => {
   const t = useTranslations('dashboard')
@@ -113,7 +113,7 @@ const Column: React.FC<ColumnProps> = ({
             <Button
               variant={'destructive'}
               onClick={() => {
-                onRemove()
+                onRemove?.(index)
                 setOpenDialog(false)
               }}
               className="border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative"
@@ -170,7 +170,9 @@ const Column: React.FC<ColumnProps> = ({
                     <Input
                       {...field}
                       onChange={(e) => field.onChange(e.target.value)}
-                      value={FIELDDISPLAYNAME[field.value] || field.value || ''}
+                      value={
+                        FIELD_DISPLAY_NAME[field.value] || field.value || ''
+                      }
                     />
                   </FormControl>
                   <FormMessage />

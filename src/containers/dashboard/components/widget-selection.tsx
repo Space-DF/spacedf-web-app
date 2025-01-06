@@ -1,6 +1,6 @@
 'use client'
 import React, { useMemo, useState } from 'react'
-import { Input } from '@/components/ui/input'
+import { InputWithIcon } from '@/components/ui/input'
 import { useTranslations } from 'next-intl'
 import {
   ChartWidgetIcon,
@@ -11,6 +11,7 @@ import {
 } from '@/components/icons'
 import { useDebounce } from '@/hooks'
 import { WidgetType } from '@/widget-models/widget'
+import { SearchIcon } from 'lucide-react'
 
 type Widget = {
   icon: React.ReactNode
@@ -48,12 +49,12 @@ const WidgetSelection = ({
   return (
     <div className="block size-full animate-opacity-display-effect">
       <div className="flex animate-opacity-display-effect flex-col items-center justify-center gap-6">
-        <Input
-          className="w-full bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary"
-          type="search"
+        <InputWithIcon
+          wrapperClass="w-full rounded-lg bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
+          prefixCpn={<SearchIcon size={18} />}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={t('dashboard.search_for_widget')}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <div className="grid w-full grid-cols-2 gap-4">
           {filteredWidgets.map((widget) => (
