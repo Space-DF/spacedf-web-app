@@ -33,9 +33,9 @@ export const defaultSourceChartValues: SourceChartPayload['sources'] = [
   {
     device_id: '1',
     field: '1',
-    legend: '',
+    legend: 'Temperature',
     color: '171A28',
     chart_type: ChartType.LineChart,
-    show_legend: false,
+    show_legend: true,
   },
 ]
