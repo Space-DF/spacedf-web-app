@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button'
 import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo } from 'react'
-import TabWidget, { ChartTabKey } from '../tab-widget'
+import React, { memo, useMemo } from 'react'
+import TabWidget, { TabKey } from '../tab-widget'
+
 import { PreviewChart, dailyOrders } from './components/preview-chart'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
@@ -23,28 +24,28 @@ interface Props {
 }
 
 const chartTabKeys = [
-  ChartTabKey.Sources,
-  ChartTabKey.Info,
-  ChartTabKey.Axes,
-  ChartTabKey.TimeFrame,
+  TabKey.Sources,
+  TabKey.Info,
+  TabKey.Axes,
+  TabKey.TimeFrame,
 ]
 
 const TabContents = () => {
   return (
     <>
       <TabsContent
-        value={ChartTabKey.Sources}
-        className="flex-1 overflow-y-scroll px-4"
+        value={TabKey.Sources}
+        className="mt-4 flex-1 overflow-y-scroll px-4"
       >
         <ChartSource />
       </TabsContent>
-      <TabsContent value={ChartTabKey.Info} className="mt-4 p-4">
+      <TabsContent value={TabKey.Info} className="mt-4 px-4">
         <ChartWidgetInfo />
       </TabsContent>
-      <TabsContent value={ChartTabKey.Axes} className="mt-4 p-4">
+      <TabsContent value={TabKey.Axes} className="mt-4 px-4">
         <p>Axes</p>
       </TabsContent>
-      <TabsContent value={ChartTabKey.TimeFrame} className="mt-4 p-4">
+      <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
         <p>Content for Timeframe</p>
       </TabsContent>
     </>
@@ -93,8 +94,10 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
     >
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">
-          <div className="gap-y-2">
-            <p className="text-xs font-semibold">{t('preview')}</p>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-brand-component-text-dark">
+              {t('preview')}
+            </p>
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">
               <div className="space-y-3 rounded-md bg-brand-background-fill-outermost p-3">
                 <p className="truncate font-semibold text-brand-component-text-dark">

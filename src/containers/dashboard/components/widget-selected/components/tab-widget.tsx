@@ -1,25 +1,28 @@
 import React, { useMemo } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useTranslations } from 'next-intl'
-import ChartSource from './chart-widget/components/sources'
 
 interface Props {
-  tabKeys: string[]
+  tabKeys: `${TabKey}`[]
   tabContents: React.ReactNode
 }
 
-export enum ChartTabKey {
+export enum TabKey {
   Sources = 'sources',
   Info = 'info',
   Axes = 'axes',
   TimeFrame = 'timeframe',
+  Columns = 'columns',
+  Conditional = 'conditional',
 }
 
 const TABS = [
-  { value: ChartTabKey.Sources, label: 'sources' },
-  { value: ChartTabKey.Info, label: 'widget_info' },
-  { value: ChartTabKey.Axes, label: 'axes' },
-  { value: ChartTabKey.TimeFrame, label: 'timeframe' },
+  { value: TabKey.Sources, label: 'dashboard.sources' },
+  { value: TabKey.Columns, label: 'dashboard.columns' },
+  { value: TabKey.Info, label: 'dashboard.widget_info' },
+  { value: TabKey.Axes, label: 'dashboard.axes' },
+  { value: TabKey.TimeFrame, label: 'dashboard.timeframe' },
+  { value: TabKey.Conditional, label: 'dashboard.conditional' },
 ]
 
 const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
@@ -27,7 +30,7 @@ const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
     () => TABS.filter((tab) => tabKeys.includes(tab.value)),
     [tabKeys],
   )
-  const t = useTranslations('dashboard')
+  const t = useTranslations()
   return (
     <Tabs
       defaultValue="sources"

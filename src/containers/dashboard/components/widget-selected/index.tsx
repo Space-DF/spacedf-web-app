@@ -1,7 +1,8 @@
 import { WidgetType } from '@/widget-models/widget'
-import React, { memo } from 'react'
+import React from 'react'
 
 import ChartWidget from './components/chart-widget'
+import TableWidget from './components/table'
 
 interface Props {
   selectedWidget: WidgetType
@@ -17,7 +18,7 @@ const WidgetSelected: React.FC<Props> = ({ selectedWidget, onClose }) => {
     case WidgetType.Map:
       return <div>Map</div>
     case WidgetType.Table:
-      return <div>Table</div>
+      return <TableWidget selectedWidget={selectedWidget} onClose={onClose} />
     case WidgetType.Value:
       return <div>Value</div>
     default:
