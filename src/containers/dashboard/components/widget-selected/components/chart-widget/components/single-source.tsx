@@ -88,6 +88,7 @@ interface Props {
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
   const form = useFormContext<SourceChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
+  const [isLegendManualChange, setIsLegendManualChange] = useState(false)
   const t = useTranslations('dashboard')
   const deviceId = form.watch(`sources.${index}.device_id`)
 
@@ -104,14 +105,19 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
 
   const selectField = form.watch(`sources.${index}.field`)
 
+  const handleLegendManualChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const value = event.target.value
+    setIsLegendManualChange(true)
+    form.setValue(`sources.${index}.legend`, value)
+  }
+
   useEffect(() => {
-    if (selectField && !legendValue) {
-      const field = mockFieldData.find(
-        (field) => field.id === selectField,
-      )?.name
-      if (!field) return
-      form.setValue(`sources.${index}.legend`, field)
-    }
+    if (isLegendManualChange) return
+    const field = mockFieldData.find((field) => field.id === selectField)?.name
+    if (!field) return
+    form.setValue(`sources.${index}.legend`, field)
   }, [selectField])
 
   return (
@@ -293,6 +299,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                       <Input
                         {...field}
                         className="border-none outline-none ring-0 focus:outline-none focus:ring-0"
+                        onChange={handleLegendManualChange}
                       />
                     </FormControl>
                     <FormMessage />

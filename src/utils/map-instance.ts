@@ -46,6 +46,7 @@ class MapInstance {
   }
 
   public getMapStyle(): Record<string, any> {
+    if (!this.map) return {}
     return (this.map?.getStyle() || {}) as Record<string, any>
   }
 

@@ -8,6 +8,7 @@ const mapInstance = MapInstance.getInstance()
 export const MapProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     window.mapInstance = mapInstance
+    window.mapLayer = []
   }, [])
   return <>{children}</>
 }
