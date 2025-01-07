@@ -116,3 +116,10 @@ html {
   background-color: gray;
   cursor: default;
 }
+
+.text-gradiant {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(90.37deg, #6580EB 10.98%, #9957EC 57.08%, #B443ED 95.56%);
+}

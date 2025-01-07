@@ -10,6 +10,7 @@ import languageName from '../../messages/en/language-name.json'
 import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
+import organization from '../../messages/en/organization.json'
 import MapInstance from '@/utils/map-instance'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { LayersList } from 'deck.gl'
@@ -25,6 +26,7 @@ type Messages = {
   generalSettings: typeof generalSettings
   dashboard: typeof dashboard
   space: typeof space
+  organization: typeof organization
   // Create a new type by combining all message types
 }
 
