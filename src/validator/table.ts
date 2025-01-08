@@ -20,8 +20,8 @@ export const dataTableSchema = z.object({
       column_name: z
         .string()
         .min(1, { message: 'Please enter column name' })
-        .max(100, { message: 'Column name is too long' }),
-      field: z.string(),
+        .max(50, { message: 'Maximum 50 characters longs!' }),
+      field: z.string().min(1, { message: `Can't be empty!` }),
       type: z.enum(['General', 'Specific'], {
         required_error: 'Type is required',
       }),
@@ -35,6 +35,8 @@ export const dataTableSchema = z.object({
   }),
   conditional: z.string().optional().nullable(),
 })
+
+export type Device = z.infer<typeof sourceSchema>['devices'][number]
 
 export type dataTablePayload = z.infer<typeof dataTableSchema>
 

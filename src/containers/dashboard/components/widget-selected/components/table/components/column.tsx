@@ -142,7 +142,7 @@ const Column: React.FC<ColumnProps> = ({
             <div className="mr-2 flex w-full items-center justify-between">
               <div className="flex items-center gap-2">
                 <Drag />
-                <p>#{index}</p>
+                <p>#{index + 1}</p>
               </div>
               <Trash
                 width={20}
