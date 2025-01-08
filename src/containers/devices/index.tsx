@@ -7,6 +7,7 @@ import React, { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
+import DeviceIcon from '/public/images/device-icon.webp'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
@@ -44,8 +45,12 @@ import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { useLayout } from '@/stores'
-import { uppercaseFirstLetter } from '@/utils'
+import { getNewLayouts, useLayout } from '@/stores'
+import { setCookie, uppercaseFirstLetter } from '@/utils'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useSession } from 'next-auth/react'
+import ImageWithBlur from '@/components/ui/image-blur'
+import { COOKIES, NavigationEnums } from '@/constants'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -53,6 +58,7 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout),
   )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
   const [selected, setSelected] = useState<number>()
@@ -60,18 +66,22 @@ const Devices = () => {
   return (
     <RightSideBarLayout
       onClose={() => {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
         setCookieDirty(true)
         toggleDynamicLayout('devices')
       }}
       title={t('selected_devices')}
     >
-      <div className="h-screen overflow-y-auto pb-20">
-        <DeviceSelected selected={selected} />
+      <div className="flex h-full flex-col pt-6">
+        <div className="px-4">
+          <DeviceSelected selected={selected} />
+        </div>
         <DevicesList
           selected={selected}
           handleSelected={(id: number) => setSelected(id)}
         />
-        <Nodata content={t('nodata', { module: t('devices') })} />
+        {/*<Nodata content={t('nodata', { module: t('devices') })} />*/}
       </div>
     </RightSideBarLayout>
   )
@@ -96,6 +106,13 @@ const AddDeviceDialog = () => {
   const [step, setStep] = useState<Step>('select_mode')
   // const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
+  const [open, setOpen] = useState(false)
+
+  const setOpenDrawerIdentity = useIdentityStore(
+    useShallow((state) => state.setOpenDrawerIdentity),
+  )
+  const { status } = useSession()
+  const isAuth = status === 'authenticated'
 
   const steps: Record<Step, Steps> = {
     select_mode: {
@@ -154,17 +171,26 @@ const AddDeviceDialog = () => {
 
   return (
     <div className="flex items-center justify-center">
+      <Button
+        className="h-8 gap-2 rounded-lg"
+        onClick={() => {
+          if (!isAuth) {
+            setOpenDrawerIdentity(true)
+            return
+          }
+          setOpen(true)
+        }}
+      >
+        {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
+        <PlusIcon />
+      </Button>
       <Dialog
-        onOpenChange={() => {
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open)
           setStep('select_mode')
         }}
       >
-        <DialogTrigger asChild>
-          <Button className="h-8 gap-2 rounded-lg">
-            {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
-            <PlusIcon />
-          </Button>
-        </DialogTrigger>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
             <DialogHeader className="border-0">
@@ -193,6 +219,12 @@ const AddDeviceDialog = () => {
 
 const DeviceSelected = ({ selected }: { selected?: number }) => {
   const t = useTranslations('addNewDevice')
+  const setOpenDrawerIdentity = useIdentityStore(
+    useShallow((state) => state.setOpenDrawerIdentity),
+  )
+  const { status } = useSession()
+  const isAuth = status === 'authenticated'
+
   const InformationItem = (props: { label: string; content: string }) => {
     return (
       <div className="flex gap-4 text-sm">
@@ -200,6 +232,57 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
           {props.label}
         </span>
         <span className="text-brand-component-text-gray">{props.content}</span>
+      </div>
+    )
+  }
+
+  if (!isAuth) {
+    return (
+      <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-brand-component-fill-positive" />
+            <span className="text-xs font-medium text-brand-component-text-dark">
+              {t('online')}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="icon"
+              className="size-8"
+              onClick={() => {
+                setOpenDrawerIdentity(true)
+              }}
+            >
+              <Pencil size={16} />
+            </Button>
+            <Button
+              size="icon"
+              variant="destructive"
+              className="size-8 border-2 border-brand-semantic-accent-dark"
+              onClick={() => {
+                setOpenDrawerIdentity(true)
+              }}
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <InformationItem
+            label={`${t('device_id')}:`}
+            content={'DMZ 01 12312123'}
+          />
+          <InformationItem
+            label={`${t('device_name')}:`}
+            content={'DF Sticker Tracker'}
+          />
+          <InformationItem
+            label={`${t('deveui')}`}
+            content={'A591DEA6EB25DB6C'}
+          />
+          <InformationItem label={`${t('description')}:`} content={'Bus'} />
+        </div>
       </div>
     )
   }
@@ -286,26 +369,28 @@ const DevicesList = ({
   const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
-    <div className="mt-6 flex flex-col gap-4">
+    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
       </div>
-      <div className="-mx-2 flex flex-wrap gap-y-4">
+      <div className="-mx-2 flex flex-wrap gap-y-4 pb-6">
         {devices.map((item) => (
           <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
             <div
               className={cn(
                 'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                { 'border-brand-component-stroke-dark': item.id === selected },
+                {
+                  'border-brand-component-stroke-dark': item.id === selected,
+                },
               )}
               onClick={() => handleSelected(item.id)}
             >
               <div className="flex items-center justify-between">
                 <div className="size-8">
-                  <img src="https://placehold.co/32x32" />
+                  <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
                 </div>
               </div>
               <div className="mb-7 mt-2 text-xs font-medium">
@@ -373,7 +458,10 @@ const AddDeviceSuccess = () => {
 
 const addDeviceSchema = z.object({
   device_name: z.string({ message: 'This field cannot be empty' }),
-  dev_ui: z.string({ message: 'This field cannot be empty' }).min(16, {
+  dev_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
+    message: 'Must be at least 16 characters long.',
+  }),
+  join_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
     message: 'Must be at least 16 characters long.',
   }),
   description: z
@@ -414,11 +502,11 @@ const AddDeviceForm = ({
         )}
         <FormField
           control={form.control}
-          name="device_name"
+          name="dev_eui"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('device_name')}
+                {t('devui')}
                 <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
@@ -434,11 +522,31 @@ const AddDeviceForm = ({
         />
         <FormField
           control={form.control}
-          name="dev_ui"
+          name="join_eui"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('devui')}
+                {t('joineui')}
+                <span className="text-brand-component-text-accent">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  disabled={isModeAuto}
+                  placeholder="00 04 A3 0B  00 1B B0 DF"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="device_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="font-semibold text-brand-component-text-dark">
+                {t('device_name')}
                 <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>

@@ -18,6 +18,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { wrap } from 'popmotion'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
 
 const variants = {
   enter: (direction: number) => {
@@ -49,16 +51,14 @@ const swipePower = (offset: number, velocity: number) => {
 export default function Guideline() {
   const [[page, direction], setPage] = useState([0, 0])
   const t = useTranslations('onboarding')
-  const [open, setOpen] = useState(true)
+  const { openGuideline, setOpenGuideline } = useIdentityStore(
+    useShallow((state) => state),
+  )
 
   const { theme = 'light' } = useTheme()
 
   const handleCloseGuideline = useCallback(() => {
-    setOpen(false)
-  }, [])
-
-  const handleGoToPage = useCallback((page: number) => {
-    setPage([page, 0])
+    setOpenGuideline(false)
   }, [])
 
   const handleGoToStep = useCallback((page: number) => {
@@ -90,7 +90,7 @@ export default function Guideline() {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={openGuideline} onOpenChange={setOpenGuideline}>
       <VisuallyHidden>
         <DialogTitle />
       </VisuallyHidden>
@@ -99,15 +99,15 @@ export default function Guideline() {
         aria-describedby={undefined}
       >
         <div className="flex size-full flex-col overflow-auto">
-          <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
+          <div className="sticky top-0 z-40 flex items-center justify-end border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
             <Button
               onClick={handleCloseGuideline}
               variant="outline"
               size="lg"
               className={cn(
-                'visible items-center gap-2 rounded-lg border-brand-stroke-dark-soft text-brand-dark-fill-secondary opacity-100 shadow-none transition-all duration-300 dark:border-brand-stroke-outermost dark:text-white',
+                'items-center gap-2 rounded-lg border-brand-stroke-dark-soft text-brand-dark-fill-secondary shadow-none transition-all duration-300 dark:border-brand-stroke-outermost dark:text-white',
                 {
-                  'invisible opacity-0': imageIndex === 2,
+                  hidden: imageIndex === 2,
                 },
               )}
             >
@@ -117,9 +117,9 @@ export default function Guideline() {
             <Button
               size="lg"
               className={cn(
-                'invisible gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost opacity-0 shadow-sm transition-all duration-300 dark:border-brand-stroke-outermost',
+                'gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm transition-all duration-300 dark:border-brand-stroke-outermost',
                 {
-                  'visible opacity-100': imageIndex === 2,
+                  hidden: imageIndex !== 2,
                 },
               )}
               onClick={handleCloseGuideline}

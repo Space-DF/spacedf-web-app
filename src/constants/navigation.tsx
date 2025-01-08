@@ -23,6 +23,7 @@ export type Navigation = {
   isDynamic?: boolean
   isAlwayEnabled?: boolean
   onClick?: () => void
+  key: 'digital_twin' | 'devices' | 'dashboard' | 'workspace_settings'
 }
 
 export type DynamicLayout =
@@ -38,6 +39,7 @@ export const navigations = (
   const { currentSpace } = useGlobalStore(useShallow((state) => state))
   return [
     {
+      key: 'digital_twin',
       href: NavigationEnums.DIGITAL_TWIN,
       title: translateFn('digital_twin'),
       icon: <CubeFocus />,
@@ -45,12 +47,14 @@ export const navigations = (
       isAlwayEnabled: true,
     },
     {
+      key: 'devices',
       href: NavigationEnums.DEVICES,
       title: translateFn('devices'),
       icon: <Devices />,
       isDynamic: true,
     },
     {
+      key: 'dashboard',
       href: NavigationEnums.DASHBOARD,
       title: translateFn('dashboard'),
       icon: <CodeSandbox />,
@@ -69,6 +73,7 @@ export const navigations = (
     //   isDynamic: true,
     // },
     {
+      key: 'workspace_settings',
       href: NavigationEnums.WORKSPACE_SETTINGS,
       title: translateFn('workspace_settings'),
       icon: <Warehouse />,

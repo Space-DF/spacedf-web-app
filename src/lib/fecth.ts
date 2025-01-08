@@ -42,6 +42,7 @@ export class FetchAPI {
     const error: any = new Error('An error occurred while sending data.')
 
     error.code = responseJson?.code || null
+    error.status = response?.status || 400
     error.message = responseJson || 'Something went wrong'
 
     throw error

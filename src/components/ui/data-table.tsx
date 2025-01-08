@@ -22,11 +22,15 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  tableHeadClass?: string
+  tableCellClass?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  tableHeadClass,
+  tableCellClass,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -52,7 +56,7 @@ export function DataTable<TData, TValue>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead className={tableHeadClass || ''} key={header.id}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -73,7 +77,7 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell className={tableCellClass || ''} key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -100,7 +104,7 @@ export function DataTable<TData, TValue>({
         </Button>
         <div className="text-sm font-semibold text-brand-component-text-gray">
           Page {table.getState().pagination.pageIndex + 1}/
-          {table.getPageCount().toLocaleString()}
+          {Math.max(table.getPageCount(), 1)}
         </div>
         <Button
           variant="outline"

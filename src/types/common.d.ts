@@ -29,3 +29,8 @@ export type SpaceUser = {
 // }
 
 export type APIResponse<TResponse = any> = FullResponse<TResponse>
+
+export type TransFunction = (
+  key: string,
+  params?: Record<string, any>,
+) => string
