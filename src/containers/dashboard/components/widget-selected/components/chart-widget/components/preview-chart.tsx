@@ -168,7 +168,11 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
       config={chartConfig}
       style={isSingleSource ? { height: 90, width: '100%' } : {}}
     >
-      <ComposedChart data={dailyOrders} accessibilityLayer margin={{ top: 20 }}>
+      <ComposedChart
+        data={dailyOrders}
+        accessibilityLayer
+        margin={{ top: 20, left: 10, right: 10 }}
+      >
         <defs>
           {sources.map((source, index) => (
             <linearGradient
