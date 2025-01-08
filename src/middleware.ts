@@ -36,6 +36,8 @@ export default async function middleware(request: NextRequest) {
   if (subdomain) {
     let pathWithoutLocale = url.pathname.replace(`/${locale}`, '')
 
+    console.log({ pathWithoutLocale, segments })
+
     // Subdomain available, rewriting
 
     if (
