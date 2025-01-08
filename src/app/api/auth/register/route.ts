@@ -8,6 +8,7 @@ export async function POST(
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const spacedf = await SpaceDFClient.getInstance()
+
     const body = await req.json()
 
     const client = spacedf.getClient()

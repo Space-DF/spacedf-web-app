@@ -15,11 +15,12 @@ import { Separator } from '@/components/ui/separator'
 import AddNewSpace from './add-new-space'
 import Space from './space'
 import SpaceMenuItem from './space-menu-item'
-import { useGetSpaces } from '@/app/[locale]/(auth)/spaces/hooks'
+
 import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
+import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean

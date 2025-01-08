@@ -4,8 +4,9 @@ import React from 'react'
 import { SpacePreviewImage } from './space-preview-image'
 import { SpaceSettings } from './space-settings'
 import { useParams } from 'next/navigation'
-import { useGetSpaceDetails } from '@/app/[locale]/(auth)/spaces/hooks'
+
 import EffectLayout from '@/components/ui/effect-layout'
+import { useGetSpaceDetails } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 
 export default function WorkspaceSettings() {
   const params = useParams()
