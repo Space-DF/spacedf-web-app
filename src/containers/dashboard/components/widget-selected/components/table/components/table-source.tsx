@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import {
   DropdownMenu,
@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import { dataTablePayload } from '@/validator'
+import { dataTablePayload, Device } from '@/validator'
 import { Button } from '@/components/ui/button'
 import { CaretDown } from '@/components/icons'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,10 @@ import { Label } from '@/components/ui/label'
 import { FormLabel } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
 import { DEVICES } from '../table.const'
+
+const getDeviceNames = (devices: Device[]) => {
+  return devices.map((device) => device.device_name).join(', ')
+}
 
 const Source: React.FC = () => {
   const t = useTranslations()
@@ -30,6 +34,11 @@ const Source: React.FC = () => {
 
     setValue('source.devices', updatedDevices)
   }
+
+  const deviceNames = useMemo(
+    () => getDeviceNames(selectedDevices),
+    [selectedDevices],
+  )
 
   return (
     <div className="mt-4 size-full px-4">
@@ -48,7 +57,9 @@ const Source: React.FC = () => {
             variant="ghost"
           >
             <div className="flex w-full items-center justify-between text-xs text-brand-component-text-gray">
-              {t('dashboard.select_device')}
+              <p className="max-w-[86%] overflow-hidden text-ellipsis whitespace-nowrap">
+                {deviceNames || t('dashboard.select_device')}
+              </p>
               <CaretDown />
             </div>
           </Button>

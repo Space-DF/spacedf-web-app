@@ -1,8 +1,4 @@
-export interface Device {
-  device_id: string
-  device_name: string
-  [key: string]: any
-}
+import { Device } from '@/validator'
 
 export const DEVICES: Device[] = [
   {
