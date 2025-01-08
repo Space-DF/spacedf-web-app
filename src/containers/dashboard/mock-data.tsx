@@ -14,16 +14,16 @@ import {
   YAxis,
 } from 'recharts'
 
-import { ChartConfig } from '@/components/ui/chart'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import { Equalizer } from '@/components/icons/equalizer'
-import ReactGridLayout, { Responsive, WidthProvider } from 'react-grid-layout'
+import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
 
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { useMounted } from '@/hooks'
+import GridLayout from './components/grid-layout'
 
 const chartData = [
   {
@@ -58,16 +58,9 @@ const chartData = [
 
 const polarData = [{ desktop: 215 }]
 
-const chartConfig = {
-  desktop: {
-    label: 'Temperature',
-    color: '#171A28',
-  },
-} satisfies ChartConfig
-
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
-const screenLayout: ReactGridLayout.Layout[] = [
+const screenLayout: Layout[] = [
   { i: '1', x: 0, y: 0, w: 3, h: 1 },
   { i: '2', x: 3, y: 0, w: 1, h: 1 },
   { i: '3', x: 4, y: 0, w: 1, h: 1 },
@@ -84,37 +77,49 @@ const screenLayout: ReactGridLayout.Layout[] = [
   { i: '14', x: 0, y: 9, w: 5, h: 4, minW: 2, minH: 3 },
 ]
 
-export const MockData = () => {
+const columns = 5
+
+interface Props {
+  isEdit?: boolean
+}
+
+export const MockData: React.FC<Props> = ({ isEdit }) => {
   const { mounted } = useMounted()
-  const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>({
+  const [layouts, setLayouts] = useState<Layouts>({
     lg: screenLayout,
     md: screenLayout,
     sm: screenLayout,
     xxs: screenLayout,
   })
 
-  const onLayoutChange = (
-    _: ReactGridLayout.Layout[],
-    layouts: ReactGridLayout.Layouts,
-  ) => {
+  const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
     setLayouts({ ...layouts })
   }
 
   return (
-    <div className="mt-1 h-dvh overflow-y-scroll scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-      <div className="w-full pb-28">
+    <div
+      className={cn(
+        'mt-1 h-dvh overflow-y-scroll scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]',
+      )}
+    >
+      <div
+        className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
+        id="dashboard-container"
+      >
+        {isEdit && <GridLayout margin={5} rowHeight={60} />}
         <ResponsiveReactGridLayout
           layouts={layouts}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 5 }}
+          cols={{ lg: 5, md: 5, sm: 5, xs: 5, xxs: 5 }}
           rowHeight={60}
           margin={[5, 5]}
-          containerPadding={[0, 0]}
-          onLayoutChange={onLayoutChange}
+          onLayoutChange={handleLayoutChange}
           measureBeforeMount={false}
           useCSSTransforms={mounted}
           compactType="vertical"
           preventCollision={false}
+          isDraggable={isEdit}
+          isResizable={isEdit}
         >
           <div key="1">
             <WidgetSensor status="off">
@@ -144,7 +149,7 @@ export const MockData = () => {
             <WidgetSlider />
           </div>
           <div key="8">
-            <WidgetChart className="dark:stroke-[#4006AA] dark:text-[#4006AA]">
+            <WidgetChart className="h-fit dark:stroke-[#4006AA] dark:text-[#4006AA]">
               <WidgetTitle className="mb-2">New Chart Widget</WidgetTitle>
             </WidgetChart>
           </div>
@@ -168,7 +173,7 @@ export const MockData = () => {
               <WidgetTitle>Water Flood Level</WidgetTitle>
             </WidgetChart>
           </div>
-          <div key={'13'}>
+          <div key={'13'} className="h-fit">
             <PolarChart className="aspect-square dark:text-[#4006AA]">
               <WidgetTitle>New Gauge Widget</WidgetTitle>
             </PolarChart>
