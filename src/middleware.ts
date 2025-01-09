@@ -39,8 +39,6 @@ export default async function middleware(request: NextRequest) {
 
   const subdomain = await getValidSubdomain(host)
 
-  // segments = segments.filter((seg) => seg !== subdomain)
-
   if (subdomain) {
     url.pathname = `/${locale}/${subdomain}/${segments.join('/') || ''}` // Rewrite path for dynamic subdomain
     // let pathWithoutLocale = url.pathname.replace(`/${locale}`, '')
