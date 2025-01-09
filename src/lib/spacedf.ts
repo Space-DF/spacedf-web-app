@@ -1,8 +1,7 @@
+import { getClientOrganization } from '@/utils'
+import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
-import { getSession } from 'next-auth/react'
 import { cookies } from 'next/headers'
-import { authOptions } from './auth'
-import { getServerSession } from 'next-auth'
 
 export class SpaceDFClient {
   private static instance: SpaceDFClient | null = null
@@ -16,11 +15,16 @@ export class SpaceDFClient {
   }
 
   private async initialize() {
-    const cookieStore = await cookies()
-    const organization = cookieStore.get('organization')
+    let organization = ''
+
+    if (typeof window !== 'undefined') {
+      organization = await getClientOrganization()
+    } else {
+      organization = await getServerOrganization()
+    }
 
     this.client = new SpaceDF({
-      organization: organization?.value || '',
+      organization: organization || '',
       APIKey: this.api_key,
     })
   }
