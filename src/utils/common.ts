@@ -1,4 +1,5 @@
 import { DynamicLayout, NavigationEnums, dynamicLayoutKeys } from '@/constants'
+import Cookies from 'js-cookie'
 
 export const getLocalStorage = (key: string, initialValue: any) => {
   if (typeof window !== 'undefined') {
@@ -45,4 +46,13 @@ export const delay = async (delayMsTime: number = 0) => {
       }),
     )
   })
+}
+
+export const getClientOrganization = async () => {
+  if (typeof window !== 'undefined') {
+    // On client side, get the host from window
+    return Cookies.get('organization') || ''
+  }
+
+  return ''
 }

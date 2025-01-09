@@ -15,6 +15,7 @@ export const getCookieServer = <TDefaultValue = any>(
   return defaultValue
 }
 
-export const getOrganization = () => {
-  return cookies().get('organization')
+export const getServerOrganization = async () => {
+  const cookieStore = await cookies()
+  return (cookieStore.get('organization')?.value || '') as string
 }

@@ -1,6 +1,6 @@
-export const getValidSubdomain = (host?: string | null) => {
-  console.log({ host })
+export const getValidSubdomain = async (host?: string | null) => {
   let subdomain: string | null = null
+
   if (!host && typeof window !== 'undefined') {
     // On client side, get the host from window
     host = window.location.host

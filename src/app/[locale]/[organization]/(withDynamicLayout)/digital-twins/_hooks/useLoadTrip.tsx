@@ -235,11 +235,8 @@ export const useLoadTrip = () => {
     // • location: Array (2)
     // 0: 108.22307683672547
     // 1: 16.067800337753425
-    // console.log({ locations })
 
     const deckLayers = (window.devicesHistoryOverlay as any)?._props.layers
-
-    // console.log({ deckLayers, locations })
 
     if (!deckLayers) return
 
@@ -296,8 +293,6 @@ export const useLoadTrip = () => {
     window.devicesHistoryOverlay = deckOverlay
 
     const deckLayers = (window.devicesHistoryOverlay as any)?._props.layers
-
-    console.log({ deckLayers })
 
     map?.addControl(window.devicesHistoryOverlay)
   }

@@ -22,6 +22,14 @@ export default async function middleware(request: NextRequest) {
 
   const host = request.headers.get('host')
 
+  const isLocaleValid = locales.includes(locale as Locale)
+
+  // If the first segment isn't a valid locale, default to the defaultLocale
+  if (!isLocaleValid) {
+    locale = defaultLocale
+    segments = url.pathname.split('/').filter(Boolean) // Reset segments without locale
+  }
+
   // Step 2: Create and call the next-intl middleware (example)
   const handleI18nRouting = createMiddleware({
     locales,
@@ -29,33 +37,26 @@ export default async function middleware(request: NextRequest) {
     // localePrefix: 'as-needed',
   })
 
-  const subdomain = getValidSubdomain(host)
+  const subdomain = await getValidSubdomain(host)
 
   // segments = segments.filter((seg) => seg !== subdomain)
 
   if (subdomain) {
-    let pathWithoutLocale = url.pathname.replace(`/${locale}`, '')
-
-    console.log({ pathWithoutLocale, segments })
-
-    // Subdomain available, rewriting
+    url.pathname = `/${locale}/${subdomain}/${segments.join('/') || ''}` // Rewrite path for dynamic subdomain
+    // let pathWithoutLocale = url.pathname.replace(`/${locale}`, '')
 
     if (
       locale != null &&
-      !segments.length &&
+      !segments.length && // No additional path segments
       locales.includes(locale as Locale)
     ) {
-      pathWithoutLocale = `/digital-twins`
+      url.pathname = `/${locale}/${subdomain}/digital-twins`
     }
-
-    let rewriteDomain = `/${locale}/${subdomain}${pathWithoutLocale}`
-
-    console.log({ rewriteDomain })
-
-    request.nextUrl.pathname = rewriteDomain
-
-    return handleI18nRouting(request)
+  } else {
+    url.pathname = `/${locale}/${segments.join('/') || ''}`
   }
+
+  request.nextUrl.pathname = url.pathname
 
   // Handle the locale routing
   const response = handleI18nRouting(request)
