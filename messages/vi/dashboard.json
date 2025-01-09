@@ -57,5 +57,15 @@
   "no_data": "Không có dữ liệu",
   "delete_column": "Xoá cột",
   "confirm_delete_column": "Bạn có thực sự muốn xóa cột này và cấu hình của nó không?",
-  "enter_widget_name": "Nhập tên tiện ích"
+  "enter_widget_name": "Nhập tên tiện ích",
+  "y_axis": "Trục Y",
+  "orientation": "Hướng",
+  "left": "Trái",
+  "right": "Phải",
+  "unit": "Đơn vị",
+  "hide_axis": "Ẩn trục",
+  "show_x_grid": "Hiện trục X",
+  "date_format": "Định dạng ngày",
+  "select_format": "Chọn định dạng",
+  "default": "Mặc định"
 }

@@ -57,5 +57,15 @@
   "add_device": "Add Device",
   "delete_column": "Delete Column",
   "confirm_delete_column": "Do you really want to delete this column and its configuration?",
-  "enter_widget_name": "Enter widget name"
+  "enter_widget_name": "Enter widget name",
+  "y_axis": "Y Axis",
+  "orientation": "Orientation",
+  "left": "Left",
+  "right": "Right",
+  "unit": "Unit",
+  "hide_axis": "Hide Axis",
+  "show_x_grid": "Show X Grid",
+  "date_format": "Date Format",
+  "select_format": "Select Format",
+  "default": "Default"
 }
