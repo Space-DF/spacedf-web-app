@@ -1,8 +1,10 @@
 'use client'
 
 import { ChartConfig, ChartContainer } from '@/components/ui/chart'
+import { TimeFormat } from '@/constants'
 import { SourceChartPayload } from '@/validator'
-import { ChartSources, ChartType } from '@/widget-models/chart'
+import { ChartSources, ChartType, Orientation } from '@/widget-models/chart'
+import dayjs from 'dayjs'
 import React from 'react'
 import {
   Area,
@@ -16,6 +18,7 @@ import {
   Tooltip,
   LabelList,
 } from 'recharts'
+import { brandColors } from '@/configs'
 
 const chartConfig = {
   desktop: {
@@ -26,7 +29,6 @@ const chartConfig = {
 
 export const dailyOrders = [
   {
-    day: 'Mon',
     'source.0': 38,
     'source.1': 22,
     'source.2': 44,
@@ -34,7 +36,6 @@ export const dailyOrders = [
     'source.4': 3,
   },
   {
-    day: 'Tue',
     'source.0': 53,
     'source.1': 57,
     'source.2': 61,
@@ -42,7 +43,6 @@ export const dailyOrders = [
     'source.4': 9,
   },
   {
-    day: 'Wed',
     'source.0': 38,
     'source.1': 49,
     'source.2': 68,
@@ -50,7 +50,6 @@ export const dailyOrders = [
     'source.4': 92,
   },
   {
-    day: 'Thu',
     'source.0': 85,
     'source.1': 96,
     'source.2': 16,
@@ -58,7 +57,6 @@ export const dailyOrders = [
     'source.4': 18,
   },
   {
-    day: 'Fri',
     'source.0': 9,
     'source.1': 23,
     'source.2': 58,
@@ -66,7 +64,6 @@ export const dailyOrders = [
     'source.4': 94,
   },
   {
-    day: 'Sat',
     'source.0': 50,
     'source.1': 68,
     'source.2': 20,
@@ -74,7 +71,6 @@ export const dailyOrders = [
     'source.4': 20,
   },
   {
-    day: 'Sun',
     'source.0': 83,
     'source.1': 75,
     'source.2': 2,
@@ -83,10 +79,22 @@ export const dailyOrders = [
   },
 ]
 
+const today = dayjs()
+
+const generateData = (format: TimeFormat) =>
+  dailyOrders.map((order, index) => {
+    const date = today.add(index, 'day').format(format)
+    return { ...order, day: date }
+  })
+
 interface PreviewLineChartProps {
   sources: SourceChartPayload['sources']
   isSingleSource?: boolean
   showData?: boolean
+  orientation?: Orientation
+  hideAxis?: boolean
+  showXGrid?: boolean
+  format?: TimeFormat
 }
 
 const renderChartComponents = (
@@ -95,6 +103,10 @@ const renderChartComponents = (
   index: number,
   showData?: boolean,
 ) => {
+  const color =
+    source.color === 'default'
+      ? brandColors['component-fill-default-chart']
+      : `#${source.color}`
   switch (chartType) {
     case ChartType.LineChart:
       return (
@@ -103,7 +115,7 @@ const renderChartComponents = (
           key={index}
           type="linear"
           dataKey={`source.${index}`}
-          stroke={`#${source.color}`}
+          stroke={`${color}`}
           strokeWidth={2}
           dot={false}
           id="3"
@@ -122,7 +134,7 @@ const renderChartComponents = (
           type="linear"
           dataKey={`source.${index}`}
           name={source.legend}
-          stroke={`#${source.color}`}
+          stroke={color}
           strokeWidth={2}
           fillOpacity={1}
           fill={`url(#color${index})`}
@@ -142,8 +154,8 @@ const renderChartComponents = (
           type="linear"
           dataKey={`source.${index}`}
           name={source.legend}
-          stroke={`#${source.color}`}
-          fill={`#${source.color}`}
+          stroke={color}
+          fill={color}
           strokeWidth={2}
           stackId={2}
           legendType={
@@ -162,54 +174,60 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   sources,
   isSingleSource,
   showData,
+  orientation = Orientation.Left,
+  hideAxis = false,
+  showXGrid = false,
+  format = TimeFormat.FULL_DATE_MONTH_YEAR,
 }) => {
+  const data = generateData(format)
   return (
     <ChartContainer
       config={chartConfig}
       style={isSingleSource ? { height: 90, width: '100%' } : {}}
     >
       <ComposedChart
-        data={dailyOrders}
+        data={data}
         accessibilityLayer
         margin={{ top: 20, left: 10, right: 10 }}
       >
         <defs>
-          {sources.map((source, index) => (
-            <linearGradient
-              key={index}
-              id={`color${index}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="0%"
-                stopColor={`#${source.color}`}
-                stopOpacity={0.4}
-              />
-              <stop
-                offset="75%"
-                stopColor={`#${source.color}`}
-                stopOpacity={0.05}
-              />
-            </linearGradient>
-          ))}
+          {sources.map((source, index) => {
+            const color =
+              source.color === 'default'
+                ? brandColors['component-fill-default-chart']
+                : `#${source.color}`
+            return (
+              <linearGradient
+                key={index}
+                id={`color${index}`}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                <stop offset="75%" stopColor={color} stopOpacity={0.05} />
+              </linearGradient>
+            )
+          })}
         </defs>
 
         <YAxis
           axisLine={false}
           tickLine={false}
           width={20}
-          tick={!isSingleSource}
+          hide={hideAxis}
+          orientation={hideAxis ? undefined : orientation}
+          className="text-xs"
         />
         <XAxis
           dataKey="day"
           axisLine={false}
           tickLine={false}
-          tick={!isSingleSource}
+          hide={hideAxis}
+          className="text-xs"
         />
-        <CartesianGrid horizontal={!isSingleSource} vertical={false} />
+        <CartesianGrid horizontal={showXGrid} vertical={false} />
         {sources.map((source, index) =>
           renderChartComponents(source.chart_type, source, index, showData),
         )}

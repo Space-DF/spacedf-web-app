@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button'
 import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useMemo } from 'react'
+import React, { memo } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
 
 import { PreviewChart, dailyOrders } from './components/preview-chart'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import {
   defaultSourceChartValues,
   SourceChartPayload,
@@ -17,6 +17,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { TabsContent } from '@/components/ui/tabs'
 import ChartSource from './components/sources'
 import ChartWidgetInfo from './components/widget-info'
+import Axes from './components/axes'
+import { Orientation } from '@/widget-models/chart'
+import { TimeFormat } from '@/constants'
 
 interface Props {
   selectedWidget: WidgetType
@@ -43,7 +46,7 @@ const TabContents = () => {
         <ChartWidgetInfo />
       </TabsContent>
       <TabsContent value={TabKey.Axes} className="mt-4 px-4">
-        <p>Axes</p>
+        <Axes />
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
         <p>Content for Timeframe</p>
@@ -64,17 +67,39 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
           show_value: true,
         },
       },
+      axes: {
+        y_axis: {
+          unit: '',
+          orientation: Orientation.Left,
+        },
+        format: TimeFormat.FULL_DATE_MONTH_YEAR,
+      },
     },
     mode: 'onChange',
   })
 
-  const sourcesData = form.watch('sources')
+  const { control } = form
+
+  const sourcesData = useWatch({
+    control,
+    name: 'sources',
+  })
 
   const isSingleSource = sourcesData.length === 1
 
-  const widgetName = form.watch('widget_info.name')
+  const widgetName = useWatch({ control, name: 'widget_info.name' })
 
-  const showData = form.watch('widget_info.appearance.show_value')
+  const [showData, orientation, unit, hideAxis, showXGrid, format] = useWatch({
+    control,
+    name: [
+      'widget_info.appearance.show_value',
+      'axes.y_axis.orientation',
+      'axes.y_axis.unit',
+      'axes.hide_axis',
+      'axes.is_show_grid',
+      'axes.format',
+    ],
+  })
 
   const handleSaveForm = async () => {
     const isValid = await form.trigger()
@@ -105,15 +130,19 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
                 </p>
                 <div className="grid grid-cols-1">
                   {sourcesData.length === 1 && (
-                    <p className="text-lg font-bold">
+                    <p className="truncate text-lg font-bold">
                       {dailyOrders.at(-1)?.['source.0']}
-                      {sourcesData[0].field === '1' ? '°C' : 'ml'}
+                      {unit}
                     </p>
                   )}
                   <PreviewChart
                     sources={sourcesData}
                     isSingleSource={isSingleSource}
                     showData={showData}
+                    orientation={orientation}
+                    hideAxis={hideAxis}
+                    showXGrid={showXGrid}
+                    format={format as TimeFormat}
                   />
                 </div>
               </div>

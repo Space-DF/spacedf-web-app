@@ -5,15 +5,32 @@ export enum ChartType {
   BarChart = 'bar-chart',
 }
 
+export enum Orientation {
+  Left = 'left',
+  Right = 'right',
+}
+
+type YAxis = {
+  orientation: Orientation
+  unit: string
+}
+
 class Axes {
-  y_axis: object[]
+  y_axis: YAxis
   is_show_grid: boolean
   format: string
+  hide_axis: boolean
 
-  constructor(y_axis: object[], is_show_grid: boolean, format: string) {
+  constructor(
+    y_axis: YAxis,
+    is_show_grid: boolean,
+    format: string,
+    hide_axis: boolean,
+  ) {
     this.y_axis = y_axis
     this.is_show_grid = is_show_grid
     this.format = format
+    this.hide_axis = hide_axis
   }
 }
 

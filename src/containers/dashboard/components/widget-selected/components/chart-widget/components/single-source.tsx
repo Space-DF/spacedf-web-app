@@ -32,7 +32,6 @@ import { FieldArrayWithId, useFormContext } from 'react-hook-form'
 import { Trash } from '@/components/icons/trash'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -100,8 +99,6 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
   )
 
   const colorValue = form.watch(`sources.${index}.color`)
-
-  const legendValue = form.watch(`sources.${index}.legend`)
 
   const selectField = form.watch(`sources.${index}.field`)
 
@@ -332,7 +329,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                               </span>
                             }
                           >
-                            {colorValue && colorValue !== '171A28' ? (
+                            {colorValue && colorValue !== 'default' ? (
                               <div className="flex items-center space-x-2">
                                 <div
                                   className="h-4 w-4 rounded-full"
@@ -350,7 +347,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                                   <DefaultColor width={100} height={100} />
                                 </div>
                                 <p className="text-brand-component-text-dark">
-                                  Default
+                                  {t('default')}
                                 </p>
                               </div>
                             )}
@@ -360,13 +357,13 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                           <SelectGroup className="flex flex-wrap gap-2">
                             <SelectItem
                               showCheckIcon={false}
-                              value="171A28"
+                              value="default"
                               className="m-0 h-6 w-6 rounded-md border-brand-component-stroke-dark p-0"
                             >
                               <DefaultColor
                                 className={cn(
                                   'stroke-brand-component-stroke-dark-soft hover:stroke-brand-component-stroke-dark',
-                                  colorValue === '171A28'
+                                  colorValue === 'default'
                                     ? 'stroke-brand-component-stroke-dark dark:stroke-brand-stroke-gray'
                                     : '',
                                 )}

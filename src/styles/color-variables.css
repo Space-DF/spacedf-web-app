@@ -139,6 +139,7 @@
     --component-hover-warning: 39.52, 99.05%, 41.18%;
     --component-hover-warning-light: 39.63, 100%, 78.63%;
     --component-hover-warning-soft: 40, 100%, 96.47%;
+    --background-fill-default-chart: 229, 27%, 12%;
 
     /*"--icon-light-fixed": "#FFFFFF",*/
     /*"--icon-dark": "#171A28",*/
@@ -417,6 +418,7 @@
     --component-hover-warning: 39.52, 99.05%, 41.18%;
     --component-hover-warning-light: 39.23, 100%, 64.31%;
     --component-hover-warning-soft: 39.11, 98.75%, 31.37%;
+    --background-fill-default-chart: 0, 0%, 100%;
 
     /*"--icon-light-fixed": "#FFFFFF",*/
     /*"--icon-dark": "#FFFFFF",*/
