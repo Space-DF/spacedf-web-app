@@ -26,9 +26,9 @@ const TablePreview: React.FC<TablePreviewProps> = ({
 
   if (isEmptyData) {
     return (
-      <div className="text-center text-sm text-brand-component-text-gray">
+      <p className="py-2 text-center text-sm font-semibold text-brand-component-text-gray">
         {t('no_data')}
-      </div>
+      </p>
     )
   }
 

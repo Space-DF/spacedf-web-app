@@ -17,11 +17,12 @@ import { Input } from '@/components/ui/input'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
 import { useSpaceSettings } from '@/stores/space-settings-store'
 import { Space } from '@/types/space'
+
+import { useRouter } from '@/i18n/routing'
 import {
   useDeleteSpace,
   useGetSpaces,
-} from '@/app/[locale]/(auth)/spaces/hooks'
-import { useRouter } from '@/i18n/routing'
+} from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 
 const formSchema = z.object({
   text: z.string({ message: 'This field cannot be empty' }),

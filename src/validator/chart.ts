@@ -20,7 +20,7 @@ export const sourceChartSchema = z.object({
     name: z
       .string()
       .min(1, { message: 'Please enter widget name' })
-      .max(100, { message: 'Widget name is too long' }),
+      .max(100, { message: 'Maximum 100 characters long!' }),
     appearance: z.object({
       show_value: z.boolean(),
     }),

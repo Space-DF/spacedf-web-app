@@ -313,7 +313,7 @@ const Dashboard = () => {
                     </Button>
                   </div>
                 )}
-                <MockData />
+                <MockData isEdit={isEdit} />
                 {!selected.isDefault && (
                   <Nodata content={t('common.no_widget')} />
                 )}

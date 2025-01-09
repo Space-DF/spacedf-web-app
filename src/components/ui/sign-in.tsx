@@ -86,7 +86,14 @@ const SignInForm = () => {
             }),
           })
           setTimeout(() => {
-            router.push('/organization')
+            console.log(window.location.origin)
+            const [protocol, host] = window.location.origin.split('//')
+
+            const orgDomain = 'develop.' + host
+
+            const orgFullURL = [protocol, orgDomain].join('//')
+
+            window.location.href = orgFullURL
           }, 500)
           return data?.response_data?.message || 'Sign up successful!'
         },
@@ -202,7 +209,7 @@ const SignInForm = () => {
         </TypographySecondary>
         <Link
           className="text-gradiant cursor-pointer font-semibold hover:underline"
-          href="/sign-up"
+          href="/auth/sign-up"
         >
           {t('sign_up')}
         </Link>

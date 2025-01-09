@@ -1,6 +1,6 @@
-import { Device, useDeviceStore as useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { GLTFBuffer, GLTFWithBuffers } from '@loaders.gl/gltf'
+import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import {
   AmbientLight,
   Color,
@@ -12,19 +12,11 @@ import {
   TripsLayer,
 } from 'deck.gl'
 import { animate, linear } from 'popmotion'
-import {
-  MutableRefObject,
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
-import Supercluster from 'supercluster'
 import { Material } from '@deck.gl/core'
+import Supercluster from 'supercluster'
 
 const centerPoint: [number, number] = [108.22003, 16.05486]
 
@@ -150,29 +142,6 @@ export const useLoadDeviceModels = () => {
       initializedSuccess: state.initializedSuccess,
     })),
   )
-
-  // useEffect(() => {
-  //   const animation = animate({
-  //     from: 0,
-  //     to: 1800,
-  //     duration: (1800 * 60) / 1,
-  //     repeat: Infinity,
-  //     onUpdate: animationUpdate,
-  //   })
-  //   return () => animation.stop()
-  // }, [])
-
-  // const animationUpdate = (time: number) => {
-  //   const deckLayers = (deckOverlayRef.current as any)?._props?.layers[0] || []
-
-  //   // console.log({ deckLayers })
-
-  //   // console.log({ deckLayers })
-  //   // console.log({ time })
-  //   deckOverlayRef.current?.setProps({
-  //     layers: [deckLayers, createTripLayer(time)],
-  //   })
-  // }
 
   const startAnimation = useCallback(
     (device: Device, modelsProps: Record<string, GLTFWithBuffers>) => {
