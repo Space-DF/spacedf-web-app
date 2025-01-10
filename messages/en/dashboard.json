@@ -67,5 +67,22 @@
   "show_x_grid": "Show X Grid",
   "date_format": "Date Format",
   "select_format": "Select Format",
-  "default": "Default"
+  "default": "Default",
+  "hour": "Hour",
+  "day": "Day",
+  "week": "Week",
+  "month": "Month",
+  "custom": "Custom",
+  "aggregation_function": "Aggregation Function",
+  "minimum": "Minimum",
+  "average": "Average",
+  "maximum": "Maximum",
+  "from": "From",
+  "util": "Util",
+  "pick_a_date": "Pick a date",
+  "resolution": "Resolution",
+  "time_zone": "Timezone",
+  "none_select": "None selected",
+  "minutes": "Minutes",
+  "aggregation_function_info": "Choose whether to display the average, minimum or maximum value within a given timeframe."
 }

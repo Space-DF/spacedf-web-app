@@ -1,4 +1,4 @@
-import { SourceChartPayload } from '@/validator'
+import { ChartPayload } from '@/validator'
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import {
@@ -17,7 +17,7 @@ import { Switch } from '@/components/ui/switch'
 interface Props {}
 
 const ChartWidgetInfo: React.FC<Props> = () => {
-  const form = useFormContext<SourceChartPayload>()
+  const form = useFormContext<ChartPayload>()
   const t = useTranslations('dashboard')
   return (
     <div className="space-y-4">

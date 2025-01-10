@@ -8,18 +8,14 @@ import TabWidget, { TabKey } from '../tab-widget'
 
 import { PreviewChart, dailyOrders } from './components/preview-chart'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import {
-  defaultSourceChartValues,
-  SourceChartPayload,
-  sourceChartSchema,
-} from '@/validator'
+import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TabsContent } from '@/components/ui/tabs'
 import ChartSource from './components/sources'
 import ChartWidgetInfo from './components/widget-info'
 import Axes from './components/axes'
-import { Orientation } from '@/widget-models/chart'
 import { TimeFormat } from '@/constants'
+import TimeFrame from './components/time-frame'
 
 interface Props {
   selectedWidget: WidgetType
@@ -49,7 +45,7 @@ const TabContents = () => {
         <Axes />
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
-        <p>Content for Timeframe</p>
+        <TimeFrame />
       </TabsContent>
     </>
   )
@@ -57,24 +53,9 @@ const TabContents = () => {
 
 const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
   const t = useTranslations('dashboard')
-  const form = useForm<SourceChartPayload>({
-    resolver: zodResolver(sourceChartSchema),
-    defaultValues: {
-      sources: defaultSourceChartValues,
-      widget_info: {
-        name: 'New chart widget',
-        appearance: {
-          show_value: true,
-        },
-      },
-      axes: {
-        y_axis: {
-          unit: '',
-          orientation: Orientation.Left,
-        },
-        format: TimeFormat.FULL_DATE_MONTH_YEAR,
-      },
-    },
+  const form = useForm<ChartPayload>({
+    resolver: zodResolver(chartSchema),
+    defaultValues: defaultChartValues,
     mode: 'onChange',
   })
 

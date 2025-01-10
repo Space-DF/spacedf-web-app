@@ -67,5 +67,22 @@
   "show_x_grid": "Hiện trục X",
   "date_format": "Định dạng ngày",
   "select_format": "Chọn định dạng",
-  "default": "Mặc định"
+  "default": "Mặc định",
+  "hour": "Giờ",
+  "day": "Ngày",
+  "week": "Tuần",
+  "month": "Tháng",
+  "custom": "Custom",
+  "aggregation_function": "Hàm tổng hợp",
+  "minimum": "Tối thiểu",
+  "average": "Trung bình",
+  "maximum": "Tối đa",
+  "from": "Từ",
+  "util": "Đến",
+  "pick_a_date": "Chọn ngày",
+  "resolution": "Độ phân giải",
+  "time_zone": "Múi giờ",
+  "none_select": "Chưa chọn",
+  "minutes": "Phút",
+  "aggregation_function_info": "Chọn hiển thị giá trị trung bình, tối thiểu hoặc tối đa trong một khung thời gian nhất định."
 }

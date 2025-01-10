@@ -1,4 +1,4 @@
-import { Sources, TimeFrame, WidgetInfo } from './widget'
+import { AggregationFunction, Sources, TimeFrame, WidgetInfo } from './widget'
 export enum ChartType {
   LineChart = 'line-chart',
   AreaChart = 'area-chart',
@@ -8,6 +8,11 @@ export enum ChartType {
 export enum Orientation {
   Left = 'left',
   Right = 'right',
+}
+
+export enum ResolutionUnit {
+  Minutes = 'minutes',
+  Hours = 'hours',
 }
 
 type YAxis = {
@@ -59,26 +64,25 @@ export class ChartSources extends Sources {
 }
 
 class ChartTimeFrame extends TimeFrame {
-  date_range: string
-  is_show_time_frame: boolean
-  legend: string
-  color: string
-  chart_type: ChartType
-
+  from: string
+  util: string
+  resolution?: number
+  resolution_unit?: ResolutionUnit
+  time_zone?: string
   constructor(
-    date_range: string,
-    is_show_time_frame: boolean,
-    legend: string,
-    color: string,
-    chart_type: ChartType,
-    aggregation_function: string,
+    from: string,
+    util: string,
+    aggregation_function: AggregationFunction,
+    resolution?: number,
+    resolution_unit?: ResolutionUnit,
+    time_zone?: string,
   ) {
     super(aggregation_function)
-    this.date_range = date_range
-    this.is_show_time_frame = is_show_time_frame
-    this.legend = legend
-    this.color = color
-    this.chart_type = chart_type
+    this.from = from
+    this.util = util
+    this.resolution = resolution
+    this.resolution_unit = resolution_unit
+    this.time_zone = time_zone
   }
 }
 

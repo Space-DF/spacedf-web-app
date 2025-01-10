@@ -31,7 +31,7 @@ export const dataTableSchema = z.object({
     name: z
       .string()
       .min(1, { message: 'Please enter widget name' })
-      .max(100, { message: 'Widget name is too long' }),
+      .max(100, { message: 'Maximum 100 characters long!' }),
   }),
   conditional: z.string().optional().nullable(),
 })
