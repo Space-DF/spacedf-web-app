@@ -4015,7 +4015,7 @@ js-cookie@^3.0.5:
   resolved "https://registry.npmjs.org/js-cookie/-/js-cookie-3.0.5.tgz"
   integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
 
-js-rules@digitalfortress-dev/js-rules:
+"js-rules@git+ssh://git@github.com/digitalfortress-dev/js-rules.git":
   version "1.0.0"
   resolved "git+ssh://git@github.com/digitalfortress-dev/js-rules.git#0df7d34cc8e44907741239339ae8e7aeab9e41bc"
   dependencies:
