@@ -58,7 +58,6 @@ const PATCH = withAuthApiRequired(async (req) => {
   const space_slug = searchParams.get('slug_name')
 
   try {
-    // console.log(body)
     const updatedSpaceResponse = await spacedfClient.spaces.update({
       ...body,
       'X-Space': space_slug,
