@@ -42,7 +42,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
-import { SourceChartPayload } from '@/validator'
+import { ChartPayload } from '@/validator'
 
 const mockDeviceData = [
   {
@@ -85,7 +85,7 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
-  const form = useFormContext<SourceChartPayload>()
+  const form = useFormContext<ChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
   const [isLegendManualChange, setIsLegendManualChange] = useState(false)
   const t = useTranslations('dashboard')
@@ -98,9 +98,10 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
     [deviceId],
   )
 
-  const colorValue = form.watch(`sources.${index}.color`)
-
-  const selectField = form.watch(`sources.${index}.field`)
+  const [colorValue, selectField] = form.watch([
+    `sources.${index}.color`,
+    `sources.${index}.field`,
+  ])
 
   const handleLegendManualChange = (
     event: React.ChangeEvent<HTMLInputElement>,

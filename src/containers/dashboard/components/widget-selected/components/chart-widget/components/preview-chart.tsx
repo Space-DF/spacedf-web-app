@@ -2,9 +2,9 @@
 
 import { ChartConfig, ChartContainer } from '@/components/ui/chart'
 import { TimeFormat } from '@/constants'
-import { SourceChartPayload } from '@/validator'
 import { ChartSources, ChartType, Orientation } from '@/widget-models/chart'
 import dayjs from 'dayjs'
+import { ChartPayload } from '@/validator'
 import React from 'react'
 import {
   Area,
@@ -88,7 +88,7 @@ const generateData = (format: TimeFormat) =>
   })
 
 interface PreviewLineChartProps {
-  sources: SourceChartPayload['sources']
+  sources: ChartPayload['sources']
   isSingleSource?: boolean
   showData?: boolean
   orientation?: Orientation
