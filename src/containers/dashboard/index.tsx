@@ -208,10 +208,10 @@ const Dashboard = () => {
                         {dashboards.map((dashboard) => (
                           <CommandItem
                             key={dashboard.value}
-                            // value={dashboard.value}
+                            value={dashboard.value}
                             onSelect={(currentValue) => {
                               const itemSelect = dashboards.find(
-                                (dashboard) => dashboard.label === currentValue,
+                                (dashboard) => dashboard.value === currentValue,
                               )
                               setSelected(itemSelect!)
                               setOpen(false)
