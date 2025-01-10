@@ -25,7 +25,7 @@ import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useFormContext } from 'react-hook-form'
-import { SourceChartPayload } from '@/validator'
+import { ChartPayload } from '@/validator'
 import { Orientation } from '@/widget-models/chart'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -35,7 +35,7 @@ interface Props {}
 
 const Axes: React.FC<Props> = () => {
   const t = useTranslations('dashboard')
-  const form = useFormContext<SourceChartPayload>()
+  const form = useFormContext<ChartPayload>()
   return (
     <div className="space-y-4">
       <Accordion
