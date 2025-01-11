@@ -1,14 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { useTranslations } from 'next-intl'
-import { ArrowLeft } from 'lucide-react'
-import SpaceInformation from '/public/images/space-information.webp'
-import SpaceDelete from '/public/images/space-delete.webp'
-import ImageWithBlur from '@/components/ui/image-blur'
-import React, { useState } from 'react'
-import { useSpaceSettings } from '@/stores/space-settings-store'
-import { useRouter } from '@/i18n/routing'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +10,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import ImageWithBlur from '@/components/ui/image-blur'
+import { useRouter } from '@/i18n/routing'
+import { useSpaceSettings } from '@/stores/space-settings-store'
+import { ArrowLeft } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
+import SpaceDelete from '/public/images/space-delete.webp'
+import SpaceInformation from '/public/images/space-information.webp'
 
 export function SpacePreviewImage() {
   const router = useRouter()
@@ -71,7 +70,7 @@ export function SpacePreviewImage() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium text-brand-component-text-gray">
               {t(
-                'are_you_sure_you_want_to_cancel_all_changes_made_will_not_be_saved',
+                'are_you_sure_you_want_to_cancel_all_changes_made_will_not_be_saved'
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>

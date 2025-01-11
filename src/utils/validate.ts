@@ -3,7 +3,7 @@ import { z } from 'zod'
 export function isJsonString(str: string) {
   try {
     JSON.parse(str)
-  } catch (e) {
+  } catch {
     return false
   }
   return true
@@ -56,7 +56,7 @@ export const passwordSchema = z
     {
       message:
         'The password must has least 8 character, including uppercase letters, numbers, and special characters.',
-    },
+    }
   )
 
 export const confirmPasswordSchema = z

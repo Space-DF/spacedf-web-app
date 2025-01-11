@@ -1,12 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
-import React, { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
+import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
 import { COOKIES } from '@/constants'
-import Devices from '@/containers/devices'
-import Users from '@/containers/users'
 import Dashboard from '@/containers/dashboard'
+import Devices from '@/containers/devices'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import {
@@ -15,6 +13,8 @@ import {
   getDynamicLayoutRight,
   setCookie,
 } from '@/utils'
+import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
 import EffectLayout from '../ui/effect-layout'
@@ -24,8 +24,6 @@ import {
   ResizablePanelGroup,
 } from '../ui/resizable'
 import Sidebar from './sidebar'
-import { useSession } from 'next-auth/react'
-import { useTranslations } from 'next-intl'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -77,7 +75,7 @@ const DynamicLayout = ({
 
   const handleSetDataFromCookie = () => {
     const isDefaultDisplayed = checkDisplayedDynamicLayout(
-      defaultDynamicLayout as any,
+      defaultDynamicLayout as any
     )
 
     if (isDefaultDisplayed) {
@@ -213,7 +211,7 @@ const DynamicLayout = ({
               <ResizableHandle
                 className={cn(
                   'duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0',
+                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
                 )}
               />
 
@@ -221,7 +219,7 @@ const DynamicLayout = ({
                 defaultSize={defaultLayout[0]}
                 className={cn(
                   'transition-all duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0',
+                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
                 )}
                 minSize={getRightMinSize()}
                 maxSize={60}
@@ -239,7 +237,7 @@ const DynamicLayout = ({
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       first
                         ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect',
+                        : 'animate-opacity-hide-effect'
                     )}
                     hidden={!first}
                   >
@@ -253,7 +251,7 @@ const DynamicLayout = ({
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
                       second
                         ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect',
+                        : 'animate-opacity-hide-effect'
                     )}
                     hidden={!second}
                   >

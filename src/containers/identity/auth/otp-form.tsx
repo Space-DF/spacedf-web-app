@@ -34,7 +34,7 @@ const OTPForm = () => {
     resolver: zodResolver(OTPSchema),
   })
   const [timeRemaining, setTimeRemaining] = React.useState(TIME_REMAINING)
-  const [isAuthenticating, setIsAuthenticating] = React.useState(false)
+  const [isAuthenticating] = React.useState(false)
 
   React.useEffect(() => {
     const timer = setInterval(() => {

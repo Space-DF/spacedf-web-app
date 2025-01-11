@@ -1,12 +1,7 @@
 'use client'
 
 import { ArcLayer } from 'deck.gl'
-import MapOverlay from './map-overlay'
-import { useEffect, useState } from 'react'
-import { useMounted } from '@/hooks'
 import dynamic from 'next/dynamic'
-
-import { Deck } from '@deck.gl/core'
 
 const layers = [
   // new ScatterplotLayer({
@@ -43,7 +38,7 @@ const MapOverlayNoSSR = dynamic(
   () => {
     return import('../_containers/map-overlay')
   },
-  { ssr: false },
+  { ssr: false }
 )
 
 export default function WareHouseTrackingContainer() {

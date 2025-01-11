@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useRef, useState } from 'react'
+import React from 'react'
 
 //TODO: Add tutorial to this hook
 export const useKeyboardShortcut = ({
@@ -42,17 +41,17 @@ export const useKeyboardShortcut = ({
     }
   }
 
-  const matchKeys = (event: KeyboardEvent): boolean => {
-    const { key, shiftKey, metaKey, altKey } = event
+  // const matchKeys = (event: KeyboardEvent): boolean => {
+  //   const { key, shiftKey, metaKey, altKey } = event
 
-    const expectedKeys = keys.map((k) => k.toLowerCase())
-    const currentKeys = [key.toLowerCase()]
+  //   const expectedKeys = keys.map((k) => k.toLowerCase())
+  //   const currentKeys = [key.toLowerCase()]
 
-    if (altKey) currentKeys.push('shift')
-    if (metaKey) currentKeys.push('meta')
+  //   if (altKey) currentKeys.push('shift')
+  //   if (metaKey) currentKeys.push('meta')
 
-    return expectedKeys.every((k) => currentKeys.includes(k))
-  }
+  //   return expectedKeys.every((k) => currentKeys.includes(k))
+  // }
 
   return
 }

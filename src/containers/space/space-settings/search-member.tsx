@@ -1,6 +1,5 @@
 import { Command as CommandPrimitive } from 'cmdk'
 
-import React, { type KeyboardEvent, useCallback, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   CommandGroup,
@@ -10,10 +9,11 @@ import {
 } from '@/components/ui/command'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { generateOrganizationDomain } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useShallow } from 'zustand/react/shallow'
+import { generateOrganizationDomain } from '@/utils'
 import { Check } from 'lucide-react'
+import { type KeyboardEvent, useCallback, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
@@ -32,7 +32,7 @@ type AutoCompleteProps = {
 export const SearchMember = ({
   options,
   placeholder,
-  value,
+
   onValueChange,
   disabled,
   selectedItems,
@@ -46,7 +46,7 @@ export const SearchMember = ({
   const { organizationName } = useIdentityStore(
     useShallow((state) => ({
       organizationName: state.organizationName,
-    })),
+    }))
   )
   const organization = generateOrganizationDomain(organizationName || '')
 
@@ -62,8 +62,8 @@ export const SearchMember = ({
 
       // This is not a default behaviour of the <input /> field
       if (comma?.includes(event.key) && input.value !== '') {
-        let optionToSelect = options.filter(
-          (option) => option.label === input.value,
+        const optionToSelect = options.filter(
+          (option) => option.label === input.value
         )
         const users = input.value
           .split(',')
@@ -91,7 +91,7 @@ export const SearchMember = ({
         handleBlur()
       }
     },
-    [isOpen, options, onValueChange],
+    [isOpen, options, onValueChange]
   )
 
   const handleBlur = useCallback(() => {
@@ -104,7 +104,7 @@ export const SearchMember = ({
       onValueChange?.([selectedOption])
       setOpen(false)
     },
-    [onValueChange],
+    [onValueChange]
   )
 
   return (
@@ -126,7 +126,7 @@ export const SearchMember = ({
         <div
           className={cn(
             'absolute top-1 z-10 hidden w-full rounded-lg bg-white outline-none animate-in fade-in-0 zoom-in-95',
-            { block: isOpen },
+            { block: isOpen }
           )}
         >
           <CommandList className="rounded-lg ring-1 ring-slate-200">
@@ -156,9 +156,9 @@ export const SearchMember = ({
                         'relative flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft',
                         {
                           'bg-brand-fill-dark-soft': selectedItems.includes(
-                            option.value,
+                            option.value
                           ),
-                        },
+                        }
                       )}
                     >
                       <Avatar className="flex size-11 items-center justify-center rounded-lg">

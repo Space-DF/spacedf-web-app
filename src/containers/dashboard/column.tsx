@@ -11,7 +11,7 @@ interface ColumnProps {
   t: ReturnType<typeof useTranslations>
 }
 
-export const useColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
+export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
   const { handleDeleteSpace, t } = props
 
   return [

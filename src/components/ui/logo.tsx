@@ -1,9 +1,7 @@
-import Image from 'next/image'
-import React from 'react'
+import { cn } from '@/lib/utils'
+import ImageWithBlur from './image-blur'
 import LogoSVG from '/public/space_df_logo.svg'
 import LogoBlur from '/public/space_df_logo_blur.svg'
-import ImageWithBlur from './image-blur'
-import { cn } from '@/lib/utils'
 
 export const Logo = ({
   allowAnimation = true,
@@ -14,7 +12,7 @@ export const Logo = ({
     <div
       className={cn(
         'relative flex h-full w-full items-center justify-center',
-        allowAnimation && 'animate-bounce-slow',
+        allowAnimation && 'animate-bounce-slow'
       )}
     >
       <div className="absolute z-0 flex h-[80%] w-[80%] items-center justify-center">

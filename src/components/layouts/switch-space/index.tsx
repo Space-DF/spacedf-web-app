@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { useTranslations } from 'next-intl'
@@ -70,22 +69,22 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     router.push(`/spaces/${spaceSlug}`)
   }, [])
 
-  const customMatchKeys = useCallback(
-    (keys: string[], event: KeyboardEvent) => {
-      const { code, metaKey, altKey } = event
+  // const customMatchKeys = useCallback(
+  //   (keys: string[], event: KeyboardEvent) => {
+  //     const { code, metaKey, altKey } = event
 
-      const numberFromCode = code[code.length - 1]
+  //     const numberFromCode = code[code.length - 1]
 
-      const expectedKeys = keys.map((k) => k.toLowerCase())
-      const currentKeys = [numberFromCode.toLowerCase()]
+  //     const expectedKeys = keys.map((k) => k.toLowerCase())
+  //     const currentKeys = [numberFromCode.toLowerCase()]
 
-      if (metaKey) currentKeys.push('meta')
-      if (altKey) currentKeys.push('alt')
+  //     if (metaKey) currentKeys.push('meta')
+  //     if (altKey) currentKeys.push('alt')
 
-      return expectedKeys.every((k) => currentKeys.includes(k))
-    },
-    [],
-  )
+  //     return expectedKeys.every((k) => currentKeys.includes(k))
+  //   },
+  //   [],
+  // )
 
   return (
     <DropdownMenu>

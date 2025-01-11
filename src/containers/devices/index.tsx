@@ -30,7 +30,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 
 import {
@@ -56,7 +55,7 @@ const Devices = () => {
   const t = useTranslations('common')
 
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout),
+    useShallow((state) => state.toggleDynamicLayout)
   )
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
@@ -109,7 +108,7 @@ const AddDeviceDialog = () => {
   const [open, setOpen] = useState(false)
 
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
+    useShallow((state) => state.setOpenDrawerIdentity)
   )
   const { status } = useSession()
   const isAuth = status === 'authenticated'
@@ -220,7 +219,7 @@ const AddDeviceDialog = () => {
 const DeviceSelected = ({ selected }: { selected?: number }) => {
   const t = useTranslations('addNewDevice')
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
+    useShallow((state) => state.setOpenDrawerIdentity)
   )
   const { status } = useSession()
   const isAuth = status === 'authenticated'
@@ -384,7 +383,7 @@ const DevicesList = ({
                 'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                 {
                   'border-brand-component-stroke-dark': item.id === selected,
-                },
+                }
               )}
               onClick={() => handleSelected(item.id)}
             >
@@ -601,7 +600,7 @@ interface AddDeviceContainerProps {
 }
 
 const AddDeviceContainer = (
-  props: React.PropsWithChildren<AddDeviceContainerProps>,
+  props: React.PropsWithChildren<AddDeviceContainerProps>
 ) => {
   const {
     icon,
@@ -616,7 +615,7 @@ const AddDeviceContainer = (
     <div
       className={cn(
         'relative flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-transparent bg-brand-component-fill-gray-soft px-4 py-10 text-center',
-        { 'border-brand-component-stroke-dark': isSelected },
+        { 'border-brand-component-stroke-dark': isSelected }
       )}
       onClick={handleNextStep}
     >

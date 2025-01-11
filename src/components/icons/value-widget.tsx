@@ -1,9 +1,6 @@
 import { SVGProps } from '@/types/global'
-import { useTheme } from 'next-themes'
-import React from 'react'
 
 export const ValueWidgetIcon = (props: SVGProps) => {
-  const { theme } = useTheme()
   return (
     <svg
       width="99"

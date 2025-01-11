@@ -22,7 +22,7 @@ class Condition {
     condition_type: string,
     text_color: string,
     bg_color: string,
-    is_limit: boolean,
+    is_limit: boolean
   ) {
     this.condition_type = condition_type
     this.text_color = text_color
@@ -31,6 +31,7 @@ class Condition {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class Table {
   widget_info: WidgetInfo
   conditions: Condition[]
@@ -39,7 +40,7 @@ class Table {
   constructor(
     widget_info: WidgetInfo,
     conditions: Condition[],
-    columns: Column[] = [],
+    columns: Column[] = []
   ) {
     this.columns = columns
     this.widget_info = widget_info

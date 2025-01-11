@@ -29,7 +29,7 @@ import {
 import { getNewLayouts, useLayout } from '@/stores'
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { DataTable } from '@/components/ui/data-table'
-import { useColumns } from '@/containers/dashboard/column'
+import { getColumns } from '@/containers/dashboard/column'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -99,12 +99,12 @@ const Dashboard = () => {
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
 
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout),
+    useShallow((state) => state.toggleDynamicLayout)
   )
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
+    useShallow((state) => state.setOpenDrawerIdentity)
   )
   const { status } = useSession()
   const isAuth = status === 'authenticated'
@@ -147,7 +147,7 @@ const Dashboard = () => {
           onClose={() => {
             const newLayout = getNewLayouts(
               dynamicLayouts,
-              NavigationEnums.DASHBOARD,
+              NavigationEnums.DASHBOARD
             )
             setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
             setCookieDirty(true)
@@ -181,13 +181,13 @@ const Dashboard = () => {
                       {
                         'border-brand-component-stroke-dark shadow-dashboard':
                           open,
-                      },
+                      }
                     )}
                   >
                     <div className="line-clamp-1 w-full flex-1 text-left">
                       {selected
                         ? dashboards.find(
-                            (dashboard) => dashboard.value === selected.value,
+                            (dashboard) => dashboard.value === selected.value
                           )?.label
                         : 'Dashboard 1'}
                     </div>
@@ -211,7 +211,7 @@ const Dashboard = () => {
                             value={dashboard.value}
                             onSelect={(currentValue) => {
                               const itemSelect = dashboards.find(
-                                (dashboard) => dashboard.value === currentValue,
+                                (dashboard) => dashboard.value === currentValue
                               )
                               setSelected(itemSelect!)
                               setOpen(false)
@@ -222,7 +222,7 @@ const Dashboard = () => {
                               {
                                 'bg-brand-fill-dark-soft':
                                   selected.value === dashboard.value,
-                              },
+                              }
                             )}
                           >
                             {dashboard.label}
@@ -292,7 +292,7 @@ const Dashboard = () => {
           <div className="mt-6 px-4">
             {isViewAllDashboard ? (
               <DataTable
-                columns={useColumns({ handleDeleteSpace, t })}
+                columns={getColumns({ handleDeleteSpace, t })}
                 data={dashboards}
               />
             ) : (
@@ -331,7 +331,7 @@ const Dashboard = () => {
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-center text-sm font-medium text-brand-component-text-gray">
                   {t(
-                    'dashboard.the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored',
+                    'dashboard.the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored'
                   )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -359,7 +359,7 @@ const Dashboard = () => {
           onClose={() => {
             const newLayout = getNewLayouts(
               dynamicLayouts,
-              NavigationEnums.DASHBOARD,
+              NavigationEnums.DASHBOARD
             )
             setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
             setIsAddWidgetOpen(false)
@@ -371,7 +371,9 @@ const Dashboard = () => {
               <ArrowLeft
                 size={20}
                 onClick={() => {
-                  selectedWidget ? '' : setIsAddWidgetOpen(false)
+                  if (selectedWidget) {
+                    setIsAddWidgetOpen(false)
+                  }
                   toggleDynamicLayout('dashboard')
                   setSelectedWidget('')
                 }}
@@ -392,23 +394,6 @@ const Dashboard = () => {
         </RightSideBarLayout>
       )}
     </>
-  )
-}
-
-const DashboardInfo = (props: {
-  icon: React.ReactNode
-  title: string
-  content: string | number
-}) => {
-  const { icon, content, title } = props
-  return (
-    <div className="flex flex-1 gap-2 rounded-lg bg-white p-2 dark:bg-brand-component-fill-gray-soft">
-      <div>{icon}</div>
-      <div className="font-semibold text-brand-component-text-dark">
-        <div className="text-xs">{title}</div>
-        <div>{content}</div>
-      </div>
-    </div>
   )
 }
 

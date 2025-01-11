@@ -5,7 +5,6 @@ import {
   TrackiAttributes,
 } from '@/utils/model-objects/devices/gps-tracker/type'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
-import { LayerProps, ScenegraphLayer } from 'deck.gl'
 import { create } from 'zustand'
 
 export type Device = {
@@ -62,7 +61,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
             ...acc,
             [device.id]: device,
           }),
-          {},
+          {}
         ),
       }))
     },
@@ -71,5 +70,5 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
       set(() => ({
         initializedSuccess: newState,
       })),
-  }),
+  })
 )

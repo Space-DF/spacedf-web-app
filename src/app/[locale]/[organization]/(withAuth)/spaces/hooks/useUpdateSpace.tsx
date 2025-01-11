@@ -1,8 +1,8 @@
-import { Space } from '@/types/space'
-import useSWRMutation from 'swr/mutation'
-import { UseGetSpaceResponse, useGetSpaces } from './useGetSpaces'
 import { ApiErrorResponse } from '@/types/global'
+import { Space } from '@/types/space'
 import { toast } from 'sonner'
+import useSWRMutation from 'swr/mutation'
+import { UseGetSpaceResponse } from './useGetSpaces'
 
 type UseUpdateSpaceParams = {
   spaceId: number
@@ -16,7 +16,7 @@ export async function updateSpace(
     arg,
   }: {
     arg: UseUpdateSpaceParams
-  },
+  }
 ) {
   const response = await fetch(`${url}?slug_name=${arg.slug_name}`, {
     method: 'PATCH',
@@ -51,7 +51,7 @@ export const useUpdateSpace = () => {
             }
 
             return space
-          },
+          }
         )
 
         return {

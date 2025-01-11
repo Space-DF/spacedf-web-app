@@ -1,5 +1,4 @@
 import { useDeviceStore } from '@/stores/device-store'
-import MapInstance from '@/utils/map-instance'
 import {
   AmbientLight,
   LightingEffect,
@@ -9,7 +8,7 @@ import {
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { Color, Position, ScenegraphLayer, TripsLayer } from 'deck.gl'
 import { animate } from 'popmotion'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { realTimeLocations } from './dummy-locations'
 
@@ -52,7 +51,7 @@ const devices = [
 
 const getCurrentLocation = (
   trip: Trip,
-  currentTime: number,
+  currentTime: number
 ): Position | null => {
   const { path, timestamps } = trip
 
@@ -73,7 +72,7 @@ const getCurrentLocation = (
 
   // Use `findIndex` to locate the segment where the currentTime falls
   const segmentIndex = timestamps.findIndex(
-    (t, i) => currentTime >= t && currentTime <= timestamps[i + 1],
+    (t, i) => currentTime >= t && currentTime <= timestamps[i + 1]
   )
 
   if (segmentIndex === -1 || segmentIndex >= path.length - 1) {
@@ -95,7 +94,7 @@ const getCurrentLocation = (
 const getDeviceLayer = (
   device: any,
   models: any,
-  position?: [number, number],
+  position?: [number, number]
 ) => {
   const model = models[device.type]
   const devicePosition = position ? position : device.location
@@ -210,7 +209,7 @@ export const useLoadTrip = () => {
   const { models } = useDeviceStore(
     useShallow((state) => ({
       models: state.models,
-    })),
+    }))
   )
   useEffect(() => {
     const animation = animate({
@@ -242,7 +241,7 @@ export const useLoadTrip = () => {
 
     const newLayers = deckLayers.map((layer: any) => {
       const location = locations.find(
-        (location) => location.deviceId === layer.id,
+        (location) => location.deviceId === layer.id
       )?.location
 
       const device = devices.find((device) => device.id === layer.id)
@@ -291,8 +290,6 @@ export const useLoadTrip = () => {
     // window.devicesMapOverlay = deckOverlay
 
     window.devicesHistoryOverlay = deckOverlay
-
-    const deckLayers = (window.devicesHistoryOverlay as any)?._props.layers
 
     map?.addControl(window.devicesHistoryOverlay)
   }

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { X } from 'lucide-react'
@@ -48,7 +47,7 @@ const Identity = () => {
         organizationDomain: state.organizationDomain,
         openGuideline: state.openGuideline,
         setOpenDrawer: state.setOpenDrawerIdentity,
-      })),
+      }))
     )
   const { status } = useSession()
   const { isOrganization } = useOrganization()

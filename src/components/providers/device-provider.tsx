@@ -1,9 +1,8 @@
 import { devices } from '@/data/dummy-data'
 import { useDeviceStore } from '@/stores/device-store'
-import { SupportedModels } from '@/utils/model-objects/devices/gps-tracker/type'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
-import React, { PropsWithChildren, useEffect } from 'react'
+import { PropsWithChildren, useEffect } from 'react'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -28,11 +27,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       ])
         .then((responses) =>
           Promise.all(
-            responses.map((modelResponse) => modelResponse.arrayBuffer()),
-          ),
+            responses.map((modelResponse) => modelResponse.arrayBuffer())
+          )
         )
         .then((buffers) =>
-          Promise.all(buffers.map((buffer) => load(buffer, GLTFLoader))),
+          Promise.all(buffers.map((buffer) => load(buffer, GLTFLoader)))
         )
 
       setDeviceModel('rak', rakModel)

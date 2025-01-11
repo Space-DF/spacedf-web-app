@@ -6,16 +6,16 @@ import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
 
-import { PreviewChart, dailyOrders } from './components/preview-chart'
-import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { TabsContent } from '@/components/ui/tabs'
+import { TimeFormat } from '@/constants'
 import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { TabsContent } from '@/components/ui/tabs'
-import ChartSource from './components/sources'
-import ChartWidgetInfo from './components/widget-info'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
-import { TimeFormat } from '@/constants'
+import { PreviewChart, dailyOrders } from './components/preview-chart'
+import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
+import ChartWidgetInfo from './components/widget-info'
 
 interface Props {
   selectedWidget: WidgetType
@@ -51,7 +51,7 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
+const ChartWidget: React.FC<Props> = ({ onClose }) => {
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),

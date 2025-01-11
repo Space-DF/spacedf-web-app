@@ -1,7 +1,6 @@
 import { getClientOrganization } from '@/utils'
 import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
-import { cookies } from 'next/headers'
 
 export class SpaceDFClient {
   private static instance: SpaceDFClient | null = null

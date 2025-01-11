@@ -11,7 +11,7 @@ export const generateOrganizationDomain = (organizationName: string) => {
   return organizationName?.replaceAll(' ', '').toLowerCase()
 }
 
-export function getSubdomain(fullUrl: string, rootDomain: string) {
+export function getSubdomain(fullUrl: string) {
   const envDomain = ['localhost', 'develop']
   const prodDomain = ['danang', 'spacedf']
 

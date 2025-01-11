@@ -1,11 +1,11 @@
 import React from 'react'
 
-import { useFieldArray, useFormContext, UseFormReturn } from 'react-hook-form'
-import { defaultSourceChartValues, ChartPayload } from '@/validator'
-import { PlusIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import SingleSource from './single-source'
+import { ChartPayload, defaultSourceChartValues } from '@/validator'
+import { PlusIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import SingleSource from './single-source'
 
 interface Props {}
 
@@ -28,6 +28,7 @@ const ChartSource: React.FC<Props> = () => {
       <div className="space-y-4">
         {fields.map((field, index) => (
           <SingleSource
+            key={index}
             field={field}
             index={index}
             onRemove={() => remove(index)}

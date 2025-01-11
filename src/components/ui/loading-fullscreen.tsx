@@ -1,20 +1,18 @@
-import React from 'react'
 import { cn } from '@/lib/utils'
-import { Logo } from './logo'
-import { useTranslations } from 'next-intl'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
+import { Logo } from './logo'
 
 const LoadingFullScreen = ({ className }: { className?: string }) => {
   const { loadingTitle, loadingDescription } = useGlobalStore(
-    useShallow((state) => state),
+    useShallow((state) => state)
   )
 
   return (
     <div
       className={cn(
         'pointer-events-none flex size-full flex-col items-center justify-center',
-        className,
+        className
       )}
     >
       <div className="size-48">
