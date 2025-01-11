@@ -12,9 +12,10 @@ const POST = async (req: NextRequest) => {
       },
       {
         status: 200,
-      },
+      }
     )
-  } catch (err) {
+  } catch (err: any) {
+    console.error(err)
     // const { error, status } = (err as ApiResponse) || {}
     // return NextResponse.json({ message: 'error' || 'Something went wrong' })
   }

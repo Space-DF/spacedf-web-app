@@ -29,7 +29,6 @@ const WIDGET_LIST: Widget[] = [
 
 const WidgetSelection = ({
   onSelectWidget,
-  selectedWidget,
 }: {
   onSelectWidget: (widgetTitle: WidgetType) => void
   selectedWidget: string
@@ -42,7 +41,7 @@ const WidgetSelection = ({
   const filteredWidgets: Widget[] = useMemo(() => {
     const lowerSearchTerm = debouncedSearchTerm.toLowerCase()
     return WIDGET_LIST.filter((widget) =>
-      widget.title.toLowerCase().includes(lowerSearchTerm),
+      widget.title.toLowerCase().includes(lowerSearchTerm)
     )
   }, [debouncedSearchTerm])
 

@@ -1,2 +1,12 @@
-npm run format
-npm run check
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+#!/bin/sh
+# Load nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || exit 1
+
+# Use Node.js version 20
+nvm use 20 || exit 1
+
+npx lint-staged

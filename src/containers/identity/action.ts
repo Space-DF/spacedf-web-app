@@ -2,7 +2,6 @@
 
 import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
-import { NextResponse } from 'next/server'
 
 type CreateOrganizationActionPayload = {
   name: string
@@ -11,9 +10,9 @@ type CreateOrganizationActionPayload = {
 }
 
 export const createOrganizationAction = async (
-  payload: CreateOrganizationActionPayload,
+  payload: CreateOrganizationActionPayload
 ) => {
-  const session = await getServerSession(authOptions)
+  const session = (await getServerSession(authOptions)) as any
 
   // return new NextResponse(
   //   JSON.stringify({
@@ -34,7 +33,7 @@ export const createOrganizationAction = async (
         Authorization: `Bearer ${session?.user.accessToken}`,
       },
       body: JSON.stringify(payload),
-    },
+    }
   )
 
   if (resp.ok) {

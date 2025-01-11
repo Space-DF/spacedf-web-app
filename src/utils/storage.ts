@@ -7,7 +7,7 @@ export function getFromLocalStorage<T>(key: string): T | null {
     try {
       // Try to parse the stored value, if it's JSON
       return JSON.parse(storedValue) as T
-    } catch (e) {
+    } catch {
       // If parsing fails, return the raw string value
       return storedValue as unknown as T
     }

@@ -14,7 +14,7 @@ class GaugeTimeFrame extends TimeFrame {
     until: string,
     resolution: string,
     time_zone: string,
-    aggregationFunction: AggregationFunction,
+    aggregationFunction: AggregationFunction
   ) {
     super(aggregationFunction)
     this.date_range = date_range
@@ -37,7 +37,7 @@ class GaugeSources extends Sources {
     type: string,
     values: object[],
     device_id: string,
-    device_type: string,
+    device_type: string
   ) {
     super(device_id, device_type)
     this.decimal = decimal
@@ -47,6 +47,7 @@ class GaugeSources extends Sources {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class Gauge {
   time_frame: GaugeTimeFrame
   sources: GaugeSources

@@ -1,26 +1,24 @@
+import CameraFilled from '@/components/icons/camera-filled'
+import { Button } from '@/components/ui/button'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
+import { TypographyPrimary } from '@/components/ui/typography'
 import { useIdentityStore } from '@/stores/identity-store'
-import React, { useEffect, useRef, useState, useTransition } from 'react'
+import { generateOrganizationDomain, uppercaseFirstLetter } from '@/utils'
+import { XCircle } from 'lucide-react'
+import { useEffect, useState, useTransition } from 'react'
+import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
-import { Camera, XCircle } from 'lucide-react'
-import CameraFilled from '@/components/icons/camera-filled'
-import { TypographyPrimary } from '@/components/ui/typography'
-import { Button } from '@/components/ui/button'
-import { generateOrganizationDomain, uppercaseFirstLetter } from '@/utils'
-import { createOrganizationAction } from '../../action'
-import { toast } from 'sonner'
 
 const CreateOrganization = () => {
-  const { setOrganizationName, organizationName, setOrganizationDomain } =
-    useIdentityStore(
-      useShallow((state) => ({
-        organizationName: state.organizationName,
-        setOrganizationName: state.setOrganizationName,
-        setOrganizationDomain: state.setOrganizationDomain,
-      })),
-    )
+  const { setOrganizationName, organizationName } = useIdentityStore(
+    useShallow((state) => ({
+      organizationName: state.organizationName,
+      setOrganizationName: state.setOrganizationName,
+      setOrganizationDomain: state.setOrganizationDomain,
+    }))
+  )
 
   const [errorSlug, setErrorSlug] = useState('')
   const [organizationDomain, setOrganization] = useState('')

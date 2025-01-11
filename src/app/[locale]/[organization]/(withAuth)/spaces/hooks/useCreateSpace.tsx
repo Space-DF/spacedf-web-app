@@ -1,17 +1,9 @@
-import useSWRMutation from 'swr/mutation'
-import {
-  SWR_GET_SPACE_ENDPOINT,
-  UseGetSpaceResponse,
-  useGetSpaces,
-} from './useGetSpaces'
-import { Space } from '@/types/space'
 import { ApiErrorResponse } from '@/types/global'
-import { toast } from 'sonner'
-import { SWRConfiguration } from 'swr'
+import { Space } from '@/types/space'
 
 export async function createSpace(
   url: string,
-  { arg }: { arg: Partial<Space> },
+  { arg }: { arg: Partial<Space> }
 ) {
   const response = await fetch(url, {
     method: 'POST',
@@ -26,7 +18,7 @@ export async function createSpace(
   return response.json()
 }
 
-export const useCreateSpace = (configs?: SWRConfiguration) => {
+export const useCreateSpace = () => {
   // const { mutate } = useGetSpaces()
   //
   // const { trigger } = useSWRMutation('/api/spaces', createSpace, {

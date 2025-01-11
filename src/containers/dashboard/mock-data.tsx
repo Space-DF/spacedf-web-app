@@ -77,7 +77,7 @@ const screenLayout: Layout[] = [
   { i: '14', x: 0, y: 9, w: 5, h: 4, minW: 2, minH: 3 },
 ]
 
-const columns = 5
+// const columns = 5
 
 interface Props {
   isEdit?: boolean
@@ -99,7 +99,7 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
   return (
     <div
       className={cn(
-        'mt-1 h-dvh overflow-y-scroll scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]',
+        'mt-1 h-dvh overflow-y-scroll scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]'
       )}
     >
       <div
@@ -198,7 +198,7 @@ const WidgetContainer = ({ children, className }: WidgetProp) => (
   <div
     className={cn(
       'h-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft',
-      className,
+      className
     )}
   >
     {children}
@@ -209,7 +209,7 @@ const WidgetTitle = ({ children, className }: WidgetProp) => (
   <div
     className={cn(
       'line-clamp-1 text-sm font-medium text-brand-component-text-dark',
-      className,
+      className
     )}
   >
     {children}

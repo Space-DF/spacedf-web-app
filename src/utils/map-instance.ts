@@ -19,7 +19,7 @@ class MapInstance {
     zoom = 3,
     maxZoom = 19,
     pitch = 70,
-    antialias = true,
+
     style = 'mapbox://styles/mapbox/light-v11',
   }: {
     container: HTMLElement
@@ -56,7 +56,7 @@ class MapInstance {
     const mapStyle = this.getMapStyle()
 
     const firstLabelLayerId = mapStyle?.layers?.find(
-      (layer: any) => layer.type === 'symbol',
+      (layer: any) => layer.type === 'symbol'
     )?.id
 
     if (firstLabelLayerId) {
@@ -91,7 +91,7 @@ class MapInstance {
             'fill-extrusion-opacity': 0.3,
           },
         },
-        firstLabelLayerId,
+        firstLabelLayerId
       )
     }
   }

@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 
-const GET = withAuthApiRequired(async (req) => {
+const GET = withAuthApiRequired(async () => {
   const spacedfClient = await spaceClient()
 
   try {
@@ -21,7 +21,7 @@ const GET = withAuthApiRequired(async (req) => {
       },
       {
         status: errors.status,
-      },
+      }
     )
   }
 })
@@ -44,7 +44,7 @@ const POST = withAuthApiRequired(async (req) => {
       },
       {
         status: errors.status,
-      },
+      }
     )
   }
 })
@@ -58,7 +58,6 @@ const PATCH = withAuthApiRequired(async (req) => {
   const space_slug = searchParams.get('slug_name')
 
   try {
-    // console.log(body)
     const updatedSpaceResponse = await spacedfClient.spaces.update({
       ...body,
       'X-Space': space_slug,
@@ -70,7 +69,7 @@ const PATCH = withAuthApiRequired(async (req) => {
       },
       {
         status: 200,
-      },
+      }
     )
   } catch (errors: any) {
     return NextResponse.json(
@@ -79,7 +78,7 @@ const PATCH = withAuthApiRequired(async (req) => {
       },
       {
         status: errors.status,
-      },
+      }
     )
   }
 })
@@ -105,7 +104,7 @@ const DELETE = withAuthApiRequired(async (req) => {
       },
       {
         status: 200,
-      },
+      }
     )
   } catch (errors: any) {
     return NextResponse.json(
@@ -114,7 +113,7 @@ const DELETE = withAuthApiRequired(async (req) => {
       },
       {
         status: errors.status,
-      },
+      }
     )
   }
 })

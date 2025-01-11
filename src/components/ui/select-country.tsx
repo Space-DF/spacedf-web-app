@@ -1,11 +1,10 @@
-import { SelectProps } from '@radix-ui/react-select'
-import { useLocale, useTranslations } from 'next-intl'
-import { Suspense, useState } from 'react'
 import { locales } from '@/i18n/request'
 import { usePathname, useRouter } from '@/i18n/routing'
 import { Locale } from '@/types/global'
-import { Avatar, AvatarFallback } from './avatar'
-import ImageWithBlur from './image-blur'
+import { SelectProps } from '@radix-ui/react-select'
+import { ChevronDown } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { useState } from 'react'
 import {
   Select,
   SelectContent,
@@ -14,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select'
-import { ChevronDown } from 'lucide-react'
 
 type Country = {
   code: Locale

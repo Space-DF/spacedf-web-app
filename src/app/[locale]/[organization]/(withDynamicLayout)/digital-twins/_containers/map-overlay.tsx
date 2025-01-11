@@ -1,10 +1,7 @@
 'use client'
 import { useMounted } from '@/hooks'
 import { useLayout } from '@/stores'
-import { MapboxOverlay } from '@deck.gl/mapbox'
-import { ScenegraphLayer, type Layer } from 'deck.gl'
-
-import Supercluster from 'supercluster'
+import { type Layer } from 'deck.gl'
 
 import mapboxgl from 'mapbox-gl'
 
@@ -15,7 +12,6 @@ import React, { memo, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { useDeviceStore } from '@/stores/device-store'
-import { animate, linear } from 'popmotion'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 import { useLoadTrip } from '../_hooks/useLoadTrip'
 
@@ -37,7 +33,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
       initializedSuccess: state.initializedSuccess,
-    })),
+    }))
   )
 
   const currentTheme = (theme === 'system' ? systemTheme : theme) as
@@ -50,7 +46,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     useShallow((state) => ({
       dynamicLayouts: state.dynamicLayouts,
       isCollapsed: state.isCollapsed,
-    })),
+    }))
   )
 
   useEffect(() => {
@@ -141,7 +137,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
         const clusters = getClusters(bounds, zoom)
         const source = map.getSource(
-          'clusters-source',
+          'clusters-source'
         ) as mapboxgl.GeoJSONSource
 
         if (source) {
@@ -173,9 +169,9 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
           return
         }
 
-        const source = map.getSource(
-          'clusters-source',
-        ) as mapboxgl.GeoJSONSource
+        // const source = map.getSource(
+        //   'clusters-source'
+        // ) as mapboxgl.GeoJSONSource
 
         if (clusterId) {
           const coordinates = (clusterFeature.geometry as any).coordinates
@@ -196,7 +192,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
           },
           trackUserLocation: true,
           showUserHeading: true,
-        }),
+        })
       )
 
       map.addControl(new mapboxgl.FullscreenControl())
@@ -278,7 +274,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
   const onClusterClick = (
     clusterId: number,
-    clusterCoordinates: [number, number],
+    clusterCoordinates: [number, number]
   ) => {
     try {
       const zoom = window.cluster.getClusterExpansionZoom(clusterId) + 4
@@ -336,7 +332,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     const mapStyle = maps.getMapStyle()
 
     const layerId = mapStyle?.layers?.find(
-      (layer: any) => layer.type === 'symbol',
+      (layer: any) => layer.type === 'symbol'
     )?.id
 
     if (!layerId) return
@@ -366,7 +362,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         '!absolute inset-0 h-full !w-full !overflow-hidden !duration-1000',
         startBlur
           ? 'bg-[#DBDBDC] bg-opacity-80 blur-md backdrop-blur-md dark:!bg-black'
-          : 'blur-none',
+          : 'blur-none'
       )}
       id="map-container"
     />

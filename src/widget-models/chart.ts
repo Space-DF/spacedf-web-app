@@ -30,7 +30,7 @@ class Axes {
     y_axis: YAxis,
     is_show_grid: boolean,
     format: string,
-    hide_axis: boolean,
+    hide_axis: boolean
   ) {
     this.y_axis = y_axis
     this.is_show_grid = is_show_grid
@@ -52,7 +52,7 @@ export class ChartSources extends Sources {
     color: string,
     chart_type: ChartType,
     show_legend: boolean,
-    device_type?: string,
+    device_type?: string
   ) {
     super(device_id, device_type)
     this.field = field
@@ -75,7 +75,7 @@ class ChartTimeFrame extends TimeFrame {
     aggregation_function: AggregationFunction,
     resolution?: number,
     resolution_unit?: ResolutionUnit,
-    time_zone?: string,
+    time_zone?: string
   ) {
     super(aggregation_function)
     this.from = from
@@ -86,6 +86,7 @@ class ChartTimeFrame extends TimeFrame {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class Chart {
   sources: ChartSources
   axes: Axes
@@ -96,7 +97,7 @@ class Chart {
     sources: ChartSources,
     axes: Axes,
     time_frame: ChartTimeFrame,
-    widget_info: WidgetInfo,
+    widget_info: WidgetInfo
   ) {
     this.sources = sources
     this.axes = axes

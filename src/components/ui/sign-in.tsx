@@ -1,13 +1,5 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import { signIn } from 'next-auth/react'
-import { useTranslations } from 'next-intl'
-import React, { useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -22,9 +14,17 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { passwordSchema } from '@/utils'
-import { Link, useRouter } from '@/i18n/routing'
+import { Link } from '@/i18n/routing'
 import { ApiResponse } from '@/types/global'
+import { passwordSchema } from '@/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import { signIn } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import { useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 interface SignInResponse {
   response_data: {
@@ -47,7 +47,6 @@ const singInSchema = z.object({
 
 const SignInForm = () => {
   const t = useTranslations('signUp')
-  const router = useRouter()
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
     defaultValues: {
@@ -101,7 +100,7 @@ const SignInForm = () => {
           return (
             err.message ||
             t(
-              'this_email_is_already_registered_please_use_a_different_email_or_log_in',
+              'this_email_is_already_registered_please_use_a_different_email_or_log_in'
             )
           )
         },

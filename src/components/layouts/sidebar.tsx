@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
@@ -8,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import React, { forwardRef, useEffect, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
-import { COOKIES, Navigation as TNavigation, navigations } from '@/constants'
+import { COOKIES, Navigation as TNavigation, NavigationData } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
@@ -40,13 +39,13 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   const [open, setOpen] = useState(false)
 
   const setDynamicLayouts = useLayout(
-    useShallow((state) => state.setDynamicLayouts),
+    useShallow((state) => state.setDynamicLayouts)
   )
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
     COOKIES.DYNAMIC_LAYOUTS,
-    [] as DynamicLayout[],
+    [] as DynamicLayout[]
   )
 
   useEffect(() => {
@@ -78,7 +77,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex min-h-screen border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`,
+          `flex min-h-screen border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
         )}
         id="sidebar-id"
       >
@@ -119,7 +118,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         'flex grow flex-col transition-all duration-300',
         isCollapsed
           ? '-translate-x- !h-0 !w-0 animate-opacity-hide-effect overflow-hidden opacity-0'
-          : 'w-full translate-x-0 animate-opacity-display-effect opacity-100',
+          : 'w-full translate-x-0 animate-opacity-display-effect opacity-100'
       )}
     >
       <div className="flex-1">
@@ -137,7 +136,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <Button
           onClick={() => setOpen?.(true)}
           className={cn(
-            'my-3 h-10 w-full justify-between rounded-lg bg-brand-fill-dark-soft duration-200 dark:bg-brand-heading',
+            'my-3 h-10 w-full justify-between rounded-lg bg-brand-fill-dark-soft duration-200 dark:bg-brand-heading'
           )}
           variant="ghost"
         >
@@ -206,12 +205,12 @@ const CollapsedSidebar = ({
         'flex flex-col py-2 transition-all duration-200',
         isCollapsed
           ? 'w-full translate-x-0 animate-opacity-display-effect opacity-100'
-          : '!h-0 !w-0 -translate-x-full animate-opacity-hide-effect overflow-hidden opacity-0',
+          : '!h-0 !w-0 -translate-x-full animate-opacity-hide-effect overflow-hidden opacity-0'
       )}
     >
       <div
         className={cn(
-          'flex grow flex-col items-center justify-center duration-200',
+          'flex grow flex-col items-center justify-center duration-200'
         )}
       >
         <div className="flex flex-1 flex-col items-center gap-3">
@@ -239,7 +238,7 @@ const CollapsedSidebar = ({
         </div>
         <div
           className={cn(
-            'cursor-pointer, flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-transparent p-2 duration-300',
+            'cursor-pointer, flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-transparent p-2 duration-300'
           )}
         >
           <GeneralSetting>
@@ -277,12 +276,12 @@ const Navigations = () => {
   return (
     <div
       className={cn(
-        'mt-3 flex flex-1 flex-col gap-1 py-2 transition-all duration-200',
+        'mt-3 flex flex-1 flex-col gap-1 py-2 transition-all duration-200'
       )}
     >
       {(isAuth
-        ? navigations(t)
-        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+        ? NavigationData(t)
+        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
       ).map((navigation) => {
         return <Navigation navigation={navigation} key={navigation.href} />
       })}
@@ -294,7 +293,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout),
+    useShallow((state) => state.toggleDynamicLayout)
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
@@ -322,7 +321,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
           isDisplayed
             ? 'text-brand-text-dark dark:text-white'
-            : 'text-brand-text-gray dark:text-brand-dark-text-gray',
+            : 'text-brand-text-gray dark:text-brand-dark-text-gray'
         )}
         htmlFor={navigation.href}
         onClick={navigation?.onClick}
@@ -355,7 +354,7 @@ const CollapsedNavigation = () => {
 
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout),
+    useShallow((state) => state.toggleDynamicLayout)
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   const { status } = useSession()
@@ -365,8 +364,8 @@ const CollapsedNavigation = () => {
   return (
     <div className="my-4 flex w-full flex-col items-center justify-center gap-2">
       {(isAuth
-        ? navigations(t)
-        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+        ? NavigationData(t)
+        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
       ).map((navigation) => {
         const isDisplayed = dynamicLayouts.includes(navigation.href)
 
@@ -387,7 +386,7 @@ const CollapsedNavigation = () => {
               'cursor-pointer rounded-lg p-2 duration-300',
               isDisplayed
                 ? 'bg-brand-heading text-white dark:bg-brand-dark-fill-secondary'
-                : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white',
+                : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white'
             )}
             key={navigation.href}
           >

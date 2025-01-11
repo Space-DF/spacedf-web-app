@@ -2,7 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleUserRound, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -20,13 +20,13 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { useIdentityStore } from '@/stores/identity-store'
-import { useShallow } from 'zustand/react/shallow'
-import { Link, useRouter } from '@/i18n/routing'
 import { singInSchema } from '@/containers/identity/auth/sign-up-form'
-import { toast } from 'sonner'
+import { Link } from '@/i18n/routing'
+import { useIdentityStore } from '@/stores/identity-store'
 import { ApiResponse } from '@/types/global'
 import { signIn } from 'next-auth/react'
+import { toast } from 'sonner'
+import { useShallow } from 'zustand/react/shallow'
 
 export interface SignUpResponse {
   status: number
@@ -46,7 +46,6 @@ export interface User {
 }
 
 const SignUpForm = () => {
-  const router = useRouter()
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
@@ -111,7 +110,7 @@ const SignUpForm = () => {
       },
       error: () => {
         return t(
-          'this_email_is_already_registered_please_use_a_different_email_or_log_in',
+          'this_email_is_already_registered_please_use_a_different_email_or_log_in'
         )
       },
       finally() {

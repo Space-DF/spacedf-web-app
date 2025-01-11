@@ -58,7 +58,7 @@ export const authOptions: NextAuthOptions = {
       spaceDfInstance.setToken((token as any)?.accessToken)
       return { ...token, ...user }
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (token) {
         session.user.id = token.id
         session.user.firstName = token.firstName

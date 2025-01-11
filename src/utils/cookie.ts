@@ -3,7 +3,7 @@ import { isJsonString } from './validate'
 
 export const getCookie = <TDefaultValue = any>(
   key: string,
-  defaultValue: TDefaultValue,
+  defaultValue: TDefaultValue
 ) => {
   const cookie = Cookies.get(key)
 
@@ -25,6 +25,6 @@ export const setCookie = <TValue = any>(key: string, value: TValue) => {
   document.cookie = `${key}=${JSON.stringify(value)}`
 }
 
-export const deleteCookie = <TValue = any>(key: string) => {
+export const deleteCookie = (key: string) => {
   Cookies.remove(key)
 }

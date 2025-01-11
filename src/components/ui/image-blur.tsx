@@ -33,10 +33,11 @@ export default function ImageWithBlur({
           isLoading
             ? 'scale-110 blur-2xl grayscale'
             : 'scale-100 blur-0 grayscale-0',
-          className,
+          className
         )}
         onLoad={() => setLoading(false)}
         {...imageProps}
+        alt="123"
       />
     </div>
   )

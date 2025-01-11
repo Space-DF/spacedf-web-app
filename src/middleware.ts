@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 import createMiddleware from 'next-intl/middleware'
 import { cookies } from 'next/headers'
 import { locales } from './i18n/request'
 import { Locale } from './types/global'
-import { getSubdomain } from './utils'
 import { getValidSubdomain } from './utils/subdomain'
 
 // RegExp for public files

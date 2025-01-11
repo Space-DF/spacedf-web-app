@@ -1,19 +1,18 @@
 'use client'
 
-import React, { memo, useState } from 'react'
+import { Form } from '@/components/ui/form'
+import { useRouter } from '@/i18n/routing'
+import { useGlobalStore } from '@/stores'
+import { toSlug } from '@/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslations } from 'next-intl'
+import { memo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
-import { Form } from '@/components/ui/form'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import CreateLoading from '@/containers/space/create-space/loading'
-import { toSlug } from '@/utils'
-import { useRouter } from '@/i18n/routing'
-import { toast } from 'sonner'
-import { useShallow } from 'zustand/react/shallow'
-import { useGlobalStore } from '@/stores'
-import { useTranslations } from 'next-intl'
 
 const formSchema = z.object({
   space_name: z
@@ -33,10 +32,10 @@ const OrganizationSetting = () => {
   })
   const router = useRouter()
   const { setLoadingText } = useGlobalStore(useShallow((state) => state))
-  const [isCreating, setCreating] = useState(false)
+  const [isCreating] = useState(false)
   const t = useTranslations('space')
 
-  const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
+  // const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -62,7 +61,7 @@ const OrganizationSetting = () => {
         duration: 3000,
         loadingTitle: t('congratulations'),
         loadingDescription: t(
-          'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings',
+          'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings'
         ),
       })
       if (fetchPromise.data) {

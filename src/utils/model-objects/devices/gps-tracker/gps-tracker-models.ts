@@ -1,5 +1,4 @@
-import { LngLatLike } from 'mapbox-gl'
-import { DeviceAttributes, Device } from '../device-model'
+import { Device, DeviceAttributes } from '../device-model'
 import { RakAttributes, SepcificModel } from './type'
 
 abstract class GpsTracker<

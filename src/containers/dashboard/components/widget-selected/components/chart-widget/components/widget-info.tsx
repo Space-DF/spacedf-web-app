@@ -1,8 +1,4 @@
-import { ChartPayload } from '@/validator'
-import React from 'react'
-import { useFormContext } from 'react-hook-form'
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -10,9 +6,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useTranslations } from 'next-intl'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { ChartPayload } from '@/validator'
+import { useTranslations } from 'next-intl'
+import React from 'react'
+import { useFormContext } from 'react-hook-form'
 
 interface Props {}
 

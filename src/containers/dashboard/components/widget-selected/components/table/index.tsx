@@ -49,7 +49,7 @@ interface Props {
   onClose: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ selectedWidget, onClose }) => {
+const TableWidget: React.FC<Props> = ({ onClose }) => {
   const t = useTranslations('dashboard')
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),

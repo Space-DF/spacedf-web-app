@@ -1,10 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronDown, Search, Trash, UploadCloud } from 'lucide-react'
-import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -14,25 +15,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import ImageWithBlur from '@/components/ui/image-blur'
-import { Button } from '@/components/ui/button'
 import { Input, InputWithIcon } from '@/components/ui/input'
-import OrganizationThumb from '/public/images/organization-thumb.svg'
-import { Textarea } from '@/components/ui/textarea'
-import { useSpaceSettings } from '@/stores/space-settings-store'
-import { useRouter } from '@/i18n/routing'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { useRouter } from '@/i18n/routing'
+import { useSpaceSettings } from '@/stores/space-settings-store'
+import OrganizationThumb from '/public/images/organization-thumb.svg'
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Option, SearchMember } from './search-member'
-import { DataTable } from '@/components/ui/data-table'
-import { Separator } from '@/components/ui/separator'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,12 +32,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ColumnDef } from '@tanstack/react-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DataTable } from '@/components/ui/data-table'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Space } from '@/types/space'
+import { ColumnDef } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { useParams } from 'next/navigation'
-import { InputIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { Option, SearchMember } from './search-member'
 
 const formSchema = z.object({
   space_name: z
@@ -402,7 +401,7 @@ const usersData: User[] = [
   },
 ]
 
-export function MemberTab({ space }: { space: Space }) {
+export function MemberTab({}: { space: Space }) {
   const t = useTranslations()
   const [deleteId, setDeleteId] = useState<string | undefined>()
   const [data, setData] = useState<User[]>([])
@@ -416,7 +415,7 @@ export function MemberTab({ space }: { space: Space }) {
       }
       setData((prev) => prev.filter((item) => item.id !== id))
     },
-    [],
+    []
   )
 
   const handleDelete = () => {
@@ -443,17 +442,17 @@ export function MemberTab({ space }: { space: Space }) {
                 setData((prev) => {
                   const removedItems = prev.filter(
                     ({ email: oldEmail }) =>
-                      !values.some(({ email }) => oldEmail === email),
+                      !values.some(({ email }) => oldEmail === email)
                   )
 
                   const addedItems = values.filter(
                     ({ email: newEmail }) =>
-                      !prev.some(({ email }) => email === newEmail),
+                      !prev.some(({ email }) => email === newEmail)
                   )
 
                   return [...removedItems, ...addedItems].map((item) => {
                     const userExists = usersData.find(
-                      ({ email }) => item.email === email,
+                      ({ email }) => item.email === email
                     )
                     return userExists || item
                   })

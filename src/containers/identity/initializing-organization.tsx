@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Logo } from '@/components/ui/logo'
 import {
   TypographyPrimary,
@@ -7,9 +6,7 @@ import {
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
-import { deleteCookie, setCookie } from '@/utils'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import React, { memo, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 const InitializingOrganization = () => {
@@ -17,7 +14,7 @@ const InitializingOrganization = () => {
   const { organizationDomain } = useIdentityStore(
     useShallow((state) => ({
       organizationDomain: state.organizationDomain,
-    })),
+    }))
   )
 
   useEffect(() => {
@@ -35,7 +32,7 @@ const InitializingOrganization = () => {
   return (
     <div
       className={cn(
-        'flex animate-opacity-display-effect flex-col items-center justify-center',
+        'flex animate-opacity-display-effect flex-col items-center justify-center'
       )}
     >
       <div className="h-48 w-48">

@@ -1,16 +1,5 @@
-import React, { useRef, useState, useCallback, useMemo, useEffect } from 'react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { useFormContext, useWatch } from 'react-hook-form'
-import { dataTablePayload } from '@/validator'
+import { Drag, PushPin, Scales } from '@/components/icons'
+import { Trash } from '@/components/icons/trash'
 import {
   Accordion,
   AccordionContent,
@@ -26,8 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ChevronDown } from 'lucide-react'
-import { Trash } from '@/components/icons/trash'
+import { Button } from '@/components/ui/button'
 import {
   FormControl,
   FormField,
@@ -35,8 +23,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { cn } from '@/lib/utils'
+import { dataTablePayload } from '@/validator'
+import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Drag, PushPin, Scales } from '@/components/icons'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { FIELD_DISPLAY_NAME } from '../table.const'
 
 interface ColumnProps {
@@ -68,7 +68,7 @@ const Column: React.FC<ColumnProps> = ({
 
   const fieldOptions = useMemo(
     () => (type === 'General' ? generalFields : specificFields),
-    [type, generalFields, specificFields],
+    [type, generalFields, specificFields]
   )
 
   const renderedFieldOptions = useMemo(
@@ -78,7 +78,7 @@ const Column: React.FC<ColumnProps> = ({
           {fieldOption}
         </SelectItem>
       )),
-    [fieldOptions],
+    [fieldOptions]
   )
 
   const handleTypeChange = useCallback(
@@ -91,7 +91,7 @@ const Column: React.FC<ColumnProps> = ({
       setValue(`columns.${index}.field`, newFieldValue)
       previousValues.current[newType] = newFieldValue
     },
-    [index, setValue, generalFields, specificFields],
+    [index, setValue, generalFields, specificFields]
   )
 
   return (
@@ -198,7 +198,7 @@ const Column: React.FC<ColumnProps> = ({
                           'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors hover:bg-accent',
                           field.value === 'General'
                             ? 'border-brand-component-stroke-dark dark:border-brand-component-fill-secondary-soft'
-                            : '',
+                            : ''
                         )}
                       >
                         <PushPin />
@@ -210,7 +210,7 @@ const Column: React.FC<ColumnProps> = ({
                           'flex w-1/2 items-center justify-start gap-1 rounded-lg border bg-transparent p-3 text-brand-component-text-dark transition-colors hover:bg-accent',
                           field.value === 'Specific'
                             ? 'border-brand-component-stroke-dark dark:border-brand-component-fill-secondary-soft'
-                            : '',
+                            : ''
                         )}
                       >
                         <Scales />

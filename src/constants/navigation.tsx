@@ -31,8 +31,8 @@ export type DynamicLayout =
   | `${NavigationEnums.DEVICES}`
   | `${NavigationEnums.USER}`
 
-export const navigations = (
-  translateFn: ReturnType<typeof useTranslations>,
+export const NavigationData = (
+  translateFn: ReturnType<typeof useTranslations>
 ): Navigation[] => {
   const router = useRouter()
   const params = useParams()
@@ -79,7 +79,7 @@ export const navigations = (
       icon: <Warehouse />,
       onClick: () =>
         router.push(
-          `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`,
+          `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`
         ),
     },
     // {

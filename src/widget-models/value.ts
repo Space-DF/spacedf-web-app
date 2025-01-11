@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Appearance, Sources, WidgetInfo } from './widget'
 
 class ValueSources extends Sources {
@@ -11,7 +12,7 @@ class ValueSources extends Sources {
     type: string,
     values: object[],
     device_id: string,
-    device_type: string,
+    device_type: string
   ) {
     super(device_id, device_type)
     this.decimal = decimal

@@ -6,18 +6,15 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useLayout } from '@/stores'
 import { displayedRightDynamicLayout, getDynamicLayoutRight } from '@/utils'
-import React, { memo } from 'react'
+import { useTranslations } from 'next-intl'
+import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import SelectTemplate from './SelectTemplate'
-import { useTranslations } from 'next-intl'
-import { useSession } from 'next-auth/react'
 
 const OnboardingContainer = () => {
   const t = useTranslations('onboarding')
   const commonTranslate = useTranslations('common')
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-
-  const { data } = useSession()
 
   const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
 
@@ -28,7 +25,7 @@ const OnboardingContainer = () => {
       <div
         className={cn(
           'flex flex-1 flex-col items-center text-wrap duration-300',
-          isShowAll ? 'px-4' : 'max-w-xl',
+          isShowAll ? 'px-4' : 'max-w-xl'
         )}
       >
         <p className="text-center text-4xl font-medium text-brand-heading dark:text-white">
