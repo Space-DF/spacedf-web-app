@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import React, { forwardRef, useEffect, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
-import { COOKIES, Navigation as TNavigation, Navigations } from '@/constants'
+import { COOKIES, Navigation as TNavigation, NavigationData } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
@@ -280,8 +280,8 @@ const Navigations = () => {
       )}
     >
       {(isAuth
-        ? navigations(t)
-        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+        ? NavigationData(t)
+        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
       ).map((navigation) => {
         return <Navigation navigation={navigation} key={navigation.href} />
       })}
@@ -364,8 +364,8 @@ const CollapsedNavigation = () => {
   return (
     <div className="my-4 flex w-full flex-col items-center justify-center gap-2">
       {(isAuth
-        ? navigations(t)
-        : navigations(t).filter((n) => n.key !== 'workspace_settings')
+        ? NavigationData(t)
+        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
       ).map((navigation) => {
         const isDisplayed = dynamicLayouts.includes(navigation.href)
 

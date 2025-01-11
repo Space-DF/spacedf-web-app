@@ -12,7 +12,7 @@ type CreateOrganizationActionPayload = {
 export const createOrganizationAction = async (
   payload: CreateOrganizationActionPayload
 ) => {
-  const session = await getServerSession(authOptions)
+  const session = (await getServerSession(authOptions)) as any
 
   // return new NextResponse(
   //   JSON.stringify({

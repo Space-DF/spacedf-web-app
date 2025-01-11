@@ -31,7 +31,7 @@ export type DynamicLayout =
   | `${NavigationEnums.DEVICES}`
   | `${NavigationEnums.USER}`
 
-export const Navigations = (
+export const NavigationData = (
   translateFn: ReturnType<typeof useTranslations>
 ): Navigation[] => {
   const router = useRouter()
