@@ -6,6 +6,12 @@ export enum WidgetType {
   Value = 'value',
 }
 
+export enum AggregationFunction {
+  Minimum = 'minimum',
+  Average = 'average',
+  Maximum = 'maximum',
+}
+
 export class Widget {
   id: string
   type: WidgetType
@@ -53,9 +59,9 @@ export class WidgetInfo {
 }
 
 export class TimeFrame {
-  aggregation_function: string
+  aggregation_function: AggregationFunction
 
-  constructor(aggregation_function: string) {
+  constructor(aggregation_function: AggregationFunction) {
     this.aggregation_function = aggregation_function
   }
 }

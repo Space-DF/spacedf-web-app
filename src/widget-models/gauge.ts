@@ -1,4 +1,4 @@
-import { Sources, TimeFrame } from './widget'
+import { AggregationFunction, Sources, TimeFrame } from './widget'
 
 class GaugeTimeFrame extends TimeFrame {
   date_range: string
@@ -14,7 +14,7 @@ class GaugeTimeFrame extends TimeFrame {
     until: string,
     resolution: string,
     time_zone: string,
-    aggregationFunction: string,
+    aggregationFunction: AggregationFunction,
   ) {
     super(aggregationFunction)
     this.date_range = date_range
