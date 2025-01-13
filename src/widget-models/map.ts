@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Sources, WidgetInfo } from './widget'
 
-class WidgetMap {
+export class WidgetMap {
   sources: Sources
   widget_info: WidgetInfo
   constructor(sources: Sources, widget_info: WidgetInfo) {

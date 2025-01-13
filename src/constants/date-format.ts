@@ -8,7 +8,6 @@ export enum TimeFormat {
   SHORT_DATE_TIME_WITH_DAY = 'ddd, MMM D, YYYY, h:mm A',
   NUMERIC_DATE_TIME = 'M/D/YYYY, h:mm A',
   NUMERIC_DATE_TIME_WITH_SECONDS = 'M/D/YYYY, h:mm:ss A',
-  LONG_DATE = 'MMMM D, YYYY',
   SHORT_DATE = 'MMM D, YYYY',
   DAY_DATE = 'ddd, MMM D, YYYY',
   NUMERIC_DATE = 'M/D/YYYY',
@@ -20,7 +19,6 @@ export enum TimeFormat {
   FULL_MONTH_DATE_YEAR = 'MM/DD/YYYY',
   FULL_YEAR_MONTH_DATE = 'YYYY/MM/DD',
   FULL_YEAR_DATE_MONTH = 'YYYY/DD/MM',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   FULL_DATE_WITH_ORDINAL = 'MMMM D, YYYY',
 }
 

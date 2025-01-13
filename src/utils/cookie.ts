@@ -15,14 +15,17 @@ export const getCookie = <TDefaultValue = any>(
   return defaultValue
 }
 
-export const setCookie = <TValue = any>(key: string, value: TValue) => {
+export const setCookie = <TValue = any>(
+  key: string,
+  value: TValue,
+  path = '/'
+) => {
   if (typeof value === 'string') {
-    document.cookie = `${key}=${value}`
-
+    Cookies.set(key, value, { path })
     return
   }
 
-  document.cookie = `${key}=${JSON.stringify(value)}`
+  Cookies.set(key, JSON.stringify(value), { path })
 }
 
 export const deleteCookie = (key: string) => {

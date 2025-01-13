@@ -31,8 +31,7 @@ class Condition {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class Table {
+export class Table {
   widget_info: WidgetInfo
   conditions: Condition[]
   columns: Column[]

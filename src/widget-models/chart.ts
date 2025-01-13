@@ -85,9 +85,7 @@ class ChartTimeFrame extends TimeFrame {
     this.time_zone = time_zone
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class Chart {
+export class Chart {
   sources: ChartSources
   axes: Axes
   time_frame: ChartTimeFrame

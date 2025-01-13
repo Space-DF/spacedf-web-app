@@ -47,8 +47,7 @@ class GaugeSources extends Sources {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class Gauge {
+export class Gauge {
   time_frame: GaugeTimeFrame
   sources: GaugeSources
 
