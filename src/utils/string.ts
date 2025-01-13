@@ -21,3 +21,12 @@ export function getSubdomain(fullUrl: string) {
 
   return ''
 }
+
+export const truncateText = (
+  text?: string,
+  maxLength = 20,
+  fallback = '------'
+) => {
+  if (!text) return fallback
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text
+}

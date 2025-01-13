@@ -6,20 +6,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { dataTablePayload } from '@/validator'
+import { Column, dataTablePayload, Device } from '@/validator'
 import { useTranslations } from 'next-intl'
 import { FIELD_DISPLAY_NAME } from '../table.const'
+import { truncateText } from '@/utils'
 
 interface TablePreviewProps {
   source: dataTablePayload['source']['devices']
   columns: dataTablePayload['columns']
-  conditional?: string | null
+  conditionals?: dataTablePayload['conditionals']
 }
 
 const TablePreview: React.FC<TablePreviewProps> = ({
   source,
   columns,
-  conditional = '',
+  conditionals = [],
 }) => {
   const t = useTranslations('dashboard')
   const isEmptyData = !source.length || !columns.some((col) => col.field)
@@ -32,20 +33,37 @@ const TablePreview: React.FC<TablePreviewProps> = ({
     )
   }
 
-  const applyConditionalColor = (value: string) => {
-    if (conditional) {
-      try {
-        const conditionResult = new Function('value', `return ${conditional};`)(
-          parseFloat(value),
-        )
-        if (conditionResult) {
-          return 'bg-red-500'
-        }
-      } catch (e) {
-        console.error('Invalid conditional string:', e)
-      }
+  const applyConditionalFormat = (value: any, column: Column) => {
+    const condition = conditionals.find((cond) => cond.field === column.field)
+
+    if (!condition) return { bgColor: '', textColor: '', limit: true }
+
+    let meetsCondition = false
+    switch (condition.operator) {
+      case 'equal to':
+        meetsCondition = String(value) == condition.value
+        break
+      case 'not equal':
+        meetsCondition = String(value) != condition.value
+        break
+      case 'greater than':
+        meetsCondition = Number(value) > Number(condition.value)
+        break
+      case 'less than':
+        meetsCondition = Number(value) < Number(condition.value)
+        break
+      default:
+        break
     }
-    return ''
+
+    if (!meetsCondition)
+      return { bgColor: '', textColor: '', limit: condition.limit }
+
+    return {
+      bgColor: condition.bg_color ? `#${condition.bg_color}` : '',
+      textColor: condition.text_color ? `#${condition.text_color}` : '',
+      limit: condition.limit,
+    }
   }
 
   return (
@@ -54,31 +72,68 @@ const TablePreview: React.FC<TablePreviewProps> = ({
         <TableRow>
           {columns.map((column, index) => (
             <TableHead className="h-full min-h-6 px-2 py-1" key={index}>
-              {FIELD_DISPLAY_NAME[column.column_name] ||
-                column.column_name ||
-                '------'}
+              {truncateText(
+                FIELD_DISPLAY_NAME[column.column_name] || column.column_name
+              )}
             </TableHead>
           ))}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {source.map((device: any, rowIndex: any) => (
-          <TableRow key={rowIndex}>
-            {columns.map((column, colIndex) => {
-              const field = column.field
-              const value = (device as any)[field] || '____'
+        {source.map((device: Device, rowIndex: number) => {
+          let rowStyles = { bgColor: '', textColor: '' }
 
-              return (
-                <TableCell
-                  className={`p-2 ${applyConditionalColor(value)}`}
-                  key={colIndex}
-                >
-                  {value}
-                </TableCell>
-              )
-            })}
-          </TableRow>
-        ))}
+          columns.forEach((column) => {
+            const field = column.field
+            const value = (device as Device)[field] ?? '____'
+            const { bgColor, textColor, limit } = applyConditionalFormat(
+              value,
+              column
+            )
+            if (!limit && bgColor) {
+              rowStyles = {
+                bgColor: bgColor || rowStyles.bgColor,
+                textColor: textColor || rowStyles.textColor,
+              }
+            }
+          })
+
+          return (
+            <TableRow
+              key={rowIndex}
+              style={{
+                backgroundColor: rowStyles.bgColor,
+                color: rowStyles.textColor,
+              }}
+            >
+              {columns.map((column, colIndex) => {
+                const field = column.field
+                const value = (device as any)[field] ?? '____'
+
+                const displayValue =
+                  typeof value === 'boolean' ? (value ? 'On' : 'Off') : value
+
+                const { bgColor, textColor, limit } = applyConditionalFormat(
+                  value,
+                  column
+                )
+
+                return (
+                  <TableCell
+                    className="p-2"
+                    style={{
+                      color: limit ? textColor : '',
+                      backgroundColor: limit ? bgColor : '',
+                    }}
+                    key={colIndex}
+                  >
+                    {displayValue}
+                  </TableCell>
+                )
+              })}
+            </TableRow>
+          )
+        })}
       </TableBody>
     </Table>
   )
