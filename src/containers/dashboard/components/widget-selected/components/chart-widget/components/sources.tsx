@@ -25,7 +25,7 @@ const ChartSource: React.FC<Props> = () => {
 
   return (
     <div className="flex flex-col scroll-smooth duration-300">
-      <div className="space-y-4">
+      <div className="space-y-4 mb-8">
         {fields.map((field, index) => (
           <SingleSource
             key={index}
