@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Popover,
@@ -72,6 +72,8 @@ const TimeFrame = () => {
   const [isFromOpen, setIsFromOpen] = useState(false)
   const [isUtilOpen, setIsUtilOpen] = useState(false)
   const { watch } = form
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [currentWidth, setCurrentWidth] = useState(0)
 
   const [from, util] = watch(['timeframe.from', 'timeframe.util'])
 
@@ -125,13 +127,32 @@ const TimeFrame = () => {
 
   const isCustomTab = useMemo(
     () => activeTab === TimeFrameTab.Custom,
-    [activeTab],
+    [activeTab]
   )
+
+  const isLgContainer = currentWidth > 320
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        setCurrentWidth(containerRef.current.clientWidth)
+      }
+    })
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current)
+      }
+    }
+  }, [])
 
   return (
     <Tabs
       value={activeTab}
       onValueChange={(tab) => handleTabChange(tab as TimeFrameTab)}
+      ref={containerRef}
     >
       <TabsList className="m-0 grid h-fit w-full grid-cols-5 gap-0 divide-x overflow-hidden border border-brand-component-stroke-dark-soft bg-transparent p-0">
         {TIME_FRAME_TABS.map((tab) => (
@@ -163,12 +184,12 @@ const TimeFrame = () => {
                           variant={'outline'}
                           className={cn(
                             'bg-brand-component-fill-dark-soft pl-3 text-left text-xs font-medium text-brand-component-text-dark',
-                            !field.value && 'text-muted-foreground',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
                           {field.value ? (
                             dayjs(field.value).format(
-                              TimeFormat.FULL_DATE_WITH_ORDINAL,
+                              TimeFormat.FULL_DATE_WITH_ORDINAL
                             )
                           ) : (
                             <span>{t('pick_a_date')}</span>
@@ -213,12 +234,12 @@ const TimeFrame = () => {
                           variant={'outline'}
                           className={cn(
                             'bg-brand-component-fill-dark-soft pl-3 text-left text-xs font-medium text-brand-component-text-dark',
-                            !field.value && 'text-muted-foreground',
+                            !field.value && 'text-muted-foreground'
                           )}
                         >
                           {field.value ? (
                             dayjs(field.value).format(
-                              TimeFormat.FULL_DATE_WITH_ORDINAL,
+                              TimeFormat.FULL_DATE_WITH_ORDINAL
                             )
                           ) : (
                             <span>{t('pick_a_date')}</span>
@@ -367,7 +388,12 @@ const TimeFrame = () => {
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className="flex items-center space-x-3"
+                  className={cn(
+                    'flex',
+                    isLgContainer
+                      ? 'space-x-3 items-center'
+                      : 'gap-y-1 flex-col'
+                  )}
                 >
                   <FormItem className="m-2 flex items-center space-x-3 space-y-0">
                     <FormControl>

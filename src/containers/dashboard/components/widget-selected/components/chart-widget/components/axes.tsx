@@ -116,7 +116,9 @@ const Axes: React.FC<Props> = () => {
                 name="axes.y_axis.unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('unit')}</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                      {t('unit')}
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -192,7 +194,7 @@ const Axes: React.FC<Props> = () => {
                     <SelectGroup>
                       {DATE_FORMAT.map((date) => (
                         <SelectItem value={date.value} key={date.value}>
-                          {date.label}
+                          {date.label}-{date.value}
                         </SelectItem>
                       ))}
                     </SelectGroup>

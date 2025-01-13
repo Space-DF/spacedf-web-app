@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Appearance, Sources, WidgetInfo } from './widget'
 
 class ValueSources extends Sources {
@@ -22,7 +21,7 @@ class ValueSources extends Sources {
   }
 }
 
-class ValueWidgetInfo extends WidgetInfo {
+export class ValueWidgetInfo extends WidgetInfo {
   color: string
   constructor(name: string, appearance: Appearance, color: string) {
     super(name, appearance)
@@ -30,7 +29,7 @@ class ValueWidgetInfo extends WidgetInfo {
   }
 }
 
-class Value {
+export class Value {
   sources: ValueSources
   widget_info: WidgetInfo
   constructor(sources: ValueSources, widget_info: WidgetInfo) {
