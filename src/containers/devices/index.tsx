@@ -396,10 +396,7 @@ const DevicesList = ({
                   <div className="space-y-2 mb-[18px]">
                     <div className="flex items-center justify-between">
                       <div className="size-8">
-                        <ImageWithBlur
-                          src={DeviceIcon}
-                          alt="DMZ 01 -1511-M01"
-                        />
+                        <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
                       </div>
                     </div>
                     <div className="text-xs font-medium">DMZ 01 -1511-M01</div>
