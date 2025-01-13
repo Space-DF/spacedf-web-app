@@ -387,15 +387,15 @@ const DevicesList = ({
               )}
               onClick={() => handleSelected(item.id)}
             >
-              <div className="flex items-center justify-between">
-                <div className="size-8">
-                  <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+              <div className="space-y-2 mb-[18px]">
+                <div className="flex items-center justify-between">
+                  <div className="size-8">
+                    <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+                  </div>
                 </div>
+                <div className="text-xs font-medium">DMZ 01 -1511-M01</div>
               </div>
-              <div className="mb-7 mt-2 text-xs font-medium">
-                DMZ 01 -1511-M01
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium">
+              <div className="flex items-center gap-2 py-1 text-xs font-medium">
                 <Map size={16} className="text-brand-text-gray" />
                 Jln Ramaya Terawi
               </div>
