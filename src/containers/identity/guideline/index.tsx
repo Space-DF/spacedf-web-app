@@ -52,7 +52,7 @@ export default function Guideline() {
   const [[page, direction], setPage] = useState([0, 0])
   const t = useTranslations('onboarding')
   const { openGuideline, setOpenGuideline } = useIdentityStore(
-    useShallow((state) => state),
+    useShallow((state) => state)
   )
 
   const { theme = 'light' } = useTheme()
@@ -108,7 +108,7 @@ export default function Guideline() {
                 'items-center gap-2 rounded-lg border-brand-stroke-dark-soft text-brand-dark-fill-secondary shadow-none transition-all duration-300 dark:border-brand-stroke-outermost dark:text-white',
                 {
                   hidden: imageIndex === 2,
-                },
+                }
               )}
             >
               {t('skip')}
@@ -120,7 +120,7 @@ export default function Guideline() {
                 'gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm transition-all duration-300 dark:border-brand-stroke-outermost',
                 {
                   hidden: imageIndex !== 2,
-                },
+                }
               )}
               onClick={handleCloseGuideline}
             >
@@ -138,7 +138,7 @@ export default function Guideline() {
                       'size-2 rounded-full bg-brand-fill-dark-soft transition-all duration-300',
                       {
                         'bg-brand-dark-fill-secondary': imageIndex === index,
-                      },
+                      }
                     )}
                   />
                 ))}
@@ -151,10 +151,10 @@ export default function Guideline() {
                 disabled={imageIndex === 0}
                 onClick={() => handleGoToStep(-1)}
                 className={cn(
-                  'absolute left-14 top-1/2 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                  'absolute left-14 top-1/2 z-50 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
                   {
                     'border-brand-component-stroke-disabled': imageIndex === 0,
-                  },
+                  }
                 )}
               >
                 <ChevronLeft size={20} />
@@ -164,10 +164,10 @@ export default function Guideline() {
                 disabled={imageIndex === 2}
                 onClick={() => handleGoToStep(1)}
                 className={cn(
-                  'absolute right-14 top-1/2 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
+                  'absolute right-14 top-1/2 z-50 size-10 -translate-y-1/2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark shadow-sm',
                   {
                     'border-brand-component-stroke-disabled': imageIndex === 2,
-                  },
+                  }
                 )}
               >
                 <ChevronRight size={20} />
@@ -181,7 +181,7 @@ export default function Guideline() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute h-full object-contain"
+                  className="absolute mx-auto h-full object-contain"
                   transition={{
                     x: { type: 'spring', stiffness: 200, damping: 30 },
                     opacity: { duration: 0.3 },
