@@ -26,7 +26,7 @@ const ChartWidgetInfo: React.FC<Props> = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel
-              className="text-xs font-semibold text-brand-component-text-dark"
+              className="text-sm font-semibold text-brand-component-text-dark"
               required
             >
               {t('widget_name')}
@@ -39,7 +39,7 @@ const ChartWidgetInfo: React.FC<Props> = () => {
         )}
       />
       <div className="space-y-4">
-        <Label className="text-xs font-semibold text-brand-component-text-dark">
+        <Label className="text-sm font-semibold text-brand-component-text-dark">
           {t('appearance')}
         </Label>
         <div className="grid grid-cols-2 gap-2">
@@ -54,7 +54,7 @@ const ChartWidgetInfo: React.FC<Props> = () => {
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                   {t('show_value')}
                 </FormLabel>
               </FormItem>

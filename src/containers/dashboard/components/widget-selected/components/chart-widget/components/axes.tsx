@@ -46,10 +46,10 @@ const Axes: React.FC<Props> = () => {
       >
         <AccordionItem
           value={`sources`}
-          className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+          className="overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft"
         >
           <AccordionTrigger
-            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-xs font-semibold hover:no-underline"
+            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
             dropdownIcon={
               <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
             }
@@ -63,7 +63,7 @@ const Axes: React.FC<Props> = () => {
                 name="axes.y_axis.orientation"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                    <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('orientation')}
                     </FormLabel>
                     <FormControl>
@@ -116,7 +116,7 @@ const Axes: React.FC<Props> = () => {
                 name="axes.y_axis.unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                    <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('unit')}
                     </FormLabel>
                     <FormControl>

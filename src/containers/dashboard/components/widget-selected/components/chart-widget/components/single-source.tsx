@@ -95,7 +95,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
     () =>
       mockDeviceData.find((device) => device.id === deviceId)?.name ||
       t('add_device'),
-    [deviceId],
+    [deviceId]
   )
 
   const [colorValue, selectField] = form.watch([
@@ -104,7 +104,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
   ])
 
   const handleLegendManualChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = event.target.value
     setIsLegendManualChange(true)
@@ -158,7 +158,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
           className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
         >
           <AccordionTrigger
-            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-xs font-semibold hover:no-underline"
+            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
             dropdownIcon={
               <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
             }
@@ -184,7 +184,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        className="text-xs font-semibold text-brand-component-text-dark"
+                        className="text-sm font-semibold text-brand-component-text-dark"
                         required
                       >
                         {t('device')}
@@ -229,7 +229,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        className="text-xs font-semibold text-brand-component-text-dark"
+                        className="text-sm font-semibold text-brand-component-text-dark"
                         required
                       >
                         {t('field')}
@@ -275,7 +275,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                      <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                         {t('legend')}
                       </FormLabel>
                       <FormField
@@ -309,7 +309,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                 name={`sources.${index}.color`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                    <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('color')}
                     </FormLabel>
                     <FormControl>
@@ -366,7 +366,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                                   'stroke-brand-component-stroke-dark-soft hover:stroke-brand-component-stroke-dark',
                                   colorValue === 'default'
                                     ? 'stroke-brand-component-stroke-dark dark:stroke-brand-stroke-gray'
-                                    : '',
+                                    : ''
                                 )}
                               />
                             </SelectItem>
@@ -382,7 +382,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                                     'h-6 w-6 rounded-md border border-transparent hover:border-brand-component-stroke-dark',
                                     colorValue === color
                                       ? 'border-brand-component-stroke-dark dark:border-brand-stroke-gray'
-                                      : '',
+                                      : ''
                                   )}
                                   style={{
                                     backgroundColor: `#${color}`,
@@ -403,7 +403,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                 name={`sources.${index}.chart_type`}
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                    <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('type')}
                     </FormLabel>
                     <FormControl>

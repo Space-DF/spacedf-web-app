@@ -77,10 +77,10 @@ const TableWidget: React.FC<Props> = ({ onClose }) => {
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-brand-component-text-dark">
+            <p className="text-sm font-semibold text-brand-component-text-dark">
               {t('preview')}
             </p>
-            <div className="rounded-lg bg-brand-component-fill-gray-soft p-2 text-xs">
+            <div className="rounded-lg bg-brand-component-fill-gray-soft p-2 text-sm">
               <div className="rounded-t-md bg-brand-component-fill-light-fixed px-2 pb-1 pt-3 font-semibold text-brand-component-text-dark dark:bg-brand-heading">
                 <p
                   className={`max-w-[90%] overflow-hidden text-ellipsis whitespace-nowrap ${!widget_info.name && 'text-brand-fill-gray-light'}`}

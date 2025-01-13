@@ -174,7 +174,7 @@ const TimeFrame = () => {
               name="timeframe.from"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                  <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                     {t('from')}
                   </FormLabel>
                   <Popover open={isFromOpen} onOpenChange={setIsFromOpen}>
@@ -183,7 +183,7 @@ const TimeFrame = () => {
                         <Button
                           variant={'outline'}
                           className={cn(
-                            'bg-brand-component-fill-dark-soft pl-3 text-left text-xs font-medium text-brand-component-text-dark',
+                            'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                             !field.value && 'text-muted-foreground'
                           )}
                         >
@@ -224,7 +224,7 @@ const TimeFrame = () => {
               name="timeframe.util"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                  <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                     {t('util')}
                   </FormLabel>
                   <Popover open={isUtilOpen} onOpenChange={setIsUtilOpen}>
@@ -233,7 +233,7 @@ const TimeFrame = () => {
                         <Button
                           variant={'outline'}
                           className={cn(
-                            'bg-brand-component-fill-dark-soft pl-3 text-left text-xs font-medium text-brand-component-text-dark',
+                            'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                             !field.value && 'text-muted-foreground'
                           )}
                         >
@@ -275,29 +275,25 @@ const TimeFrame = () => {
               render={({ field }) => (
                 <>
                   <FormItem className="relative flex flex-col">
-                    <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                    <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('resolution')}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        className="border-input"
-                        {...field}
-                      />
+                      <Input className="border-input" {...field} />
                     </FormControl>
                     <FormMessage />
                     <FormField
                       control={form.control}
                       name="timeframe.resolution_unit"
                       render={({ field }) => (
-                        <FormItem className="absolute right-0 top-4">
+                        <FormItem className="absolute right-1 top-5">
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger
-                                className="border-none shadow-none"
+                                className="border-none shadow-none bg-brand-fill-dark-soft border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 dark:bg-brand-heading "
                                 icon={
                                   <ChevronDown className="w-3 text-brand-icon-gray" />
                                 }
@@ -328,7 +324,7 @@ const TimeFrame = () => {
               name="timeframe.time_zone"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                  <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                     {t('time_zone')}
                   </FormLabel>
                   <Select
@@ -368,7 +364,7 @@ const TimeFrame = () => {
           name="timeframe.aggregation_function"
           render={({ field }) => (
             <FormItem className="space-y-1.5">
-              <FormLabel className="flex items-center space-x-1.5 text-xs font-semibold text-brand-component-text-dark">
+              <FormLabel className="flex items-center space-x-1.5 text-sm font-semibold text-brand-component-text-dark">
                 <span>{t('aggregation_function')}</span>{' '}
                 <TooltipProvider>
                   <Tooltip>

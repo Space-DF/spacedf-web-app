@@ -26,7 +26,7 @@ const Source: React.FC = () => {
 
   const toggleDevice = (device: (typeof DEVICES)[0]) => {
     const isSelected = selectedDevices.some(
-      (d) => d.device_id === device.device_id,
+      (d) => d.device_id === device.device_id
     )
     const updatedDevices = isSelected
       ? selectedDevices.filter((d) => d.device_id !== device.device_id)
@@ -37,14 +37,14 @@ const Source: React.FC = () => {
 
   const deviceNames = useMemo(
     () => getDeviceNames(selectedDevices),
-    [selectedDevices],
+    [selectedDevices]
   )
 
   return (
     <div className="mt-4 size-full px-4">
-      <p className="mb-[6px] text-xs font-semibold">
+      <p className="mb-[6px] text-sm font-semibold">
         <FormLabel
-          className="text-xs font-semibold !text-brand-component-text-dark"
+          className="text-sm font-semibold !text-brand-component-text-dark"
           required
         >
           {t('dashboard.select_device')}
@@ -56,7 +56,7 @@ const Source: React.FC = () => {
             className="w-full justify-between rounded-lg bg-brand-fill-dark-soft px-3 duration-200 dark:bg-brand-heading"
             variant="ghost"
           >
-            <div className="flex w-full items-center justify-between text-xs text-brand-component-text-gray">
+            <div className="flex w-full items-center justify-between text-sm text-brand-component-text-gray">
               <p className="max-w-[86%] overflow-hidden text-ellipsis whitespace-nowrap">
                 {deviceNames || t('dashboard.select_device')}
               </p>
@@ -80,11 +80,11 @@ const Source: React.FC = () => {
                   type="checkbox"
                   className="size-5 rounded border-brand-component-stroke-dark-soft px-2 peer-checked:bg-brand-component-fill-dark-soft"
                   checked={selectedDevices.some(
-                    (d) => d.device_id === device.device_id,
+                    (d) => d.device_id === device.device_id
                   )}
                   onChange={() => toggleDevice(device)}
                 />
-                <Label className="text-xs text-brand-component-text-dark">
+                <Label className="text-sm text-brand-component-text-dark">
                   {device.device_name}
                 </Label>
               </div>

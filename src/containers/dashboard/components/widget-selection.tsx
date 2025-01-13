@@ -65,7 +65,7 @@ const WidgetSelection = ({
               <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
                 {widget.icon}
               </div>
-              <div className="text-center text-xs">{widget.title}</div>
+              <div className="text-center text-sm">{widget.title}</div>
             </div>
           ))}
         </div>

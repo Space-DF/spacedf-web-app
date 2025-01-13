@@ -283,7 +283,7 @@ const PolarChart = ({ children, className }: WidgetProp) => (
                     <tspan
                       x={viewBox.cx}
                       y={(viewBox.cy || 0) + 16}
-                      className="fill-brand-component-text-gray text-xs font-medium"
+                      className="fill-brand-component-text-gray text-sm font-medium"
                     >
                       ml
                     </tspan>

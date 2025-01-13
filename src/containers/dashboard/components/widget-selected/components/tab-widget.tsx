@@ -41,7 +41,7 @@ const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="w-full rounded-none px-0 py-2 text-xs font-medium text-brand-component-text-gray focus-visible:outline-none data-[state=active]:border-b-2 data-[state=active]:border-brand-component-text-dark data-[state=active]:bg-transparent data-[state=active]:text-brand-component-text-dark data-[state=active]:shadow-none"
+            className="w-full rounded-none px-0 py-2 text-sm font-medium text-brand-component-text-gray focus-visible:outline-none data-[state=active]:border-b-2 data-[state=active]:border-brand-component-text-dark data-[state=active]:bg-transparent data-[state=active]:text-brand-component-text-dark data-[state=active]:shadow-none"
           >
             {t(tab.label as any)}
           </TabsTrigger>
