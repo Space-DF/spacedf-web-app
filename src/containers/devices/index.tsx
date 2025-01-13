@@ -171,7 +171,7 @@ const AddDeviceDialog = () => {
   return (
     <div className="flex items-center justify-center">
       <Button
-        className="h-8 gap-2 rounded-lg"
+        className="h-8 gap-2 rounded-lg text-xs"
         onClick={() => {
           if (!isAuth) {
             setOpenDrawerIdentity(true)
@@ -368,40 +368,48 @@ const DevicesList = ({
   const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
 
   return (
-    <div className="mt-6 flex flex-1 flex-col gap-4 overflow-y-auto scroll-smooth px-4 transition-all duration-300 [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-      <div className="flex items-center justify-between">
+    <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
+      <div className="flex items-center justify-between px-4">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
       </div>
-      <div className="-mx-2 flex flex-wrap gap-y-4 pb-6">
-        {devices.map((item) => (
-          <div className="w-1/2 shrink-0 grow-0 basis-1/2 px-2" key={item.id}>
-            <div
-              className={cn(
-                'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                {
-                  'border-brand-component-stroke-dark': item.id === selected,
-                }
-              )}
-              onClick={() => handleSelected(item.id)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="size-8">
-                  <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+      <div className="px-1.5 flex-1 h-full flex">
+        <div className="px-2.5 flex-1 transition-all duration-300 overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+          <div className="-mx-2 flex flex-wrap gap-y-4 pb-6">
+            {devices.map((item) => (
+              <div
+                className="w-1/2 shrink-0 grow-0 basis-1/2 px-2"
+                key={item.id}
+              >
+                <div
+                  className={cn(
+                    'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                    {
+                      'border-brand-component-stroke-dark':
+                        item.id === selected,
+                    }
+                  )}
+                  onClick={() => handleSelected(item.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="size-8">
+                      <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+                    </div>
+                  </div>
+                  <div className="mb-7 mt-2 text-xs font-medium">
+                    DMZ 01 -1511-M01
+                  </div>
+                  <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium">
+                    <Map size={16} className="text-brand-text-gray" />
+                    Jln Ramaya Terawi
+                  </div>
                 </div>
               </div>
-              <div className="mb-7 mt-2 text-xs font-medium">
-                DMZ 01 -1511-M01
-              </div>
-              <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium">
-                <Map size={16} className="text-brand-text-gray" />
-                Jln Ramaya Terawi
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )
