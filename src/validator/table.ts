@@ -8,7 +8,7 @@ export const sourceSchema = z.object({
           device_id: z.string().min(1, 'Device ID is required'),
           device_name: z.string().optional(),
         })
-        .passthrough(),
+        .passthrough()
     )
     .min(1, 'At least one device is required'),
 })
@@ -25,7 +25,18 @@ export const dataTableSchema = z.object({
       type: z.enum(['General', 'Specific'], {
         required_error: 'Type is required',
       }),
-    }),
+      field_type: z.enum([
+        'string',
+        'number',
+        'boolean',
+        'unknown',
+        'bigint',
+        'symbol',
+        'undefined',
+        'object',
+        'function',
+      ]),
+    })
   ),
   widget_info: z.object({
     name: z
@@ -33,10 +44,22 @@ export const dataTableSchema = z.object({
       .min(1, { message: 'Please enter widget name' })
       .max(100, { message: 'Maximum 100 characters long!' }),
   }),
-  conditional: z.string().optional().nullable(),
+  conditionals: z.array(
+    z.object({
+      field: z.string().min(1, { message: 'Please select field' }),
+      operator: z.string().min(1, { message: 'Please select operator' }),
+      value: z.string().min(1, { message: 'Please enter value' }),
+      text_color: z.string().min(1, { message: 'Please select text color' }),
+      bg_color: z
+        .string()
+        .min(1, { message: 'Please select background color' }),
+      limit: z.boolean(),
+    })
+  ),
 })
 
 export type Device = z.infer<typeof sourceSchema>['devices'][number]
+export type Column = z.infer<typeof dataTableSchema>['columns'][number]
 
 export type dataTablePayload = z.infer<typeof dataTableSchema>
 
@@ -48,5 +71,5 @@ export const dataTableDefault: dataTablePayload = {
     devices: [],
   },
   columns: [],
-  conditional: null,
+  conditionals: [],
 }

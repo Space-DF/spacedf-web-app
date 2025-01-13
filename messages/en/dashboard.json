@@ -84,5 +84,12 @@
   "time_zone": "Timezone",
   "none_select": "None selected",
   "minutes": "Minutes",
-  "aggregation_function_info": "Choose whether to display the average, minimum or maximum value within a given timeframe."
+  "aggregation_function_info": "Choose whether to display the average, minimum or maximum value within a given timeframe.",
+  "add_conditional": "Add Conditional",
+  "if": "If",
+  "is": "is",
+  "value": "Value",
+  "then_set_the_text_color_to": "then set the text color to",
+  "and_background_color_to": "and background color to",
+  "limit_to_this_column": "Limit to this column?"
 }

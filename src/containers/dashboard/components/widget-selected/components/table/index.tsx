@@ -17,6 +17,7 @@ import {
 import TablePreview from './components/table-preview'
 import TableWidgetInfo from './components/widget-info'
 import ColumnForm from './components/columns'
+import Conditionals from './components/conditionals'
 
 const TABLE_TABS_KEY = [
   TabKey.Sources,
@@ -38,7 +39,7 @@ const TabContents = () => {
         <TableWidgetInfo />
       </TabsContent>
       <TabsContent value={TabKey.Conditional}>
-        <p>Conditional Formatting</p>
+        <Conditionals />
       </TabsContent>
     </>
   )
@@ -60,7 +61,7 @@ const TableWidget: React.FC<Props> = ({ onClose }) => {
   const columns = form.watch('columns')
   const source = form.watch('source.devices')
   const widget_info = form.watch('widget_info')
-  const conditional = form.watch('conditional')
+  const conditionals = form.watch('conditionals')
 
   return (
     <RightSideBarLayout
@@ -80,18 +81,18 @@ const TableWidget: React.FC<Props> = ({ onClose }) => {
               {t('preview')}
             </p>
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2 text-xs">
-              <p className="rounded-t-md bg-brand-component-fill-light-fixed px-2 pb-1 pt-3 font-semibold text-brand-component-text-dark dark:bg-brand-heading">
-                {widget_info.name || (
-                  <p className="text-brand-fill-gray-light">
-                    {t('enter_widget_name')}
-                  </p>
-                )}
-              </p>
+              <div className="rounded-t-md bg-brand-component-fill-light-fixed px-2 pb-1 pt-3 font-semibold text-brand-component-text-dark dark:bg-brand-heading">
+                <p
+                  className={`max-w-[90%] overflow-hidden text-ellipsis whitespace-nowrap ${!widget_info.name && 'text-brand-fill-gray-light'}`}
+                >
+                  {widget_info.name || t('enter_widget_name')}
+                </p>
+              </div>
               <div className="grid grid-cols-1">
                 <TablePreview
                   source={source}
                   columns={columns}
-                  conditional={conditional}
+                  conditionals={conditionals}
                 />
               </div>
             </div>

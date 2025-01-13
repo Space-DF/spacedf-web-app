@@ -1,5 +1,16 @@
-import { Drag, PushPin, Scales } from '@/components/icons'
-import { Trash } from '@/components/icons/trash'
+import React, { useState, useRef, useCallback, useMemo } from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { dataTablePayload } from '@/validator'
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+import { ChevronDown } from 'lucide-react'
+import { Trash } from '@/components/icons/trash'
 import {
   FormControl,
   FormField,
@@ -23,20 +35,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { dataTablePayload } from '@/validator'
-import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { Drag, PushPin, Scales } from '@/components/icons'
 import { FIELD_DISPLAY_NAME } from '../table.const'
 
 interface ColumnProps {
@@ -56,9 +56,9 @@ const Column: React.FC<ColumnProps> = ({
   const { control, setValue } = useFormContext<dataTablePayload>()
   const [openDialog, setOpenDialog] = useState(false)
 
-  const type = useWatch({
+  const [devices, column_type] = useWatch({
     control,
-    name: `columns.${index}.type`,
+    name: ['source.devices', `columns.${index}.type`],
   })
 
   const previousValues = useRef({
@@ -67,8 +67,8 @@ const Column: React.FC<ColumnProps> = ({
   })
 
   const fieldOptions = useMemo(
-    () => (type === 'General' ? generalFields : specificFields),
-    [type, generalFields, specificFields]
+    () => (column_type === 'General' ? generalFields : specificFields),
+    [column_type, generalFields, specificFields]
   )
 
   const renderedFieldOptions = useMemo(
@@ -81,17 +81,42 @@ const Column: React.FC<ColumnProps> = ({
     [fieldOptions]
   )
 
+  const updateColumnDetails = useCallback(
+    (field: string) => {
+      setValue(`columns.${index}.field`, field)
+
+      const displayName = FIELD_DISPLAY_NAME[field] || field
+      setValue(`columns.${index}.column_name`, displayName)
+
+      const sampleDevice = devices?.find(
+        (device) => device?.[field] !== undefined
+      )
+      const fieldType = sampleDevice ? typeof sampleDevice[field] : 'unknown'
+
+      setValue(`columns.${index}.field_type`, fieldType)
+    },
+    [index, setValue, devices]
+  )
+
   const handleTypeChange = useCallback(
     (newType: 'General' | 'Specific') => {
       setValue(`columns.${index}.type`, newType)
+
       const newFieldValue =
         previousValues.current[newType] ||
         (newType === 'General' ? generalFields[0] : specificFields[0])
 
-      setValue(`columns.${index}.field`, newFieldValue)
       previousValues.current[newType] = newFieldValue
+      updateColumnDetails(newFieldValue)
     },
-    [index, setValue, generalFields, specificFields]
+    [index, setValue, generalFields, specificFields, updateColumnDetails]
+  )
+
+  const handleFieldChange = useCallback(
+    (newField: string) => {
+      updateColumnDetails(newField)
+    },
+    [updateColumnDetails]
   )
 
   return (
@@ -133,13 +158,8 @@ const Column: React.FC<ColumnProps> = ({
           value={`columns.${index}`}
           className="overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft"
         >
-          <AccordionTrigger
-            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-xs font-semibold hover:no-underline"
-            dropdownIcon={
-              <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
-            }
-          >
-            <div className="mr-2 flex w-full items-center justify-between">
+          <div className="flex items-center border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft">
+            <div className="flex w-full items-center justify-between pl-3 text-xs font-semibold">
               <div className="flex items-center gap-2">
                 <Drag />
                 <p>#{index + 1}</p>
@@ -153,7 +173,14 @@ const Column: React.FC<ColumnProps> = ({
                 }}
               />
             </div>
-          </AccordionTrigger>
+            <AccordionTrigger
+              className="p-3 pl-2 text-xs font-semibold hover:no-underline"
+              dropdownIcon={
+                <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+              }
+            />
+          </div>
+
           <AccordionContent className="flex size-full flex-col gap-4 bg-brand-component-fill-light-fixed p-3 dark:bg-brand-heading">
             <FormField
               control={control}
@@ -236,7 +263,7 @@ const Column: React.FC<ColumnProps> = ({
                   <FormControl>
                     <Select
                       value={field.value || ''}
-                      onValueChange={(value) => field.onChange(value)}
+                      onValueChange={(newValue) => handleFieldChange(newValue)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select Field" />
