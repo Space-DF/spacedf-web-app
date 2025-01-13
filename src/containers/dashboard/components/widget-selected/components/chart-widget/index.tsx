@@ -112,8 +112,7 @@ const ChartWidget: React.FC<Props> = ({ onClose }) => {
                 <div className="grid grid-cols-1">
                   {sourcesData.length === 1 && (
                     <p className="truncate text-lg font-bold">
-                      {dailyOrders.at(-1)?.['source.0']}
-                      {unit}
+                      {`${dailyOrders.at(-1)?.['source.0']} ${unit}`}
                     </p>
                   )}
                   <PreviewChart

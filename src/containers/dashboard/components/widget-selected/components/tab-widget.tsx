@@ -28,7 +28,7 @@ const TABS = [
 const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
   const tabs = useMemo(
     () => TABS.filter((tab) => tabKeys.includes(tab.value)),
-    [tabKeys],
+    [tabKeys]
   )
   const t = useTranslations()
   return (
@@ -47,7 +47,7 @@ const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
           </TabsTrigger>
         ))}
       </TabsList>
-      {tabContents}
+      <div className="mb-8">{tabContents}</div>
     </Tabs>
   )
 }
