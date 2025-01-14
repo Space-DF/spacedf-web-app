@@ -67,7 +67,7 @@ const TablePreview: React.FC<TablePreviewProps> = ({
   }
 
   return (
-    <Table className="rounded-b-md bg-brand-component-fill-light-fixed text-xs dark:bg-brand-heading">
+    <Table className="rounded-b-md bg-brand-component-fill-light-fixed text-sm dark:bg-brand-heading">
       <TableHeader className="bg-brand-component-fill-gray-soft">
         <TableRow>
           {columns.map((column, index) => (

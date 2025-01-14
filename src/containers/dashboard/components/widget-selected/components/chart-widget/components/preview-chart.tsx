@@ -101,7 +101,7 @@ const renderChartComponents = (
   chartType: ChartType,
   source: ChartSources,
   index: number,
-  showData?: boolean,
+  showData?: boolean
 ) => {
   const color =
     source.color === 'default'
@@ -218,18 +218,18 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
           width={20}
           hide={hideAxis}
           orientation={hideAxis ? undefined : orientation}
-          className="text-xs"
+          className="text-sm"
         />
         <XAxis
           dataKey="day"
           axisLine={false}
           tickLine={false}
           hide={hideAxis}
-          className="text-xs"
+          className="text-sm"
         />
         <CartesianGrid horizontal={showXGrid} vertical={false} />
         {sources.map((source, index) =>
-          renderChartComponents(source.chart_type, source, index, showData),
+          renderChartComponents(source.chart_type, source, index, showData)
         )}
         <Legend />
         <Tooltip />

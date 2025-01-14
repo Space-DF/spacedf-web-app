@@ -24,7 +24,7 @@ const TableWidgetInfo: React.FC<Props> = () => {
         render={({ field }) => (
           <FormItem>
             <FormLabel
-              className="text-xs font-semibold !text-brand-component-text-dark"
+              className="text-sm font-semibold !text-brand-component-text-dark"
               required
             >
               {t('dashboard.widget_name')}

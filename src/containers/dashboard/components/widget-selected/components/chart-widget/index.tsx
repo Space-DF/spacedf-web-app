@@ -101,7 +101,7 @@ const ChartWidget: React.FC<Props> = ({ onClose }) => {
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-brand-component-text-dark">
+            <p className="text-sm font-semibold text-brand-component-text-dark">
               {t('preview')}
             </p>
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">

@@ -159,7 +159,7 @@ const Column: React.FC<ColumnProps> = ({
           className="overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft"
         >
           <div className="flex items-center border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft">
-            <div className="flex w-full items-center justify-between pl-3 text-xs font-semibold">
+            <div className="flex w-full items-center justify-between pl-3 text-sm font-semibold">
               <div className="flex items-center gap-2">
                 <Drag />
                 <p>#{index + 1}</p>
@@ -174,7 +174,7 @@ const Column: React.FC<ColumnProps> = ({
               />
             </div>
             <AccordionTrigger
-              className="p-3 pl-2 text-xs font-semibold hover:no-underline"
+              className="p-3 pl-2 text-sm font-semibold hover:no-underline"
               dropdownIcon={
                 <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
               }
@@ -188,7 +188,7 @@ const Column: React.FC<ColumnProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    className="text-xs font-semibold !text-brand-component-text-dark"
+                    className="text-sm font-semibold !text-brand-component-text-dark"
                     required
                   >
                     {t('column_name')}
@@ -212,7 +212,7 @@ const Column: React.FC<ColumnProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    className="text-xs font-semibold !text-brand-component-text-dark"
+                    className="text-sm font-semibold !text-brand-component-text-dark"
                     required
                   >
                     {t('column_type')}
@@ -255,7 +255,7 @@ const Column: React.FC<ColumnProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    className="text-xs font-semibold !text-brand-component-text-dark"
+                    className="text-sm font-semibold !text-brand-component-text-dark"
                     required
                   >
                     {t('field')}

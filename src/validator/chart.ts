@@ -26,7 +26,7 @@ export const chartSchema = z
           ChartType.AreaChart,
           ChartType.BarChart,
         ]),
-      }),
+      })
     ),
     widget_info: z.object({
       name: z
@@ -50,7 +50,8 @@ export const chartSchema = z
       from: z.date({ required_error: 'Please select date from' }),
       util: z.date({ required_error: 'Please select date util' }),
       resolution: z
-        .string({ required_error: 'Please enter resolution' })
+        .string()
+        .regex(/^\d*$/, 'Only numbers are allowed')
         .optional(),
       type: z.enum(
         [
@@ -60,7 +61,7 @@ export const chartSchema = z
           TimeFrameTab.Week,
           TimeFrameTab.Custom,
         ],
-        { required_error: 'Please select aggregation function' },
+        { required_error: 'Please select aggregation function' }
       ),
       resolution_unit: z
         .enum([ResolutionUnit.Minutes, ResolutionUnit.Hours])
