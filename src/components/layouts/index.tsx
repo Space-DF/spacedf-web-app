@@ -152,7 +152,7 @@ const DynamicLayout = ({
     const { first, second, isShowAll } =
       displayedRightDynamicLayout(dynamicLayoutRight)
 
-    if (isShowAll) return 36
+    if (isShowAll) return 50
 
     if (first || second) return 25
 

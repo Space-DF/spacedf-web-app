@@ -75,19 +75,19 @@ const TimeFrame = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [currentWidth, setCurrentWidth] = useState(0)
 
-  const [from, util] = watch(['timeframe.from', 'timeframe.util'])
+  const [from, until] = watch(['timeframe.from', 'timeframe.until'])
 
   const handleTabChange = (tab: TimeFrameTab) => {
     const now = dayjs()
     let from: Date
-    let util: Date
+    let until: Date
     if (tab === TimeFrameTab.Custom) {
       return form.reset((prev) => ({
         ...prev,
         timeframe: {
           ...prev.timeframe,
           from,
-          util,
+          until,
           resolution_unit: ResolutionUnit.Minutes,
           type: TimeFrameTab.Custom,
         },
@@ -97,19 +97,19 @@ const TimeFrame = () => {
     switch (tab) {
       case TimeFrameTab.Hour:
         from = now.startOf('hour').toDate()
-        util = now.endOf('hour').toDate()
+        until = now.endOf('hour').toDate()
         break
       case TimeFrameTab.Day:
         from = now.startOf('day').toDate()
-        util = now.endOf('day').toDate()
+        until = now.endOf('day').toDate()
         break
       case TimeFrameTab.Week:
         from = now.startOf('week').toDate()
-        util = now.endOf('week').toDate()
+        until = now.endOf('week').toDate()
         break
       case TimeFrameTab.Month:
         from = now.startOf('month').toDate()
-        util = now.endOf('month').toDate()
+        until = now.endOf('month').toDate()
         break
     }
     form.reset((prev) => ({
@@ -117,7 +117,7 @@ const TimeFrame = () => {
       timeframe: {
         aggregation_function: prev.timeframe.aggregation_function,
         from,
-        util,
+        until,
         type: tab,
       },
     }))
@@ -209,7 +209,7 @@ const TimeFrame = () => {
                           field.onChange(date)
                           setIsFromOpen(false)
                         }}
-                        disabled={(date) => date > util}
+                        disabled={(date) => date > until}
                         initialFocus
                       />
                     </PopoverContent>
@@ -221,11 +221,11 @@ const TimeFrame = () => {
 
             <FormField
               control={form.control}
-              name="timeframe.util"
+              name="timeframe.until"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
-                    {t('util')}
+                    {t('until')}
                   </FormLabel>
                   <Popover open={isUtilOpen} onOpenChange={setIsUtilOpen}>
                     <PopoverTrigger asChild>

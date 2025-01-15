@@ -65,13 +65,13 @@ export class ChartSources extends Sources {
 
 class ChartTimeFrame extends TimeFrame {
   from: string
-  util: string
+  until: string
   resolution?: number
   resolution_unit?: ResolutionUnit
   time_zone?: string
   constructor(
     from: string,
-    util: string,
+    until: string,
     aggregation_function: AggregationFunction,
     resolution?: number,
     resolution_unit?: ResolutionUnit,
@@ -79,7 +79,7 @@ class ChartTimeFrame extends TimeFrame {
   ) {
     super(aggregation_function)
     this.from = from
-    this.util = util
+    this.until = until
     this.resolution = resolution
     this.resolution_unit = resolution_unit
     this.time_zone = time_zone

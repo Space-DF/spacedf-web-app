@@ -139,20 +139,21 @@ const Dashboard = () => {
   const onSelectWidget = (widgetTitle: WidgetType) => {
     setSelectedWidget(widgetTitle)
   }
+  const onCloseSideBar = () => {
+    const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DASHBOARD)
+    setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+    setIsAddWidgetOpen(false)
+    setEdit(false)
+    setCookieDirty(true)
+    toggleDynamicLayout('dashboard')
+    setSelectedWidget('')
+  }
 
   return (
     <>
       {!isAddWidgetOpen ? (
         <RightSideBarLayout
-          onClose={() => {
-            const newLayout = getNewLayouts(
-              dynamicLayouts,
-              NavigationEnums.DASHBOARD
-            )
-            setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-            setCookieDirty(true)
-            toggleDynamicLayout('dashboard')
-          }}
+          onClose={onCloseSideBar}
           title={
             isViewAllDashboard ? (
               <div className="flex items-center gap-2">
@@ -253,9 +254,9 @@ const Dashboard = () => {
           }
           externalButton={
             !isViewAllDashboard && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 ">
                 {isEdit ? (
-                  <>
+                  <div className="w-full flex flex-1 gap-2">
                     <Button
                       onClick={() => setEdit(false)}
                       variant="outline"
@@ -269,7 +270,7 @@ const Dashboard = () => {
                     >
                       {t('dashboard.save')}
                     </Button>
-                  </>
+                  </div>
                 ) : (
                   <Button
                     onClick={() => {
@@ -352,30 +353,21 @@ const Dashboard = () => {
       ) : selectedWidget ? (
         <WidgetSelected
           selectedWidget={selectedWidget}
-          onClose={() => setSelectedWidget('')}
+          onClose={onCloseSideBar}
+          onBack={() => setSelectedWidget('')}
         />
       ) : (
         <RightSideBarLayout
-          onClose={() => {
-            const newLayout = getNewLayouts(
-              dynamicLayouts,
-              NavigationEnums.DASHBOARD
-            )
-            setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-            setIsAddWidgetOpen(false)
-            toggleDynamicLayout('dashboard')
-            setSelectedWidget('')
-          }}
+          onClose={onCloseSideBar}
           title={
             <div className="flex items-center gap-2">
               <ArrowLeft
                 size={20}
                 onClick={() => {
                   if (selectedWidget) {
-                    setIsAddWidgetOpen(false)
+                    setSelectedWidget('')
                   }
-                  toggleDynamicLayout('dashboard')
-                  setSelectedWidget('')
+                  setIsAddWidgetOpen(false)
                 }}
                 className="cursor-pointer"
               />

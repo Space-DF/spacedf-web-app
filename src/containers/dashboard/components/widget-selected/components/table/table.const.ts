@@ -1,5 +1,12 @@
 import { Device } from '@/validator'
 
+export enum OPERATORS {
+  Equals = 'equal_to',
+  NotEquals = 'not_equal',
+  GreaterThan = 'greater_than',
+  LessThan = 'less_than',
+}
+
 export const DEVICES: Device[] = [
   {
     device_id: '42j5b4j8',
