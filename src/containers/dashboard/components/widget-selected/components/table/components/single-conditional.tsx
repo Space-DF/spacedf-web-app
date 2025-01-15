@@ -37,14 +37,7 @@ import { useTranslations } from 'next-intl'
 import { Drag } from '@/components/icons'
 import { Switch } from '@/components/ui/switch'
 import ColorSelect from '../../color-select'
-import { FIELD_DISPLAY_NAME } from '../table.const'
-
-enum OPERATOR {
-  Equals = 'equal to',
-  NotEquals = 'not equal',
-  GreaterThan = 'greater than',
-  LessThan = 'less than',
-}
+import { FIELD_DISPLAY_NAME, OPERATORS } from '../table.const'
 
 const getAllColumnNames = (columns: any[]) =>
   columns.map((column) => column.field)
@@ -83,10 +76,10 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
         <AlertDialogContent className="border border-[#0000003B]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-center">
-              {t('delete_column')}
+              {t('delete_conditional_formatting')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              {t('confirm_delete_column')}
+              {t('confirm_delete_conditional_formatting')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="grid w-full grid-cols-2 gap-2">
@@ -101,7 +94,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
               }}
               className="border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative"
             >
-              {t('delete_column')}
+              {t('delete_conditional_formatting')}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -138,7 +131,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
               }
             />
           </div>
-          <AccordionContent className="flex size-full flex-col gap-4 bg-brand-component-fill-light-fixed p-3 dark:bg-brand-heading">
+          <AccordionContent className="flex size-full flex-col gap-2 bg-brand-component-fill-light-fixed p-3 dark:bg-brand-heading">
             <div className="flex w-full flex-wrap items-center gap-2">
               {t('if')}
               <FormField
@@ -154,7 +147,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                           }
                           className="border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
                         >
-                          <SelectValue placeholder="Please select" />
+                          <SelectValue placeholder={t('select_column')} />
                         </SelectTrigger>
                         <SelectContent>{renderedFieldOptions}</SelectContent>
                       </Select>
@@ -175,14 +168,14 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                           icon={
                             <ChevronDown className="w-3 text-brand-icon-gray" />
                           }
-                          className="border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                          className="text-brand-component-text-gray border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
                         >
-                          <SelectValue placeholder="Please select" />
+                          <SelectValue placeholder={t('select_operator')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.values(OPERATOR).map((operator) => (
+                          {Object.values(OPERATORS).map((operator) => (
                             <SelectItem key={operator} value={operator}>
-                              {operator}
+                              {t(operator)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -215,9 +208,9 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                               icon={
                                 <ChevronDown className="w-3 text-brand-icon-gray" />
                               }
-                              className="border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none"
+                              className="text-brand-component-text-gray border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none"
                             >
-                              <SelectValue placeholder="Select value" />
+                              <SelectValue placeholder={t('select_value')} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="true">True</SelectItem>
@@ -275,6 +268,8 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                   </FormItem>
                 )}
               />
+            </div>
+            <div className="flex items-center gap-2">
               <p>{t('limit_to_this_column')}</p>
               <FormField
                 control={control}

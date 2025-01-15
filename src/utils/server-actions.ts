@@ -3,7 +3,7 @@ import { isJsonString } from './validate'
 
 export const getCookieServer = <TDefaultValue = any>(
   key: string,
-  defaultValue: TDefaultValue,
+  defaultValue: TDefaultValue
 ) => {
   const cookie = cookies().get(key)
 

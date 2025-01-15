@@ -20,6 +20,7 @@ import ChartWidgetInfo from './components/widget-info'
 interface Props {
   selectedWidget: WidgetType
   onClose: () => void
+  onBack: () => void
 }
 
 const chartTabKeys = [
@@ -51,7 +52,7 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({ onClose }) => {
+const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),
@@ -91,7 +92,7 @@ const ChartWidget: React.FC<Props> = ({ onClose }) => {
     <RightSideBarLayout
       title={
         <div className="flex items-center gap-2">
-          <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
+          <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
           <div>{t(`add_chart_widget`)}</div>
         </div>
       }

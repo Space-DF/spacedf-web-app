@@ -48,7 +48,7 @@ export const chartSchema = z
     }),
     timeframe: z.object({
       from: z.date({ required_error: 'Please select date from' }),
-      util: z.date({ required_error: 'Please select date util' }),
+      until: z.date({ required_error: 'Please select date until' }),
       resolution: z
         .string()
         .regex(/^\d*$/, 'Only numbers are allowed')
@@ -133,7 +133,7 @@ export const defaultChartValues: ChartPayload = {
   timeframe: {
     aggregation_function: AggregationFunction.Average,
     from: dayjs().startOf('hour').toDate(),
-    util: dayjs().endOf('hour').toDate(),
+    until: dayjs().endOf('hour').toDate(),
     type: TimeFrameTab.Hour,
   },
 }

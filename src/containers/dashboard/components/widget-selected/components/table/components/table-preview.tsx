@@ -10,6 +10,7 @@ import { Column, dataTablePayload, Device } from '@/validator'
 import { useTranslations } from 'next-intl'
 import { FIELD_DISPLAY_NAME } from '../table.const'
 import { truncateText } from '@/utils'
+import { OPERATORS } from '../table.const'
 
 interface TablePreviewProps {
   source: dataTablePayload['source']['devices']
@@ -40,16 +41,16 @@ const TablePreview: React.FC<TablePreviewProps> = ({
 
     let meetsCondition = false
     switch (condition.operator) {
-      case 'equal to':
+      case OPERATORS.Equals:
         meetsCondition = String(value) == condition.value
         break
-      case 'not equal':
+      case OPERATORS.NotEquals:
         meetsCondition = String(value) != condition.value
         break
-      case 'greater than':
+      case OPERATORS.GreaterThan:
         meetsCondition = Number(value) > Number(condition.value)
         break
-      case 'less than':
+      case OPERATORS.LessThan:
         meetsCondition = Number(value) < Number(condition.value)
         break
       default:

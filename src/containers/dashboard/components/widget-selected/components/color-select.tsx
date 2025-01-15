@@ -25,13 +25,7 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
         icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
         className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
       >
-        <SelectValue
-          placeholder={
-            <span className="text-brand-component-text-gray">
-              {t('select_color')}
-            </span>
-          }
-        >
+        <SelectValue placeholder={<span>{t('select_color')}</span>}>
           {fieldValue && fieldValue !== '171A28' ? (
             <div className="flex items-center space-x-2">
               <div

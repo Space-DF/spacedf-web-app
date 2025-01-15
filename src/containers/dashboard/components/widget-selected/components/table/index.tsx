@@ -48,9 +48,10 @@ const TabContents = () => {
 interface Props {
   selectedWidget: WidgetType
   onClose: () => void
+  onBack: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ onClose }) => {
+const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
   const t = useTranslations('dashboard')
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
@@ -67,7 +68,7 @@ const TableWidget: React.FC<Props> = ({ onClose }) => {
     <RightSideBarLayout
       title={
         <div className="flex items-center gap-2">
-          <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
+          <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
           <div>{t(`add_table_widget`)}</div>
         </div>
       }

@@ -85,11 +85,20 @@
   "average": "Trung bình",
   "maximum": "Tối đa",
   "from": "Từ",
-  "util": "Đến",
+  "until": "Đến",
   "pick_a_date": "Chọn ngày",
   "resolution": "Độ phân giải",
   "time_zone": "Múi giờ",
   "none_select": "Chưa chọn",
   "minutes": "Phút",
-  "aggregation_function_info": "Chọn hiển thị giá trị trung bình, tối thiểu hoặc tối đa trong một khung thời gian nhất định."
+  "aggregation_function_info": "Chọn hiển thị giá trị trung bình, tối thiểu hoặc tối đa trong một khung thời gian nhất định.",
+  "select_column": "Chọn cột",
+  "select_operator": "Chọn điều kiện",
+  "select_value": "Chọn giá trị",
+  "equal_to": "Bằng",
+  "not_equal": "Không bằng",
+  "greater_than": "Lớn hơn",
+  "less_than": "Nhỏ hơn",
+  "delete_conditional_formatting": "Xoá điều kiện",
+  "confirm_delete_conditional_formatting": "Bạn có thực sự muốn xóa điều kiện này và cấu hình của nó không?"
 }

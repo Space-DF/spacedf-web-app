@@ -78,7 +78,7 @@
   "average": "Average",
   "maximum": "Maximum",
   "from": "From",
-  "util": "Util",
+  "until": "Until",
   "pick_a_date": "Pick a date",
   "resolution": "Resolution",
   "time_zone": "Timezone",
@@ -91,5 +91,14 @@
   "value": "Value",
   "then_set_the_text_color_to": "then set the text color to",
   "and_background_color_to": "and background color to",
-  "limit_to_this_column": "Limit to this column?"
+  "limit_to_this_column": "Limit to this column?",
+  "select_column": "Select column",
+  "select_operator": "Select operator",
+  "select_value": "Select value",
+  "equal_to": "equal to",
+  "not_equal": "not equal",
+  "greater_than": "greater than",
+  "less_than": "less than",
+  "delete_conditional_formatting": "Delete Conditional",
+  "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?"
 }
