@@ -100,5 +100,16 @@
   "greater_than": "Lớn hơn",
   "less_than": "Nhỏ hơn",
   "delete_conditional_formatting": "Xoá điều kiện",
-  "confirm_delete_conditional_formatting": "Bạn có thực sự muốn xóa điều kiện này và cấu hình của nó không?"
+  "confirm_delete_conditional_formatting": "Bạn có thực sự muốn xóa điều kiện này và cấu hình của nó không?",
+  "water_level": "Mực nước",
+  "temperature": "Nhiệt độ",
+  "min": "Nhỏ nhất",
+  "max": "Lớn nhất",
+  "decimal_places": "Số thập phân",
+  "values": "Giá trị",
+  "linear": "Tuyến tính",
+  "vertical": "Thẳng đứng",
+  "circular": "Hình tròn",
+  "fill-level": "Mức điền vào",
+  "compass": "La bàn"
 }
