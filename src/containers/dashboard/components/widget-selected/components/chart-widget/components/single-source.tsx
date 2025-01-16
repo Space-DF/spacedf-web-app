@@ -44,7 +44,7 @@ import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
 import { ChartPayload } from '@/validator'
 
-const mockDeviceData = [
+export const mockDeviceData = [
   {
     id: '1',
     name: 'Laptop',

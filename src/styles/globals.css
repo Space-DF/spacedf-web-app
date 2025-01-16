@@ -163,13 +163,3 @@ input[type='checkbox']:checked::after {
   background-position: center;
   background-repeat: no-repeat;
 }
-
-input[type='number']::-webkit-outer-spin-button,
-input[type='number']::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type='number'] {
-  -moz-appearance: textfield; /* For Firefox */
-}

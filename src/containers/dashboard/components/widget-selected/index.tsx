@@ -3,6 +3,7 @@ import React from 'react'
 
 import ChartWidget from './components/chart-widget'
 import TableWidget from './components/table'
+import GaugeWidget from './components/gauge-widget'
 
 interface Props {
   selectedWidget: WidgetType
@@ -25,7 +26,7 @@ const WidgetSelected: React.FC<Props> = ({
         />
       )
     case WidgetType.Gauge:
-      return <div>Gauge</div>
+      return <GaugeWidget onClose={onClose} />
     case WidgetType.Map:
       return <div>Map</div>
     case WidgetType.Table:

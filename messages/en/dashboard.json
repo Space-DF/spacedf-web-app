@@ -100,5 +100,16 @@
   "greater_than": "greater than",
   "less_than": "less than",
   "delete_conditional_formatting": "Delete Conditional",
-  "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?"
+  "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?",
+  "water_level": "Water Level",
+  "temperature": "Temperature",
+  "min": "Min",
+  "max": "Max",
+  "decimal_places": "Decimal Places",
+  "values": "Values",
+  "linear": "Linear",
+  "vertical": "Vertical",
+  "circular": "Circular",
+  "fill-level": "Fill Level",
+  "compass": "Compass"
 }
