@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import { GaugeType } from '@/widget-models/gauge'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { GaugePayload, gaugeSchema } from '@/validator'
+import { gaugeDefaultValues, GaugePayload, gaugeSchema } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
+import TimeFrame from './components/time-frame'
 
 const TabContents = () => {
   return (
@@ -25,7 +26,7 @@ const TabContents = () => {
         ChartWidgetInfo
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
-        TimeFrame
+        <TimeFrame />
       </TabsContent>
     </>
   )
@@ -39,14 +40,21 @@ const GaugeWidget: React.FC<Props> = ({ onClose }) => {
   const t = useTranslations('dashboard')
   const form = useForm<GaugePayload>({
     resolver: zodResolver(gaugeSchema),
+    defaultValues: gaugeDefaultValues,
+    mode: 'onChange',
   })
 
-  const { control } = form
+  const { control, trigger } = form
 
   const type = useWatch({
     control,
     name: 'source.type',
   }) as GaugeType
+
+  const handleSaveGauge = async () => {
+    const isValid = await trigger()
+    if (!isValid) return
+  }
 
   return (
     <RightSideBarLayout
@@ -56,7 +64,7 @@ const GaugeWidget: React.FC<Props> = ({ onClose }) => {
           <div>{t(`add_chart_widget`)}</div>
         </div>
       }
-      externalButton={<Button>{t('save')}</Button>}
+      externalButton={<Button onClick={handleSaveGauge}>{t('save')}</Button>}
       onClose={onClose}
     >
       <div className="flex size-full flex-col">

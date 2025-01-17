@@ -12,6 +12,19 @@ export enum AggregationFunction {
   Maximum = 'maximum',
 }
 
+export enum TimeFrameTab {
+  Hour = 'hour',
+  Day = 'day',
+  Week = 'week',
+  Month = 'month',
+  Custom = 'custom',
+}
+
+export enum ResolutionUnit {
+  Minutes = 'minutes',
+  Hours = 'hours',
+}
+
 export class Widget {
   id: string
   type: WidgetType
@@ -24,7 +37,7 @@ export class Widget {
     type: WidgetType,
     created_at: string,
     updated_at: string,
-    sizes: object,
+    sizes: object
   ) {
     this.id = id
     this.type = type
