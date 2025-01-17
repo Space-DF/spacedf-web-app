@@ -1,4 +1,9 @@
 import { GaugeType } from '@/widget-models/gauge'
+import {
+  AggregationFunction,
+  ResolutionUnit,
+  TimeFrameTab,
+} from '@/widget-models/widget'
 import { z } from 'zod'
 
 export const gaugeSchema = z.object({
@@ -21,6 +26,40 @@ export const gaugeSchema = z.object({
       })
     ),
   }),
+  timeframe: z.object({
+    from: z.date({ required_error: 'Please select date from' }),
+    until: z.date({ required_error: 'Please select date until' }),
+    resolution: z
+      .string()
+      .regex(/^\d*$/, 'Only numbers are allowed')
+      .optional(),
+    type: z.enum(
+      [
+        TimeFrameTab.Day,
+        TimeFrameTab.Hour,
+        TimeFrameTab.Month,
+        TimeFrameTab.Week,
+        TimeFrameTab.Custom,
+      ],
+      { required_error: 'Please select aggregation function' }
+    ),
+    resolution_unit: z
+      .enum([ResolutionUnit.Minutes, ResolutionUnit.Hours])
+      .optional(),
+    time_zone: z.string().optional(),
+    aggregation_function: z.enum([
+      AggregationFunction.Average,
+      AggregationFunction.Minimum,
+      AggregationFunction.Maximum,
+    ]),
+  }),
 })
 
 export type GaugePayload = z.infer<typeof gaugeSchema>
+
+export const gaugeDefaultValues = {
+  timeframe: {
+    type: TimeFrameTab.Day,
+    aggregation_function: AggregationFunction.Minimum,
+  },
+}

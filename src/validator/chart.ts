@@ -1,16 +1,12 @@
 import { TimeFormat } from '@/constants'
-import { ChartType, Orientation, ResolutionUnit } from '@/widget-models/chart'
-import { AggregationFunction } from '@/widget-models/widget'
+import { ChartType, Orientation } from '@/widget-models/chart'
+import {
+  AggregationFunction,
+  ResolutionUnit,
+  TimeFrameTab,
+} from '@/widget-models/widget'
 import dayjs from 'dayjs'
 import { z } from 'zod'
-
-export enum TimeFrameTab {
-  Hour = 'hour',
-  Day = 'day',
-  Week = 'week',
-  Month = 'month',
-  Custom = 'custom',
-}
 
 export const chartSchema = z
   .object({
