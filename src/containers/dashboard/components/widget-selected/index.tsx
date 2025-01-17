@@ -4,6 +4,7 @@ import React from 'react'
 import ChartWidget from './components/chart-widget'
 import TableWidget from './components/table'
 import GaugeWidget from './components/gauge-widget'
+import ValueWidget from './components/value-widget'
 
 interface Props {
   selectedWidget: WidgetType
@@ -38,7 +39,7 @@ const WidgetSelected: React.FC<Props> = ({
         />
       )
     case WidgetType.Value:
-      return <div>Value</div>
+      return <ValueWidget onClose={onClose} onBack={onBack} />
     default:
       return <div>Widget not found</div>
   }
