@@ -86,6 +86,7 @@
   "maximum": "Tối đa",
   "from": "Từ",
   "until": "Đến",
+  "map_type": "Loại bản đồ",
   "pick_a_date": "Chọn ngày",
   "resolution": "Độ phân giải",
   "time_zone": "Múi giờ",
@@ -100,5 +101,6 @@
   "greater_than": "Lớn hơn",
   "less_than": "Nhỏ hơn",
   "delete_conditional_formatting": "Xoá điều kiện",
-  "confirm_delete_conditional_formatting": "Bạn có thực sự muốn xóa điều kiện này và cấu hình của nó không?"
+  "confirm_delete_conditional_formatting": "Bạn có thực sự muốn xóa điều kiện này và cấu hình của nó không?",
+  "select_map_type": "Chọn loại bản đồ"
 }

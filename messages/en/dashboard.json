@@ -89,6 +89,7 @@
   "if": "If",
   "is": "is",
   "value": "Value",
+  "map_type": "Map Tyle",
   "then_set_the_text_color_to": "then set the text color to",
   "and_background_color_to": "and background color to",
   "limit_to_this_column": "Limit to this column?",
@@ -100,5 +101,6 @@
   "greater_than": "greater than",
   "less_than": "less than",
   "delete_conditional_formatting": "Delete Conditional",
-  "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?"
+  "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?",
+  "select_map_type": "Select map type"
 }
