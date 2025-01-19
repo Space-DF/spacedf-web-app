@@ -1,5 +1,13 @@
 import { AggregationFunction, Sources, TimeFrame } from './widget'
 
+export enum GaugeType {
+  Linear = 'linear',
+  // Vertical = 'vertical',
+  Circular = 'circular',
+  // FillLevel = 'fill-level',
+  // Compass = 'compass',
+}
+
 class GaugeTimeFrame extends TimeFrame {
   date_range: string
   is_show_time_frame: boolean
@@ -29,12 +37,12 @@ class GaugeTimeFrame extends TimeFrame {
 class GaugeSources extends Sources {
   decimal: number
   unit: string
-  type: string
+  type: GaugeType
   values: object[]
   constructor(
     decimal: number,
     unit: string,
-    type: string,
+    type: GaugeType,
     values: object[],
     device_id: string,
     device_type: string

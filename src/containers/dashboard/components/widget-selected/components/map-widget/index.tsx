@@ -11,7 +11,7 @@ import { RightSideBarLayout } from '@/components/ui'
 import { WidgetType } from '@/widget-models/widget'
 import MapPreview from './components/map-preview'
 import TableWidgetInfo from './components/widget-info'
-import { defaultMapValues, mapPayload, mapSchema } from '@/validator/map'
+import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
 
 const TABLE_TABS_KEY = [TabKey.Sources, TabKey.Info]
 

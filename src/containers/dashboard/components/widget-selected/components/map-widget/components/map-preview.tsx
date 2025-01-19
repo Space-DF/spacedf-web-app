@@ -1,5 +1,5 @@
 import React from 'react'
-import { mapSource } from '@/validator/map'
+import { mapSource } from '@/validator'
 interface TablePreviewProps {
   source: mapSource
 }

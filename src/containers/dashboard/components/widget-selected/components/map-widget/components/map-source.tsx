@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import {
   Select,
@@ -9,8 +9,7 @@ import {
 import { FormLabel, FormField } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
 import { DEVICES } from '../../table-widget/table.const'
-import { mapPayload, mapSource, MapType } from '@/validator/map'
-import { Device } from '@/validator'
+import { mapPayload, mapSource, MapType, Device } from '@/validator'
 
 const mapTypeLabels: Record<MapType, string> = {
   [MapType.RoadMap]: 'Road Map',
@@ -27,39 +26,48 @@ const MapSource: React.FC = () => {
       name: 'sources',
     }) || []
 
-  const firstSource = sources[0] || {}
+  const selectedSource = sources[0] || {}
 
-  const handleUpdateDevice = (device: Device) => {
-    const updatedSource: mapSource = {
-      ...firstSource,
-      device_id: device.device_id,
-      device_name: device.device_name,
-      coordinate: Array.isArray(device.coordinate) ? device.coordinate : [0, 0],
-      map_type: firstSource.map_type || MapType.RoadMap,
-    }
-    setValue('sources', [updatedSource], { shouldValidate: true })
-  }
+  const handleDeviceChange = useCallback(
+    (device: Device) => {
+      const updatedSource: mapSource = {
+        ...selectedSource,
+        device_id: device.device_id,
+        device_name: device.device_name,
+        coordinate: Array.isArray(device.coordinate)
+          ? device.coordinate
+          : [0, 0],
+        map_type: selectedSource.map_type || MapType.RoadMap,
+      }
+      setValue('sources', [updatedSource], { shouldValidate: true })
+    },
+    [selectedSource, setValue]
+  )
+
+  const mapTypeOptions = useMemo(
+    () =>
+      Object.values(MapType).map((mapType) => ({
+        value: mapType,
+        label: mapTypeLabels[mapType],
+      })),
+    []
+  )
 
   return (
     <div className="mt-4 size-full px-4">
       <FormField
         control={control}
-        name={`sources.${0}.device_id`}
+        name="sources.0.device_id"
         render={({ field }) => (
           <div>
             <p className="mb-[6px] text-sm font-semibold">
-              <FormLabel
-                className="text-sm font-semibold !text-brand-component-text-dark"
-                required
-              >
-                {t('dashboard.device')}
-              </FormLabel>
+              <FormLabel required>{t('dashboard.device')}</FormLabel>
             </p>
             <Select
-              onValueChange={(value: string) => {
+              onValueChange={(value) => {
                 const device = DEVICES.find((d) => d.device_id === value)
                 if (device) {
-                  handleUpdateDevice(device)
+                  handleDeviceChange(device)
                 }
               }}
             >
@@ -67,7 +75,7 @@ const MapSource: React.FC = () => {
                 {DEVICES.find((d) => d.device_id === field.value)
                   ?.device_name || t('dashboard.select_device')}
               </SelectTrigger>
-              <SelectContent className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light-fixed shadow-lg dark:bg-brand-heading">
+              <SelectContent className="rounded-md border">
                 {DEVICES.map((device) => (
                   <SelectItem key={device.device_id} value={device.device_id}>
                     {device.device_name}
@@ -80,26 +88,21 @@ const MapSource: React.FC = () => {
       />
       <FormField
         control={control}
-        name={`sources.${0}.map_type`}
+        name="sources.0.map_type"
         render={({ field }) => (
           <div>
             <p className="mt-4 mb-[6px] text-sm font-semibold">
-              <FormLabel
-                className="text-sm font-semibold !text-brand-component-text-dark"
-                required
-              >
-                {t('dashboard.map_type')}
-              </FormLabel>
+              <FormLabel required>{t('dashboard.map_type')}</FormLabel>
             </p>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <SelectTrigger className="w-full">
                 {mapTypeLabels[field.value as MapType] ||
                   t('dashboard.select_map_type')}
               </SelectTrigger>
-              <SelectContent className="min-w-[var(--radix-dropdown-menu-trigger-width)] rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light-fixed shadow-lg dark:bg-brand-heading">
-                {Object.values(MapType).map((mapType) => (
-                  <SelectItem key={mapType} value={mapType}>
-                    {mapTypeLabels[mapType]}
+              <SelectContent className="rounded-md border">
+                {mapTypeOptions.map(({ value, label }) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>

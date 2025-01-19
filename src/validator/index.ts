@@ -1,2 +1,5 @@
 export * from './chart'
 export * from './table'
+export * from './gauge'
+export * from './value'
+export * from './map'

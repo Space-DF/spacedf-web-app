@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useTranslations } from 'next-intl'
-import { mapPayload } from '@/validator/map'
+import { mapPayload } from '@/validator'
 
 interface Props {}
 

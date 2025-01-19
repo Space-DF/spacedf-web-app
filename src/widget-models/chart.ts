@@ -1,4 +1,10 @@
-import { AggregationFunction, Sources, TimeFrame, WidgetInfo } from './widget'
+import {
+  AggregationFunction,
+  ResolutionUnit,
+  Sources,
+  TimeFrame,
+  WidgetInfo,
+} from './widget'
 export enum ChartType {
   LineChart = 'line-chart',
   AreaChart = 'area-chart',
@@ -8,11 +14,6 @@ export enum ChartType {
 export enum Orientation {
   Left = 'left',
   Right = 'right',
-}
-
-export enum ResolutionUnit {
-  Minutes = 'minutes',
-  Hours = 'hours',
 }
 
 type YAxis = {

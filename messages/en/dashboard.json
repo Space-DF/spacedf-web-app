@@ -102,5 +102,16 @@
   "less_than": "less than",
   "delete_conditional_formatting": "Delete Conditional",
   "confirm_delete_conditional_formatting": "Do you really want to delete this conditional formatting and its configuration?",
-  "select_map_type": "Select map type"
+  "water_level": "Water Level",
+  "temperature": "Temperature",
+  "select_map_type": "Select map type",
+  "min": "Min",
+  "max": "Max",
+  "decimal_places": "Decimal Places",
+  "values": "Values",
+  "linear": "Linear",
+  "vertical": "Vertical",
+  "circular": "Circular",
+  "fill-level": "Fill Level",
+  "compass": "Compass"
 }

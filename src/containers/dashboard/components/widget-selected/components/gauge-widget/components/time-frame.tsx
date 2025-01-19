@@ -24,7 +24,7 @@ import {
 
 import { useTranslations } from 'next-intl'
 import { useFormContext } from 'react-hook-form'
-import { ChartPayload } from '@/validator'
+import { GaugePayload } from '@/validator'
 import { AggregationFunction, TimeFrameTab } from '@/widget-models/widget'
 import dayjs from 'dayjs'
 import { Calendar } from '@/components/ui/calendar'
@@ -67,7 +67,7 @@ const TIME_FRAME_TABS = [
 ]
 
 const TimeFrame = () => {
-  const form = useFormContext<ChartPayload>()
+  const form = useFormContext<GaugePayload>()
   const t = useTranslations('dashboard')
   const [isFromOpen, setIsFromOpen] = useState(false)
   const [isUtilOpen, setIsUtilOpen] = useState(false)
