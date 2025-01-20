@@ -12,6 +12,7 @@ import {
   valueSchema,
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Timeframe from './components/timeframe'
 
 const TabContents = () => {
   return (
@@ -26,7 +27,7 @@ const TabContents = () => {
         Widget Info
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
-        Time Frame
+        <Timeframe />
       </TabsContent>
     </>
   )

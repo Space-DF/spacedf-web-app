@@ -111,5 +111,10 @@
   "vertical": "Vertical",
   "circular": "Circular",
   "fill-level": "Fill Level",
-  "compass": "Compass"
+  "compass": "Compass",
+  "current_value": "Current value",
+  "show_latest": "Show the latest value",
+  "timerange_operation": "Timerange operation",
+  "custom_timerange": "Display min, max, average or change over a timeframe",
+  "operation": "Operation"
 }
