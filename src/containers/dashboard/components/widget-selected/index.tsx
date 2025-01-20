@@ -2,10 +2,11 @@ import { WidgetType } from '@/widget-models/widget'
 import React from 'react'
 
 import ChartWidget from './components/chart-widget'
-import TableWidget from './components/table'
+import TableWidget from './components/table-widget'
+import MapWidget from './components/map-widget'
+
 import GaugeWidget from './components/gauge-widget'
 import ValueWidget from './components/value-widget'
-
 interface Props {
   selectedWidget: WidgetType
   onClose: () => void
@@ -29,7 +30,13 @@ const WidgetSelected: React.FC<Props> = ({
     case WidgetType.Gauge:
       return <GaugeWidget onClose={onClose} />
     case WidgetType.Map:
-      return <div>Map</div>
+      return (
+        <MapWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onBack={onBack}
+        />
+      )
     case WidgetType.Table:
       return (
         <TableWidget

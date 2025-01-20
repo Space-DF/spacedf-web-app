@@ -86,6 +86,7 @@
   "maximum": "Tối đa",
   "from": "Từ",
   "until": "Đến",
+  "map_type": "Loại bản đồ",
   "pick_a_date": "Chọn ngày",
   "resolution": "Độ phân giải",
   "time_zone": "Múi giờ",
@@ -111,5 +112,6 @@
   "vertical": "Thẳng đứng",
   "circular": "Hình tròn",
   "fill-level": "Mức điền vào",
-  "compass": "La bàn"
+  "compass": "La bàn",
+  "select_map_type": "Chọn loại bản đồ"
 }
