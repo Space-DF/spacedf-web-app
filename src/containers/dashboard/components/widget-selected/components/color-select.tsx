@@ -26,7 +26,7 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
         className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
       >
         <SelectValue placeholder={<span>{t('select_color')}</span>}>
-          {fieldValue && fieldValue !== '171A28' ? (
+          {fieldValue && fieldValue !== 'default' ? (
             <div className="flex items-center space-x-2">
               <div
                 className="h-4 w-4 rounded-full"
@@ -41,7 +41,7 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
               <div className="flex h-4 w-4 items-center justify-center overflow-hidden rounded-full">
                 <DefaultColor width={100} height={100} />
               </div>
-              <p className="text-brand-component-text-dark">Default</p>
+              <p className="text-brand-component-text-dark">{t('default')}</p>
             </div>
           )}
         </SelectValue>
@@ -50,19 +50,19 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
         <SelectGroup className="flex flex-wrap gap-2">
           <SelectItem
             showCheckIcon={false}
-            value="171A28"
+            value="default"
             className="m-0 h-6 w-6 rounded-md border-brand-component-stroke-dark p-0"
           >
             <DefaultColor
               className={cn(
                 'stroke-brand-component-stroke-dark-soft hover:stroke-brand-component-stroke-dark',
-                fieldValue === '171A28'
+                fieldValue === 'default'
                   ? 'stroke-brand-component-stroke-dark dark:stroke-brand-stroke-gray'
                   : ''
               )}
             />
           </SelectItem>
-          {color_codes.map((color: string) => (
+          {color_codes.map((color) => (
             <SelectItem
               key={color}
               showCheckIcon={false}

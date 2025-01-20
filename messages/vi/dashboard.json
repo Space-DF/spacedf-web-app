@@ -47,6 +47,7 @@
   "widget_name_require_error": "Hãy nhập tên tiện ích",
   "widget_name": "Tên tiện ích",
   "show_value": "Hiển thị giá trị",
+  "show_state": "Hiển thị trạng thái",
   "appearance": "Xuất hiện",
   "add_device": "Thêm thết bị",
   "add_column": "Thêm cột mới",
