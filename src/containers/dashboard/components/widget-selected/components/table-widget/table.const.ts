@@ -14,6 +14,7 @@ export const DEVICES: Device[] = [
     last_seen: 'Da Nang',
     battery: 80,
     status: true,
+    coordinate: [16.061307485294005, 108.23972422618492],
   },
   {
     device_id: 'a7b3d5f9',
@@ -22,6 +23,7 @@ export const DEVICES: Device[] = [
     resolution: '1080p',
     battery: 100,
     status: false,
+    coordinate: [16.060706457124674, 108.22115263730248],
   },
   {
     device_id: 'z3y2g8w7',
@@ -30,6 +32,7 @@ export const DEVICES: Device[] = [
     unit: 'Celsius',
     battery: 20,
     status: true,
+    coordinate: [16.0163889, 108.225814],
   },
   {
     device_id: 't4p1q6r2',
@@ -37,6 +40,7 @@ export const DEVICES: Device[] = [
     last_seen: 'Da Nang',
     battery: 60,
     status: false,
+    coordinate: [16.0522679, 108.2152623],
   },
   {
     device_id: 'd3v8a9r6',
@@ -44,6 +48,7 @@ export const DEVICES: Device[] = [
     last_seen: 'Da Nang',
     battery: 10,
     status: true,
+    coordinate: [16.06074339960879, 108.21994659842584],
   },
 ]
 

@@ -21,13 +21,12 @@ export const valueSchema = z.object({
       .optional(),
   }),
   widget_info: z.object({
-    widget_name: z
+    name: z
       .string()
       .min(1, 'Widget name is required')
       .max(100, 'Maximum 100 characters long'),
     appearance: z.object({
       show_state: z.boolean(),
-      show_value: z.boolean(),
     }),
     color: z.string({ required_error: 'Please select color' }),
   }),
@@ -51,9 +50,8 @@ export const defaultValueWidgetValues: ValuePayload = {
     decimal: 0,
   },
   widget_info: {
-    widget_name: '',
+    name: 'New Value Widget',
     appearance: {
-      show_value: true,
       show_state: true,
     },
     color: 'default',

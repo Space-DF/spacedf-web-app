@@ -69,7 +69,7 @@ const Columns: React.FC = () => {
           onRemove={remove}
         />
       ))}
-      <Button className="flex items-center gap-2 " onClick={handleAddColumn}>
+      <Button className="flex items-center gap-2" onClick={handleAddColumn}>
         {t('add_column')} <PlusIcon />
       </Button>
     </div>

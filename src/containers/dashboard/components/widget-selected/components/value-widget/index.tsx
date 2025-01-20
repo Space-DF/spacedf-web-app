@@ -13,6 +13,9 @@ import {
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
+import Timeframe from './components/timeframe'
+import WidgetInfo from './components/widget-info'
+import { brandColors } from '@/configs'
 
 const TabContents = () => {
   return (
@@ -24,10 +27,10 @@ const TabContents = () => {
         <Source />
       </TabsContent>
       <TabsContent value={TabKey.Info} className="mt-4 px-4">
-        Widget Info
+        <WidgetInfo />
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
-        Time Frame
+        <Timeframe />
       </TabsContent>
     </>
   )
@@ -50,20 +53,34 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
 
   const value = 0
 
-  const [decimal, unit] = useWatch({
-    control,
-    name: ['source.decimal', 'source.unit'],
-  })
 
-  const handleSaveValueWidget = async () => {
-    await trigger()
-  }
+  const [decimal, unit, widgetName, color] = useWatch({
+    control,
+    name: ['source.decimal', 'source.unit', 'widget_info.name', 'widget_info.color'],
+  })
 
   const currentValue = useMemo(() => {
     if (!decimal || decimal < 0) return value.toFixed(0)
     if (decimal > 10) return value.toFixed(10)
     return value.toFixed(decimal)
   }, [value, decimal])
+
+  const [decimal, widgetName, color] = useWatch({
+    control,
+    name: ['source.decimal', 'widget_info.name', 'widget_info.color'],
+  })
+
+  const currentColor = useMemo(
+    () =>
+      color === 'default'
+        ? brandColors['component-fill-default-chart']
+        : `#${color}`,
+    [color]
+  )
+
+  const handleSaveValueWidget = async () => {
+    await trigger()
+  }
 
   return (
     <RightSideBarLayout
@@ -87,15 +104,20 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">
               <div className="space-y-3 rounded-md bg-brand-background-fill-outermost p-3">
                 <div>
-                  <p className="truncate font-semibold text-brand-component-text-dark">
-                    New Value Widget
-                  </p>
+                  <div className="h-5">
+                    <p className="truncate font-semibold text-brand-component-text-dark">
+                      {widgetName}
+                    </p>
+                  </div>
+
                   <p className="text-[12px] text-brand-text-gray">
                     {t('no_data')}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 space-y-6">
-                  <span className="text-brand-component-text-dark text-4xl font-semibold truncate">
+                  <span className="text-brand-component-text-dark text-4xl font-semibold truncate"
+                    style={{ color: currentColor }}
+                    >
                     {`${currentValue} ${unit ?? ''}`}
                   </span>
                 </div>
