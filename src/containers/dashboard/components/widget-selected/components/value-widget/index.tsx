@@ -12,6 +12,7 @@ import {
   valueSchema,
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Source from './components/source'
 import Timeframe from './components/timeframe'
 import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
@@ -23,7 +24,7 @@ const TabContents = () => {
         value={TabKey.Sources}
         className="mt-4 flex-1 overflow-y-scroll px-4"
       >
-        Source
+        <Source />
       </TabsContent>
       <TabsContent value={TabKey.Info} className="mt-4 px-4">
         <WidgetInfo />
@@ -52,6 +53,18 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
 
   const value = 0
 
+
+  const [decimal, unit, widgetName, color] = useWatch({
+    control,
+    name: ['source.decimal', 'source.unit', 'widget_info.name', 'widget_info.color'],
+  })
+
+  const currentValue = useMemo(() => {
+    if (!decimal || decimal < 0) return value.toFixed(0)
+    if (decimal > 10) return value.toFixed(10)
+    return value.toFixed(decimal)
+  }, [value, decimal])
+
   const [decimal, widgetName, color] = useWatch({
     control,
     name: ['source.decimal', 'widget_info.name', 'widget_info.color'],
@@ -74,7 +87,7 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_chart_widget`)}</div>
+          <div>{t(`add_value_widget`)}</div>
         </div>
       }
       externalButton={
@@ -102,11 +115,10 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 space-y-6">
-                  <span
-                    className="text-brand-component-text-dark text-4xl font-semibold"
+                  <span className="text-brand-component-text-dark text-4xl font-semibold truncate"
                     style={{ color: currentColor }}
-                  >
-                    {value.toFixed(decimal)}
+                    >
+                    {`${currentValue} ${unit ?? ''}`}
                   </span>
                 </div>
               </div>
