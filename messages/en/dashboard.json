@@ -53,6 +53,7 @@
   "widget_name_require_error": "Please enter widget name",
   "widget_name": "Widget Name",
   "show_value": "Show Value",
+  "show_state": "Show State",
   "appearance": "Appearance",
   "add_device": "Add Device",
   "delete_column": "Delete Column",
