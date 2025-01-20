@@ -86,6 +86,7 @@
   "maximum": "Tối đa",
   "from": "Từ",
   "until": "Đến",
+  "map_type": "Loại bản đồ",
   "pick_a_date": "Chọn ngày",
   "resolution": "Độ phân giải",
   "time_zone": "Múi giờ",
@@ -116,5 +117,6 @@
   "show_latest": "Lấy giá trị mới nhất",
   "timerange_operation": "Khoảng thời gian",
   "custom_timerange": "Hiển thị giá trị nhỏ nhất, giá trị lớn nhất, trung bình hoặc thay đổi theo khoảng thời gian",
-  "operation": "Hoạt động"
+  "operation": "Hoạt động",
+  "select_map_type": "Chọn loại bản đồ"
 }
