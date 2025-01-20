@@ -114,5 +114,10 @@
   "circular": "Hình tròn",
   "fill-level": "Mức điền vào",
   "compass": "La bàn",
+  "current_value": "Giá trị hiện tại",
+  "show_latest": "Lấy giá trị mới nhất",
+  "timerange_operation": "Khoảng thời gian",
+  "custom_timerange": "Hiển thị giá trị nhỏ nhất, giá trị lớn nhất, trung bình hoặc thay đổi theo khoảng thời gian",
+  "operation": "Hoạt động",
   "select_map_type": "Chọn loại bản đồ"
 }

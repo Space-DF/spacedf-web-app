@@ -12,6 +12,7 @@ import {
   valueSchema,
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Timeframe from './components/timeframe'
 import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
 
@@ -28,7 +29,7 @@ const TabContents = () => {
         <WidgetInfo />
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
-        Time Frame
+        <Timeframe />
       </TabsContent>
     </>
   )
