@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -12,6 +12,7 @@ import {
   valueSchema,
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Source from './components/source'
 
 const TabContents = () => {
   return (
@@ -20,7 +21,7 @@ const TabContents = () => {
         value={TabKey.Sources}
         className="mt-4 flex-1 overflow-y-scroll px-4"
       >
-        Source
+        <Source />
       </TabsContent>
       <TabsContent value={TabKey.Info} className="mt-4 px-4">
         Widget Info
@@ -42,25 +43,34 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
   const form = useForm<ValuePayload>({
     resolver: zodResolver(valueSchema),
     defaultValues: defaultValueWidgetValues,
+    mode: 'onChange',
   })
 
-  const { control } = form
+  const { control, trigger } = form
 
   const value = 0
 
-  const [decimal] = useWatch({
+  const [decimal, unit] = useWatch({
     control,
-    name: ['source.decimal'],
+    name: ['source.decimal', 'source.unit'],
   })
 
-  const handleSaveValueWidget = () => {}
+  const handleSaveValueWidget = async () => {
+    await trigger()
+  }
+
+  const currentValue = useMemo(() => {
+    if (!decimal || decimal < 0) return value.toFixed(0)
+    if (decimal > 10) return value.toFixed(10)
+    return value.toFixed(decimal)
+  }, [value, decimal])
 
   return (
     <RightSideBarLayout
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_chart_widget`)}</div>
+          <div>{t(`add_value_widget`)}</div>
         </div>
       }
       externalButton={
@@ -85,8 +95,8 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 space-y-6">
-                  <span className="text-brand-component-text-dark text-4xl font-semibold">
-                    {value.toFixed(decimal)}
+                  <span className="text-brand-component-text-dark text-4xl font-semibold truncate">
+                    {`${currentValue} ${unit ?? ''}`}
                   </span>
                 </div>
               </div>
