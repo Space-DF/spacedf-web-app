@@ -53,10 +53,14 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
 
   const value = 0
 
-
   const [decimal, unit, widgetName, color] = useWatch({
     control,
-    name: ['source.decimal', 'source.unit', 'widget_info.name', 'widget_info.color'],
+    name: [
+      'source.decimal',
+      'source.unit',
+      'widget_info.name',
+      'widget_info.color',
+    ],
   })
 
   const currentValue = useMemo(() => {
@@ -64,11 +68,6 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
     if (decimal > 10) return value.toFixed(10)
     return value.toFixed(decimal)
   }, [value, decimal])
-
-  const [decimal, widgetName, color] = useWatch({
-    control,
-    name: ['source.decimal', 'widget_info.name', 'widget_info.color'],
-  })
 
   const currentColor = useMemo(
     () =>
@@ -115,9 +114,10 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 space-y-6">
-                  <span className="text-brand-component-text-dark text-4xl font-semibold truncate"
+                  <span
+                    className="text-brand-component-text-dark text-4xl font-semibold truncate"
                     style={{ color: currentColor }}
-                    >
+                  >
                     {`${currentValue} ${unit ?? ''}`}
                   </span>
                 </div>
