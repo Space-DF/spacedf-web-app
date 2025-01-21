@@ -30,6 +30,7 @@ interface CircularChartProps {
   max?: number
   values: GaugeValue[]
   ranges: Range[]
+  showValue?: boolean
 }
 
 interface LinearChartProps extends CircularChartProps {
@@ -44,6 +45,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
   max = 100,
   values,
   ranges,
+  showValue,
 }) => {
   const [isAnimate, setIsAnimate] = useState(true)
   const isFirstRender = useRef(true)
@@ -132,11 +134,13 @@ const CircularChart: React.FC<CircularChartProps> = ({
           {max}
         </span>
       </div>
-      <div className="absolute xl:bottom-10 md:bottom-2 lg:bottom-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
-        <span className="text-lg font-bold md:w-20 lg:w-24 xl:32 truncate text-center">
-          {getDecimal(value, decimal)} {unit?.slice(0, 10)}
-        </span>
-      </div>
+      {showValue && (
+        <div className="absolute xl:bottom-10 md:bottom-2 lg:bottom-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
+          <span className="text-lg font-bold md:w-20 lg:w-24 xl:32 truncate text-center">
+            {getDecimal(value, decimal)} {unit?.slice(0, 10)}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -150,6 +154,7 @@ const LinearChart: React.FC<LinearChartProps> = ({
   unit,
   decimal = 0,
   values,
+  showValue,
 }) => {
   const [currentPercent, setCurrentPercent] = useState(0)
 
@@ -187,9 +192,14 @@ const LinearChart: React.FC<LinearChartProps> = ({
 
   return (
     <div className="w-full space-y-4">
-      <span className="text-lg font-bold text-brand-component-text-dark line-clamp-1">
-        {getDecimal(value, decimal)} {unit?.slice(0, 10)}
-      </span>
+      <div className="h-4">
+        {showValue && (
+          <span className="text-lg font-bold text-brand-component-text-dark line-clamp-1">
+            {getDecimal(value, decimal)} {unit?.slice(0, 10)}
+          </span>
+        )}
+      </div>
+
       <div>
         <Slider
           classNameTrack="bg-transparent dark:bg-transparent"
@@ -252,6 +262,7 @@ interface Props {
   min: number
   max: number
   values: GaugeValue[]
+  showValue?: boolean
 }
 
 const formatRangesValue = (min: number, values: GaugeValue[]) => {
@@ -291,6 +302,7 @@ const PreviewGauge: React.FC<Props> = ({
   min,
   max,
   values,
+  showValue,
 }) => {
   const ranges = formatRangesValue(min, values)
   return type === GaugeType.Linear ? (
@@ -303,6 +315,7 @@ const PreviewGauge: React.FC<Props> = ({
       unit={unit}
       decimal={decimal}
       values={values}
+      showValue={showValue}
     />
   ) : (
     <CircularChart
@@ -313,6 +326,7 @@ const PreviewGauge: React.FC<Props> = ({
       max={max}
       values={values}
       ranges={ranges}
+      showValue={showValue}
     />
   )
 }
