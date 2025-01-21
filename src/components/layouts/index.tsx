@@ -13,8 +13,6 @@ import {
   getDynamicLayoutRight,
   setCookie,
 } from '@/utils'
-import { useSession } from 'next-auth/react'
-import { useTranslations } from 'next-intl'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
 import EffectLayout from '../ui/effect-layout'
@@ -41,14 +39,10 @@ const DynamicLayout = ({
   defaultMainLayout,
   defaultCollapsed,
 }: DynamicLayoutProps) => {
-  const t = useTranslations('common')
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
 
   useEffect(() => {
     setCollapsed(defaultCollapsed)
@@ -263,11 +257,6 @@ const DynamicLayout = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-      {!isAuth && (
-        <div className="fixed left-0 right-0 top-4 z-20 mx-auto max-w-2xl rounded-lg border border-brand-component-stroke-dark bg-brand-component-fill-gray px-3 py-2 text-sm font-semibold text-brand-component-text-light-fixed shadow-toast">
-          {t('viewing_dummy')}
-        </div>
-      )}
     </EffectLayout>
   )
 }

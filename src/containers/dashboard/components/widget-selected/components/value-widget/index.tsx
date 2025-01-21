@@ -16,6 +16,10 @@ import Source from './components/source'
 import Timeframe from './components/timeframe'
 import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { WidgetType } from '@/widget-models/widget'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 
 const TabContents = () => {
   return (
@@ -37,11 +41,13 @@ const TabContents = () => {
 }
 
 interface Props {
+  selectedWidget: WidgetType
   onClose: () => void
   onBack: () => void
 }
 
-const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
+const ValueWidget: React.FC<Props> = ({ selectedWidget, onBack, onClose }) => {
+  const { createWidget } = useCreateWidget()
   const t = useTranslations('dashboard')
   const form = useForm<ValuePayload>({
     resolver: zodResolver(valueSchema),
@@ -49,9 +55,17 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
     mode: 'onChange',
   })
 
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
+
   const { control, trigger } = form
 
   const value = 0
+
+  const formValue = form.getValues()
 
   const [decimal, unit, widgetName, color, deviceId] = useWatch({
     control,
@@ -80,6 +94,21 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
 
   const handleSaveValueWidget = async () => {
     await trigger()
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...formValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+
+    createWidget(newWidgetData)
+      .then(() => {
+        const newWidget = { i: newId, x: 0, y: 0, w: 5, h: 2, minW: 3, minH: 2 }
+        addWidget(newWidget)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   return (

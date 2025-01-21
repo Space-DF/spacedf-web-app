@@ -1,5 +1,4 @@
 import React from 'react'
-import PreviewChart from './components/preview-chart'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -12,6 +11,7 @@ import { defaultGaugeValues, GaugePayload, gaugeSchema } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
 import TimeFrame from './components/time-frame'
+import PreviewGauge from './components/preview-gauge'
 
 const TabContents = () => {
   return (
@@ -87,7 +87,7 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
                   New Gauge Widget
                 </p>
                 <div className="grid grid-cols-1">
-                  <PreviewChart
+                  <PreviewGauge
                     type={type as GaugeType}
                     decimal={+decimal}
                     unit={unit}

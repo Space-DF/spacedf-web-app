@@ -5,7 +5,10 @@ interface TablePreviewProps {
 }
 
 const MapPreview: React.FC<TablePreviewProps> = ({ source }) => {
-  const { coordinate, map_type } = source
+  const { coordinate, map_type } = source || {
+    coordinate: [0, 0],
+    map_type: 'satellite',
+  }
 
   return (
     <div className="w-full aspect-[3/2]">

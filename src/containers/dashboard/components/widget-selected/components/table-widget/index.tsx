@@ -18,6 +18,9 @@ import TablePreview from './components/table-preview'
 import TableWidgetInfo from './components/widget-info'
 import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 
 const TABLE_TABS_KEY = [
   TabKey.Sources,
@@ -51,18 +54,45 @@ interface Props {
   onBack: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
+  const { createWidget } = useCreateWidget()
   const t = useTranslations('dashboard')
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
     defaultValues: dataTableDefault,
     mode: 'onChange',
   })
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
 
   const columns = form.watch('columns')
   const source = form.watch('source.devices')
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
+
+  const tableValue = form.getValues()
+
+  const handleAddTableWidget = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) return
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...tableValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
+      .then(() => {
+        const newWidget = { i: newId, x: 0, y: 0, w: 4, h: 3, minH: 3, minW: 2 }
+        addWidget(newWidget)
+      })
+      .catch((error) => {
+        console.error('Failed to add widget:', error)
+      })
+  }
 
   return (
     <RightSideBarLayout
@@ -72,7 +102,9 @@ const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t(`add_table_widget`)}</div>
         </div>
       }
-      externalButton={<Button>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddTableWidget}>{t('save')}</Button>
+      }
       onClose={onClose}
     >
       <div className="flex size-full flex-col">

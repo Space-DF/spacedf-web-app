@@ -46,7 +46,13 @@ const WidgetSelected: React.FC<Props> = ({
         />
       )
     case WidgetType.Value:
-      return <ValueWidget onClose={onClose} onBack={onBack} />
+      return (
+        <ValueWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onBack={onBack}
+        />
+      )
     default:
       return <div>Widget not found</div>
   }

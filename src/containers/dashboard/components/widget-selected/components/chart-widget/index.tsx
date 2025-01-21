@@ -16,6 +16,9 @@ import { PreviewChart, dailyOrders } from './components/preview-chart'
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { v4 as uuidv4 } from 'uuid'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 
 interface Props {
   selectedWidget: WidgetType
@@ -52,15 +55,23 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
+  const { createWidget } = useCreateWidget()
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),
     defaultValues: defaultChartValues,
     mode: 'onChange',
   })
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
 
   const { control } = form
+
+  const chartValue = form.getValues()
 
   const sourcesData = useWatch({
     control,
@@ -83,9 +94,23 @@ const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
     ],
   })
 
-  const handleSaveForm = async () => {
+  const handleAddChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...chartValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
+      .then(() => {
+        const newWidget = { i: newId, x: 0, y: 0, w: 4, h: 3, minH: 2, minW: 3 }
+        addWidget(newWidget)
+      })
+      .catch((error) => {
+        console.error('Failed to add widget:', error)
+      })
   }
 
   return (
@@ -96,7 +121,9 @@ const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t(`add_chart_widget`)}</div>
         </div>
       }
-      externalButton={<Button onClick={handleSaveForm}>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddChartWidget}>{t('save')}</Button>
+      }
       onClose={onClose}
     >
       <div className="flex size-full flex-col">
