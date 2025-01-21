@@ -1,92 +1,194 @@
 import { Slider } from '@/components/ui/slider'
+import { brandColors } from '@/configs'
+import { GaugeValue } from '@/validator'
 import { GaugeType } from '@/widget-models/gauge'
 import { useAnimationFrame } from 'framer-motion'
 import { Triangle } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import React, { useMemo, useState } from 'react'
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 const GaugeComponent = dynamic(() => import('react-gauge-component'), {
   ssr: false,
 })
 
-interface CircularChartProps {
-  value: number
-  unit: string
-}
-
-const CircularChart: React.FC<CircularChartProps> = ({ value, unit }) => {
-  return (
-    <GaugeComponent
-      type="radial"
-      arc={{
-        padding: 0.005,
-        colorArray: ['#00FF15', '#FF2121'],
-        subArcs: [{ limit: 40 }, { limit: 60 }, { limit: 70 }],
-      }}
-      pointer={{ type: 'needle', animationDelay: 0 }}
-      value={value}
-      labels={{
-        valueLabel: {
-          style: {
-            fontSize: 20,
-            fill: 'hsl(var(--background-fill-default-chart))',
-            textShadow: 'none',
-          },
-          formatTextValue: (value) => `${value} ${unit}`,
-        },
-        tickLabels: {
-          defaultTickValueConfig: {
-            formatTextValue: (value) => `${value} ${unit}`,
-            style: {
-              fill: 'hsl(var(--background-fill-default-chart))',
-            },
-          },
-        },
-      }}
-    />
-  )
+const getDecimal = (value: number, decimal: number) => {
+  if (decimal < 0) return value
+  if (decimal > 10) return value.toFixed(10)
+  return value.toFixed(decimal)
 }
 
 interface Range {
-  min: number
-  max: number
   color: string
 }
 
-interface StackedBarChartProps {
+interface CircularChartProps {
   value: number
-  min: number
-  max: number
+  unit?: string
+  decimal?: number
+  min?: number
+  max?: number
+  values: GaugeValue[]
   ranges: Range[]
-  height: number
-  unit: string
 }
 
-const LinearChart: React.FC<StackedBarChartProps> = ({
+interface LinearChartProps extends CircularChartProps {
+  height: number
+}
+
+const CircularChart: React.FC<CircularChartProps> = ({
   value,
-  min,
-  max,
-  ranges,
-  height,
   unit,
+  decimal = 0,
+  min = 0,
+  max = 100,
+  values,
+  ranges,
+}) => {
+  const [isAnimate, setIsAnimate] = useState(true)
+  const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+
+    if (isAnimate) {
+      setIsAnimate(false)
+    }
+  }, [values])
+
+  const chartData = useMemo(() => {
+    if (!values.length) return [{ length: 1 }]
+
+    const sortedValues = [...values].sort((a, b) => a.value - b.value)
+
+    if (sortedValues.length === 1 && sortedValues[0].value === min) {
+      return [{ length: 1 }]
+    }
+
+    const result =
+      sortedValues[0].value !== min
+        ? [{ length: (sortedValues[0].value - min) / max }]
+        : []
+
+    sortedValues.forEach((item, index) => {
+      const nextValue = sortedValues[index + 1]?.value ?? max
+      result.push({ length: (nextValue - item.value) / max })
+    })
+
+    return result
+  }, [values, min, max])
+
+  const rangesColor = useMemo(() => {
+    if (!values?.length) return ranges.map((range) => range.color)
+
+    const sortedValues = [...values].sort((a, b) => a.value - b.value)
+
+    return sortedValues[0].value > min
+      ? [
+          brandColors['component-fill-default-chart'],
+          ...ranges.map((range) => range.color),
+        ]
+      : ranges.map((range) => range.color)
+  }, [ranges, values, min])
+
+  const gaugeKey = useMemo(
+    () => `${JSON.stringify(rangesColor)}-${JSON.stringify(chartData)}`,
+    [rangesColor, chartData]
+  )
+  return (
+    <div className="relative">
+      <GaugeComponent
+        key={gaugeKey}
+        type="radial"
+        arc={{
+          padding: 0.005,
+          colorArray: rangesColor,
+          subArcs: chartData,
+        }}
+        minValue={min}
+        maxValue={max}
+        pointer={{ type: 'needle', animationDelay: 0, animate: isAnimate }}
+        value={value}
+        labels={{
+          valueLabel: {
+            hide: true,
+          },
+          tickLabels: {
+            defaultTickValueConfig: {
+              hide: true,
+            },
+            hideMinMax: true,
+          },
+        }}
+      />
+      <div className="w-full flex justify-between absolute bottom-1 px-5">
+        <span className="text-sm text-brand-component-text-dark md:w-20 lg:w-24 xl:32 text-center">
+          {min}
+        </span>
+        <span className="text-sm text-brand-component-text-dark md:w-20 lg:w-24 xl:32 text-center">
+          {max}
+        </span>
+      </div>
+      <div className="absolute xl:bottom-10 md:bottom-2 lg:bottom-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
+        <span className="text-lg font-bold md:w-20 lg:w-24 xl:32 truncate text-center">
+          {getDecimal(value, decimal)} {unit?.slice(0, 10)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+const LinearChart: React.FC<LinearChartProps> = ({
+  value,
+  min = 0,
+  max = 100,
+  ranges,
+  height = 20,
+  unit,
+  decimal = 0,
+  values,
 }) => {
   const [currentPercent, setCurrentPercent] = useState(0)
 
   const percent = useMemo(() => (value / max) * 100, [value, max])
+
   useAnimationFrame((_, delta) => {
     setCurrentPercent((prev) => {
-      const nextValue = prev + delta * 0.05
+      const nextValue = prev + delta * 0.1
       return nextValue > percent ? percent : nextValue
     })
   })
 
-  const data = [{ value1: 20, value2: 40, value3: 60 }]
+  const chartData = useMemo(() => {
+    if (!values?.length) return { value: max }
+
+    const sortedValues = [...values].sort((a, b) => a.value - b.value)
+
+    if (sortedValues.length === 1 && sortedValues[0].value === 0) {
+      return { value0: max }
+    }
+
+    const firstValue = sortedValues[0].value - min
+
+    return sortedValues.reduce(
+      (acc, item, index) => {
+        const nextValue = sortedValues[index + 1]?.value ?? max
+        return {
+          ...acc,
+          [`value${index}`]: nextValue - item.value,
+        }
+      },
+      { firstValue }
+    )
+  }, [values, min, max])
 
   return (
     <div className="w-full space-y-4">
-      <span className="text-lg font-bold text-brand-component-text-dark">
-        {value} {unit}
+      <span className="text-lg font-bold text-brand-component-text-dark line-clamp-1">
+        {getDecimal(value, decimal)} {unit?.slice(0, 10)}
       </span>
       <div>
         <Slider
@@ -99,18 +201,30 @@ const LinearChart: React.FC<StackedBarChartProps> = ({
           thumbIcon={
             <Triangle
               className="text-brand-component-text-dark w-4 h-4 rotate-180"
-              fill="hsl(var(--background-fill-default-chart))"
+              fill={brandColors['component-fill-default-chart']}
             />
           }
         />
         <ResponsiveContainer height={height}>
-          <BarChart layout="vertical" data={data} barGap={5}>
+          <BarChart layout="vertical" data={[chartData]} barGap={5}>
             <XAxis type="number" domain={[min, max]} hide />
             <YAxis type="category" hide />
+            <Bar
+              dataKey="value"
+              stackId="b"
+              fill={brandColors['component-fill-default-chart']}
+              radius={[10, 10, 10, 10]}
+            />
+            <Bar
+              dataKey="firstValue"
+              stackId="b"
+              fill={brandColors['component-fill-default-chart']}
+              radius={[10, 10, 10, 10]}
+            />
             {ranges.map((range, index) => (
               <Bar
                 key={index}
-                dataKey={`value${index + 1}`}
+                dataKey={`value${index}`}
                 stackId="b"
                 fill={range.color}
                 radius={[10, 10, 10, 10]}
@@ -119,11 +233,11 @@ const LinearChart: React.FC<StackedBarChartProps> = ({
           </BarChart>
         </ResponsiveContainer>
         <div className="w-full flex justify-between">
-          <span className="text-sm text-brand-component-text-dark">
-            {min} {unit}
+          <span className="text-sm text-brand-component-text-dark line-clamp-1">
+            {min}
           </span>
-          <span className="text-sm text-brand-component-text-dark">
-            {max} {unit}
+          <span className="text-sm text-brand-component-text-dark line-clamp-1">
+            {max}
           </span>
         </div>
       </div>
@@ -133,27 +247,74 @@ const LinearChart: React.FC<StackedBarChartProps> = ({
 
 interface Props {
   type: GaugeType
+  decimal: number
+  unit?: string
+  min: number
+  max: number
+  values: GaugeValue[]
 }
 
-const PreviewGauge: React.FC<Props> = ({ type }) => {
-  const ranges = [
-    { min: 0, max: 10, color: '#ff0000' },
-    { min: 45, max: 95, color: '#ffff00' },
-    { min: 80, max: 100, color: '#00ff00' },
-  ]
+const formatRangesValue = (min: number, values: GaugeValue[]) => {
+  const copyValues = [...values]
+  copyValues.sort((a, b) => a.value - b.value)
 
+  if (!copyValues.length) {
+    return [{ color: brandColors['component-fill-default-chart'] }]
+  }
+
+  if (copyValues.length === 1 && copyValues[0].value === min) {
+    const firstValue = copyValues[0]
+    const color =
+      firstValue.color && firstValue.color !== 'default'
+        ? `#${firstValue.color}`
+        : brandColors['component-fill-default-chart']
+    return [{ color }]
+  }
+
+  const ranges: Range[] = []
+
+  copyValues.forEach((item) => {
+    ranges.push({
+      color:
+        item.color && item.color !== 'default'
+          ? `#${item.color}`
+          : brandColors['component-fill-default-chart'],
+    })
+  })
+  return ranges
+}
+
+const PreviewGauge: React.FC<Props> = ({
+  type,
+  decimal,
+  unit,
+  min,
+  max,
+  values,
+}) => {
+  const ranges = formatRangesValue(min, values)
   return type === GaugeType.Linear ? (
     <LinearChart
       ranges={ranges}
       height={20}
       value={65}
-      min={0}
-      max={100}
-      unit="ml"
+      min={min}
+      max={max}
+      unit={unit}
+      decimal={decimal}
+      values={values}
     />
   ) : (
-    <CircularChart value={65} unit="ml" />
+    <CircularChart
+      value={65}
+      unit={unit}
+      decimal={decimal}
+      min={min}
+      max={max}
+      values={values}
+      ranges={ranges}
+    />
   )
 }
 
-export default PreviewGauge
+export default memo(PreviewGauge)

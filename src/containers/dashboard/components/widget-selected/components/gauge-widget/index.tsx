@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import { GaugeType } from '@/widget-models/gauge'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { gaugeDefaultValues, GaugePayload, gaugeSchema } from '@/validator'
+import { defaultGaugeValues, GaugePayload, gaugeSchema } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
 import TimeFrame from './components/time-frame'
@@ -34,22 +34,30 @@ const TabContents = () => {
 
 interface Props {
   onClose: () => void
+  onBack: () => void
 }
 
-const GaugeWidget: React.FC<Props> = ({ onClose }) => {
+const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
   const t = useTranslations('dashboard')
   const form = useForm<GaugePayload>({
     resolver: zodResolver(gaugeSchema),
-    defaultValues: gaugeDefaultValues,
+    defaultValues: defaultGaugeValues,
     mode: 'onChange',
   })
 
   const { control, trigger } = form
 
-  const type = useWatch({
+  const [type, decimal, unit, min, max, values] = useWatch({
     control,
-    name: 'source.type',
-  }) as GaugeType
+    name: [
+      'source.type',
+      'source.decimal',
+      'source.unit',
+      'source.min',
+      'source.max',
+      'source.values',
+    ],
+  })
 
   const handleSaveGauge = async () => {
     const isValid = await trigger()
@@ -60,8 +68,8 @@ const GaugeWidget: React.FC<Props> = ({ onClose }) => {
     <RightSideBarLayout
       title={
         <div className="flex items-center gap-2">
-          <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
-          <div>{t(`add_chart_widget`)}</div>
+          <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
+          <div>{t(`add_gauge_widget`)}</div>
         </div>
       }
       externalButton={<Button onClick={handleSaveGauge}>{t('save')}</Button>}
@@ -79,7 +87,14 @@ const GaugeWidget: React.FC<Props> = ({ onClose }) => {
                   New Gauge Widget
                 </p>
                 <div className="grid grid-cols-1">
-                  <PreviewChart type={type} />
+                  <PreviewChart
+                    type={type as GaugeType}
+                    decimal={+decimal}
+                    unit={unit}
+                    min={min}
+                    max={max}
+                    values={values}
+                  />
                 </div>
               </div>
             </div>

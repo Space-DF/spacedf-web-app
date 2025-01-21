@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import {
   FormControl,
   FormField,
@@ -7,8 +7,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useFormContext } from 'react-hook-form'
-import { GaugePayload } from '@/validator'
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import { GaugePayload, gaugeValue } from '@/validator'
 import {
   Select,
   SelectContent,
@@ -17,11 +17,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, PlusIcon } from 'lucide-react'
 import { mockDeviceData } from '../../chart-widget/components/single-source'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { GaugeType } from '@/widget-models/gauge'
+import ColorSelect from '../../color-select'
+import { Button } from '@/components/ui/button'
+import XCircle from '@/components/icons/x-circle'
 
 const mockFieldData = [
   {
@@ -37,7 +46,50 @@ const mockFieldData = [
 const Source = () => {
   const t = useTranslations('dashboard')
   const form = useFormContext<GaugePayload>()
-  const { control } = form
+  const { control, setValue } = form
+  const {
+    append,
+    remove,
+    fields: values,
+  } = useFieldArray({
+    control,
+    name: 'source.values',
+  })
+
+  const [min, max] = useWatch({
+    control,
+    name: ['source.min', 'source.max'],
+  })
+
+  const handleAddValue = () => {
+    append(gaugeValue)
+  }
+
+  const handleRemoveValue = (index: number) => {
+    remove(index)
+  }
+
+  const handleValueChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const value = Number(e.target.value)
+    if (value > max || value < min) return
+    setValue(`source.values.${index}.value`, +value)
+  }
+
+  const handleDecimalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value)
+    if (value > 10 || value < 0) return
+    setValue('source.decimal', value)
+  }
+
+  const handleUnitChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (value.length > 10) return
+    setValue('source.unit', value)
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 gap-y-4">
@@ -136,7 +188,7 @@ const Source = () => {
                 {t('min')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input type="number" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -151,7 +203,7 @@ const Source = () => {
                 {t('max')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input type="number" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,7 +218,13 @@ const Source = () => {
                 {t('decimal_places')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input
+                  min={0}
+                  max={10}
+                  type="number"
+                  {...field}
+                  onChange={handleDecimalChange}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -181,7 +239,7 @@ const Source = () => {
                 {t('unit')}
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} onChange={handleUnitChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -193,7 +251,9 @@ const Source = () => {
         name="source.type"
         render={({ field }) => (
           <FormItem className="space-y-3">
-            <FormLabel>{t('type')}</FormLabel>
+            <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+              {t('type')}
+            </FormLabel>
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
@@ -219,6 +279,86 @@ const Source = () => {
           </FormItem>
         )}
       />
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        defaultValue={`source`}
+      >
+        <AccordionItem
+          value={`source`}
+          className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+        >
+          <AccordionTrigger
+            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
+            dropdownIcon={
+              <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+            }
+          >
+            {t('values')}
+          </AccordionTrigger>
+          <AccordionContent className="p-3 space-y-4">
+            {values.map((value, index) => (
+              <div
+                className="grid grid-cols-9 gap-4 items-start"
+                key={value.id}
+              >
+                <FormField
+                  control={control}
+                  name={`source.values.${index}.value`}
+                  render={({ field }) => (
+                    <FormItem className="col-span-4">
+                      <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                        {t('value')}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min={min}
+                          max={max}
+                          onChange={(e) => handleValueChange(e, index)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={control}
+                  name={`source.values.${index}.color`}
+                  render={({ field }) => (
+                    <FormItem className="col-span-5">
+                      <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
+                        {t('color')}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex items-center gap-4">
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <ColorSelect fieldValue={field.value} />
+                          </Select>
+                          <XCircle
+                            className="cursor-pointer"
+                            onClick={() => handleRemoveValue(index)}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ))}
+            <Button className="space-x-2" onClick={handleAddValue}>
+              <span>{t('add')}</span>
+              <PlusIcon className="size-4" />
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }
