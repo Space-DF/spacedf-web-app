@@ -7,28 +7,51 @@ import {
 import { z } from 'zod'
 
 export const gaugeSchema = z.object({
-  source: z.object({
-    device_id: z.string({
-      required_error: 'Please select device',
-    }),
-    field: z.string({ required_error: 'Please select field' }),
-    min: z.number({ invalid_type_error: 'Min must be a number' }),
-    max: z.number({ invalid_type_error: 'Max must be a number' }),
-    decimal: z.number({
-      invalid_type_error: 'Decimal Places must be a number',
-    }),
-    unit: z.string({ required_error: 'Please select unit' }),
-    type: z.enum(Object.values(GaugeType) as [string, ...string[]]),
-    values: z.array(
-      z.object({
-        value: z.number(),
-        color: z.string(),
+  source: z
+    .object({
+      device_id: z.string({
+        required_error: 'Please select device',
+      }),
+      field: z.string({ required_error: 'Please select field' }),
+      min: z.number(),
+      max: z.number(),
+      decimal: z.coerce
+        .number({ invalid_type_error: 'Only numbers are allowed' })
+        .min(0, 'Decimal Places must larger than 0')
+        .max(10, 'Decimal Places must less than 10'),
+      unit: z.string().optional(),
+      type: z.enum(Object.values(GaugeType) as [string, ...string[]]),
+      values: z.array(
+        z.object({
+          value: z.coerce.number({
+            invalid_type_error: 'Only numbers are allowed',
+          }),
+          color: z.string(),
+        })
+      ),
+    })
+    .superRefine((data, ctx) => {
+      const { max, min, values } = data
+      values.forEach((item, index) => {
+        if (item.value > max) {
+          ctx.addIssue({
+            path: ['values', index, 'value'],
+            message: 'Value must be smaller than max',
+            code: z.ZodIssueCode.custom,
+          })
+        }
+        if (item.value < min) {
+          ctx.addIssue({
+            path: ['values', index, 'value'],
+            message: 'Value must be larger than min',
+            code: z.ZodIssueCode.custom,
+          })
+        }
       })
-    ),
-  }),
+    }),
   timeframe: z.object({
-    from: z.date({ required_error: 'Please select date from' }),
-    until: z.date({ required_error: 'Please select date until' }),
+    from: z.date({ required_error: 'Please select date from' }).optional(),
+    until: z.date({ required_error: 'Please select date until' }).optional(),
     resolution: z
       .string()
       .regex(/^\d*$/, 'Only numbers are allowed')
@@ -57,7 +80,26 @@ export const gaugeSchema = z.object({
 
 export type GaugePayload = z.infer<typeof gaugeSchema>
 
-export const gaugeDefaultValues = {
+export type GaugeValue = {
+  color: string
+  value: number
+}
+
+export const gaugeValue: GaugeValue = {
+  color: 'default',
+  value: 0,
+}
+
+export const defaultGaugeValues: GaugePayload = {
+  source: {
+    device_id: '1',
+    field: '1',
+    min: 0,
+    max: 100,
+    decimal: 0,
+    type: GaugeType.Linear,
+    values: [],
+  },
   timeframe: {
     type: TimeFrameTab.Day,
     aggregation_function: AggregationFunction.Minimum,

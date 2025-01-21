@@ -204,12 +204,14 @@ const TimeFrame = () => {
                     >
                       <Calendar
                         mode="single"
-                        selected={new Date(field.value)}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={(date) => {
                           field.onChange(date)
                           setIsFromOpen(false)
                         }}
-                        disabled={(date) => date > until}
+                        disabled={(date) => (until ? date > until : false)}
                         initialFocus
                       />
                     </PopoverContent>
@@ -254,12 +256,14 @@ const TimeFrame = () => {
                     >
                       <Calendar
                         mode="single"
-                        selected={new Date(field.value)}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={(date) => {
                           field.onChange(date)
                           setIsUtilOpen(false)
                         }}
-                        disabled={(date) => date < from}
+                        disabled={(date) => (from ? date < from : false)}
                         initialFocus
                       />
                     </PopoverContent>
