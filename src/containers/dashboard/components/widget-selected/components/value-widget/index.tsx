@@ -53,13 +53,14 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
 
   const value = 0
 
-  const [decimal, unit, widgetName, color] = useWatch({
+  const [decimal, unit, widgetName, color, deviceId] = useWatch({
     control,
     name: [
       'source.decimal',
       'source.unit',
       'widget_info.name',
       'widget_info.color',
+      'source.device_id',
     ],
   })
 
@@ -108,10 +109,13 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
                       {widgetName}
                     </p>
                   </div>
-
-                  <p className="text-[12px] text-brand-text-gray">
-                    {t('no_data')}
-                  </p>
+                  <div className="h-3">
+                    {!deviceId && (
+                      <p className="text-[12px] text-brand-text-gray">
+                        {t('no_data')}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 space-y-6">
                   <span
