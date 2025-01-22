@@ -97,7 +97,7 @@ const Timeframe = () => {
           }
         >
           <div className="h-5">
-            <span className="text-[14px] font-semibold h-5">
+            <span className="text-[14px] font-semibold h-5 line-clamp-1">
               {t('timerange_operation')}
             </span>
           </div>
