@@ -15,6 +15,7 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { Material } from '@deck.gl/core'
 import Supercluster from 'supercluster'
+import { useGetDevices } from '@/hooks/useDevices'
 
 type CreateRotatingLayerProps = {
   device: Device
@@ -72,7 +73,7 @@ const cluster = new Supercluster({
 export const useLoadDeviceModels = () => {
   const map = useRef<mapboxgl.Map | null>(null)
 
-  const { devices, models, deviceSelected, setDeviceSelected } = useDeviceStore(
+  const { models, deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       models: state.models,
@@ -81,6 +82,10 @@ export const useLoadDeviceModels = () => {
       initializedSuccess: state.initializedSuccess,
     }))
   )
+
+  const { data } = useGetDevices()
+
+  const devices = data || {}
 
   const startAnimation = useCallback(
     (device: Device, modelsProps: Record<string, GLTFWithBuffers>) => {

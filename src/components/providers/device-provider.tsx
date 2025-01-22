@@ -1,4 +1,3 @@
-import { devices } from '@/data/dummy-data'
 import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
@@ -8,10 +7,9 @@ const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
 
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
-  const { setDeviceModel, setDevices, setInitializedSuccess } = useDeviceStore()
+  const { setDeviceModel, setInitializedSuccess } = useDeviceStore()
 
   useEffect(() => {
-    getDevice()
     loadModels()
   }, [])
 
@@ -41,10 +39,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     } finally {
       setInitializedSuccess(true)
     }
-  }
-
-  const getDevice = () => {
-    setDevices(devices)
   }
   return <>{children}</>
 }

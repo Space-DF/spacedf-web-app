@@ -13,6 +13,7 @@ export type Device = {
   status: 'active' | 'inactive'
   type: SupportedModels
   layerProps?: Record<string, any>
+  histories: any
 } & GpsTrackerAttributes &
   (TrackiAttributes | RakAttributes)
 
