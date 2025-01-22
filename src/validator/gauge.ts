@@ -76,6 +76,16 @@ export const gaugeSchema = z.object({
       AggregationFunction.Maximum,
     ]),
   }),
+  widget_info: z.object({
+    widget_name: z
+      .string()
+      .min(1, 'Widget name is require')
+      .max(100, 'Maximum 100 characters long'),
+    appearance: z.object({
+      show_state: z.boolean(),
+      show_value: z.boolean(),
+    }),
+  }),
 })
 
 export type GaugePayload = z.infer<typeof gaugeSchema>
@@ -103,5 +113,12 @@ export const defaultGaugeValues: GaugePayload = {
   timeframe: {
     type: TimeFrameTab.Day,
     aggregation_function: AggregationFunction.Minimum,
+  },
+  widget_info: {
+    widget_name: 'New Gauge Widget',
+    appearance: {
+      show_state: true,
+      show_value: true,
+    },
   },
 }

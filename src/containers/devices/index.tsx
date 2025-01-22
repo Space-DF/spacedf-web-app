@@ -50,6 +50,9 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useSession } from 'next-auth/react'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { COOKIES, NavigationEnums } from '@/constants'
+import { useGetDevices } from '@/hooks/useDevices'
+import { useDeviceStore } from '@/stores/device-store'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -57,10 +60,11 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
+
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
-  const [selected, setSelected] = useState<number>()
+  // const [selected, setSelected] = useState<number>()
 
   return (
     <RightSideBarLayout
@@ -74,11 +78,11 @@ const Devices = () => {
     >
       <div className="flex h-full flex-col pt-6">
         <div className="px-4">
-          <DeviceSelected selected={selected} />
+          <DeviceSelected />
         </div>
         <DevicesList
-          selected={selected}
-          handleSelected={(id: number) => setSelected(id)}
+        // selected={selected}
+        // handleSelected={(id: number) => setSelected(id)}
         />
         {/*<Nodata content={t('nodata', { module: t('devices') })} />*/}
       </div>
@@ -216,11 +220,24 @@ const AddDeviceDialog = () => {
   )
 }
 
-const DeviceSelected = ({ selected }: { selected?: number }) => {
+const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
   const setOpenDrawerIdentity = useIdentityStore(
     useShallow((state) => state.setOpenDrawerIdentity)
   )
+
+  const { deviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+      setDeviceSelected: state.setDeviceSelected,
+    }))
+  )
+
+  const { startDrawHistory } = useDeviceHistory()
+
+  const { data } = useGetDevices()
+  const devices = data || {} || {}
+
   const { status } = useSession()
   const isAuth = status === 'authenticated'
 
@@ -286,13 +303,15 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
     )
   }
 
-  if (!selected) {
+  if (!deviceSelected) {
     return (
       <div className="rounded-xl bg-brand-component-fill-gray-soft">
         <Nodata content={t('no_selected_devices')} />
       </div>
     )
   }
+
+  const deviceData = devices[deviceSelected]
 
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
@@ -339,33 +358,36 @@ const DeviceSelected = ({ selected }: { selected?: number }) => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <InformationItem
-          label={`${t('device_id')}:`}
-          content={'DMZ 01 12312123'}
-        />
+        <InformationItem label={`${t('device_id')}:`} content={deviceData.id} />
         <InformationItem
           label={`${t('device_name')}:`}
-          content={'Jln Ramaya Terawi'}
+          content={deviceData.name}
         />
         <InformationItem
           label={`${t('deveui')}`}
           content={'Mild Steel Cement Lined'}
         />
         <InformationItem label={`${t('description')}:`} content={'150'} />
+
+        <Button onClick={() => startDrawHistory(deviceData.histories)}>
+          Device History
+        </Button>
       </div>
     </div>
   )
 }
 
-const DevicesList = ({
-  handleSelected,
-  selected,
-}: {
-  handleSelected: (id: number) => void
-  selected?: number
-}) => {
+const DevicesList = () => {
   const t = useTranslations('addNewDevice')
-  const devices = Array.from({ length: 16 }).map((_, id) => ({ id: id + 1 }))
+  const { data } = useGetDevices()
+  const devices = Object.values(data || {}) || []
+
+  const { deviceSelected, setDeviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+      setDeviceSelected: state.setDeviceSelected,
+    }))
+  )
 
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
@@ -388,22 +410,25 @@ const DevicesList = ({
                     'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                     {
                       'border-brand-component-stroke-dark':
-                        item.id === selected,
+                        item.id === deviceSelected,
                     }
                   )}
-                  onClick={() => handleSelected(item.id)}
+                  onClick={() => setDeviceSelected(item.id)}
                 >
                   <div className="space-y-2 mb-[18px]">
                     <div className="flex items-center justify-between">
                       <div className="size-8">
-                        <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+                        <ImageWithBlur
+                          src={DeviceIcon}
+                          alt="DMZ 01 -1511-M01"
+                        />
                       </div>
                     </div>
-                    <div className="text-xs font-medium">DMZ 01 -1511-M01</div>
+                    <div className="text-xs font-medium">{item.name}</div>
                   </div>
                   <div className="flex items-center gap-2 py-1 text-xs font-medium">
                     <Map size={16} className="text-brand-text-gray" />
-                    Jln Ramaya Terawi
+                    {item.type}
                   </div>
                 </div>
               </div>

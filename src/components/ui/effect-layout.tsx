@@ -9,8 +9,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGlobalStore } from '@/stores'
 
 const EffectLayout = ({ children }: PropsWithChildren) => {
-  const { duration, resetLoadingState } = useGlobalStore(
-    useShallow((state) => state),
+  const { duration, resetLoadingState, isGlobalLoading } = useGlobalStore(
+    useShallow((state) => state)
   )
   const { startRender } = usePageTransition({ duration: duration || 1000 })
 
@@ -27,7 +27,7 @@ const EffectLayout = ({ children }: PropsWithChildren) => {
       <div
         className={cn(
           'absolute inset-0 bg-white transition-all dark:bg-brand-fill-outermost',
-          startRender && 'animate-hide-effect',
+          startRender && !isGlobalLoading && 'animate-hide-effect'
         )}
       >
         <LoadingFullScreen />
@@ -35,7 +35,9 @@ const EffectLayout = ({ children }: PropsWithChildren) => {
       <div
         className={cn(
           'min-h-screen opacity-0',
-          startRender && 'animate-display-effect opacity-100',
+          startRender &&
+            !isGlobalLoading &&
+            'animate-display-effect opacity-100'
         )}
       >
         {children}

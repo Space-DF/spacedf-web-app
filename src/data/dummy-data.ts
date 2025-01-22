@@ -45,6 +45,10 @@ export const devices: Device[] = [
         roll: 90,
       },
     },
+    histories: {
+      end: [108.22003, 16.05486],
+      start: [108.2265, 16.0578],
+    },
   },
 
   {
@@ -62,6 +66,10 @@ export const devices: Device[] = [
         yaw: 90,
         roll: 90,
       },
+    },
+    histories: {
+      end: [108.222, 16.05487],
+      start: [108.2142447, 16.0604518],
     },
   },
 
@@ -81,6 +89,11 @@ export const devices: Device[] = [
         roll: 180,
       },
     },
+
+    histories: {
+      end: [108.221, 16.05485],
+      start: [108.2247397, 16.0485692],
+    },
   },
 
   // 15.509540258979442, 108.6785540886935
@@ -99,6 +112,10 @@ export const devices: Device[] = [
         yaw: 360,
         roll: 180,
       },
+    },
+    histories: {
+      start: [],
+      end: [],
     },
   },
 
@@ -120,6 +137,10 @@ export const devices: Device[] = [
         roll: 180,
       },
     },
+    histories: {
+      start: [],
+      end: [],
+    },
   },
 
   {
@@ -137,6 +158,10 @@ export const devices: Device[] = [
         yaw: 90,
         roll: 90,
       },
+    },
+    histories: {
+      start: [],
+      end: [],
     },
   },
 
@@ -156,6 +181,10 @@ export const devices: Device[] = [
         yaw: 90,
         roll: 90,
       },
+    },
+    histories: {
+      start: [],
+      end: [],
     },
   },
 ]
