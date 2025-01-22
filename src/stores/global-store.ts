@@ -6,6 +6,7 @@ type GlobalStore = {
   duration?: number
   loadingTitle?: string
   loadingDescription?: string
+  isGlobalLoading: boolean
 }
 
 type ActionsGlobalStore = {
@@ -15,9 +16,10 @@ type ActionsGlobalStore = {
     newSpace: Pick<
       GlobalStore,
       'loadingTitle' | 'loadingDescription' | 'duration'
-    >,
+    >
   ) => void
   resetLoadingState: () => void
+  setGlobalLoading: (newState: boolean) => void
 }
 
 const defaultLoadingState = {
@@ -29,6 +31,7 @@ const defaultLoadingState = {
 export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
   (set) => ({
     currentSpace: null,
+    isGlobalLoading: false,
     setCurrentSpace: (newSpace) => set({ currentSpace: newSpace }),
     setDuration: (duration) => set({ duration }),
     setLoadingText: (newLoading) => {
@@ -39,5 +42,9 @@ export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
       })
     },
     resetLoadingState: () => set(defaultLoadingState),
-  }),
+    setGlobalLoading: (newState) =>
+      set(() => ({
+        isGlobalLoading: newState,
+      })),
+  })
 )

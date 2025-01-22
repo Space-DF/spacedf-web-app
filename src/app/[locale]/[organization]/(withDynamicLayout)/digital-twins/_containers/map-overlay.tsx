@@ -1,6 +1,6 @@
 'use client'
 import { useMounted } from '@/hooks'
-import { useLayout } from '@/stores'
+import { useGlobalStore, useLayout } from '@/stores'
 import { type Layer } from 'deck.gl'
 
 import mapboxgl from 'mapbox-gl'
@@ -13,11 +13,14 @@ import { useShallow } from 'zustand/react/shallow'
 
 import { useDeviceStore } from '@/stores/device-store'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
-import { useLoadTrip } from '../_hooks/useLoadTrip'
+import { useGetDevices } from '@/hooks/useDevices'
+import MapInstance from '@/utils/map-instance'
 
 interface CustomMapProps {
   layers?: Layer[]
 }
+
+const mapInstanceGlobal = MapInstance.getInstance()
 
 const centerPoint: [number, number] = [108.223, 16.067]
 
@@ -28,11 +31,20 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   const { theme, systemTheme } = useTheme()
 
   const { startShowDevice3D } = useLoadDeviceModels()
-  const { startLoadTrip } = useLoadTrip()
+  // const { startLoadTrip } = useLoadTrip()
+  const { isLoading: isDeviceFeching } = useGetDevices()
+
+  const [isMapInitialzed, setIsMapInitialzed] = useState(false)
 
   const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
       initializedSuccess: state.initializedSuccess,
+    }))
+  )
+
+  const { setGlobalLoading } = useGlobalStore(
+    useShallow((state) => ({
+      setGlobalLoading: state.setGlobalLoading,
     }))
   )
 
@@ -50,12 +62,15 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   )
 
   useEffect(() => {
+    if (!isMapInitialzed) return
+
     updateMapTheme(theme as typeof currentTheme)
-  }, [theme])
+  }, [theme, isMapInitialzed])
 
   useEffect(() => {
+    if (!isMapInitialzed) return
     adjustMapPadding()
-  }, [dynamicLayouts])
+  }, [dynamicLayouts, isMapInitialzed])
 
   const adjustMapPadding = async () => {
     setStartBlur(true)
@@ -84,45 +99,49 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   }
 
   useEffect(() => {
-    if (!window.mapInstance) return
+    if (!isMapInitialzed) return
+
     resizeSidebar()
   }, [isCollapsed])
 
   useEffect(() => {
-    if (!mounted || !initializedSuccess) return
-    const mapInstance = window.mapInstance
-
-    if (!mapContainerRef.current || !mapInstance) return
-
-    initialMapInstance()
+    // console.log({ isDeviceFeching, initializedSuccess })
+    if (!isDeviceFeching && initializedSuccess && mounted) {
+      setGlobalLoading(false)
+      initialMapInstance()
+    } else {
+      setGlobalLoading(true)
+    }
 
     return () => {
       // Clean up: remove controls and observers, destroy map instance
-      if (mapContainerRef.current) {
-        mapInstance.destroyMap()
+      if (mapContainerRef.current && window.mapInstance) {
+        window.mapInstance.destroyMap()
       }
     }
-  }, [mounted, initializedSuccess])
+  }, [isDeviceFeching, initializedSuccess, mounted])
 
   const initialMapInstance = async () => {
     // Only initialize if not already initialized
-    const mapInstance = window.mapInstance
 
-    if (!mapInstance || !mapContainerRef.current) return
+    if (!mapContainerRef.current) return
 
-    mapInstance.initializeMap({
+    mapInstanceGlobal.initializeMap({
       container: mapContainerRef.current,
       style: `mapbox://styles/mapbox/${currentTheme}-v11`,
     })
 
-    const map = mapInstance.getMapInstance()
+    window.mapInstance = mapInstanceGlobal
+    window.mapLayer = []
+
+    const map = mapInstanceGlobal.getMapInstance()
+
+    setIsMapInitialzed(true)
 
     map?.on('load', async () => {
-      mapInstance.apply3DBuildingLayer()
+      mapInstanceGlobal.apply3DBuildingLayer()
 
       startShowDevice3D(map)
-
-      startLoadTrip()
 
       map.addControl(new mapboxgl.NavigationControl())
 
@@ -355,6 +374,8 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
   if (!mounted) return <></>
 
+  if (isDeviceFeching) return <MapSkeleton />
+
   return (
     <div
       ref={mapContainerRef}
@@ -366,6 +387,20 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       )}
       id="map-container"
     />
+  )
+}
+
+const MapSkeleton = () => {
+  return (
+    <div role="status" className="max-w-sm animate-pulse">
+      <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+      <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+      <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+      <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+      <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"></div>
+      <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+      <span className="sr-only">Loading...</span>
+    </div>
   )
 }
 
