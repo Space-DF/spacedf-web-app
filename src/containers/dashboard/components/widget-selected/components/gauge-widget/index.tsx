@@ -11,6 +11,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { defaultGaugeValues, GaugePayload, gaugeSchema } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
+import WidgetInfo from './components/widget-info'
 import TimeFrame from './components/time-frame'
 
 const TabContents = () => {
@@ -23,7 +24,7 @@ const TabContents = () => {
         <Source />
       </TabsContent>
       <TabsContent value={TabKey.Info} className="mt-4 px-4">
-        ChartWidgetInfo
+        <WidgetInfo />
       </TabsContent>
       <TabsContent value={TabKey.TimeFrame} className="mt-4 px-4">
         <TimeFrame />
@@ -47,17 +48,20 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
 
   const { control, trigger } = form
 
-  const [type, decimal, unit, min, max, values] = useWatch({
-    control,
-    name: [
-      'source.type',
-      'source.decimal',
-      'source.unit',
-      'source.min',
-      'source.max',
-      'source.values',
-    ],
-  })
+  const [type, decimal, unit, min, max, values, widgetName, showValue] =
+    useWatch({
+      control,
+      name: [
+        'source.type',
+        'source.decimal',
+        'source.unit',
+        'source.min',
+        'source.max',
+        'source.values',
+        'widget_info.widget_name',
+        'widget_info.appearance.show_value',
+      ],
+    })
 
   const handleSaveGauge = async () => {
     const isValid = await trigger()
@@ -83,9 +87,11 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
             </p>
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">
               <div className="space-y-3 rounded-md bg-brand-background-fill-outermost p-3">
-                <p className="truncate font-semibold text-brand-component-text-dark">
-                  New Gauge Widget
-                </p>
+                <div className="h-3">
+                  <p className="truncate font-semibold text-brand-component-text-dark">
+                    {widgetName}
+                  </p>
+                </div>
                 <div className="grid grid-cols-1">
                   <PreviewChart
                     type={type as GaugeType}
@@ -94,6 +100,7 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
                     min={min}
                     max={max}
                     values={values}
+                    showValue={showValue}
                   />
                 </div>
               </div>
