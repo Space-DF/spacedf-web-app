@@ -100,43 +100,45 @@ const WidgetSelection = ({
 
   return (
     <div className="block size-full animate-opacity-display-effect">
-      <div className="flex animate-opacity-display-effect flex-col items-center justify-center gap-6">
+      <div className="flex size-full animate-opacity-display-effect flex-col items-center justify-center gap-6">
         <InputWithIcon
-          wrapperClass="w-full rounded-lg bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
+          wrapperClass="w-full h-fit rounded-lg bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
           prefixCpn={<SearchIcon size={18} />}
           value={searchTerm}
           placeholder={t('dashboard.search_for_widget')}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <ResponsiveReactGridLayout
-          layouts={layouts}
-          breakpoints={{ lg: 1200, md: 728, sm: 412, xs: 360, xxs: 0 }}
-          cols={{ lg: 8, md: 8, sm: 6, xs: 4, xxs: 2 }}
-          rowHeight={120}
-          margin={[10, 10]}
-          onLayoutChange={handleLayoutChange}
-          measureBeforeMount={false}
-          useCSSTransforms={mounted}
-          compactType="horizontal"
-          preventCollision={false}
-          className="w-full"
-          isDraggable={false}
-          isResizable={false}
-        >
-          {filteredWidgets.map((widget, index) => (
-            <div key={`${index + 1}`}>
-              <div
-                onClick={() => onSelectWidget(widget.value)}
-                className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
-              >
-                <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
-                  {widget.icon}
+        <div className="w-full flex-1 overflow-y-scroll scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+          <ResponsiveReactGridLayout
+            layouts={layouts}
+            breakpoints={{ lg: 1200, md: 728, sm: 412, xs: 360, xxs: 0 }}
+            cols={{ lg: 8, md: 8, sm: 6, xs: 4, xxs: 2 }}
+            rowHeight={120}
+            margin={[10, 10]}
+            onLayoutChange={handleLayoutChange}
+            measureBeforeMount={false}
+            useCSSTransforms={mounted}
+            compactType="horizontal"
+            preventCollision={false}
+            className="w-full mb-6"
+            isDraggable={false}
+            isResizable={false}
+          >
+            {filteredWidgets.map((widget, index) => (
+              <div key={`${index + 1}`}>
+                <div
+                  onClick={() => onSelectWidget(widget.value)}
+                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
+                >
+                  <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                    {widget.icon}
+                  </div>
+                  <div className="text-center text-sm">{widget.title}</div>
                 </div>
-                <div className="text-center text-sm">{widget.title}</div>
               </div>
-            </div>
-          ))}
-        </ResponsiveReactGridLayout>
+            ))}
+          </ResponsiveReactGridLayout>
+        </div>
       </div>
     </div>
   )

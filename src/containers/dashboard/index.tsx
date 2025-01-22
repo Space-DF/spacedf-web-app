@@ -361,7 +361,7 @@ const Dashboard = () => {
         <RightSideBarLayout
           onClose={onCloseSideBar}
           title={
-            <div className="flex items-center gap-2">
+            <div className="flex size-full items-center gap-2">
               <ArrowLeft
                 size={20}
                 onClick={() => {
@@ -376,7 +376,7 @@ const Dashboard = () => {
             </div>
           }
         >
-          <div className="mt-6 px-4">
+          <div className="mt-6 size-full px-4">
             <WidgetSelection
               onSelectWidget={onSelectWidget}
               selectedWidget={selectedWidget}

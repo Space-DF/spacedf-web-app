@@ -15,6 +15,8 @@ import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { toast } from 'sonner'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TABLE_TABS_KEY = [TabKey.Sources, TabKey.Info]
 
@@ -45,6 +47,7 @@ const TableWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<mapPayload>({
     resolver: zodResolver(mapSchema),
     defaultValues: defaultMapValues,
@@ -65,21 +68,45 @@ const TableWidget: React.FC<Props> = ({
     name: ['sources.0', 'widget_info'],
   })
 
-  const onSuccessCallback = (newWidgetId: string) => {
-    const newWidgetLayout = {
-      i: newWidgetId,
-      x: 0,
-      y: 0,
-      w: 4,
-      h: 3,
-      minW: 2,
-      minH: 2,
-    }
-    addWidget(newWidgetLayout)
-    onSaveWidget()
-  }
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 2,
+        minW: 2,
+      }
+      toast.success('Created map widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
 
-  const { createWidget } = useCreateWidget(onSuccessCallback)
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
 
   const handleAddMapWidget = async () => {
     await trigger()
