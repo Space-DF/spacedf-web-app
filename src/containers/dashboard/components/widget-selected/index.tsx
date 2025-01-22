@@ -31,7 +31,14 @@ const WidgetSelected: React.FC<Props> = ({
         />
       )
     case WidgetType.Gauge:
-      return <GaugeWidget onClose={onClose} onBack={onBack} />
+      return (
+        <GaugeWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onSaveWidget={onSaveWidget}
+          onBack={onBack}
+        />
+      )
     case WidgetType.Map:
       return (
         <MapWidget

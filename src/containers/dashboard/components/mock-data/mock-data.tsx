@@ -22,6 +22,7 @@ import TablePreview from '../widget-selected/components/table-widget/components/
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { useTranslations } from 'next-intl'
+import PreviewGauge from '../widget-selected/components/gauge-widget/components/preview-gauge'
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
@@ -81,18 +82,22 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
                       <ValueWidget widget={widget} />
                     </div>
                   )
-
                 case 'table':
                   return (
                     <div key={widget.id}>
                       <TableWidget widget={widget} />
                     </div>
                   )
-
                 case 'chart':
                   return (
                     <div key={widget.id}>
                       <ChartWidget widget={widget} />
+                    </div>
+                  )
+                case 'gauge':
+                  return (
+                    <div key={widget.id}>
+                      <GaugeWidget widget={widget} />
                     </div>
                   )
                 default:
@@ -177,6 +182,26 @@ const TableWidget = ({ widget }: any) => {
           source={source?.devices}
           columns={columns}
           conditionals={conditionals}
+        />
+      </div>
+    </WidgetContainer>
+  )
+}
+
+const GaugeWidget = ({ widget }: any) => {
+  const { source, widget_info } = widget
+
+  return (
+    <WidgetContainer>
+      <div className="rounded-lg relative size-full flex flex-col bg-brand-component-fill-gray-soft p-2 text-sm">
+        <p className="absolute font-medium -top-px z-50">{widget_info?.name}</p>
+        <PreviewGauge
+          type={source?.type}
+          decimal={+source?.decimal}
+          min={source?.min}
+          max={source?.max}
+          values={source?.values}
+          showValue={widget_info?.appearance?.show_value}
         />
       </div>
     </WidgetContainer>

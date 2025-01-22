@@ -68,6 +68,7 @@ const ChartWidget: React.FC<Props> = ({
     defaultValues: defaultChartValues,
     mode: 'onChange',
   })
+
   const { addWidget } = useScreenLayoutStore((state) => ({
     addWidget: state.addWidget,
     setLayouts: state.setLayouts,
