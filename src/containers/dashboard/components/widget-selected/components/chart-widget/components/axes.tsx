@@ -194,7 +194,7 @@ const Axes: React.FC<Props> = () => {
                     <SelectGroup>
                       {DATE_FORMAT.map((date) => (
                         <SelectItem value={date.value} key={date.value}>
-                          {date.label}-{date.value}
+                          {date.value}
                         </SelectItem>
                       ))}
                     </SelectGroup>

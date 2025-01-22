@@ -21,6 +21,7 @@ import { PreviewChart } from '../widget-selected/components/chart-widget/compone
 import TablePreview from '../widget-selected/components/table-widget/components/table-preview'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { useTranslations } from 'next-intl'
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
@@ -150,7 +151,8 @@ const ChartWidget = ({ widget }: any) => {
   const isSingleSource = Array.isArray(sources) && sources.length === 1
 
   return (
-    <WidgetContainer>
+    <WidgetContainer className="flex flex-col justify-center">
+      <WidgetTitle>{widget_info.name}</WidgetTitle>
       <PreviewChart
         sources={sources}
         isSingleSource={isSingleSource}
@@ -182,6 +184,7 @@ const TableWidget = ({ widget }: any) => {
 }
 
 const ValueWidget = ({ widget }: any) => {
+  const t = useTranslations('dashboard')
   const { source, widget_info } = widget
   const { decimal, unit } = source
 
@@ -204,11 +207,11 @@ const ValueWidget = ({ widget }: any) => {
               </p>
             </div>
 
-            <p className="text-[12px] text-brand-text-gray">No data</p>
+            <p className="text-[12px] text-brand-text-gray">{t('no_data')}</p>
           </div>
           <div className="grid flex-1 grid-cols-1 space-y-4">
             <span
-              className="text-brand-component-text-dark text-xl font-semibold truncate"
+              className="text-brand-component-text-dark text-2xl font-semibold truncate"
               style={{ color: `#${widget_info?.color}` }}
             >
               {`${currentValue} ${unit ?? ''}`}

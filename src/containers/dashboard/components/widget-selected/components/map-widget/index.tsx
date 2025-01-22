@@ -33,12 +33,17 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
-  const { createWidget } = useCreateWidget()
+const TableWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
   const form = useForm<mapPayload>({
     resolver: zodResolver(mapSchema),
@@ -60,6 +65,22 @@ const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
     name: ['sources.0', 'widget_info'],
   })
 
+  const onSuccessCallback = (newWidgetId: string) => {
+    const newWidgetLayout = {
+      i: newWidgetId,
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 3,
+      minW: 2,
+      minH: 2,
+    }
+    addWidget(newWidgetLayout)
+    onSaveWidget()
+  }
+
+  const { createWidget } = useCreateWidget(onSuccessCallback)
+
   const handleAddMapWidget = async () => {
     await trigger()
     const newId = uuidv4()
@@ -68,15 +89,7 @@ const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
       id: newId,
       widget_type: selectedWidget,
     }
-
     createWidget(newWidgetData)
-      .then(() => {
-        const newWidget = { i: newId, x: 0, y: 0, w: 4, h: 3, minW: 2, minH: 2 }
-        addWidget(newWidget)
-      })
-      .catch((error) => {
-        console.error('Failed to add widget:', error)
-      })
   }
 
   return (

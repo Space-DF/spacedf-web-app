@@ -20,7 +20,9 @@ export async function createWidget(
   return response.json()
 }
 
-export const useCreateWidget = () => {
+export const useCreateWidget = (
+  onSuccessCallback?: (newWidgetId: string) => void
+) => {
   const { mutate } = useGetWidgets()
 
   const { trigger } = useSWRMutation('/api/dashboard/widgets', createWidget, {
@@ -29,8 +31,8 @@ export const useCreateWidget = () => {
         const newData: any = [...prevData, newWidget]
         return newData
       }, false)
-
-      toast.success('Space created successfully')
+      if (onSuccessCallback) return onSuccessCallback(newWidget.id)
+      toast.success('Widget created successfully')
     },
     onError: (error) => {
       const errors = JSON.parse(error.message)

@@ -146,6 +146,13 @@ const Dashboard = () => {
     setSelectedWidget('')
   }
 
+  const onSaveWidget = () => {
+    setIsAddWidgetOpen(false)
+    setEdit(true)
+    toggleDynamicLayout('dashboard')
+    setSelectedWidget('')
+  }
+
   return (
     <>
       {!isAddWidgetOpen ? (
@@ -348,6 +355,7 @@ const Dashboard = () => {
           selectedWidget={selectedWidget}
           onClose={onCloseSideBar}
           onBack={() => setSelectedWidget('')}
+          onSaveWidget={onSaveWidget}
         />
       ) : (
         <RightSideBarLayout

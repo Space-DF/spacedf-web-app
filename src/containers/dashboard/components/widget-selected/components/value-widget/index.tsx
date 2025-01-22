@@ -42,12 +42,17 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const ValueWidget: React.FC<Props> = ({ selectedWidget, onBack, onClose }) => {
-  const { createWidget } = useCreateWidget()
+const ValueWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
   const form = useForm<ValuePayload>({
     resolver: zodResolver(valueSchema),
@@ -92,6 +97,22 @@ const ValueWidget: React.FC<Props> = ({ selectedWidget, onBack, onClose }) => {
     [color]
   )
 
+  const onSuccessCallback = (newWidgetId: string) => {
+    const newWidgetLayout = {
+      i: newWidgetId,
+      x: 0,
+      y: 0,
+      w: 5,
+      h: 2,
+      minW: 3,
+      minH: 2,
+    }
+    addWidget(newWidgetLayout)
+    onSaveWidget()
+  }
+
+  const { createWidget } = useCreateWidget(onSuccessCallback)
+
   const handleSaveValueWidget = async () => {
     await trigger()
     const newId = uuidv4()
@@ -102,13 +123,6 @@ const ValueWidget: React.FC<Props> = ({ selectedWidget, onBack, onClose }) => {
     }
 
     createWidget(newWidgetData)
-      .then(() => {
-        const newWidget = { i: newId, x: 0, y: 0, w: 5, h: 2, minW: 3, minH: 2 }
-        addWidget(newWidget)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
   }
 
   return (

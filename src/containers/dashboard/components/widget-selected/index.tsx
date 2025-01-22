@@ -9,12 +9,14 @@ import GaugeWidget from './components/gauge-widget'
 import ValueWidget from './components/value-widget'
 interface Props {
   selectedWidget: WidgetType
+  onSaveWidget: () => void
   onClose: () => void
   onBack: () => void
 }
 
 const WidgetSelected: React.FC<Props> = ({
   selectedWidget,
+  onSaveWidget,
   onClose,
   onBack,
 }) => {
@@ -24,6 +26,7 @@ const WidgetSelected: React.FC<Props> = ({
         <ChartWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
@@ -34,6 +37,7 @@ const WidgetSelected: React.FC<Props> = ({
         <MapWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
@@ -42,6 +46,7 @@ const WidgetSelected: React.FC<Props> = ({
         <TableWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
@@ -50,6 +55,7 @@ const WidgetSelected: React.FC<Props> = ({
         <ValueWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )

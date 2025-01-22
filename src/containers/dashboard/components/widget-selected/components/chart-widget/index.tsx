@@ -22,8 +22,9 @@ import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
 const chartTabKeys = [
@@ -55,8 +56,12 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
-  const { createWidget } = useCreateWidget()
+const ChartWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),
@@ -69,6 +74,22 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
     layouts: state.layouts,
   }))
 
+  const onSuccessCallback = (newWidgetId: string) => {
+    const newWidgetLayout = {
+      i: newWidgetId,
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 3,
+      minH: 2,
+      minW: 3,
+    }
+    addWidget(newWidgetLayout)
+    onSaveWidget()
+  }
+
+  const { createWidget } = useCreateWidget(onSuccessCallback)
+
   const { control } = form
 
   const chartValue = form.getValues()
@@ -77,7 +98,6 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
     control,
     name: 'sources',
   })
-
   const isSingleSource = sourcesData.length === 1
 
   const widgetName = useWatch({ control, name: 'widget_info.name' })
@@ -93,7 +113,6 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
       'axes.format',
     ],
   })
-
   const handleAddChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
@@ -104,13 +123,6 @@ const ChartWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
       widget_type: selectedWidget,
     }
     createWidget(newWidgetData)
-      .then(() => {
-        const newWidget = { i: newId, x: 0, y: 0, w: 4, h: 3, minH: 2, minW: 3 }
-        addWidget(newWidget)
-      })
-      .catch((error) => {
-        console.error('Failed to add widget:', error)
-      })
   }
 
   return (

@@ -50,12 +50,17 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
-  const { createWidget } = useCreateWidget()
+const TableWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
@@ -75,6 +80,22 @@ const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
 
   const tableValue = form.getValues()
 
+  const onSuccessCallback = (newWidgetId: string) => {
+    const newWidgetLayout = {
+      i: newWidgetId,
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 3,
+      minH: 3,
+      minW: 2,
+    }
+    addWidget(newWidgetLayout)
+    onSaveWidget()
+  }
+
+  const { createWidget } = useCreateWidget(onSuccessCallback)
+
   const handleAddTableWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
@@ -85,13 +106,6 @@ const TableWidget: React.FC<Props> = ({ selectedWidget, onClose, onBack }) => {
       widget_type: selectedWidget,
     }
     createWidget(newWidgetData)
-      .then(() => {
-        const newWidget = { i: newId, x: 0, y: 0, w: 4, h: 3, minH: 3, minW: 2 }
-        addWidget(newWidget)
-      })
-      .catch((error) => {
-        console.error('Failed to add widget:', error)
-      })
   }
 
   return (
