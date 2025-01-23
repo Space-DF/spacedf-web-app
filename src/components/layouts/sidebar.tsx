@@ -14,6 +14,7 @@ import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
 import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
 import {
+  Question,
   SettingIcon,
   SidebarCollapsedSimple,
   SidebarSimpleIcon,
@@ -26,6 +27,13 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
+import {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip'
 
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
@@ -176,6 +184,24 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         )}
 
         <ThemeToggle isCollapsed={isCollapsed} />
+        {!isAuth && (
+          <Button className="flex items-center space-x-2 bg-[#6E4AFF33] hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary py-0">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Question className="cursor-pointer" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-96 border-none">
+                  <p>{t('viewing_dummy')}</p>
+                  <TooltipArrow className="z-10 fill-popover text-popover" />
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <span>Demo Version</span>
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -190,6 +216,7 @@ const CollapsedSidebar = ({
 
   const { status } = useSession()
   const { mounted } = useMounted()
+  const t = useTranslations('common')
 
   const isAuth = status === 'authenticated'
 
@@ -262,6 +289,23 @@ const CollapsedSidebar = ({
             </Button>
           )}
           <ThemeToggle isCollapsed={isCollapsed} />
+          {!isAuth && (
+            <Button className="flex items-center space-x-2 bg-[#6E4AFF33] hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary p-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Question className="cursor-pointer" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-96 border-none">
+                    <p>{t('viewing_dummy')}</p>
+                    <TooltipArrow className="z-10 fill-popover text-popover" />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Button>
+          )}
         </div>
       </div>
     </div>

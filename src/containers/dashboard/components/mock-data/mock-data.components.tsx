@@ -1,6 +1,4 @@
-'use client'
-
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Area,
   AreaChart,
@@ -16,14 +14,8 @@ import {
 
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { cn } from '@/lib/utils'
 import { Equalizer } from '@/components/icons/equalizer'
-import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
-
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
-import { useMounted } from '@/hooks'
-import GridLayout from './components/grid-layout'
+import { cn } from '@/lib/utils'
 
 const chartData = [
   {
@@ -58,137 +50,6 @@ const chartData = [
 
 const polarData = [{ desktop: 215 }]
 
-const ResponsiveReactGridLayout = WidthProvider(Responsive)
-
-const screenLayout: Layout[] = [
-  { i: '1', x: 0, y: 0, w: 3, h: 1 },
-  { i: '2', x: 3, y: 0, w: 1, h: 1 },
-  { i: '3', x: 4, y: 0, w: 1, h: 1 },
-  { i: '4', x: 0, y: 1, w: 3, h: 1 },
-  { i: '5', x: 3, y: 1, w: 1, h: 1 },
-  { i: '6', x: 4, y: 1, w: 1, h: 1 },
-  { i: '7', x: 0, y: 2, w: 5, h: 1, minW: 2 },
-  { i: '8', x: 0, y: 3, w: 4, h: 3, minH: 2, minW: 3 },
-  { i: '9', x: 4, y: 3, w: 1, h: 1 },
-  { i: '10', x: 4, y: 4, w: 1, h: 1 },
-  { i: '11', x: 4, y: 5, w: 1, h: 1 },
-  { i: '12', x: 0, y: 6, w: 2, h: 2, minW: 2, minH: 2 },
-  { i: '13', x: 2, y: 7, w: 2, h: 3, minW: 2, minH: 3 },
-  { i: '14', x: 0, y: 9, w: 5, h: 4, minW: 2, minH: 3 },
-]
-
-// const columns = 5
-
-interface Props {
-  isEdit?: boolean
-}
-
-export const MockData: React.FC<Props> = ({ isEdit }) => {
-  const { mounted } = useMounted()
-  const [layouts, setLayouts] = useState<Layouts>({
-    lg: screenLayout,
-    md: screenLayout,
-    sm: screenLayout,
-    xxs: screenLayout,
-  })
-
-  const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
-    setLayouts({ ...layouts })
-  }
-
-  return (
-    <div
-      className={cn(
-        'mt-1 h-dvh overflow-y-scroll scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]'
-      )}
-    >
-      <div
-        className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
-        id="dashboard-container"
-      >
-        {isEdit && <GridLayout margin={5} rowHeight={60} />}
-        <ResponsiveReactGridLayout
-          layouts={layouts}
-          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 5, md: 5, sm: 5, xs: 5, xxs: 5 }}
-          rowHeight={60}
-          margin={[5, 5]}
-          onLayoutChange={handleLayoutChange}
-          measureBeforeMount={false}
-          useCSSTransforms={mounted}
-          compactType="vertical"
-          preventCollision={false}
-          isDraggable={isEdit}
-          isResizable={isEdit}
-        >
-          <div key="1">
-            <WidgetSensor status="off">
-              <WidgetTitle>Text</WidgetTitle>{' '}
-            </WidgetSensor>
-          </div>
-          <div key="2">
-            <WidgetText />
-          </div>
-          <div key="3">
-            <WidgetSwitch>
-              <WidgetTitle>Text</WidgetTitle>
-            </WidgetSwitch>
-          </div>
-          <div key="4">
-            <WidgetSensor status="on">
-              <WidgetTitle>Text</WidgetTitle>{' '}
-            </WidgetSensor>
-          </div>
-          <div key="5">
-            <WidgetText />
-          </div>
-          <div key="6">
-            <WidgetText />
-          </div>
-          <div key="7">
-            <WidgetSlider />
-          </div>
-          <div key="8">
-            <WidgetChart className="h-fit dark:stroke-[#4006AA] dark:text-[#4006AA]">
-              <WidgetTitle className="mb-2">New Chart Widget</WidgetTitle>
-            </WidgetChart>
-          </div>
-          <div key={'9'}>
-            <WidgetSwitch>
-              <WidgetTitle>Water Sensor</WidgetTitle>
-            </WidgetSwitch>
-          </div>
-          <div key={'10'}>
-            <WidgetSwitch>
-              <WidgetTitle>Water Sensor</WidgetTitle>
-            </WidgetSwitch>
-          </div>
-          <div key={'11'}>
-            <WidgetSwitch>
-              <WidgetTitle>Water Sensor</WidgetTitle>
-            </WidgetSwitch>
-          </div>
-          <div key={'12'}>
-            <WidgetChart className="dark:text-[#4006AA]">
-              <WidgetTitle>Water Flood Level</WidgetTitle>
-            </WidgetChart>
-          </div>
-          <div key={'13'} className="h-fit">
-            <PolarChart className="aspect-square dark:text-[#4006AA]">
-              <WidgetTitle>New Gauge Widget</WidgetTitle>
-            </PolarChart>
-          </div>
-          <div key={'14'}>
-            <PolarChart className="aspect-square dark:text-[#4006AA]">
-              <WidgetTitle>New Gauge Widget</WidgetTitle>
-            </PolarChart>
-          </div>
-        </ResponsiveReactGridLayout>
-      </div>
-    </div>
-  )
-}
-
 interface WidgetProp {
   children?: React.ReactNode
   className?: string
@@ -197,7 +58,7 @@ interface WidgetProp {
 const WidgetContainer = ({ children, className }: WidgetProp) => (
   <div
     className={cn(
-      'h-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft',
+      'size-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft',
       className
     )}
   >
@@ -380,3 +241,14 @@ const WidgetSensor = ({
     </div>
   </WidgetContainer>
 )
+
+export {
+  WidgetSensor,
+  WidgetSwitch,
+  WidgetContainer,
+  WidgetText,
+  WidgetSlider,
+  WidgetChart,
+  PolarChart,
+  WidgetTitle,
+}

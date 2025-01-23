@@ -183,6 +183,7 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   return (
     <ChartContainer
       config={chartConfig}
+      className="size-full"
       style={isSingleSource ? { height: 90, width: '100%' } : {}}
     >
       <ComposedChart

@@ -1,9 +1,8 @@
-import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { NextRequest, NextResponse } from 'next/server'
 
 let widgets: any[] = []
 
-const GET = withAuthApiRequired(async () => {
+const GET = async () => {
   try {
     return NextResponse.json(widgets, {
       status: 200,
@@ -18,25 +17,25 @@ const GET = withAuthApiRequired(async () => {
       }
     )
   }
-})
+}
 
-const POST = withAuthApiRequired(async (request: NextRequest) => {
+const POST = async (request: NextRequest) => {
   const body = await request.json()
 
   widgets = [...widgets, body]
 
   return NextResponse.json(body, { status: 200 })
-})
+}
 
-const PUT = withAuthApiRequired(async (request: NextRequest) => {
+const PUT = async (request: NextRequest) => {
   const body = await request.json()
 
   widgets = body
 
   return NextResponse.json(body, { status: 200 })
-})
+}
 
-const PATCH = withAuthApiRequired(async (request: NextRequest) => {
+const PATCH = async (request: NextRequest) => {
   const body = await request.json()
 
   const widgetID = body.widgetId
@@ -63,9 +62,9 @@ const PATCH = withAuthApiRequired(async (request: NextRequest) => {
   widgets = newWidgets
 
   return NextResponse.json(dataResponse, { status: 200 })
-})
+}
 
-const DELETE = withAuthApiRequired(async (request: NextRequest) => {
+const DELETE = async (request: NextRequest) => {
   const body = await request.json()
 
   const widgetID = body.widgetId
@@ -87,6 +86,6 @@ const DELETE = withAuthApiRequired(async (request: NextRequest) => {
     },
     { status: 200 }
   )
-})
+}
 
 export { GET, POST, PUT, PATCH, DELETE }

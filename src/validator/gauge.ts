@@ -77,7 +77,7 @@ export const gaugeSchema = z.object({
     ]),
   }),
   widget_info: z.object({
-    widget_name: z
+    name: z
       .string()
       .min(1, 'Widget name is require')
       .max(100, 'Maximum 100 characters long'),
@@ -115,7 +115,7 @@ export const defaultGaugeValues: GaugePayload = {
     aggregation_function: AggregationFunction.Minimum,
   },
   widget_info: {
-    widget_name: 'New Gauge Widget',
+    name: 'New Gauge Widget',
     appearance: {
       show_state: true,
       show_value: true,

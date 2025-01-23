@@ -97,11 +97,12 @@ const CircularChart: React.FC<CircularChartProps> = ({
   }, [ranges, values, min])
 
   const gaugeKey = useMemo(
-    () => `${JSON.stringify(rangesColor)}-${JSON.stringify(chartData)}`,
+    () =>
+      `${JSON.stringify(rangesColor)}-${JSON.stringify(chartData)}-${decimal}-${showValue}-${unit}`,
     [rangesColor, chartData]
   )
   return (
-    <div className="relative">
+    <div className="relative flex w-full h-full items-center justify-center">
       <GaugeComponent
         key={gaugeKey}
         type="radial"
@@ -110,37 +111,32 @@ const CircularChart: React.FC<CircularChartProps> = ({
           colorArray: rangesColor,
           subArcs: chartData,
         }}
+        className="size-full"
         minValue={min}
         maxValue={max}
         pointer={{ type: 'needle', animationDelay: 0, animate: isAnimate }}
         value={value}
         labels={{
           valueLabel: {
-            hide: true,
+            hide: !showValue,
+            formatTextValue(value) {
+              return `${value.toFixed(decimal)} ${unit?.slice(0, 10) || ''}`
+            },
+            style: {
+              textShadow: 'none',
+              fill: brandColors['component-fill-default-chart'],
+            },
           },
           tickLabels: {
             defaultTickValueConfig: {
-              hide: true,
+              hide: !showValue,
+              formatTextValue(value) {
+                return value.toFixed(0)
+              },
             },
-            hideMinMax: true,
           },
         }}
       />
-      <div className="w-full flex justify-between absolute bottom-1 px-5">
-        <span className="text-sm text-brand-component-text-dark md:w-20 lg:w-24 xl:32 text-center">
-          {min}
-        </span>
-        <span className="text-sm text-brand-component-text-dark md:w-20 lg:w-24 xl:32 text-center">
-          {max}
-        </span>
-      </div>
-      {showValue && (
-        <div className="absolute xl:bottom-10 md:bottom-2 lg:bottom-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
-          <span className="text-lg font-bold md:w-20 lg:w-24 xl:32 truncate text-center">
-            {getDecimal(value, decimal)} {unit?.slice(0, 10)}
-          </span>
-        </div>
-      )}
     </div>
   )
 }
@@ -191,7 +187,7 @@ const LinearChart: React.FC<LinearChartProps> = ({
   }, [values, min, max])
 
   return (
-    <div className="w-full space-y-4">
+    <div className="size-full pt-2  space-y-4">
       <div className="h-4">
         {showValue && (
           <span className="text-lg font-bold text-brand-component-text-dark line-clamp-1">

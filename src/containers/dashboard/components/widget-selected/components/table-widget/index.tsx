@@ -18,6 +18,11 @@ import TablePreview from './components/table-preview'
 import TableWidgetInfo from './components/widget-info'
 import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { toast } from 'sonner'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TABLE_TABS_KEY = [
   TabKey.Sources,
@@ -47,22 +52,88 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const TableWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
     defaultValues: dataTableDefault,
     mode: 'onChange',
   })
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
 
   const columns = form.watch('columns')
   const source = form.watch('source.devices')
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
+
+  const tableValue = form.getValues()
+
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 3,
+        minW: 2,
+      }
+      toast.success('Created table widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
+
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
+
+  const handleAddTableWidget = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) return
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...tableValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
+  }
 
   return (
     <RightSideBarLayout
@@ -72,7 +143,9 @@ const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t(`add_table_widget`)}</div>
         </div>
       }
-      externalButton={<Button>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddTableWidget}>{t('save')}</Button>
+      }
       onClose={onClose}
     >
       <div className="flex size-full flex-col">

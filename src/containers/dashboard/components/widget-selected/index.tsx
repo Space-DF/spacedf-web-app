@@ -9,12 +9,14 @@ import GaugeWidget from './components/gauge-widget'
 import ValueWidget from './components/value-widget'
 interface Props {
   selectedWidget: WidgetType
+  onSaveWidget: () => void
   onClose: () => void
   onBack: () => void
 }
 
 const WidgetSelected: React.FC<Props> = ({
   selectedWidget,
+  onSaveWidget,
   onClose,
   onBack,
 }) => {
@@ -24,16 +26,25 @@ const WidgetSelected: React.FC<Props> = ({
         <ChartWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
     case WidgetType.Gauge:
-      return <GaugeWidget onClose={onClose} onBack={onBack} />
+      return (
+        <GaugeWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onSaveWidget={onSaveWidget}
+          onBack={onBack}
+        />
+      )
     case WidgetType.Map:
       return (
         <MapWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
@@ -42,11 +53,19 @@ const WidgetSelected: React.FC<Props> = ({
         <TableWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
+          onSaveWidget={onSaveWidget}
           onBack={onBack}
         />
       )
     case WidgetType.Value:
-      return <ValueWidget onClose={onClose} onBack={onBack} />
+      return (
+        <ValueWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onSaveWidget={onSaveWidget}
+          onBack={onBack}
+        />
+      )
     default:
       return <div>Widget not found</div>
   }

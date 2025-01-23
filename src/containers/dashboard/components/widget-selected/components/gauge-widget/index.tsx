@@ -1,5 +1,4 @@
 import React from 'react'
-import PreviewChart from './components/preview-chart'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -13,6 +12,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Source from './components/source'
 import WidgetInfo from './components/widget-info'
 import TimeFrame from './components/time-frame'
+import PreviewGauge from './components/preview-gauge'
+import { WidgetType } from '@/widget-models/widget'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { toast } from 'sonner'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TabContents = () => {
   return (
@@ -34,19 +40,29 @@ const TabContents = () => {
 }
 
 interface Props {
-  onClose: () => void
+  selectedWidget: WidgetType
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const GaugeWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<GaugePayload>({
     resolver: zodResolver(gaugeSchema),
     defaultValues: defaultGaugeValues,
     mode: 'onChange',
   })
 
-  const { control, trigger } = form
+  const { control } = form
+
+  const gaugeValue = form.getValues()
 
   const [type, decimal, unit, min, max, values, widgetName, showValue] =
     useWatch({
@@ -58,14 +74,67 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
         'source.min',
         'source.max',
         'source.values',
-        'widget_info.widget_name',
+        'widget_info.name',
         'widget_info.appearance.show_value',
       ],
     })
 
-  const handleSaveGauge = async () => {
-    const isValid = await trigger()
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
+
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3,
+        minH: 3,
+        minW: 3,
+      }
+      toast.success('Created gauge widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
+
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
+
+  const handleAddGaugeWidget = async () => {
+    const isValid = await form.trigger()
     if (!isValid) return
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...gaugeValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
   }
 
   return (
@@ -76,7 +145,9 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t(`add_gauge_widget`)}</div>
         </div>
       }
-      externalButton={<Button onClick={handleSaveGauge}>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddGaugeWidget}>{t('save')}</Button>
+      }
       onClose={onClose}
     >
       <div className="flex size-full flex-col">
@@ -93,7 +164,7 @@ const GaugeWidget: React.FC<Props> = ({ onClose, onBack }) => {
                   </p>
                 </div>
                 <div className="grid grid-cols-1">
-                  <PreviewChart
+                  <PreviewGauge
                     type={type as GaugeType}
                     decimal={+decimal}
                     unit={unit}

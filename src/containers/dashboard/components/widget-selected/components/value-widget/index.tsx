@@ -16,6 +16,12 @@ import Source from './components/source'
 import Timeframe from './components/timeframe'
 import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { WidgetType } from '@/widget-models/widget'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { toast } from 'sonner'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TabContents = () => {
   return (
@@ -37,21 +43,37 @@ const TabContents = () => {
 }
 
 interface Props {
-  onClose: () => void
+  selectedWidget: WidgetType
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
+const ValueWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<ValuePayload>({
     resolver: zodResolver(valueSchema),
     defaultValues: defaultValueWidgetValues,
     mode: 'onChange',
   })
 
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
+
   const { control, trigger } = form
 
   const value = 0
+
+  const formValue = form.getValues()
 
   const [decimal, unit, widgetName, color, deviceId] = useWatch({
     control,
@@ -78,8 +100,56 @@ const ValueWidget: React.FC<Props> = ({ onBack, onClose }) => {
     [color]
   )
 
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 5,
+        h: 2,
+        minH: 3,
+        minW: 2,
+      }
+      toast.success('Created value widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
+
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
+
   const handleSaveValueWidget = async () => {
     await trigger()
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...formValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+
+    createWidget(newWidgetData)
   }
 
   return (

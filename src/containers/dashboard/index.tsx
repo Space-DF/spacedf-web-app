@@ -40,11 +40,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useIdentityStore } from '@/stores/identity-store'
 import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
-import { MockData } from '@/containers/dashboard/mock-data'
+import { MockData } from '@/containers/dashboard/components/mock-data/mock-data'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
@@ -61,7 +60,7 @@ export interface Dashboard {
 let dashboards: Dashboard[] = [
   {
     value: 'next.js',
-    label: 'SpaceDF IoT Dashboard',
+    label: 'Smart Fleet Monitor',
     isDefault: true,
     id: 1,
   },
@@ -103,9 +102,7 @@ const Dashboard = () => {
   )
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
-  const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity)
-  )
+
   const { status } = useSession()
   const isAuth = status === 'authenticated'
 
@@ -145,6 +142,13 @@ const Dashboard = () => {
     setIsAddWidgetOpen(false)
     setEdit(false)
     setCookieDirty(true)
+    toggleDynamicLayout('dashboard')
+    setSelectedWidget('')
+  }
+
+  const onSaveWidget = () => {
+    setIsAddWidgetOpen(false)
+    setEdit(true)
     toggleDynamicLayout('dashboard')
     setSelectedWidget('')
   }
@@ -274,10 +278,6 @@ const Dashboard = () => {
                 ) : (
                   <Button
                     onClick={() => {
-                      if (!isAuth) {
-                        setOpenDrawerIdentity(true)
-                        return
-                      }
                       setEdit(true)
                     }}
                     size="icon"
@@ -355,12 +355,13 @@ const Dashboard = () => {
           selectedWidget={selectedWidget}
           onClose={onCloseSideBar}
           onBack={() => setSelectedWidget('')}
+          onSaveWidget={onSaveWidget}
         />
       ) : (
         <RightSideBarLayout
           onClose={onCloseSideBar}
           title={
-            <div className="flex items-center gap-2">
+            <div className="flex size-full items-center gap-2">
               <ArrowLeft
                 size={20}
                 onClick={() => {
@@ -375,13 +376,11 @@ const Dashboard = () => {
             </div>
           }
         >
-          <div className="mt-6 px-4">
-            {isAuth && (
-              <WidgetSelection
-                onSelectWidget={onSelectWidget}
-                selectedWidget={selectedWidget}
-              />
-            )}
+          <div className="mt-6 size-full px-4">
+            <WidgetSelection
+              onSelectWidget={onSelectWidget}
+              selectedWidget={selectedWidget}
+            />
           </div>
         </RightSideBarLayout>
       )}

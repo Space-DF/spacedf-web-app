@@ -12,6 +12,11 @@ import { WidgetType } from '@/widget-models/widget'
 import MapPreview from './components/map-preview'
 import TableWidgetInfo from './components/widget-info'
 import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { v4 as uuidv4 } from 'uuid'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { toast } from 'sonner'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TABLE_TABS_KEY = [TabKey.Sources, TabKey.Info]
 
@@ -30,24 +35,89 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
-const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const TableWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<mapPayload>({
     resolver: zodResolver(mapSchema),
     defaultValues: defaultMapValues,
     mode: 'onChange',
   })
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
 
-  const { control } = form
+  const { control, trigger } = form
+
+  const mapValue = form.getValues()
 
   const [source, widget_info] = useWatch({
     control,
     name: ['sources.0', 'widget_info'],
   })
+
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 2,
+        minW: 2,
+      }
+      toast.success('Created map widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
+
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
+
+  const handleAddMapWidget = async () => {
+    await trigger()
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...mapValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
+  }
 
   return (
     <RightSideBarLayout
@@ -57,7 +127,7 @@ const TableWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t('add_map_widget')}</div>
         </div>
       }
-      externalButton={<Button>{t('save')}</Button>}
+      externalButton={<Button onClick={handleAddMapWidget}>{t('save')}</Button>}
       onClose={onClose}
     >
       <div className="flex size-full flex-col">

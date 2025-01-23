@@ -20,7 +20,7 @@ const WidgetInfo = () => {
     <div className="space-y-4">
       <FormField
         control={control}
-        name="widget_info.widget_name"
+        name="widget_info.name"
         render={({ field }) => (
           <FormItem>
             <FormLabel

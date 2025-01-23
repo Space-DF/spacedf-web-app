@@ -16,11 +16,17 @@ import { PreviewChart, dailyOrders } from './components/preview-chart'
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { v4 as uuidv4 } from 'uuid'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
+import { toast } from 'sonner'
 
 interface Props {
   selectedWidget: WidgetType
-  onClose: () => void
+  onSaveWidget: () => void
   onBack: () => void
+  onClose: () => void
 }
 
 const chartTabKeys = [
@@ -52,21 +58,74 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
+const ChartWidget: React.FC<Props> = ({
+  selectedWidget,
+  onSaveWidget,
+  onClose,
+  onBack,
+}) => {
   const t = useTranslations('dashboard')
+  const { mutate } = useGetWidgets()
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),
     defaultValues: defaultChartValues,
     mode: 'onChange',
   })
 
+  const { addWidget } = useScreenLayoutStore((state) => ({
+    addWidget: state.addWidget,
+    setLayouts: state.setLayouts,
+    layouts: state.layouts,
+  }))
+
+  const { createWidget } = useCreateWidget({
+    onSuccess: (newWidget) => {
+      mutate((prevData: any) => {
+        const newData = [...prevData, newWidget]
+        return newData
+      }, false)
+      const newWidgetLayout = {
+        i: newWidget.id,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 2,
+        minW: 3,
+      }
+      toast.success('Created chart widget successfully')
+      addWidget(newWidgetLayout)
+      onSaveWidget()
+    },
+    onError: (error) => {
+      const errors = JSON.parse(error.message)
+
+      const isSlugError = 'slug_name' in errors
+
+      if (!isSlugError) {
+        toast.error(errors.detail || 'Something went wrong')
+      } else {
+        toast(
+          <ul className="space-y-1 font-medium text-brand-semantic-accent-300">
+            {errors.slug_name.map((error: string) => (
+              <li key={error} className="capitalize">
+                {error}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    },
+  })
+
   const { control } = form
+
+  const chartValue = form.getValues()
 
   const sourcesData = useWatch({
     control,
     name: 'sources',
   })
-
   const isSingleSource = sourcesData.length === 1
 
   const widgetName = useWatch({ control, name: 'widget_info.name' })
@@ -82,10 +141,16 @@ const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
       'axes.format',
     ],
   })
-
-  const handleSaveForm = async () => {
+  const handleAddChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
+    const newId = uuidv4()
+    const newWidgetData = {
+      ...chartValue,
+      id: newId,
+      widget_type: selectedWidget,
+    }
+    createWidget(newWidgetData)
   }
 
   return (
@@ -96,7 +161,9 @@ const ChartWidget: React.FC<Props> = ({ onClose, onBack }) => {
           <div>{t(`add_chart_widget`)}</div>
         </div>
       }
-      externalButton={<Button onClick={handleSaveForm}>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddChartWidget}>{t('save')}</Button>
+      }
       onClose={onClose}
     >
       <div className="flex size-full flex-col">
