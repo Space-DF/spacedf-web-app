@@ -46,6 +46,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     organization: {
       ...(await import(`../../messages/${locale}/organization.json`)).default,
     },
+    landingPage: {
+      ...(await import(`../../messages/${locale}/landing-page.json`)).default,
+    },
   }
 
   // Return merged messages

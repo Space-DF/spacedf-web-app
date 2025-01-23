@@ -134,6 +134,12 @@ html {
   );
 }
 
+.txt-gradiant {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 input[type='checkbox'] {
   appearance: none;
   background-color: var(--checkbox-bg);
