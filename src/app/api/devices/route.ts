@@ -1,8 +1,7 @@
 import { devices } from '@/data/dummy-data'
-import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { NextResponse } from 'next/server'
 
-const GET = withAuthApiRequired(async () => {
+const GET = async () => {
   try {
     const deviceObjs = devices.reduce(
       (base, current) => ({
@@ -24,6 +23,6 @@ const GET = withAuthApiRequired(async () => {
       }
     )
   }
-})
+}
 
 export { GET }

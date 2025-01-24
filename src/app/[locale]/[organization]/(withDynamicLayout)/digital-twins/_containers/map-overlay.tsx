@@ -32,9 +32,9 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
   const { startShowDevice3D } = useLoadDeviceModels()
   // const { startLoadTrip } = useLoadTrip()
-  const { isLoading: isDeviceFeching } = useGetDevices()
+  const { isLoading: isDeviceFetching } = useGetDevices()
 
-  const [isMapInitialzed, setIsMapInitialzed] = useState(false)
+  const [isMapInitialized, setIsMapInitialized] = useState(false)
 
   const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
@@ -62,15 +62,15 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   )
 
   useEffect(() => {
-    if (!isMapInitialzed) return
+    if (!isMapInitialized) return
 
     updateMapTheme(theme as typeof currentTheme)
-  }, [theme, isMapInitialzed])
+  }, [theme, isMapInitialized])
 
   useEffect(() => {
-    if (!isMapInitialzed) return
+    if (!isMapInitialized) return
     adjustMapPadding()
-  }, [dynamicLayouts, isMapInitialzed])
+  }, [dynamicLayouts, isMapInitialized])
 
   const adjustMapPadding = async () => {
     setStartBlur(true)
@@ -99,27 +99,26 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   }
 
   useEffect(() => {
-    if (!isMapInitialzed) return
+    if (!isMapInitialized) return
 
     resizeSidebar()
   }, [isCollapsed])
 
   useEffect(() => {
-    // console.log({ isDeviceFeching, initializedSuccess })
-    if (!isDeviceFeching && initializedSuccess && mounted) {
+    console.log({ isDeviceFetching, initializedSuccess })
+    if (!isDeviceFetching && initializedSuccess && mounted) {
       setGlobalLoading(false)
       initialMapInstance()
     } else {
       setGlobalLoading(true)
     }
-
     return () => {
       // Clean up: remove controls and observers, destroy map instance
       if (mapContainerRef.current && window.mapInstance) {
         window.mapInstance.destroyMap()
       }
     }
-  }, [isDeviceFeching, initializedSuccess, mounted])
+  }, [isDeviceFetching, initializedSuccess, mounted])
 
   const initialMapInstance = async () => {
     // Only initialize if not already initialized
@@ -136,7 +135,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
     const map = mapInstanceGlobal.getMapInstance()
 
-    setIsMapInitialzed(true)
+    setIsMapInitialized(true)
 
     map?.on('load', async () => {
       mapInstanceGlobal.apply3DBuildingLayer()
@@ -374,7 +373,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
   if (!mounted) return <></>
 
-  if (isDeviceFeching) return <MapSkeleton />
+  if (isDeviceFetching) return <MapSkeleton />
 
   return (
     <div

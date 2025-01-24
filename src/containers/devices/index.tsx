@@ -40,19 +40,19 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
 import { Textarea } from '@/components/ui/textarea'
+import { COOKIES, NavigationEnums } from '@/constants'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
+import { useGetDevices } from '@/hooks/useDevices'
 import { cn } from '@/lib/utils'
 import { getNewLayouts, useLayout } from '@/stores'
-import { setCookie, uppercaseFirstLetter } from '@/utils'
-import { useIdentityStore } from '@/stores/identity-store'
-import { useSession } from 'next-auth/react'
-import ImageWithBlur from '@/components/ui/image-blur'
-import { COOKIES, NavigationEnums } from '@/constants'
-import { useGetDevices } from '@/hooks/useDevices'
 import { useDeviceStore } from '@/stores/device-store'
-import { useDeviceHistory } from '@/hooks/useDeviceHistory'
+import { useIdentityStore } from '@/stores/identity-store'
+import { setCookie, uppercaseFirstLetter } from '@/utils'
+import { useSession } from 'next-auth/react'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -222,9 +222,9 @@ const AddDeviceDialog = () => {
 
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
-  const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity)
-  )
+  // const setOpenDrawerIdentity = useIdentityStore(
+  //   useShallow((state) => state.setOpenDrawerIdentity)
+  // )
 
   const { deviceSelected } = useDeviceStore(
     useShallow((state) => ({
@@ -238,8 +238,8 @@ const DeviceSelected = () => {
   const { data } = useGetDevices()
   const devices = data || {} || {}
 
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
+  // const { status } = useSession()
+  // const isAuth = status === 'authenticated'∏
 
   const InformationItem = (props: { label: string; content: string }) => {
     return (
@@ -252,56 +252,56 @@ const DeviceSelected = () => {
     )
   }
 
-  if (!isAuth) {
-    return (
-      <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-brand-component-fill-positive" />
-            <span className="text-xs font-medium text-brand-component-text-dark">
-              {t('online')}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="icon"
-              className="size-8"
-              onClick={() => {
-                setOpenDrawerIdentity(true)
-              }}
-            >
-              <Pencil size={16} />
-            </Button>
-            <Button
-              size="icon"
-              variant="destructive"
-              className="size-8 border-2 border-brand-semantic-accent-dark"
-              onClick={() => {
-                setOpenDrawerIdentity(true)
-              }}
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <InformationItem
-            label={`${t('device_id')}:`}
-            content={'DMZ 01 12312123'}
-          />
-          <InformationItem
-            label={`${t('device_name')}:`}
-            content={'DF Sticker Tracker'}
-          />
-          <InformationItem
-            label={`${t('deveui')}`}
-            content={'A591DEA6EB25DB6C'}
-          />
-          <InformationItem label={`${t('description')}:`} content={'Bus'} />
-        </div>
-      </div>
-    )
-  }
+  // if (!isAuth) {
+  //   return (
+  //     <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
+  //       <div className="flex items-center justify-between">
+  //         <div className="flex items-center gap-2">
+  //           <span className="size-2 rounded-full bg-brand-component-fill-positive" />
+  //           <span className="text-xs font-medium text-brand-component-text-dark">
+  //             {t('online')}
+  //           </span>
+  //         </div>
+  //         <div className="flex gap-2">
+  //           <Button
+  //             size="icon"
+  //             className="size-8"
+  //             onClick={() => {
+  //               setOpenDrawerIdentity(true)
+  //             }}
+  //           >
+  //             <Pencil size={16} />
+  //           </Button>
+  //           <Button
+  //             size="icon"
+  //             variant="destructive"
+  //             className="size-8 border-2 border-brand-semantic-accent-dark"
+  //             onClick={() => {
+  //               setOpenDrawerIdentity(true)
+  //             }}
+  //           >
+  //             <Trash2 size={16} />
+  //           </Button>
+  //         </div>
+  //       </div>
+  //       <div className="flex flex-col gap-2">
+  //         <InformationItem
+  //           label={`${t('device_id')}:`}
+  //           content={'DMZ 01 12312123'}
+  //         />
+  //         <InformationItem
+  //           label={`${t('device_name')}:`}
+  //           content={'DF Sticker Tracker'}
+  //         />
+  //         <InformationItem
+  //           label={`${t('deveui')}`}
+  //           content={'A591DEA6EB25DB6C'}
+  //         />
+  //         <InformationItem label={`${t('description')}:`} content={'Bus'} />
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (!deviceSelected) {
     return (
