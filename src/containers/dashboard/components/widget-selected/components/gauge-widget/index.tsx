@@ -14,7 +14,6 @@ import WidgetInfo from './components/widget-info'
 import TimeFrame from './components/time-frame'
 import PreviewGauge from './components/preview-gauge'
 import { WidgetType } from '@/widget-models/widget'
-import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { toast } from 'sonner'
@@ -79,29 +78,14 @@ const GaugeWidget: React.FC<Props> = ({
       ],
     })
 
-  const { addWidget } = useScreenLayoutStore((state) => ({
-    addWidget: state.addWidget,
-    setLayouts: state.setLayouts,
-    layouts: state.layouts,
-  }))
-
   const { createWidget } = useCreateWidget({
     onSuccess: (newWidget) => {
       mutate((prevData: any) => {
         const newData = [...prevData, newWidget]
         return newData
       }, false)
-      const newWidgetLayout = {
-        i: newWidget.id,
-        x: 0,
-        y: 0,
-        w: 3,
-        h: 3,
-        minH: 3,
-        minW: 3,
-      }
+
       toast.success('Created gauge widget successfully')
-      addWidget(newWidgetLayout)
       onSaveWidget()
     },
     onError: (error) => {
@@ -133,6 +117,15 @@ const GaugeWidget: React.FC<Props> = ({
       ...gaugeValue,
       id: newId,
       widget_type: selectedWidget,
+      widget_size: {
+        i: newId,
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3,
+        minH: 3,
+        minW: 3,
+      },
     }
     createWidget(newWidgetData)
   }

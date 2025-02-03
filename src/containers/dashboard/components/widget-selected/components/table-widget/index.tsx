@@ -20,7 +20,6 @@ import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
-import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { toast } from 'sonner'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
@@ -70,11 +69,6 @@ const TableWidget: React.FC<Props> = ({
     defaultValues: dataTableDefault,
     mode: 'onChange',
   })
-  const { addWidget } = useScreenLayoutStore((state) => ({
-    addWidget: state.addWidget,
-    setLayouts: state.setLayouts,
-    layouts: state.layouts,
-  }))
 
   const columns = form.watch('columns')
   const source = form.watch('source.devices')
@@ -89,17 +83,8 @@ const TableWidget: React.FC<Props> = ({
         const newData = [...prevData, newWidget]
         return newData
       }, false)
-      const newWidgetLayout = {
-        i: newWidget.id,
-        x: 0,
-        y: 0,
-        w: 4,
-        h: 3,
-        minH: 3,
-        minW: 2,
-      }
+
       toast.success('Created table widget successfully')
-      addWidget(newWidgetLayout)
       onSaveWidget()
     },
     onError: (error) => {
@@ -131,6 +116,15 @@ const TableWidget: React.FC<Props> = ({
       ...tableValue,
       id: newId,
       widget_type: selectedWidget,
+      widget_size: {
+        i: newId,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 3,
+        minW: 2,
+      },
     }
     createWidget(newWidgetData)
   }
