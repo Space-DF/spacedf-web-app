@@ -134,6 +134,12 @@ html {
   );
 }
 
+.txt-gradiant {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 input[type='checkbox'] {
   appearance: none;
   background-color: var(--checkbox-bg);
@@ -162,4 +168,26 @@ input[type='checkbox']:checked::after {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+
+/* For WebKit browsers */
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+video::-webkit-media-controls-panel {
+  display: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
 }
