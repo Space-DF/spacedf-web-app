@@ -1,9 +1,7 @@
 'use client'
 
-import Lottie from 'lottie-react'
-import * as lottieFile from './video.json'
 import { SpaceDFLogoFull } from '@/components/icons'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
@@ -15,6 +13,7 @@ import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
+import { wrap } from 'popmotion'
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -22,28 +21,56 @@ const formSchema = z.object({
   }),
 })
 
+const videoUrls = [
+  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
+  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
+  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
+]
+
+const variants = {
+  enter: {
+    y: 100,
+    opacity: 0,
+  },
+  center: {
+    zIndex: 1,
+    y: 0,
+    opacity: 1,
+  },
+  exit: {
+    zIndex: 0,
+    y: 100,
+    opacity: 0,
+  },
+}
+
 export default function LandingPage() {
   const t = useTranslations('landingPage')
   const [visible, setVisible] = useState<boolean>(true)
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: '',
-    },
-  })
-  const [active, setActive] = useState<number>(0)
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
+  const [[page, direction], setPage] = useState([0, 0])
 
   const textSteps = [
     t('universal_device_connectivity'),
     t('digital_twins_tailored_to_your_needs'),
     t('tailored_dashboard_experience'),
   ]
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: '',
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
+  }
+
+  const handleGoToStep = useCallback((page: number) => {
+    setPage([page, page])
+  }, [])
+
+  const imageIndex = wrap(0, videoUrls.length, page)
 
   return (
     <div className="bg-black min-h-screen">
@@ -52,7 +79,7 @@ export default function LandingPage() {
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1, zIndex: 10 }}
-            exit={{ opacity: 0, y: -350, transition: { duration: 0.6 } }}
+            exit={{ opacity: 0, y: -350, transition: { duration: 0.4 } }}
             transition={{ duration: 0.5 }}
             onAnimationComplete={() => {
               setTimeout(() => {
@@ -138,11 +165,23 @@ export default function LandingPage() {
           </div>
         </div>
       </motion.header>
+      <video
+        className="block w-full object-cover outline-0 bg-transparent absolute inset-x-0 top-40"
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source
+          src="https://kinhdev24.github.io/df-landing-video/Flowing%2BNeon%2BCurve%2BLines_1.mp4"
+          type="video/mp4"
+        />
+      </video>
       <motion.div
         initial={{ y: 400, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1, duration: 0.7 }}
-        className="text-[56px] leading-[72px] -tracking-[0.02em] txt-gradiant font-bold text-center mt-4"
+        className="text-[56px] leading-[72px] -tracking-[0.02em] txt-gradiant font-bold text-center mt-4 relative z-10"
         style={{
           backgroundImage:
             'linear-gradient(180deg, #FFFFFF 0%, #D0D0D0 56.54%, #6B6B6B 115.38%)',
@@ -156,7 +195,7 @@ export default function LandingPage() {
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.5 }}
-          className="my-10 flex justify-center gap-4"
+          className="my-10 flex justify-center gap-4 relative z-10"
         >
           {textSteps.map((item, index) => (
             <Button
@@ -164,7 +203,7 @@ export default function LandingPage() {
                 'text-lg font-medium text-white border h-11 transition-all duration-300',
                 {
                   'border-brand-component-text-secondary border-2':
-                    index === active,
+                    index === imageIndex,
                 }
               )}
               style={{
@@ -173,7 +212,7 @@ export default function LandingPage() {
                 boxShadow: '0px 4px 12px 0px #171A2840',
               }}
               key={item}
-              onClick={() => setActive(index)}
+              onClick={() => handleGoToStep(index)}
             >
               {item}
             </Button>
@@ -183,9 +222,29 @@ export default function LandingPage() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 2, duration: 0.5 }}
-          className="px-12"
+          className="px-12 relative z-10 aspect-video"
         >
-          <Lottie animationData={lottieFile} />
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.video
+              className="block h-auto object-cover outline-0 bg-transparent absolute mx-auto left-12 right-12"
+              autoPlay
+              loop
+              muted
+              playsInline
+              key={page}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                y: { type: 'spring', stiffness: 200, damping: 30 },
+                opacity: { duration: 0.3 },
+              }}
+            >
+              <source src={videoUrls[imageIndex]} type="video/mp4" />
+            </motion.video>
+          </AnimatePresence>
         </motion.div>
       </div>
       <motion.div
