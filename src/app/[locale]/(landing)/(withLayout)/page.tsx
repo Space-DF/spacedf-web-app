@@ -22,9 +22,9 @@ const formSchema = z.object({
 })
 
 const videoUrls = [
-  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
-  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
-  'https://kinhdev24.github.io/df-landing-video/FullVideo.mp4',
+  'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
+  'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
+  'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
 ]
 
 const variants = {
