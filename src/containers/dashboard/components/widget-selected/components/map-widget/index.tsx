@@ -14,7 +14,6 @@ import TableWidgetInfo from './components/widget-info'
 import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
-import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { toast } from 'sonner'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
@@ -53,11 +52,6 @@ const TableWidget: React.FC<Props> = ({
     defaultValues: defaultMapValues,
     mode: 'onChange',
   })
-  const { addWidget } = useScreenLayoutStore((state) => ({
-    addWidget: state.addWidget,
-    setLayouts: state.setLayouts,
-    layouts: state.layouts,
-  }))
 
   const { control, trigger } = form
 
@@ -74,17 +68,8 @@ const TableWidget: React.FC<Props> = ({
         const newData = [...prevData, newWidget]
         return newData
       }, false)
-      const newWidgetLayout = {
-        i: newWidget.id,
-        x: 0,
-        y: 0,
-        w: 4,
-        h: 3,
-        minH: 2,
-        minW: 2,
-      }
+
       toast.success('Created map widget successfully')
-      addWidget(newWidgetLayout)
       onSaveWidget()
     },
     onError: (error) => {
@@ -115,6 +100,15 @@ const TableWidget: React.FC<Props> = ({
       ...mapValue,
       id: newId,
       widget_type: selectedWidget,
+      widget_size: {
+        i: newId,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 2,
+        minW: 2,
+      },
     }
     createWidget(newWidgetData)
   }

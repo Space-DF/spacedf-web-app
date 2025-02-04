@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
 import { useMounted } from '@/hooks'
@@ -32,8 +32,9 @@ interface Props {
 
 export const MockData: React.FC<Props> = ({ isEdit }) => {
   const { mounted } = useMounted()
-  const { layouts, setLayouts } = useScreenLayoutStore((state) => ({
+  const { layouts, setLayouts, addWidget } = useScreenLayoutStore((state) => ({
     layouts: state.layouts,
+    addWidget: state.addWidget,
     setLayouts: state.setLayouts,
   }))
   const { data } = useGetWidgets()
@@ -41,6 +42,14 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
   const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
     setLayouts(layouts)
   }
+
+  useEffect(() => {
+    if (data) {
+      data.forEach((widget) => {
+        addWidget(widget.widget_size)
+      })
+    }
+  }, [JSON.stringify(data)])
 
   return (
     <div

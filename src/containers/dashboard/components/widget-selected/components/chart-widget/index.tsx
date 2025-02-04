@@ -18,7 +18,6 @@ import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
-import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 import { toast } from 'sonner'
 
@@ -72,29 +71,14 @@ const ChartWidget: React.FC<Props> = ({
     mode: 'onChange',
   })
 
-  const { addWidget } = useScreenLayoutStore((state) => ({
-    addWidget: state.addWidget,
-    setLayouts: state.setLayouts,
-    layouts: state.layouts,
-  }))
-
   const { createWidget } = useCreateWidget({
     onSuccess: (newWidget) => {
       mutate((prevData: any) => {
         const newData = [...prevData, newWidget]
         return newData
       }, false)
-      const newWidgetLayout = {
-        i: newWidget.id,
-        x: 0,
-        y: 0,
-        w: 4,
-        h: 3,
-        minH: 2,
-        minW: 3,
-      }
+
       toast.success('Created chart widget successfully')
-      addWidget(newWidgetLayout)
       onSaveWidget()
     },
     onError: (error) => {
@@ -149,6 +133,15 @@ const ChartWidget: React.FC<Props> = ({
       ...chartValue,
       id: newId,
       widget_type: selectedWidget,
+      widget_size: {
+        i: newId,
+        x: 0,
+        y: 0,
+        w: 4,
+        h: 3,
+        minH: 2,
+        minW: 3,
+      },
     }
     createWidget(newWidgetData)
   }
