@@ -111,7 +111,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
           colorArray: rangesColor,
           subArcs: chartData,
         }}
-        className="size-full"
+        className="size-full [&>svg]:size-full"
         minValue={min}
         maxValue={max}
         pointer={{ type: 'needle', animationDelay: 0, animate: isAnimate }}

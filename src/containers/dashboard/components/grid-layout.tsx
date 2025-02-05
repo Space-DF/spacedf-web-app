@@ -85,7 +85,7 @@ const GridLayout: React.FC<Props> = ({
         observer.unobserve(gridRef.current)
       }
     }
-  }, [])
+  }, [columns])
 
   return (
     <div
