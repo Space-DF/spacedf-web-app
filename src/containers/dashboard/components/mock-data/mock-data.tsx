@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
 import { useMounted } from '@/hooks'
@@ -26,12 +26,21 @@ import PreviewGauge from '../widget-selected/components/gauge-widget/components/
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
+const columnsLayout: Record<string, number> = {
+  lg: 18,
+  md: 16,
+  sm: 13,
+  xs: 8,
+  xxs: 5,
+}
+
 interface Props {
   isEdit?: boolean
 }
 
 export const MockData: React.FC<Props> = ({ isEdit }) => {
   const { mounted } = useMounted()
+  const [currentBreakpoint, setCurrentBreakpoint] = useState<string>('')
   const { layouts, setLayouts, addWidget } = useScreenLayoutStore((state) => ({
     layouts: state.layouts,
     addWidget: state.addWidget,
@@ -41,6 +50,9 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
 
   const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
     setLayouts(layouts)
+  }
+  const handleBreakpointChange = (newBreakpoint: string) => {
+    setCurrentBreakpoint(newBreakpoint)
   }
 
   useEffect(() => {
@@ -61,17 +73,24 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
         className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
         id="dashboard-container"
       >
-        {isEdit && <GridLayout margin={5} rowHeight={60} />}
+        {isEdit && (
+          <GridLayout
+            margin={5}
+            rowHeight={60}
+            columns={columnsLayout[currentBreakpoint]}
+          />
+        )}
         <ResponsiveReactGridLayout
           layouts={layouts}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 5, md: 5, sm: 5, xs: 5, xxs: 5 }}
+          cols={{ lg: 18, md: 16, sm: 13, xs: 8, xxs: 5 }}
           rowHeight={60}
           margin={[5, 5]}
           onLayoutChange={handleLayoutChange}
           measureBeforeMount={false}
           useCSSTransforms={mounted}
           compactType="vertical"
+          onBreakpointChange={handleBreakpointChange}
           preventCollision={false}
           isDraggable={isEdit}
           isResizable={isEdit}
