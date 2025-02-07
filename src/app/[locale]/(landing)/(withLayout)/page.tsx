@@ -1,7 +1,7 @@
 'use client'
 
 import { SpaceDFLogoFull } from '@/components/icons'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
 import { wrap } from 'popmotion'
+import { InteractiveGridPattern } from '@/components/ui/interactive-grid-pattern'
+import { FavIcon } from '@/components/icons/fav-icon'
+import Image from 'next/image'
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -23,30 +26,34 @@ const formSchema = z.object({
 
 const videoUrls = [
   'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
-  'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
-  'https://kinhdev24.github.io/df-landing-video/FullVideo2K%202.mp4',
+  'https://kinhdev24.github.io/df-landing-video/Tab2Video2K.mp4',
+  'https://kinhdev24.github.io/df-landing-video/Tab3Video2K.mp4',
 ]
 
 const variants = {
   enter: {
-    y: 100,
+    y: 10,
     opacity: 0,
+    duration: 0.5,
   },
   center: {
     zIndex: 1,
     y: 0,
     opacity: 1,
+    duration: 0.5,
   },
   exit: {
     zIndex: 0,
-    y: 100,
+    y: 10,
     opacity: 0,
+    duration: 0.5,
   },
 }
 
 export default function LandingPage() {
   const t = useTranslations('landingPage')
   const [visible, setVisible] = useState<boolean>(true)
+  const waitlistRef = useRef<HTMLDivElement>(null)
   const [[page, direction], setPage] = useState([0, 0])
 
   const textSteps = [
@@ -71,6 +78,12 @@ export default function LandingPage() {
   }, [])
 
   const imageIndex = wrap(0, videoUrls.length, page)
+
+  const handleScrollToWaitlist = () => {
+    if (waitlistRef && waitlistRef.current) {
+      waitlistRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   return (
     <div className="bg-black min-h-screen">
@@ -110,9 +123,9 @@ export default function LandingPage() {
         <nav>
           <ul className="flex border rounded-[28px] bg-[#171A28] border-[#242A46]">
             <li className="text-white py-1 px-5 text-lg cursor-pointer">
-              <a href="/" target="_blank">
+              <span onClick={handleScrollToWaitlist}>
                 {t('join_the_waitlist')}
-              </a>
+              </span>
             </li>
             <li className="text-white py-1 px-5 text-lg cursor-pointer">
               <a
@@ -190,12 +203,19 @@ export default function LandingPage() {
         <div>{t('spacedf_iot_platform')}</div>
         <div>{t('easily_manage_your_iot_business')}</div>
       </motion.div>
-      <div>
+      <div className="overflow-x-hidden">
+        <InteractiveGridPattern
+          className="[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]"
+          width={50}
+          height={50}
+          squares={[80, 80]}
+          squaresClassName="hover:fill-blue-500"
+        />
         <motion.div
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.5 }}
-          className="my-10 flex justify-center gap-4 relative z-10"
+          className="my-10 flex justify-center gap-4 relative z-20"
         >
           {textSteps.map((item, index) => (
             <Button
@@ -204,6 +224,7 @@ export default function LandingPage() {
                 {
                   'border-brand-component-text-secondary border-2':
                     index === imageIndex,
+                  'button-introduction': index !== imageIndex,
                 }
               )}
               style={{
@@ -224,13 +245,16 @@ export default function LandingPage() {
           transition={{ delay: 2, duration: 0.5 }}
           className="px-12 relative z-10 aspect-video"
         >
+          <Image
+            src="/IllustrationBorder.png"
+            alt="background landing page"
+            width={1000}
+            height={1000}
+            className="absolute h-full w-[102%] max-w-none -left-3.5 -top-[100px] select-none"
+          />
           <AnimatePresence initial={false} custom={direction}>
-            <motion.video
-              className="block h-auto object-cover outline-0 bg-transparent absolute mx-auto left-12 right-12"
-              autoPlay
-              loop
-              muted
-              playsInline
+            <motion.div
+              className="absolute inset-0 px-[120px]"
               key={page}
               custom={direction}
               variants={variants}
@@ -239,11 +263,19 @@ export default function LandingPage() {
               exit="exit"
               transition={{
                 y: { type: 'spring', stiffness: 200, damping: 30 },
-                opacity: { duration: 0.3 },
+                opacity: { duration: 0.4 },
               }}
             >
-              <source src={videoUrls[imageIndex]} type="video/mp4" />
-            </motion.video>
+              <video
+                className="block h-auto object-cover outline-0 bg-transparent rounded-[26px]"
+                autoPlay
+                loop
+                muted
+                playsInline
+              >
+                <source src={videoUrls[imageIndex]} type="video/mp4" />
+              </video>
+            </motion.div>
           </AnimatePresence>
         </motion.div>
       </div>
@@ -254,7 +286,7 @@ export default function LandingPage() {
         className="p-32 flex flex-col items-center gap-16 bg-bottom bg-no-repeat bg-contain"
         style={{ backgroundImage: 'url(/landing-page-bg-footer.webp)' }}
       >
-        <div className="flex flex-col items-center gap-10">
+        <div className="flex flex-col items-center gap-10" ref={waitlistRef}>
           <div
             className="text-[56px] leading-[72px] -tracking-[0.02em] txt-gradiant font-bold"
             style={{
@@ -264,7 +296,8 @@ export default function LandingPage() {
           >
             {t('join_the_waitlist_for_the')}
           </div>
-          <div className="text-[86px] leading-[72px] -tracking-[0.02em] text-gradiant font-bold">
+          <div className="text-[86px] leading-[72px] -tracking-[0.02em] text-gradiant font-bold flex gap-5 items-center">
+            <FavIcon className="text-white" />
             SPACEDF
           </div>
         </div>

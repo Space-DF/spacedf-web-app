@@ -191,3 +191,19 @@ video::-webkit-media-controls-play-button {
 video::-webkit-media-controls-start-playback-button {
   display: none !important;
 }
+
+.button-introduction {
+  position: relative;
+  background-clip: padding-box;
+  border: 0.5px solid transparent;
+}
+
+.button-introduction:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  margin: -0.5px;
+  border-radius: inherit;
+  background-image: linear-gradient(97.96deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+}
