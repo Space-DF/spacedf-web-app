@@ -246,7 +246,7 @@ export default function LandingPage() {
           className="px-12 relative z-10 aspect-video"
         >
           <Image
-            src="/IllustrationBorder.png"
+            src="/IllustrationBorder.webp"
             alt="background landing page"
             width={1000}
             height={1000}
