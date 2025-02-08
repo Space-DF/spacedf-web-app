@@ -50,7 +50,7 @@ export class FetchAPI {
 
   async get<T = any>(
     url: string,
-    options: FetchOptions = {},
+    options: FetchOptions = {}
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
@@ -84,7 +84,7 @@ export class FetchAPI {
   async post<T = any>(
     url: string,
     payload: Record<string, any> | null,
-    options: FetchOptions = {},
+    options: FetchOptions = {}
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       body: payload ? JSON.stringify(payload) : '',
@@ -94,6 +94,8 @@ export class FetchAPI {
         ...(options.headers || {}),
       },
     }
+
+    console.log(this.getDomain(url))
 
     const response = await fetch(this.getDomain(url), {
       method: 'POST',
@@ -114,7 +116,7 @@ export class FetchAPI {
 
   async delete<T = any>(
     url: string,
-    options: FetchOptions = {},
+    options: FetchOptions = {}
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,

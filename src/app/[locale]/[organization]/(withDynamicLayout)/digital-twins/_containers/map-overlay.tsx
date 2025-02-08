@@ -11,10 +11,10 @@ import { useTheme } from 'next-themes'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
-import { useDeviceStore } from '@/stores/device-store'
-import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 import { useGetDevices } from '@/hooks/useDevices'
+import { useDeviceStore } from '@/stores/device-store'
 import MapInstance from '@/utils/map-instance'
+import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -34,19 +34,20 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   // const { startLoadTrip } = useLoadTrip()
   const { isLoading: isDeviceFetching } = useGetDevices()
 
-  const [isMapInitialized, setIsMapInitialized] = useState(false)
-
   const { initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
       initializedSuccess: state.initializedSuccess,
     }))
   )
 
-  const { setGlobalLoading } = useGlobalStore(
-    useShallow((state) => ({
-      setGlobalLoading: state.setGlobalLoading,
-    }))
-  )
+  const { setGlobalLoading, setMapInitialized, isMapInitialized } =
+    useGlobalStore(
+      useShallow((state) => ({
+        setGlobalLoading: state.setGlobalLoading,
+        setMapInitialized: state.setMapInitialized,
+        isMapInitialized: state.isMapInitialized,
+      }))
+    )
 
   const currentTheme = (theme === 'system' ? systemTheme : theme) as
     | 'dark'
@@ -60,12 +61,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       isCollapsed: state.isCollapsed,
     }))
   )
-
-  useEffect(() => {
-    if (!isMapInitialized) return
-
-    updateMapTheme(theme as typeof currentTheme)
-  }, [theme, isMapInitialized])
 
   useEffect(() => {
     if (!isMapInitialized) return
@@ -105,7 +100,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   }, [isCollapsed])
 
   useEffect(() => {
-    console.log({ isDeviceFetching, initializedSuccess })
     if (!isDeviceFetching && initializedSuccess && mounted) {
       setGlobalLoading(false)
       initialMapInstance()
@@ -127,6 +121,8 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
     mapInstanceGlobal.initializeMap({
       container: mapContainerRef.current,
+      // style: 'mapbox://styles/mapbox/standard',
+
       style: `mapbox://styles/mapbox/${currentTheme}-v11`,
     })
 
@@ -135,11 +131,9 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
 
     const map = mapInstanceGlobal.getMapInstance()
 
-    setIsMapInitialized(true)
+    setMapInitialized(true)
 
     map?.on('load', async () => {
-      mapInstanceGlobal.apply3DBuildingLayer()
-
       startShowDevice3D(map)
 
       map.addControl(new mapboxgl.NavigationControl())
@@ -342,34 +336,34 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     }, 300)
   }
 
-  const updateMapTheme = async (theme: typeof currentTheme) => {
-    const maps = window.mapInstance
+  // const updateMapTheme = async (theme: typeof currentTheme) => {
+  //   const maps = window.mapInstance
 
-    if (!maps) return
+  //   if (!maps) return
 
-    const mapStyle = maps.getMapStyle()
+  //   const mapStyle = maps.getMapStyle()
 
-    const layerId = mapStyle?.layers?.find(
-      (layer: any) => layer.type === 'symbol'
-    )?.id
+  //   const layerId = mapStyle?.layers?.find(
+  //     (layer: any) => layer.type === 'symbol'
+  //   )?.id
 
-    if (!layerId) return
+  //   if (!layerId) return
 
-    const allMapInstance = maps.getMapInstance()
+  //   const allMapInstance = maps.getMapInstance()
 
-    allMapInstance?.setStyle(`mapbox://styles/mapbox/${theme}-v11`, layerId)
-    setStartBlur(true)
+  //   allMapInstance?.setStyle(`mapbox://styles/mapbox/${theme}-v11`, layerId)
+  //   setStartBlur(true)
 
-    await delay(300)
+  //   await delay(300)
 
-    maps.apply3DBuildingLayer()
+  //   maps.apply3DBuildingLayer()
 
-    await delay(200)
+  //   await delay(200)
 
-    setStartBlur(false)
+  //   setStartBlur(false)
 
-    addMapClusters(allMapInstance)
-  }
+  //   // addMapClusters(allMapInstance)
+  // }
 
   if (!mounted) return <></>
 
