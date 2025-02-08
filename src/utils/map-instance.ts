@@ -1,4 +1,5 @@
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
+import { MapType } from '@/stores'
 import mapboxgl from 'mapbox-gl'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
@@ -56,45 +57,47 @@ class MapInstance {
     //@ts-ignore
     const mapStyle = this.getMapStyle()
 
-    const firstLabelLayerId = mapStyle?.layers?.find(
-      (layer: any) => layer.type === 'symbol'
-    )?.id
+    // const simpleLayer = mapStyle?.layers?.find(
+    //   (layer: any) => layer.id === 'symbol'
+    // )?.id
 
-    if (firstLabelLayerId) {
-      this.map.addLayer(
-        {
-          id: '3d-buildings',
-          source: 'composite',
-          'source-layer': 'building',
-          filter: ['==', 'extrude', 'true'],
-          type: 'fill-extrusion',
-          minzoom: 10,
-          paint: {
-            'fill-extrusion-color': '#aaa',
-            'fill-extrusion-height': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              15,
-              0,
-              15.05,
-              ['get', 'height'],
-            ],
-            'fill-extrusion-base': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              15,
-              0,
-              15.05,
-              ['get', 'min_height'],
-            ],
-            'fill-extrusion-opacity': 0.3,
-          },
+    console.log({ mapStyle })
+
+    // if (firstLabelLayerId) {
+    this.map.addLayer(
+      {
+        id: '3d-buildings',
+        source: 'composite',
+        'source-layer': 'building',
+        filter: ['==', 'extrude', 'true'],
+        type: 'fill-extrusion',
+        minzoom: 10,
+        paint: {
+          'fill-extrusion-color': '#aaa',
+          'fill-extrusion-height': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            15,
+            0,
+            15.05,
+            ['get', 'height'],
+          ],
+          'fill-extrusion-base': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            15,
+            0,
+            15.05,
+            ['get', 'min_height'],
+          ],
+          'fill-extrusion-opacity': 0.3,
         },
-        firstLabelLayerId
-      )
-    }
+      },
+      'road-label-simple'
+    )
+    // }
   }
 
   public destroyMap(): void {
@@ -131,3 +134,143 @@ class MapInstance {
 }
 
 export default MapInstance
+
+const addGroupCluster = () => {
+  const globalMap = window.mapInstance
+
+  if (!globalMap) return
+
+  const allMapInstance = globalMap.getMapInstance()
+
+  if (!allMapInstance) return
+
+  if (allMapInstance?.getSource('clusters-source')) return
+
+  allMapInstance?.addSource('clusters-source', {
+    type: 'geojson',
+    data: {
+      type: 'FeatureCollection',
+      features: [],
+    },
+    cluster: true,
+    clusterMaxZoom: 16,
+    clusterRadius: 50,
+    extent: 256,
+    nodeSize: 64,
+  } as any)
+
+  allMapInstance?.addLayer({
+    id: 'clusters',
+    type: 'circle',
+    source: 'clusters-source',
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': [
+        'step',
+        ['get', 'point_count'],
+        '#51bbd6',
+        100,
+        '#f1f075',
+        750,
+        '#f28cb1',
+      ],
+      'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
+      'text-color': '#fff',
+    },
+  })
+
+  allMapInstance?.addLayer({
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'clusters-source',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12,
+    },
+    paint: {
+      'text-color': '#fff',
+    },
+  })
+
+  allMapInstance?.addLayer({
+    id: 'unclustered-point',
+    type: 'circle',
+    source: 'clusters-source',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+      'circle-color': '#11b4da',
+      'circle-radius': 4,
+      'circle-stroke-width': 1,
+      'circle-stroke-color': '#fff',
+      'text-color': '#fff',
+    },
+  })
+}
+
+const add3DBuildingLayer = () => {
+  const globalMap = window.mapInstance
+
+  if (!globalMap) return
+
+  const allMapInstance = globalMap.getMapInstance()
+
+  if (!allMapInstance) return
+
+  console.log({ globalMap })
+
+  // console.log('buildings', allMapInstance?.getLayer('3d-buildings'))
+
+  if (allMapInstance?.getLayer('3d-buildings')) return
+
+  globalMap.apply3DBuildingLayer()
+}
+export const updateMapType = (
+  mapType: MapType,
+  currentTheme: string = 'light'
+) => {
+  const globalMap = window.mapInstance
+
+  if (!globalMap) return
+
+  const allMapInstance = globalMap.getMapInstance()
+
+  switch (mapType) {
+    case 'default':
+      allMapInstance?.setStyle(`mapbox://styles/mapbox/${currentTheme}-v11`)
+      setTimeout(() => {
+        addGroupCluster()
+        add3DBuildingLayer()
+      }, 1000)
+      break
+
+    case 'satellite':
+      allMapInstance?.setStyle(`mapbox://styles/mapbox/standard`, {
+        config: {
+          basemap: {
+            lightPreset: 'dusk',
+          },
+        },
+      } as any)
+
+      setTimeout(() => {
+        addGroupCluster()
+      }, 1000)
+
+      break
+    case 'street':
+      allMapInstance?.setStyle(`mapbox://styles/mapbox/${currentTheme}-v11`)
+
+      setTimeout(() => {
+        addGroupCluster()
+
+        if (allMapInstance?.getLayer('3d-buildings')) {
+          allMapInstance.removeLayer('3d-buildings')
+        }
+      }, 1000)
+      break
+    default:
+      break
+  }
+}

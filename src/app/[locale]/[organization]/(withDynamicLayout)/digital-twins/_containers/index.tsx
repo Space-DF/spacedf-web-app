@@ -1,5 +1,6 @@
 'use client'
 
+import { SelectMapType } from '@/components/ui/select-map-type'
 import { ArcLayer } from 'deck.gl'
 import dynamic from 'next/dynamic'
 
@@ -28,5 +29,10 @@ const MapOverlayNoSSR = dynamic(
 )
 
 export default function WareHouseTrackingContainer() {
-  return <MapOverlayNoSSR layers={layers} />
+  return (
+    <>
+      <SelectMapType />
+      <MapOverlayNoSSR layers={layers} />
+    </>
+  )
 }

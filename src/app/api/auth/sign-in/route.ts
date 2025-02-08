@@ -7,7 +7,7 @@ import { singInSchema } from '@/containers/identity/auth/sign-up-form'
 import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
 
 export async function POST(
-  req: NextRequest,
+  req: NextRequest
 ): Promise<NextResponse<ApiResponse>> {
   try {
     const fetch = new FetchAPI()
@@ -19,7 +19,7 @@ export async function POST(
     const { message, status = 400 } = (err as ApiErrorResponse) || {}
     return NextResponse.json(
       { message: message?.detail || 'Something went wrong', status },
-      { status },
+      { status }
     )
   }
 }
