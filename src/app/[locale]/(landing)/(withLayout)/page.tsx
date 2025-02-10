@@ -3,12 +3,18 @@
 import { SpaceDFLogoFull } from '@/components/icons'
 import React, { useCallback, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Mail } from 'lucide-react'
+import { Check, Mail } from 'lucide-react'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
@@ -17,11 +23,35 @@ import { wrap } from 'popmotion'
 import { InteractiveGridPattern } from '@/components/ui/interactive-grid-pattern'
 import { FavIcon } from '@/components/icons/fav-icon'
 import Image from 'next/image'
+import { toast } from 'sonner'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
+  email: z
+    .string()
+    .email()
+    .refine(
+      (email) => {
+        const [localPart] = email.split('@')
+        return localPart.length <= 64
+      },
+      {
+        message: 'The local part of the email must not exceed 64 characters.',
+      }
+    )
+    .refine(
+      (email) => {
+        const [, domain = ''] = email.split('@')
+        return domain.length <= 255
+      },
+      {
+        message: 'The domain part of the email must not exceed 255 characters.',
+      }
+    )
+    .refine((email) => email.length <= 320, {
+      message: 'The total email length must not exceed 320 characters.',
+    }),
 })
 
 const videoUrls = [
@@ -55,7 +85,7 @@ export default function LandingPage() {
   const [visible, setVisible] = useState<boolean>(true)
   const waitlistRef = useRef<HTMLDivElement>(null)
   const [[page, direction], setPage] = useState([0, 0])
-
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
   const textSteps = [
     t('universal_device_connectivity'),
     t('digital_twins_tailored_to_your_needs'),
@@ -65,12 +95,29 @@ export default function LandingPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      email: '',
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    const fetchPromise = fetch('/api/waitlist', {
+      method: 'POST',
+      body: JSON.stringify(values),
+    }).then(async (response) => {
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.message || 'Something went wrong')
+      }
+      setOpenDialog(true)
+      form.reset()
+      return result
+    })
+    toast.promise(fetchPromise, {
+      loading: 'Join the waiting list...',
+      error: (err) => {
+        return err.message
+      },
+    })
   }
 
   const handleGoToStep = useCallback((page: number) => {
@@ -115,7 +162,7 @@ export default function LandingPage() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 2, duration: 0.5 }}
-        className="flex items-center justify-between px-10 py-3.5"
+        className="flex items-center justify-between px-10 py-3.5 relative z-10"
       >
         <div>
           <SpaceDFLogoFull className="text-white" />
@@ -205,7 +252,7 @@ export default function LandingPage() {
       </motion.div>
       <div className="overflow-x-hidden">
         <InteractiveGridPattern
-          className="[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]"
+          className="[mask-image:radial-gradient(400px_circle_at_center,white,transparent)] top-0"
           width={50}
           height={50}
           squares={[80, 80]}
@@ -301,7 +348,7 @@ export default function LandingPage() {
             SPACEDF
           </div>
         </div>
-        <div className="bg-[#050505]/60 rounded-[15px] border backdrop-blur-[100px] p-8 flex flex-col items-center gap-3 w-full max-w-[500px]">
+        <div className="bg-[#050505]/60 rounded-[15px] form-waitlist backdrop-blur-[100px] p-8 flex flex-col items-center gap-3 w-full max-w-[500px]">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -309,7 +356,7 @@ export default function LandingPage() {
             >
               <FormField
                 control={form.control}
-                name="username"
+                name="email"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
@@ -320,6 +367,7 @@ export default function LandingPage() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -340,6 +388,47 @@ export default function LandingPage() {
           </div>
         </div>
       </motion.div>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent
+          className="sm:max-w-[410px] bg-[#090C18] border-brand-component-text-gray-hover dark:border-brand-component-stroke-dark-soft"
+          aria-describedby={undefined}
+          closeClassName="p-0.5 data-[state=open]:bg-brand-component-hover-dark-light bg-brand-component-hover-dark-light rounded-full"
+          iconClassName="size-3.5"
+        >
+          <VisuallyHidden>
+            <DialogTitle />
+          </VisuallyHidden>
+          <div className="p-6 text-center">
+            <div
+              className="rounded-full inline-flex p-5"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 57.73%)',
+              }}
+            >
+              <div
+                className="rounded-full inline-flex p-3.5"
+                style={{
+                  background:
+                    'linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 57.73%)',
+                }}
+              >
+                <div
+                  className="rounded-full size-[52px] flex items-center justify-center text-white"
+                  style={{
+                    background:
+                      'linear-gradient(180deg, #08B94E 0%, #07632B 100%)',
+                  }}
+                >
+                  <Check size={32} className="text-[#090C18]" />
+                </div>
+              </div>
+            </div>
+            <div className="text-white text-2xl text-center px-5">{`We’ve added you to our waiting list!`}</div>
+            <div className="text-brand-component-text-gray text-[14px] mt-2">{`We’ll keep you updated on the launch of SpaceDF`}</div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
