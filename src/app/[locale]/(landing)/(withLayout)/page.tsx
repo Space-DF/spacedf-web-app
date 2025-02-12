@@ -252,10 +252,10 @@ export default function LandingPage() {
       </motion.div>
       <div className="overflow-x-hidden">
         <InteractiveGridPattern
-          className="[mask-image:radial-gradient(400px_circle_at_center,white,transparent)] top-0"
+          className="[mask-image:radial-gradient(750px_circle_at_center,white,transparent)] top-0"
           width={50}
           height={50}
-          squares={[80, 80]}
+          squares={[200, 200]}
           squaresClassName="hover:fill-blue-500"
         />
         <motion.div
@@ -330,7 +330,7 @@ export default function LandingPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.5 }}
-        className="p-32 flex flex-col items-center gap-16 bg-bottom bg-no-repeat bg-contain"
+        className="p-32 flex flex-col items-center gap-16 bg-bottom bg-no-repeat [background-size:1540px]"
         style={{ backgroundImage: 'url(/landing-page-bg-footer.webp)' }}
       >
         <div className="flex flex-col items-center gap-10" ref={waitlistRef}>
