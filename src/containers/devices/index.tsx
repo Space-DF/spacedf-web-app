@@ -369,7 +369,7 @@ const DeviceSelected = () => {
         />
         <InformationItem label={`${t('description')}:`} content={'150'} />
 
-        <Button onClick={() => startDrawHistory(deviceData.histories)}>
+        <Button onClick={() => startDrawHistory(deviceSelected)}>
           Device History
         </Button>
       </div>

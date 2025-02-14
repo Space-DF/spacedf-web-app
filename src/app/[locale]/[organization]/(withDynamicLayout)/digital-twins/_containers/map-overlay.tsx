@@ -1,6 +1,6 @@
 'use client'
 import { useMounted } from '@/hooks'
-import { useGlobalStore, useLayout } from '@/stores'
+import { useGlobalStore } from '@/stores'
 import { type Layer } from 'deck.gl'
 
 import mapboxgl from 'mapbox-gl'
@@ -8,13 +8,14 @@ import mapboxgl from 'mapbox-gl'
 import { cn } from '@/lib/utils'
 import { delay } from '@/utils'
 import { useTheme } from 'next-themes'
-import React, { memo, useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 import { useGetDevices } from '@/hooks/useDevices'
 import { useDeviceStore } from '@/stores/device-store'
 import MapInstance from '@/utils/map-instance'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
+import { useSession } from 'next-auth/react'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -27,7 +28,7 @@ const centerPoint: [number, number] = [108.223, 16.067]
 const MapOverlay: React.FC<CustomMapProps> = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
   const { mounted } = useMounted()
-  const [startBlur, setStartBlur] = useState(false)
+  // const [isMapBlur, setStartBlur] = useState(false)
   const { theme, systemTheme } = useTheme()
 
   const { startShowDevice3D } = useLoadDeviceModels()
@@ -40,64 +41,38 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     }))
   )
 
-  const { setGlobalLoading, setMapInitialized, isMapInitialized } =
-    useGlobalStore(
-      useShallow((state) => ({
-        setGlobalLoading: state.setGlobalLoading,
-        setMapInitialized: state.setMapInitialized,
-        isMapInitialized: state.isMapInitialized,
-      }))
-    )
+  const { status } = useSession()
+
+  const prevAuthStatus = useRef(status)
+
+  useEffect(() => {
+    if (!window.mapInstance) return
+    const map = window.mapInstance.getMapInstance()
+
+    if (!map) return
+    if (status !== prevAuthStatus.current) {
+      map?.flyTo({
+        center: centerPoint,
+        zoom: 13,
+        pitch: 45,
+        bearing: 0,
+        duration: 5000,
+      })
+    }
+  }, [status, prevAuthStatus])
+
+  const { setGlobalLoading, setMapInitialized, isMapBlur } = useGlobalStore(
+    useShallow((state) => ({
+      setGlobalLoading: state.setGlobalLoading,
+      setMapInitialized: state.setMapInitialized,
+      isMapInitialized: state.isMapInitialized,
+      isMapBlur: state.isMapBlur,
+    }))
+  )
 
   const currentTheme = (theme === 'system' ? systemTheme : theme) as
     | 'dark'
     | 'light'
-
-  // [108.2204122, 16.0608127]
-
-  const { dynamicLayouts, isCollapsed } = useLayout(
-    useShallow((state) => ({
-      dynamicLayouts: state.dynamicLayouts,
-      isCollapsed: state.isCollapsed,
-    }))
-  )
-
-  useEffect(() => {
-    if (!isMapInitialized) return
-    adjustMapPadding()
-  }, [dynamicLayouts, isMapInitialized])
-
-  const adjustMapPadding = async () => {
-    setStartBlur(true)
-    await delay(300)
-
-    const dynamicLayoutElementWidth =
-      document.getElementById('region-dynamic-layout')?.clientWidth || 0
-
-    // Get the map instance and apply the right padding smoothly
-    const map = window.mapInstance?.getMapInstance()
-
-    if (map) {
-      map.easeTo({
-        padding: {
-          right: dynamicLayoutElementWidth / 2,
-        },
-        duration: 1000, // Set the duration for smoothness
-      })
-
-      map?.resize()
-
-      await delay(200)
-
-      setStartBlur(false)
-    }
-  }
-
-  useEffect(() => {
-    if (!isMapInitialized) return
-
-    resizeSidebar()
-  }, [isCollapsed])
 
   useEffect(() => {
     if (!isDeviceFetching && initializedSuccess && mounted) {
@@ -313,58 +288,6 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     }
   }
 
-  const resizeSidebar = () => {
-    const map = window.mapInstance?.getMapInstance()
-    setStartBlur(true)
-
-    setTimeout(() => {
-      const sidebarWidth =
-        document.getElementById('sidebar-id')?.clientWidth || 0
-
-      map?.easeTo({
-        padding: {
-          left: sidebarWidth,
-        },
-        duration: 1000, // Set the duration for smoothness
-      })
-
-      map?.resize()
-
-      setTimeout(() => {
-        setStartBlur(false)
-      }, 200)
-    }, 300)
-  }
-
-  // const updateMapTheme = async (theme: typeof currentTheme) => {
-  //   const maps = window.mapInstance
-
-  //   if (!maps) return
-
-  //   const mapStyle = maps.getMapStyle()
-
-  //   const layerId = mapStyle?.layers?.find(
-  //     (layer: any) => layer.type === 'symbol'
-  //   )?.id
-
-  //   if (!layerId) return
-
-  //   const allMapInstance = maps.getMapInstance()
-
-  //   allMapInstance?.setStyle(`mapbox://styles/mapbox/${theme}-v11`, layerId)
-  //   setStartBlur(true)
-
-  //   await delay(300)
-
-  //   maps.apply3DBuildingLayer()
-
-  //   await delay(200)
-
-  //   setStartBlur(false)
-
-  //   // addMapClusters(allMapInstance)
-  // }
-
   if (!mounted) return <></>
 
   if (isDeviceFetching) return <MapSkeleton />
@@ -374,7 +297,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       ref={mapContainerRef}
       className={cn(
         '!absolute inset-0 h-full !w-full !overflow-hidden !duration-1000',
-        startBlur
+        isMapBlur
           ? 'bg-[#DBDBDC] bg-opacity-80 blur-md backdrop-blur-md dark:!bg-black'
           : 'blur-none'
       )}

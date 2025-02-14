@@ -6,7 +6,11 @@ import { COOKIES } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
 import { cn } from '@/lib/utils'
-import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
+import {
+  DynamicLayout as TDynamicLayout,
+  useGlobalStore,
+  useLayout,
+} from '@/stores'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -44,9 +48,34 @@ const DynamicLayout = ({
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
+  const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
+  const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
+
+  const { isMapInitialized, setIsMapBlur } = useGlobalStore(
+    useShallow((state) => ({
+      isMapInitialized: state.isMapInitialized,
+      setIsMapBlur: state.setIsMapBlur,
+    }))
+  )
+
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
+
+  useEffect(() => {
+    setIsMapBlur(true)
+
+    if (!isMapInitialized || !window.mapInstance) return
+    if (resizeMapLayoutTimeOutId.current) {
+      clearTimeout(resizeMapLayoutTimeOutId.current)
+    }
+
+    resizeMapLayoutTimeOutId.current = setTimeout(() => {
+      const map = window.mapInstance.getMapInstance()
+      map?.resize()
+      setIsMapBlur(false)
+    }, 300)
+  }, [dynamicLayouts, isMapInitialized])
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -130,6 +159,18 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
+    setIsMapBlur(true)
+    if (isMapInitialized && window.mapInstance) {
+      if (resizeMapTimeOutId.current) {
+        clearTimeout(resizeMapTimeOutId.current)
+      }
+
+      resizeMapTimeOutId.current = setTimeout(() => {
+        const map = window.mapInstance.getMapInstance()
+        map?.resize()
+        setIsMapBlur(false)
+      }, 300)
+    }
     if (sizes[0] <= 8 && !isCollapsed) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)

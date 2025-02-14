@@ -59,7 +59,7 @@ const SignInForm = ({
     useShallow((state) => ({
       openDrawer: state.openDrawerIdentity,
       setOpenDrawer: state.setOpenDrawerIdentity,
-    })),
+    }))
   )
 
   const onSubmit = (value: z.infer<typeof singInSchema>) => {

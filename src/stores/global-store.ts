@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Space } from '@/types/space'
 
-export type MapType = 'default' | 'satellite' | 'street'
+export type MapType = 'default' | '3D_map' | 'street'
 
 type GlobalStore = {
   currentSpace: Space | null
@@ -11,6 +11,7 @@ type GlobalStore = {
   isGlobalLoading: boolean
   mapType: MapType
   isMapInitialized: boolean
+  isMapBlur: boolean
 }
 
 type ActionsGlobalStore = {
@@ -18,6 +19,7 @@ type ActionsGlobalStore = {
   setMapInitialized: (state: boolean) => void
   setCurrentSpace: (newSpace: Space) => void
   setDuration: (duration: number) => void
+  setIsMapBlur: (state: boolean) => void
   setLoadingText: (
     newSpace: Pick<
       GlobalStore,
@@ -38,6 +40,7 @@ export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
   (set) => ({
     mapType: 'default',
     isMapInitialized: false,
+    isMapBlur: false,
     setMapInitialized: (newState) => set({ isMapInitialized: newState }),
     setMapType: (newMapType) => set({ mapType: newMapType }),
     currentSpace: null,
@@ -52,6 +55,7 @@ export const useGlobalStore = create<GlobalStore & ActionsGlobalStore>(
       })
     },
     resetLoadingState: () => set(defaultLoadingState),
+    setIsMapBlur: (newState) => set({ isMapBlur: newState }),
     setGlobalLoading: (newState) =>
       set(() => ({
         isGlobalLoading: newState,
