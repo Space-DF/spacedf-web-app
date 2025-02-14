@@ -29,8 +29,8 @@ const mapTypes: MapTypeItem[] = [
     thumbnail: DefaultMapType,
   },
   {
-    id: 'satellite',
-    name: 'Satellite',
+    id: '3D_map',
+    name: '3D Map',
     thumbnail: SatelliteMapType,
   },
   {
@@ -42,6 +42,7 @@ const mapTypes: MapTypeItem[] = [
 
 export const SelectMapType = () => {
   const { theme, systemTheme } = useTheme()
+
   const { mapType, setMapType, isMapInitialized } = useGlobalStore(
     useShallow((state) => ({
       mapType: state.mapType,
@@ -63,6 +64,7 @@ export const SelectMapType = () => {
 
   useEffect(() => {
     if (!isMapInitialized) return
+
     updateMapType(mapType, currentTheme)
   }, [mapType, isMapInitialized, currentTheme])
 
@@ -71,9 +73,9 @@ export const SelectMapType = () => {
   if (!isMapInitialized) return
 
   return (
-    <div className="z-50 bottom-14 absolute left-2 group flex items-center gap-3">
+    <div className="z-50 bottom-14 absolute left-2 group flex items-center gap-3 min-h-20">
       <div className="border-[2px] rounded-lg border-white shadow-md ">
-        <div className="size-20 overflow-hidden rounded-lg relative">
+        <div className="size-16 overflow-hidden rounded-lg relative">
           <ImageWithBlur
             src={currentMapType?.thumbnail || ''}
             alt="map-thumbnail"

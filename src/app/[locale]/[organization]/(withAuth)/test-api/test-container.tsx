@@ -62,8 +62,6 @@ export const TestContainer = () => {
   const { updateWidget } = useUpdateWidget()
   const { deleteWidget } = useDeleteWidget()
 
-  console.log({ data })
-
   return (
     <div className="flex gap-5">
       <Button>GET</Button>

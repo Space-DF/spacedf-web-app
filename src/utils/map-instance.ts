@@ -55,13 +55,10 @@ class MapInstance {
   public apply3DBuildingLayer(): void {
     if (!this.map) return
     //@ts-ignore
-    const mapStyle = this.getMapStyle()
 
     // const simpleLayer = mapStyle?.layers?.find(
     //   (layer: any) => layer.id === 'symbol'
     // )?.id
-
-    console.log({ mapStyle })
 
     // if (firstLabelLayerId) {
     this.map.addLayer(
@@ -218,10 +215,6 @@ const add3DBuildingLayer = () => {
 
   if (!allMapInstance) return
 
-  console.log({ globalMap })
-
-  // console.log('buildings', allMapInstance?.getLayer('3d-buildings'))
-
   if (allMapInstance?.getLayer('3d-buildings')) return
 
   globalMap.apply3DBuildingLayer()
@@ -245,7 +238,7 @@ export const updateMapType = (
       }, 1000)
       break
 
-    case 'satellite':
+    case '3D_map':
       allMapInstance?.setStyle(`mapbox://styles/mapbox/standard`, {
         config: {
           basemap: {

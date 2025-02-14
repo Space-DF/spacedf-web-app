@@ -108,7 +108,7 @@ export const useLoadDeviceModels = () => {
             }
             return createRotatingLayer({
               device: devices[layer.id],
-              model: modelsProps[devices[layer.id].type],
+              model: modelsProps[devices?.[layer.id]?.type],
             })
           })
 

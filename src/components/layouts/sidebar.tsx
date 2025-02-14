@@ -1,18 +1,18 @@
 'use client'
 
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { LogOut } from 'lucide-react'
-import { signOut, useSession } from 'next-auth/react'
-import { useTranslations } from 'next-intl'
-import React, { forwardRef, useEffect, useState } from 'react'
-import { ImperativePanelGroupHandle } from 'react-resizable-panels'
-import { useShallow } from 'zustand/react/shallow'
-import { COOKIES, Navigation as TNavigation, NavigationData } from '@/constants'
+import { COOKIES, NavigationData, Navigation as TNavigation } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
 import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { LogOut } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import { forwardRef, useEffect, useState } from 'react'
+import { ImperativePanelGroupHandle } from 'react-resizable-panels'
+import { useShallow } from 'zustand/react/shallow'
 import {
   Question,
   SettingIcon,
@@ -22,11 +22,6 @@ import {
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import { Separator } from '../ui/separator'
-import GeneralSetting from './general-setting'
-import IdentityButton from './identity-button'
-import ModalSearch from './modal-search'
-import SwitchSpace from './switch-space'
-import ThemeToggle from './theme-toggle'
 import {
   Tooltip,
   TooltipArrow,
@@ -34,6 +29,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip'
+import GeneralSetting from './general-setting'
+import IdentityButton from './identity-button'
+import ModalSearch from './modal-search'
+import SwitchSpace from './switch-space'
+import ThemeToggle from './theme-toggle'
 
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
@@ -62,6 +62,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
 
   useEffect(() => {
     if (cookieDirty) return
+
     setDynamicLayouts(defaultDynamicLayouts)
   }, [defaultDynamicLayouts, cookieDirty])
 
