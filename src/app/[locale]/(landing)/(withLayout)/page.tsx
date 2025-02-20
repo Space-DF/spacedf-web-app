@@ -14,7 +14,7 @@ import { InputWithIcon } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Check, Mail } from 'lucide-react'
+import { AlignJustify, Check, Mail, X } from 'lucide-react'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
@@ -26,6 +26,14 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const formSchema = z.object({
   email: z
@@ -86,6 +94,7 @@ export default function LandingPage() {
   const waitlistRef = useRef<HTMLDivElement>(null)
   const [[page, direction], setPage] = useState([0, 0])
   const [openDialog, setOpenDialog] = useState<boolean>(false)
+  const [navOpened, setNavOpened] = useState(false)
   const textSteps = [
     t('universal_device_connectivity'),
     t('digital_twins_tailored_to_your_needs'),
@@ -162,12 +171,12 @@ export default function LandingPage() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 2, duration: 0.5 }}
-        className="flex items-center justify-between px-10 py-3.5 relative z-10"
+        className="flex items-center justify-between sm:px-10 px-5 py-3.5 relative z-10"
       >
         <div>
           <SpaceDFLogoFull className="text-white" />
         </div>
-        <nav>
+        <nav className="hidden sm:block">
           <ul className="flex border rounded-[28px] bg-[#171A28] border-[#242A46]">
             <li className="text-white py-1 px-5 text-lg cursor-pointer">
               <span onClick={handleScrollToWaitlist}>
@@ -198,7 +207,7 @@ export default function LandingPage() {
           <Button
             variant="link"
             asChild
-            className="uppercase text-white text-xs font-semibold"
+            className="uppercase text-white text-xs font-semibold hidden sm:block"
           >
             <Link href="/auth/sign-in">{t('sign_in')}</Link>
           </Button>
@@ -223,6 +232,58 @@ export default function LandingPage() {
               </Button>
             </div>
           </div>
+          <DropdownMenu open={navOpened} onOpenChange={setNavOpened}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white sm:hidden size-10"
+                aria-label="Toggle Navigation"
+                aria-controls="sidebar-menu"
+                aria-expanded={navOpened}
+                onClick={() => setNavOpened((prev) => !prev)}
+              >
+                {navOpened ? <X size={20} /> : <AlignJustify size={20} />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="bg-[#050505]/60 backdrop-filter backdrop-blur-[48px] border-brand-component-hover-dark w-40"
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  className="text-[14px] text-white font-normal bg-brand-component-fill-secondary rounded-md"
+                  onClick={handleScrollToWaitlist}
+                >
+                  {t('join_the_waitlist')}
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-[14px] text-white font-normal">
+                  <a
+                    href="https://discord.gg/YCkZcwcf"
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
+                    {t('join_our_discord')}
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-[14px] text-white font-normal">
+                  <a
+                    href="https://join.slack.com/t/spacedf/shared_invite/zt-2y4qtasl1-1hydHgwlpG2~bqVo2kVUHA"
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
+                    {t('join_our_slack')}
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator className="mx-0 bg-brand-component-text-gray-hover dark:bg-brand-background-fill-inner" />
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="text-[14px] text-white font-normal">
+                  {t('sign_in')}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </motion.header>
       <video
@@ -241,7 +302,7 @@ export default function LandingPage() {
         initial={{ y: 400, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1, duration: 0.7 }}
-        className="text-[56px] leading-[72px] -tracking-[0.02em] txt-gradiant font-bold text-center mt-4 relative z-10"
+        className="sm:text-[56px] text-[22px] leading-8 sm:leading-[72px] -tracking-[0.02em] txt-gradiant font-bold text-center mt-4 relative z-10"
         style={{
           backgroundImage:
             'linear-gradient(180deg, #FFFFFF 0%, #D0D0D0 56.54%, #6B6B6B 115.38%)',
@@ -252,7 +313,7 @@ export default function LandingPage() {
       </motion.div>
       <div className="overflow-x-hidden">
         <InteractiveGridPattern
-          className="[mask-image:radial-gradient(750px_circle_at_center,white,transparent)] top-0"
+          className="[mask-image:radial-gradient(750px_circle_at_center,white,transparent)] top-0 opacity-70"
           width={50}
           height={50}
           squares={[200, 200]}
@@ -262,12 +323,12 @@ export default function LandingPage() {
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.5 }}
-          className="my-10 flex justify-center gap-4 relative z-20"
+          className="sm:my-10 my-6 flex flex-wrap justify-center gap-2 sm:gap-4 relative z-20 px-5"
         >
           {textSteps.map((item, index) => (
             <Button
               className={cn(
-                'text-lg font-medium text-white border h-11 transition-all duration-300',
+                'basis-full sm:basis-auto text-[14px] sm:text-lg font-medium text-white border h-11 transition-all duration-300',
                 {
                   'border-brand-component-text-secondary border-2':
                     index === imageIndex,
@@ -290,18 +351,18 @@ export default function LandingPage() {
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 2, duration: 0.5 }}
-          className="px-12 relative z-10 aspect-video"
+          className="sm:px-12 px-5 relative z-10 aspect-video"
         >
           <Image
             src="/IllustrationBorder.webp"
             alt="background landing page"
             width={1000}
             height={1000}
-            className="absolute h-full w-[102%] max-w-none -left-3.5 -top-[100px] select-none"
+            className="absolute h-full sm:w-[102%] w-[110%] max-w-none sm:-left-3.5 -left-5 -top-7 sm:-top-[100px] select-none"
           />
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
-              className="absolute inset-0 px-[120px]"
+              className="absolute inset-0 sm:px-[120px] px-5"
               key={page}
               custom={direction}
               variants={variants}
@@ -314,7 +375,7 @@ export default function LandingPage() {
               }}
             >
               <video
-                className="block h-auto object-cover outline-0 bg-transparent rounded-[26px]"
+                className="block h-auto object-cover outline-0 bg-transparent rounded-lg sm:rounded-[26px]"
                 autoPlay
                 loop
                 muted
@@ -330,12 +391,15 @@ export default function LandingPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.5 }}
-        className="p-32 flex flex-col items-center gap-16 bg-bottom bg-no-repeat [background-size:1540px]"
+        className="px-5 py-10 sm:p-32 flex flex-col items-center gap-10 sm:gap-16 sm:bg-bottom bg-center bg-no-repeat [background-size:800px] sm:[background-size:1540px]"
         style={{ backgroundImage: 'url(/landing-page-bg-footer.webp)' }}
       >
-        <div className="flex flex-col items-center gap-10" ref={waitlistRef}>
+        <div
+          className="flex flex-col items-center gap-4 sm:gap-10"
+          ref={waitlistRef}
+        >
           <div
-            className="text-[56px] leading-[72px] -tracking-[0.02em] txt-gradiant font-bold"
+            className="text-[28px] sm:text-[56px] leading-[36px] sm:leading-[72px] -tracking-[0.02em] txt-gradiant font-bold"
             style={{
               backgroundImage:
                 'linear-gradient(180deg, #FFFFFF 0%, #D0D0D0 56.54%, #6B6B6B 115.38%)',
@@ -343,22 +407,22 @@ export default function LandingPage() {
           >
             {t('join_the_waitlist_for_the')}
           </div>
-          <div className="text-[86px] leading-[72px] -tracking-[0.02em] text-gradiant font-bold flex gap-5 items-center">
-            <FavIcon className="text-white" />
+          <div className="text-[28px] sm:text-[86px] leading-[40px] sm:leading-[72px] -tracking-[0.02em] text-gradiant font-bold flex gap-5 items-center">
+            <FavIcon className="text-white size-[38px] sm:size-[74px]" />
             SPACEDF
           </div>
         </div>
-        <div className="bg-[#050505]/60 rounded-[15px] form-waitlist backdrop-blur-[100px] p-8 flex flex-col items-center gap-3 w-full max-w-[500px]">
+        <div className="bg-[#050505]/60 rounded-[15px] form-waitlist backdrop-blur-[100px] sm:p-8 p-4 flex flex-col items-center gap-3 w-full max-w-[500px]">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex gap-3 w-full"
+              className="flex flex-wrap gap-3 w-full"
             >
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
+                  <FormItem className="flex-1 basis-full sm:basis-auto">
                     <FormControl>
                       <InputWithIcon
                         prefixCpn={<Mail size={16} />}
@@ -377,13 +441,13 @@ export default function LandingPage() {
                   backgroundImage:
                     'linear-gradient(76.06deg, #6E4AFF 0%, #A78BF6 100.07%)',
                 }}
-                className="font-semibold text-[16px] h-12 border-brand-component-stroke-secondary border-2"
+                className="basis-full sm:basis-auto font-semibold text-[16px] h-12 border-brand-component-stroke-secondary border-2"
               >
                 {t('join_waitlist')}
               </Button>
             </form>
           </Form>
-          <div className="text-brand-component-text-gray text-[16px]">
+          <div className="text-brand-component-text-gray text-xs sm:text-[16px]">
             {t('leave_your_email_to_be_the_first_to_hear_from_us')}
           </div>
         </div>
