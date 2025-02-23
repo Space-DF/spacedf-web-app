@@ -4,7 +4,7 @@ import MqttService from '@/lib/mqtt'
 import { uint8ArrayToObject } from '@/utils'
 import { Device } from './device-store'
 
-const MQTT_BROKER = 'ws://172.16.24.195:9001'
+const MQTT_BROKER = 'ws://api.v0.spacedf.net:1883/mqtt'
 
 const TOPIC = 'test/topic'
 
@@ -25,26 +25,28 @@ const client = mqttService.client
 export const createMQTTStore = (topic?: string) => {
   // const client = mqttClient.client
   return create<MQTTState>((set) => {
-    client?.on('connect', () => {
-      console.log('✅ MQTT connected')
-      set({ isConnected: true })
+    try {
+      client?.on('connect', () => {
+        console.log('✅ MQTT connected')
+        set({ isConnected: true })
 
-      if (topic) {
-        client?.subscribe(topic, (err) => {
-          if (!err) console.log(`📡 Subscribed to ${topic}`)
-        })
-      }
-    })
+        if (topic) {
+          client?.subscribe(topic, (err) => {
+            if (!err) console.log(`📡 Subscribed to ${topic}`)
+          })
+        }
+      })
 
-    client?.on('message', (receivedTopic, payload) => {
-      if (receivedTopic === topic) {
-        set({ message: payload.toString() })
-      }
-    })
+      client?.on('message', (receivedTopic, payload) => {
+        if (receivedTopic === topic) {
+          set({ message: payload.toString() })
+        }
+      })
 
-    client?.on('error', (err) => {
-      console.error('❌ MQTT error:', err)
-    })
+      client?.on('error', (err) => {
+        console.error('❌ MQTT error:', err)
+      })
+    } catch {}
 
     return {
       message: '',
@@ -54,23 +56,25 @@ export const createMQTTStore = (topic?: string) => {
       publish: (msg) => client?.publish(TOPIC, msg, { qos: 1 }),
       deviceReceivedData: {},
       subscribeToDevice(deviceId) {
-        const deviceTopic = `device/${deviceId}`
-        client?.subscribe(deviceTopic, (err) => {
-          if (!err) console.log(`📡 Subscribed to ${deviceId}`)
-        })
+        try {
+          const deviceTopic = `device/${deviceId}`
+          client?.subscribe(deviceTopic, (err) => {
+            if (!err) console.log(`📡 Subscribed to ${deviceId}`)
+          })
 
-        client?.on('message', (receivedTopic, payload) => {
-          if (receivedTopic === deviceTopic) {
-            const data = uint8ArrayToObject(payload)
+          client?.on('message', (receivedTopic, payload) => {
+            if (receivedTopic === deviceTopic) {
+              const data = uint8ArrayToObject(payload)
 
-            set((state) => ({
-              deviceReceivedData: {
-                ...state.deviceReceivedData,
-                [deviceId]: data,
-              },
-            }))
-          }
-        })
+              set((state) => ({
+                deviceReceivedData: {
+                  ...state.deviceReceivedData,
+                  [deviceId]: data,
+                },
+              }))
+            }
+          })
+        } catch {}
       },
     }
   })
