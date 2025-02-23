@@ -4,7 +4,7 @@ import MqttService from '@/lib/mqtt'
 import { uint8ArrayToObject } from '@/utils'
 import { Device } from './device-store'
 
-const MQTT_BROKER = 'ws://api.v0.spacedf.net:1883/mqtt'
+const MQTT_BROKER = 'wss://api.v0.spacedf.net:1883/mqtt'
 
 const TOPIC = 'test/topic'
 
