@@ -40,7 +40,6 @@ export const useUpdateSpace = () => {
   const updateSpaceTrigger = async (params: UseUpdateSpaceParams) => {
     await trigger(params, {
       optimisticData: (prevData) => {
-        console.log('Previous Data:', prevData)
         const newSpaces = (prevData as UseGetSpaceResponse).data?.results?.map(
           (space) => {
             if (space.slug_name === params.slug_name) {

@@ -10,18 +10,18 @@ export const getLocalStorage = (key: string, initialValue: any) => {
 }
 
 export const checkDisplayedDynamicLayout = (
-  currentLayouts: DynamicLayout[],
+  currentLayouts: DynamicLayout[]
 ) => {
   return currentLayouts.some((layoutKey) =>
-    dynamicLayoutKeys.includes(layoutKey),
+    dynamicLayoutKeys.includes(layoutKey)
   )
 }
 
 export const getDynamicLayoutRight = (
-  dynamicLayouts: `${NavigationEnums}`[],
+  dynamicLayouts: `${NavigationEnums}`[]
 ) => {
   return dynamicLayouts.filter((layoutKey) =>
-    dynamicLayoutKeys.includes(layoutKey as any),
+    dynamicLayoutKeys.includes(layoutKey as any)
   )
 }
 
@@ -43,7 +43,7 @@ export const delay = async (delayMsTime: number = 0) => {
     resolveOuter(
       new Promise((resolveInner) => {
         setTimeout(resolveInner, delayMsTime)
-      }),
+      })
     )
   })
 }
@@ -55,4 +55,19 @@ export const getClientOrganization = async () => {
   }
 
   return ''
+}
+
+export const uint8ArrayToObject = (uint8Array: Uint8Array) => {
+  const decoder = new TextDecoder('utf-8')
+  const jsonString = decoder.decode(uint8Array)
+  return JSON.parse(jsonString)
+}
+
+export const mapResize = () => {
+  if (typeof window === 'undefined') return
+
+  const map = window?.mapInstance?.getMapInstance()
+  if (!map || map.isStyleLoaded()) return
+
+  console.log('Resize')
 }

@@ -3,14 +3,7 @@ import { NextResponse } from 'next/server'
 
 const GET = async () => {
   try {
-    const deviceObjs = devices.reduce(
-      (base, current) => ({
-        ...base,
-        [current.id]: current,
-      }),
-      {}
-    )
-    return NextResponse.json(deviceObjs, {
+    return NextResponse.json(devices, {
       status: 200,
     })
   } catch (errors: any) {

@@ -1,17 +1,30 @@
 import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
-import { PropsWithChildren, useEffect } from 'react'
+import { PropsWithChildren, useEffect, useState } from 'react'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
 
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
-  const { setDeviceModel, setInitializedSuccess } = useDeviceStore()
+  const { setDeviceModel, setInitializedSuccess, setDevices } = useDeviceStore()
+  const [fetchStatus, setFetchStatus] = useState({
+    initializedModels: false,
+    initializedDevices: false,
+  })
 
   useEffect(() => {
     loadModels()
+    getDevices()
   }, [])
+
+  useEffect(() => {
+    if (fetchStatus.initializedDevices && fetchStatus.initializedModels) {
+      setTimeout(() => {
+        setInitializedSuccess(true)
+      }, 1000)
+    }
+  }, [fetchStatus.initializedDevices, fetchStatus.initializedModels])
 
   const loadModels = async () => {
     try {
@@ -34,11 +47,28 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
       setDeviceModel('rak', rakModel)
       setDeviceModel('tracki', trackiModel)
+
+      setFetchStatus((prev) => ({
+        ...prev,
+        initializedModels: true,
+      }))
     } catch (error) {
       console.error({ error })
     } finally {
-      setInitializedSuccess(true)
     }
   }
+
+  const getDevices = async () => {
+    try {
+      const response = await fetch('/api/devices')
+      const data = await response.json()
+      setDevices(data)
+      setFetchStatus((prev) => ({
+        ...prev,
+        initializedDevices: true,
+      }))
+    } catch {}
+  }
+
   return <>{children}</>
 }

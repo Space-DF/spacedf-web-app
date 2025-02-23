@@ -35,6 +35,8 @@ export const authOptions: NextAuthOptions = {
 
           const client = spaceDFInstance.getClient()
           const data = await client.auth.login({ email, password })
+
+          console.log({ data })
           spaceDFInstance.setToken(data.access)
 
           return {

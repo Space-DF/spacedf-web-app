@@ -60,6 +60,11 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
+  const { setDeviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      setDeviceSelected: state.setDeviceSelected,
+    }))
+  )
 
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
@@ -73,6 +78,7 @@ const Devices = () => {
         setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
         setCookieDirty(true)
         toggleDynamicLayout('devices')
+        setDeviceSelected('')
       }}
       title={t('selected_devices')}
     >
@@ -226,17 +232,15 @@ const DeviceSelected = () => {
   //   useShallow((state) => state.setOpenDrawerIdentity)
   // )
 
-  const { deviceSelected } = useDeviceStore(
+  const { deviceSelected, devices } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
+      devices: state.devices,
       setDeviceSelected: state.setDeviceSelected,
     }))
   )
 
   const { startDrawHistory } = useDeviceHistory()
-
-  const { data } = useGetDevices()
-  const devices = data || {} || {}
 
   // const { status } = useSession()
   // const isAuth = status === 'authenticated'∏

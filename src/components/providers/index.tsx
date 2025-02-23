@@ -3,12 +3,11 @@
 import { Toaster } from '@/components/ui/sonner'
 import { Session } from 'next-auth'
 import { PropsWithChildren } from 'react'
-import NextThemeProvider from './next-theme'
-import { NextAuthSessionProvider } from './session-provider'
-import { MapProvider } from './map-provider'
-import SWRProvider from './swr-provider'
 import { SWRDevTools } from 'swr-devtools'
 import { DeviceProvider } from './device-provider'
+import NextThemeProvider from './next-theme'
+import { NextAuthSessionProvider } from './session-provider'
+import SWRProvider from './swr-provider'
 
 const AppProvider = ({
   children,
@@ -21,9 +20,7 @@ const AppProvider = ({
       <NextThemeProvider>
         <NextAuthSessionProvider session={session}>
           <SWRProvider>
-            <DeviceProvider>
-              <MapProvider>{children}</MapProvider>
-            </DeviceProvider>
+            <DeviceProvider>{children}</DeviceProvider>
           </SWRProvider>
           <Toaster position="top-right" richColors />
         </NextAuthSessionProvider>

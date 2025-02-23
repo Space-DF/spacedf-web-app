@@ -14,6 +14,8 @@ export type Device = {
   type: SupportedModels
   layerProps?: Record<string, any>
   histories: any
+  latestLocation?: [number, number]
+  realtimeTrip?: [number, number][]
 } & GpsTrackerAttributes &
   (TrackiAttributes | RakAttributes)
 
@@ -30,6 +32,8 @@ type DeviceModelAction = {
 
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
+
+  setDeviceReceivedData: (deviceId: string, data: Partial<Device>) => void
 }
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
@@ -56,6 +60,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
 
     setDevices: (data) => {
       if (!data.length) return
+
       return set(() => ({
         devices: data.reduce(
           (acc, device) => ({
@@ -64,6 +69,15 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
           }),
           {}
         ),
+      }))
+    },
+
+    setDeviceReceivedData: (deviceId, data) => {
+      return set((state) => ({
+        devices: {
+          ...state.devices,
+          [deviceId]: { ...state.devices[deviceId], ...data },
+        },
       }))
     },
 

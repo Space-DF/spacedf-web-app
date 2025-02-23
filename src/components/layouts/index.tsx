@@ -2,15 +2,12 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
+import { checkMapRendered } from '@/app/[locale]/[organization]/(withDynamicLayout)/digital-twins/helper'
 import { COOKIES } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
 import { cn } from '@/lib/utils'
-import {
-  DynamicLayout as TDynamicLayout,
-  useGlobalStore,
-  useLayout,
-} from '@/stores'
+import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -44,6 +41,7 @@ const DynamicLayout = ({
   defaultCollapsed,
 }: DynamicLayoutProps) => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+
   const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
@@ -51,31 +49,39 @@ const DynamicLayout = ({
   const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
   const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
 
-  const { isMapInitialized, setIsMapBlur } = useGlobalStore(
-    useShallow((state) => ({
-      isMapInitialized: state.isMapInitialized,
-      setIsMapBlur: state.setIsMapBlur,
-    }))
-  )
-
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
 
   useEffect(() => {
-    setIsMapBlur(true)
+    const isMapLoaded = checkMapRendered()
 
-    if (!isMapInitialized || !window.mapInstance) return
-    if (resizeMapLayoutTimeOutId.current) {
-      clearTimeout(resizeMapLayoutTimeOutId.current)
-    }
+    if (isMapLoaded) {
+      if (resizeMapLayoutTimeOutId.current) {
+        clearTimeout(resizeMapLayoutTimeOutId.current)
+      }
 
-    resizeMapLayoutTimeOutId.current = setTimeout(() => {
       const map = window.mapInstance.getMapInstance()
-      map?.resize()
-      setIsMapBlur(false)
-    }, 300)
-  }, [dynamicLayouts, isMapInitialized])
+
+      if (map?.getContainer()?.style) {
+        map.getContainer().style.animationDuration = '0.5s'
+        map.getContainer().style.opacity = '0.5'
+        map.getContainer().style.filter = 'blur(10px)'
+      }
+
+      resizeMapLayoutTimeOutId.current = setTimeout(() => {
+        map?.resize()
+
+        if (map?.getContainer()?.style) {
+          map.getContainer().style.animationDuration = '0.5s'
+          map.getContainer().style.opacity = '1'
+          map.getContainer().style.filter = 'blur(0px)'
+        }
+      }, 500)
+    }
+  }, [JSON.stringify(dynamicLayouts)])
+
+  useEffect(() => {})
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -159,18 +165,32 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    setIsMapBlur(true)
-    if (isMapInitialized && window.mapInstance) {
+    const isMapLoaded = checkMapRendered()
+
+    if (isMapLoaded) {
       if (resizeMapTimeOutId.current) {
         clearTimeout(resizeMapTimeOutId.current)
       }
 
+      const map = window.mapInstance.getMapInstance()
+
+      if (map?.getContainer()?.style) {
+        map.getContainer().style.animationDuration = '0.5s'
+        map.getContainer().style.opacity = '0.5'
+        map.getContainer().style.filter = 'blur(10px)'
+      }
+
       resizeMapTimeOutId.current = setTimeout(() => {
-        const map = window.mapInstance.getMapInstance()
         map?.resize()
-        setIsMapBlur(false)
-      }, 300)
+
+        if (map?.getContainer()?.style) {
+          map.getContainer().style.animationDuration = '0.5s'
+          map.getContainer().style.opacity = '1'
+          map.getContainer().style.filter = 'blur(0px)'
+        }
+      }, 500)
     }
+
     if (sizes[0] <= 8 && !isCollapsed) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
