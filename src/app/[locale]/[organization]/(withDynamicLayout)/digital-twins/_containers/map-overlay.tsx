@@ -169,8 +169,18 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
         }
       })
 
-      map.on('move', updateClusters)
-      map.on('zoom', updateClusters)
+      const handleZoom = () => {
+        console.log('zoom')
+      }
+
+      map.on('move', () => {
+        updateClusters()
+        handleZoom()
+      })
+      map.on('zoom', () => {
+        updateClusters()
+        handleZoom()
+      })
 
       map.addControl(
         new mapboxgl.GeolocateControl({

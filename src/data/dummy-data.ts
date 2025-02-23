@@ -49,6 +49,8 @@ export const devices: Device[] = [
       end: [108.22003, 16.05486],
       start: [108.2265, 16.0578],
     },
+    latestLocation: [108.22003, 16.05486],
+    realtimeTrip: [[108.22003, 16.05486]],
   },
 
   {
@@ -71,6 +73,8 @@ export const devices: Device[] = [
       end: [108.222, 16.05487],
       start: [108.2142447, 16.0604518],
     },
+    latestLocation: [108.222, 16.05487],
+    realtimeTrip: [[108.222, 16.05487]],
   },
 
   {
@@ -94,97 +98,100 @@ export const devices: Device[] = [
       end: [108.221, 16.05485],
       start: [108.2247397, 16.0485692],
     },
+
+    latestLocation: [108.221, 16.05485],
+    realtimeTrip: [[108.221, 16.05485]],
   },
 
-  // 15.509540258979442, 108.6785540886935
-  {
-    name: 'Tracki 2',
-    id: '4',
-    status: 'active',
-    battery: 90,
-    type: 'tracki',
-    location: [108.6785540886935, 15.509540258979442],
-    layerProps: {
-      sizeScale: 700,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
-      },
-    },
-    histories: {
-      start: [],
-      end: [],
-    },
-  },
+  // // 15.509540258979442, 108.6785540886935
+  // {
+  //   name: 'Tracki 2',
+  //   id: '4',
+  //   status: 'active',
+  //   battery: 90,
+  //   type: 'tracki',
+  //   location: [108.6785540886935, 15.509540258979442],
+  //   layerProps: {
+  //     sizeScale: 700,
+  //     rotation: 'yaw',
+  //     orientation: {
+  //       pitch: 0,
+  //       yaw: 360,
+  //       roll: 180,
+  //     },
+  //   },
+  //   histories: {
+  //     start: [],
+  //     end: [],
+  //   },
+  // },
 
-  // 15.509969169714747, 108.67867759013264
+  // // 15.509969169714747, 108.67867759013264
 
-  {
-    name: 'Tracki 3',
-    id: '5',
-    status: 'active',
-    battery: 90,
-    type: 'tracki',
-    location: [108.67867759013264, 15.509969169714747],
-    layerProps: {
-      sizeScale: 700,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
-      },
-    },
-    histories: {
-      start: [],
-      end: [],
-    },
-  },
+  // {
+  //   name: 'Tracki 3',
+  //   id: '5',
+  //   status: 'active',
+  //   battery: 90,
+  //   type: 'tracki',
+  //   location: [108.67867759013264, 15.509969169714747],
+  //   layerProps: {
+  //     sizeScale: 700,
+  //     rotation: 'yaw',
+  //     orientation: {
+  //       pitch: 0,
+  //       yaw: 360,
+  //       roll: 180,
+  //     },
+  //   },
+  //   histories: {
+  //     start: [],
+  //     end: [],
+  //   },
+  // },
 
-  {
-    name: 'Rak 5',
-    id: '6',
-    status: 'active',
-    template: '456',
-    type: 'rak',
-    location: [107.5406340057634, 16.474046857665563],
-    layerProps: {
-      sizeScale: 200,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
-      },
-    },
-    histories: {
-      start: [],
-      end: [],
-    },
-  },
+  // {
+  //   name: 'Rak 5',
+  //   id: '6',
+  //   status: 'active',
+  //   template: '456',
+  //   type: 'rak',
+  //   location: [107.5406340057634, 16.474046857665563],
+  //   layerProps: {
+  //     sizeScale: 200,
+  //     rotation: 'yaw',
+  //     orientation: {
+  //       pitch: 0,
+  //       yaw: 90,
+  //       roll: 90,
+  //     },
+  //   },
+  //   histories: {
+  //     start: [],
+  //     end: [],
+  //   },
+  // },
 
-  // 16.511313632165106, 107.54960305263684
-  {
-    name: 'Rak 5',
-    id: '7',
-    status: 'active',
-    template: '456',
-    type: 'rak',
-    location: [107.54960305263684, 16.511313632165106],
-    layerProps: {
-      sizeScale: 200,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
-      },
-    },
-    histories: {
-      start: [],
-      end: [],
-    },
-  },
+  // // 16.511313632165106, 107.54960305263684
+  // {
+  //   name: 'Rak 5',
+  //   id: '7',
+  //   status: 'active',
+  //   template: '456',
+  //   type: 'rak',
+  //   location: [107.54960305263684, 16.511313632165106],
+  //   layerProps: {
+  //     sizeScale: 200,
+  //     rotation: 'yaw',
+  //     orientation: {
+  //       pitch: 0,
+  //       yaw: 90,
+  //       roll: 90,
+  //     },
+  //   },
+  //   histories: {
+  //     start: [],
+  //     end: [],
+  //   },
+  // },
 ]

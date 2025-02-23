@@ -34,12 +34,14 @@ const ExpandedToggle = () => {
         return (
           <div
             key={theme}
-            onClick={() => setTheme(theme)}
+            onClick={() => {
+              setTheme(theme)
+            }}
             className={cn(
               'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[6px] p-1 capitalize duration-300',
               isActive
                 ? 'bg-white text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white'
-                : 'bg-transparent text-brand-text-gray dark:text-brand-dark-text-gray',
+                : 'bg-transparent text-brand-text-gray dark:text-brand-dark-text-gray'
             )}
           >
             {theme === 'light' ? (
@@ -49,7 +51,7 @@ const ExpandedToggle = () => {
                   'duration-300',
                   isActive
                     ? 'fill-brand-text-dark dark:fill-white'
-                    : 'bg-transparent',
+                    : 'bg-transparent'
                 )}
               />
             ) : (
@@ -59,7 +61,7 @@ const ExpandedToggle = () => {
                   'duration-300',
                   isActive
                     ? 'fill-brand-text-dark dark:fill-white'
-                    : 'bg-transparent',
+                    : 'bg-transparent'
                 )}
               />
             )}
@@ -79,7 +81,9 @@ const CollapsedToggle = () => {
       variant="outline"
       size="icon"
       className="border-0 bg-transparent p-0 shadow-none"
-      onClick={() => setTheme((currentTheme === 'light' && 'dark') || 'light')}
+      onClick={() => {
+        setTheme((currentTheme === 'light' && 'dark') || 'light')
+      }}
     >
       {currentTheme === 'light' ? (
         <Sun size={16} className="fill-black duration-300 dark:fill-white" />
