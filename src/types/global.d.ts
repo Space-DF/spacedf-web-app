@@ -56,6 +56,18 @@ export type DataResponse<T = unknown> = {
   status: number
 }
 
+export type Response<T = unknown> = {
+  data?: {
+    response_data: {
+      count?: number
+      next?: any
+      previous?: any
+      results?: T[]
+    }
+  }
+  status: number
+}
+
 export type ApiErrorResponse = {
   detail: string
   code?: number

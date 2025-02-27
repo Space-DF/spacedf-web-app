@@ -1,8 +1,5 @@
 export function stripHTML(str: string): string {
-  return str
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/ +/g, ' ')
-    .trim()
+  return str.replace(/<[^>]+>/g, ' ').replace(/ +/g, ' ')
 }
 
 export function removeUnicode(str: string): string {
@@ -18,5 +15,4 @@ export function toSlug(str: string): string {
     .replace(/([^0-9a-z-\s])/g, '-')
     .replace(/(\s+)/g, '-')
     .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
