@@ -1,10 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useTranslations } from 'next-intl'
-
-import { Link, usePathname } from '@/i18n/routing'
-import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ChevronDown } from 'lucide-react'
 import {
@@ -22,49 +18,12 @@ export function RootUserLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const t = useTranslations('organization')
-  const pathname = usePathname()
-  const navs = [
-    {
-      href: '/overview',
-      key: 'overview',
-      label: t('overview'),
-    },
-    {
-      href: '/organization',
-      key: 'organization',
-      label: t('organization'),
-    },
-    {
-      href: '/member',
-      key: 'member',
-      label: t('member'),
-    },
-  ]
-
   return (
     <>
-      <header className="flex items-center justify-between px-10 py-6">
+      <header className="flex items-center justify-between px-10 py-2 border-b border-brand-component-stroke-dark-soft">
         <div>
           <SpaceDFLogoFull />
         </div>
-        <nav>
-          <ul className="flex rounded-full border border-brand-component-stroke-dark-soft">
-            {navs.map((nav) => (
-              <li key={nav.key}>
-                <Link
-                  href={nav.href}
-                  className={cn('inline-block rounded-full px-5 py-3.5', {
-                    'bg-brand-component-fill-dark text-brand-component-text-light':
-                      pathname === nav.href,
-                  })}
-                >
-                  {nav.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-3 rounded-full border border-brand-component-stroke-dark-soft p-2">
