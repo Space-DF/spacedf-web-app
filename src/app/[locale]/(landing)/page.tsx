@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { AlignJustify, Check, Mail, X } from 'lucide-react'
-import { Link } from '@/i18n/routing'
+import { Link, useRouter } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -95,6 +95,7 @@ export default function LandingPage() {
   const [[page, direction], setPage] = useState([0, 0])
   const [openDialog, setOpenDialog] = useState<boolean>(false)
   const [navOpened, setNavOpened] = useState(false)
+  const router = useRouter()
   const textSteps = [
     t('universal_device_connectivity'),
     t('digital_twins_tailored_to_your_needs'),
@@ -278,7 +279,12 @@ export default function LandingPage() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="mx-0 bg-brand-component-text-gray-hover dark:bg-brand-background-fill-inner" />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="text-[14px] text-white font-normal">
+                <DropdownMenuItem
+                  className="text-[14px] text-white font-normal"
+                  onClick={() => {
+                    router.push('/auth/sign-in')
+                  }}
+                >
                   {t('sign_in')}
                 </DropdownMenuItem>
               </DropdownMenuGroup>

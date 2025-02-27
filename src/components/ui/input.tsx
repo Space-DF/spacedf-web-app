@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div
             className={cn(
               'flex h-9 items-center justify-center gap-2 rounded-md border-brand-stroke-dark-soft bg-brand-fill-dark-soft px-3 ring-offset-background focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2 focus-visible:ring-ring data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 dark:bg-brand-heading dark:ring-brand-stroke-outermost',
-              className,
+              className
             )}
             data-disabled={props.disabled}
           >
@@ -39,7 +39,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <input
               type={type}
               className={cn(
-                'flex h-full w-full rounded-md border-none bg-transparent py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none',
+                'flex h-full w-full rounded-md border-none bg-transparent py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none'
               )}
               ref={ref}
               {...props}
@@ -53,7 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               'flex h-9 w-full rounded-lg border border-brand-stroke-dark-soft bg-brand-fill-dark-soft px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:text-white dark:ring-brand-stroke-outermost',
-              className,
+              className
             )}
             ref={ref}
             {...props}
@@ -61,7 +61,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </>
     )
-  },
+  }
 )
 
 const InputWithIcon = React.forwardRef<
@@ -74,11 +74,11 @@ const InputWithIcon = React.forwardRef<
 >(
   (
     { className, type, prefixCpn, suffixCpn, wrapperClass = '', ...props },
-    ref,
+    ref
   ) => {
     return (
       <div className={cn('relative flex max-w-2xl items-center', wrapperClass)}>
-        <div className="absolute left-2 top-1/2 size-4 -translate-y-1/2 transform text-brand-text-gray">
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 transform text-brand-text-gray">
           {prefixCpn}
         </div>
         <Input
@@ -87,18 +87,18 @@ const InputWithIcon = React.forwardRef<
             {
               'pr-8': !!suffixCpn,
             },
-            className,
+            className
           )}
           type={type}
           ref={ref}
           {...props}
         />
-        <div className="absolute right-2 top-1/2 size-4 -translate-y-1/2 transform text-brand-text-gray">
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 transform text-brand-text-gray">
           {suffixCpn}
         </div>
       </div>
     )
-  },
+  }
 )
 
 Input.displayName = 'Input'

@@ -63,6 +63,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.firstName = token.firstName
         session.user.lastName = token.lastName
+        session.user.accessToken = token.accessToken
+        session.user.refreshToken = token.refreshToken
       }
 
       return session

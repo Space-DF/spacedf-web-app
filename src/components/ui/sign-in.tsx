@@ -14,7 +14,7 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { Link } from '@/i18n/routing'
+import { Link, useRouter } from '@/i18n/routing'
 import { ApiResponse } from '@/types/global'
 import { passwordSchema } from '@/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,13 +47,14 @@ const singInSchema = z.object({
 
 const SignInForm = () => {
   const t = useTranslations('signUp')
+  const router = useRouter()
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
     defaultValues: {
-      email: '',
-      password: '',
-      // email: 'sgt+root5@yopmail.com',
-      // password: '@Aa123123',
+      // email: '',
+      // password: '',
+      email: 'root01@yopmail.com',
+      password: '@Aa123123',
     },
   })
   const [isShowPassword, setIsShowPassword] = useState(false)
@@ -85,14 +86,12 @@ const SignInForm = () => {
             }),
           })
           setTimeout(() => {
-            console.log(window.location.origin)
-            const [protocol, host] = window.location.origin.split('//')
+            // const [protocol, host] = window.location.origin.split('//')
+            // const orgDomain = 'develop.' + host
+            // const orgFullURL = [protocol, orgDomain].join('//')
+            // window.location.href = orgFullURL
 
-            const orgDomain = 'develop.' + host
-
-            const orgFullURL = [protocol, orgDomain].join('//')
-
-            window.location.href = orgFullURL
+            router.replace('/organizations')
           }, 500)
           return data?.response_data?.message || 'Sign up successful!'
         },
