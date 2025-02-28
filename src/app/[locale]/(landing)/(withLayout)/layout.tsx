@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from '@/i18n/routing'
 import { Locale } from '@/types/global'
+import { SearchProvider } from '@/contexts/search-organization-context'
 
 export default async function UserLayout({
   children,
@@ -16,5 +17,5 @@ export default async function UserLayout({
     redirect({ href: '/', locale })
   }
 
-  return children
+  return <SearchProvider>{children}</SearchProvider>
 }

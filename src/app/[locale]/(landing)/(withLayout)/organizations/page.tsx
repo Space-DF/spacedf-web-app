@@ -12,11 +12,12 @@ import { RootUserLayout } from '@/components/layouts/root-layout'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import LoadingFullScreen from '@/components/ui/loading-fullscreen'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
 import { useDebounce, usePageTransition } from '@/hooks'
 import { SpaceDFLogoFull } from '@/components/icons'
+import { useSearch } from '@/contexts/search-organization-context'
 
 export default function OrganizationPage() {
   const { data: session } = useSession()
@@ -25,6 +26,8 @@ export default function OrganizationPage() {
     useShallow((state) => state)
   )
   const { startRender } = usePageTransition({ duration: duration || 1000 })
+  const { open } = useSearch()
+  const refInputSearch = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState('')
   const searchValue = useDebounce(search, 300)
   const { data: organizations } = useGetOrganizations({
@@ -42,10 +45,11 @@ export default function OrganizationPage() {
     }
   }, [startRender])
 
-  console.info(
-    `\x1b[34mFunc: OrganizationPage - PARAMS: organizations\x1b[0m`,
-    organizations
-  )
+  useEffect(() => {
+    if (open && refInputSearch.current) {
+      refInputSearch.current.focus()
+    }
+  }, [open])
 
   return (
     <RootUserLayout>
@@ -78,6 +82,7 @@ export default function OrganizationPage() {
         <div className="h-full flex flex-col gap-4">
           <div>
             <InputWithIcon
+              ref={refInputSearch}
               prefixCpn={<Search size={16} />}
               suffixCpn={
                 <div className="size-5 text-brand-component-text-gray text-[14px] font-semibold mr-1.5">
