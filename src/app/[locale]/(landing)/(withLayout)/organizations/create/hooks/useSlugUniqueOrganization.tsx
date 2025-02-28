@@ -1,29 +1,19 @@
-import { ApiErrorResponse, ApiResponse } from '@/types/global'
+import { ApiErrorResponse } from '@/types/global'
 import useSWRMutation from 'swr/mutation'
 
 export const SWR_GET_ORGANIZATION_ENDPOINT =
-  '/api/console/organization/generate-slug'
-
-export type OrganizationSlug = {
-  generated_slug_name: string
-  original_name: string
-}
-
-type UseGenerateOrganizationsResponse = ApiResponse<{
-  response_data: OrganizationSlug
-  status: number
-}>
+  '/api/console/organization/check-slug-unique'
 
 interface Options {
   payload: {
-    name: string
+    slug_name: string
   }
   headers: {
     Authorization: string
   }
 }
 
-export async function generateOrganizations<T>(
+export async function checkSlugOrganization<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
@@ -42,9 +32,6 @@ export async function generateOrganizations<T>(
   return response.json()
 }
 
-export function useGenerateOrganization() {
-  return useSWRMutation(
-    SWR_GET_ORGANIZATION_ENDPOINT,
-    generateOrganizations<UseGenerateOrganizationsResponse>
-  )
+export function useCheckSlugUniqueOrganization() {
+  return useSWRMutation(SWR_GET_ORGANIZATION_ENDPOINT, checkSlugOrganization)
 }

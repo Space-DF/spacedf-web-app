@@ -3,7 +3,7 @@ import { FetchAPI } from '@/lib/fecth'
 import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
 import { ApiErrorResponse, ApiResponse } from '@/types/global'
 
-const ORGANIZATION_ENDPOINT = 'console/api/organizations/check-slug-unique'
+const ORGANIZATION_ENDPOINT = 'console/api/organizations/check-slug-unique/'
 
 export const POST = async (
   req: NextRequest
