@@ -141,6 +141,9 @@ export function CreateOrganization() {
                         const value = event.target.value
                         field.onChange(value)
                         form.setValue('slug_name', toSlug(value))
+                        setOrganizationName(
+                          toSlug(value) || defaultOrganizationName
+                        )
                       }}
                     />
                   </FormControl>
