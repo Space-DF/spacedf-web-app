@@ -105,6 +105,9 @@ export const useLoadDeviceModel = (deviceId: string) => {
 
   const overlayId = `device-model-overlay-${deviceId}`
 
+  // Thêm ref để track các trip layers của device
+  const deviceTripsRef = useRef<{ [key: string]: MapboxOverlay }>({})
+
   useEffect(() => {
     loadDeviceModel()
     subscribeToDevice(deviceId)
@@ -147,6 +150,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
 
     if (JSON.stringify(currentDeviceData) !== JSON.stringify(previousDevice)) {
       currentDeviceDataRef.current = currentDeviceData
+
       deviceModelOverlayRef.current?.setProps({
         id: overlayId,
         layers: [
@@ -224,11 +228,32 @@ export const useLoadDeviceModel = (deviceId: string) => {
   }, [deviceSelected])
 
   useEffect(() => {
-    if (deviceSelected === deviceId) {
-      if (currentDeviceData.realtimeTrip?.length) {
-        drawDeviceHistory()
+    // Cleanup effect khi component unmount
+    return () => {
+      // Xóa tất cả trips của device này
+      cleanupDeviceTrips()
+    }
+  }, [])
+
+  const cleanupDeviceTrips = () => {
+    const map = window.mapInstance.getMapInstance()
+    if (!map) return
+
+    // Xóa tất cả trips của device này
+    Object.values(deviceTripsRef.current).forEach((overlay) => {
+      if (map.hasControl(overlay)) {
+        map.removeControl(overlay)
       }
+    })
+    deviceTripsRef.current = {}
+    deviceTripRealtimeRef.current = null
+  }
+
+  useEffect(() => {
+    if (deviceSelected === deviceId && currentDeviceData.realtimeTrip?.length) {
+      drawDeviceHistory()
     } else {
+      removeDeviceTripRealtime()
     }
   }, [deviceSelected, JSON.stringify(currentDeviceData.realtimeTrip)])
 
@@ -306,7 +331,38 @@ export const useLoadDeviceModel = (deviceId: string) => {
     })
   }
 
+  const manageMapControl = (
+    control: MapboxOverlay | null,
+    action: 'add' | 'remove'
+  ) => {
+    const map = window.mapInstance.getMapInstance()
+    if (!map || !control) return false
+
+    try {
+      if (action === 'add') {
+        if (!map.hasControl(control)) {
+          map.addControl(control)
+          return true
+        }
+      } else if (action === 'remove') {
+        if (map.hasControl(control)) {
+          map.removeControl(control)
+          return true
+        }
+      }
+    } catch (error) {
+      console.warn(`Error ${action}ing control:`, error)
+    }
+    return false
+  }
+
   const drawDeviceHistory = () => {
+    const map = window.mapInstance.getMapInstance()
+    if (!map) return
+
+    // Generate unique ID for this trip layer
+    const tripId = `device-trip-${deviceId}-${Date.now()}`
+
     const dataRealtime = [
       {
         waypoints: (currentDeviceData.realtimeTrip || []).map(
@@ -318,83 +374,38 @@ export const useLoadDeviceModel = (deviceId: string) => {
       },
     ]
 
-    const map = window.mapInstance.getMapInstance()
-
     const layer = new TripsLayer({
-      id: 'trips-layer',
+      id: tripId,
       data: dataRealtime,
-
       getPath: (d) => d.waypoints.map((p: any) => p.coordinates),
       getTimestamps: (d) => d.waypoints.map((p: any) => p.timestamp),
-
       getColor: () => [253, 128, 93],
       currentTime: dataRealtime[0].waypoints.length * 1000,
       trailLength: 1000000,
-
       capRounded: true,
       jointRounded: true,
       widthMinPixels: 8,
+      updateTriggers: {
+        getPath: JSON.stringify(dataRealtime),
+      },
     })
-
-    // const layer = new TripsLayer<Trip>({
-    //   id: 'device-realtime-trip',
-    //   data: trip,
-    //   getPath: (d) => d.path,
-    //   getTimestamps: (d: any) => d.timestamps,
-    //   getColor: (d) =>
-    //     d.vendor === 1 ? DEFAULT_THEME.trailColor0 : DEFAULT_THEME.trailColor1,
-    //   opacity: 0.3,
-    //   widthMinPixels: 2,
-    //   rounded: true,
-    //   trailLength: 180,
-    //   currentTime: 105,
-    // })
 
     const deviceModelOverlay = new MapboxOverlay({
       layers: [layer],
       effects: DEFAULT_THEME.effects,
-      id: `device-trip-realtime-${deviceId}`,
+      id: tripId,
     })
 
+    // Lưu reference của trip mới
+    deviceTripsRef.current[tripId] = deviceModelOverlay
     deviceTripRealtimeRef.current = deviceModelOverlay
 
-    // // console.log({ deviceModelOverlay })
-
-    map?.addControl(deviceModelOverlay)
-
-    // console.log('123', map?.getSource('realtime-trip'))
-    // if (map?.getSource('device-realtime-trip')) {
-    //   ;(map?.getSource('device-realtime-trip') as any)?.setData(geojson)
-    // } else {
-    //   map?.addControl(loadDeviceTrip(trip))
-    //   // map?.addLayer({
-    //   //   id: 'realtime-trip',
-    //   //   type: 'line',
-    //   //   source: {
-    //   //     type: 'geojson',
-    //   //     data: geojson as any,
-    //   //   },
-    //   //   layout: {
-    //   //     'line-join': 'round',
-    //   //     'line-cap': 'round',
-    //   //   },
-    //   //   paint: {
-    //   //     'line-color': '#1052FF',
-    //   //     'line-width': 8,
-    //   //     'line-opacity': 0.75,
-    //   //   },
-    //   // })
-    // }
+    // Thêm trip mới vào map
+    manageMapControl(deviceModelOverlay, 'add')
   }
 
   const removeDeviceTripRealtime = () => {
-    // if (!deviceTripRealtimeRef.current) return
-    // const map = window.mapInstance.getMapInstance()
-    // map?.removeLayer('trips-layer')
-    // console.log({ deviceTripRealtimeRef })
-    // window.mapInstance
-    //   .getMapInstance()
-    //   ?.removeControl(deviceTripRealtimeRef.current as any)
+    cleanupDeviceTrips()
   }
 
   return { removeDeviceTripRealtime }

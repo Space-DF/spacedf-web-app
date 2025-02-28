@@ -4,9 +4,9 @@ import MqttService from '@/lib/mqtt'
 import { uint8ArrayToObject } from '@/utils'
 import { Device } from './device-store'
 
-const MQTT_BROKER = 'wss://api.v0.spacedf.net:1883/mqtt'
-
-const TOPIC = 'test/topic'
+// const MQTT_BROKER = 'ws://api.v0.spacedf.net:1883/mqtt'
+const MQTT_BROKER = 'ws://192.168.1.26:9001/mqtt'
+const TOPIC = '/test'
 
 interface MQTTState {
   message: string

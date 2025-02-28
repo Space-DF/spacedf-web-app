@@ -21,7 +21,6 @@ const getClusters = (
 export const useMapGroupCluster = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
   useEffect(() => {
-    console.log('updates')
     if (!Object.keys(devices).length) return
     const devicePoints = Object.values(devices)
       .filter(
