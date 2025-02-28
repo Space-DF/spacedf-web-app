@@ -93,7 +93,7 @@ const SignInForm = () => {
 
             router.replace('/organizations')
           }, 500)
-          return data?.response_data?.message || 'Sign up successful!'
+          return data?.response_data?.message || 'Sign in successfully!'
         },
         error: (err) => {
           return (
@@ -203,7 +203,7 @@ const SignInForm = () => {
       </Form>
       <div className="mt-3.5 flex items-center justify-center gap-2 text-center text-sm">
         <TypographySecondary className="font-semibold text-brand-component-text-gray">
-          {t('already_have_an_account')}
+          {t('dont_have_an_account')}
         </TypographySecondary>
         <Link
           className="text-gradiant cursor-pointer font-semibold hover:underline"
