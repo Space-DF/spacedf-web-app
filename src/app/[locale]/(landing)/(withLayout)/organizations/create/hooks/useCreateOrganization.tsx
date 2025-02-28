@@ -20,27 +20,20 @@ export type UseGetOrganizationsResponse = ApiResponse<{
 export const SWR_POST_ORGANIZATION_ENDPOINT = '/api/console/organization'
 
 interface Options {
-  payload: {
-    name: string
-    logo: string
-    slug_name: string
-    oauth2_redirect_uris?: string
-    template?: string
-  }
-  headers: {
-    Authorization: string
-  }
+  name: string
+  logo: string
+  slug_name: string
+  oauth2_redirect_uris?: string
+  template?: string
 }
 
 export async function createOrganization<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
-  const { payload, headers } = arg
   const response = await fetch(url, {
     method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(arg),
   })
 
   if (!response.ok) {

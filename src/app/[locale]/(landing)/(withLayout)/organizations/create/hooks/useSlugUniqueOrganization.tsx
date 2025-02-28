@@ -5,23 +5,16 @@ export const SWR_GET_ORGANIZATION_ENDPOINT =
   '/api/console/organization/check-slug-unique'
 
 interface Options {
-  payload: {
-    slug_name: string
-  }
-  headers: {
-    Authorization: string
-  }
+  slug_name: string
 }
 
 export async function checkSlugOrganization<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
-  const { payload, headers } = arg
   const response = await fetch(url, {
     method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(arg),
   })
 
   if (!response.ok) {

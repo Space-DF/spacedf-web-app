@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useTranslations } from 'next-intl'
 import { useShallow } from 'zustand/react/shallow'
-import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { OctagonAlert, UserRound } from 'lucide-react'
 
@@ -48,7 +47,6 @@ export function CreateOrganization() {
   const t = useTranslations('organization')
   const [isShowSlugsSuggestion, setShowSlugsSuggestion] = useState(false)
   const [slugsSuggestion, setSlugsSuggestion] = useState<OrganizationSlug[]>([])
-  const { data: session } = useSession()
   const { trigger: generateOrganizationsMutation } = useGenerateOrganization()
   const { trigger: checkSlugUniqueOrganizationMutation, isMutating } =
     useCheckSlugUniqueOrganization()
@@ -68,10 +66,7 @@ export function CreateOrganization() {
 
   async function onSubmit(values: CreateOrganizationSchema) {
     try {
-      await checkSlugUniqueOrganizationMutation({
-        payload: { slug_name: values.slug_name },
-        headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-      })
+      await checkSlugUniqueOrganizationMutation({ slug_name: values.slug_name })
       setOrganizationInfo({
         organizationSlug: values.slug_name,
         organizationName: values.name,
@@ -86,10 +81,7 @@ export function CreateOrganization() {
 
   const handleOrganizationNameChange = async (name: string) => {
     try {
-      const { data } = await generateOrganizationsMutation({
-        payload: { name },
-        headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
-      })
+      const { data } = await generateOrganizationsMutation({ name })
       const res = data?.response_data
       const suggestionList = Array.isArray(res)
         ? res

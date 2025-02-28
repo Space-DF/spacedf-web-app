@@ -15,23 +15,16 @@ type UseGenerateOrganizationsResponse = ApiResponse<{
 }>
 
 interface Options {
-  payload: {
-    name: string
-  }
-  headers: {
-    Authorization: string
-  }
+  name: string
 }
 
 export async function generateOrganizations<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
-  const { payload, headers } = arg
   const response = await fetch(url, {
     method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(arg),
   })
 
   if (!response.ok) {

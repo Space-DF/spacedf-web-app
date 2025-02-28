@@ -3,19 +3,20 @@ import { FetchAPI } from '@/lib/fecth'
 import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
 import { ApiResponse } from '@/types/global'
 import queryString from 'query-string'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const ORGANIZATION_ENDPOINT = 'console/api/organizations/'
 
 export const POST = async (req: NextRequest) => {
-  const headers = req.headers || {}
   const body = await req.json()
-
+  const auth = await getServerSession(authOptions)
   try {
     const fetch = new FetchAPI()
     fetch.setURL(NEXT_PUBLIC_AUTH_API)
 
     const data = await fetch.post(ORGANIZATION_ENDPOINT, body, {
-      headers: { Authorization: headers.get('Authorization') || '' },
+      headers: { Authorization: `Bearer ${auth?.user?.accessToken}` },
     })
     return NextResponse.json({ data: data, message: 'success', status: 200 })
   } catch (err: any) {
@@ -30,9 +31,9 @@ export const POST = async (req: NextRequest) => {
 
 export const GET = async (req: NextRequest) => {
   const { searchParams } = new URL(req.nextUrl)
-  const headers = req.headers || {}
   const search = searchParams.get('search')
   const ordering = searchParams.get('ordering')
+  const auth = await getServerSession(authOptions)
 
   try {
     const fetch = new FetchAPI()
@@ -42,7 +43,7 @@ export const GET = async (req: NextRequest) => {
       query: { search, ordering },
     })
     const data = await fetch.get(url, {
-      headers: { Authorization: headers.get('Authorization') || '' },
+      headers: { Authorization: `Bearer ${auth?.user?.accessToken}` },
     })
     return NextResponse.json({ data: data, message: 'success', status: 200 })
   } catch (err: any) {

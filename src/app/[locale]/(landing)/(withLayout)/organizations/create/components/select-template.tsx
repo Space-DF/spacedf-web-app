@@ -10,13 +10,11 @@ import ImageWithBlur from '@/components/ui/image-blur'
 import React, { PropsWithChildren, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useCreateOrganization } from '../hooks/useCreateOrganization'
-import { useSession } from 'next-auth/react'
 import { CreateSuccessfully } from './create-successfully'
 
 export function SelectTemplate() {
   const [loading, setLoading] = useState(false)
   const t = useTranslations('organization')
-  const { data: session } = useSession()
   const {
     organizationName,
     organizationSlug,
@@ -69,13 +67,10 @@ export function SelectTemplate() {
   const handleCreateNewOrganization = async () => {
     setLoading(true)
     const res = await createOrganizationMutation({
-      payload: {
-        name: organizationName,
-        logo: 'https://github.com/shadcn.png',
-        slug_name: organizationSlug,
-        template: organizationTemplate,
-      },
-      headers: { Authorization: `Bearer ${session?.user?.accessToken}` },
+      name: organizationName,
+      logo: 'https://github.com/shadcn.png',
+      slug_name: organizationSlug,
+      template: organizationTemplate,
     })
 
     setTimeout(() => {

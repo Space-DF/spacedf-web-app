@@ -6,7 +6,6 @@ import { Search } from 'lucide-react'
 import { useGetOrganizations } from './hooks/useGetOrganizations'
 import { Nodata } from '@/components/ui'
 import { useTranslations } from 'next-intl'
-import { useSession } from 'next-auth/react'
 import { OrganizationItem } from './components/organization-item'
 import { RootUserLayout } from '@/components/layouts/root-layout'
 import { Link } from '@/i18n/routing'
@@ -20,7 +19,6 @@ import { SpaceDFLogoFull } from '@/components/icons'
 import { useSearch } from '@/contexts/search-organization-context'
 
 export default function OrganizationPage() {
-  const { data: session } = useSession()
   const t = useTranslations('organization')
   const { duration, resetLoadingState } = useGlobalStore(
     useShallow((state) => state)
@@ -30,12 +28,7 @@ export default function OrganizationPage() {
   const refInputSearch = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState('')
   const searchValue = useDebounce(search, 300)
-  const { data: organizations } = useGetOrganizations({
-    query: { search: searchValue },
-    headers: {
-      Authorization: `Bearer ${session?.user?.accessToken}`,
-    },
-  })
+  const { data: organizations } = useGetOrganizations({ search: searchValue })
 
   useEffect(() => {
     if (startRender) {

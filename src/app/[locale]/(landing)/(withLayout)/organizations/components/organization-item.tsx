@@ -7,11 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Link2, PanelsTopLeft, UsersRound } from 'lucide-react'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { useUpdateOrganization } from '../hooks/useUpdateOrganization'
-import { useSession } from 'next-auth/react'
 
 export function OrganizationItem(props: Organization) {
   const t = useTranslations('organization')
-  const { data: session } = useSession()
 
   const { trigger } = useUpdateOrganization()
 
@@ -29,16 +27,11 @@ export function OrganizationItem(props: Organization) {
               defaultChecked={props.is_active}
               onCheckedChange={(checked) =>
                 trigger({
-                  payload: {
-                    id: props.id,
-                    name: props.name,
-                    logo: props.logo,
-                    slug_name: props.slug_name,
-                    is_active: checked,
-                  },
-                  headers: {
-                    Authorization: `Bearer ${session?.user?.accessToken}`,
-                  },
+                  id: props.id,
+                  name: props.name,
+                  logo: props.logo,
+                  slug_name: props.slug_name,
+                  is_active: checked,
                 })
               }
             />
