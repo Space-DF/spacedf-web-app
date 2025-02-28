@@ -5,19 +5,24 @@ import { ApiErrorResponse, ApiResponse } from '@/types/global'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-const ORGANIZATION_ENDPOINT = 'console/api/organizations/check-slug-unique/'
+const ORGANIZATION_ENDPOINT = 'console/api/organizations'
 
-export const POST = async (
-  req: NextRequest
+export const PUT = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse>> => {
   const body = await req.json()
   const auth = await getServerSession(authOptions)
   try {
     const fetch = new FetchAPI()
     fetch.setURL(NEXT_PUBLIC_AUTH_API)
-    const data = await fetch.post(ORGANIZATION_ENDPOINT, body, {
-      headers: { Authorization: `Bearer ${auth?.user?.accessToken}` },
-    })
+    const data = await fetch.put(
+      `${ORGANIZATION_ENDPOINT}/${params.id}/`,
+      body,
+      {
+        headers: { Authorization: `Bearer ${auth?.user?.accessToken}` },
+      }
+    )
 
     return NextResponse.json({ data, message: 'success', status: 200 })
   } catch (err) {

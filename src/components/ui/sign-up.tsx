@@ -21,7 +21,7 @@ import {
   TypographySecondary,
 } from '@/components/ui/typography'
 import { singInSchema } from '@/containers/identity/auth/sign-up-form'
-import { Link } from '@/i18n/routing'
+import { Link, useRouter } from '@/i18n/routing'
 import { useIdentityStore } from '@/stores/identity-store'
 import { ApiResponse } from '@/types/global'
 import { signIn } from 'next-auth/react'
@@ -47,6 +47,7 @@ export interface User {
 
 const SignUpForm = () => {
   const t = useTranslations('signUp')
+  const router = useRouter()
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
     defaultValues: {
@@ -97,14 +98,12 @@ const SignUpForm = () => {
           }),
         })
         setTimeout(() => {
-          console.log(window.location.origin)
-          const [protocol, host] = window.location.origin.split('//')
+          // const [protocol, host] = window.location.origin.split('//')
+          // const orgDomain = 'develop.' + host
+          // const orgFullURL = [protocol, orgDomain].join('//')
+          // window.location.href = orgFullURL
 
-          const orgDomain = 'develop.' + host
-
-          const orgFullURL = [protocol, orgDomain].join('//')
-
-          window.location.href = orgFullURL
+          router.replace('/organizations')
         }, 500)
         return data?.response_data?.message || 'Sign up successful!'
       },

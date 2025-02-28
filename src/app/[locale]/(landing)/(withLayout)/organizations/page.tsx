@@ -6,31 +6,29 @@ import { Search } from 'lucide-react'
 import { useGetOrganizations } from './hooks/useGetOrganizations'
 import { Nodata } from '@/components/ui'
 import { useTranslations } from 'next-intl'
-import { useSession } from 'next-auth/react'
 import { OrganizationItem } from './components/organization-item'
 import { RootUserLayout } from '@/components/layouts/root-layout'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import LoadingFullScreen from '@/components/ui/loading-fullscreen'
-import React, { useEffect } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
-import { usePageTransition } from '@/hooks'
+import { useDebounce, usePageTransition } from '@/hooks'
 import { SpaceDFLogoFull } from '@/components/icons'
+import { useSearch } from '@/contexts/search-organization-context'
 
 export default function OrganizationPage() {
-  const { data: session } = useSession()
   const t = useTranslations('organization')
   const { duration, resetLoadingState } = useGlobalStore(
     useShallow((state) => state)
   )
   const { startRender } = usePageTransition({ duration: duration || 1000 })
-  const { data: organizations } = useGetOrganizations({
-    query: { search: 'dada' },
-    headers: {
-      Authorization: `Bearer ${session?.user?.accessToken}`,
-    },
-  })
+  const { open } = useSearch()
+  const refInputSearch = useRef<HTMLInputElement>(null)
+  const [search, setSearch] = useState('')
+  const searchValue = useDebounce(search, 300)
+  const { data: organizations } = useGetOrganizations({ search: searchValue })
 
   useEffect(() => {
     if (startRender) {
@@ -39,6 +37,12 @@ export default function OrganizationPage() {
       }, 1000)
     }
   }, [startRender])
+
+  useEffect(() => {
+    if (open && refInputSearch.current) {
+      refInputSearch.current.focus()
+    }
+  }, [open])
 
   return (
     <RootUserLayout>
@@ -68,9 +72,10 @@ export default function OrganizationPage() {
             <Link href="/organizations/create">{t('add_organization')}</Link>
           </Button>
         </div>
-        <div className="h-full">
+        <div className="h-full flex flex-col gap-4">
           <div>
             <InputWithIcon
+              ref={refInputSearch}
               prefixCpn={<Search size={16} />}
               suffixCpn={
                 <div className="size-5 text-brand-component-text-gray text-[14px] font-semibold mr-1.5">
@@ -78,22 +83,23 @@ export default function OrganizationPage() {
                 </div>
               }
               placeholder={t('search')}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setSearch(event.target.value)
+              }
             />
           </div>
-          <div>
-            <div className="grid grid-cols-4 gap-4">
-              {organizations?.data?.response_data?.results?.length ? (
-                organizations?.data?.response_data?.results.map((item) => (
-                  <OrganizationItem key={item.id} {...item} />
-                ))
-              ) : (
-                <div className="col-span-4">
-                  <Nodata
-                    content={t('you_currently_dont_have_any_organizations')}
-                  />
-                </div>
-              )}
-            </div>
+          <div className="grid grid-cols-4 gap-4">
+            {organizations?.data?.response_data?.results?.length ? (
+              organizations?.data?.response_data?.results.map((item) => (
+                <OrganizationItem key={item.id} {...item} />
+              ))
+            ) : (
+              <div className="col-span-4">
+                <Nodata
+                  content={t('you_currently_dont_have_any_organizations')}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

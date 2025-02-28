@@ -25,7 +25,7 @@ type FormFieldContextValue<
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue,
+  {} as FormFieldContextValue
 )
 
 const FormField = <
@@ -69,7 +69,7 @@ type FormItemContextValue = {
 }
 
 const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
+  {} as FormItemContextValue
 )
 
 const FormItem = React.forwardRef<
@@ -100,7 +100,7 @@ const FormLabel = React.forwardRef<
       className={cn(
         error && 'text-destructive',
         'text-brand-text-gray dark:text-brand-dark-text-gray',
-        className,
+        className
       )}
       htmlFor={formItemId}
       {...props}
@@ -157,8 +157,8 @@ FormDescription.displayName = 'FormDescription'
 
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
+  React.HTMLAttributes<HTMLParagraphElement> & { icon?: React.ReactNode }
+>(({ className, children, icon, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message) : children
 
@@ -170,9 +170,13 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn('text-sm font-medium text-red-500', className)}
+      className={cn(
+        'text-sm font-medium text-red-500 flex items-center gap-1',
+        className
+      )}
       {...props}
     >
+      {icon}
       {body}
     </p>
   )

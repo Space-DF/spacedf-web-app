@@ -73,6 +73,7 @@ const config = {
         button: '0px 1px 0px 2px #FFFFFF1F inset',
         toast: '0px 4px 12px 0px #00000066',
         dashboard: '0px 0px 0px 2px #171A2840',
+        suggestion: '0px 8px 12px 0px #00000026;',
       },
     },
   },

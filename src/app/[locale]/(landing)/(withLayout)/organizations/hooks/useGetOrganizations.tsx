@@ -1,6 +1,6 @@
 import { ApiErrorResponse, Response } from '@/types/global'
 import useSWR, { SWRConfiguration } from 'swr'
-import queryString from 'query-string'
+import queryString, { StringifiableRecord } from 'query-string'
 import { Organization } from '@/types/organization'
 
 export type UseGetOrganizationsResponse = Response<Organization>
@@ -8,24 +8,17 @@ export type UseGetOrganizationsResponse = Response<Organization>
 export const SWR_GET_ORGANIZATION_ENDPOINT = '/api/console/organization'
 
 interface Options {
-  query?: {
-    search?: string
-    ordering?: string
-  }
-  headers: {
-    Authorization: string
-  }
+  search?: string
+  ordering?: string
 }
 
 export async function getOrganizations<T>(
   url: string,
-  options: Options
+  options?: Options
 ): Promise<T> {
-  const { query, headers } = options
-
-  const response = await fetch(queryString.stringifyUrl({ url, query }), {
-    headers,
-  })
+  const response = await fetch(
+    queryString.stringifyUrl({ url, query: options as StringifiableRecord })
+  )
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json()
@@ -40,8 +33,8 @@ export function useGetOrganizations(
   configs: SWRConfiguration = {}
 ) {
   return useSWR(
-    SWR_GET_ORGANIZATION_ENDPOINT,
-    (url) => getOrganizations<UseGetOrganizationsResponse>(url, options),
+    [SWR_GET_ORGANIZATION_ENDPOINT, options?.search],
+    (url) => getOrganizations<UseGetOrganizationsResponse>(url[0], options),
     configs
   )
 }

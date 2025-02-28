@@ -51,10 +51,10 @@ const SignInForm = () => {
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
     defaultValues: {
-      // email: '',
-      // password: '',
-      email: 'root01@yopmail.com',
-      password: '@Aa123123',
+      email: '',
+      password: '',
+      // email: 'root01@yopmail.com',
+      // password: '@Aa123123',
     },
   })
   const [isShowPassword, setIsShowPassword] = useState(false)

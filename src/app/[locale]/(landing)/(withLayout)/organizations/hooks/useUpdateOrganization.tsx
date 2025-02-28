@@ -17,23 +17,26 @@ export type UseGetOrganizationsResponse = ApiResponse<{
   status: number
 }>
 
-export const SWR_POST_ORGANIZATION_ENDPOINT = '/api/console/organization'
+export const SWR_POST_ORGANIZATION_ENDPOINT = '/api/console/organization/id'
 
 interface Options {
+  id: string
   name: string
   logo: string
   slug_name: string
   oauth2_redirect_uris?: string
   template?: string
+  is_active?: boolean
 }
 
-export async function createOrganization<T>(
+export async function updateOrganization<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
-  const response = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
+  const { id, ...body } = arg
+  const response = await fetch(url.replace('/id', `/${id}`), {
+    method: 'PUT',
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
@@ -44,9 +47,9 @@ export async function createOrganization<T>(
   return response.json()
 }
 
-export function useCreateOrganization() {
+export function useUpdateOrganization() {
   return useSWRMutation(
     SWR_POST_ORGANIZATION_ENDPOINT,
-    createOrganization<UseGetOrganizationsResponse>
+    updateOrganization<UseGetOrganizationsResponse>
   )
 }
