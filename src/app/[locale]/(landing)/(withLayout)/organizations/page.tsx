@@ -12,10 +12,10 @@ import { RootUserLayout } from '@/components/layouts/root-layout'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 import LoadingFullScreen from '@/components/ui/loading-fullscreen'
-import React, { useEffect } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
-import { usePageTransition } from '@/hooks'
+import { useDebounce, usePageTransition } from '@/hooks'
 import { SpaceDFLogoFull } from '@/components/icons'
 
 export default function OrganizationPage() {
@@ -25,8 +25,10 @@ export default function OrganizationPage() {
     useShallow((state) => state)
   )
   const { startRender } = usePageTransition({ duration: duration || 1000 })
+  const [search, setSearch] = useState('')
+  const searchValue = useDebounce(search, 300)
   const { data: organizations } = useGetOrganizations({
-    query: { search: 'dada' },
+    query: { search: searchValue },
     headers: {
       Authorization: `Bearer ${session?.user?.accessToken}`,
     },
@@ -39,6 +41,11 @@ export default function OrganizationPage() {
       }, 1000)
     }
   }, [startRender])
+
+  console.info(
+    `\x1b[34mFunc: OrganizationPage - PARAMS: organizations\x1b[0m`,
+    organizations
+  )
 
   return (
     <RootUserLayout>
@@ -68,7 +75,7 @@ export default function OrganizationPage() {
             <Link href="/organizations/create">{t('add_organization')}</Link>
           </Button>
         </div>
-        <div className="h-full">
+        <div className="h-full flex flex-col gap-4">
           <div>
             <InputWithIcon
               prefixCpn={<Search size={16} />}
@@ -78,22 +85,23 @@ export default function OrganizationPage() {
                 </div>
               }
               placeholder={t('search')}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setSearch(event.target.value)
+              }
             />
           </div>
-          <div>
-            <div className="grid grid-cols-4 gap-4">
-              {organizations?.data?.response_data?.results?.length ? (
-                organizations?.data?.response_data?.results.map((item) => (
-                  <OrganizationItem key={item.id} {...item} />
-                ))
-              ) : (
-                <div className="col-span-4">
-                  <Nodata
-                    content={t('you_currently_dont_have_any_organizations')}
-                  />
-                </div>
-              )}
-            </div>
+          <div className="grid grid-cols-4 gap-4">
+            {organizations?.data?.response_data?.results?.length ? (
+              organizations?.data?.response_data?.results.map((item) => (
+                <OrganizationItem key={item.id} {...item} />
+              ))
+            ) : (
+              <div className="col-span-4">
+                <Nodata
+                  content={t('you_currently_dont_have_any_organizations')}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

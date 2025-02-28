@@ -40,8 +40,8 @@ export function useGetOrganizations(
   configs: SWRConfiguration = {}
 ) {
   return useSWR(
-    SWR_GET_ORGANIZATION_ENDPOINT,
-    (url) => getOrganizations<UseGetOrganizationsResponse>(url, options),
+    [SWR_GET_ORGANIZATION_ENDPOINT, options.query?.search],
+    (url) => getOrganizations<UseGetOrganizationsResponse>(url[0], options),
     configs
   )
 }
