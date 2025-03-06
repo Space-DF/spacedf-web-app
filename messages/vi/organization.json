@@ -23,7 +23,7 @@
   "congratulations": "Congratulations!",
   "youve_created_your_new_organization_you_can_add_your_member_in_the_space_settings": "You've created your new organization. You can add your member in the Space Settings.",
   "go_to_my_organization_management": "Go to my Organization Management",
-  "go_to_digital_fortress": "Go to Digital Fortress",
+  "go_to_org": "Go to {org}",
   "go_to_organization_management_after": "Go to Organization Management after ",
   "hello_welcome_to_digital_fortress": "Hello! Welcome to Digital Fortress",
   "please_wait_a_couple_second": "Please wait a couple second",

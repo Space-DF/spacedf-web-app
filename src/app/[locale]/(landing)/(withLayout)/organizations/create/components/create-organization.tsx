@@ -18,9 +18,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
-import { Logo } from '@/components/ui/logo'
 import { Warehouse } from '@/components/icons'
-import { toSlug } from '@/utils'
+import { getColorText, getShortName, textToHexColor, toSlug } from '@/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useOrganizationStore } from '@/stores/organization-store'
 import {
@@ -64,6 +63,8 @@ export function CreateOrganization() {
     },
   })
 
+  const orgName = form.watch('name')
+
   async function onSubmit(values: CreateOrganizationSchema) {
     try {
       await checkSlugUniqueOrganizationMutation({ slug_name: values.slug_name })
@@ -106,8 +107,14 @@ export function CreateOrganization() {
   return (
     <div className="flex-1 h-full flex items-center justify-center flex-col gap-3 px-[90px]">
       <div className="w-full">
-        <div className="relative size-20">
-          <Logo allowAnimation={false} />
+        <div
+          className="relative size-20 rounded-lg flex items-center justify-center mb-4 font-semibold text-2xl select-none border"
+          style={{
+            background: textToHexColor(orgName),
+            color: getColorText(textToHexColor(orgName)) || '#4006AA',
+          }}
+        >
+          {getShortName(orgName) || 'DF'}
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
