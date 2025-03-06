@@ -3,14 +3,18 @@ import { useTranslations } from 'next-intl'
 import LoadingFullScreen from '@/components/ui/loading-fullscreen'
 import { Link, useRouter } from '@/i18n/routing'
 import { Button } from '@/components/ui/button'
+import { useOrganizationStore } from '@/stores/organization-store'
 
 export function CreateSuccessfully() {
   const [count, setCount] = React.useState<number>(5)
   const router = useRouter()
   const t = useTranslations('organization')
+  const { organizationName, organizationSlug, resetOrganizationInfo } =
+    useOrganizationStore()
 
   useEffect(() => {
     if (count === 0) {
+      resetOrganizationInfo()
       router.replace('/organizations')
       return
     }
@@ -44,6 +48,7 @@ export function CreateSuccessfully() {
           <div className="flex gap-3">
             <Button
               asChild
+              onClick={resetOrganizationInfo}
               variant="outline"
               className="h-12 flex-1 text-[16px] font-semibold"
             >
@@ -53,9 +58,15 @@ export function CreateSuccessfully() {
             </Button>
             <Button
               asChild
+              onClick={resetOrganizationInfo}
               className="h-12 flex-1 text-[16px] font-semibold rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-brand-component-text-light-fixed shadow-sm dark:border-brand-component-stroke-light"
             >
-              <Link href={`/`}>{t('go_to_digital_fortress')}</Link>
+              <Link
+                href={`https://${organizationSlug}.spacedf.net`}
+                target="_blank"
+              >
+                {t('go_to_org', { org: organizationName })}
+              </Link>
             </Button>
           </div>
         </div>

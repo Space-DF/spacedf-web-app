@@ -1,7 +1,6 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useOrganizationStore } from '@/stores/organization-store'
 import { Link2 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
@@ -11,6 +10,7 @@ import React, { PropsWithChildren, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useCreateOrganization } from '../hooks/useCreateOrganization'
 import { CreateSuccessfully } from './create-successfully'
+import { getColorText, getShortName, textToHexColor } from '@/utils'
 
 export function SelectTemplate() {
   const [loading, setLoading] = useState(false)
@@ -20,7 +20,6 @@ export function SelectTemplate() {
     organizationSlug,
     organizationTemplate,
     setOrganizationInfo,
-    resetOrganizationInfo,
   } = useOrganizationStore()
   const { trigger: createOrganizationMutation, isMutating } =
     useCreateOrganization()
@@ -66,7 +65,7 @@ export function SelectTemplate() {
 
   const handleCreateNewOrganization = async () => {
     setLoading(true)
-    const res = await createOrganizationMutation({
+    await createOrganizationMutation({
       name: organizationName,
       logo: 'https://github.com/shadcn.png',
       slug_name: organizationSlug,
@@ -74,9 +73,6 @@ export function SelectTemplate() {
     })
 
     setTimeout(() => {
-      if (res.data) {
-        resetOrganizationInfo()
-      }
       setLoading(false)
     }, 5000)
   }
@@ -90,13 +86,16 @@ export function SelectTemplate() {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <Avatar className="size-12 rounded-lg">
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+              <div
+                className="relative size-12 rounded-lg flex items-center justify-center font-semibold text-[16px] select-none border"
+                style={{
+                  background: textToHexColor(organizationName),
+                  color:
+                    getColorText(textToHexColor(organizationName)) || '#4006AA',
+                }}
+              >
+                {getShortName(organizationName) || 'DF'}
+              </div>
             </div>
             <div className="flex-1">
               <div className="flex items-center">

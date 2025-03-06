@@ -5,8 +5,9 @@ import { Switch } from '@/components/ui/switch'
 import { useTranslations } from 'next-intl'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Link2, PanelsTopLeft, UsersRound } from 'lucide-react'
-import ImageWithBlur from '@/components/ui/image-blur'
 import { useUpdateOrganization } from '../hooks/useUpdateOrganization'
+import { getColorText, getShortName, textToHexColor } from '@/utils'
+import React from 'react'
 
 export function OrganizationItem(props: Organization) {
   const t = useTranslations('organization')
@@ -39,13 +40,15 @@ export function OrganizationItem(props: Organization) {
         </div>
         <div className="flex gap-1">
           <div>
-            <ImageWithBlur
-              src={props.logo}
-              alt={props.name}
-              width={48}
-              height={48}
-              className="rounded-lg"
-            />
+            <div
+              className="relative size-12 rounded-lg flex items-center justify-center font-semibold text-[16px] select-none border"
+              style={{
+                background: textToHexColor(props.name),
+                color: getColorText(textToHexColor(props.name)) || '#4006AA',
+              }}
+            >
+              {getShortName(props.name)}
+            </div>
           </div>
           <div className="flex-1 flex-col flex gap-1.5">
             <div className="text-brand-component-text-dark text-[16px] leading-6">

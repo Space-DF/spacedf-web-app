@@ -8,16 +8,19 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SpaceDFLogoFull } from '@/components/icons'
+import { useTranslations } from 'next-intl'
+import { signOut } from 'next-auth/react'
 
 export function RootUserLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const t = useTranslations('common')
+
   return (
     <>
       <header className="flex items-center justify-between px-10 py-2 border-b border-brand-component-stroke-dark-soft">
@@ -54,18 +57,24 @@ export function RootUserLayout({
             sideOffset={3}
           >
             <DropdownMenuGroup className="mt-2 space-y-1">
-              <DropdownMenuItem>
-                Profile
-                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => signOut()}
+              >
+                {t('sign_out')}
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                Billing
-                <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-              </DropdownMenuItem>
+              {/*<DropdownMenuItem>*/}
+              {/*  Profile*/}
+              {/*  <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>*/}
+              {/*</DropdownMenuItem>*/}
+              {/*<DropdownMenuItem>*/}
+              {/*  Billing*/}
+              {/*  <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>*/}
+              {/*</DropdownMenuItem>*/}
+              {/*<DropdownMenuItem>*/}
+              {/*  Settings*/}
+              {/*  <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>*/}
+              {/*</DropdownMenuItem>*/}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

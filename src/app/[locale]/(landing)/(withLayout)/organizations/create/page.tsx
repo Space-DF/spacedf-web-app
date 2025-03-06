@@ -13,7 +13,7 @@ import PreviewDomain from '@/containers/identity/organization-setting/preview-do
 export default function OrganizationPage() {
   const router = useRouter()
   const t = useTranslations('organization')
-  const { step, setStep } = useOrganizationStore()
+  const { step, setStep, resetOrganizationInfo } = useOrganizationStore()
 
   const steps = {
     create: {
@@ -28,6 +28,7 @@ export default function OrganizationPage() {
 
   const handleBack = () => {
     if (step === 'create') {
+      resetOrganizationInfo()
       router.replace('/organizations')
       return
     }
