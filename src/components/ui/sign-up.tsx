@@ -245,7 +245,7 @@ const SignUpForm = () => {
           </div>
           <Button
             type="submit"
-            className="mb-2 h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+            className="mb-2 h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
             loading={isAuthenticating}
             disabled={isAuthenticating}
           >

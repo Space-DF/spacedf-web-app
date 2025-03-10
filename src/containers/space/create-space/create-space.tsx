@@ -75,7 +75,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
           <div>
             <Button
               type="submit"
-              className="h-12 items-center rounded-lg border-2 border-brand-heading bg-brand-fill-outermost text-base font-semibold text-white shadow-sm dark:border-brand-stroke-outermost"
+              className="h-12 items-center rounded-lg border-2 border-brand-heading bg-brand-fill-outermost font-semibold text-white shadow-sm dark:border-brand-stroke-outermost"
               loading={isCreating}
             >
               {t('create_space')}

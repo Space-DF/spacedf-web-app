@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 
 const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity),
+    useShallow((state) => state.setOpenDrawerIdentity)
   )
   const t = useTranslations('common')
   return (
@@ -19,7 +19,7 @@ const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
         {isCollapsed ? (
           <LogIn size={18} />
         ) : (
-          <p className="max-w-[90%] truncate text-xs font-medium">
+          <p className="max-w-[90%] truncate text-[14px] font-medium">
             {t('get_started')}
           </p>
         )}
