@@ -8,20 +8,24 @@ import { Link2, PanelsTopLeft, UsersRound } from 'lucide-react'
 import { useUpdateOrganization } from '../hooks/useUpdateOrganization'
 import { getColorText, getShortName, textToHexColor } from '@/utils'
 import React from 'react'
+import { useRouter } from 'next/navigation'
 
 export function OrganizationItem(props: Organization) {
   const t = useTranslations('organization')
-
+  const router = useRouter()
   const { trigger } = useUpdateOrganization()
 
   return (
-    <div className="border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost rounded-xl p-3 flex flex-col gap-3">
+    <div
+      className="border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost rounded-xl p-3 flex flex-col gap-3 cursor-pointer"
+      onClick={() => router.push(`/organizations/${props.id}/devices`)}
+    >
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="rounded px-2 py-0.5 bg-[#CCE9FF] text-brand-component-text-info font-semibold text-xs">
             {t('pro_plan')}
           </div>
-          <div>
+          <div onClick={(e) => e.stopPropagation()}>
             <Switch
               className="h-6 w-10"
               thumbClassName="size-5"
