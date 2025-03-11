@@ -26,7 +26,6 @@ export const PUT = async (
 
     return NextResponse.json({ data, message: 'success', status: 200 })
   } catch (err) {
-    console.error(`\x1b[31mFunc: POST - PARAMS: err\x1b[0m`, err)
     const { message, status = 400 } = (err as ApiErrorResponse) || {}
     return NextResponse.json(
       { message: message?.detail || 'Something went wrong', status },

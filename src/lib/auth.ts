@@ -1,8 +1,13 @@
-import { NEXTAUTH_SECRET } from '@/shared/env'
+import { NEXT_PUBLIC_AUTH_API, NEXTAUTH_SECRET } from '@/shared/env'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { ApiResponse } from '@/types/global'
 import { SpaceDFClient } from '@/lib/spacedf'
+import { FetchAPI } from '@/lib/fecth'
+import { JWT } from 'next-auth/jwt'
+
+const MINUTES_EXPIRE = 60
+const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
 
 export const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
@@ -55,10 +60,23 @@ export const authOptions: NextAuthOptions = {
   // debug: true,
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       const spaceDfInstance = await SpaceDFClient.getInstance()
       spaceDfInstance.setToken((token as any)?.accessToken)
-      return { ...token, ...user }
+
+      if (account && user) {
+        return {
+          ...token,
+          ...user,
+          accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+        }
+      }
+
+      if (Date.now() < token.accessTokenExpires) return { ...token, ...user }
+
+      const refreshToken = await refreshAccessToken(token)
+
+      return { ...token, ...user, ...refreshToken }
     },
     async session({ session, token }: any) {
       if (token) {
@@ -72,4 +90,32 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+}
+
+async function refreshAccessToken(token: JWT) {
+  try {
+    const fetch = new FetchAPI()
+    fetch.setURL(NEXT_PUBLIC_AUTH_API)
+
+    const response = await fetch.post<{ access: string; refresh: string }>(
+      'console/api/auth/refresh-token',
+      { refresh: token.refreshToken }
+    )
+
+    return {
+      ...token,
+      accessToken: response.response_data.access,
+      accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+      refreshToken: response.response_data.refresh ?? token.refreshToken,
+    }
+  } catch (error) {
+    console.error(
+      `\x1b[31mFunc: refreshAccessToken - PARAMS: error\x1b[0m`,
+      JSON.stringify(error)
+    )
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError',
+    }
+  }
 }
