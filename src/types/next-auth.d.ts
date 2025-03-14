@@ -9,6 +9,7 @@ declare module 'next-auth/jwt' {
     image?: string | null
     accessToken: string
     refreshToken: string
+    accessTokenExpires: number
   }
 }
 

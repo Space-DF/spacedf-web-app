@@ -20,7 +20,6 @@ export const POST = async (req: NextRequest) => {
     })
     return NextResponse.json({ data: data, message: 'success', status: 200 })
   } catch (err: any) {
-    console.error(`\x1b[31mFunc: GET - PARAMS: err\x1b[0m`, err)
     const { error, status } = (err as ApiResponse) || {}
     return NextResponse.json({
       message: error || 'Something went wrong',
@@ -47,7 +46,6 @@ export const GET = async (req: NextRequest) => {
     })
     return NextResponse.json({ data: data, message: 'success', status: 200 })
   } catch (err: any) {
-    console.error(`\x1b[31mFunc: GET - PARAMS: err\x1b[0m`, err)
     const { error, status } = (err as ApiResponse) || {}
     return NextResponse.json({
       message: error || 'Something went wrong',
