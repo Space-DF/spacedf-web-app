@@ -10,14 +10,15 @@ import {
 } from '@/components/ui/select'
 import Pen from '@/components/icons/pen'
 import { EUIDevice } from './components/add-device/validator'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, Row } from '@tanstack/react-table'
 import { InputWithIcon } from '@/components/ui/input'
 import { countTwoDigitNumbers, formatValueEUI } from '@/utils/format-eui'
-import { ChevronDown, Fingerprint, IdCard, X } from 'lucide-react'
+import { ChevronDown, Fingerprint, IdCard, KeyRound, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { countries } from '@/data/country'
 import DialogSaveDevice from './components/save-device'
 import DialogDeleteDevice from './components/delete-device'
+import React from 'react'
 
 interface ColumnProps {
   t: ReturnType<typeof useTranslations>
@@ -27,11 +28,14 @@ interface ColumnProps {
   onEditDevice: (id: string) => void
   onCancelEdit: (id: string) => void
   onSaveDevice: (id: string) => void
+  isUpdating?: boolean
 }
+
+type DeviceTableProps = EUIDevice['eui'][0]
 
 export const getDeviceColumns = (
   props: ColumnProps
-): ColumnDef<EUIDevice['eui'][0]>[] => {
+): ColumnDef<DeviceTableProps>[] => {
   const {
     t,
     onRemoveRow,
@@ -40,155 +44,132 @@ export const getDeviceColumns = (
     onEditDevice,
     onCancelEdit,
     onSaveDevice,
+    isUpdating,
   } = props
+
+  const renderEUIField = (
+    row: Row<DeviceTableProps>,
+    fieldName: keyof DeviceTableProps,
+    placeholder: string,
+    icon?: JSX.Element
+  ) => {
+    const isEdit = editDeviceIds.includes(row.original.id)
+    const binaryLength = countTwoDigitNumbers(row.original[fieldName])
+
+    return isEdit ? (
+      <FormField
+        control={control}
+        name={`eui.${row.index}.${fieldName}`}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <InputWithIcon
+                prefixCpn={icon}
+                className={cn('pr-14', !icon && 'pl-3')}
+                placeholder={placeholder}
+                {...field}
+                value={field.value}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/\s/g, '')
+                  const binaryValue = formatValueEUI(rawValue)
+                  if (
+                    /^\d*$/.test(rawValue) &&
+                    countTwoDigitNumbers(binaryValue) <= 8 &&
+                    binaryValue.split(' ').length <= 8
+                  ) {
+                    field.onChange(binaryValue)
+                  }
+                }}
+                suffixCpn={
+                  <p
+                    className={cn(
+                      'text-brand-component-text-negative font-semibold text-xs',
+                      binaryLength === 8 && 'text-brand-component-text-positive'
+                    )}
+                  >
+                    {binaryLength} byte{binaryLength > 1 ? 's' : ''}
+                  </p>
+                }
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ) : (
+      <span className="text-brand-component-text-gray text-xs font-medium">
+        {row.original[fieldName]}
+      </span>
+    )
+  }
+
+  const renderTextField = (
+    row: Row<DeviceTableProps>,
+    fieldName: keyof DeviceTableProps,
+    placeholder: string,
+    icon: JSX.Element
+  ) => {
+    const isEdit = editDeviceIds.includes(row.original.id)
+    return isEdit ? (
+      <FormField
+        control={control}
+        name={`eui.${row.index}.${fieldName}`}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <InputWithIcon
+                prefixCpn={icon}
+                placeholder={placeholder}
+                {...field}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    ) : (
+      <span className="text-brand-component-text-gray text-xs font-medium">
+        {row.original[fieldName]}
+      </span>
+    )
+  }
+
   return [
     {
       accessorKey: 'devEUI',
       header: 'Dev EUI',
-      cell: ({ row }) => {
-        const isEdit = editDeviceIds.includes(row.original.id)
-        return isEdit ? (
-          <FormField
-            control={control}
-            name={`eui.${row.index}.devEUI`}
-            render={({ field }) => {
-              const binaryLength = countTwoDigitNumbers(field.value)
-              return (
-                <FormItem>
-                  <FormControl>
-                    <InputWithIcon
-                      prefixCpn={
-                        <Fingerprint
-                          size={16}
-                          className="text-brand-stroke-gray"
-                        />
-                      }
-                      className="pr-14"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\s/g, '')
-                        const binaryValue = formatValueEUI(rawValue)
-                        const binaryLength = binaryValue.split(' ').length
-                        if (
-                          /^\d*$/.test(rawValue) &&
-                          countTwoDigitNumbers(binaryValue) <= 8 &&
-                          binaryLength <= 8
-                        ) {
-                          field.onChange(formatValueEUI(rawValue))
-                        }
-                      }}
-                      suffixCpn={
-                        <p
-                          className={cn(
-                            'text-brand-component-text-negative font-semibold text-xs',
-                            binaryLength === 8 &&
-                              'text-brand-component-text-positive'
-                          )}
-                        >
-                          {binaryLength} byte
-                          {Number(binaryLength) > 1 ? 's' : ''}
-                        </p>
-                      }
-                      placeholder="Dev EUI"
-                    />
-                  </FormControl>
-                </FormItem>
-              )
-            }}
-          />
-        ) : (
-          <span className="text-brand-component-text-gray text-xs font-medium">
-            {row.original.devEUI}
-          </span>
-        )
-      },
+      cell: ({ row }) =>
+        renderEUIField(
+          row,
+          'devEUI',
+          'Dev EUI',
+          <Fingerprint size={16} className="text-brand-stroke-gray" />
+        ),
     },
     {
       accessorKey: 'joinEUI',
       header: 'Join EUI',
-      cell: ({ row }) => {
-        const isEdit = editDeviceIds.includes(row.original.id)
-        return isEdit ? (
-          <FormField
-            control={control}
-            name={`eui.${row.index}.joinEUI`}
-            render={({ field }) => {
-              const binaryLength = countTwoDigitNumbers(field.value)
-              return (
-                <FormItem>
-                  <FormControl>
-                    <InputWithIcon
-                      placeholder="JoinEUI"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\s/g, '')
-                        const binaryValue = formatValueEUI(rawValue)
-                        const binaryLength = binaryValue.split(' ').length
-                        if (
-                          /^\d*$/.test(rawValue) &&
-                          countTwoDigitNumbers(binaryValue) <= 8 &&
-                          binaryLength <= 8
-                        ) {
-                          field.onChange(formatValueEUI(rawValue))
-                        }
-                      }}
-                      suffixCpn={
-                        <p
-                          className={cn(
-                            'text-brand-component-text-negative font-semibold text-xs',
-                            binaryLength === 8 &&
-                              'text-brand-component-text-positive'
-                          )}
-                        >
-                          {binaryLength} byte
-                          {Number(binaryLength) > 1 ? 's' : ''}
-                        </p>
-                      }
-                      className="pl-3 pr-14"
-                    />
-                  </FormControl>
-                </FormItem>
-              )
-            }}
-          />
-        ) : (
-          <span className="text-brand-component-text-gray text-xs font-medium">
-            {row.original.joinEUI}
-          </span>
-        )
-      },
+      cell: ({ row }) => renderEUIField(row, 'joinEUI', 'Join EUI'),
+    },
+    {
+      accessorKey: 'appKey',
+      header: t('appKey'),
+      cell: ({ row }) =>
+        renderTextField(
+          row,
+          'appKey',
+          'App key',
+          <KeyRound size={16} className="text-brand-stroke-gray" />
+        ),
     },
     {
       accessorKey: 'name',
       header: t('name'),
-      cell: ({ row }) => {
-        const isEdit = editDeviceIds.includes(row.original.id)
-        return isEdit ? (
-          <FormField
-            control={control}
-            name={`eui.${row.index}.name`}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <InputWithIcon
-                    prefixCpn={
-                      <IdCard size={16} className="text-brand-stroke-gray" />
-                    }
-                    placeholder="Name"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        ) : (
-          <span className="text-brand-component-text-gray text-xs font-medium">
-            {row.original.name}
-          </span>
-        )
-      },
+      cell: ({ row }) =>
+        renderTextField(
+          row,
+          'name',
+          'Name',
+          <IdCard size={16} className="text-brand-stroke-gray" />
+        ),
     },
     {
       accessorKey: 'country',
@@ -278,6 +259,7 @@ export const getDeviceColumns = (
                       <DialogSaveDevice
                         disabled={isDisabled}
                         onSave={() => onSaveDevice(row.original.id)}
+                        isLoading={isUpdating}
                       />
                       <button
                         className="border border-brand-component-stroke-dark-soft rounded-lg p-2"

@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslations } from 'next-intl'
 import { Trash } from '@/components/icons/trash'
-import { ChevronDown, Fingerprint, IdCard } from 'lucide-react'
+import { ChevronDown, Fingerprint, IdCard, KeyRound } from 'lucide-react'
 import { InputWithIcon } from '@/components/ui/input'
 import {
   Select,
@@ -147,6 +147,31 @@ export const getEUIColumns = (props: ColumnProps): ColumnDef<Device>[] => {
               </FormItem>
             )
           }}
+        />
+      ),
+      size: 198,
+    },
+    {
+      accessorKey: 'appKey',
+      header: t('appKey'),
+      cell: ({ row }) => (
+        <FormField
+          control={control}
+          name={`eui.${row.index}.appKey`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <InputWithIcon
+                  prefixCpn={
+                    <KeyRound size={16} className="text-brand-stroke-gray" />
+                  }
+                  placeholder={t('appKey')}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       ),
       size: 198,

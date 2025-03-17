@@ -11,6 +11,7 @@ interface Props {
     label: string
     href: string
     icon: string
+    quantity: number
   }
   open: boolean
 }
@@ -24,7 +25,7 @@ const SidebarItem: React.FC<Props> = ({ menu, open }) => {
         key={menu.label}
         href={menu.href}
         className={cn(
-          'flex items-center gap-x-2 text-brand-component-text-gray text-sm font-[500] px-1 py-2 transition-all rounded-md group mx-2 my-1 hover:bg-brand-component-fill-dark-soft duration-150',
+          'flex items-center gap-x-2 text-brand-component-text-gray text-sm font-[500] p-2 transition-all rounded-md group mx-2 hover:bg-brand-component-fill-dark-soft duration-150',
           isFocus && 'bg-brand-component-fill-dark-soft'
         )}
       >
@@ -58,7 +59,7 @@ const SidebarItem: React.FC<Props> = ({ menu, open }) => {
           </div>
           {open && (
             <div className="text-white font-semibold p-1 py-px bg-brand-component-fill-secondary rounded-[2px]">
-              39
+              {menu.quantity > 10 ? menu.quantity : `0${menu.quantity}`}
             </div>
           )}
         </div>

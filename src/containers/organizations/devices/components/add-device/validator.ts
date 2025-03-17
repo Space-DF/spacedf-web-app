@@ -34,6 +34,7 @@ export const EUISchema = z.object({
             message: 'Dev EUI must be 8 bytes',
           }
         ),
+      appKey: z.string().optional(),
       name: z.string().min(1, 'Name is required'),
       country: z.string({ required_error: 'Country is required' }),
       status: z.string(),

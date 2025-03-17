@@ -8,10 +8,15 @@ import {
   EUIDevice,
   EUISchema,
 } from '@/containers/organizations/devices/components/add-device/validator'
+import { useCreateDevice } from '@/containers/organizations/devices/hooks/useAddDevices'
+import { useDeleteDevice } from '@/containers/organizations/devices/hooks/useDeleteDevice'
+import { useDevices } from '@/containers/organizations/devices/hooks/useDevices'
+import { useUpdateDevice } from '@/containers/organizations/devices/hooks/useUpdateDevice'
 import { getDeviceColumns } from '@/containers/organizations/devices/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -25,7 +30,12 @@ const DeviceOrganization = () => {
     mode: 'onChange',
   })
   const [editDeviceIds, setEditDeviceIds] = useState<string[]>([])
-  const [tableData, setTableData] = useState<EUIDevice['eui']>([])
+  const { id } = useParams<{ id: string }>()
+  const { data, mutate } = useDevices(id)
+  const { trigger: createDevice, isMutating: isCreating } = useCreateDevice(id)
+  const { trigger: updateDevice, isMutating: isUpdating } = useUpdateDevice(id)
+  const { trigger: deleteDevice } = useDeleteDevice(id)
+  const tableData = useMemo(() => data?.data || [], [data?.data])
 
   const onEditDevice = useCallback((id: string) => {
     setEditDeviceIds((deviceIds) => {
@@ -79,35 +89,32 @@ const DeviceOrganization = () => {
     reset({ eui: tableData })
   }, [tableData])
 
-  const onAddDevice = useCallback((devices: EUIDevice['eui']) => {
-    setTableData((prev) => [...prev, ...devices])
+  const onAddDevice = useCallback(async (devices: EUIDevice['eui']) => {
+    await createDevice(devices)
+    await mutate()
   }, [])
 
   const onSaveDevice = useCallback(
-    (id: string) => {
+    async (id: string) => {
       const values = getValues()
       const newDevice = values.eui.find((device) => device.id === id)
 
       if (!newDevice) return
-
-      setTableData((prev) => {
-        const index = prev.findIndex((p) => p.id === id)
-        if (index === -1 || prev[index] === newDevice) return prev
-
-        const updatedTable = [...prev]
-        updatedTable[index] = newDevice
-        return updatedTable
-      })
+      await updateDevice(newDevice)
+      await mutate()
       onEditDevice(id)
     },
-    [getValues, setTableData, onEditDevice]
+    [getValues, mutate, onEditDevice, updateDevice]
   )
 
   const onRemoveRow = useCallback(
-    (index: number) => {
-      setTableData((prev) => prev.filter((_, idx) => idx !== index))
+    async (index: number) => {
+      const device = tableData[index]
+      if (!device) return
+      await deleteDevice({ id: device.id })
+      mutate()
     },
-    [setTableData]
+    [tableData, mutate]
   )
 
   const columns = useMemo(
@@ -120,6 +127,7 @@ const DeviceOrganization = () => {
         onEditDevice,
         onCancelEdit,
         onSaveDevice,
+        isUpdating,
       }),
     [
       control,
@@ -140,7 +148,7 @@ const DeviceOrganization = () => {
             prefixCpn={<Search size={16} />}
             placeholder={t('search')}
           />
-          <AddDeviceModal onAddDevice={onAddDevice}>
+          <AddDeviceModal isLoading={isCreating} onAddDevice={onAddDevice}>
             <Button>{t('add_device')}</Button>
           </AddDeviceModal>
         </div>

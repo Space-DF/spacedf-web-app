@@ -16,8 +16,7 @@ import { ArrowLeft } from 'lucide-react'
 import AddDeviceLoading from './components/loading'
 import AddDeviceManual from './components/add-device-manual'
 import AddDeviceAuto from './components/add-device-auto'
-import SelectProtocol from './components/select-protocol'
-import { AddDeviceType, Step, Steps } from './types'
+import { AddDeviceMode, Step, Steps } from './types'
 import AddEUI from './components/add-eui'
 import { FormProvider, useForm } from 'react-hook-form'
 import { EUIDevice, EUISchema } from './validator'
@@ -28,6 +27,7 @@ import { v4 as uuidv4 } from 'uuid'
 interface Props {
   children: React.ReactNode
   onAddDevice: (device: EUIDevice['eui']) => void
+  isLoading?: boolean
 }
 
 const stepAuto = [
@@ -36,34 +36,33 @@ const stepAuto = [
   Step.Loading,
   Step.AddDeviceAuto,
   Step.Loading,
-  Step.SelectProtocol,
   Step.AddEUI,
 ]
-const stepManual = [
-  Step.SelectMode,
-  Step.AddDeviceManual,
-  Step.SelectProtocol,
-  Step.AddEUI,
-]
+const stepManual = [Step.SelectMode, Step.AddDeviceManual, Step.AddEUI]
 
-const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
+const AddDeviceModal: React.FC<Props> = ({
+  children,
+  onAddDevice,
+  isLoading,
+}) => {
   const t = useTranslations('organization')
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<Step>(Step.SelectMode)
-  const [value, setValue] = useState<AddDeviceType>(AddDeviceType.Auto)
+  const [selectedMode, setSelectedMode] = useState<AddDeviceMode>(
+    AddDeviceMode.Manual
+  )
   const [stepIndex, setStepIndex] = useState(0)
   const [file, setFile] = useState<File>()
   const [selectedProtocol, setSelectedProtocol] = useState<number>()
   const [selectedBrand, setSelectedBrand] = useState<number>()
-  const [deviceType, setDeviceType] = useState<string>()
 
-  const onSelectType = useCallback((newValue: AddDeviceType) => {
-    setValue(newValue)
+  const onSelectType = useCallback((newMode: AddDeviceMode) => {
+    setSelectedMode(newMode)
   }, [])
 
   const selectedStep = useMemo(() => {
-    return value === AddDeviceType.Auto ? stepAuto : stepManual
-  }, [value])
+    return selectedMode === AddDeviceMode.Auto ? stepAuto : stepManual
+  }, [selectedMode])
 
   const isShowBackIcon =
     step !== Step.SelectMode && step !== Step.AddDeviceSuccess
@@ -88,7 +87,7 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
 
   const deviceEUIs = watch('eui')
 
-  const onNextStep = useCallback(() => {
+  const onNextStep = useCallback(async () => {
     const currentStepIndex = selectedStep.findIndex(
       (s, index) => s === step && index === stepIndex
     )
@@ -96,7 +95,7 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
     if (currentStepIndex === selectedStep.length - 1) {
       setStep(Step.AddDeviceSuccess)
       setStepIndex(0)
-      onAddDevice(deviceEUIs)
+      await onAddDevice(deviceEUIs)
       return
     }
     setStepIndex(currentStepIndex + 1)
@@ -107,17 +106,12 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
     setOpen(false)
     setFile(undefined)
     setSelectedBrand(undefined)
-    setDeviceType(undefined)
     setSelectedProtocol(undefined)
     setStep(Step.SelectMode)
     setStepIndex(0)
     form.reset({
       eui: [
         {
-          devEUI: '',
-          joinEUI: '',
-          name: '',
-          country: '',
           status: 'active',
           id: uuidv4(),
         },
@@ -148,7 +142,9 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
       select_mode: {
         label: t('add_device'),
         description: t('choose_brand'),
-        component: <SelectMode value={value} onSelectType={onSelectType} />,
+        component: (
+          <SelectMode value={selectedMode} onSelectType={onSelectType} />
+        ),
       },
       scan_qr: {
         label: t('auto_detect'),
@@ -171,18 +167,6 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
           <AddDeviceManual
             selectedBrand={selectedBrand}
             setSelectedBrand={setSelectedBrand}
-            deviceType={deviceType}
-            setDeviceType={setDeviceType}
-          />
-        ),
-      },
-      select_protocol: {
-        label: t('available_protocol'),
-        description: t('select_protocol_connect'),
-        component: (
-          <SelectProtocol
-            selectedProtocol={selectedProtocol}
-            setSelectedProtocol={setSelectedProtocol}
           />
         ),
       },
@@ -193,32 +177,30 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
       },
       add_device_success: {
         label: t('add_lorawan_device'),
-        component: <AddDeviceSuccessModal deviceType={deviceType} />,
+        component: <AddDeviceSuccessModal />,
       },
     }),
     [
       t,
-      value,
+      selectedMode,
       onSelectType,
       onNextStep,
       file,
       selectedProtocol,
       selectedBrand,
-      deviceType,
     ]
   )
 
   const isDisabled =
     (!file && step === Step.ScanQR) ||
     (step === Step.AddEUI && (!isValid || !deviceEUIs.length)) ||
-    (step === Step.SelectProtocol && !selectedProtocol) ||
-    (step === Step.AddDeviceManual && (!selectedBrand || !deviceType))
+    (step === Step.AddDeviceManual && !selectedBrand)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="text-sm p-6 min-w-[600px] max-w-[1000px] w-fit"
+        className="text-sm p-6 min-w-[600px] max-w-[1200px] w-fit"
         onInteractOutside={(e) => {
           if (step !== Step.SelectMode) {
             e.preventDefault()
@@ -255,7 +237,11 @@ const AddDeviceModal: React.FC<Props> = ({ children, onAddDevice }) => {
             >
               {t('cancel')}
             </Button>
-            <Button disabled={isDisabled} onClick={onNextStep}>
+            <Button
+              disabled={isDisabled}
+              onClick={onNextStep}
+              loading={isLoading}
+            >
               {t('next')}
             </Button>
           </DialogFooter>

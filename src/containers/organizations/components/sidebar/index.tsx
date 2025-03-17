@@ -1,7 +1,7 @@
 'use client'
 import deviceIcon from '/public/images/device.svg'
 import inventoryIcon from '/public/images/inventory.svg'
-import { SidebarSimpleIcon } from '@/components/icons'
+import { SidebarCollapsedSimple, SidebarSimpleIcon } from '@/components/icons'
 import SidebarItem from './sidebar-item'
 import {
   Sidebar,
@@ -18,11 +18,13 @@ const menuItems = (id: string) => [
     label: 'Device',
     href: `/organizations/${id}/devices`,
     icon: deviceIcon,
+    quantity: 39,
   },
   {
     label: 'Inventory',
     href: `/organizations/${id}/inventories`,
     icon: inventoryIcon,
+    quantity: 8,
   },
 ]
 
@@ -61,7 +63,11 @@ const OrganizationSidebar = ({ id, isOpen }: Props) => {
             <SidebarTrigger
               onClick={() => setOpen((prev) => !prev)}
               icon={
-                <SidebarSimpleIcon className="cursor-pointer justify-self-end text-brand-text-gray" />
+                open ? (
+                  <SidebarSimpleIcon className="cursor-pointer justify-self-end text-brand-text-gray" />
+                ) : (
+                  <SidebarCollapsedSimple className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray" />
+                )
               }
             />
           </div>

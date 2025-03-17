@@ -16,9 +16,10 @@ import React from 'react'
 interface Props {
   onSave: () => void
   disabled?: boolean
+  isLoading?: boolean
 }
 
-const DialogSaveDevice: React.FC<Props> = ({ onSave, disabled }) => {
+const DialogSaveDevice: React.FC<Props> = ({ onSave, disabled, isLoading }) => {
   const t = useTranslations('organization')
   return (
     <AlertDialog>
@@ -42,7 +43,9 @@ const DialogSaveDevice: React.FC<Props> = ({ onSave, disabled }) => {
         <AlertDialogFooter>
           <div className="grid grid-cols-2 gap-x-4 w-full">
             <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-            <Button onClick={onSave}>{t('confirm')}</Button>
+            <Button onClick={onSave} loading={isLoading}>
+              {t('confirm')}
+            </Button>
           </div>
         </AlertDialogFooter>
       </AlertDialogContent>

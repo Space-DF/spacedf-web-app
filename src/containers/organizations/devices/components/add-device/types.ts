@@ -1,4 +1,4 @@
-export enum AddDeviceType {
+export enum AddDeviceMode {
   Auto = 'auto',
   Manual = 'manual',
 }
@@ -12,7 +12,6 @@ export interface Steps {
 export enum Step {
   SelectMode = 'select_mode',
   ScanQR = 'scan_qr',
-  SelectProtocol = 'select_protocol',
   AddEUI = 'add_eui',
   AddDeviceManual = 'add_device_manual',
   AddDeviceAuto = 'add_device_auto',

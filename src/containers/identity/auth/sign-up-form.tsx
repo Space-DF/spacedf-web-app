@@ -85,7 +85,7 @@ const SignUpForm = ({
       openDrawer: state.openDrawerIdentity,
       setOpenDrawer: state.setOpenDrawerIdentity,
       setOpenGuideline: state.setOpenGuideline,
-    })),
+    }))
   )
 
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
@@ -121,7 +121,7 @@ const SignUpForm = ({
       },
       error: () => {
         return t(
-          'this_email_is_already_registered_please_use_a_different_email_or_log_in',
+          'this_email_is_already_registered_please_use_a_different_email_or_log_in'
         )
       },
       finally() {

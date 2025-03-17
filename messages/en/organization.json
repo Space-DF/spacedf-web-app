@@ -76,5 +76,6 @@
   "add_successful": "You have successfully added the",
   "to_space": "to the space",
   "select_device_type": "Select device type",
-  "select_country": "Select country"
+  "select_country": "Select country",
+  "appKey": "App key"
 }

@@ -107,7 +107,7 @@ const AddEUI = () => {
                     <TableCell
                       key={cell.id}
                       style={{ width: cell.column.getSize() }}
-                      className="align-top"
+                      className="align-top p-2"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
