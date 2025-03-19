@@ -81,8 +81,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: any) {
       if (token) {
         session.user.id = token.id
-        session.user.firstName = token.firstName
-        session.user.lastName = token.lastName
+        session.user.firstName = token.first_name
+        session.user.lastName = token.last_name
         session.user.accessToken = token.accessToken
         session.user.refreshToken = token.refreshToken
       }
@@ -98,7 +98,7 @@ async function refreshAccessToken(token: JWT) {
     fetch.setURL(NEXT_PUBLIC_AUTH_API)
 
     const response = await fetch.post<{ access: string; refresh: string }>(
-      'console/api/auth/refresh-token',
+      'api/console/auth/refresh-token',
       { refresh: token.refreshToken }
     )
 

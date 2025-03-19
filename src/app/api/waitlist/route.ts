@@ -13,7 +13,7 @@ export async function POST(
     const fetch = new FetchAPI()
     fetch.setURL(NEXT_PUBLIC_AUTH_API)
     const body: z.infer<typeof singInSchema> = await req.json()
-    const data = await fetch.post('console/api/whitelist-user', body)
+    const data = await fetch.post('api/waitlist-users', body)
     return NextResponse.json({ data, message: 'success', status: 200 })
   } catch (err) {
     console.error(`\x1b[31mFunc: POST - PARAMS: err\x1b[0m`, err)

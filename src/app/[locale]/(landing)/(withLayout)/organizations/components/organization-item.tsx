@@ -1,18 +1,14 @@
 'use client'
 
 import { Organization } from '@/types/organization'
-import { Switch } from '@/components/ui/switch'
 import { useTranslations } from 'next-intl'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Link2, PanelsTopLeft, UsersRound } from 'lucide-react'
-import { useUpdateOrganization } from '../hooks/useUpdateOrganization'
 import { getColorText, getShortName, textToHexColor } from '@/utils'
 import React from 'react'
 
 export function OrganizationItem(props: Organization) {
   const t = useTranslations('organization')
-
-  const { trigger } = useUpdateOrganization()
 
   return (
     <div className="border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost rounded-xl p-3 flex flex-col gap-3">
@@ -20,22 +16,6 @@ export function OrganizationItem(props: Organization) {
         <div className="flex items-center justify-between">
           <div className="rounded px-2 py-0.5 bg-[#CCE9FF] text-brand-component-text-info font-semibold text-xs">
             {t('pro_plan')}
-          </div>
-          <div>
-            <Switch
-              className="h-6 w-10"
-              thumbClassName="size-5"
-              defaultChecked={props.is_active}
-              onCheckedChange={(checked) =>
-                trigger({
-                  id: props.id,
-                  name: props.name,
-                  logo: props.logo,
-                  slug_name: props.slug_name,
-                  is_active: checked,
-                })
-              }
-            />
           </div>
         </div>
         <div className="flex gap-1">

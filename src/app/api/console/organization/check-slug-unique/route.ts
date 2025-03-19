@@ -5,7 +5,7 @@ import { ApiErrorResponse, ApiResponse } from '@/types/global'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-const ORGANIZATION_ENDPOINT = 'console/api/organizations/check-slug-unique/'
+const ORGANIZATION_ENDPOINT = 'api/organizations/check-slug-unique'
 
 export const POST = async (
   req: NextRequest

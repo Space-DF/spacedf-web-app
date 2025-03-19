@@ -13,7 +13,7 @@ export async function POST(
     const fetch = new FetchAPI()
     fetch.setURL(NEXT_PUBLIC_AUTH_API)
     const body: z.infer<typeof singInSchema> = await req.json()
-    const data = await fetch.post('console/api/auth/login', body)
+    const data = await fetch.post('api/console/auth/login', body)
     return NextResponse.json({ data, message: 'success', status: 200 })
   } catch (err) {
     const { message, status = 400 } = (err as ApiErrorResponse) || {}

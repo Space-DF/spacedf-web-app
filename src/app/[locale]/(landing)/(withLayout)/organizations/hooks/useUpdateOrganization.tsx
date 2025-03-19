@@ -17,10 +17,9 @@ export type UseGetOrganizationsResponse = ApiResponse<{
   status: number
 }>
 
-export const SWR_POST_ORGANIZATION_ENDPOINT = '/api/console/organization/id'
+export const SWR_POST_ORGANIZATION_ENDPOINT = '/api/console/organization'
 
 interface Options {
-  id: string
   name: string
   logo: string
   slug_name: string
@@ -33,10 +32,9 @@ export async function updateOrganization<T>(
   url: string,
   { arg }: { arg: Options }
 ): Promise<T> {
-  const { id, ...body } = arg
-  const response = await fetch(url.replace('/id', `/${id}`), {
-    method: 'PUT',
-    body: JSON.stringify(body),
+  const response = await fetch(url, {
+    method: 'PATCH',
+    body: JSON.stringify(arg),
   })
 
   if (!response.ok) {
