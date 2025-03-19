@@ -24,6 +24,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   tableHeadClass?: string
   tableCellClass?: string
+  emptyLabel?: string
+  showPaginate?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -31,6 +33,8 @@ export function DataTable<TData, TValue>({
   data,
   tableHeadClass,
   tableCellClass,
+  emptyLabel = 'No results',
+  showPaginate = true,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -61,7 +65,7 @@ export function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
                   </TableHead>
                 )
@@ -86,36 +90,38 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {emptyLabel}
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between border-t p-2">
-        <Button
-          variant="outline"
-          className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ArrowLeft size={20} />
-          Previous
-        </Button>
-        <div className="text-sm font-semibold text-brand-component-text-gray">
-          Page {table.getState().pagination.pageIndex + 1}/
-          {Math.max(table.getPageCount(), 1)}
+      {showPaginate && (
+        <div className="flex items-center justify-between border-t p-2">
+          <Button
+            variant="outline"
+            className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ArrowLeft size={20} />
+            Previous
+          </Button>
+          <div className="text-sm font-semibold text-brand-component-text-gray">
+            Page {table.getState().pagination.pageIndex + 1}/
+            {Math.max(table.getPageCount(), 1)}
+          </div>
+          <Button
+            variant="outline"
+            className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+            <ArrowRight size={20} />
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-          <ArrowRight size={20} />
-        </Button>
-      </div>
+      )}
     </div>
   )
 }
