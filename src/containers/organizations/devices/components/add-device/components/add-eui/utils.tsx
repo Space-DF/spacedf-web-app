@@ -21,20 +21,12 @@ import {
 } from '@/components/ui/form'
 import { countTwoDigitNumbers, formatValueEUI } from '@/utils/format-eui'
 import { cn } from '@/lib/utils'
+import { Device } from '@/types/device'
 
 interface ColumnProps {
   t: ReturnType<typeof useTranslations>
   remove: UseFieldArrayRemove
   control: Control<EUIDevice>
-}
-
-interface Device {
-  name: string
-  country: string
-  status: string
-  id: string
-  devEUI: string
-  joinEUI: string
 }
 
 export const getEUIColumns = (props: ColumnProps): ColumnDef<Device>[] => {
@@ -254,7 +246,10 @@ export const getEUIColumns = (props: ColumnProps): ColumnDef<Device>[] => {
           <div className="flex justify-center">
             <button
               className="border border-brand-component-stroke-dark-soft rounded-lg p-2"
-              onClick={() => remove(row.index)}
+              onClick={() => {
+                console.log({ index: row.index })
+                remove(row.index)
+              }}
             >
               <Trash
                 width={16}

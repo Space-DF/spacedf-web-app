@@ -70,14 +70,6 @@ const AddDeviceModal: React.FC<Props> = ({
   const form = useForm<EUIDevice>({
     resolver: zodResolver(EUISchema),
     mode: 'onChange',
-    defaultValues: {
-      eui: [
-        {
-          status: 'active',
-          id: uuidv4(),
-        },
-      ],
-    },
   })
 
   const {

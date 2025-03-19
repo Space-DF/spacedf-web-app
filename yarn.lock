@@ -1745,11 +1745,12 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz#3a1c12c959010a55c17d46b395ed3047b545c246"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@latest":
-  version "0.0.1-dev.2"
-  resolved "https://registry.npmjs.org/@space-df/sdk/-/sdk-0.0.1-dev.2.tgz"
-  integrity sha512-ao0ZbWq/5YoLi5i6wZJGeGFBmbviqnGnP/OB6kiv34VudhevP1y3ssntoQjw/0vqTMoIk4BEAXvqC1iKHzRWjA==
+"@space-df/sdk@^0.0.1-dev.3.2", "@space-df/sdk@^0.0.1-dev.3.3":
+  version "0.0.1-dev.3.3"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.3.3.tgz#ae2a0807a80ded04fa5fcaf866235c4e14c1c6b2"
+  integrity sha512-H8e+nI3FYhP3e8vV+zLhMweqFSvdF2q2LipePHee6sS9gjfwFWoCzUHALk0OoQ2CokX7Ie69zinLsGbrooInKQ==
   dependencies:
+    "@space-df/sdk" "^0.0.1-dev.3.2"
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
     abort-controller "^3.0.0"
@@ -2185,6 +2186,13 @@
   version "1.0.7"
   resolved "https://registry.npmjs.org/@types/pako/-/pako-1.0.7.tgz"
   integrity sha512-YBtzT2ztNF6R/9+UXj2wTGFnC9NklAnASt3sC0h2m1bbH7G6FyBIkt4AN8ThZpNfxUo1b2iMVO0UawiJymEt8A==
+
+"@types/papaparse@^5.3.15":
+  version "5.3.15"
+  resolved "https://registry.yarnpkg.com/@types/papaparse/-/papaparse-5.3.15.tgz#7cafa16757a1d121422deefbb10b6310b224ecc4"
+  integrity sha512-JHe6vF6x/8Z85nCX4yFdDslN11d+1pr12E526X8WAfhadOeaOTx5AuIkvDKIBopfvlzpzkdMx4YyvSKCM9oqtw==
+  dependencies:
+    "@types/node" "*"
 
 "@types/pbf@*", "@types/pbf@^3.0.5":
   version "3.0.5"
@@ -5835,6 +5843,11 @@ pako@1.0.11, pako@~1.0.2:
   version "1.0.11"
   resolved "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
   integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
+papaparse@^5.5.2:
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.5.2.tgz#fb67cc5a03ba8930cb435dc4641a25d6804bd4d7"
+  integrity sha512-PZXg8UuAc4PcVwLosEEDYjPyfWnTEhOrUfdv+3Bx+NuAb+5NhDmXzg5fHWmdCh1mP5p7JAZfFr3IMQfcntNAdA==
 
 parent-module@^1.0.0:
   version "1.0.1"

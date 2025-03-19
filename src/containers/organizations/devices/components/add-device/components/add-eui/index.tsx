@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo, useMemo, useRef } from 'react'
 import Info from '@/components/icons/info'
 import { Button } from '@/components/ui/button'
 import CloudArrowUp from '@/components/icons/cloud-arrow-up'
@@ -23,10 +23,14 @@ import { EUIDevice } from '../../validator'
 import { Form } from '@/components/ui/form'
 import { getEUIColumns } from './utils'
 import { v4 as uuidv4 } from 'uuid'
+import Papa from 'papaparse'
+import { Device } from '@/types/device'
+import { formatValueEUI } from '@/utils/format-eui'
 
 const AddEUI = () => {
   const t = useTranslations('organization')
   const form = useFormContext<EUIDevice>()
+  const fileRef = useRef<HTMLInputElement>(null)
   const { watch, control } = form
   const { append, remove } = useFieldArray({
     name: 'eui',
@@ -36,6 +40,8 @@ const AddEUI = () => {
     () => getEUIColumns({ t, remove, control }),
     [t, remove, control]
   )
+
+  console.log(watch('eui'))
 
   const handleAddDevice = () => {
     append({
@@ -48,28 +54,60 @@ const AddEUI = () => {
     })
   }
 
-  const data = watch('eui')
-
   const table = useReactTable({
-    data,
+    data: watch('eui') || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id,
   })
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      Papa.parse(file, {
+        complete: (result) => {
+          const data = result.data as Device[]
+          const response = data.map((row) => ({
+            ...row,
+            id: uuidv4(),
+            devEUI: formatValueEUI(row.devEUI),
+            joinEUI: formatValueEUI(row.joinEUI),
+          }))
+          append(response)
+        },
+        header: true,
+        skipEmptyLines: true,
+      })
+    }
+    if (fileRef.current) {
+      fileRef.current.value = ''
+    }
+  }
 
   return (
     <div className="space-y-5">
+      <input
+        type="file"
+        ref={fileRef}
+        accept=".csv"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div className="flex justify-between">
         <div className="flex items-center space-x-2">
           <Info className="size-5" />
           <p className="text-brand-component-text-gray text-xs font-normal">
             {t('import_csv')}{' '}
-            <button className="text-brand-component-text-dark cursor-pointer">
+            <a
+              href="/csv/add-devices.csv"
+              className="text-brand-component-text-dark cursor-pointer"
+            >
               {t('csv_template')}
-            </button>{' '}
+            </a>{' '}
             {t('get_started')}
           </p>
         </div>
-        <Button>
+        <Button onClick={() => fileRef.current?.click()}>
           {t('import_CSV_button')} <CloudArrowUp />
         </Button>
       </div>
