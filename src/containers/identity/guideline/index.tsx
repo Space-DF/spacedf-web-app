@@ -1,9 +1,8 @@
 'use client'
 
-import { Drawer, DrawerContent } from '@/components/ui/drawer'
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import React, { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 import GuidelineDark1 from '/public/images/guideline-dark-1.webp'
@@ -92,7 +91,7 @@ export default function Guideline() {
   return (
     <Drawer open={openGuideline} onOpenChange={setOpenGuideline}>
       <VisuallyHidden>
-        <DialogTitle />
+        <DrawerTitle />
       </VisuallyHidden>
       <DrawerContent
         className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white"
