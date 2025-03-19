@@ -181,7 +181,7 @@ const AddDeviceDialog = () => {
   return (
     <div className="flex items-center justify-center">
       <Button
-        className="h-8 gap-2 rounded-lg text-xs"
+        className="h-8 gap-2 rounded-lg"
         onClick={() => {
           if (!isAuth) {
             setOpenDrawerIdentity(true)
