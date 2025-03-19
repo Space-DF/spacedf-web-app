@@ -147,6 +147,39 @@ export class FetchAPI {
     }
   }
 
+  async patch<T = any>(
+    url: string,
+    payload: Record<string, any> | null,
+    options: FetchOptions = {}
+  ): Promise<FullResponse<T>> {
+    const mergedOptions: FetchOptions = {
+      body: payload ? JSON.stringify(payload) : '',
+      ...options,
+      headers: {
+        ...this.headers,
+        ...(options.headers || {}),
+      },
+    }
+
+    console.log(this.getDomain(url))
+
+    const response = await fetch(this.getDomain(url), {
+      method: 'PATCH',
+      ...mergedOptions,
+    })
+
+    if (!response.ok) {
+      await this.handleError(response)
+    }
+
+    if (response.status === 204) return response as any
+
+    return {
+      status: response.status,
+      response_data: await response.json(),
+    }
+  }
+
   async delete<T = any>(
     url: string,
     options: FetchOptions = {}
