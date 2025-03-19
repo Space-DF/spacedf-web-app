@@ -27,11 +27,11 @@ export const useScreenLayoutStore = create<ScreenLayoutState>((set) => ({
   addWidget: (widget: Layout) =>
     set((state) => ({
       layouts: {
-        lg: [...state.layouts.lg, widget],
-        md: [...state.layouts.md, widget],
-        sm: [...state.layouts.sm, widget],
-        xs: [...state.layouts.sm, widget],
-        xxs: [...state.layouts.xxs, widget],
+        lg: [widget, ...state.layouts.lg],
+        md: [widget, ...state.layouts.md],
+        sm: [widget, ...state.layouts.sm],
+        xs: [widget, ...state.layouts.sm],
+        xxs: [widget, ...state.layouts.xxs],
       },
     })),
 }))

@@ -200,7 +200,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <span>Demo Version</span>
+            <span className="text-[14px]">Demo Version</span>
           </Button>
         )}
       </div>

@@ -26,39 +26,33 @@ const GET = withAuthApiRequired(
         },
         {
           status: errors.status,
-        },
+        }
       )
     }
-  },
+  }
 )
 
-const DELETE = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
-    const body = await req.json()
-    const spacedfClient = await spaceClient()
+const DELETE = withAuthApiRequired(async (req) => {
+  const body = await req.json()
+  const spacedfClient = await spaceClient()
 
-    try {
-      // console.log(body)
-      const deleteSpaceResponse = await spacedfClient.spaces.delete(body, {
-        headers: {
-          'X-Space': params.slug,
-        },
-      })
-      return NextResponse.json({
-        data: deleteSpaceResponse,
-        status: 200,
-      })
-    } catch (errors: any) {
-      return NextResponse.json(
-        {
-          ...(errors?.error || {}),
-        },
-        {
-          status: errors.status,
-        },
-      )
-    }
-  },
-)
+  try {
+    // console.log(body)
+    const deleteSpaceResponse = await spacedfClient.spaces.delete(body)
+    return NextResponse.json({
+      data: deleteSpaceResponse,
+      status: 200,
+    })
+  } catch (errors: any) {
+    return NextResponse.json(
+      {
+        ...(errors?.error || {}),
+      },
+      {
+        status: errors.status,
+      }
+    )
+  }
+})
 
 export { GET, DELETE }
