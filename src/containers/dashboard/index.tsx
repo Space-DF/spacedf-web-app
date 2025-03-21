@@ -222,9 +222,9 @@ const Dashboard = () => {
                               setEdit(false)
                             }}
                             className={cn(
-                              'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft',
+                              'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
                               {
-                                'bg-brand-fill-dark-soft':
+                                'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
                                   selected.value === dashboard.value,
                               }
                             )}
