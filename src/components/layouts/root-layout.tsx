@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ChevronDown } from 'lucide-react'
 import {
@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SpaceDFLogoFull } from '@/components/icons'
 import { useTranslations } from 'next-intl'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export function RootUserLayout({
   children,
@@ -20,7 +21,14 @@ export function RootUserLayout({
   children: React.ReactNode
 }>) {
   const t = useTranslations('common')
-
+  const { status, data } = useSession()
+  const isAuthenticated = status === 'authenticated'
+  const router = useRouter()
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/')
+    }
+  }, [isAuthenticated])
   return (
     <>
       <header className="flex items-center justify-between px-10 py-2 border-b border-brand-component-stroke-dark-soft">
@@ -39,10 +47,10 @@ export function RootUserLayout({
               </Avatar>
               <div className="flex h-full flex-col justify-between">
                 <div className="text-sm text-brand-component-text-dark">
-                  Digital Fortress
+                  {data?.user.firstName} {data?.user.lastName}
                 </div>
                 <div className="text-xs text-brand-typo-body-soft">
-                  digitalfortress@gmail.com
+                  {data?.user.email}
                 </div>
               </div>
               <div>

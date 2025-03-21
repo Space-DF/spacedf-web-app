@@ -41,8 +41,6 @@ const AddEUI = () => {
     [t, remove, control]
   )
 
-  console.log(watch('eui'))
-
   const handleAddDevice = () => {
     append({
       devEUI: '',

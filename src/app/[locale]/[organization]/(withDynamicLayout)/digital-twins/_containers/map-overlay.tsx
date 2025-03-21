@@ -1,6 +1,6 @@
 'use client'
 import { useMounted } from '@/hooks'
-import { useGlobalStore } from '@/stores'
+import { MapType, useGlobalStore } from '@/stores'
 import { type Layer } from 'deck.gl'
 
 import mapboxgl from 'mapbox-gl'
@@ -16,6 +16,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import MapInstance from '@/utils/map-instance'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 import { useSession } from 'next-auth/react'
+import { getMapStyle } from '@/components/ui/select-map-type'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -93,7 +94,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     // Only initialize if not already initialized
 
     if (!mapContainerRef.current) return
-
+    const mapType = localStorage.getItem('map_type') as MapType
     mapInstanceGlobal.initializeMap({
       container: mapContainerRef.current,
       // style: 'mapbox://styles/mapbox/standard',
@@ -107,7 +108,10 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
     const map = mapInstanceGlobal.getMapInstance()
 
     setMapInitialized(true)
-
+    map?.setStyle(getMapStyle(mapType, currentTheme).style, {
+      config: getMapStyle(mapType, currentTheme).config,
+      diff: true,
+    } as any)
     map?.on('load', async () => {
       startShowDevice3D(map)
 
