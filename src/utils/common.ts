@@ -1,4 +1,5 @@
 import { DynamicLayout, NavigationEnums, dynamicLayoutKeys } from '@/constants'
+import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
 import Cookies from 'js-cookie'
 
 export const getLocalStorage = (key: string, initialValue: any) => {
@@ -70,4 +71,11 @@ export const mapResize = () => {
   if (!map || map.isStyleLoaded()) return
 
   console.log('Resize')
+}
+
+export const generateOrganizationUrl = (organization?: string) => {
+  const baseURL = organization
+    ? `https://${organization}.api.v0.spacedf.net/api`
+    : `${NEXT_PUBLIC_AUTH_API}/api`
+  return baseURL
 }

@@ -14,6 +14,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'my-bucketprofile.s3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'my-bucketprofile.s3.us-east-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'flagcdn.com',
       },
       {

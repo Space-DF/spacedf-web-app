@@ -1,10 +1,11 @@
-import { NEXT_PUBLIC_AUTH_API, NEXTAUTH_SECRET } from '@/shared/env'
+import { NEXTAUTH_SECRET } from '@/shared/env'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { ApiResponse } from '@/types/global'
 import { SpaceDFClient } from '@/lib/spacedf'
-import { FetchAPI } from '@/lib/fecth'
 import { JWT } from 'next-auth/jwt'
+import { generateOrganizationUrl } from '@/utils'
+import { getOrganization } from '@/utils/organization'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
@@ -40,8 +41,6 @@ export const authOptions: NextAuthOptions = {
 
           const client = spaceDFInstance.getClient()
           const data = await client.auth.login({ email, password })
-
-          console.log({ data })
           spaceDFInstance.setToken(data.access)
 
           return {
@@ -75,8 +74,13 @@ export const authOptions: NextAuthOptions = {
       if (Date.now() < token.accessTokenExpires) return { ...token, ...user }
 
       const refreshToken = await refreshAccessToken(token)
-
-      return { ...token, ...user, ...refreshToken }
+      spaceDfInstance.setToken(refreshToken.accessToken)
+      return {
+        ...token,
+        ...user,
+        ...refreshToken,
+        accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+      }
     },
     async session({ session, token }: any) {
       if (token) {
@@ -94,19 +98,25 @@ export const authOptions: NextAuthOptions = {
 
 async function refreshAccessToken(token: JWT) {
   try {
-    const fetch = new FetchAPI()
-    fetch.setURL(NEXT_PUBLIC_AUTH_API)
-
-    const response = await fetch.post<{ access: string; refresh: string }>(
-      'api/console/auth/refresh-token',
-      { refresh: token.refreshToken }
-    )
-
+    const organization = await getOrganization()
+    const baseURL = generateOrganizationUrl(organization)
+    const url = `${baseURL}/auth/refresh-token`
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ refresh: token.refreshToken, space: 'default' }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    if (!response.ok) {
+      throw new Error('Failed to refresh token')
+    }
+    const data = await response.json()
     return {
       ...token,
-      accessToken: response.response_data.access,
+      accessToken: data.access,
       accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-      refreshToken: response.response_data.refresh ?? token.refreshToken,
+      refreshToken: data.refresh ?? token.refreshToken,
     }
   } catch (error) {
     console.error(

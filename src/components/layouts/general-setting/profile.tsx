@@ -14,12 +14,19 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { CloudUpload, MapPin, UserRound } from 'lucide-react'
-import React, { Suspense } from 'react'
+import React, {
+  ChangeEvent,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import AvtUser from '/public/images/avt-user.svg'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { toast } from 'sonner'
 import {
   Form,
   FormControl,
@@ -29,11 +36,15 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { firstNameSchema, lastNameSchema } from '@/utils'
+import { useUploadImage } from './hooks/useUploadImage'
+import { useUpdateProfile } from './hooks/useUpdateProfile'
+import { useProfile } from './hooks/useProfile'
 
 const profileSchema = z.object({
   first_name: firstNameSchema,
   last_name: lastNameSchema,
   location: z.string().optional(),
+  avatar: z.string().optional(),
   company_name: z
     .string()
     .max(100, {
@@ -50,19 +61,56 @@ const profileSchema = z.object({
 
 const Profile = () => {
   const t = useTranslations('generalSettings')
-
+  const [previewImage, setPreviewImage] = useState<string>()
+  const fileRef = useRef<HTMLInputElement>(null)
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
+  const { trigger: uploadImage, isMutating } = useUploadImage()
+  const { trigger: updateProfile, isMutating: isUpdatingProfile } =
+    useUpdateProfile()
+  const {
+    setValue,
+    reset,
+    formState: { isDirty },
+  } = form
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  const { data: profile, isLoading, mutate } = useProfile()
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    await updateProfile(values)
+    toast.success(t('update_user_profile'))
+    mutate()
+  }
+
+  useEffect(() => {
+    if (!profile) return
+    reset({ ...profile, avatar: undefined })
+    setPreviewImage(profile.avatar)
+  }, [profile])
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const image = e.target.files?.[0]
+    if (!image) return
+    const response = await uploadImage({ image })
+    setValue('avatar', response.file_name, {
+      shouldDirty: true,
+    })
+    setPreviewImage(response.presigned_url)
+  }
+
+  const handleSelectImage = () => {
+    fileRef.current?.click()
   }
 
   return (
     <Form {...form}>
+      <input
+        type="file"
+        ref={fileRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="animate-opacity-display-effect"
@@ -72,7 +120,7 @@ const Profile = () => {
           <Avatar className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-600">
             <Suspense fallback={<AvatarFallback>{t('avatar')}</AvatarFallback>}>
               <ImageWithBlur
-                src={AvtUser || ''}
+                src={previewImage || AvtUser}
                 width={40}
                 height={40}
                 alt="space-df"
@@ -84,6 +132,9 @@ const Profile = () => {
               variant="outline"
               className="w-max items-center gap-2 rounded-lg dark:text-white"
               size="lg"
+              type="button"
+              disabled={isMutating || isLoading}
+              onClick={handleSelectImage}
             >
               {t('upload_new_image')} <CloudUpload size={16} />
             </Button>
@@ -105,6 +156,7 @@ const Profile = () => {
                       className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('first_name')}
+                      disabled={isLoading}
                       {...field}
                     />
                   </FormControl>
@@ -123,6 +175,7 @@ const Profile = () => {
                       className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('last_name')}
+                      disabled={isLoading}
                       {...field}
                     />
                   </FormControl>
@@ -142,6 +195,7 @@ const Profile = () => {
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<MapPin size={16} />}
                     placeholder={t('location')}
+                    disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
@@ -160,6 +214,7 @@ const Profile = () => {
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<Building />}
                     placeholder={t('company_name')}
+                    disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
@@ -178,6 +233,7 @@ const Profile = () => {
                     className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
                     prefixCpn={<UserList />}
                     placeholder={t('title')}
+                    disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
@@ -218,6 +274,8 @@ const Profile = () => {
             type="submit"
             size="lg"
             className="h-12 w-full items-center gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
+            loading={isUpdatingProfile}
+            disabled={!isDirty}
           >
             {t('save_changes')}
           </Button>

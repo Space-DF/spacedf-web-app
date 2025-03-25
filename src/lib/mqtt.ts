@@ -30,12 +30,12 @@ class MqttService {
         console.log('Connected to MQTT broker')
       })
 
-      this.client.on('error', (err) => {
-        console.error('MQTT Connection Error:', err)
+      this.client.on('error', () => {
+        // console.error('MQTT Connection Error:', err)
       })
 
       this.client.on('close', () => {
-        console.log('MQTT Connection Closed')
+        // console.log('MQTT Connection Closed')
         this.client = null // Reset client on disconnect
       })
     }

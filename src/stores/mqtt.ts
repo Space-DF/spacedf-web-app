@@ -43,8 +43,8 @@ export const createMQTTStore = (topic?: string) => {
         }
       })
 
-      client?.on('error', (err) => {
-        console.error('❌ MQTT error:', err)
+      client?.on('error', () => {
+        // console.error('❌ MQTT error:', err)
       })
     } catch {}
 

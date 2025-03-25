@@ -1,4 +1,6 @@
 import { NEXT_PUBLIC_CONSOLE_API } from '@/shared/env'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './auth'
 
 interface FetchOptions extends RequestInit {}
 type Headers = Pick<FetchOptions, 'headers'>['headers']
@@ -23,6 +25,17 @@ export class FetchAPI {
   }
 
   private mainURL = NEXT_PUBLIC_CONSOLE_API as RequestInfo | URL
+
+  private async getHeaders(customHeaders?: Headers): Promise<Headers> {
+    const authToken = await getServerSession(authOptions)
+    return {
+      ...this.headers,
+      ...(authToken
+        ? { Authorization: `Bearer ${authToken.user.accessToken}` }
+        : {}),
+      ...customHeaders,
+    }
+  }
 
   setURL(url: string) {
     this.mainURL = url
@@ -54,10 +67,7 @@ export class FetchAPI {
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
-      headers: {
-        ...this.headers,
-        ...(options.headers || {}),
-      },
+      headers: await this.getHeaders(options.headers),
     }
 
     const response = await fetch(`${this.mainURL}/${url}`, {
@@ -89,13 +99,8 @@ export class FetchAPI {
     const mergedOptions: FetchOptions = {
       body: payload ? JSON.stringify(payload) : '',
       ...options,
-      headers: {
-        ...this.headers,
-        ...(options.headers || {}),
-      },
+      headers: await this.getHeaders(options.headers),
     }
-
-    console.log(this.getDomain(url))
 
     const response = await fetch(this.getDomain(url), {
       method: 'POST',
@@ -122,14 +127,8 @@ export class FetchAPI {
     const mergedOptions: FetchOptions = {
       body: payload ? JSON.stringify(payload) : '',
       ...options,
-      headers: {
-        ...this.headers,
-        ...(options.headers || {}),
-      },
+      headers: await this.getHeaders(options.headers),
     }
-
-    console.log(this.getDomain(url))
-
     const response = await fetch(this.getDomain(url), {
       method: 'PUT',
       ...mergedOptions,
@@ -155,13 +154,8 @@ export class FetchAPI {
     const mergedOptions: FetchOptions = {
       body: payload ? JSON.stringify(payload) : '',
       ...options,
-      headers: {
-        ...this.headers,
-        ...(options.headers || {}),
-      },
+      headers: await this.getHeaders(options.headers),
     }
-
-    console.log(this.getDomain(url))
 
     const response = await fetch(this.getDomain(url), {
       method: 'PATCH',
@@ -186,10 +180,7 @@ export class FetchAPI {
   ): Promise<FullResponse<T>> {
     const mergedOptions: FetchOptions = {
       ...options,
-      headers: {
-        ...this.headers,
-        ...(options.headers || {}),
-      },
+      headers: await this.getHeaders(options.headers),
     }
 
     const response = await fetch(`${this.mainURL}/${url}`, {
