@@ -4,4 +4,5 @@ export const COOKIES = {
   DYNAMIC_LAYOUTS: 'layouts:dynamic',
   SUB_DYNAMIC_LAYOUTS: 'layouts:subview',
   MAIN_LAYOUTS: 'react-resizable-panels:mainlayout',
+  SPACE: 'space',
 }

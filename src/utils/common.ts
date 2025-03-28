@@ -58,6 +58,14 @@ export const getClientOrganization = async () => {
   return ''
 }
 
+export const getClientSpace = async () => {
+  if (typeof window !== 'undefined') {
+    // On client side, get the host from window
+    return Cookies.get('space') || ''
+  }
+  return ''
+}
+
 export const uint8ArrayToObject = (uint8Array: Uint8Array) => {
   const decoder = new TextDecoder('utf-8')
   const jsonString = decoder.decode(uint8Array)

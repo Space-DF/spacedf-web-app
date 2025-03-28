@@ -114,7 +114,7 @@ export function CreateOrganization() {
             color: getColorText(textToHexColor(orgName)) || '#4006AA',
           }}
         >
-          {getShortName(orgName) || 'DF'}
+          {getShortName(orgName)}
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

@@ -6,6 +6,7 @@ import { SpaceDFClient } from '@/lib/spacedf'
 import { JWT } from 'next-auth/jwt'
 import { generateOrganizationUrl } from '@/utils'
 import { getOrganization } from '@/utils/organization'
+import { getSpace } from '@/utils/space'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
@@ -100,10 +101,11 @@ async function refreshAccessToken(token: JWT) {
   try {
     const organization = await getOrganization()
     const baseURL = generateOrganizationUrl(organization)
+    const space = getSpace()
     const url = `${baseURL}/auth/refresh-token`
     const response = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({ refresh: token.refreshToken, space: 'default' }),
+      body: JSON.stringify({ refresh: token.refreshToken, space }),
       headers: {
         'Content-Type': 'application/json',
       },

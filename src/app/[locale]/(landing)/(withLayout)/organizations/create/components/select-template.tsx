@@ -94,7 +94,7 @@ export function SelectTemplate() {
                     getColorText(textToHexColor(organizationName)) || '#4006AA',
                 }}
               >
-                {getShortName(organizationName) || 'DF'}
+                {getShortName(organizationName)}
               </div>
             </div>
             <div className="flex-1">

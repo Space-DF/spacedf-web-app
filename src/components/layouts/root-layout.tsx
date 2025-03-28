@@ -25,7 +25,7 @@ export function RootUserLayout({
   const isAuthenticated = status === 'authenticated'
   const router = useRouter()
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) {
       router.replace('/')
     }
   }, [isAuthenticated])

@@ -24,5 +24,6 @@
   "are_you_sure_you_want_to_remove_this_device": "Are you sure you want to remove this device?",
   "delete": "Delete",
   "devices_list": "Devices list",
-  "no_selected_devices": "No Selected Devices"
+  "no_selected_devices": "No Selected Devices",
+  "device_history": "Device History"
 }

@@ -1,5 +1,4 @@
-import { getClientOrganization } from '@/utils'
-import { getServerOrganization } from '@/utils/server-actions'
+import { getOrganization } from '@/utils/organization'
 import SpaceDF from '@space-df/sdk'
 
 export class SpaceDFClient {
@@ -14,13 +13,7 @@ export class SpaceDFClient {
   }
 
   private async initialize() {
-    let organization = ''
-
-    if (typeof window !== 'undefined') {
-      organization = await getClientOrganization()
-    } else {
-      organization = await getServerOrganization()
-    }
+    const organization = await getOrganization()
 
     this.client = new SpaceDF({
       organization: organization || '',

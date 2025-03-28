@@ -19,3 +19,8 @@ export const getServerOrganization = async () => {
   const cookieStore = await cookies()
   return (cookieStore.get('organization')?.value || '') as string
 }
+
+export const getServerSpace = () => {
+  const cookieStore = cookies()
+  return (cookieStore.get('space')?.value || '') as string
+}

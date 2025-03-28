@@ -62,6 +62,7 @@ export const GET = async (
     const response = await fetch.get('auth/profile')
     return NextResponse.json(response)
   } catch (error) {
+    console.log({ error })
     const errorResponse = error as ApiErrorResponse
     return NextResponse.json(
       {

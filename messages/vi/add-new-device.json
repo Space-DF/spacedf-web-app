@@ -1,11 +1,11 @@
 {
   "add_device": "Add Device",
-  "cancel": "Cancel",
+  "cancel": "Quay lại",
   "enter_description": "Enter Description",
-  "description": "Description:",
+  "description": "Chi tiết",
   "devui": "DevUI",
   "joineui": "JoinEUI",
-  "device_name": "Device name:",
+  "device_name": "Tên thiết bị",
   "scan_qr_code_successfully": "Scan QR Code Successfully",
   "device_informations": "Device Informations",
   "congratulations": "Congratulations",
@@ -19,10 +19,11 @@
   "connect_devices_manual": "Connect devices manual",
   "online": "Online",
   "device_id": "ID",
-  "deveui": "DevEUI:",
-  "remove_device": "Remove device",
-  "are_you_sure_you_want_to_remove_this_device": "Are you sure you want to remove this device?",
-  "delete": "Delete",
-  "devices_list": "Devices list",
-  "no_selected_devices": "No Selected Devices"
+  "deveui": "DevEUI",
+  "remove_device": "Xoá thiết bị",
+  "are_you_sure_you_want_to_remove_this_device": "Bạn có  chắc chắn muốn xoá thiết bị này?",
+  "delete": "Xoá",
+  "devices_list": "Danh sách thiết bị",
+  "no_selected_devices": "Chưa có thiết bị nào được chọn",
+  "device_history": "Lịch sử thiết bị"
 }
