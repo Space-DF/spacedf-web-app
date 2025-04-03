@@ -1,7 +1,6 @@
 import { getClientOrganization } from '@/utils'
 import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
-
 export class SpaceDFClient {
   private static instance: SpaceDFClient | null = null
   private client: SpaceDF | null = null
@@ -21,7 +20,6 @@ export class SpaceDFClient {
     } else {
       organization = await getServerOrganization()
     }
-
     this.client = new SpaceDF({
       organization: organization || '',
       APIKey: this.api_key,
@@ -62,6 +60,5 @@ export class SpaceDFClient {
 
 export const spaceClient = async () => {
   const spacedfSDK = await SpaceDFClient.getInstance()
-
   return spacedfSDK.getClient()
 }

@@ -1,5 +1,6 @@
 import { ApiErrorResponse } from '@/types/global'
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '../auth'
 import { SpaceDFClient } from '../spacedf'
 
 type Handler = (req: NextRequest, options: any) => Promise<NextResponse>
@@ -7,12 +8,15 @@ type Handler = (req: NextRequest, options: any) => Promise<NextResponse>
 export function withAuthApiRequired(handler: Handler) {
   return async (req: NextRequest, options: any) => {
     try {
-      const spacedf = await SpaceDFClient.getInstance()
-      if (!spacedf.getToken())
+      const session = await auth()
+      const accessToken = session?.user.access
+      if (!accessToken)
         return NextResponse.json<ApiErrorResponse>(
           { detail: 'Unauthorize', code: 401 },
           { status: 401 }
         )
+      const spacedf = await SpaceDFClient.getInstance()
+      spacedf.setToken(session.user.access)
       return await handler(req, options)
     } catch (error) {
       console.error('API Error:', error)

@@ -1,11 +1,9 @@
-import { authOptions } from '@/lib/auth'
 import '@/styles/globals.css'
-import { getServerSession } from 'next-auth'
 import { redirect } from '@/i18n/routing'
 
 import { Locale } from '@/types/global'
 import React from 'react'
-
+import { auth } from '@/lib/auth'
 export default async function RootLayout({
   children,
   params: { locale },
@@ -13,7 +11,7 @@ export default async function RootLayout({
   children: React.ReactNode
   params: { locale: Locale }
 }>) {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   if (!session) {
     redirect({ href: '/', locale })
