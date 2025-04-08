@@ -1,9 +1,7 @@
 import AppProvider from '@/components/providers'
-import { authOptions } from '@/lib/auth'
 import '@/styles/globals.css'
 import { Locale } from '@/types/global'
 import type { Metadata } from 'next'
-import { getServerSession } from 'next-auth'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
@@ -11,6 +9,7 @@ import { routing } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { auth } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Space DF',
@@ -31,7 +30,7 @@ export default async function RootLayout({
 
   const messages = await getMessages()
 
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   return (
     <html lang="en" suppressHydrationWarning>

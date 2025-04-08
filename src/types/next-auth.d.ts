@@ -1,38 +1,28 @@
-import { DefaultUser } from 'next-auth'
+import '@auth/core/jwt'
 
-// import "next-auth/jwt";
+declare module '@auth/core/types' {
+  interface Session {
+    user: {
+      access: string
+      refresh: string
+    } & DefaultSession['user'] &
+      User
+  }
 
-// // Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
+  interface User {
+    access: string
+    refresh: string
+  }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    image?: string | null
-    accessToken: string
-    refreshToken: string
-    accessTokenExpires: number
+  interface Account {
+    access: string
+    refresh: string
   }
 }
 
-declare module 'next-auth' {
-  interface Session {
-    user: DefaultUser & {
-      email: string
-      firstName: string
-      lastName: string
-      id: string
-      accessToken: string
-      refreshToken: string
-      image?: string | null
-    }
-    // userInfo: UserResponse;
-  }
-
-  interface User extends DefaultUser {
-    id: string
-    accessToken: string
-    refreshToken: string
-    email: string
-    image?: string | null
-    // userInfo: UserResponse;
+declare module '@auth/core/jwt' {
+  interface JWT {
+    access: string
+    refresh: string
   }
 }

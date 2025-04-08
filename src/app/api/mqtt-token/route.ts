@@ -11,10 +11,11 @@ export async function GET() {
     )
   }
 
-  const decoded = (await decode({
+  const decoded = await decode({
     token: sessionCookie,
     secret: process.env.NEXTAUTH_SECRET || '',
-  })) as any
+    salt: '',
+  })
 
-  return NextResponse.json({ mqtt_token: decoded.accessToken })
+  return NextResponse.json({ mqtt_token: decoded?.access })
 }

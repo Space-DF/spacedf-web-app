@@ -10,7 +10,7 @@ export const getLocalStorage = (key: string, initialValue: any) => {
 }
 
 export const checkDisplayedDynamicLayout = (
-  currentLayouts: DynamicLayout[]
+  currentLayouts: DynamicLayout[] = []
 ) => {
   return currentLayouts.some((layoutKey) =>
     dynamicLayoutKeys.includes(layoutKey)

@@ -1,7 +1,6 @@
 'use server'
 
-import { authOptions } from '@/lib/auth'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/lib/auth'
 
 type CreateOrganizationActionPayload = {
   name: string
@@ -12,7 +11,7 @@ type CreateOrganizationActionPayload = {
 export const createOrganizationAction = async (
   payload: CreateOrganizationActionPayload
 ) => {
-  const session = (await getServerSession(authOptions)) as any
+  const session = await auth()
 
   // return new NextResponse(
   //   JSON.stringify({
@@ -30,7 +29,7 @@ export const createOrganizationAction = async (
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.user.accessToken}`,
+        Authorization: `Bearer ${session?.user.access}`,
       },
       body: JSON.stringify(payload),
     }

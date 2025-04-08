@@ -1,121 +1,111 @@
-import { NEXT_PUBLIC_AUTH_API, NEXTAUTH_SECRET } from '@/shared/env'
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { ApiResponse } from '@/types/global'
-import { SpaceDFClient } from '@/lib/spacedf'
-import { FetchAPI } from '@/lib/fecth'
-import { JWT } from 'next-auth/jwt'
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+
+import { NEXTAUTH_SECRET } from '@/shared/env'
+import { spaceClient, SpaceDFClient } from './spacedf'
+import { getSpace } from '@/utils/server-actions'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
 
-export const authOptions: NextAuthOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: NEXTAUTH_SECRET,
-
-  session: {
-    strategy: 'jwt',
-    // maxAge: 30 * 24 * 60 * 60,
-  },
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Username', type: 'text', placeholder: 'jsmith' },
-        password: { label: 'Password', type: 'password' },
+        email: {
+          label: 'Email',
+          type: 'email',
+        },
+        password: {
+          label: 'Password',
+          type: 'password',
+        },
         sigUpSuccessfully: { label: 'signUpSuccess', type: 'boolean' },
         dataUser: { label: 'DataUser', type: 'string' },
       },
-
       async authorize(credentials) {
         if (!credentials) return null
-
-        const { dataUser, email, password, sigUpSuccessfully } = credentials
-
+        const { sigUpSuccessfully, dataUser, email, password } = credentials
         if (sigUpSuccessfully === 'true') {
-          return JSON.parse(dataUser)
+          return JSON.parse(dataUser as string)
         }
-
         try {
           const spaceDFInstance = await SpaceDFClient.getInstance()
 
           const client = spaceDFInstance.getClient()
-          const data = await client.auth.login({ email, password })
+          const data = await client.auth.login({
+            email: email as string,
+            password: password as string,
+          })
 
-          console.log({ data })
           spaceDFInstance.setToken(data.access)
 
-          return {
-            name: '',
-            accessToken: data.access,
-            refreshToken: data.refresh,
-          }
-        } catch (err) {
-          const { error } = (err as ApiResponse) || {}
-          throw new Error(error?.detail || 'Something went wrong')
+          return data
+        } catch {
+          return null
         }
       },
     }),
   ],
-
-  // debug: true,
-
+  session: {
+    strategy: 'jwt',
+    maxAge: TOKEN_EXPIRE_TIME,
+  },
   callbacks: {
-    async jwt({ token, user, account }) {
-      const spaceDfInstance = await SpaceDFClient.getInstance()
-      spaceDfInstance.setToken((token as any)?.accessToken)
+    async session({ session, token }) {
+      const spaceDFInstance = await SpaceDFClient.getInstance()
+      if (token) {
+        session.user.access = token.access
+        session.user.refresh = token.refresh
+        spaceDFInstance.setToken(token.access)
+      }
+      return session
+    },
+    async jwt({ token, user }) {
+      const space = await getSpace()
+      const spaceDFInstance = await SpaceDFClient.getInstance()
+      const client = await spaceClient()
+      // Early return if we have a valid token and no user data
+      if (Number(token.accessTokenExpires) > Date.now() / 1000) {
+        spaceDFInstance.setToken(token.access)
+        return token
+      }
+      if (Number(token.accessTokenExpires) < Date.now() / 1000) {
+        try {
+          const { access, refresh } = await client.auth.refreshToken({
+            refresh: token.refresh,
+            space,
+          })
 
-      if (account && user) {
+          if (access && refresh) {
+            token.access = access
+            token.refresh = refresh
+            spaceDFInstance.setToken(access)
+            return {
+              ...token,
+              accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+            }
+          }
+        } catch (error) {
+          console.error('Token refresh failed:', error)
+          return token
+        }
+      }
+
+      // Handle new user login
+      if (user) {
+        token.access = user.access
+        token.refresh = user.refresh
+        spaceDFInstance.setToken(user.access)
         return {
           ...token,
-          ...user,
           accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
       }
 
-      if (Date.now() < token.accessTokenExpires) return { ...token, ...user }
-
-      const refreshToken = await refreshAccessToken(token)
-
-      return { ...token, ...user, ...refreshToken }
-    },
-    async session({ session, token }: any) {
-      if (token) {
-        session.user.id = token.id
-        session.user.firstName = token.first_name
-        session.user.lastName = token.last_name
-        session.user.accessToken = token.accessToken
-        session.user.refreshToken = token.refreshToken
-      }
-
-      return session
+      return token
     },
   },
-}
-
-async function refreshAccessToken(token: JWT) {
-  try {
-    const fetch = new FetchAPI()
-    fetch.setURL(NEXT_PUBLIC_AUTH_API)
-
-    const response = await fetch.post<{ access: string; refresh: string }>(
-      'api/console/auth/refresh-token',
-      { refresh: token.refreshToken }
-    )
-
-    return {
-      ...token,
-      accessToken: response.response_data.access,
-      accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-      refreshToken: response.response_data.refresh ?? token.refreshToken,
-    }
-  } catch (error) {
-    console.error(
-      `\x1b[31mFunc: refreshAccessToken - PARAMS: error\x1b[0m`,
-      JSON.stringify(error)
-    )
-    return {
-      ...token,
-      error: 'RefreshAccessTokenError',
-    }
-  }
-}
+})
