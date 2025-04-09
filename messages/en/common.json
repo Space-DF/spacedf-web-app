@@ -21,5 +21,18 @@
   "sign_out": "Sign out",
   "get_started": "GET STARTED",
   "no_widget": "No widget",
-  "viewing_dummy": "You're viewing dummy data. To customize and add your own data and device, please sign in!"
+  "viewing_dummy": "You're viewing dummy data. To customize and add your own data and device, please sign in!",
+  "profile": "Profile",
+  "account": "Account",
+  "appearance": "Appearance",
+  "preference_mode": "Preferences Mode",
+  "language": "Language",
+  "choose_language": "Choose the language you’d like to use.",
+  "time_zone": "Time zone",
+  "set_time_zone": "Set time zone automatically",
+  "warning_delete": "Warning: This is a potentially destructive action",
+  "to_confirm_enter_email": "To confirm, please enter your email below *",
+  "delete_account": "Delete account",
+  "authenticator_app": "Authenticator App",
+  "login_send_email": "Once you login SpaceDF, we will send you a notification in email."
 }

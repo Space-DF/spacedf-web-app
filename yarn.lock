@@ -1758,12 +1758,11 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz#3a1c12c959010a55c17d46b395ed3047b545c246"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@^0.0.1-dev.3.2", "@space-df/sdk@^0.0.1-dev.3.3":
-  version "0.0.1-dev.3.3"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.3.3.tgz#ae2a0807a80ded04fa5fcaf866235c4e14c1c6b2"
-  integrity sha512-H8e+nI3FYhP3e8vV+zLhMweqFSvdF2q2LipePHee6sS9gjfwFWoCzUHALk0OoQ2CokX7Ie69zinLsGbrooInKQ==
+"@space-df/sdk@^0.0.1-dev.6":
+  version "0.0.1-dev.6"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.6.tgz#94a7bc424282b2c47b8f40f6ea4a941033c1ec28"
+  integrity sha512-tHxg+lw85I/MYYRfi1e1HENGQAq+V1TerbEsCDYN73nKd1t4uOILJg+QxD4SA9Vv7q6vmKK6kHFvPXDbsObjTA==
   dependencies:
-    "@space-df/sdk" "^0.0.1-dev.3.2"
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
     abort-controller "^3.0.0"

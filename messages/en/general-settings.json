@@ -20,5 +20,13 @@
   "confirm": "Confirm",
   "warning_this_is_a_potentially_destructive_action": "Warning: This is a potentially destructive action",
   "to_confirm_please_enter_your_email_below": "To confirm, please enter your email below *",
-  "permanently_delete_account": "Permanently delete account"
+  "permanently_delete_account": "Permanently delete account",
+  "update_user_profile": "Update user profile success",
+  "preference_mode": "Preferences Mode",
+  "light_mode": "Light Mode",
+  "dark_mode": "Dark Mode",
+  "language": "Language",
+  "choose_language": "Choose the language you’d like to use.",
+  "time_zone": "Time zone",
+  "set_time_zone": "Set time zone automatically"
 }
