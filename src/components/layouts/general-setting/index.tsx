@@ -18,7 +18,7 @@ import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
 
-const settings = () => [
+const settings = [
   {
     key: 'profile',
     icon: <CircleUser size={16} />,
@@ -40,7 +40,7 @@ const settings = () => [
     label: 'Language',
   },
   {
-    key: 'delete',
+    key: 'delete_account',
     icon: <Trash size={16} />,
     label: 'Delete account',
   },
@@ -60,7 +60,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         return <Appearance />
       case 'language':
         return <Language />
-      case 'delete':
+      case 'delete_account':
         return <DeleteAccount />
       default:
         return <></>
@@ -77,12 +77,12 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         <div className="flex">
           <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
             <div className="flex flex-col gap-1">
-              {settings().map((setting) => {
+              {settings.map((setting) => {
                 const isActive = setting.key === currentSetting
 
                 return (
                   <React.Fragment key={setting.key}>
-                    {setting.key === 'delete' && (
+                    {setting.key === 'delete_account' && (
                       <Separator className="my-1.5" />
                     )}
                     <div
@@ -93,13 +93,13 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                           : 'border-none bg-transparent text-brand-text-gray',
                         {
                           'text-brand-semantic-accent':
-                            setting.key === 'delete',
-                        },
+                            setting.key === 'delete_account',
+                        }
                       )}
                       onClick={() => setCurrentSetting(setting.key)}
                     >
                       {setting.icon}
-                      {setting.label}
+                      {t(setting.key as any)}
                     </div>
                   </React.Fragment>
                 )
@@ -110,7 +110,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
             className={cn(
               'min-h-[350px] flex-1 p-4',
               currentSetting === 'appearance' &&
-                'bg-brand-fill-surface dark:bg-brand-fill-outermost',
+                'bg-brand-fill-surface dark:bg-brand-fill-outermost'
             )}
           >
             <div className="text-brand-text-dark dark:text-brand-dark-text-gray">

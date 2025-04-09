@@ -2,8 +2,7 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
 import { NEXTAUTH_SECRET } from '@/shared/env'
-import { spaceClient, SpaceDFClient } from './spacedf'
-import { getSpace } from '@/utils/server-actions'
+import { SpaceDFClient } from './spacedf'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
@@ -64,35 +63,35 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return session
     },
     async jwt({ token, user }) {
-      const space = await getSpace()
+      // const space = await getSpace()
       const spaceDFInstance = await SpaceDFClient.getInstance()
-      const client = await spaceClient()
+      // const client = await spaceClient()
       // Early return if we have a valid token and no user data
       if (Number(token.accessTokenExpires) > Date.now() / 1000) {
         spaceDFInstance.setToken(token.access)
         return token
       }
-      if (Number(token.accessTokenExpires) < Date.now() / 1000) {
-        try {
-          const { access, refresh } = await client.auth.refreshToken({
-            refresh: token.refresh,
-            space,
-          })
+      // if (Number(token.accessTokenExpires) < Date.now() / 1000) {
+      //   try {
+      //     const { access, refresh } = await client.auth.refreshToken({
+      //       refresh: token.refresh,
+      //       space_slug_name:
+      //     })
 
-          if (access && refresh) {
-            token.access = access
-            token.refresh = refresh
-            spaceDFInstance.setToken(access)
-            return {
-              ...token,
-              accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-            }
-          }
-        } catch (error) {
-          console.error('Token refresh failed:', error)
-          return token
-        }
-      }
+      //     if (access && refresh) {
+      //       token.access = access
+      //       token.refresh = refresh
+      //       spaceDFInstance.setToken(access)
+      //       return {
+      //         ...token,
+      //         accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+      //       }
+      //     }
+      //   } catch (error) {
+      //     console.error('Token refresh failed:', error)
+      //     return token
+      //   }
+      // }
 
       // Handle new user login
       if (user) {

@@ -368,13 +368,13 @@ const DeviceSelected = () => {
           content={deviceData.name}
         />
         <InformationItem
-          label={`${t('deveui')}`}
+          label={`${t('deveui')}:`}
           content={'Mild Steel Cement Lined'}
         />
         <InformationItem label={`${t('description')}:`} content={'150'} />
 
         <Button onClick={() => startDrawHistory(deviceSelected)}>
-          Device History
+          {t('device_history')}
         </Button>
       </div>
     </div>

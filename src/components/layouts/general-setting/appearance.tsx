@@ -2,6 +2,7 @@ import { PreferencesModeDark, PreferencesModeLight } from '@/components/icons'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
 
 const Appearance = () => {
@@ -9,7 +10,7 @@ const Appearance = () => {
   const themesWithOutSystem = themes.filter((theme) => theme !== 'system')
 
   const isLightMode = (theme === 'system' ? systemTheme : theme) === 'light'
-
+  const t = useTranslations('generalSettings')
   return (
     <div className="animate-opacity-display-effect">
       <RadioGroup
@@ -19,7 +20,7 @@ const Appearance = () => {
       >
         <div className="grid w-full items-center gap-1.5">
           <Label htmlFor="email" className="font-semibold text-brand-text-gray">
-            Preferences Mode
+            {t('preference_mode')}
           </Label>
           <div className="flex gap-4">
             <div
@@ -27,7 +28,7 @@ const Appearance = () => {
                 'flex-1 cursor-pointer rounded-xl border p-3 duration-300 hover:border-brand-text-dark dark:bg-brand-heading dark:text-white hover:dark:border-brand-dark-fill-secondary',
                 isLightMode
                   ? 'border-brand-dark-fill-secondary'
-                  : 'border-transparent hover:scale-105',
+                  : 'border-transparent hover:scale-105'
               )}
               onClick={() => setTheme('light')}
             >
@@ -41,7 +42,7 @@ const Appearance = () => {
                   htmlFor="r1"
                   className="text-brand-heading-200 dark:text-white"
                 >
-                  Light mode
+                  {t('light_mode')}
                 </Label>
               </div>
             </div>
@@ -50,7 +51,7 @@ const Appearance = () => {
                 'flex-1 cursor-pointer rounded-xl border p-3 duration-300 dark:bg-brand-heading dark:text-white',
                 !isLightMode
                   ? 'border-brand-dark-fill-secondary'
-                  : 'border-transparent hover:scale-105 hover:border-black',
+                  : 'border-transparent hover:scale-105 hover:border-black'
               )}
               onClick={() => setTheme('dark')}
             >
@@ -64,7 +65,7 @@ const Appearance = () => {
                   htmlFor="r2"
                   className="text-brand-heading-200 dark:text-white"
                 >
-                  Dark mode
+                  {t('dark_mode')}
                 </Label>
               </div>
             </div>
