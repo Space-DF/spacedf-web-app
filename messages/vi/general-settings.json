@@ -12,8 +12,8 @@
   "authenticator_app": "Xác thực",
   "are_you_sure_you_want_to_exit": "Bạn có chắc chắn muốn thoát?",
   "confirm": "Xác nhận",
-  "warning_this_is_a_potentially_destructive_action": "Cảnh báo: Đây là hàn động nguy hiểm",
-  "to_confirm_please_enter_your_email_below": "Để xác nhận, hãy nhập email xuống dưới*",
+  "warning_this_is_a_potentially_destructive_action": "Cảnh báo: Đây là hành động không thể phục hồi",
+  "to_confirm_please_enter_your_email_below": "Để xác nhận, hãy nhập email của bạn xuống dưới*",
   "permanently_delete_account": "Xoá tài khoản người dùng",
   "update_user_profile": "Cập nhật hồ sơ người dùng thành công",
   "once_you_login_spacedf_we_will_send_you_a_notification_in_email": "Sau khi bạn đăng nhập vào SpaceDF, chúng tôi sẽ gửi cho bạn thông báo qua email.",
@@ -30,5 +30,8 @@
   "time_zone": "Múi giờ",
   "set_time_zone": "Tự động đặt múi giờ",
   "warning_delete": "Cảnh báo: Đây là hành vi nguy hiểm",
-  "to_confirm_enter_email": "Để xác nhận, hãy nhập email xuống dưới"
+  "to_confirm_enter_email": "Để xác nhận, hãy nhập email xuống dưới",
+  "delete_account_success": "Xoá tài khoản người dùng thành công",
+  "delete_account_error": "Xoá tài khoản người dùng thất bại",
+  "email_not_match": "Email không khớp"
 }

@@ -14,7 +14,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
-
+import { useDeleteAccount } from './hooks/useDeleteAccount'
+import { useProfile } from './hooks/useProfile'
+import { toast } from 'sonner'
 const profileSchema = z.object({
   email: z
     .string()
@@ -32,13 +34,16 @@ const Account = () => {
     resolver: zodResolver(profileSchema),
   })
 
+  const { trigger: deleteAccount, isMutating } = useDeleteAccount()
+  const { data: me, isLoading } = useProfile()
+
   const { isDirty, isValid } = form.formState
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    // Upon click this button:
-    //   If 2.3, 2.4, 2.4 correct → Update Successfully → Redirect to [A.I.6 HOME SCREEN (Organization)]
-    // Other case → Error Message
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    if (values.email !== me?.email) {
+      return toast.error(t('email_not_match'))
+    }
+    await deleteAccount()
   }
 
   return (
@@ -75,7 +80,8 @@ const Account = () => {
           />
           <div className="mt-4 flex gap-2">
             <Button
-              disabled={!isDirty || !isValid}
+              disabled={!isDirty || !isValid || isLoading}
+              loading={isMutating}
               size="lg"
               className="h-12 w-full border-2 border-brand-semantic-accent-dark bg-brand-semantic-accent-300 dark:bg-brand-semantic-accent-400"
               variant="destructive"
