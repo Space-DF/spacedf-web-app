@@ -16,13 +16,11 @@ import Space from './space'
 import SpaceMenuItem from './space-menu-item'
 
 import { useRouter } from '@/i18n/routing'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
-import { setCookie } from '@/utils/cookie'
-import { COOKIES } from '@/constants/cookie'
-
+import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
@@ -31,25 +29,35 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const t = useTranslations('space')
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
+  const token = searchParams.get('token')
+  const { data: decodedToken, isLoading: isDecodedTokenLoading } =
+    useDecodedToken(token)
+
   const spaceSelected =
     spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
-    spaceList[0]
+    spaceList.at(-1)
 
   useEffect(() => {
-    if (!params.spaceSlug && spaceList[0]) {
-      setCookie(COOKIES.SPACE, spaceList[0].name)
-      router.replace(`/spaces/${spaceList[0]?.slug_name}`)
+    if (
+      !params.spaceSlug &&
+      spaceList.at(-1) &&
+      !decodedToken &&
+      !isDecodedTokenLoading
+    ) {
+      router.replace(`/spaces/${spaceList.at(-1)?.slug_name}`)
     }
-  }, [spaceList])
+  }, [spaceList, isDecodedTokenLoading, decodedToken])
 
   useEffect(() => {
-    if (!spaceList || !spaceList.length) return
-    setCurrentSpace(spaceList[0])
-    setCookie(COOKIES.SPACE, spaceList[0].name)
+    const lastSpace = spaceList.at(-1)
+    if (lastSpace) {
+      setCurrentSpace(lastSpace)
+    }
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
       const numberFromCode = code?.[code?.length - 1]
@@ -63,7 +71,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       if (metaKey && altKey) {
         const space = spaceList[Number(numberFromCode) - 1]
         handleGoToSpace(space.slug_name)
-        setCookie(COOKIES.SPACE, space.name)
       }
     }
 

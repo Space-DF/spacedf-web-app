@@ -5,11 +5,14 @@ import { spaceClient } from '@/lib/spacedf'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 
 export const POST = withAuthApiRequired(async (request: Request) => {
-  const formData = await request.formData()
-  const file = formData.get('image') as File
-  if (!file)
-    return NextResponse.json({ message: 'Image is required' }, { status: 400 })
   try {
+    const formData = await request.formData()
+    const file = formData.get('image') as File
+    if (!file)
+      return NextResponse.json(
+        { message: 'Image is required' },
+        { status: 400 }
+      )
     const spacedfClient = await spaceClient()
     const data = await spacedfClient.presignedUrl.get()
     const presignedUrl = data.presigned_url
@@ -58,9 +61,9 @@ export const GET = withAuthApiRequired(async () => {
 })
 
 export const PUT = withAuthApiRequired(async (request: Request) => {
-  const body: Omit<Profile, 'id'> = await request.json()
-  const spacedfClient = await spaceClient()
   try {
+    const body: Omit<Profile, 'id'> = await request.json()
+    const spacedfClient = await spaceClient()
     const response = await spacedfClient.users.updateMe(body)
     return NextResponse.json(response)
   } catch (error) {

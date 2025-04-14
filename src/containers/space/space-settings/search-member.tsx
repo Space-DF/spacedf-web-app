@@ -7,19 +7,16 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
-import { useIdentityStore } from '@/stores/identity-store'
-import { generateOrganizationDomain } from '@/utils'
-import { Check } from 'lucide-react'
 import { type KeyboardEvent, useCallback, useRef, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
-
+import { v4 as uuidv4 } from 'uuid'
+import { isEmail } from '@/utils/common'
+import { useParams } from 'next/navigation'
 export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
 
 type AutoCompleteProps = {
-  options: Option[]
+  options?: Option[]
   selectedItems: string[]
   value?: Option[]
   onValueChange?: (value: Option[]) => void
@@ -30,38 +27,37 @@ type AutoCompleteProps = {
 }
 
 export const SearchMember = ({
-  options,
+  options = [],
   placeholder,
-
   onValueChange,
   disabled,
   selectedItems,
-  isLoading = false,
   comma = ['Enter'],
 }: AutoCompleteProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const [isOpen, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState<string>('')
-  const { organizationName } = useIdentityStore(
-    useShallow((state) => ({
-      organizationName: state.organizationName,
-    }))
-  )
-  const organization = generateOrganizationDomain(organizationName || '')
+  const { organization } = useParams()
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       const input = inputRef.current
       if (!input) return
 
-      // Keep the options displayed when the user is typing
-      if (!isOpen) {
+      if (isOpen && !isEmail(input.value)) {
+        setOpen(false)
+      }
+      if (!isOpen && isEmail(input.value)) {
         setOpen(true)
       }
 
       // This is not a default behaviour of the <input /> field
-      if (comma?.includes(event.key) && input.value !== '') {
+      if (
+        comma?.includes(event.key) &&
+        input.value !== '' &&
+        isEmail(input.value)
+      ) {
         const optionToSelect = options.filter(
           (option) => option.label === input.value
         )
@@ -76,11 +72,6 @@ export const SearchMember = ({
               email: item,
             })
           })
-        }
-        if (optionToSelect.length) {
-          onValueChange?.(optionToSelect)
-          setInputValue('')
-          setOpen(false)
         }
       }
 
@@ -103,6 +94,7 @@ export const SearchMember = ({
       setInputValue(selectedOption.label)
       onValueChange?.([selectedOption])
       setOpen(false)
+      setInputValue('')
     },
     [onValueChange]
   )
@@ -113,13 +105,13 @@ export const SearchMember = ({
         <CommandInput
           ref={inputRef}
           value={inputValue}
-          onValueChange={isLoading ? undefined : setInputValue}
+          onValueChange={setInputValue}
           onBlur={handleBlur}
           // onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary h-10"
+          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary h-10 bg-brand-fill-dark-soft"
         />
       </div>
       <div className="relative">
@@ -130,83 +122,45 @@ export const SearchMember = ({
           )}
         >
           <CommandList className="rounded-lg ring-1 ring-slate-200">
-            {isLoading ? (
-              <CommandPrimitive.Loading>
-                <div className="p-1">
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              </CommandPrimitive.Loading>
-            ) : null}
-            {options.length > 0 && !isLoading ? (
-              <CommandGroup className="p-2">
-                {options.map((option) => {
-                  return (
-                    <CommandItem
-                      key={option.value}
-                      value={option.email}
-                      onMouseDown={(event) => {
-                        event.preventDefault()
-                        event.stopPropagation()
-                      }}
-                      onSelect={() => {
-                        handleSelectOption(option)
-                        setInputValue('')
-                      }}
-                      className={cn(
-                        'relative flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft',
-                        {
-                          'bg-brand-fill-dark-soft': selectedItems.includes(
-                            option.value
-                          ),
-                        }
-                      )}
-                    >
-                      <Avatar className="flex size-11 items-center justify-center rounded-lg">
-                        <AvatarImage
-                          src="https://github.com/shadcn.png"
-                          alt="@shadcn"
-                        />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-1">
-                        <div className="text-sm font-semibold text-brand-text-dark">
-                          {option.label}
-                        </div>
-                        <div className="text-sm font-medium text-brand-text-gray">
-                          {option.email}
-                        </div>
-                      </div>
-                      <Check
-                        className={cn('ml-auto h-4 w-4 opacity-0', {
-                          'opacity-100': selectedItems.includes(option.value),
-                        })}
-                      />
-                    </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            ) : null}
-            {!isLoading ? (
-              <CommandPrimitive.Empty className="p-2">
-                <div className="flex w-full items-center gap-2 rounded-md bg-brand-fill-dark-soft p-2">
-                  <Avatar className="flex size-11 items-center justify-center rounded-lg">
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col gap-1">
-                    <div className="text-sm font-semibold text-brand-text-dark">
-                      {inputValue}
-                    </div>
-                    <div className="text-sm font-medium text-brand-text-gray">
-                      Invite to {organization || 'danang'}.spacedf
-                    </div>
+            <CommandGroup className="p-2">
+              <CommandItem
+                value={inputValue}
+                onMouseDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                }}
+                onSelect={() => {
+                  handleSelectOption({
+                    id: uuidv4(),
+                    name: '',
+                    email: inputValue,
+                  })
+                }}
+                className={cn(
+                  'relative cursor-pointer flex w-full items-center gap-2 rounded-md data-[selected=true]:bg-brand-fill-dark-soft',
+                  {
+                    'bg-brand-fill-dark-soft':
+                      selectedItems.includes(inputValue),
+                  }
+                )}
+              >
+                <Avatar className="flex size-11 items-center justify-center rounded-lg">
+                  <AvatarImage
+                    src="https://github.com/shadcn.png"
+                    alt="@shadcn"
+                  />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm font-semibold text-brand-text-dark">
+                    {inputValue}
+                  </div>
+                  <div className="text-sm font-medium text-brand-text-gray">
+                    Invite to {organization || 'danang'}.spacedf.net
                   </div>
                 </div>
-              </CommandPrimitive.Empty>
-            ) : null}
+              </CommandItem>
+            </CommandGroup>
           </CommandList>
         </div>
       </div>

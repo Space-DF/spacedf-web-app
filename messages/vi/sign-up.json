@@ -19,5 +19,17 @@
   "forgot_password": "Quên mật khẩu?",
   "login": "Đăng nhập",
   "dont_have_an_account": "Chưa có tài khoản?",
-  "we_sent_a_code_to": "Chúng tôi sẽ gửi mã tới <span>{email}</span>"
+  "we_sent_a_code_to": "Chúng tôi sẽ gửi mã tới <span>{email}</span>",
+  "send_otp_success": "OTP đã được gửi thành công",
+  "send_otp_error": "Gửi OTP thất bại",
+  "otp_sent": "Chúng tôi đã gửi mã OTP đến",
+  "back": "Quay lại",
+  "sign_up_success": "Đăng ký thành công",
+  "sign_up_failed": "Đăng ký thất bại",
+  "cancel": "Hủy",
+  "are_you_sure_you_want_to_cancel": "Bạn có chắc chắn muốn hủy hành động này?",
+  "confirm": "Xác nhận",
+  "logout": "Đăng xuất",
+  "you_are_logged_into_a_different_account": "Bạn đang đăng nhập vào tài khoản khác",
+  "you_are_logged_into_a_different_account_description": "Để chấp nhận lời mời này, vui lòng đăng xuất và đăng nhập lại với tài khoản được liên kết với lời mời."
 }

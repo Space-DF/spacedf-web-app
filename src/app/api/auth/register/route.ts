@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ApiResponse } from '@/types/global'
 import { SpaceDFClient } from '@/lib/spacedf'
 
-export async function POST(
-  req: NextRequest
-): Promise<NextResponse<ApiResponse>> {
+export async function POST(req: NextRequest) {
   try {
     const spacedf = await SpaceDFClient.getInstance()
     const body = await req.json()
@@ -15,7 +13,7 @@ export async function POST(
       access: string
     }
     spacedf.setToken(data.access)
-    return NextResponse.json({ data, message: 'success', status: 200 })
+    return NextResponse.json(data)
   } catch (err) {
     const { error, status } = (err as ApiResponse) || {}
     return NextResponse.json(

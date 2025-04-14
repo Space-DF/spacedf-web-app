@@ -1,6 +1,6 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
@@ -19,7 +19,14 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp'
 import { Separator } from '@/components/ui/separator'
-
+import { SignUpFormCredentials } from '.'
+import useSendOTP from './hooks/useSendOTP'
+import useJoinSpace from './hooks/useJoinSpace'
+import { useIdentityStore } from '@/stores/identity-store'
+import { useShallow } from 'zustand/react/shallow'
+import { useSearchParams } from 'next/navigation'
+import useSignUp from './hooks/useSignUp'
+import { signIn } from 'next-auth/react'
 export const OTPSchema = z.object({
   otp: z.string().min(6, {
     message: 'Your one-time password must be 6 characters.',
@@ -30,27 +37,63 @@ const TIME_REMAINING = 60
 
 const OTPForm = () => {
   const t = useTranslations('signUp')
+  const signUpForm = useFormContext<SignUpFormCredentials>()
   const form = useForm<z.infer<typeof OTPSchema>>({
     resolver: zodResolver(OTPSchema),
   })
-  const [timeRemaining, setTimeRemaining] = React.useState(TIME_REMAINING)
-  const [isAuthenticating] = React.useState(false)
 
-  React.useEffect(() => {
+  const { setOpenDrawer, setOpenGuideline } = useIdentityStore(
+    useShallow((state) => ({
+      setOpenDrawer: state.setOpenDrawerIdentity,
+      setOpenGuideline: state.setOpenGuideline,
+    }))
+  )
+
+  const { trigger: triggerSignUp, isMutating: isMutatingSignUp } = useSignUp()
+
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
+
+  const email = signUpForm.watch('email')
+  const [timeRemaining, setTimeRemaining] = useState(TIME_REMAINING)
+
+  const { trigger: triggerSendOtp, isMutating: isMutatingSendOtp } =
+    useSendOTP()
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setTimeRemaining((prevTime) => Math.max(0, prevTime - 1))
     }, 1000)
     return () => clearInterval(timer)
   }, [])
 
-  const handleResendOTP = () => {
+  const handleResendOTP = async () => {
+    await triggerSendOtp(email)
     setTimeRemaining(TIME_REMAINING)
   }
 
   const { isDirty, isValid } = form.formState
+  const { trigger: joinSpace } = useJoinSpace()
 
-  const onSubmit = async (value: z.infer<typeof OTPSchema>) => {
-    console.info(`\x1b[34mFunc: onSubmit - PARAMS: value\x1b[0m`, value)
+  const onSubmit = async () => {
+    const value = signUpForm.getValues()
+
+    const res = await triggerSignUp({
+      ...value,
+      otp: form.getValues('otp'),
+    })
+
+    await signIn('credentials', {
+      redirect: false,
+      sigUpSuccessfully: true,
+      dataUser: JSON.stringify(res),
+    })
+    setOpenDrawer(false)
+    if (!token) {
+      setOpenGuideline(true)
+      return
+    }
+    await joinSpace(token)
   }
 
   return (
@@ -64,9 +107,7 @@ const OTPForm = () => {
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormLabel>
-                    {t('we_sent_a_code_to_email', {
-                      email: 'digitalfortress@gmail.com',
-                    })}
+                    {t('otp_sent')} <span className="font-bold">{email}</span>
                   </FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
@@ -106,8 +147,8 @@ const OTPForm = () => {
           <Button
             type="submit"
             className="mt-5 h-12 w-full shadow-none"
-            loading={isAuthenticating}
-            disabled={!isDirty || !isValid}
+            loading={isMutatingSignUp}
+            disabled={!isDirty || !isValid || isMutatingSignUp}
           >
             {t('continue')}
           </Button>
@@ -115,8 +156,10 @@ const OTPForm = () => {
           <Button
             className="h-12 w-full shadow-none"
             variant="outline"
+            type="button"
             disabled={timeRemaining > 0}
             onClick={handleResendOTP}
+            loading={isMutatingSendOtp}
           >
             {t('resend_code', {
               time: `${String(Math.floor(timeRemaining / 60)).padStart(2, '0')}:${String(timeRemaining % 60).padStart(2, '0')}`,

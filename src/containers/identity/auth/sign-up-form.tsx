@@ -1,11 +1,7 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleUserRound, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import { signIn } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
+import React, { useEffect, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,114 +17,41 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { ApiResponse } from '@/types/global'
-import { AuthData } from '.'
-import { useIdentityStore } from '@/stores/identity-store'
+import { SignUpFormCredentials } from '.'
 import { useShallow } from 'zustand/react/shallow'
-import {
-  confirmPasswordSchema,
-  firstNameSchema,
-  lastNameSchema,
-  passwordSchema,
-} from '@/utils'
+import useSendOTP from './hooks/useSendOTP'
+import { useAuthForm } from './stores/useAuthForm'
+import { useDecodedToken } from './hooks/useDecodedToken'
+import { useSearchParams } from 'next/navigation'
 
-export const singInSchema = z
-  .object({
-    first_name: firstNameSchema,
-    last_name: lastNameSchema,
-    email: z
-      .string({ message: 'Email cannot be empty' })
-      .email({ message: 'Invalid Email' })
-      .min(1, { message: 'Email cannot be empty' })
-      .refine((value) => value.split('@')[0].length <= 64, {
-        message: 'Invalid Email', // Local part max length
-      })
-      .refine((value) => value.split('@')[1]?.length <= 255, {
-        message: 'Invalid Email', // Domain part max length
-      }),
-    password: passwordSchema,
-    confirm_password: confirmPasswordSchema,
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: 'Confirm password must match the password entered above.',
-    path: ['confirm_password'],
-  })
-
-interface SignUpResponse {
-  message: string
-  user: {
-    id: number
-    first_name: string
-    last_name: string
-    email: string
-  }
-  refresh: string
-  access: string
-}
-
-const SignUpForm = ({
-  setAuthMethod,
-}: {
-  setAuthMethod: (data: AuthData) => void
-}) => {
+const SignUpForm = () => {
   const t = useTranslations('signUp')
-  const form = useForm<z.infer<typeof singInSchema>>({
-    resolver: zodResolver(singInSchema),
-  })
+  const form = useFormContext<SignUpFormCredentials>()
+  const { trigger: triggerSendOtp, isMutating: isMutatingSendOtp } =
+    useSendOTP()
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
+  const { data: decodedToken } = useDecodedToken(token)
 
-  const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
 
-  const { setOpenDrawer, setOpenGuideline } = useIdentityStore(
+  const { setFormType } = useAuthForm(
     useShallow((state) => ({
-      openDrawer: state.openDrawerIdentity,
-      setOpenDrawer: state.setOpenDrawerIdentity,
-      setOpenGuideline: state.setOpenGuideline,
+      setFormType: state.setFormType,
     }))
   )
 
-  const onSubmit = async (value: z.infer<typeof singInSchema>) => {
-    setIsAuthenticating(true)
-
-    const fetchPromise = fetch('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(value),
-    }).then(async (response) => {
-      const result: ApiResponse<SignUpResponse> = await response.json()
-      if (!response.ok) {
-        throw new Error(result.message || 'Something went wrong')
-      }
-      return result
-    })
-
-    toast.promise(fetchPromise, {
-      loading: 'Signing up...',
-      success: (res) => {
-        signIn('credentials', {
-          redirect: false,
-          sigUpSuccessfully: true,
-          dataUser: JSON.stringify({
-            ...res?.data?.user,
-            accessToken: res?.data?.access,
-            refreshToken: res?.data?.refresh,
-          }),
-        })
-
-        setOpenDrawer(false)
-        setOpenGuideline(true)
-        return res?.data?.message || 'Sign up successful!'
-      },
-      error: () => {
-        return t(
-          'this_email_is_already_registered_please_use_a_different_email_or_log_in'
-        )
-      },
-      finally() {
-        setIsAuthenticating(false)
-      },
-    })
+  const onSendOtp = async (value: SignUpFormCredentials) => {
+    await triggerSendOtp(value.email)
+    setFormType('otp')
   }
+
+  useEffect(() => {
+    if (decodedToken) {
+      form.setValue('email', decodedToken.email_receiver)
+    }
+  }, [decodedToken])
 
   return (
     <div className="w-full animate-opacity-display-effect self-start">
@@ -137,7 +60,7 @@ const SignUpForm = ({
       </TypographyPrimary>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
+        <form onSubmit={form.handleSubmit(onSendOtp)} className="mt-5">
           <div className="space-y-3">
             <div className="flex gap-3">
               <FormField
@@ -186,6 +109,7 @@ const SignUpForm = ({
                       prefixCpn={<Mail size={16} />}
                       {...field}
                       placeholder="Email"
+                      disabled={!!token}
                     />
                   </FormControl>
                   <FormMessage />
@@ -259,7 +183,7 @@ const SignUpForm = ({
           <Button
             type="submit"
             className="mb-2 mt-5 h-11 w-full"
-            loading={isAuthenticating}
+            loading={isMutatingSendOtp}
           >
             {t('sign_up')}
           </Button>
@@ -272,7 +196,7 @@ const SignUpForm = ({
         <span
           className="cursor-pointer font-semibold hover:underline"
           onClick={() => {
-            setAuthMethod({ method: 'signIn' })
+            setFormType('login')
           }}
         >
           {t('sign_in')}

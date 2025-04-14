@@ -20,10 +20,10 @@ import {
   TypographyPrimary,
   TypographySecondary,
 } from '@/components/ui/typography'
-import { AuthData } from '.'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
+import { useAuthForm } from './stores/useAuthForm'
 
 const singInSchema = z.object({
   email: z
@@ -36,20 +36,16 @@ const singInSchema = z.object({
   remember_me: z.boolean().optional(),
 })
 
-const SignInForm = ({
-  setAuthMethod,
-  initialData,
-}: {
-  setAuthMethod: (data: AuthData) => void
-  initialData: AuthData['data']
-}) => {
+const SignInForm = () => {
+  const { initialData, setFormType } = useAuthForm(
+    useShallow((state) => ({
+      initialData: state.initialData,
+      setFormType: state.setFormType,
+    }))
+  )
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
-    defaultValues: {
-      // email: 'sgt+02@yopmail.com',
-      // password: '@Aa123123',
-    },
   })
   const [isShowPassword, setIsShowPassword] = useState(false)
 
@@ -180,7 +176,7 @@ const SignInForm = ({
         </TypographySecondary>
         <span
           className="cursor-pointer font-semibold hover:underline"
-          onClick={() => setAuthMethod({ method: 'signUp' })}
+          onClick={() => setFormType('signup')}
         >
           {t('sign_up')}
         </span>

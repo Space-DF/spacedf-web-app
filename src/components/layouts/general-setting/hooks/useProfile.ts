@@ -1,5 +1,4 @@
 import { Profile } from '@/types/profile'
-import { useParams } from 'next/navigation'
 import useSWR from 'swr'
 
 const getProfile = async (url: string) => {
@@ -10,7 +9,5 @@ const getProfile = async (url: string) => {
   return response.json()
 }
 
-export const useProfile = () => {
-  const { organization } = useParams<{ organization: string }>()
-  return useSWR<Profile>(`/api/profile/${organization}`, getProfile)
-}
+export const useProfile = (isAuthenticated = true) =>
+  useSWR<Profile>(isAuthenticated ? `/api/me` : null, getProfile)

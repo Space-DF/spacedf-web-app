@@ -1,5 +1,4 @@
 import { Profile } from '@/types/profile'
-import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
 const updateProfile = async (
@@ -20,7 +19,4 @@ const updateProfile = async (
   return response.json()
 }
 
-export const useUpdateProfile = () => {
-  const { organization } = useParams<{ organization: string }>()
-  return useSWRMutation(`/api/profile/${organization}`, updateProfile)
-}
+export const useUpdateProfile = () => useSWRMutation(`/api/me`, updateProfile)

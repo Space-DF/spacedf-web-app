@@ -21,5 +21,17 @@
   "dont_have_an_account": "Don’t have an account?",
   "we_sent_a_code_to": "We sent a code to <span>{email}</span>",
   "sign_in_to_SpaceDF": "Sign in to SpaceDF",
-  "sign_up_to_SpaceDF": "Sign up to SpaceDF"
+  "sign_up_to_SpaceDF": "Sign up to SpaceDF",
+  "send_otp_success": "OTP sent successfully",
+  "send_otp_error": "Failed to send OTP",
+  "otp_sent": "We sent a code to",
+  "back": "Back",
+  "sign_up_success": "Sign up successfully",
+  "sign_up_failed": "Sign up failed",
+  "cancel": "Cancel",
+  "are_you_sure_you_want_to_cancel": "Are you sure you want to cancel action?",
+  "confirm": "Confirm",
+  "logout": "Logout",
+  "you_are_logged_into_a_different_account": "You're Logged into a Different Account",
+  "you_are_logged_into_a_different_account_description": "To accept this invite, please log out and sign in with the correct account associated with the invitation."
 }
