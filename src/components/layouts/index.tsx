@@ -23,6 +23,7 @@ import {
   ResizablePanelGroup,
 } from '../ui/resizable'
 import Sidebar from './sidebar'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -81,8 +82,6 @@ const DynamicLayout = ({
     }
   }, [JSON.stringify(dynamicLayouts)])
 
-  useEffect(() => {})
-
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
   const refs = useRef<ImperativePanelGroupHandle | null>(null)
@@ -114,6 +113,7 @@ const DynamicLayout = ({
       refs.current?.setLayout([100, 0])
     }
   }
+  const [sidebarWidth, mainWidth] = useResponsiveLayout(defaultMainLayout)
 
   const handleSetDynamicLayout = () => {
     if (!prevLayouts.current.length && dynamicLayoutRight.length)
@@ -240,7 +240,7 @@ const DynamicLayout = ({
           <ResizablePanel
             minSize={4}
             maxSize={18}
-            defaultSize={defaultMainLayout[0]}
+            defaultSize={sidebarWidth}
             className="duration-200"
           >
             <Sidebar ref={mainLayoutRefs} />
@@ -254,7 +254,7 @@ const DynamicLayout = ({
               ref={refs}
               id="group"
             >
-              <ResizablePanel defaultSize={defaultLayout[0]} minSize={40}>
+              <ResizablePanel defaultSize={mainWidth} minSize={40}>
                 <div
                   className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
                   id="ele-main-content"
@@ -271,7 +271,7 @@ const DynamicLayout = ({
               />
 
               <ResizablePanel
-                defaultSize={defaultLayout[0]}
+                defaultSize={sidebarWidth}
                 className={cn(
                   'transition-all duration-300',
                   isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
@@ -286,7 +286,7 @@ const DynamicLayout = ({
                   id="region-dynamic-layout"
                 >
                   <ResizablePanel
-                    defaultSize={defaultRightLayout[0]}
+                    defaultSize={mainWidth}
                     minSize={first ? 45 : 0}
                     className={cn(
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
@@ -300,7 +300,7 @@ const DynamicLayout = ({
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel
-                    defaultSize={defaultRightLayout[1]}
+                    defaultSize={mainWidth}
                     minSize={second ? 45 : 0}
                     className={cn(
                       'bg-brand-fill-surface dark:bg-brand-fill-outermost',
