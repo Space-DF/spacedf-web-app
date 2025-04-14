@@ -82,7 +82,7 @@ const Devices = () => {
       }}
       title={t('selected_devices')}
     >
-      <div className="flex h-full flex-col pt-6">
+      <div className="flex h-full flex-col pt-4">
         <div className="px-4">
           <DeviceSelected />
         </div>
@@ -318,7 +318,7 @@ const DeviceSelected = () => {
   const deviceData = devices[deviceSelected]
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
+    <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="size-2 rounded-full bg-brand-component-fill-positive" />
@@ -362,16 +362,21 @@ const DeviceSelected = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <InformationItem label={`${t('device_id')}:`} content={deviceData.id} />
-        <InformationItem
-          label={`${t('device_name')}:`}
-          content={deviceData.name}
-        />
-        <InformationItem
-          label={`${t('deveui')}:`}
-          content={'Mild Steel Cement Lined'}
-        />
-        <InformationItem label={`${t('description')}:`} content={'150'} />
+        <div className="flex flex-col gap-2 gap-y-1">
+          <InformationItem
+            label={`${t('device_id')}:`}
+            content={deviceData.id}
+          />
+          <InformationItem
+            label={`${t('device_name')}:`}
+            content={deviceData.name}
+          />
+          <InformationItem
+            label={`${t('deveui')}:`}
+            content={'Mild Steel Cement Lined'}
+          />
+          <InformationItem label={`${t('description')}:`} content={'150'} />
+        </div>
 
         <Button onClick={() => startDrawHistory(deviceSelected)}>
           {t('device_history')}
@@ -403,37 +408,30 @@ const DevicesList = () => {
       </div>
       <div className="px-1.5 flex-1 h-full flex">
         <div className="px-2.5 flex-1 transition-all duration-300 overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-          <div className="-mx-2 flex flex-wrap gap-y-4 pb-6">
+          <div className="-mx-2 grid grid-cols-2 gap-3 pb-6">
             {devices.map((item) => (
               <div
-                className="w-1/2 shrink-0 grow-0 basis-1/2 px-2"
                 key={item.id}
+                className={cn(
+                  'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                  {
+                    'border-brand-component-stroke-dark':
+                      item.id === deviceSelected,
+                  }
+                )}
+                onClick={() => setDeviceSelected(item.id)}
               >
-                <div
-                  className={cn(
-                    'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                    {
-                      'border-brand-component-stroke-dark':
-                        item.id === deviceSelected,
-                    }
-                  )}
-                  onClick={() => setDeviceSelected(item.id)}
-                >
-                  <div className="space-y-2 mb-[18px]">
-                    <div className="flex items-center justify-between">
-                      <div className="size-8">
-                        <ImageWithBlur
-                          src={DeviceIcon}
-                          alt="DMZ 01 -1511-M01"
-                        />
-                      </div>
+                <div className="space-y-2 mb-[18px]">
+                  <div className="flex items-center justify-between">
+                    <div className="size-8">
+                      <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
                     </div>
-                    <div className="text-xs font-medium">{item.name}</div>
                   </div>
-                  <div className="flex items-center gap-2 py-1 text-xs font-medium">
-                    <Map size={16} className="text-brand-text-gray" />
-                    {item.type}
-                  </div>
+                  <div className="text-xs font-medium">{item.name}</div>
+                </div>
+                <div className="flex items-center gap-2 py-1 text-xs font-medium">
+                  <Map size={16} className="text-brand-text-gray" />
+                  {item.type}
                 </div>
               </div>
             ))}

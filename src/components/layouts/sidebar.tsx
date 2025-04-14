@@ -34,6 +34,7 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
@@ -55,6 +56,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     COOKIES.DYNAMIC_LAYOUTS,
     [] as DynamicLayout[]
   )
+  const [sidebarWidth, mainWidth] = useResponsiveLayout()
 
   useEffect(() => {
     setCollapsed(defaultCollapsed)
@@ -74,7 +76,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     if (!ref || !('current' in ref)) return
 
     if (isCollapsed) return ref?.current?.setLayout([4, 96])
-    ref?.current?.setLayout([25, 75])
+    ref?.current?.setLayout([sidebarWidth, mainWidth])
   }
 
   useKeyboardShortcut({

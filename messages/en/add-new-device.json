@@ -19,7 +19,7 @@
   "connect_devices_manual": "Connect devices manual",
   "online": "Online",
   "device_id": "ID",
-  "deveui": "DevEUI:",
+  "deveui": "DevEUI",
   "remove_device": "Remove device",
   "are_you_sure_you_want_to_remove_this_device": "Are you sure you want to remove this device?",
   "delete": "Delete",
