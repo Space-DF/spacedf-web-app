@@ -67,10 +67,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const spaceDFInstance = await SpaceDFClient.getInstance()
       // const client = await spaceClient()
       // Early return if we have a valid token and no user data
-      if (Number(token.accessTokenExpires) > Date.now() / 1000) {
-        spaceDFInstance.setToken(token.access)
-        return token
-      }
+      // if (Number(token.accessTokenExpires) > Date.now() / 1000) {
+      //   spaceDFInstance.setToken(token.access)
+      //   return token
+      // }
       // if (Number(token.accessTokenExpires) < Date.now() / 1000) {
       //   try {
       //     const { access, refresh } = await client.auth.refreshToken({
@@ -107,4 +107,5 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return token
     },
   },
+  trustHost: true,
 })

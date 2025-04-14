@@ -17,6 +17,7 @@ import DeleteAccount from './delete-account'
 import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
+import { useSession } from 'next-auth/react'
 
 const settings = [
   {
@@ -50,6 +51,22 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   const [currentSetting, setCurrentSetting] = useState('profile')
   const t = useTranslations('common')
 
+  const { status } = useSession()
+
+  const isAuthenticated = status === 'authenticated'
+
+  const authSettings = useMemo(() => {
+    if (isAuthenticated) {
+      return settings
+    }
+    return settings.filter(
+      (setting) =>
+        setting.key !== 'delete_account' &&
+        setting.key !== 'account' &&
+        setting.key !== 'profile'
+    )
+  }, [isAuthenticated])
+
   const renderSetting = useMemo(() => {
     switch (currentSetting) {
       case 'profile':
@@ -77,7 +94,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         <div className="flex">
           <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
             <div className="flex flex-col gap-1">
-              {settings.map((setting) => {
+              {authSettings.map((setting) => {
                 const isActive = setting.key === currentSetting
 
                 return (
