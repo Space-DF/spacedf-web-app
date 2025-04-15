@@ -76,3 +76,19 @@ export const PUT = withAuthApiRequired(async (request: Request) => {
     )
   }
 })
+
+export const DELETE = withAuthApiRequired(async () => {
+  try {
+    const spacedfClient = await spaceClient()
+    const response = await spacedfClient.users.deleteMe()
+    return NextResponse.json(response)
+  } catch (error) {
+    const errorResponse = error as ApiErrorResponse
+    return NextResponse.json(
+      {
+        message: errorResponse.detail || 'Something went wrong',
+      },
+      { status: errorResponse.code || 400 }
+    )
+  }
+})

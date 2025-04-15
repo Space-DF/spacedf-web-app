@@ -28,5 +28,8 @@
   "language": "Language",
   "choose_language": "Choose the language you’d like to use.",
   "time_zone": "Time zone",
-  "set_time_zone": "Set time zone automatically"
+  "set_time_zone": "Set time zone automatically",
+  "delete_account_success": "Delete account success",
+  "delete_account_error": "Delete account error",
+  "email_not_match": "Email not match"
 }
