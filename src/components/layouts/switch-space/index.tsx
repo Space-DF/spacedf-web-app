@@ -21,6 +21,8 @@ import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
+import useSwitchSpace from './hooks/useSwitchSpace'
+import { useSession } from 'next-auth/react'
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
@@ -37,6 +39,8 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
     useDecodedToken(token)
+  const { trigger: switchSpace } = useSwitchSpace()
+  const { update } = useSession()
 
   const spaceSelected =
     spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
@@ -78,9 +82,14 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     return () => document.removeEventListener('keydown', down)
   }, [spaceList])
 
-  const handleGoToSpace = useCallback((spaceSlug: string) => {
-    router.push(`/spaces/${spaceSlug}`)
-  }, [])
+  const handleGoToSpace = useCallback(
+    async (spaceSlug: string) => {
+      const response = await switchSpace({ spaceSlug })
+      await update(response)
+      router.push(`/spaces/${spaceSlug}`)
+    },
+    [switchSpace, router, update]
+  )
 
   // const customMatchKeys = useCallback(
   //   (keys: string[], event: KeyboardEvent) => {
