@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
 import { NEXTAUTH_SECRET } from '@/shared/env'
-import { SpaceDFClient } from './spacedf'
+import { spaceClient, SpaceDFClient } from './spacedf'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
@@ -39,8 +39,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             password: password as string,
           })
 
-          spaceDFInstance.setToken(data.access)
-
           return data
         } catch {
           return null
@@ -54,56 +52,42 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async session({ session, token }) {
-      const spaceDFInstance = await SpaceDFClient.getInstance()
       if (token) {
         session.user.access = token.access
         session.user.refresh = token.refresh
-        spaceDFInstance.setToken(token.access)
       }
       return session
     },
     async jwt({ token, user }) {
-      // const space = await getSpace()
-      const spaceDFInstance = await SpaceDFClient.getInstance()
-      // const client = await spaceClient()
-      // Early return if we have a valid token and no user data
-      // if (Number(token.accessTokenExpires) > Date.now() / 1000) {
-      //   spaceDFInstance.setToken(token.access)
-      //   return token
-      // }
-      // if (Number(token.accessTokenExpires) < Date.now() / 1000) {
-      //   try {
-      //     const { access, refresh } = await client.auth.refreshToken({
-      //       refresh: token.refresh,
-      //       space_slug_name:
-      //     })
-
-      //     if (access && refresh) {
-      //       token.access = access
-      //       token.refresh = refresh
-      //       spaceDFInstance.setToken(access)
-      //       return {
-      //         ...token,
-      //         accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-      //       }
-      //     }
-      //   } catch (error) {
-      //     console.error('Token refresh failed:', error)
-      //     return token
-      //   }
-      // }
-
+      const client = await spaceClient()
       // Handle new user login
       if (user) {
         token.access = user.access
         token.refresh = user.refresh
-        spaceDFInstance.setToken(user.access)
         return {
           ...token,
           accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
       }
+      // Early return if we have a valid token and no user data
+      const isExpired = Number(token.accessTokenExpires) < Date.now()
+      if (isExpired) {
+        try {
+          const { access, refresh } = await client.auth.refreshToken({
+            refresh: token.refresh,
+            space_slug_name: 'space-1',
+          })
 
+          if (access && refresh) {
+            token.access = access
+            token.refresh = refresh
+            token.accessTokenExpires = Date.now() + TOKEN_EXPIRE_TIME
+            return token
+          }
+        } catch {
+          return token
+        }
+      }
       return token
     },
   },

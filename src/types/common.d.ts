@@ -16,10 +16,12 @@ export type TSpace = {
 export type IdentityStep = `${IdentityStepEnum}`
 
 export type SpaceUser = {
-  id: number
+  id: string
   email: string
   first_name?: string
   last_name?: string
+  company_name?: string
+  avatar?: string
 }
 
 // export interface APIResponse<TResponse = any> extends FullResponse<T> {
@@ -32,5 +34,5 @@ export type APIResponse<TResponse = any> = FullResponse<TResponse>
 
 export type TransFunction = (
   key: string,
-  params?: Record<string, any>,
+  params?: Record<string, any>
 ) => string

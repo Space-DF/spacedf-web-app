@@ -27,5 +27,11 @@
   "appearance": "Giao diện",
   "preference_mode": "Chế độ tuỳ chọn",
   "language": "Ngôn ngữ",
-  "delete_account": "Xoá tài khoản"
+  "delete_account": "Xoá tài khoản",
+  "back_to_login": "Trở lại đăng nhập",
+  "continue_to_dashboard": "Tiếp tục đến bảng điều khiển",
+  "invitation_accepted": "Thành công!",
+  "invitation_failed": "Thất bại!",
+  "invitation_accepted_description": "Bạn đã thành công tham gia nhóm. Bắt đầu và khám phá không gian làm việc của bạn ngay bây giờ!",
+  "invitation_failed_description": "Đã xảy ra lỗi khi chấp nhận lời mời. Vui lòng thử lại hoặc liên hệ hỗ trợ để được trợ giúp."
 }

@@ -1,4 +1,3 @@
-import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
 export type UploadImageResponse = {
@@ -26,10 +25,8 @@ const uploadImageProfile = async (
   }
   return response.json()
 }
-export const useUploadImage = () => {
-  const { organization } = useParams<{ organization: string }>()
-  return useSWRMutation<UploadImageResponse, Error, string, File>(
-    `/api/profile/${organization}`,
+export const useUploadImage = () =>
+  useSWRMutation<UploadImageResponse, Error, string, File>(
+    `/api/me`,
     uploadImageProfile
   )
-}

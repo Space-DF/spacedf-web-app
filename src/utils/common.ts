@@ -68,6 +68,9 @@ export const mapResize = () => {
 
   const map = window?.mapInstance?.getMapInstance()
   if (!map || map.isStyleLoaded()) return
+}
 
-  console.log('Resize')
+export const isEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
 }

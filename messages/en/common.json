@@ -34,5 +34,11 @@
   "to_confirm_enter_email": "To confirm, please enter your email below *",
   "delete_account": "Delete account",
   "authenticator_app": "Authenticator App",
-  "login_send_email": "Once you login SpaceDF, we will send you a notification in email."
+  "login_send_email": "Once you login SpaceDF, we will send you a notification in email.",
+  "back_to_login": "Back to Login",
+  "continue_to_dashboard": "Continue to Dashboard",
+  "invitation_accepted": "Invitation Accepted Successfully!",
+  "invitation_failed": "Invitation Acceptance Failed",
+  "invitation_accepted_description": "You have successfully joined the team. Get started and explore your new workspace now!",
+  "invitation_failed_description": "Something went wrong while accepting the invite. Please try again or contact support for assistance."
 }

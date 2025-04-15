@@ -15,7 +15,7 @@
   "confirm": "Confirm",
   "congratulations_youve_created_your_new_space_take_the_next_step_by_inviting_members_to_join_and_collaborate": "Congratulations! You've created your new space. Take the next step by inviting members to join and collaborate!",
   "ill_do_it_later": "I’ll do it later",
-  "invite": "Invite",
+  "invite_all": "Invite All",
   "invite_member_by_email_comma_separated": "Invite member by Email, comma separated ",
   "name": "Name",
   "role": "Role",
@@ -38,5 +38,16 @@
   "delete": "Delete",
   "invite_list": "Invite List",
   "invite_member_by_email": "Invite member by Email",
-  "space_members": "Space Members"
+  "space_members": "Space Members",
+  "clear_all": "Clear all",
+  "invitation_sent_successfully": "Invitation sent successfully",
+  "failed_to_send_invitation": "Failed to send invitation",
+  "member_removed_successfully": "Member removed successfully",
+  "failed_to_remove_member": "Failed to remove member",
+  "member_updated_successfully": "Member updated successfully",
+  "failed_to_update_member": "Failed to update member",
+  "updating_role": "Updating role...",
+  "member_account": "Member Account",
+  "join_space_success": "You have joined the space",
+  "join_space_error": "Failed to join the space"
 }

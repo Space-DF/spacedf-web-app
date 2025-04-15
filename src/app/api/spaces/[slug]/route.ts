@@ -37,7 +37,6 @@ const DELETE = withAuthApiRequired(async (req) => {
   const spacedfClient = await spaceClient()
 
   try {
-    // console.log(body)
     const deleteSpaceResponse = await spacedfClient.spaces.delete(body)
     return NextResponse.json({
       data: deleteSpaceResponse,

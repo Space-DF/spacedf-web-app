@@ -7,7 +7,7 @@ import { ChevronsUpDown } from 'lucide-react'
 import { Space as TSpace } from '@/types/space'
 
 type SpaceProps = {
-  spaceData: TSpace
+  spaceData?: TSpace
   isSelected?: boolean
   isCollapsed?: boolean
   hiddenOption?: boolean
@@ -23,7 +23,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
         {
           'rounded-lg border-brand-component-stroke-secondary p-px':
             hiddenOption,
-        },
+        }
       )}
     >
       <div className="flex gap-2">
@@ -32,7 +32,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             'flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700',
             {
               'size-7': hiddenOption,
-            },
+            }
           )}
         >
           <AvatarImage src={logo} alt={name} className="mix-blend-darken" />
@@ -51,9 +51,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             <p
               className={cn(
                 'text-sm font-semibold',
-                isSelected
-                  ? 'text-brand-heading dark:text-white'
-                  : 'text-white',
+                isSelected ? 'text-brand-heading dark:text-white' : 'text-white'
               )}
             >
               {name}

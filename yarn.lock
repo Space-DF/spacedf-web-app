@@ -720,6 +720,13 @@
     jszip "^3.1.5"
     md5 "^2.3.0"
 
+"@lottiefiles/react-lottie-player@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@lottiefiles/react-lottie-player/-/react-lottie-player-3.6.0.tgz#c278a3709cfcb9a67996b8a669b00a30346f1517"
+  integrity sha512-WK5TriLJT93VF3w4IjSVyveiedraZCnDhKzCPhpbeLgQeMi6zufxa3dXNc4HmAFRXq+LULPAy+Idv1rAfkReMA==
+  dependencies:
+    lottie-web "^5.12.2"
+
 "@luma.gl/constants@9.0.27", "@luma.gl/constants@~9.0.27":
   version "9.0.27"
   resolved "https://registry.npmjs.org/@luma.gl/constants/-/constants-9.0.27.tgz"
@@ -1758,10 +1765,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz#3a1c12c959010a55c17d46b395ed3047b545c246"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@^0.0.1-dev.6":
-  version "0.0.1-dev.6"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.6.tgz#94a7bc424282b2c47b8f40f6ea4a941033c1ec28"
-  integrity sha512-tHxg+lw85I/MYYRfi1e1HENGQAq+V1TerbEsCDYN73nKd1t4uOILJg+QxD4SA9Vv7q6vmKK6kHFvPXDbsObjTA==
+"@space-df/sdk@^0.0.1-dev.10":
+  version "0.0.1-dev.10"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.10.tgz#f875a9daa41eb568f4025ce09ba8dc11e9dd43f2"
+  integrity sha512-E4H51bIlf+WRREhweTZRKNLwSpWI4ZSRy5gILcYB79SlNr39cmPUgkW8r3fxNYZo2CJxBrtYyW4zvrzQ7TVQug==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -5276,7 +5283,7 @@ lodash.merge@^4.6.2:
 
 lodash@^4.17.21:
   version "4.17.21"
-  resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 log-update@^6.1.0:
@@ -5314,7 +5321,7 @@ lottie-react@^2.4.0:
   dependencies:
     lottie-web "^5.10.2"
 
-lottie-web@^5.10.2:
+lottie-web@^5.10.2, lottie-web@^5.12.2:
   version "5.12.2"
   resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.12.2.tgz#579ca9fe6d3fd9e352571edd3c0be162492f68e5"
   integrity sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==

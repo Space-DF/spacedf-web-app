@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { SpaceDelete } from './space-delete'
-import { InformationTab, MemberTab } from './space-information'
+import { InformationTab } from './information-tab'
+import { MemberTab } from './member-tab'
 import { useSpaceSettings } from '@/stores/space-settings-store'
 import { Space } from '@/types/space'
 import { useTranslations } from 'next-intl'

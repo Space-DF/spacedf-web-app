@@ -52,6 +52,13 @@ export type DataResponse<T = unknown> = {
   status: number
 }
 
+export interface PaginationResponse<T = unknown> {
+  count?: number
+  next?: string
+  previous?: string
+  results?: T[]
+}
+
 export type Response<T = unknown> = {
   data?: {
     response_data: {
