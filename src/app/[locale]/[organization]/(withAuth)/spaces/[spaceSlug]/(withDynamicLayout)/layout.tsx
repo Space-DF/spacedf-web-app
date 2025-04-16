@@ -10,15 +10,15 @@ export default function Layout(props: { children: React.ReactNode }) {
 
   const defaultDynamicLayout = getCookieServer(
     COOKIES.DYNAMIC_LAYOUTS,
-    [] as TDynamicLayout[],
+    [] as TDynamicLayout[]
   )
 
   const defaultRightLayout = getCookieServer(
     COOKIES.SUB_DYNAMIC_LAYOUTS,
-    [50, 50],
+    [50, 50]
   )
 
-  const defaultMainLayout = getCookieServer(COOKIES.MAIN_LAYOUTS, [25, 75])
+  const defaultMainLayout = getCookieServer(COOKIES.MAIN_LAYOUTS, [15, 85])
   const defaultCollapsed = getCookieServer(COOKIES.SIDEBAR_COLLAPSED, false)
 
   return (

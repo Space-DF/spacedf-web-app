@@ -13,6 +13,8 @@ import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
+import { useSession } from 'next-auth/react'
+import useSwitchSpace from '@/components/layouts/switch-space/hooks/useSwitchSpace'
 
 const formSchema = z.object({
   space_name: z
@@ -22,6 +24,7 @@ const formSchema = z.object({
     .max(50, {
       message: 'This field must be less than or equal to 50 characters',
     }),
+  logo: z.string().optional(),
 })
 
 export type SpaceFormValues = z.infer<typeof formSchema>
@@ -32,9 +35,10 @@ const OrganizationSetting = () => {
   })
   const router = useRouter()
   const { setLoadingText } = useGlobalStore(useShallow((state) => state))
-  const [isCreating] = useState(false)
   const t = useTranslations('space')
-
+  const { update } = useSession()
+  const { trigger: switchSpace } = useSwitchSpace()
+  const [isCreating, setIsCreating] = useState(false)
   // const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -43,20 +47,26 @@ const OrganizationSetting = () => {
         method: 'POST',
         body: JSON.stringify({
           // TODO: handle upload logo
-          logo: 'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
+          logo:
+            values.logo ||
+            'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
           name: values.space_name,
           slug_name: toSlug(values.space_name),
           is_active: true,
         }),
-      }).then(async (response) => {
-        const result = await response.json()
-        if (!response.ok) {
-          const [errorData] = result.slug_name
-
-          throw new Error(errorData || 'Something went wrong')
-        }
-        return result
       })
+        .then(async (response) => {
+          const result = await response.json()
+          if (!response.ok) {
+            const [errorData] = result.slug_name
+
+            throw new Error(errorData || 'Something went wrong')
+          }
+          return result
+        })
+        .finally(() => {
+          setIsCreating(false)
+        })
       setLoadingText({
         duration: 3000,
         loadingTitle: t('congratulations'),
@@ -66,6 +76,10 @@ const OrganizationSetting = () => {
       })
       if (fetchPromise.data) {
         router.push(`/spaces/${fetchPromise.data.slug_name}`)
+        const response = await switchSpace({
+          spaceSlug: fetchPromise.data.slug_name,
+        })
+        update(response)
       }
     } catch (err) {
       const { message } = err as Error

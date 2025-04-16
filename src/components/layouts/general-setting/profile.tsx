@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { InputWithIcon } from '@/components/ui/input'
-import { CloudUpload, MapPin, UserRound } from 'lucide-react'
+import { CloudUpload, Loader, MapPin, UserRound } from 'lucide-react'
 import React, {
   ChangeEvent,
   Suspense,
@@ -95,6 +95,8 @@ const Profile = () => {
     fileRef.current?.click()
   }
 
+  const previewImageSize = previewImage ? 96 : 40
+
   return (
     <Form {...form}>
       <input
@@ -112,12 +114,21 @@ const Profile = () => {
         <div className="mb-4 flex gap-3">
           <Avatar className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-600">
             <Suspense fallback={<AvatarFallback>{t('avatar')}</AvatarFallback>}>
-              <ImageWithBlur
-                src={previewImage || AvtUser}
-                width={40}
-                height={40}
-                alt="space-df"
-              />
+              <div className="relative">
+                <ImageWithBlur
+                  src={previewImage || AvtUser}
+                  width={previewImageSize}
+                  height={previewImageSize}
+                  alt="space-df"
+                  className="size-full rounded-full object-cover"
+                  isPending={isMutating}
+                />
+                {isMutating && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader className="animate-spin size-6 text-white" />
+                  </div>
+                )}
+              </div>
             </Suspense>
           </Avatar>
           <div className="flex flex-col items-stretch justify-between py-3">
