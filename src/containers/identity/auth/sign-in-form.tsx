@@ -62,7 +62,7 @@ const SignInForm = () => {
     startAuthentication(async () => {
       try {
         const res = await signIn('credentials', { redirect: false, ...value })
-        if (!res?.ok) {
+        if (res?.error) {
           toast.error(t('sign_in_failed_please_try_again'))
         } else {
           setOpenDrawer(false)

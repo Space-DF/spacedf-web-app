@@ -106,36 +106,19 @@ const OTPForm = () => {
               name="otp"
               render={({ field }) => (
                 <FormItem className="flex-1">
-                  <FormLabel>
+                  <FormLabel className="text-[14px]">
                     {t('otp_sent')} <span className="font-bold">{email}</span>
                   </FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
                       <InputOTPGroup className="w-full gap-6">
-                        <InputOTPSlot
-                          index={0}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
-                        <InputOTPSlot
-                          index={1}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
-                        <InputOTPSlot
-                          index={2}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
-                        <InputOTPSlot
-                          index={3}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
-                        <InputOTPSlot
-                          index={4}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
-                        <InputOTPSlot
-                          index={5}
-                          className="h-20 w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
-                        />
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <InputOTPSlot
+                            key={index}
+                            index={index}
+                            className="h-[70px] w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
+                          />
+                        ))}
                       </InputOTPGroup>
                     </InputOTP>
                   </FormControl>

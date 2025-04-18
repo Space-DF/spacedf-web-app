@@ -29,13 +29,18 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
       <div className="flex gap-2">
         <Avatar
           className={cn(
-            'flex items-center justify-center rounded-lg bg-purple-200 p-1 dark:bg-purple-700',
+            'flex items-center justify-center rounded-lg bg-purple-200 dark:bg-purple-700',
             {
               'size-7': hiddenOption,
+              'p-1': !logo,
             }
           )}
         >
-          <AvatarImage src={logo} alt={name} className="mix-blend-darken" />
+          <AvatarImage
+            src={logo}
+            alt={name}
+            className="mix-blend-darken size-full rounded-lg"
+          />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
             src={}

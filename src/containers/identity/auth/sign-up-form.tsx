@@ -109,7 +109,6 @@ const SignUpForm = () => {
                       prefixCpn={<Mail size={16} />}
                       {...field}
                       placeholder="Email"
-                      disabled={!!token}
                     />
                   </FormControl>
                   <FormMessage />

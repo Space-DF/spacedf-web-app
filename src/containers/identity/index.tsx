@@ -105,6 +105,7 @@ const Identity = () => {
       isAuthenticated &&
       !isMeLoading &&
       !!token &&
+      !!me?.email &&
       me?.email !== decodedToken?.email_receiver
     ) {
       setIsDifferentUser(true)

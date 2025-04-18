@@ -23,6 +23,7 @@ import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/ho
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 import useSwitchSpace from './hooks/useSwitchSpace'
 import { useSession } from 'next-auth/react'
+import { cn } from '@/lib/utils'
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
@@ -84,11 +85,12 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
 
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
+      if (params.spaceSlug === spaceSlug) return
+      router.replace(`/spaces/${spaceSlug}`)
       const response = await switchSpace({ spaceSlug })
-      await update(response)
-      router.push(`/spaces/${spaceSlug}`)
+      update(response)
     },
-    [switchSpace, router, update]
+    [switchSpace, router, update, params.spaceSlug]
   )
 
   // const customMatchKeys = useCallback(
@@ -136,7 +138,11 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
               onClick={() => {
                 handleGoToSpace(space.slug_name)
               }}
-              className="cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost"
+              className={cn(
+                'cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost',
+                space.slug_name === params.spaceSlug &&
+                  'bg-brand-fill-outermost'
+              )}
             >
               <SpaceMenuItem spaceData={space} position={index} />
             </DropdownMenuItem>

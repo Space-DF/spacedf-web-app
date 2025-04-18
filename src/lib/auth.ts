@@ -5,9 +5,29 @@ import { jwtDecode } from 'jwt-decode'
 import { NEXTAUTH_SECRET } from '@/shared/env'
 import { spaceClient, SpaceDFClient } from './spacedf'
 import { AccessTokenPayload } from '@/types/token'
+import memoize from 'memoize'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
+
+const MAX_AGE = 1000 * 60 * 60 * 24
+
+const refreshAccessToken = memoize(
+  async (refreshToken: string, spaceSlugName: string) => {
+    const client = await spaceClient()
+    const data = await client.auth.refreshToken({
+      refresh: refreshToken,
+      space_slug_name: spaceSlugName,
+    })
+    return data
+  },
+  {
+    maxAge: MAX_AGE,
+    cacheKey(arguments_) {
+      return arguments_.join(',')
+    },
+  }
+)
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: NEXTAUTH_SECRET,
@@ -59,8 +79,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return session
     },
     async jwt({ token, user, trigger, session }) {
-      const client = await spaceClient()
-      // Handle session updates and token refresh
+      if (user) {
+        return {
+          ...token,
+          access: user.access,
+          refresh: user.refresh,
+          accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+        }
+      }
+
       if (
         trigger === 'update' ||
         (token && Number(token.accessTokenExpires) < Date.now())
@@ -73,11 +100,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             const decodedAccessToken = jwtDecode<AccessTokenPayload>(
               token.access
             )
-            const { access, refresh } = await client.auth.refreshToken({
-              refresh: token.refresh,
-              space_slug_name: decodedAccessToken.space,
-            })
-            newTokenData = { access, refresh }
+            const refreshedTokens = await refreshAccessToken(
+              token.refresh,
+              decodedAccessToken.space
+            )
+
+            newTokenData = {
+              access: refreshedTokens.access,
+              refresh: refreshedTokens.refresh,
+            }
           } catch {
             return token
           }
@@ -88,18 +119,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           ...token,
           access: newTokenData?.access || token.access,
           refresh: newTokenData?.refresh || token.refresh,
-          accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-        }
-
-        return newToken
-      }
-
-      // Handle new user login
-      if (user) {
-        const newToken = {
-          ...token,
-          access: user.access,
-          refresh: user.refresh,
           accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
         return newToken

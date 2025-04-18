@@ -8,10 +8,12 @@ import { useState } from 'react'
 export default function ImageWithBlur({
   className,
   redirect,
+  isPending = false,
   ...imageProps
 }: ImageProps & {
   addParentClass?: string
   redirect?: string
+  isPending?: boolean
 }) {
   const [isLoading, setLoading] = useState(true)
   const router = useRouter()
@@ -30,7 +32,7 @@ export default function ImageWithBlur({
       <Image
         className={cn(
           'h-full w-full duration-300 ease-in-out',
-          isLoading
+          isLoading || isPending
             ? 'scale-110 blur-2xl grayscale'
             : 'scale-100 blur-0 grayscale-0',
           className
