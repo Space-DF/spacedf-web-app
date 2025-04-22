@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { InviteMember } from '@/types/members'
+import { handleError } from '@/utils/error'
 
 export const POST = withAuthApiRequired(async (req) => {
   try {
@@ -12,13 +13,8 @@ export const POST = withAuthApiRequired(async (req) => {
       receiver_list: body,
     })
     return NextResponse.json(invitation)
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        ...(error?.error || {}),
-      },
-      { status: error.status }
-    )
+  } catch (error) {
+    return handleError(error)
   }
 })
 
@@ -44,13 +40,8 @@ export const DELETE = withAuthApiRequired(async (req) => {
     const { id } = await req.json()
     const member = await spacedfClient.spaceRoleUsers.delete(id)
     return NextResponse.json(member)
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        ...(error?.error || {}),
-      },
-      { status: error.status }
-    )
+  } catch (error) {
+    return handleError(error)
   }
 })
 
@@ -62,12 +53,7 @@ export const PATCH = withAuthApiRequired(async (req) => {
       space_role,
     })
     return NextResponse.json(member)
-  } catch (error: any) {
-    return NextResponse.json(
-      {
-        ...(error?.error || {}),
-      },
-      { status: error.status }
-    )
+  } catch (error) {
+    return handleError(error)
   }
 })

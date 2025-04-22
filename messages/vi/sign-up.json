@@ -31,5 +31,6 @@
   "confirm": "Xác nhận",
   "logout": "Đăng xuất",
   "you_are_logged_into_a_different_account": "Bạn đang đăng nhập vào tài khoản khác",
-  "you_are_logged_into_a_different_account_description": "Để chấp nhận lời mời này, vui lòng đăng xuất và đăng nhập lại với tài khoản được liên kết với lời mời."
+  "you_are_logged_into_a_different_account_description": "Để chấp nhận lời mời này, vui lòng đăng xuất và đăng nhập lại với tài khoản được liên kết với lời mời.",
+  "google_sign_in_failed": "Không thể đăng nhập với Google. Xin hãy thử lại sau."
 }
