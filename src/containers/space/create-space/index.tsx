@@ -13,8 +13,7 @@ import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
-import { useSession } from 'next-auth/react'
-import useSwitchSpace from '@/components/layouts/switch-space/hooks/useSwitchSpace'
+import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 
 const formSchema = z.object({
   space_name: z
@@ -36,9 +35,8 @@ const OrganizationSetting = () => {
   const router = useRouter()
   const { setLoadingText } = useGlobalStore(useShallow((state) => state))
   const t = useTranslations('space')
-  const { update } = useSession()
-  const { trigger: switchSpace } = useSwitchSpace()
   const [isCreating, setIsCreating] = useState(false)
+  const { mutate: getSpaces } = useGetSpaces()
   // const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -75,11 +73,8 @@ const OrganizationSetting = () => {
         ),
       })
       if (fetchPromise.data) {
+        await getSpaces()
         router.push(`/spaces/${fetchPromise.data.slug_name}`)
-        const response = await switchSpace({
-          spaceSlug: fetchPromise.data.slug_name,
-        })
-        update(response)
       }
     } catch (err) {
       const { message } = err as Error

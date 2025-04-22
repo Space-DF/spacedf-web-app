@@ -56,7 +56,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={loading}
         {...props}
       >
-        <Slottable>{loading ? <LoadingDots /> : children}</Slottable>
+        <Slottable>
+          {loading ? (
+            <LoadingDots isOutlined={variant === 'outline'} />
+          ) : (
+            children
+          )}
+        </Slottable>
       </Comp>
     )
   }

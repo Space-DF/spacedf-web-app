@@ -1,7 +1,7 @@
 // pages/api/submit-form.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { ApiResponse } from '@/types/global'
 import { spaceClient } from '@/lib/spacedf'
+import { handleError } from '@/utils/error'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,10 +11,6 @@ export async function POST(req: NextRequest) {
     const data = await client.auth.oauthSendOtp({ email })
     return NextResponse.json(data)
   } catch (err) {
-    const { error, status } = (err as ApiResponse) || {}
-    return NextResponse.json(
-      { message: error?.detail || 'Something went wrong' },
-      { status }
-    )
+    return handleError(err)
   }
 }
