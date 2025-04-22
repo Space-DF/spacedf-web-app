@@ -1,6 +1,6 @@
 // pages/api/submit-form.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { ApiResponse } from '@/types/global'
+import { handleError } from '@/utils/error'
 import { SpaceDFClient } from '@/lib/spacedf'
 
 export async function POST(req: NextRequest) {
@@ -15,10 +15,6 @@ export async function POST(req: NextRequest) {
     spacedf.setToken(data.access)
     return NextResponse.json(data)
   } catch (err) {
-    const { error, status } = (err as ApiResponse) || {}
-    return NextResponse.json(
-      { message: error?.detail || 'Something went wrong', status },
-      { status }
-    )
+    return handleError(err)
   }
 }

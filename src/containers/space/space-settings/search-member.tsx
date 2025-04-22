@@ -43,15 +43,8 @@ export const SearchMember = ({
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       const input = inputRef.current
+
       if (!input) return
-
-      if (isOpen && !isEmail(input.value)) {
-        setOpen(false)
-      }
-      if (!isOpen && isEmail(input.value)) {
-        setOpen(true)
-      }
-
       // This is not a default behaviour of the <input /> field
       if (
         comma?.includes(event.key) &&
@@ -99,15 +92,24 @@ export const SearchMember = ({
     [onValueChange]
   )
 
+  const handleChange = useCallback((value: string) => {
+    setInputValue(value)
+    setOpen(isEmail(value))
+  }, [])
+
+  const handleFocus = useCallback(() => {
+    setOpen(isEmail(inputValue))
+  }, [inputValue])
+
   return (
     <CommandPrimitive onKeyDown={handleKeyDown}>
       <div>
         <CommandInput
           ref={inputRef}
           value={inputValue}
-          onValueChange={setInputValue}
+          onValueChange={handleChange}
           onBlur={handleBlur}
-          // onFocus={() => setOpen(true)}
+          onFocus={handleFocus}
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"

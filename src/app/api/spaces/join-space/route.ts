@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { spaceClient } from '@/lib/spacedf'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
+import { handleError } from '@/utils/error'
 
 export const POST = withAuthApiRequired(async (req: NextRequest) => {
   try {
@@ -15,7 +16,6 @@ export const POST = withAuthApiRequired(async (req: NextRequest) => {
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Failed to join space' }, { status: 500 })
+    return handleError(error)
   }
 })

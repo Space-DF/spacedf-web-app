@@ -1,8 +1,8 @@
-import { ApiErrorResponse } from '@/types/global'
 import { Profile } from '@/types/profile'
 import { NextResponse } from 'next/server'
 import { spaceClient } from '@/lib/spacedf'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
+import { handleError } from '@/utils/error'
 
 export const POST = withAuthApiRequired(async (request: Request) => {
   try {
@@ -34,13 +34,7 @@ export const POST = withAuthApiRequired(async (request: Request) => {
       presigned_url: newImageUrl,
     })
   } catch (error) {
-    const errorResponse = error as ApiErrorResponse
-    return NextResponse.json(
-      {
-        message: errorResponse.detail || 'Something went wrong',
-      },
-      { status: errorResponse.code || 400 }
-    )
+    return handleError(error)
   }
 })
 
@@ -50,13 +44,7 @@ export const GET = withAuthApiRequired(async () => {
     const response = await spacedfClient.users.getMe()
     return NextResponse.json(response)
   } catch (error) {
-    const errorResponse = error as ApiErrorResponse
-    return NextResponse.json(
-      {
-        message: errorResponse.detail || 'Something went wrong',
-      },
-      { status: errorResponse.code || 400 }
-    )
+    return handleError(error)
   }
 })
 
@@ -67,13 +55,7 @@ export const PUT = withAuthApiRequired(async (request: Request) => {
     const response = await spacedfClient.users.updateMe(body)
     return NextResponse.json(response)
   } catch (error) {
-    const errorResponse = error as ApiErrorResponse
-    return NextResponse.json(
-      {
-        message: errorResponse.detail || 'Something went wrong',
-      },
-      { status: errorResponse.code || 400 }
-    )
+    return handleError(error)
   }
 })
 
@@ -83,12 +65,6 @@ export const DELETE = withAuthApiRequired(async () => {
     const response = await spacedfClient.users.deleteMe()
     return NextResponse.json(response)
   } catch (error) {
-    const errorResponse = error as ApiErrorResponse
-    return NextResponse.json(
-      {
-        message: errorResponse.detail || 'Something went wrong',
-      },
-      { status: errorResponse.code || 400 }
-    )
+    return handleError(error)
   }
 })

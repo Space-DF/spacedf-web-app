@@ -1,7 +1,26 @@
 import { auth } from '@/lib/auth'
 import { spaceClient } from '@/lib/spacedf'
-import { ApiErrorResponse } from '@/types/global'
+import { handleError } from '@/utils/error'
+import memoize from 'memoize'
+
 import { NextRequest, NextResponse } from 'next/server'
+
+const MAX_AGE = 1000 * 60 * 60 * 24
+const switchSpaces = memoize(
+  async (refreshToken: string, spaceSlugName: string) => {
+    const client = await spaceClient()
+    return client.auth.switchSpaces({
+      space_slug_name: spaceSlugName,
+      refresh: refreshToken,
+    })
+  },
+  {
+    maxAge: MAX_AGE,
+    cacheKey(arguments_) {
+      return arguments_.join(',')
+    },
+  }
+)
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -19,20 +38,10 @@ export const POST = async (request: NextRequest) => {
       )
     }
 
-    const client = await spaceClient()
-    const response = await client.auth.switchSpaces({
-      space_slug_name: body.spaceSlug,
-      refresh: session.user.refresh,
-    })
+    const response = await switchSpaces(session.user.refresh, body.spaceSlug)
 
     return NextResponse.json(response)
   } catch (error) {
-    const errorResponse = error as ApiErrorResponse
-    return NextResponse.json(
-      {
-        message: errorResponse.detail || 'Something went wrong',
-      },
-      { status: errorResponse.code || 400 }
-    )
+    return handleError(error)
   }
 }

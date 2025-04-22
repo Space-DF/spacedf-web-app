@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
+import { handleError } from '@/utils/error'
 
 const GET = withAuthApiRequired(
   async (req, { params }: { params: { slug: string } }) => {
@@ -19,15 +20,8 @@ const GET = withAuthApiRequired(
         data: spaceListResponse,
         status: 200,
       })
-    } catch (errors: any) {
-      return NextResponse.json(
-        {
-          ...(errors?.error || {}),
-        },
-        {
-          status: errors.status,
-        }
-      )
+    } catch (errors) {
+      return handleError(errors)
     }
   }
 )
@@ -42,15 +36,8 @@ const DELETE = withAuthApiRequired(async (req) => {
       data: deleteSpaceResponse,
       status: 200,
     })
-  } catch (errors: any) {
-    return NextResponse.json(
-      {
-        ...(errors?.error || {}),
-      },
-      {
-        status: errors.status,
-      }
-    )
+  } catch (errors) {
+    return handleError(errors)
   }
 })
 

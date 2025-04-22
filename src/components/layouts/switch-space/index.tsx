@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,9 +43,31 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const { trigger: switchSpace } = useSwitchSpace()
   const { update } = useSession()
 
-  const spaceSelected =
-    spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
-    spaceList.at(-1)
+  const handleGoToSpace = useCallback(
+    async (spaceSlug: string) => {
+      if (params.spaceSlug === spaceSlug) return
+      router.replace(`/spaces/${spaceSlug}`)
+      const response = await switchSpace({ spaceSlug })
+      update(response)
+    },
+    [switchSpace, router, update, params.spaceSlug]
+  )
+
+  const spaceSelected = useMemo(() => {
+    const currentSpace =
+      spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
+      spaceList.at(-1)
+    if (currentSpace) {
+      handleGoToSpace(currentSpace.slug_name)
+    }
+    return currentSpace
+  }, [params.spaceSlug, spaceList])
+
+  useEffect(() => {
+    if (spaceSelected) {
+      setCurrentSpace(spaceSelected)
+    }
+  }, [spaceSelected, setCurrentSpace])
 
   useEffect(() => {
     if (
@@ -59,10 +81,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   }, [spaceList, isDecodedTokenLoading, decodedToken])
 
   useEffect(() => {
-    const lastSpace = spaceList.at(-1)
-    if (lastSpace) {
-      setCurrentSpace(lastSpace)
-    }
     const down = (event: KeyboardEvent) => {
       const { code, metaKey, altKey } = event
       const numberFromCode = code?.[code?.length - 1]
@@ -82,33 +100,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
   }, [spaceList])
-
-  const handleGoToSpace = useCallback(
-    async (spaceSlug: string) => {
-      if (params.spaceSlug === spaceSlug) return
-      router.replace(`/spaces/${spaceSlug}`)
-      const response = await switchSpace({ spaceSlug })
-      update(response)
-    },
-    [switchSpace, router, update, params.spaceSlug]
-  )
-
-  // const customMatchKeys = useCallback(
-  //   (keys: string[], event: KeyboardEvent) => {
-  //     const { code, metaKey, altKey } = event
-
-  //     const numberFromCode = code[code.length - 1]
-
-  //     const expectedKeys = keys.map((k) => k.toLowerCase())
-  //     const currentKeys = [numberFromCode.toLowerCase()]
-
-  //     if (metaKey) currentKeys.push('meta')
-  //     if (altKey) currentKeys.push('alt')
-
-  //     return expectedKeys.every((k) => currentKeys.includes(k))
-  //   },
-  //   [],
-  // )
 
   return (
     <DropdownMenu>
