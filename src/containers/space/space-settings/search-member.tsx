@@ -92,21 +92,13 @@ export const SearchMember = ({
     [onValueChange]
   )
 
-  const handleChange = useCallback(
-    (value: string) => {
-      if (isEmail(value) && !isOpen) {
-        setOpen(true)
-      }
-      if (!isEmail(value) && isOpen) {
-        setOpen(false)
-      }
-      setInputValue(value)
-    },
-    [isOpen]
-  )
+  const handleChange = useCallback((value: string) => {
+    setInputValue(value)
+    setOpen(isEmail(value))
+  }, [])
 
   const handleFocus = useCallback(() => {
-    if (isEmail(inputValue)) setOpen(true)
+    setOpen(isEmail(inputValue))
   }, [inputValue])
 
   return (

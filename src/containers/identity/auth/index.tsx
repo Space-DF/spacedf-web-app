@@ -13,33 +13,31 @@ import { singUpSchema } from './validator/signUpSchema'
 import { z } from 'zod'
 import OTPForm from './otp-form'
 import { useAuthForm } from './stores/useAuthForm'
-export type AuthenticationMethod = 'signIn' | 'signUp'
+import { useShallow } from 'zustand/react/shallow'
+import { ForgotPasswordForm } from './forgot-password-form'
+import { CreateNewPasswordForm } from './create-new-password-form'
+import { ResetPasswordSuccessful } from './reset-password-successful'
 
 export type SignUpFormCredentials = z.infer<typeof singUpSchema>
 
-export type AuthData = {
-  method: AuthenticationMethod
-  data?: Record<string, string>
-}
-
-const Authentication = () => {
-  const { formType } = useAuthForm((state) => ({
-    formType: state.formType,
-  }))
-  const t = useTranslations('signUp')
-
+const SignForm = () => {
+  const { formType } = useAuthForm(
+    useShallow((state) => ({
+      formType: state.formType,
+    }))
+  )
   const signUpForm = useForm<SignUpFormCredentials>({
     resolver: zodResolver(singUpSchema),
   })
-
+  const isSignUp = formType === 'signUp'
   const isOtp = formType === 'otp'
-  const isSignUp = formType === 'signup'
 
+  const isSignIn = formType !== 'signUp' && formType !== 'otp'
+  const t = useTranslations('signUp')
   return (
-    <div className="my-10 flex size-full flex-col items-center justify-center md:max-w-md">
-      <SpaceDFLogoFull />
+    <>
       <p className="my-6 text-3xl font-semibold">
-        {isSignUp || isOtp ? t('sign_up') : t('sign_in')}
+        {!isSignIn ? t('sign_up') : t('sign_in')}
       </p>
       <FormProvider {...signUpForm}>
         {isOtp ? (
@@ -56,6 +54,43 @@ const Authentication = () => {
           </>
         )}
       </FormProvider>
+    </>
+  )
+}
+
+const AuthForm = () => {
+  const { formType } = useAuthForm((state) => ({
+    formType: state.formType,
+  }))
+
+  switch (formType) {
+    case 'signUp':
+    case 'otp':
+    case 'signIn':
+      return <SignForm />
+    case 'forgotPassword':
+      return <ForgotPasswordForm />
+    case 'createNewPassword':
+      return <CreateNewPasswordForm />
+    default:
+      return <></>
+  }
+}
+
+const Authentication = () => {
+  const { formType } = useAuthForm((state) => ({
+    formType: state.formType,
+  }))
+  return (
+    <div className="my-10 flex size-full flex-col items-center justify-center md:max-w-md">
+      {formType === 'resetPasswordSuccessful' ? (
+        <ResetPasswordSuccessful />
+      ) : (
+        <>
+          <SpaceDFLogoFull />
+          <AuthForm />
+        </>
+      )}
     </div>
   )
 }

@@ -32,5 +32,10 @@
   "logout": "Đăng xuất",
   "you_are_logged_into_a_different_account": "Bạn đang đăng nhập vào tài khoản khác",
   "you_are_logged_into_a_different_account_description": "Để chấp nhận lời mời này, vui lòng đăng xuất và đăng nhập lại với tài khoản được liên kết với lời mời.",
-  "google_sign_in_failed": "Không thể đăng nhập với Google. Xin hãy thử lại sau."
+  "google_sign_in_failed": "Không thể đăng nhập với Google. Xin hãy thử lại sau.",
+  "email_sent": "Email đã được gửi thành công",
+  "email_not_sent": "Email không được gửi, xin hãy thử lại",
+  "password_reset_failed": "Không thể đặt lại mật khẩu",
+  "password_reset_successful": "Mật khẩu đã được đặt lại thành công",
+  "reset_password_link_expired": "Liên kết đặt lại mật khẩu đã hết hạn"
 }

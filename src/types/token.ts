@@ -4,6 +4,7 @@ export type TokenInviteMember = {
   space_slug_name: string
   salt: string
   space_role_id: string
+  exp: number
 }
 export type AccessTokenPayload = {
   space: string

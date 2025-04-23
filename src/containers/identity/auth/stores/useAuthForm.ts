@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-type AuthFormType = 'login' | 'signup' | 'otp'
+type AuthFormType =
+  | 'signIn'
+  | 'signUp'
+  | 'otp'
+  | 'forgotPassword'
+  | 'createNewPassword'
+  | 'resetPasswordSuccessful'
 
 interface AuthFormState {
   formType: AuthFormType
@@ -8,7 +14,7 @@ interface AuthFormState {
 }
 
 const initialState = {
-  formType: 'login' as AuthFormType,
+  formType: 'signIn' as AuthFormType,
   initialData: {},
 }
 export const useAuthForm = create<AuthFormState>((set) => ({

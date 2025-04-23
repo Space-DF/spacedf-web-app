@@ -33,6 +33,8 @@ import { DialogContent } from '@/components/ui/dialog'
 import { Dialog } from '@/components/ui/dialog'
 import Image from 'next/image'
 import { useProfile } from '@/components/layouts/general-setting/hooks/useProfile'
+import { AuthTypeEnum } from '@/types/auth'
+import { toast } from 'sonner'
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   const data = {
@@ -77,7 +79,7 @@ const Identity = () => {
     setFormType: state.setFormType,
   }))
 
-  const { status, data: session } = useSession()
+  const { status } = useSession()
   const { isOrganization } = useOrganization()
   const searchParams = useSearchParams()
   const [identityStep, setIdentityStep] =
@@ -93,6 +95,7 @@ const Identity = () => {
   }, [isAuthenticated, organizationDomain])
 
   const token = searchParams.get('token')
+  const type = searchParams.get('type')
 
   const { data: decodedToken } = useDecodedToken(token)
 
@@ -100,32 +103,45 @@ const Identity = () => {
 
   const router = useRouter()
   const { data: me, isLoading: isMeLoading } = useProfile(isAuthenticated)
+
   useEffect(() => {
-    if (
+    const isDifferentUser =
       isAuthenticated &&
       !isMeLoading &&
       !!token &&
       !!me?.email &&
-      me?.email !== decodedToken?.email_receiver
-    ) {
-      setIsDifferentUser(true)
-    } else {
-      setIsDifferentUser(false)
-    }
-    if (decodedToken && !isAuthenticated) {
-      setOpenDrawer(true)
-      setFormType('signup')
-    }
+      me?.email !== decodedToken?.email_receiver &&
+      !type
+    setIsDifferentUser(isDifferentUser)
   }, [
-    decodedToken,
-    setOpenDrawer,
-    setFormType,
     isAuthenticated,
-    session,
-    me,
     isMeLoading,
     token,
+    me?.email,
+    decodedToken?.email_receiver,
+    type,
   ])
+
+  useEffect(() => {
+    if (!decodedToken) return
+    const isTokenExpired =
+      decodedToken && new Date(decodedToken.exp * 1000) < new Date()
+    if (isTokenExpired) {
+      toast.error(t('reset_password_link_expired'))
+      return router.replace('/')
+    }
+    if (type === AuthTypeEnum.FORGET_PASSWORD && token && decodedToken) {
+      setOpenDrawer(true)
+      setFormType('createNewPassword')
+    }
+  }, [type, token, setOpenDrawer, setFormType, decodedToken])
+
+  useEffect(() => {
+    if (decodedToken && !isAuthenticated && !type) {
+      setOpenDrawer(true)
+      setFormType('signUp')
+    }
+  }, [decodedToken, isAuthenticated, setOpenDrawer, setFormType])
 
   const dataDrawer = getDrawerData(identityStep)
 
@@ -142,7 +158,12 @@ const Identity = () => {
     })
     setIsDifferentUser(false)
     setOpenDrawer(true)
-    setFormType('signup')
+    setFormType('signUp')
+  }
+
+  const handleCloseDrawer = () => {
+    setOpenDrawer(false)
+    setFormType('signIn')
   }
 
   return (
@@ -182,7 +203,7 @@ const Identity = () => {
                           </Button>
                         </AlertDialogCancel>
                         <AlertDialogAction asChild>
-                          <Button onClick={() => setFormType('signup')}>
+                          <Button onClick={() => setFormType('signUp')}>
                             {t('confirm')}
                           </Button>
                         </AlertDialogAction>
@@ -194,11 +215,13 @@ const Identity = () => {
                 )}
               </p>
 
-              <DrawerPrimitive.Close>
-                <X
-                  size={20}
-                  className="cursor-pointer duration-300 hover:-rotate-90 hover:scale-110 dark:text-brand-dark-text-gray"
-                />
+              <DrawerPrimitive.Close asChild>
+                <Button variant="ghost" size="icon" onClick={handleCloseDrawer}>
+                  <X
+                    size={20}
+                    className="cursor-pointer duration-300 hover:-rotate-90 hover:scale-110 dark:text-brand-dark-text-gray"
+                  />
+                </Button>
               </DrawerPrimitive.Close>
             </div>
             <div className="flex-1">

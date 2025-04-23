@@ -27,7 +27,7 @@ export const NextAuthSessionProvider = ({
       })
       router.push('/')
     }
-  }, [googleSignInData, router])
+  }, [googleSignInData])
 
   useEffect(() => {
     handleSignIn()
