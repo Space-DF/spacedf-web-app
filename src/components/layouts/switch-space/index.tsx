@@ -37,15 +37,18 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
+  const lastSpace = useMemo(() => spaceList.at(-1), [spaceList])
+
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
     useDecodedToken(token)
+
   const { trigger: switchSpace } = useSwitchSpace()
   const { update } = useSession()
 
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
-      if (params.spaceSlug === spaceSlug) return
+      if (!params.spaceSlug || params.spaceSlug === spaceSlug) return
       router.replace(`/spaces/${spaceSlug}`)
       const response = await switchSpace({ spaceSlug })
       update(response)
@@ -56,29 +59,36 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const spaceSelected = useMemo(() => {
     const currentSpace =
       spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
-      spaceList.at(-1)
-    if (currentSpace) {
-      handleGoToSpace(currentSpace.slug_name)
-    }
+      lastSpace
     return currentSpace
-  }, [params.spaceSlug, spaceList])
+  }, [params.spaceSlug, spaceList, lastSpace])
 
   useEffect(() => {
-    if (spaceSelected) {
+    if (spaceSelected && !token) {
       setCurrentSpace(spaceSelected)
+      handleGoToSpace(spaceSelected.slug_name)
     }
-  }, [spaceSelected, setCurrentSpace])
+  }, [spaceSelected, setCurrentSpace, handleGoToSpace, token])
 
   useEffect(() => {
     if (
       !params.spaceSlug &&
-      spaceList.at(-1) &&
+      lastSpace &&
       !decodedToken &&
-      !isDecodedTokenLoading
+      !isDecodedTokenLoading &&
+      !token
     ) {
-      router.replace(`/spaces/${spaceList.at(-1)?.slug_name}`)
+      router.replace(`/spaces/${lastSpace.slug_name}`)
     }
-  }, [spaceList, isDecodedTokenLoading, decodedToken])
+  }, [
+    params.spaceSlug,
+    spaceList,
+    decodedToken,
+    isDecodedTokenLoading,
+    token,
+    router,
+    lastSpace,
+  ])
 
   useEffect(() => {
     const down = (event: KeyboardEvent) => {
@@ -99,7 +109,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
 
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
-  }, [spaceList])
+  }, [spaceList, handleGoToSpace])
 
   return (
     <DropdownMenu>

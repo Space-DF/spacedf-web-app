@@ -35,7 +35,7 @@ import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
-
+import { useRouter } from 'next/navigation'
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
@@ -110,6 +110,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
+  const router = useRouter()
   const t = useTranslations('common')
   const { mounted } = useMounted()
 
@@ -121,6 +122,11 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
     setCollapsed(true)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
     onCollapseChanges?.()
+  }
+
+  const handleSignOut = () => {
+    signOut({ redirect: false })
+    router.replace('/')
   }
 
   return (
@@ -179,7 +185,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
           <Button
             variant="ghost"
             className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
-            onClick={() => signOut()}
+            onClick={handleSignOut}
           >
             <LogOut size={16} />
             <p className="text-sm">{t('sign_out')}</p>
@@ -217,6 +223,8 @@ const CollapsedSidebar = ({
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
+  const router = useRouter()
+
   const { status } = useSession()
   const { mounted } = useMounted()
   const t = useTranslations('common')
@@ -227,6 +235,11 @@ const CollapsedSidebar = ({
     setCollapsed(false)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
     onCollapseChanges?.()
+  }
+
+  const handleSignOut = () => {
+    signOut({ redirect: false })
+    router.replace('/')
   }
 
   return (
@@ -286,7 +299,7 @@ const CollapsedSidebar = ({
               variant="outline"
               size="icon"
               className="!rounded-lg border-none text-destructive shadow-none hover:bg-red-200 hover:text-destructive/80"
-              onClick={() => signOut()}
+              onClick={handleSignOut}
             >
               <LogOut size={16} />
             </Button>

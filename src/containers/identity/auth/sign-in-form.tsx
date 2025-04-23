@@ -157,7 +157,10 @@ const SignInForm = () => {
             {/*    </FormItem>*/}
             {/*  )}*/}
             {/*/>*/}
-            <p className="cursor-pointer text-xs font-semibold hover:underline">
+            <p
+              className="cursor-pointer text-xs font-semibold hover:underline"
+              onClick={() => setFormType('forgotPassword')}
+            >
               {t('forgot_password')}
             </p>
           </div>
@@ -176,7 +179,7 @@ const SignInForm = () => {
         </TypographySecondary>
         <span
           className="cursor-pointer font-semibold hover:underline"
-          onClick={() => setFormType('signup')}
+          onClick={() => setFormType('signUp')}
         >
           {t('sign_up')}
         </span>

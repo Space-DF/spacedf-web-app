@@ -31,6 +31,7 @@ const SignUpForm = () => {
     useSendOTP()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
+  const type = searchParams.get('type')
   const { data: decodedToken } = useDecodedToken(token)
 
   const [isShowPassword, setIsShowPassword] = useState(false)
@@ -48,10 +49,10 @@ const SignUpForm = () => {
   }
 
   useEffect(() => {
-    if (decodedToken) {
+    if (decodedToken && !type) {
       form.setValue('email', decodedToken.email_receiver)
     }
-  }, [decodedToken])
+  }, [decodedToken, type])
 
   return (
     <div className="w-full animate-opacity-display-effect self-start">
@@ -195,7 +196,7 @@ const SignUpForm = () => {
         <span
           className="cursor-pointer font-semibold hover:underline"
           onClick={() => {
-            setFormType('login')
+            setFormType('signIn')
           }}
         >
           {t('sign_in')}
