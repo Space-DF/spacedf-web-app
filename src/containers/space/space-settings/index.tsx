@@ -11,7 +11,9 @@ import { useGetSpaceDetails } from '@/app/[locale]/[organization]/(withAuth)/spa
 export default function WorkspaceSettings() {
   const params = useParams()
   const { data: spaces } = useGetSpaceDetails(params.spaceSlug as string)
-  const spaceDetail = spaces?.data
+  const spaceDetail = spaces?.data.results?.find(
+    (space) => space.slug_name === params.spaceSlug
+  )
 
   return (
     <EffectLayout>

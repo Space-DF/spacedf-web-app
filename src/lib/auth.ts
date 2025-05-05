@@ -110,7 +110,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
               refresh: refreshedTokens.refresh,
             }
           } catch {
-            return token
+            return null
           }
         }
 

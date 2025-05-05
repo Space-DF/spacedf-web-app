@@ -6,7 +6,7 @@ import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
 
 const GET = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (_, { params }: { params: { slug: string } }) => {
     const spacedfClient = await spaceClient()
 
     try {
@@ -27,16 +27,21 @@ const GET = withAuthApiRequired(
 )
 
 const DELETE = withAuthApiRequired(async (req) => {
-  const body = await req.json()
-  const spacedfClient = await spaceClient()
-
   try {
-    const deleteSpaceResponse = await spacedfClient.spaces.delete(body)
+    const body = await req.json()
+    const { slug_name } = body
+    const spacedfClient = await spaceClient()
+    const deleteSpaceResponse = await spacedfClient.spaces.delete({
+      headers: {
+        'X-Space': slug_name,
+      },
+    })
     return NextResponse.json({
       data: deleteSpaceResponse,
       status: 200,
     })
   } catch (errors) {
+    console.log(errors)
     return handleError(errors)
   }
 })
