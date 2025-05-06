@@ -22,6 +22,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname:
+          'spacedf-s3-1f841081-c8e98ef7bb21.s3.ap-southeast-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'flagcdn.com',
       },
       {

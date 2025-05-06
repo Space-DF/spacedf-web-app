@@ -1,4 +1,8 @@
-import { ApiErrorResponse, DataResponse } from '@/types/global'
+import {
+  ApiErrorResponse,
+  DataResponse,
+  PaginationResponse,
+} from '@/types/global'
 import { Space } from '@/types/space'
 import useSWR, { SWRConfiguration } from 'swr'
 
@@ -22,5 +26,8 @@ export function useGetSpaces(configs: SWRConfiguration = {}) {
 }
 
 export function useGetSpaceDetails(slug: string) {
-  return useSWR(`${SWR_GET_SPACE_ENDPOINT}/${slug}`, getSpaces<{ data: Space }>)
+  return useSWR(
+    `${SWR_GET_SPACE_ENDPOINT}/${slug}`,
+    getSpaces<{ data: PaginationResponse<Space> }>
+  )
 }

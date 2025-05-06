@@ -1765,10 +1765,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz#3a1c12c959010a55c17d46b395ed3047b545c246"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@^0.0.1-dev.12":
-  version "0.0.1-dev.12"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.12.tgz#d0c141c6156223ae0d8fee9f16c3f068fffd4c44"
-  integrity sha512-GkuQ0Lv2CY5zDafHz1iGWhFuwV3yrtpAjg25Ujj8/kCF3MVVKdT9F2JQd07kkv3LdzigkwITvBUDN4UVgg4Q2g==
+"@space-df/sdk@^0.0.1-dev.13":
+  version "0.0.1-dev.13"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.13.tgz#ee24b3f10ac3821f38c8d94dbfa03a09003af0c0"
+  integrity sha512-BaNJrl6PRqxeKmwxSmYPkbIpHTqCWcvaMSfZ9UDEfz8jGrLKgBexHIsB9f0BZRLAJ9UHkChnrabIOXZVsZgenA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
