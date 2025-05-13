@@ -3,16 +3,9 @@ import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
-const fetcher = async (url: string, { arg }: { arg: InviteMember[] }) => {
-  const response = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to fetch data')
-  }
-  return response.json()
-}
+import api from '@/lib/api'
+const fetcher = async (url: string, { arg }: { arg: InviteMember[] }) =>
+  api.post(url, arg)
 
 export const useInviteSpaceMembers = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()

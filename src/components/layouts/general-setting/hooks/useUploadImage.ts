@@ -1,3 +1,4 @@
+import api from '@/lib/api'
 import useSWRMutation from 'swr/mutation'
 
 export type UploadImageResponse = {
@@ -15,18 +16,8 @@ const uploadImageProfile = async (
 ) => {
   const formData = new FormData()
   formData.append('image', arg)
-  const response = await fetch(url, {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!response.ok) {
-    throw response.json()
-  }
-  return response.json()
+  const response = await api.post<UploadImageResponse>(url, formData)
+  return response
 }
 export const useUploadImage = () =>
-  useSWRMutation<UploadImageResponse, Error, string, File>(
-    `/api/me`,
-    uploadImageProfile
-  )
+  useSWRMutation(`/api/me`, uploadImageProfile)

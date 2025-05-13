@@ -15,7 +15,7 @@ const GET = withAuthApiRequired(async () => {
       data: spaceListResponse,
       status: 200,
     })
-  } catch (errors: any) {
+  } catch (errors) {
     return handleError(errors)
   }
 })
@@ -31,15 +31,8 @@ const POST = withAuthApiRequired(async (req) => {
       data: createSpaceResponse,
       status: 200,
     })
-  } catch (errors: any) {
-    return NextResponse.json(
-      {
-        ...(errors?.error || {}),
-      },
-      {
-        status: errors.status,
-      }
-    )
+  } catch (errors) {
+    return handleError(errors)
   }
 })
 
@@ -56,6 +49,7 @@ const PATCH = withAuthApiRequired(async (req) => {
       ...body,
       'X-Space': space_slug,
     })
+
     return NextResponse.json(
       {
         data: updatedSpaceResponse,
@@ -65,15 +59,8 @@ const PATCH = withAuthApiRequired(async (req) => {
         status: 200,
       }
     )
-  } catch (errors: any) {
-    return NextResponse.json(
-      {
-        ...(errors?.error || {}),
-      },
-      {
-        status: errors.status,
-      }
-    )
+  } catch (errors) {
+    return handleError(errors)
   }
 })
 
@@ -90,6 +77,7 @@ const DELETE = withAuthApiRequired(async (req) => {
       ...body,
       'X-Space': space_slug,
     })
+
     return NextResponse.json(
       {
         data: deleteSpaceResponse,
@@ -99,15 +87,8 @@ const DELETE = withAuthApiRequired(async (req) => {
         status: 200,
       }
     )
-  } catch (errors: any) {
-    return NextResponse.json(
-      {
-        ...(errors?.error || {}),
-      },
-      {
-        status: errors.status,
-      }
-    )
+  } catch (errors) {
+    return handleError(errors)
   }
 })
 

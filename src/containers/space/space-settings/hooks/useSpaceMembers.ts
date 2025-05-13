@@ -2,14 +2,10 @@ import { useParams } from 'next/navigation'
 import useSWR from 'swr'
 import { Member } from '@/types/members'
 import { PaginationResponse } from '@/types/global'
+import api from '@/lib/api'
 
-const fetcher = async (url: string) => {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw response.json()
-  }
-  return response.json()
-}
+const fetcher = async (url: string) =>
+  api.get<Promise<PaginationResponse<Member>>>(url)
 
 export const useSpaceMembers = (
   pageIndex: number = 0,
@@ -17,7 +13,7 @@ export const useSpaceMembers = (
   search: string = ''
 ) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWR<PaginationResponse<Member>>(
+  return useSWR(
     `/api/spaces/${spaceSlug}/members?pageIndex=${pageIndex}&limit=${limit}&search=${search}`,
     fetcher
   )

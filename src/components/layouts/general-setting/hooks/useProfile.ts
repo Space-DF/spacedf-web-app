@@ -1,13 +1,10 @@
+import api from '@/lib/api'
 import { Profile } from '@/types/profile'
 import useSWR from 'swr'
 
-const getProfile = async (url: string) => {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw response.json()
-  }
-  return response.json()
+const getProfile = (url: string) => {
+  return api.get<Profile>(url)
 }
 
 export const useProfile = (isAuthenticated = true) =>
-  useSWR<Profile>(isAuthenticated ? `/api/me` : null, getProfile)
+  useSWR(isAuthenticated ? `/api/me` : null, getProfile)

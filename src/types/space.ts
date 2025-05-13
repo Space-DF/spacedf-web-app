@@ -8,6 +8,7 @@ export interface Space {
   is_active: boolean
   total_devices: number
   created_by: string
+  default_display: boolean
 }
 
 export interface SpaceRole {

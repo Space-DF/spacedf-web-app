@@ -3,15 +3,10 @@ import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import useSWRMutation from 'swr/mutation'
 import { useRouter } from 'next/navigation'
+import api from '@/lib/api'
 
 const deleteAccount = async (url: string) => {
-  const response = await fetch(url, {
-    method: 'DELETE',
-  })
-  if (!response.ok) {
-    throw response.json()
-  }
-  return response.json()
+  return api.delete(url)
 }
 
 export const useDeleteAccount = () => {

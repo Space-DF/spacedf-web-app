@@ -1,35 +1,13 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { jwtDecode } from 'jwt-decode'
 
 import { NEXTAUTH_SECRET } from '@/shared/env'
-import { spaceClient, SpaceDFClient } from './spacedf'
-import { AccessTokenPayload } from '@/types/token'
-import memoize from 'memoize'
+import { SpaceDFClient } from './spacedf'
 
 const MINUTES_EXPIRE = 60
 const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
 
-const MAX_AGE = 1000 * 60 * 60 * 24
-
-const refreshAccessToken = memoize(
-  async (refreshToken: string, spaceSlugName: string) => {
-    const client = await spaceClient()
-    const data = await client.auth.refreshToken({
-      refresh: refreshToken,
-      space_slug_name: spaceSlugName,
-    })
-    return data
-  },
-  {
-    maxAge: MAX_AGE,
-    cacheKey(arguments_) {
-      return arguments_.join(',')
-    },
-  }
-)
-
-export const { auth, handlers, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   secret: NEXTAUTH_SECRET,
   providers: [
     Credentials({
@@ -78,7 +56,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
       return session
     },
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
         return {
           ...token,
@@ -86,42 +64,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           refresh: user.refresh,
           accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
-      }
-
-      if (
-        trigger === 'update' ||
-        (token && Number(token.accessTokenExpires) < Date.now())
-      ) {
-        let newTokenData = session
-
-        // If token expired, get new tokens from API
-        if (!newTokenData && token) {
-          try {
-            const decodedAccessToken = jwtDecode<AccessTokenPayload>(
-              token.access
-            )
-            const refreshedTokens = await refreshAccessToken(
-              token.refresh,
-              decodedAccessToken.space
-            )
-
-            newTokenData = {
-              access: refreshedTokens.access,
-              refresh: refreshedTokens.refresh,
-            }
-          } catch {
-            return null
-          }
-        }
-
-        // Update token with new data
-        const newToken = {
-          ...token,
-          access: newTokenData?.access || token.access,
-          refresh: newTokenData?.refresh || token.refresh,
-          accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
-        }
-        return newToken
       }
       return token
     },

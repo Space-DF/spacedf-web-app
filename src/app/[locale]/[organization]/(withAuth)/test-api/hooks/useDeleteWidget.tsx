@@ -1,9 +1,9 @@
-import { ApiErrorResponse } from '@/types/global'
 import { toast } from 'sonner'
 import useSWRMutation from 'swr/mutation'
 import { useGetWidgets } from './useGetWidget'
+import api from '@/lib/api'
 
-export async function deleteWidget(
+export function deleteWidget(
   url: string,
   {
     arg,
@@ -13,17 +13,9 @@ export async function deleteWidget(
     }>
   }
 ) {
-  const response = await fetch(url, {
-    method: 'DELETE',
+  return api.delete(url, {
     body: JSON.stringify(arg),
   })
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json()
-    throw new Error(JSON.stringify(errorData) || 'Failed to updates widgets')
-  }
-
-  return response.json()
 }
 
 export const useDeleteWidget = () => {
