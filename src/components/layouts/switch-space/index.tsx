@@ -21,9 +21,8 @@ import { useGlobalStore } from '@/stores'
 import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
-import useSwitchSpace from './hooks/useSwitchSpace'
-import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
+
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
@@ -37,31 +36,29 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
-  const lastSpace = useMemo(() => spaceList.at(-1), [spaceList])
+  const defaultSpace = useMemo(
+    () => spaceList.find((space) => space.default_display) || spaceList.at(-1),
+    [spaceList]
+  )
 
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
     useDecodedToken(token)
 
-  const { trigger: switchSpace } = useSwitchSpace()
-  const { update } = useSession()
-
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
       if (!params.spaceSlug || params.spaceSlug === spaceSlug) return
       router.replace(`/spaces/${spaceSlug}`)
-      const response = await switchSpace({ spaceSlug })
-      update(response)
     },
-    [switchSpace, router, update, params.spaceSlug]
+    [router, params.spaceSlug]
   )
 
   const spaceSelected = useMemo(() => {
     const currentSpace =
       spaceList.find(({ slug_name }) => slug_name === params.spaceSlug) ||
-      lastSpace
+      defaultSpace
     return currentSpace
-  }, [params.spaceSlug, spaceList, lastSpace])
+  }, [params.spaceSlug, spaceList, defaultSpace])
 
   useEffect(() => {
     if (spaceSelected && !token) {
@@ -73,12 +70,12 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   useEffect(() => {
     if (
       !params.spaceSlug &&
-      lastSpace &&
+      defaultSpace &&
       !decodedToken &&
       !isDecodedTokenLoading &&
       !token
     ) {
-      router.replace(`/spaces/${lastSpace.slug_name}`)
+      router.replace(`/spaces/${defaultSpace.slug_name}`)
     }
   }, [
     params.spaceSlug,
@@ -87,7 +84,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     isDecodedTokenLoading,
     token,
     router,
-    lastSpace,
+    defaultSpace,
   ])
 
   useEffect(() => {

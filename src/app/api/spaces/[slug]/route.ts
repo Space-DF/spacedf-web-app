@@ -32,16 +32,13 @@ const DELETE = withAuthApiRequired(async (req) => {
     const { slug_name } = body
     const spacedfClient = await spaceClient()
     const deleteSpaceResponse = await spacedfClient.spaces.delete({
-      headers: {
-        'X-Space': slug_name,
-      },
+      'X-Space': slug_name,
     })
     return NextResponse.json({
       data: deleteSpaceResponse,
       status: 200,
     })
   } catch (errors) {
-    console.log(errors)
     return handleError(errors)
   }
 })

@@ -9,14 +9,14 @@ export function withAuthApiRequired(handler: Handler) {
   return async (req: NextRequest, options: any) => {
     try {
       const session = await auth()
+      const spacedf = await SpaceDFClient.getInstance()
       const accessToken = session?.user.access
       if (!accessToken)
         return NextResponse.json<ApiErrorResponse>(
           { detail: 'Unauthorize', code: 401 },
           { status: 401 }
         )
-      const spacedf = await SpaceDFClient.getInstance()
-      spacedf.setToken(session.user.access)
+      spacedf.setToken(accessToken as string)
       return await handler(req, options)
     } catch (error) {
       console.error('API Error:', error)

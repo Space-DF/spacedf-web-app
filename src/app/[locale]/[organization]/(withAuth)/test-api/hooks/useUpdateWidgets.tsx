@@ -1,23 +1,13 @@
-import { ApiErrorResponse } from '@/types/global'
 import { toast } from 'sonner'
 import useSWRMutation from 'swr/mutation'
 import { useGetWidgets } from './useGetWidget'
+import api from '@/lib/api'
 
-export async function updateWidgets(
+export function updateWidgets(
   url: string,
   { arg }: { arg: Partial<any> }
-) {
-  const response = await fetch(url, {
-    method: 'PUT',
-    body: JSON.stringify(arg),
-  })
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json()
-    throw new Error(JSON.stringify(errorData) || 'Failed to updates widgets')
-  }
-
-  return response.json()
+): Promise<any> {
+  return api.put(url, arg)
 }
 
 export const useUpdateWidgets = () => {

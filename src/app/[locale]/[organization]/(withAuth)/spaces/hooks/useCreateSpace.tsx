@@ -1,21 +1,12 @@
-import { ApiErrorResponse } from '@/types/global'
+import api from '@/lib/api'
 import { Space } from '@/types/space'
 
 export async function createSpace(
   url: string,
   { arg }: { arg: Partial<Space> }
 ) {
-  const response = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
-  })
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json()
-    throw new Error(JSON.stringify(errorData) || 'Failed to update space')
-  }
-
-  return response.json()
+  const response = await api.post(url, arg)
+  return response
 }
 
 export const useCreateSpace = () => {

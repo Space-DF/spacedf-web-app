@@ -6,10 +6,3 @@ export type TokenInviteMember = {
   space_role_id: string
   exp: number
 }
-export type AccessTokenPayload = {
-  space: string
-  exp: string
-  iat: string
-  iss: string
-  permissions: string[]
-}

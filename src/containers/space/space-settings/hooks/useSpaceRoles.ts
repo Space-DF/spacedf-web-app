@@ -1,14 +1,13 @@
+import api from '@/lib/api'
 import { PaginationResponse } from '@/types/global'
 import { SpaceRole } from '@/types/space'
+import { useParams } from 'next/navigation'
 import useSWR from 'swr'
 
-const fetcher = async (url: string) => {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error('Failed to fetch space roles')
-  }
-  return response.json()
-}
+const fetcher = async (url: string) =>
+  api.get<Promise<PaginationResponse<SpaceRole>>>(url)
 
-export const useSpaceRoles = () =>
-  useSWR<PaginationResponse<SpaceRole>>('/api/spaces/roles', fetcher)
+export const useSpaceRoles = () => {
+  const { spaceSlug } = useParams()
+  return useSWR(`/api/spaces/${spaceSlug}/roles`, fetcher)
+}

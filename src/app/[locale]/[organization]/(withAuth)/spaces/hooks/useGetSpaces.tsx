@@ -1,8 +1,5 @@
-import {
-  ApiErrorResponse,
-  DataResponse,
-  PaginationResponse,
-} from '@/types/global'
+import api from '@/lib/api'
+import { DataResponse, PaginationResponse } from '@/types/global'
 import { Space } from '@/types/space'
 import useSWR, { SWRConfiguration } from 'swr'
 
@@ -11,14 +8,7 @@ export type UseGetSpaceResponse = DataResponse<Space>
 export const SWR_GET_SPACE_ENDPOINT = '/api/spaces'
 
 export async function getSpaces<T>(url: string): Promise<T> {
-  const response = await fetch(url)
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json()
-    throw new Error(JSON.stringify(errorData) || 'Failed to update space')
-  }
-
-  return response.json()
+  return api.get(url)
 }
 
 export function useGetSpaces(configs: SWRConfiguration = {}) {

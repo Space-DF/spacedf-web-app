@@ -5,55 +5,67 @@ import { spaceClient } from '@/lib/spacedf'
 import { InviteMember } from '@/types/members'
 import { handleError } from '@/utils/error'
 
-export const POST = withAuthApiRequired(async (req) => {
-  try {
-    const body: InviteMember[] = await req.json()
+export const POST = withAuthApiRequired(
+  async (req, { params }: { params: { slug: string } }) => {
+    try {
+      const body: InviteMember[] = await req.json()
+      const spacedfClient = await spaceClient()
+      const invitation = await spacedfClient.spaces.invitation({
+        receiver_list: body,
+        'X-Space': params.slug,
+      })
+      return NextResponse.json(invitation)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)
+
+export const GET = withAuthApiRequired(
+  async (req, { params }: { params: { slug: string } }) => {
+    const searchParams = req.nextUrl.searchParams
+    const {
+      pageIndex = 0,
+      limit = 10,
+      search = '',
+    } = Object.fromEntries(searchParams)
     const spacedfClient = await spaceClient()
-    const invitation = await spacedfClient.spaces.invitation({
-      receiver_list: body,
+    const members = await spacedfClient.spaceRoleUsers.list(params.slug, {
+      offset: +pageIndex * +limit,
+      limit: +limit,
+      search,
     })
-    return NextResponse.json(invitation)
-  } catch (error) {
-    return handleError(error)
+    return NextResponse.json(members)
   }
-})
+)
 
-export const GET = withAuthApiRequired(async (req) => {
-  const searchParams = req.nextUrl.searchParams
-  const {
-    pageIndex = 0,
-    limit = 10,
-    search = '',
-  } = Object.fromEntries(searchParams)
-  const spacedfClient = await spaceClient()
-  const members = await spacedfClient.spaceRoleUsers.list({
-    offset: +pageIndex * +limit,
-    limit: +limit,
-    search,
-  })
-  return NextResponse.json(members)
-})
-
-export const DELETE = withAuthApiRequired(async (req) => {
-  try {
-    const spacedfClient = await spaceClient()
-    const { id } = await req.json()
-    const member = await spacedfClient.spaceRoleUsers.delete(id)
-    return NextResponse.json(member)
-  } catch (error) {
-    return handleError(error)
+export const DELETE = withAuthApiRequired(
+  async (req, { params }: { params: { slug: string } }) => {
+    try {
+      const spacedfClient = await spaceClient()
+      const { id } = await req.json()
+      const member = await spacedfClient.spaceRoleUsers.delete(id, {
+        'X-Space': params.slug,
+      })
+      return NextResponse.json(member)
+    } catch (error) {
+      return handleError(error)
+    }
   }
-})
+)
 
-export const PATCH = withAuthApiRequired(async (req) => {
-  try {
-    const spacedfClient = await spaceClient()
-    const { id, space_role } = await req.json()
-    const member = await spacedfClient.spaceRoleUsers.update(id, {
-      space_role,
-    })
-    return NextResponse.json(member)
-  } catch (error) {
-    return handleError(error)
+export const PATCH = withAuthApiRequired(
+  async (req, { params }: { params: { slug: string } }) => {
+    try {
+      const spacedfClient = await spaceClient()
+      const { id, space_role } = await req.json()
+      const member = await spacedfClient.spaceRoleUsers.update(id, {
+        space_role,
+        'X-Space': params.slug,
+      })
+      return NextResponse.json(member)
+    } catch (error) {
+      return handleError(error)
+    }
   }
-})
+)

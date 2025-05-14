@@ -2,17 +2,10 @@ import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
+import api from '@/lib/api'
 
-const fetcher = async (url: string, { arg }: { arg: string }) => {
-  const response = await fetch(url, {
-    method: 'DELETE',
-    body: JSON.stringify({ id: arg }),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to fetch data')
-  }
-  return response.json()
-}
+const fetcher = async (url: string, { arg }: { arg: string }) =>
+  api.delete(url, { body: JSON.stringify({ id: arg }) })
 
 export const useRemoveSpaceMember = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
