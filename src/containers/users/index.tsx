@@ -12,7 +12,7 @@ const Users = () => {
   const t = useTranslations('common')
 
   const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout),
+    useShallow((state) => state.toggleDynamicLayout)
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 

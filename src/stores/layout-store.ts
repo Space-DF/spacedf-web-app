@@ -46,18 +46,18 @@ export const useLayout = create<LayoutStore & LayoutStoreFunc>((set) => ({
 
 export const getNewLayouts = (
   prevLayouts: DynamicLayout[],
-  keyHandler: DynamicLayout,
+  keyHandler: DynamicLayout
 ) => {
   let layouts = prevLayouts
   const isDisplayed = layouts.includes(keyHandler)
 
   const isKeyOfCantDuplicated = KEYS_CANNOT_DUPLICATED.includes(
-    keyHandler as any,
+    keyHandler as any
   )
 
   if (isKeyOfCantDuplicated) {
     layouts = layouts.filter(
-      (layout) => !KEYS_CANNOT_DUPLICATED.includes(layout as any),
+      (layout) => !KEYS_CANNOT_DUPLICATED.includes(layout as any)
     )
   }
 

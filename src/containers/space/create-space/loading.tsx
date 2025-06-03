@@ -14,7 +14,7 @@ const SettingsLoading = () => {
       </div>
       <div className="max-w-lg text-lg text-brand-text-gray">
         {t(
-          'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings',
+          'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings'
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 export const usePageTransition = (
-  { duration }: { duration?: number } = { duration: 500 },
+  { duration }: { duration?: number } = { duration: 500 }
 ) => {
   const [startRender, setStartRender] = useState(false)
   const timeoutId = useRef<any>(null)
