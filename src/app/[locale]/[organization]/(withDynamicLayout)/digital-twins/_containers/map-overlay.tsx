@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 'use client'
 import { useMounted } from '@/hooks'
 import { MapType, useGlobalStore } from '@/stores'
 import { type Layer } from 'deck.gl'
-
 import mapboxgl from 'mapbox-gl'
+
+mapboxgl.workerClass = require('mapbox-gl/dist/mapbox-gl-csp-worker')
 
 import { cn } from '@/lib/utils'
 import { delay } from '@/utils'

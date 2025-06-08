@@ -595,13 +595,13 @@
     "@probe.gl/stats" "^4.0.0"
     pbf "^3.2.1"
 
-"@loaders.gl/obj@^4.3.1":
-  version "4.3.1"
-  resolved "https://registry.npmjs.org/@loaders.gl/obj/-/obj-4.3.1.tgz"
-  integrity sha512-2nGip5aO1S+kIpVsP0V09MPdz+0a7ZwU3J9uW555YZ7oRKrqUl8zNOGZkmUPIPMUlbcmFuDWP5ecn4PsuxOrWg==
+"@loaders.gl/obj@^4.3.3":
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/@loaders.gl/obj/-/obj-4.3.3.tgz#565230291a1093e76e75b7b43923bbd3fbd9bb22"
+  integrity sha512-MR8gh/uCujesF62n1R8AX0LeJSuZdXQ+y9sa6owM9WueELZvoCKvnBMI62yk8AgVpT6DsaNZ3u6l4K/RayDFLw==
   dependencies:
-    "@loaders.gl/loader-utils" "4.3.1"
-    "@loaders.gl/schema" "4.3.1"
+    "@loaders.gl/loader-utils" "4.3.3"
+    "@loaders.gl/schema" "4.3.3"
 
 "@loaders.gl/schema@4.3.1", "@loaders.gl/schema@^4.2.0":
   version "4.3.1"

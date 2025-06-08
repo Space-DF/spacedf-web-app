@@ -172,6 +172,24 @@ html {
   -webkit-text-fill-color: transparent;
 }
 
+.rak-marker {
+  background-image: url('/images/3d-preview/rak.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.tracki-marker {
+  background-image: url('/images/3d-preview/airtag.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
 input[type='checkbox'] {
   appearance: none;
   background-color: var(--checkbox-bg);

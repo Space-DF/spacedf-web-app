@@ -20,7 +20,6 @@ class MapInstance {
     zoom = 3,
     maxZoom = 19,
     pitch = 70,
-
     style = 'mapbox://styles/mapbox/light-v11',
   }: {
     container: HTMLElement
@@ -37,6 +36,7 @@ class MapInstance {
       maxZoom: maxZoom,
       pitch: pitch,
       antialias: false,
+      projection: 'globe',
       zoom: zoom,
       style,
     })

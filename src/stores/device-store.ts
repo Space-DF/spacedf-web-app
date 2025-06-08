@@ -21,6 +21,7 @@ export type Device = {
 
 type DeviceModelState = {
   models: Record<SupportedModels, GLTFWithBuffers>
+  modelPreview: Record<SupportedModels, string>
   devices: Record<string, Device>
   deviceSelected: string
   initializedSuccess: boolean
@@ -29,7 +30,7 @@ type DeviceModelState = {
 
 type DeviceModelAction = {
   setDeviceModel: (key: SupportedModels, bufferModel: GLTFWithBuffers) => void
-
+  setModelPreview: (key: SupportedModels, preview: string) => void
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
 
@@ -42,6 +43,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     models: {} as Record<SupportedModels, GLTFWithBuffers>,
     deviceSelected: '',
     initializedSuccess: false,
+    modelPreview: {} as Record<SupportedModels, string>,
 
     setDeviceModel(key, bufferModel) {
       return set((state) => ({
@@ -49,6 +51,12 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
           ...state.models,
           [key]: bufferModel,
         },
+      }))
+    },
+
+    setModelPreview(key, preview) {
+      return set((state) => ({
+        modelPreview: { ...state.modelPreview, [key]: preview },
       }))
     },
 

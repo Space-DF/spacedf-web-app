@@ -6,6 +6,12 @@ const withNextIntl = createNextIntlPlugin()
 
 const nextConfig = {
   reactStrictMode: false,
+  rules: [
+    {
+      test: /\bmapbox-gl-csp-worker.js\b/i,
+      use: { loader: 'worker-loader' },
+    },
+  ],
   images: {
     remotePatterns: [
       {

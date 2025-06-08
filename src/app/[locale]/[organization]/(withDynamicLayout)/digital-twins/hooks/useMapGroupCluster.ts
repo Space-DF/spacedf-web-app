@@ -1,54 +1,128 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { checkMapRendered } from '../helper'
 import Supercluster from 'supercluster'
 import { useShallow } from 'zustand/react/shallow'
 import { useDeviceStore } from '@/stores/device-store'
-
+import * as mapboxgl from 'mapbox-gl'
+// Supercluster instance - outside hook to avoid reinitialization
 const cluster = new Supercluster({
-  radius: 10,
   maxZoom: 13,
-  extent: 256,
-  nodeSize: 64,
+  radius: 500,
 })
-
-const getClusters = (
-  bounds: [number, number, number, number],
-  zoom: number
-) => {
-  return cluster.getClusters(bounds, zoom)
-}
 
 export const useMapGroupCluster = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
+
+  const [clusteredDeviceIds, setClusteredDeviceIds] = useState<Set<string>>(
+    new Set()
+  )
+
+  const prevDeviceIdsRef = useRef<string[]>([])
+
   useEffect(() => {
-    console.log('updates')
-    if (!Object.keys(devices).length) return
-    const devicePoints = Object.values(devices)
-      .filter(
-        (device) =>
-          Array.isArray(device.location) && device.location.length === 2
-      ) // Ensure valid locations
-      .map((device) => ({
-        type: 'Feature',
-        properties: { id: device.id, type: device.type },
-        geometry: {
-          type: 'Point',
-          coordinates: device.latestLocation as [number, number],
-        },
-      }))
+    const handle = (e: CustomEvent) => {
+      setClusteredDeviceIds(new Set(e.detail.clusteredDeviceIds))
+    }
 
-    cluster.load(devicePoints as any)
-  }, [JSON.stringify(devices)])
+    window.addEventListener('clusteringUpdated', handle as EventListener)
 
-  const loadMapGroupCluster = () => {
+    return () =>
+      window.removeEventListener('clusteringUpdated', handle as EventListener)
+  }, [])
+
+  const updateClusters = useCallback((zoomOverride?: number) => {
     const mapRenderer = checkMapRendered()
     if (!mapRenderer) return
 
     const map = window.mapInstance?.getMapInstance()
+    if (!map || !map.getBounds) return
 
+    const bounds = map.getBounds()?.toArray().flat() as [
+      number,
+      number,
+      number,
+      number,
+    ]
+    const zoom = zoomOverride ?? Math.floor(map.getZoom())
+
+    const clusters = cluster.getClusters(bounds, zoom)
+
+    const newClusteredDeviceIds = new Set<string>()
+    clusters.forEach((feature) => {
+      if (feature.properties?.cluster) {
+        const clusterId = feature.properties.cluster_id
+        const leaves = cluster.getLeaves(clusterId, Infinity)
+        leaves.forEach((leaf) => {
+          // console.log({ leaves })
+          if (leaf.properties?.id) {
+            newClusteredDeviceIds.add(leaf.properties.id)
+          }
+        })
+      }
+    })
+
+    // console.log({ newClusteredDeviceIds })
+
+    setClusteredDeviceIds(newClusteredDeviceIds)
+
+    const source = map.getSource('clusters-source') as mapboxgl.GeoJSONSource
+    if (source) {
+      source.setData({
+        type: 'FeatureCollection',
+        features: clusters,
+      })
+    }
+
+    window.dispatchEvent(
+      new CustomEvent('clusteringUpdated', {
+        detail: {
+          clusteredDeviceIds: Array.from(newClusteredDeviceIds),
+          clusters,
+          zoom: zoom,
+        },
+      })
+    )
+  }, [])
+
+  useEffect(() => {
+    const deviceArray = Object.values(devices)
+    const newDeviceIds = deviceArray.map((d) => d.id).sort()
+
+    if (
+      JSON.stringify(prevDeviceIdsRef.current) === JSON.stringify(newDeviceIds)
+    ) {
+      return
+    }
+
+    prevDeviceIdsRef.current = newDeviceIds
+
+    const validDevices = deviceArray.filter(
+      (device) =>
+        Array.isArray(device.latestLocation) &&
+        device.latestLocation.length === 2
+    )
+
+    const points = validDevices.map((device) => ({
+      type: 'Feature',
+      properties: { id: device.id, type: device.type },
+      geometry: {
+        type: 'Point',
+        coordinates: device.latestLocation as [number, number],
+      },
+    }))
+
+    cluster.load(points as any)
+
+    updateClusters()
+  }, [devices, updateClusters])
+
+  const loadMapGroupCluster = useCallback(() => {
+    const mapRenderer = checkMapRendered()
+    if (!mapRenderer) return
+
+    const map = window.mapInstance?.getMapInstance()
     if (!map) return
-
-    if (map?.getSource('clusters-source')) return
+    if (map.getSource('clusters-source')) return
 
     map.addSource('clusters-source', {
       type: 'geojson',
@@ -56,29 +130,42 @@ export const useMapGroupCluster = () => {
         type: 'FeatureCollection',
         features: [],
       },
-      cluster: true,
-      clusterMaxZoom: 16,
-      clusterRadius: 50,
-      extent: 256,
-      nodeSize: 64,
-    } as any)
+      cluster: false,
+    })
+
+    map.loadImage('/images/cluster_icon.png', (error, image) => {
+      if (error) throw error
+      if (!map.hasImage('cluster-gradient')) {
+        map.addImage('cluster-gradient', image as any)
+      }
+    })
 
     map.addLayer({
       id: 'clusters',
-      type: 'circle',
+      type: 'symbol',
       source: 'clusters-source',
       filter: ['has', 'point_count'],
+      layout: {
+        'icon-image': 'cluster-gradient',
+        'icon-size': 0.04,
+        'icon-allow-overlap': true,
+      },
+    })
+
+    map.addLayer({
+      id: 'cluster-count',
+      type: 'symbol',
+      source: 'clusters-source',
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count_abbreviated}',
+        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-size': 16,
+        'text-allow-overlap': true,
+        'text-ignore-placement': true,
+      },
       paint: {
-        'circle-color': [
-          'step',
-          ['get', 'point_count'],
-          '#51bbd6',
-          100,
-          '#f1f075',
-          750,
-          '#f28cb1',
-        ],
-        'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
+        'text-color': '#ffffff', // 👈 Text color here
       },
     })
 
@@ -106,43 +193,70 @@ export const useMapGroupCluster = () => {
         'circle-stroke-color': '#fff',
       },
     })
-  }
 
-  const updateClusters = (zoomProp?: number) => {
-    const mapRenderer = checkMapRendered()
-    if (!mapRenderer) return
-
-    const map = window.mapInstance?.getMapInstance()
-
-    if (!map) return
-
-    const bounds = map?.getBounds?.()?.toArray().flat() as [
-      number,
-      number,
-      number,
-      number,
-    ]
-
-    let zoom = zoomProp
-
-    if (!zoom) {
-      zoom = Math.floor(map.getZoom())
-    }
-
-    const clusters = getClusters(bounds, zoom)
-
-    const source = map.getSource('clusters-source') as mapboxgl.GeoJSONSource
-
-    if (source) {
-      source.setData({
-        type: 'FeatureCollection',
-        features: clusters,
+    map.on('click', 'clusters', (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ['clusters'],
       })
+
+      if (!features.length) return
+
+      const clusterFeature = features[0]
+      const clusterId = clusterFeature.properties?.cluster_id
+
+      if (typeof clusterId !== 'number') return
+
+      if (
+        clusterFeature.geometry.type === 'Point' &&
+        Array.isArray(clusterFeature.geometry.coordinates)
+      ) {
+        const coordinates = clusterFeature.geometry.coordinates as [
+          number,
+          number,
+        ]
+        const expansionZoom = cluster.getClusterExpansionZoom(clusterId)
+
+        const wrappedLngLat = mapboxgl.LngLat.convert(coordinates)
+
+        map.flyTo({
+          center: wrappedLngLat,
+          zoom: expansionZoom,
+          speed: 1.6,
+          curve: 1,
+        })
+      }
+    })
+
+    const handleChange = () => updateClusters()
+
+    map.on('moveend', handleChange)
+    map.on('zoomend', handleChange)
+
+    return () => {
+      map.off('moveend', handleChange)
+      map.off('zoomend', handleChange)
     }
-  }
+  }, [updateClusters])
+
+  const isDeviceClustered = useCallback(
+    (deviceId: string) => clusteredDeviceIds.has(deviceId),
+    [clusteredDeviceIds]
+  )
+
+  const getDevicesInCluster = useCallback((clusterId: number) => {
+    return cluster.getLeaves(clusterId, Infinity)
+  }, [])
+
+  const getClusterExpansionZoom = useCallback((clusterId: number) => {
+    return cluster.getClusterExpansionZoom(clusterId)
+  }, [])
 
   return {
     loadMapGroupCluster,
     updateClusters,
+    isDeviceClustered,
+    clusteredDeviceIds: Array.from(clusteredDeviceIds),
+    getDevicesInCluster,
+    getClusterExpansionZoom,
   }
 }
