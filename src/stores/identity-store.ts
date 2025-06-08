@@ -41,5 +41,5 @@ export const useIdentityStore = create<IdentityState & IdentityAction>(
     setRootAuth: (state) => {
       set(() => ({ rootAuth: state }))
     },
-  }),
+  })
 )

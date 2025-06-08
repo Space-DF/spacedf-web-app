@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes'
 import { useDraw3DBuilding } from '../hooks/useDraw3DBuilding'
 import { useMapGroupCluster } from '../hooks/useMapGroupCluster'
 import { Device } from './device'
+import SpacedfLogo from '@/components/common/spacedf-logo'
 
 const mapInstanceGlobal = MapInstance.getInstance()
 
@@ -117,6 +118,7 @@ export const DigitalTwinsContainer = () => {
 
   return (
     <>
+      <SpacedfLogo />
       <div
         ref={mapContainerRef}
         className="w-full h-full absolute inset-0"

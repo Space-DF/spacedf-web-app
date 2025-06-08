@@ -17,6 +17,7 @@ import MapInstance from '@/utils/map-instance'
 import { getClusters, useLoadDeviceModels } from '../_hooks/useLoadDeviceModels'
 import { useSession } from 'next-auth/react'
 import { getMapStyle } from '@/components/ui/select-map-type'
+import SpacedfLogo from '@/components/common/spacedf-logo'
 
 interface CustomMapProps {
   layers?: Layer[]
@@ -307,16 +308,19 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
   if (isDeviceFetching) return <MapSkeleton />
 
   return (
-    <div
-      ref={mapContainerRef}
-      className={cn(
-        '!absolute inset-0 h-full !w-full !overflow-hidden !duration-1000',
-        isMapBlur
-          ? 'bg-[#DBDBDC] bg-opacity-80 blur-md backdrop-blur-md dark:!bg-black'
-          : 'blur-none'
-      )}
-      id="map-container"
-    />
+    <>
+      <SpacedfLogo />
+      <div
+        ref={mapContainerRef}
+        className={cn(
+          '!absolute inset-0 h-full !w-full !overflow-hidden !duration-1000',
+          isMapBlur
+            ? 'bg-[#DBDBDC] bg-opacity-80 blur-md backdrop-blur-md dark:!bg-black'
+            : 'blur-none'
+        )}
+        id="map-container"
+      />
+    </>
   )
 }
 

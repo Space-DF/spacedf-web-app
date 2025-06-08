@@ -59,7 +59,7 @@ export default class IconClusterLayer<
         (props.data as DataT[]).map((d) => ({
           geometry: { coordinates: (props.getPosition as Function)(d) },
           properties: d,
-        })),
+        }))
       )
       this.setState({ index })
     }
@@ -111,7 +111,7 @@ export default class IconClusterLayer<
       },
       this.getSubLayerProps({
         id: 'icon',
-      }),
+      })
     )
   }
 }

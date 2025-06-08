@@ -22,7 +22,7 @@ const QRCode = () => {
         <div
           className={cn(
             'overflow-hidden duration-300',
-            isOpen ? 'h-36 w-36 opacity-100' : 'h-0 opacity-0',
+            isOpen ? 'h-36 w-36 opacity-100' : 'h-0 opacity-0'
           )}
         >
           <ImageWithBlur
@@ -35,7 +35,7 @@ const QRCode = () => {
         <TypographySecondary
           className={cn(
             'mt-2 text-center font-normal text-brand-text-gray',
-            isOpen ? 'h-max opacity-100' : 'h-0 opacity-0',
+            isOpen ? 'h-max opacity-100' : 'h-0 opacity-0'
           )}
         >
           Scan this code with the{' '}

@@ -44,7 +44,7 @@
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.8",
-    "@space-df/sdk": "^0.0.1-dev.14",
+    "@space-df/sdk": "^0.0.1-dev.15",
     "@tanstack/react-table": "^8.20.6",
     "@types/mapbox-gl": "^3.4.0",
     "@yudiel/react-qr-scanner": "^2.0.8",

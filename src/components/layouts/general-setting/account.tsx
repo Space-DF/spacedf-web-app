@@ -96,7 +96,7 @@ const Account = () => {
               </Label>
               <p className="text-xs font-normal text-brand-text-gray">
                 {t(
-                  'once_you_login_spacedf_we_will_send_you_a_notification_in_email',
+                  'once_you_login_spacedf_we_will_send_you_a_notification_in_email'
                 )}
               </p>
             </div>
