@@ -23,7 +23,7 @@ export const spaceSettings = create<SpaceSettingsState & SpaceSettingsAction>(
       set(() => ({ shouldBackToHome: newState })),
     setOpenAlertDialog: (newState) =>
       set(() => ({ isOpenAlertDialog: newState })),
-  }),
+  })
 )
 
 export const useSpaceSettings = () => {

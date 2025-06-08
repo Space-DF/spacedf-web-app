@@ -21,7 +21,7 @@ const TypographySecondary = ({ className, ...resProps }: TypographyProps) => {
       {...resProps}
       className={cn(
         'text-brand-text-gray dark:text-brand-dark-text-gray',
-        className,
+        className
       )}
     />
   )

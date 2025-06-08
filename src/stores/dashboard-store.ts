@@ -19,5 +19,5 @@ export const useDashboardStore = create<IdentityState & IdentityAction>(
     setDeleteId: (id) => set(() => ({ deleteId: id })),
     setViewAllDashboard: (open) => set(() => ({ isViewAllDashboard: open })),
     setEdit: (edit) => set(() => ({ isEdit: edit })),
-  }),
+  })
 )

@@ -21,7 +21,7 @@ export default function CreateSpaceHeader() {
   const router = useRouter()
   const t = useTranslations('space')
   const { shouldBackPreviousPage, setLoading } = useSpaceStore(
-    useShallow((state) => state),
+    useShallow((state) => state)
   )
   const [open, setOpen] = useState(false)
 
@@ -53,7 +53,7 @@ export default function CreateSpaceHeader() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium text-brand-text-gray">
               {t(
-                'are_you_sure_you_want_to_go_back_you_can_still_add_your_member_later',
+                'are_you_sure_you_want_to_go_back_you_can_still_add_your_member_later'
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
