@@ -172,6 +172,24 @@ html {
   -webkit-text-fill-color: transparent;
 }
 
+.rak-marker {
+  background-image: url('/images/3d-preview/rak.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.tracki-marker {
+  background-image: url('/images/3d-preview/airtag.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
 input[type='checkbox'] {
   appearance: none;
   background-color: var(--checkbox-bg);
@@ -202,7 +220,6 @@ input[type='checkbox']:checked::after {
   background-repeat: no-repeat;
 }
 
-
 /* For WebKit browsers */
 video::-webkit-media-controls {
   display: none !important;
@@ -231,7 +248,7 @@ video::-webkit-media-controls-start-playback-button {
 }
 
 .button-introduction:after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -246,15 +263,13 @@ video::-webkit-media-controls-start-playback-button {
 }
 
 .form-waitlist:after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   margin: -1px;
   border-radius: inherit;
 }
-
-
 
 @layer base {
   * {

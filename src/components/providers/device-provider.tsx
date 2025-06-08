@@ -6,8 +6,14 @@ import { PropsWithChildren, useEffect, useState } from 'react'
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
 
+const PREVIEW_PATH = {
+  rak: '/images/3d-preview/rak.png',
+  tracki: '/images/3d-preview/airtag.png',
+}
+
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
-  const { setDeviceModel, setInitializedSuccess, setDevices } = useDeviceStore()
+  const { setDeviceModel, setInitializedSuccess, setDevices, setModelPreview } =
+    useDeviceStore()
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
     initializedDevices: false,
@@ -47,6 +53,9 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
       setDeviceModel('rak', rakModel)
       setDeviceModel('tracki', trackiModel)
+
+      setModelPreview('rak', PREVIEW_PATH.rak)
+      setModelPreview('tracki', PREVIEW_PATH.tracki)
 
       setFetchStatus((prev) => ({
         ...prev,
