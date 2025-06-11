@@ -53,6 +53,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import { useIdentityStore } from '@/stores/identity-store'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
 import { useSession } from 'next-auth/react'
+import DeviceDetail from './components/device-detail'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -60,16 +61,20 @@ const Devices = () => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
-  const { setDeviceSelected } = useDeviceStore(
+  const { setDeviceSelected, deviceSelected } = useDeviceStore(
     useShallow((state) => ({
       setDeviceSelected: state.setDeviceSelected,
+      deviceSelected: state.deviceSelected,
     }))
   )
 
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
-
   // const [selected, setSelected] = useState<number>()
+
+  const handleCloseSlide = () => {
+    setDeviceSelected('')
+  }
 
   return (
     <RightSideBarLayout
@@ -80,10 +85,13 @@ const Devices = () => {
         toggleDynamicLayout('devices')
         setDeviceSelected('')
       }}
+      className="relative"
       title={t('selected_devices')}
     >
+      <DeviceDetail onClose={handleCloseSlide} open={!!deviceSelected} />
+
       <div className="flex h-full flex-col pt-4">
-        <div className="px-4">
+        <div>
           <DeviceSelected />
         </div>
         <DevicesList

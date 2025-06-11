@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { auth } from '@/lib/auth'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 export const metadata: Metadata = {
   title: 'Space DF',
@@ -36,7 +37,9 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <AppProvider session={session}>{children}</AppProvider>
+          <AppProvider session={session}>
+            <TooltipProvider>{children}</TooltipProvider>
+          </AppProvider>
         </NextIntlClientProvider>
       </body>
     </html>

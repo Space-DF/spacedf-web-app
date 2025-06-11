@@ -1,4 +1,4 @@
-import { spaceClient, SpaceDFClient } from '@/lib/spacedf'
+import { SpaceDFClient } from '@/lib/spacedf'
 import { encode } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,7 +15,8 @@ const createAuthCookieString = (token: string) => {
 
 export const POST = async (request: NextRequest) => {
   const { refreshToken } = await request.json()
-  const client = await spaceClient()
+  const spacedf = await SpaceDFClient.getInstance()
+  const client = spacedf.getClient()
   const SESSION_SECURE = process.env.NEXTAUTH_URL?.startsWith('https://')
   const SESSION_SALT = SESSION_SECURE
     ? '__Secure-authjs.session-token'
@@ -23,7 +24,6 @@ export const POST = async (request: NextRequest) => {
   const data = await client.auth.refreshToken({
     refresh: refreshToken,
   })
-  const spacedf = await SpaceDFClient.getInstance()
   spacedf.setToken(data.access as string)
   const newSessionToken = await encode({
     secret: process.env.NEXTAUTH_SECRET as string,

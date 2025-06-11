@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils'
 import { PlusIcon } from '@radix-ui/react-icons'
 import React, { PropsWithChildren } from 'react'
 
@@ -7,6 +8,7 @@ type RightSideBarLayoutProps = {
   headerButton?: React.ReactNode | string
   externalButton?: React.ReactNode
   allowClose?: boolean
+  className?: string
 } & PropsWithChildren
 
 export const RightSideBarLayout = ({
@@ -16,9 +18,10 @@ export const RightSideBarLayout = ({
   allowClose = true,
   children,
   externalButton,
+  className,
 }: RightSideBarLayoutProps) => {
   return (
-    <div className="flex h-screen flex-col">
+    <div className={cn('flex h-screen flex-col', className)}>
       <div className="flex w-full">
         <div className="flex flex-1 items-center gap-2 pl-4 pr-2 pt-4">
           <div className="flex flex-1 flex-wrap items-center justify-between gap-2 duration-300">
@@ -44,7 +47,7 @@ export const RightSideBarLayout = ({
           )}
         </div>
       </div>
-      <div className="flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray">
+      <div className="flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray px-4">
         {children}
       </div>
     </div>
