@@ -288,6 +288,10 @@ video::-webkit-media-controls-start-playback-button {
   box-shadow: 0px 2px 0px 0px #ffffff1f inset;
 }
 
+.dark #map-container .mapboxgl-ctrl-group button {
+  background-color: #4006aa;
+}
+
 #map-container
   .mapboxgl-ctrl-group
   button.mapboxgl-ctrl-zoom-in
