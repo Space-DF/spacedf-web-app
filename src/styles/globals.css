@@ -271,6 +271,10 @@ video::-webkit-media-controls-start-playback-button {
   border-radius: inherit;
 }
 
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl:first-of-type {
+  margin-top: 16px;
+}
+
 #map-container .mapboxgl-ctrl.mapboxgl-ctrl-group {
   background-color: #090c18;
   padding: 2px;
