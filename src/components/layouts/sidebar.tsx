@@ -170,7 +170,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
         <Navigations />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <GeneralSetting>
           <Button
             variant="ghost"
@@ -422,7 +422,7 @@ const CollapsedNavigation = () => {
   const isAuth = status === 'authenticated'
 
   return (
-    <div className="my-4 flex w-full flex-col items-center justify-center gap-2">
+    <div className="my-4 flex w-full flex-col items-center justify-center gap-1">
       {(isAuth
         ? NavigationData(t)
         : NavigationData(t).filter((n) => n.key !== 'workspace_settings')

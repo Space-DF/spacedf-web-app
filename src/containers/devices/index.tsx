@@ -408,7 +408,7 @@ const DevicesList = () => {
       </div>
       <div className="px-1.5 flex-1 h-full flex">
         <div className="px-2.5 flex-1 transition-all duration-300 overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-          <div className="-mx-2 grid grid-cols-2 gap-3 pb-6">
+          <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
             {devices.map((item) => (
               <div
                 key={item.id}
