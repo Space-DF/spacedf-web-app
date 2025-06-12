@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/select'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import ColorSelect from '@/containers/dashboard/components/widget-selected/components/color-select'
 
 interface AddGeofenceProps {
   isOpen: boolean
@@ -70,6 +72,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
     defaultValues: {
       shape: 'circle',
       unit: 'km',
+      type: 'safe',
     },
   })
 
@@ -141,12 +144,69 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
             />
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>{t('type')}</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex gap-x-4"
+                    >
+                      <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="safe" />
+                        </FormControl>
+                        <FormLabel className="font-medium text-sm text-brand-component-text-dark">
+                          Safe zone
+                        </FormLabel>
+                      </FormItem>
+
+                      <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="danger" />
+                        </FormControl>
+                        <FormLabel className="font-medium text-sm text-brand-component-text-dark">
+                          Danger zone
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>{t('color')}</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <ColorSelect fieldValue={field.value} />
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t('geofence_name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('geofence_name')} {...field} />
+                    <Input
+                      className="border-none"
+                      placeholder={t('geofence_name')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,7 +219,11 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                 <FormItem>
                   <FormLabel>{t('tag')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('tag')} {...field} />
+                    <Input
+                      className="border-none"
+                      placeholder={t('tag')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +236,11 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                 <FormItem>
                   <FormLabel>{t('latitude')} (X)</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('latitude')} {...field} />
+                    <Input
+                      className="border-none"
+                      placeholder={t('latitude')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,7 +253,11 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                 <FormItem>
                   <FormLabel>{t('longitude')} (Y)</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('longitude')} {...field} />
+                    <Input
+                      className="border-none"
+                      placeholder={t('longitude')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -198,14 +270,18 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                 <FormItem className="relative">
                   <FormLabel>{t('radius')}</FormLabel>
                   <FormControl>
-                    <Input placeholder={t('radius')} {...field} />
+                    <Input
+                      className="border-none"
+                      placeholder={t('radius')}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormField
                     control={form.control}
                     name="unit"
                     render={({ field }) => (
-                      <FormItem className="absolute right-1 top-[23px]">
+                      <FormItem className="absolute right-1 top-[23px] text-brand-icon-gray">
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value || 'km'}
@@ -214,7 +290,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                             <SelectTrigger
                               className="border-none shadow-none bg-brand-fill-dark-soft border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 dark:bg-brand-heading "
                               icon={
-                                <ChevronDown className="w-3 text-brand-icon-gray" />
+                                <ChevronDown className="size-[18px] text-brand-icon-gray ml-2" />
                               }
                             >
                               <SelectValue />

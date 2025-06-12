@@ -14,7 +14,7 @@ import { useTranslations } from 'next-intl'
 import { SourceColor } from '@/constants'
 
 interface Props {
-  fieldValue: string
+  fieldValue?: string
   color_codes?: string[]
 }
 const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {

@@ -181,7 +181,7 @@ const Dashboard = () => {
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                      'line-clamp-1 flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark dark:bg-brand-background-fill-surface',
+                      'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark bg-brand-component-fill-dark-soft dark:bg-brand-background-fill-surface',
                       {
                         'border-brand-component-stroke-dark shadow-dashboard':
                           open,
@@ -289,7 +289,7 @@ const Dashboard = () => {
             )
           }
         >
-          <div className="mt-6 px-4">
+          <div className="mt-6">
             {isViewAllDashboard ? (
               <DataTable
                 columns={getColumns({ handleDeleteSpace, t })}
@@ -305,7 +305,7 @@ const Dashboard = () => {
                       </div>
                     )}
                     <Button
-                      className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+                      className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white dark:border-brand-component-stroke-light"
                       onClick={() => setIsAddWidgetOpen(true)}
                     >
                       {t('dashboard.add_widget')}
@@ -359,6 +359,7 @@ const Dashboard = () => {
       ) : (
         <RightSideBarLayout
           onClose={onCloseSideBar}
+          contentClassName="overflow-hidden"
           title={
             <div className="flex size-full items-center gap-2">
               <ArrowLeft
@@ -376,10 +377,7 @@ const Dashboard = () => {
           }
         >
           <div className="mt-6 size-full px-4">
-            <WidgetSelection
-              onSelectWidget={onSelectWidget}
-              selectedWidget={selectedWidget}
-            />
+            <WidgetSelection onSelectWidget={onSelectWidget} />
           </div>
         </RightSideBarLayout>
       )}

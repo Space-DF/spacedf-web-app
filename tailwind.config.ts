@@ -84,6 +84,7 @@ const config = {
         toast: '0px 4px 12px 0px #00000066',
         dashboard: '0px 0px 0px 2px #171A2840',
         suggestion: '0px 8px 12px 0px #00000026;',
+        'inset-white': 'inset 0px 3px 0px -1px rgba(255, 255, 255, 0.12)',
       },
     },
   },

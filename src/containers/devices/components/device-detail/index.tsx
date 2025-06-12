@@ -16,7 +16,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
   const t = useTranslations('common')
   return (
     <Slide
-      className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0"
+      className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0 overflow-y-auto"
       open={open}
       showCloseButton={false}
       direction="right"
@@ -34,7 +34,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
           </div>
         }
       >
-        <div className="h-full mt-8 overflow-y-auto scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+        <div className="h-full mt-8">
           <div className="flex flex-col gap-8 mb-8">
             <DeviceSelected />
             <ListEvent />

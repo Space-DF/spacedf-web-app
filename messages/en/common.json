@@ -61,5 +61,7 @@
   "tag": "Tag",
   "latitude": "Latitude",
   "longitude": "Longitude",
-  "radius": "Radius"
+  "radius": "Radius",
+  "type": "Type",
+  "color": "Color"
 }

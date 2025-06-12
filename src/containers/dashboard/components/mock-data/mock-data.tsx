@@ -64,11 +64,7 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
   }, [JSON.stringify(data)])
 
   return (
-    <div
-      className={cn(
-        'mt-1 h-dvh overflow-y-scroll scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]'
-      )}
-    >
+    <div className="mt-1">
       <div
         className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
         id="dashboard-container"
@@ -86,6 +82,7 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
           cols={{ lg: 18, md: 16, sm: 13, xs: 8, xxs: 5 }}
           rowHeight={60}
           margin={[5, 5]}
+          containerPadding={[0, 0]}
           onLayoutChange={handleLayoutChange}
           measureBeforeMount={false}
           useCSSTransforms={mounted}

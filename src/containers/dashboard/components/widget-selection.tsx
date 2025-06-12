@@ -78,7 +78,6 @@ const WidgetSelection = ({
   onSelectWidget,
 }: {
   onSelectWidget: (widgetTitle: WidgetType) => void
-  selectedWidget: string
 }) => {
   const t = useTranslations()
   const { mounted } = useMounted()

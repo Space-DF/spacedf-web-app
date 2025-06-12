@@ -9,6 +9,7 @@ type RightSideBarLayoutProps = {
   externalButton?: React.ReactNode
   allowClose?: boolean
   className?: string
+  contentClassName?: string
 } & PropsWithChildren
 
 export const RightSideBarLayout = ({
@@ -19,6 +20,7 @@ export const RightSideBarLayout = ({
   children,
   externalButton,
   className,
+  contentClassName,
 }: RightSideBarLayoutProps) => {
   return (
     <div className={cn('flex h-screen flex-col', className)}>
@@ -47,7 +49,12 @@ export const RightSideBarLayout = ({
           )}
         </div>
       </div>
-      <div className="flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray px-4">
+      <div
+        className={cn(
+          'flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray px-4 overflow-y-auto scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]',
+          contentClassName
+        )}
+      >
         {children}
       </div>
     </div>

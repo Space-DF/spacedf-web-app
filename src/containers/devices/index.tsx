@@ -1,7 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusIcon } from '@radix-ui/react-icons'
 import { Scanner } from '@yudiel/react-qr-scanner'
-import { ArrowLeft, CircleCheck, Map, Pencil, Trash2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  CircleCheck,
+  Ellipsis,
+  Map,
+  Pencil,
+  Search,
+  Trash2,
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -41,7 +48,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import ImageWithBlur from '@/components/ui/image-blur'
-import { Input } from '@/components/ui/input'
+import { Input, InputWithIcon } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
 import { Textarea } from '@/components/ui/textarea'
 import { COOKIES, NavigationEnums } from '@/constants'
@@ -54,6 +61,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
 import { useSession } from 'next-auth/react'
 import DeviceDetail from './components/device-detail'
+import Image from 'next/image'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -90,7 +98,7 @@ const Devices = () => {
     >
       <DeviceDetail onClose={handleCloseSlide} open={!!deviceSelected} />
 
-      <div className="flex h-full flex-col pt-4">
+      <div className="flex h-full flex-col pt-6">
         <div>
           <DeviceSelected />
         </div>
@@ -189,7 +197,7 @@ const AddDeviceDialog = () => {
   return (
     <div className="flex items-center justify-center">
       <Button
-        className="h-8 gap-2 rounded-lg"
+        className="h-8 gap-x-2"
         onClick={() => {
           if (!isAuth) {
             setOpenDrawerIdentity(true)
@@ -198,8 +206,10 @@ const AddDeviceDialog = () => {
           setOpen(true)
         }}
       >
-        {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
-        <PlusIcon />
+        <span className="text-xs font-semibold leading-4">
+          {uppercaseFirstLetter(t('common.add'))} {t('common.devices')}{' '}
+        </span>
+        <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
       </Button>
       <Dialog
         open={open}
@@ -236,9 +246,6 @@ const AddDeviceDialog = () => {
 
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
-  // const setOpenDrawerIdentity = useIdentityStore(
-  //   useShallow((state) => state.setOpenDrawerIdentity)
-  // )
 
   const { deviceSelected, devices } = useDeviceStore(
     useShallow((state) => ({
@@ -249,9 +256,6 @@ const DeviceSelected = () => {
   )
 
   const { startDrawHistory } = useDeviceHistory()
-
-  // const { status } = useSession()
-  // const isAuth = status === 'authenticated'∏
 
   const InformationItem = (props: { label: string; content: string }) => {
     return (
@@ -408,20 +412,27 @@ const DevicesList = () => {
 
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
-      <div className="flex items-center justify-between px-4">
+      <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
         <AddDeviceDialog />
       </div>
-      <div className="px-1.5 flex-1 h-full flex">
+      <InputWithIcon
+        prefixCpn={
+          <Search size={18} className="text-brand-component-text-gray" />
+        }
+        placeholder={t('device')}
+        wrapperClass="w-full"
+      />
+      <div className="flex-1 h-full flex">
         <div className="px-2.5 flex-1 transition-all duration-300 overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
           <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
             {devices.map((item) => (
               <div
                 key={item.id}
                 className={cn(
-                  'cursor-pointer rounded-xl border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                  'cursor-pointer rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                   {
                     'border-brand-component-stroke-dark':
                       item.id === deviceSelected,
@@ -429,17 +440,23 @@ const DevicesList = () => {
                 )}
                 onClick={() => setDeviceSelected(item.id)}
               >
-                <div className="space-y-2 mb-[18px]">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-2 mb-2">
+                  <div className="flex items-start justify-between">
                     <div className="size-8">
                       <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
                     </div>
+                    <Ellipsis
+                      size={16}
+                      className="text-brand-component-text-gray"
+                    />
                   </div>
-                  <div className="text-xs font-medium">{item.name}</div>
+                  <div className="text-xs font-medium">
+                    <span className="leading-[18px]">{item.name}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 py-1 text-xs font-medium">
+                <div className="flex items-center gap-2 text-xs font-medium ">
                   <Map size={16} className="text-brand-text-gray" />
-                  {item.type}
+                  <span className="leading-[18px]">{item.type}</span>
                 </div>
               </div>
             ))}

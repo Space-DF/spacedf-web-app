@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 export const addGeofenceSchema = z.object({
   shape: z.enum(['circle', 'square', 'custom']),
+  type: z.enum(['safe', 'danger']),
+  color: z.string().optional(),
   name: z.string().min(1, { message: 'Name is required' }),
   tag: z.string().optional(),
   radius: z.number().min(1, { message: 'Radius is required' }),
