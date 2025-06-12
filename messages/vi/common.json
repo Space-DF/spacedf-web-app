@@ -54,5 +54,7 @@
   "tag": "Tag",
   "latitude": "Vĩ độ",
   "longitude": "Kinh độ",
-  "radius": "Bán kính"
+  "radius": "Bán kính",
+  "type": "Loại",
+  "color": "Màu sắc"
 }

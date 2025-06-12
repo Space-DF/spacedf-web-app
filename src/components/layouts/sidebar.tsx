@@ -194,7 +194,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
 
         <ThemeToggle isCollapsed={isCollapsed} />
         {!isAuth && (
-          <Button className="flex items-center space-x-2 bg-[#6E4AFF33] hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary py-0">
+          <Button className="flex items-center space-x-2 bg-[#6E4AFF33] border-none hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary py-0">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -281,7 +281,7 @@ const CollapsedSidebar = ({
         </div>
         <div
           className={cn(
-            'cursor-pointer, flex cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-transparent p-2 duration-300'
+            'flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg bg-transparent p-2 duration-300'
           )}
         >
           <GeneralSetting>
@@ -306,7 +306,7 @@ const CollapsedSidebar = ({
           )}
           <ThemeToggle isCollapsed={isCollapsed} />
           {!isAuth && (
-            <Button className="flex items-center space-x-2 bg-[#6E4AFF33] hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary p-2">
+            <Button className="flex items-center space-x-2 bg-[#6E4AFF33] border-none hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary p-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

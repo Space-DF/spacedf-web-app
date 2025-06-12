@@ -24,5 +24,6 @@
   "are_you_sure_you_want_to_remove_this_device": "Bạn có chắc chắn muốn xóa thiết bị này không?",
   "delete": "Xóa",
   "devices_list": "Danh sách thiết bị",
-  "no_selected_devices": "Không có thiết bị được chọn"
+  "no_selected_devices": "Không có thiết bị được chọn",
+  "device": "Thiết bị"
 }

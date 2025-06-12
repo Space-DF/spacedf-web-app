@@ -25,5 +25,6 @@
   "delete": "Delete",
   "devices_list": "Devices list",
   "no_selected_devices": "No Selected Devices",
-  "device_history": "Device History"
+  "device_history": "Device History",
+  "device": "Device"
 }
