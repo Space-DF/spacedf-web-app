@@ -56,5 +56,6 @@
   "longitude": "Kinh độ",
   "radius": "Bán kính",
   "type": "Loại",
-  "color": "Màu sắc"
+  "color": "Màu sắc",
+  "created": "Ngày tạo"
 }

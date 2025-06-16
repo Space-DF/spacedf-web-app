@@ -63,5 +63,6 @@
   "longitude": "Longitude",
   "radius": "Radius",
   "type": "Type",
-  "color": "Color"
+  "color": "Color",
+  "created": "Created"
 }

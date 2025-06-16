@@ -425,14 +425,14 @@ const DevicesList = () => {
         placeholder={t('device')}
         wrapperClass="w-full"
       />
-      <div className="flex-1 h-full flex">
-        <div className="px-2.5 flex-1 transition-all duration-300 overflow-y-auto scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+      <div className="flex-1 flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+        <div className="px-2.5 flex-1 transition-all duration-300">
           <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
             {devices.map((item) => (
               <div
                 key={item.id}
                 className={cn(
-                  'cursor-pointer rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                  'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                   {
                     'border-brand-component-stroke-dark':
                       item.id === deviceSelected,
@@ -456,7 +456,7 @@ const DevicesList = () => {
                 </div>
                 <div className="flex items-center gap-2 text-xs font-medium ">
                   <Map size={16} className="text-brand-text-gray" />
-                  <span className="leading-[18px]">{item.type}</span>
+                  <span className="leading-[18px]">{item.origin}</span>
                 </div>
               </div>
             ))}

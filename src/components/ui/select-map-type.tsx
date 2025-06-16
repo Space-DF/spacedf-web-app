@@ -145,7 +145,7 @@ export const SelectMapType = () => {
   const currentMapType = mapTypes.find((type) => type.id === mapType)
 
   return (
-    <div className="z-50 bottom-14 absolute left-2 group flex items-center gap-3 min-h-20">
+    <div className="z-50 bottom-7 absolute left-2 group flex items-center gap-3 min-h-20">
       <div className="border-[2px] rounded-lg border-white shadow-md ">
         <div className="size-16 overflow-hidden rounded-lg relative">
           <ImageWithBlur
