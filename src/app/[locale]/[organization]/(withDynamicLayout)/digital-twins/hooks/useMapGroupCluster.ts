@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
-import { checkMapRendered } from '../helper'
-import Supercluster from 'supercluster'
-import { useShallow } from 'zustand/react/shallow'
 import { useDeviceStore } from '@/stores/device-store'
 import * as mapboxgl from 'mapbox-gl'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Supercluster from 'supercluster'
+import { useShallow } from 'zustand/react/shallow'
+import { checkMapRendered } from '../helper'
+import { useTheme } from 'next-themes'
 // Supercluster instance - outside hook to avoid reinitialization
 const cluster = new Supercluster({
   maxZoom: 13,
@@ -16,6 +17,9 @@ export const useMapGroupCluster = () => {
   const [clusteredDeviceIds, setClusteredDeviceIds] = useState<Set<string>>(
     new Set()
   )
+  const { theme, systemTheme } = useTheme()
+
+  const currentTheme = theme === 'system' ? systemTheme : theme
 
   const prevDeviceIdsRef = useRef<string[]>([])
 
@@ -64,6 +68,10 @@ export const useMapGroupCluster = () => {
     // console.log({ newClusteredDeviceIds })
 
     setClusteredDeviceIds(newClusteredDeviceIds)
+
+    if (window) {
+      window.mapResource.clusterIds = newClusteredDeviceIds
+    }
 
     const source = map.getSource('clusters-source') as mapboxgl.GeoJSONSource
     if (source) {
@@ -133,7 +141,12 @@ export const useMapGroupCluster = () => {
       cluster: false,
     })
 
-    map.loadImage('/images/cluster_icon.png', (error, image) => {
+    const path =
+      currentTheme === 'dark'
+        ? '/images/cluster-dark.png'
+        : '/images/cluster-light.png'
+
+    map.loadImage(path, (error, image) => {
       if (error) throw error
       if (!map.hasImage('cluster-gradient')) {
         map.addImage('cluster-gradient', image as any)
@@ -147,7 +160,7 @@ export const useMapGroupCluster = () => {
       filter: ['has', 'point_count'],
       layout: {
         'icon-image': 'cluster-gradient',
-        'icon-size': 0.04,
+        'icon-size': 0.25,
         'icon-allow-overlap': true,
       },
     })
@@ -161,6 +174,7 @@ export const useMapGroupCluster = () => {
         'text-field': '{point_count_abbreviated}',
         'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
         'text-size': 16,
+        'text-offset': [0, -0.4],
         'text-allow-overlap': true,
         'text-ignore-placement': true,
       },

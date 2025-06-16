@@ -181,6 +181,41 @@ html {
   cursor: pointer;
 }
 
+.marker.fade-in {
+  opacity: 1;
+}
+
+.marker.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
 .tracki-marker {
   background-image: url('/images/3d-preview/airtag.png');
   background-size: contain;
