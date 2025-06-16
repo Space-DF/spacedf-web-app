@@ -314,14 +314,13 @@ video::-webkit-media-controls-start-playback-button {
   background-color: #090c18;
   padding: 2px;
   width: 36px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: none;
 }
 
 #map-container .mapboxgl-ctrl-group button {
   background-color: #171a28;
-  border-radius: 8px;
-  margin: auto;
+  border-radius: 6px;
   margin: 2px;
   border: none;
   box-shadow: 0px 2px 0px 0px #ffffff1f inset;

@@ -105,7 +105,7 @@ export const useDeviceHistory = () => {
 
     if (!devices || !currentDevice) return
 
-    const deviceData = devices[currentDevice]
+    const deviceData = devices[+currentDevice - 1]
 
     const dataHistories = deviceData?.histories
 

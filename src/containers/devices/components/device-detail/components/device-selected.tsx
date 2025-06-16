@@ -12,6 +12,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShallow } from 'zustand/react/shallow'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 
 const InformationItem = (props: { label: string; content: string }) => {
   return (
@@ -26,6 +29,13 @@ const InformationItem = (props: { label: string; content: string }) => {
 
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
+  const { deviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+    }))
+  )
+
+  const { startDrawHistory } = useDeviceHistory()
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
@@ -84,6 +94,9 @@ const DeviceSelected = () => {
           <InformationItem label={`${t('description')}:`} content={'150'} />
         </div>
       </div>
+      <Button onClick={() => startDrawHistory(deviceSelected)}>
+        {t('device_history')}
+      </Button>
     </div>
   )
 }

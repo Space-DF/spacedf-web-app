@@ -30,7 +30,7 @@ export const spaceList: TSpace[] = [
 
 export const devices: Device[] = [
   {
-    name: 'Rak 1',
+    name: 'DMZ 01 -1511-M01',
     id: '1',
     status: 'active',
     template: '123',
@@ -51,10 +51,11 @@ export const devices: Device[] = [
     },
     latestLocation: [108.22003, 16.05486],
     realtimeTrip: [[108.22003, 16.05486]],
+    origin: 'Vietnam',
   },
 
   {
-    name: 'Rak 2',
+    name: 'DMZ 01 -1511-M02',
     id: '2',
     status: 'active',
     template: '456',
@@ -75,10 +76,10 @@ export const devices: Device[] = [
     },
     latestLocation: [108.222, 16.05487],
     realtimeTrip: [[108.222, 16.05487]],
+    origin: 'Vietnam',
   },
-
   {
-    name: 'Tracki 2',
+    name: 'DMZ 01 -1511-M03',
     id: '3',
     status: 'active',
     battery: 90,
@@ -93,105 +94,228 @@ export const devices: Device[] = [
         roll: 180,
       },
     },
-
     histories: {
       end: [108.221, 16.05485],
       start: [108.2247397, 16.0485692],
     },
-
     latestLocation: [108.221, 16.05485],
     realtimeTrip: [[108.221, 16.05485]],
+    origin: 'Vietnam',
   },
-
-  // // 15.509540258979442, 108.6785540886935
-  // {
-  //   name: 'Tracki 2',
-  //   id: '4',
-  //   status: 'active',
-  //   battery: 90,
-  //   type: 'tracki',
-  //   location: [108.6785540886935, 15.509540258979442],
-  //   layerProps: {
-  //     sizeScale: 700,
-  //     rotation: 'yaw',
-  //     orientation: {
-  //       pitch: 0,
-  //       yaw: 360,
-  //       roll: 180,
-  //     },
-  //   },
-  //   histories: {
-  //     start: [],
-  //     end: [],
-  //   },
-  // },
-
-  // // 15.509969169714747, 108.67867759013264
-
-  // {
-  //   name: 'Tracki 3',
-  //   id: '5',
-  //   status: 'active',
-  //   battery: 90,
-  //   type: 'tracki',
-  //   location: [108.67867759013264, 15.509969169714747],
-  //   layerProps: {
-  //     sizeScale: 700,
-  //     rotation: 'yaw',
-  //     orientation: {
-  //       pitch: 0,
-  //       yaw: 360,
-  //       roll: 180,
-  //     },
-  //   },
-  //   histories: {
-  //     start: [],
-  //     end: [],
-  //   },
-  // },
-
-  // {
-  //   name: 'Rak 5',
-  //   id: '6',
-  //   status: 'active',
-  //   template: '456',
-  //   type: 'rak',
-  //   location: [107.5406340057634, 16.474046857665563],
-  //   layerProps: {
-  //     sizeScale: 200,
-  //     rotation: 'yaw',
-  //     orientation: {
-  //       pitch: 0,
-  //       yaw: 90,
-  //       roll: 90,
-  //     },
-  //   },
-  //   histories: {
-  //     start: [],
-  //     end: [],
-  //   },
-  // },
-
-  // // 16.511313632165106, 107.54960305263684
-  // {
-  //   name: 'Rak 5',
-  //   id: '7',
-  //   status: 'active',
-  //   template: '456',
-  //   type: 'rak',
-  //   location: [107.54960305263684, 16.511313632165106],
-  //   layerProps: {
-  //     sizeScale: 200,
-  //     rotation: 'yaw',
-  //     orientation: {
-  //       pitch: 0,
-  //       yaw: 90,
-  //       roll: 90,
-  //     },
-  //   },
-  //   histories: {
-  //     start: [],
-  //     end: [],
-  //   },
-  // },
+  {
+    name: 'DMZ 02 -1512-M01',
+    id: '4',
+    status: 'inactive',
+    battery: 45,
+    type: 'tracki',
+    location: [108.215, 16.062],
+    layerProps: {
+      sizeScale: 500,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 360,
+        roll: 180,
+      },
+    },
+    histories: {
+      end: [108.215, 16.062],
+      start: [108.217, 16.064],
+    },
+    latestLocation: [108.215, 16.062],
+    realtimeTrip: [[108.215, 16.062]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 03 -1513-M01',
+    id: '5',
+    status: 'active',
+    template: '789',
+    type: 'rak',
+    location: [108.228, 16.048],
+    layerProps: {
+      sizeScale: 300,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 90,
+        roll: 90,
+      },
+    },
+    histories: {
+      end: [108.228, 16.048],
+      start: [108.23, 16.05],
+    },
+    latestLocation: [108.228, 16.048],
+    realtimeTrip: [[108.228, 16.048]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 04 -1514-M01',
+    id: '6',
+    status: 'active',
+    battery: 75,
+    type: 'tracki',
+    location: [108.235, 16.058],
+    layerProps: {
+      sizeScale: 600,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 360,
+        roll: 180,
+      },
+    },
+    histories: {
+      end: [108.235, 16.058],
+      start: [108.237, 16.06],
+    },
+    latestLocation: [108.235, 16.058],
+    realtimeTrip: [[108.235, 16.058]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 05 -1515-M01',
+    id: '7',
+    status: 'inactive',
+    template: '101',
+    type: 'rak',
+    location: [108.212, 16.052],
+    layerProps: {
+      sizeScale: 400,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 90,
+        roll: 90,
+      },
+    },
+    histories: {
+      end: [108.212, 16.052],
+      start: [108.214, 16.054],
+    },
+    latestLocation: [108.212, 16.052],
+    realtimeTrip: [[108.212, 16.052]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 06 -1516-M01',
+    id: '8',
+    status: 'active',
+    battery: 85,
+    type: 'tracki',
+    location: [108.242, 16.065],
+    layerProps: {
+      sizeScale: 550,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 360,
+        roll: 180,
+      },
+    },
+    histories: {
+      end: [108.242, 16.065],
+      start: [108.244, 16.067],
+    },
+    latestLocation: [108.242, 16.065],
+    realtimeTrip: [[108.242, 16.065]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 07 -1517-M01',
+    id: '9',
+    status: 'active',
+    template: '202',
+    type: 'rak',
+    location: [108.205, 16.045],
+    layerProps: {
+      sizeScale: 350,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 90,
+        roll: 90,
+      },
+    },
+    histories: {
+      end: [108.205, 16.045],
+      start: [108.207, 16.047],
+    },
+    latestLocation: [108.205, 16.045],
+    realtimeTrip: [[108.205, 16.045]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 08 -1518-M01',
+    id: '10',
+    status: 'inactive',
+    battery: 30,
+    type: 'tracki',
+    location: [108.238, 16.042],
+    layerProps: {
+      sizeScale: 650,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 360,
+        roll: 180,
+      },
+    },
+    histories: {
+      end: [108.238, 16.042],
+      start: [108.24, 16.044],
+    },
+    latestLocation: [108.238, 16.042],
+    realtimeTrip: [[108.238, 16.042]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 09 -1519-M01',
+    id: '11',
+    status: 'active',
+    template: '303',
+    type: 'rak',
+    location: [108.208, 16.068],
+    layerProps: {
+      sizeScale: 450,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 90,
+        roll: 90,
+      },
+    },
+    histories: {
+      end: [108.208, 16.068],
+      start: [108.21, 16.07],
+    },
+    latestLocation: [108.208, 16.068],
+    realtimeTrip: [[108.208, 16.068]],
+    origin: 'Vietnam',
+  },
+  {
+    name: 'DMZ 10 -1520-M01',
+    id: '12',
+    status: 'active',
+    battery: 95,
+    type: 'tracki',
+    location: [108.232, 16.072],
+    layerProps: {
+      sizeScale: 500,
+      rotation: 'yaw',
+      orientation: {
+        pitch: 0,
+        yaw: 360,
+        roll: 180,
+      },
+    },
+    histories: {
+      end: [108.232, 16.072],
+      start: [108.234, 16.074],
+    },
+    latestLocation: [108.232, 16.072],
+    realtimeTrip: [[108.232, 16.072]],
+    origin: 'Vietnam',
+  },
 ]

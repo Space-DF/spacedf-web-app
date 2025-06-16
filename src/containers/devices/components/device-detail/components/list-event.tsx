@@ -41,25 +41,29 @@ const LIST_EVENT = [
     id: 1,
     title: 'Device back online',
     status: 'online',
-    times: ['03:00 PM - 04:00 PM', '03:00 PM - 04:00 PM'],
+    times: '03:00 PM - 04:00 PM',
+    location: 'Tran Phu, Danang',
   },
   {
     id: 2,
     title: 'Device Offline',
     status: 'offline',
-    times: ['03:00 PM - 04:00 PM', '03:00 PM - 04:00 PM'],
+    times: '03:00 PM - 04:00 PM',
+    location: 'Yen Bai, Danang',
   },
   {
     id: 5,
     title: 'Device restarted',
     status: 'info',
-    times: ['01:00 PM - 02:00 PM', '01:00 PM - 02:00 PM'],
+    times: '01:00 PM - 02:00 PM',
+    location: 'An Giang, Ho Chi Minh',
   },
   {
     id: 6,
     title: 'Firmware update completed',
     status: 'online',
-    times: ['12:15 PM - 01:15 PM', '12:15 PM - 01:15 PM'],
+    times: '12:15 PM - 01:15 PM',
+    location: 'Ho Chi Minh, Ho Chi Minh',
   },
 ]
 
@@ -67,7 +71,8 @@ interface ListItem {
   id: number
   title: string
   status: string
-  times: string[]
+  times: string
+  location: string
 }
 
 const INITIAL_VISIBLE_COUNT = 2
@@ -87,9 +92,9 @@ const ListEvent = () => {
           transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
         }}
       >
-        <div className="p-[4px] bg-brand-component-fill-light rounded-full border border-brand-component-stroke-dark-soft">
+        <div className="p-[4px] bg-brand-component-fill-light rounded-full border border-brand-component-stroke-dark-soft dark:bg-brand-component-fill-positive-dark">
           {item.status === 'online' ? (
-            <div className="size-4 rounded-full bg-brand-component-fill-positive border border-brand-component-stroke-dark-soft dark:bg-brand-component-fill-positive-dark" />
+            <div className="size-4 rounded-full bg-brand-component-fill-positive" />
           ) : (
             <Image
               src={'/images/cloud-dash.svg'}
@@ -112,7 +117,7 @@ const ListEvent = () => {
                 height={16}
               />
               <div className="text-brand-component-text-gray text-xs">
-                {item.times[0]}
+                {item.times}
               </div>
             </div>
             <div className="flex items-center gap-x-1">
@@ -123,7 +128,7 @@ const ListEvent = () => {
                 height={16}
               />
               <div className="text-brand-component-text-gray text-xs">
-                {item.times[1]}
+                {item.location}
               </div>
             </div>
           </div>

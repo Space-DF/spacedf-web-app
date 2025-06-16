@@ -16,6 +16,7 @@ export type Device = {
   histories: any
   latestLocation?: [number, number]
   realtimeTrip?: [number, number][]
+  origin?: string
 } & GpsTrackerAttributes &
   (TrackiAttributes | RakAttributes)
 

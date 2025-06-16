@@ -107,7 +107,7 @@ const ListGeofences = () => {
                 {item.location}
               </div>
               <div className="text-xs text-brand-component-text-gray">
-                {format(item.createdAt, 'dd/MM/yyyy')}
+                {t('created')}: {format(item.createdAt, 'dd/MM/yyyy')}
               </div>
             </div>
           </div>
