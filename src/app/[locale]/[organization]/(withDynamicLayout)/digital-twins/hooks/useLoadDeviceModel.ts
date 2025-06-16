@@ -3,7 +3,6 @@
 import { usePrevious } from '@/hooks/usePrevious'
 import { Device as DeviceType, useDeviceStore } from '@/stores/device-store'
 import { createMQTTStore } from '@/stores/mqtt'
-import { delay } from '@/utils'
 import { Material } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
@@ -17,10 +16,11 @@ import {
   TripsLayer,
 } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
-import { animate, easeInOut, linear } from 'popmotion'
+import { animate, easeOut, linear } from 'popmotion'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useMapGroupCluster } from './useMapGroupCluster'
+import { delay } from '@/utils'
 
 type CreateRotatingLayerProps = {
   device: DeviceType
@@ -112,7 +112,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
   const animationRef = useRef<{ stop: () => void } | null>(null)
   const dataStartUpdated = useRef(false)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
-
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const overlayId = `device-model-overlay-${deviceId}`
 
   // const [, setZoom] = useState<number>(0)
@@ -123,75 +123,50 @@ export const useLoadDeviceModel = (deviceId: string) => {
   }, [])
 
   useEffect(() => {
-    const handle = (e: CustomEvent) => {
-      const isClustered = e.detail.clusteredDeviceIds.includes(deviceId)
+    window.mapInstance.getMapInstance()?.on('moveend', () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
 
-      if (e.detail.zoom <= 16 && !isClustered) {
-        const deviceModel = deviceModelOverlayRef.current as any
-        const isOverlay =
-          deviceModel?._props?.id === `device-model-overlay-${deviceId}`
+      timerRef.current = setTimeout(() => {
+        const isDeviceInCluster = window.mapResource.clusterIds.has(deviceId)
 
-        if (isOverlay) {
+        const map = window.mapInstance.getMapInstance()
+        const zoom = map?.getZoom() || 0
+
+        if (!isDeviceInCluster) {
+          showDeviceMarker()
+
+          if (zoom <= 16) {
+            stopDeviceAnimation()
+            removeDeviceTripRealtime()
+
+            setDeviceSelected('')
+          }
+        } else {
+          hideDeviceMarker()
           stopDeviceAnimation()
           removeDeviceTripRealtime()
 
           setDeviceSelected('')
         }
-      }
-
-      if (isClustered) {
-        hideDeviceMarker()
-      } else {
-        showDeviceMarker()
-      }
-    }
-
-    window.addEventListener('clusteringUpdated', handle as EventListener)
-
-    return () =>
-      window.removeEventListener('clusteringUpdated', handle as EventListener)
+      }, 300)
+    })
   }, [])
 
-  // useEffect(() => {
-  //   const map = window.mapInstance.getMapInstance()
-  //   if (!map) return
-
-  //   const handleZoom = (zommLevel: number) => {
-  //     const isRemoveDeviceSelected = zommLevel < 17
-
-  //     if (isRemoveDeviceSelected && deviceSelected === deviceId) {
-  //       const deviceModel = deviceModelOverlayRef.current as any
-  //       const isOverlay =
-  //         deviceModel?._props?.id === `device-model-overlay-${deviceId}`
-
-  //       if (isOverlay) {
-  //         stopDeviceAnimation()
-  //         removeDeviceTripRealtime()
-
-  //         setDeviceSelected('')
-  //       }
-  //     }
-  //   }
-
-  //   map.on('zoom', (e) => handleZoom(e.target.getZoom()))
-  //   // Set initial zoom
-  //   setZoom(map.getZoom())
-
-  //   return () => {
-  //     map.off('zoom', (e) => handleZoom(e.target.getZoom()))
-  //   }
-  // }, [deviceSelected])
-
   const hideDeviceMarker = () => {
-    if (markerRef.current) {
-      markerRef.current.remove()
-      markerRef.current = null
-    }
+    if (!markerRef.current) return
 
-    if (deviceSelected === deviceId) {
-      stopDeviceAnimation()
-      removeDeviceTripRealtime()
-    }
+    const el = markerRef.current.getElement()
+
+    el.classList.add('fade-out')
+
+    setTimeout(() => {
+      if (markerRef.current) {
+        markerRef.current.remove()
+        markerRef.current = null
+      }
+    }, 600)
   }
 
   const showDeviceMarker = () => {
@@ -217,6 +192,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
         }
 
         const map = window.mapInstance.getMapInstance()
+
         map?.easeTo({
           center: deviceReceivedData.latestLocation as [number, number],
           zoom: 17,
@@ -296,12 +272,12 @@ export const useLoadDeviceModel = (deviceId: string) => {
         opacity: opacity,
         transitions: {
           opacity: {
-            duration: 1000,
-            easing: easeInOut,
+            duration: 500,
+            easing: easeOut,
           },
           getOrientation: {
             duration: 1000,
-            easing: easeInOut,
+            easing: easeOut,
           },
         },
         pickable: true,
@@ -336,10 +312,21 @@ export const useLoadDeviceModel = (deviceId: string) => {
     }
   }, [deviceSelected, JSON.stringify(currentDeviceData.realtimeTrip)])
 
+  // useEffect(() => {
+  //   if (firstRender.current) {
+  //     window.mapInstance.getMapInstance()?.on('idle', () => {
+  //       showDeviceMarker()
+  //       firstRender.current = false
+  //     })
+  //   }
+
+  //   return () => {
+  //     firstRender.current = true
+  //   }
+  // }, [])
+
   const loadDeviceModel = () => {
     currentDeviceDataRef.current = currentDeviceData
-
-    renderMarker()
   }
 
   const renderMarker = () => {
@@ -351,11 +338,21 @@ export const useLoadDeviceModel = (deviceId: string) => {
     el.className = `${currentDeviceData.type}-marker`
     el.id = `${currentDeviceData.type}-marker-${currentDeviceData.id}`
 
+    // Add style for opacity and transition
+    el.style.opacity = '0'
+    // el.style.transition = 'opacity 0.5s ease-in-out'
+
     markerRef.current = new mapboxgl.Marker(el, {
-      offset: [0, -30],
+      offset: [0, -90],
     })
       .setLngLat([...(currentDeviceData.latestLocation || [0, 0])])
       .addTo(map)
+
+    // requestAnimationFrame(() => {
+    //   el.style.opacity = '1'
+    // })
+
+    el.classList.add('fade-in')
 
     el.addEventListener('click', () => {
       setDeviceSelected(currentDeviceData.id)
@@ -379,17 +376,11 @@ export const useLoadDeviceModel = (deviceId: string) => {
 
     const map = window.mapInstance.getMapInstance()
 
-    await delay(1000)
-
-    markerRef.current?.remove()
-
-    markerRef.current = null
+    hideDeviceMarker()
 
     const model = models[currentDeviceData.type]
 
     deviceModelRef.current = model
-
-    await delay(500)
 
     if (deviceModelOverlayRef.current) return
 
@@ -398,8 +389,10 @@ export const useLoadDeviceModel = (deviceId: string) => {
         device: currentDeviceData,
         model,
       },
-      0
+      1
     )
+
+    await delay(500)
 
     const deviceModelOverlay = new MapboxOverlay({
       layers: [deviceModelLayer],
@@ -442,13 +435,15 @@ export const useLoadDeviceModel = (deviceId: string) => {
     const map = window.mapInstance.getMapInstance()
 
     if (map) {
-      map.removeControl(deviceModelOverlayRef.current)
+      setTimeout(() => {
+        map.removeControl(deviceModelOverlayRef.current as any)
 
-      deviceModelOverlayRef.current = null
+        deviceModelOverlayRef.current = null
 
-      if (!markerRef.current) {
-        renderMarker()
-      }
+        if (!markerRef.current) {
+          renderMarker()
+        }
+      }, 500)
     }
   }
 

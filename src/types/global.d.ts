@@ -83,5 +83,8 @@ declare global {
     devicesMapOverlay: MapboxOverlay
     devicesHistoryOverlay: MapboxOverlay
     mapLayer: LayersList[]
+    mapResource: {
+      clusterIds: Set<string>
+    }
   }
 }

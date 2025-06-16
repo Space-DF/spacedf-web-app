@@ -35,6 +35,14 @@ const ExpandedToggle = () => {
           <div
             key={theme}
             onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent('themeUpdated', {
+                  detail: {
+                    theme,
+                  },
+                })
+              )
+
               setTheme(theme)
             }}
             className={cn(

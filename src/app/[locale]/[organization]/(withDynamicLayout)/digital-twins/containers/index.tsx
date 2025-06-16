@@ -42,11 +42,38 @@ export const DigitalTwinsContainer = () => {
 
   useEffect(() => {
     if (initializedSuccess && isMounted) {
-      renderMaps()
+      renderMaps(currentTheme)
     }
-  }, [initializedSuccess, isMounted, JSON.stringify(devices)])
+  }, [initializedSuccess, isMounted, JSON.stringify(devices), theme])
 
-  const renderMaps = () => {
+  useEffect(() => {
+    const handle = (e: CustomEvent) => {
+      const currentTheme = e.detail.theme
+
+      const map = mapInstanceGlobal.getMapInstance()
+
+      if (!map) return
+
+      const path =
+        currentTheme === 'dark'
+          ? '/images/cluster-dark.png'
+          : '/images/cluster-light.png'
+
+      map.loadImage(path, (error, image) => {
+        if (error) throw error
+        if (!map.hasImage('cluster-gradient')) {
+          map.addImage('cluster-gradient', image as any)
+        }
+      })
+    }
+
+    window.addEventListener('themeUpdated', handle as EventListener)
+
+    return () =>
+      window.removeEventListener('themeUpdated', handle as EventListener)
+  }, [])
+
+  const renderMaps = (currentTheme: 'dark' | 'light') => {
     if (!mapContainerRef.current || window.mapInstance) return
 
     const mapType = localStorage.getItem('map_type') as MapType
@@ -54,6 +81,13 @@ export const DigitalTwinsContainer = () => {
     mapInstanceGlobal.initializeMap({
       container: mapContainerRef.current,
     })
+
+    if (!window?.mapResource?.clusterIds) {
+      // window.mapResource.clusterIds = new Set()
+      window.mapResource = {
+        clusterIds: new Set(),
+      }
+    }
 
     window.mapInstance = mapInstanceGlobal
     const map = mapInstanceGlobal.getMapInstance()
@@ -107,14 +141,15 @@ export const DigitalTwinsContainer = () => {
 
     spinGlobe()
 
-    map?.on('load', async () => {
-      loadMapGroupCluster()
-
-      setIsMapLoaded(true)
-
+    map?.on('style.load', () => {
       if (mapType === 'default') {
         startDrawBuilding()
       }
+    })
+
+    map?.on('load', async () => {
+      loadMapGroupCluster()
+      setIsMapLoaded(true)
 
       map.addControl(new mapboxgl.NavigationControl())
 
