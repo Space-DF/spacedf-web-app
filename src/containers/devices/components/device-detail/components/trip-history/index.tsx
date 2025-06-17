@@ -16,6 +16,9 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import TripDetail from './components/trip-detail'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShallow } from 'zustand/react/shallow'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 
 const RANGE_VALUES = [
   {
@@ -87,6 +90,19 @@ const INITIAL_VISIBLE_COUNT = 2
 const TripHistory = () => {
   const t = useTranslations('common')
   const [selectedTrip, setSelectedTrip] = useState<ListItem>()
+  const { deviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+    }))
+  )
+
+  const { startDrawHistory } = useDeviceHistory()
+
+  const handleStartDrawHistory = (item: ListItem) => {
+    startDrawHistory(deviceSelected)
+    setSelectedTrip(item)
+  }
+
   const renderTripHistoryItem = useCallback(
     (item: ListItem, index: number, isExpanded: boolean) => {
       return (
@@ -98,7 +114,7 @@ const TripHistory = () => {
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 -translate-y-4'
           )}
-          onClick={() => setSelectedTrip(item)}
+          onClick={() => handleStartDrawHistory(item)}
           style={{
             transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
           }}

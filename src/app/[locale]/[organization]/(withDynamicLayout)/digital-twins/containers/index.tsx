@@ -200,7 +200,7 @@ export const DigitalTwinsContainer = () => {
       <SpacedfLogo />
       <div
         ref={mapContainerRef}
-        className="w-full h-full absolute inset-0"
+        className="w-full max-h-dvh absolute inset-0"
         id="map-container"
       />
 

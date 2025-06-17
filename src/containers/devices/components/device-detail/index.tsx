@@ -35,7 +35,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         }
       >
         <div className="h-full mt-8">
-          <div className="flex flex-col gap-8 mb-8">
+          <div className="flex flex-col gap-8 pb-20">
             <DeviceSelected />
             <ListEvent />
             <ListGeofences />
