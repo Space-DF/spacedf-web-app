@@ -171,14 +171,35 @@ export const useDeviceHistory = () => {
 
     map?.flyTo({
       center: data[data.length - 1] || [],
-      zoom: 16,
+      zoom: 18,
       pitch: 45,
       bearing: 0,
       duration: 5000,
     })
   }
 
+  const removeRoute = () => {
+    const mapInstance = window.mapInstance
+    const map = mapInstance.getMapInstance()
+
+    // Remove the route layer if it exists
+    if (map?.getLayer('route')) {
+      map.removeLayer('route')
+    }
+    if (map?.getSource('route')) {
+      map.removeSource('route')
+    }
+
+    const controlIcon = (map?._controls as any).find(
+      (control: any) => control._props?.id === 'device-histories'
+    )
+    if (controlIcon) {
+      map?.removeControl(controlIcon)
+    }
+  }
+
   return {
     startDrawHistory,
+    removeRoute,
   }
 }

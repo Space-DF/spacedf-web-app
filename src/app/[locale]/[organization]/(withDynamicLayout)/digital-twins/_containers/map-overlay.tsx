@@ -315,7 +315,7 @@ const MapOverlay: React.FC<CustomMapProps> = () => {
       <div
         ref={mapContainerRef}
         className={cn(
-          '!absolute inset-0 h-full !w-full !overflow-hidden !duration-1000',
+          '!absolute inset-0 h-dvh !w-full !overflow-hidden !duration-1000',
           isMapBlur
             ? 'bg-[#DBDBDC] bg-opacity-80 blur-md backdrop-blur-md dark:!bg-black'
             : 'blur-none'

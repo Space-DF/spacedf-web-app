@@ -425,7 +425,7 @@ const DevicesList = () => {
         placeholder={t('device')}
         wrapperClass="w-full"
       />
-      <div className="flex-1 flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+      <div className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
         <div className="px-2.5 flex-1 transition-all duration-300">
           <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
             {devices.map((item) => (

@@ -9,6 +9,7 @@ import {
   TimelineHeading,
   TimelineItem,
 } from '@/components/ui/timeline'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { ArrowLeft, ChevronDown, Clock, Ellipsis, MapPin } from 'lucide-react'
@@ -76,6 +77,14 @@ const TripDetail = ({ open, onClose }: TripDetailProps) => {
   const t = useTranslations('common')
   const [isExpanded, setIsExpanded] = useState(false)
   const visibleTrip = isExpanded ? TRIP_HISTORY : TRIP_HISTORY.slice(0, 3)
+
+  const { removeRoute } = useDeviceHistory()
+
+  const handleClose = () => {
+    removeRoute()
+    onClose()
+  }
+
   return (
     <Slide
       className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0"
@@ -84,14 +93,18 @@ const TripDetail = ({ open, onClose }: TripDetailProps) => {
       direction="right"
       size="100%"
       contentClassName="p-0"
-      onClose={onClose}
+      onClose={handleClose}
     >
       <RightSideBarLayout
         onClose={onClose}
         className="h-full relative"
         title={
           <div className="flex size-full items-center gap-2">
-            <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
+            <ArrowLeft
+              size={20}
+              className="cursor-pointer"
+              onClick={handleClose}
+            />
             <div>{t('timeline')}</div>
           </div>
         }

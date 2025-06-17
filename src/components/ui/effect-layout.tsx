@@ -23,7 +23,7 @@ const EffectLayout = ({ children }: PropsWithChildren) => {
   }, [startRender])
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative max-h-dvh w-full overflow-hidden">
       <div
         className={cn(
           'absolute inset-0 bg-white transition-all dark:bg-brand-fill-outermost',
@@ -34,7 +34,7 @@ const EffectLayout = ({ children }: PropsWithChildren) => {
       </div>
       <div
         className={cn(
-          'min-h-screen opacity-0',
+          'max-h-dvh opacity-0',
           startRender &&
             !isGlobalLoading &&
             'animate-display-effect opacity-100'

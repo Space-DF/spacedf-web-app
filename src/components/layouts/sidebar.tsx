@@ -88,7 +88,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex min-h-screen border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
+          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
         )}
         id="sidebar-id"
       >
