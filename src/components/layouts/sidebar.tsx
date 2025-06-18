@@ -256,26 +256,26 @@ const CollapsedSidebar = ({
           'flex grow flex-col items-center justify-center duration-200'
         )}
       >
-        <div className="flex flex-1 flex-col items-center gap-3">
-          <div className="my-2 flex items-center justify-center">
-            <SidebarCollapsedSimple
-              className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
-              onClick={handleCollapsedChange}
-            />
+        <div className="flex flex-1 flex-col items-center">
+          <div className="flex flex-col space-y-3 items-center mb-3">
+            <div className="flex items-center justify-center">
+              <SidebarCollapsedSimple
+                className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
+                onClick={handleCollapsedChange}
+              />
+            </div>
+            {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
+            {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="!rounded-lg text-brand-text-gray"
+              onClick={() => setOpen?.(true)}
+            >
+              <MagnifyingGlassIcon className="size-5" />
+            </Button>
           </div>
 
-          {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
-
-          {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="my-2 !rounded-lg text-brand-text-gray"
-            onClick={() => setOpen?.(true)}
-          >
-            <MagnifyingGlassIcon className="size-5" />
-          </Button>
           <Separator orientation="horizontal" />
           <CollapsedNavigation />
         </div>
@@ -336,7 +336,7 @@ const Navigations = () => {
   return (
     <div
       className={cn(
-        'mt-3 flex flex-1 flex-col gap-1 py-2 transition-all duration-200'
+        'mt-2 flex flex-1 flex-col gap-1 py-2 transition-all duration-200'
       )}
     >
       {(isAuth
