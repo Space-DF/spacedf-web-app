@@ -64,99 +64,97 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
   }, [JSON.stringify(data)])
 
   return (
-    <div className="mt-1">
-      <div
-        className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
-        id="dashboard-container"
-      >
-        {isEdit && (
-          <GridLayout
-            margin={5}
-            rowHeight={60}
-            columns={columnsLayout[currentBreakpoint]}
-          />
-        )}
-        <ResponsiveReactGridLayout
-          layouts={layouts}
-          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 18, md: 16, sm: 13, xs: 8, xxs: 5 }}
+    <div
+      className={cn(isEdit ? 'pb-44' : 'pb-32', 'relative')}
+      id="dashboard-container"
+    >
+      {isEdit && (
+        <GridLayout
+          margin={5}
           rowHeight={60}
-          margin={[5, 5]}
-          containerPadding={[0, 0]}
-          onLayoutChange={handleLayoutChange}
-          measureBeforeMount={false}
-          useCSSTransforms={mounted}
-          compactType="vertical"
-          onBreakpointChange={handleBreakpointChange}
-          preventCollision={false}
-          isDraggable={isEdit}
-          isResizable={isEdit}
-        >
-          {data &&
-            data.map((widget) => {
-              switch (widget.widget_type) {
-                case 'map':
-                  return (
-                    <div key={widget.id}>
-                      <MapWidget widget={widget} />
-                    </div>
-                  )
-                case 'value':
-                  return (
-                    <div key={widget.id}>
-                      <ValueWidget widget={widget} />
-                    </div>
-                  )
-                case 'table':
-                  return (
-                    <div key={widget.id}>
-                      <TableWidget widget={widget} />
-                    </div>
-                  )
-                case 'chart':
-                  return (
-                    <div key={widget.id}>
-                      <ChartWidget widget={widget} />
-                    </div>
-                  )
-                case 'gauge':
-                  return (
-                    <div key={widget.id}>
-                      <GaugeWidget widget={widget} />
-                    </div>
-                  )
-                default:
-                  return null
-              }
-            })}
-          <div key="1">
-            <WidgetSlider />
-          </div>
-          <div key={'2'}>
-            <WidgetChart className="dark:text-[#4006AA]">
-              <WidgetTitle>Water Flood Level</WidgetTitle>
-            </WidgetChart>
-          </div>
-          <div key="3">
-            <WidgetSwitch>
-              <WidgetTitle>Text</WidgetTitle>
-            </WidgetSwitch>
-          </div>
-          <div key="4">
-            <WidgetSensor status="on">
-              <WidgetTitle>Text</WidgetTitle>{' '}
-            </WidgetSensor>
-          </div>
-          <div key="5">
-            <WidgetText />
-          </div>
-          <div key={'6'} className="h-fit">
-            <PolarChart className="aspect-square dark:text-[#4006AA]">
-              <WidgetTitle>New Gauge Widget</WidgetTitle>
-            </PolarChart>
-          </div>
-        </ResponsiveReactGridLayout>
-      </div>
+          columns={columnsLayout[currentBreakpoint]}
+        />
+      )}
+      <ResponsiveReactGridLayout
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 18, md: 16, sm: 13, xs: 8, xxs: 5 }}
+        rowHeight={60}
+        margin={[5, 5]}
+        containerPadding={[0, 0]}
+        onLayoutChange={handleLayoutChange}
+        measureBeforeMount={false}
+        useCSSTransforms={mounted}
+        compactType="vertical"
+        onBreakpointChange={handleBreakpointChange}
+        preventCollision={false}
+        isDraggable={isEdit}
+        isResizable={isEdit}
+      >
+        {data &&
+          data.map((widget) => {
+            switch (widget.widget_type) {
+              case 'map':
+                return (
+                  <div key={widget.id}>
+                    <MapWidget widget={widget} />
+                  </div>
+                )
+              case 'value':
+                return (
+                  <div key={widget.id}>
+                    <ValueWidget widget={widget} />
+                  </div>
+                )
+              case 'table':
+                return (
+                  <div key={widget.id}>
+                    <TableWidget widget={widget} />
+                  </div>
+                )
+              case 'chart':
+                return (
+                  <div key={widget.id}>
+                    <ChartWidget widget={widget} />
+                  </div>
+                )
+              case 'gauge':
+                return (
+                  <div key={widget.id}>
+                    <GaugeWidget widget={widget} />
+                  </div>
+                )
+              default:
+                return null
+            }
+          })}
+        <div key="1">
+          <WidgetSlider />
+        </div>
+        <div key={'2'}>
+          <WidgetChart className="dark:text-[#4006AA]">
+            <WidgetTitle>Water Flood Level</WidgetTitle>
+          </WidgetChart>
+        </div>
+        <div key="3">
+          <WidgetSwitch>
+            <WidgetTitle>Text</WidgetTitle>
+          </WidgetSwitch>
+        </div>
+        <div key="4">
+          <WidgetSensor status="on">
+            <WidgetTitle>Text</WidgetTitle>{' '}
+          </WidgetSensor>
+        </div>
+        <div key="5">
+          <WidgetText />
+        </div>
+        <div key={'6'} className="h-fit">
+          <PolarChart className="aspect-square dark:text-[#4006AA]">
+            <WidgetTitle>New Gauge Widget</WidgetTitle>
+          </PolarChart>
+        </div>
+      </ResponsiveReactGridLayout>
     </div>
   )
 }

@@ -34,7 +34,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
           </div>
         }
       >
-        <div className="h-full mt-8">
+        <div className="h-full mt-4">
           <div className="flex flex-col gap-8 pb-20">
             <DeviceSelected />
             <ListEvent />

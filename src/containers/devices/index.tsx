@@ -98,7 +98,7 @@ const Devices = () => {
     >
       <DeviceDetail onClose={handleCloseSlide} open={!!deviceSelected} />
 
-      <div className="flex h-full flex-col pt-6">
+      <div className="flex h-full flex-col pt-4">
         <div>
           <DeviceSelected />
         </div>

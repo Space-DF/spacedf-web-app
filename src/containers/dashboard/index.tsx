@@ -289,7 +289,7 @@ const Dashboard = () => {
             )
           }
         >
-          <div className="mt-6">
+          <div className="mt-4">
             {isViewAllDashboard ? (
               <DataTable
                 columns={getColumns({ handleDeleteSpace, t })}
