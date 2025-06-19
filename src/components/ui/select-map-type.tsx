@@ -118,12 +118,18 @@ export const SelectMapType = () => {
 
     setDisabled(true)
 
-    map.on('styledata', () => {
+    const handleStyleData = () => {
       setTimeout(() => {
         revertMapSources()
         setDisabled(false)
       }, 500)
-    })
+    }
+
+    map.on('styledata', handleStyleData)
+
+    return () => {
+      map.off('styledata', handleStyleData)
+    }
   }, [currentTheme, mapType])
 
   const revertMapSources = () => {
