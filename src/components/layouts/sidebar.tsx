@@ -36,6 +36,7 @@ import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useRouter } from 'next/navigation'
+import { useIsDemo } from '@/hooks/useIsDemo'
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
@@ -115,6 +116,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const { mounted } = useMounted()
 
   const { status } = useSession()
+  const isDemo = useIsDemo()
 
   const isAuth = status === 'authenticated'
 
@@ -125,6 +127,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   }
 
   const handleSignOut = () => {
+    if (isDemo) return
     signOut({ redirect: false })
     router.replace('/')
   }

@@ -1,13 +1,21 @@
 // pages/api/submit-form.ts
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
+import { isDemoSubdomain } from '@/utils/server-actions'
+import { DEMO_SPACE } from '@/constants'
 
-const GET = withAuthApiRequired(async () => {
+const GET = withAuthApiRequired(async (req: NextRequest) => {
   const spacedfClient = await spaceClient()
-
+  const isDemo = await isDemoSubdomain(req)
+  if (isDemo) {
+    return NextResponse.json({
+      data: DEMO_SPACE,
+      status: 200,
+    })
+  }
   try {
     const spaceListResponse = await spacedfClient.spaces.list()
 
@@ -21,10 +29,13 @@ const GET = withAuthApiRequired(async () => {
 })
 
 const POST = withAuthApiRequired(async (req) => {
-  const body = await req.json()
-  const spacedfClient = await spaceClient()
-
   try {
+    const isDemo = await isDemoSubdomain(req)
+    if (isDemo) {
+      return NextResponse.json({})
+    }
+    const body = await req.json()
+    const spacedfClient = await spaceClient()
     const createSpaceResponse = await spacedfClient.spaces.create(body)
 
     return NextResponse.json({

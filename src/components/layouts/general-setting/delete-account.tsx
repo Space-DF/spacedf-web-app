@@ -17,6 +17,7 @@ import { InputWithIcon } from '@/components/ui/input'
 import { useDeleteAccount } from './hooks/useDeleteAccount'
 import { useProfile } from './hooks/useProfile'
 import { toast } from 'sonner'
+import { useIsDemo } from '@/hooks/useIsDemo'
 const profileSchema = z.object({
   email: z
     .string()
@@ -29,7 +30,7 @@ const profileSchema = z.object({
 
 const Account = () => {
   const t = useTranslations('generalSettings')
-
+  const isDemo = useIsDemo()
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
@@ -40,6 +41,7 @@ const Account = () => {
   const { isDirty, isValid } = form.formState
 
   async function onSubmit(values: z.infer<typeof profileSchema>) {
+    if (isDemo) return
     if (values.email !== me?.email) {
       return toast.error(t('email_not_match'))
     }
