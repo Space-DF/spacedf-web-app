@@ -23,6 +23,7 @@ import {
   useDeleteSpace,
   useGetSpaces,
 } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
+import { useIsDemo } from '@/hooks/useIsDemo'
 
 const formSchema = z.object({
   text: z.string({ message: 'This field cannot be empty' }),
@@ -39,6 +40,7 @@ export function SpaceDelete({ space }: { space: Space }) {
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
+  const isDemo = useIsDemo()
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.text !== space.name) {
@@ -47,10 +49,12 @@ export function SpaceDelete({ space }: { space: Space }) {
       })
       return
     }
-    await deleteSpace.trigger({
-      slug_name: space.slug_name,
-      name: space.name,
-    })
+    if (!isDemo) {
+      await deleteSpace.trigger({
+        slug_name: space.slug_name,
+        name: space.name,
+      })
+    }
     setStep('information')
     const spaceFirst = spaceList.filter(
       ({ slug_name }) => slug_name !== space.slug_name

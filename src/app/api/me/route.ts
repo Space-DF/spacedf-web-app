@@ -1,8 +1,10 @@
 import { Profile } from '@/types/profile'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { spaceClient } from '@/lib/spacedf'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { handleError } from '@/utils/error'
+import { isDemoSubdomain } from '@/utils/server-actions'
+import { DEMO_USER } from '@/constants'
 
 export const POST = withAuthApiRequired(async (request: Request) => {
   try {
@@ -38,8 +40,12 @@ export const POST = withAuthApiRequired(async (request: Request) => {
   }
 })
 
-export const GET = withAuthApiRequired(async () => {
+export const GET = withAuthApiRequired(async (req: NextRequest) => {
   try {
+    const isDemo = await isDemoSubdomain(req)
+    if (isDemo) {
+      return NextResponse.json(DEMO_USER)
+    }
     const spacedfClient = await spaceClient()
     const response = await spacedfClient.users.getMe()
     return NextResponse.json(response)
@@ -48,8 +54,12 @@ export const GET = withAuthApiRequired(async () => {
   }
 })
 
-export const PUT = withAuthApiRequired(async (request: Request) => {
+export const PUT = withAuthApiRequired(async (request: NextRequest) => {
   try {
+    const isDemo = await isDemoSubdomain(request)
+    if (isDemo) {
+      return NextResponse.json(DEMO_USER)
+    }
     const body: Omit<Profile, 'id'> = await request.json()
     const spacedfClient = await spaceClient()
     const response = await spacedfClient.users.updateMe(body)
@@ -59,8 +69,12 @@ export const PUT = withAuthApiRequired(async (request: Request) => {
   }
 })
 
-export const DELETE = withAuthApiRequired(async () => {
+export const DELETE = withAuthApiRequired(async (request: NextRequest) => {
   try {
+    const isDemo = await isDemoSubdomain(request)
+    if (isDemo) {
+      return NextResponse.json({})
+    }
     const spacedfClient = await spaceClient()
     const response = await spacedfClient.users.deleteMe()
     return NextResponse.json(response)

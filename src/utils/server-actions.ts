@@ -1,5 +1,8 @@
 import { cookies } from 'next/headers'
 import { isJsonString } from './validate'
+import { getValidSubdomain } from './subdomain'
+import { NextRequest } from 'next/server'
+import { DEMO_SUBDOMAIN } from '@/constants'
 
 export const getCookieServer = <TDefaultValue = any>(
   key: string,
@@ -18,4 +21,10 @@ export const getCookieServer = <TDefaultValue = any>(
 export const getServerOrganization = async () => {
   const cookieStore = await cookies()
   return (cookieStore.get('organization')?.value || '') as string
+}
+
+export const isDemoSubdomain = async (req: NextRequest) => {
+  const host = req.headers.get('host')
+  const subdomain = await getValidSubdomain(host)
+  return subdomain === DEMO_SUBDOMAIN
 }

@@ -14,6 +14,7 @@ import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
+import { useIsDemo } from '@/hooks/useIsDemo'
 
 const formSchema = z.object({
   space_name: z
@@ -29,7 +30,7 @@ const formSchema = z.object({
 export type SpaceFormValues = z.infer<typeof formSchema>
 
 const OrganizationSetting = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<SpaceFormValues>({
     resolver: zodResolver(formSchema),
   })
   const router = useRouter()
@@ -37,7 +38,8 @@ const OrganizationSetting = () => {
   const t = useTranslations('space')
   const [isCreating, setIsCreating] = useState(false)
   const { mutate: getSpaces } = useGetSpaces()
-  // const sleep = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  const isDemo = useIsDemo()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -72,6 +74,9 @@ const OrganizationSetting = () => {
           'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings'
         ),
       })
+      if (isDemo) {
+        return router.push(`/`)
+      }
       if (fetchPromise.data) {
         await getSpaces()
         router.push(`/spaces/${fetchPromise.data.slug_name}`)

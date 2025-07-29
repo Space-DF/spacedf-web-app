@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import { SpaceFormValues } from '.'
 import { useUploadImage } from '@/components/layouts/general-setting/hooks/useUploadImage'
+import { useIsDemo } from '@/hooks/useIsDemo'
 
 const Settings = ({ isCreating }: { isCreating: boolean }) => {
   const t = useTranslations('space')
@@ -24,10 +25,16 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
   const fileRef = useRef<HTMLInputElement>(null)
   const [previewImage, setPreviewImage] = useState<string>('')
   const { trigger: uploadImage, isMutating } = useUploadImage()
+  const isDemo = useIsDemo()
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const image = e.target.files?.[0]
     if (!image) return
+    if (isDemo) {
+      const imageUrl = URL.createObjectURL(image)
+      setPreviewImage(imageUrl)
+      return
+    }
     const response = await uploadImage(image)
     setPreviewImage(response.presigned_url)
     form.setValue('logo', response.file_name)

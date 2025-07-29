@@ -8,6 +8,7 @@ import { DeviceProvider } from './device-provider'
 import NextThemeProvider from './next-theme'
 import { NextAuthSessionProvider } from './session-provider'
 import SWRProvider from './swr-provider'
+import { AuthDemoProvider } from './authdemo-provider'
 
 const AppProvider = ({
   children,
@@ -20,7 +21,9 @@ const AppProvider = ({
       <NextThemeProvider>
         <NextAuthSessionProvider session={session}>
           <SWRProvider>
-            <DeviceProvider>{children}</DeviceProvider>
+            <AuthDemoProvider>
+              <DeviceProvider>{children}</DeviceProvider>
+            </AuthDemoProvider>
           </SWRProvider>
           <Toaster position="top-right" richColors />
         </NextAuthSessionProvider>

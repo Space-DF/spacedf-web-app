@@ -30,6 +30,7 @@ import { useUploadImage } from './hooks/useUploadImage'
 import { useUpdateProfile } from './hooks/useUpdateProfile'
 import { useProfile } from './hooks/useProfile'
 import { DialogClose } from '@/components/ui/dialog'
+import { useIsDemo } from '@/hooks/useIsDemo'
 
 const profileSchema = z.object({
   first_name: firstNameSchema,
@@ -59,6 +60,8 @@ const Profile = () => {
     resolver: zodResolver(profileSchema),
   })
 
+  const isDemo = useIsDemo()
+
   const { trigger: uploadImage, isMutating } = useUploadImage()
   const { trigger: updateProfile, isMutating: isUpdatingProfile } =
     useUpdateProfile()
@@ -84,6 +87,11 @@ const Profile = () => {
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const image = e.target.files?.[0]
     if (!image) return
+    if (isDemo) {
+      const imageUrl = URL.createObjectURL(image)
+      setPreviewImage(imageUrl)
+      return
+    }
     const response = await uploadImage(image)
     setValue('avatar', response.file_name, {
       shouldDirty: true,
