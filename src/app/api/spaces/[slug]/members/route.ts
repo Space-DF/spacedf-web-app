@@ -4,9 +4,15 @@ import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { InviteMember } from '@/types/members'
 import { handleError } from '@/utils/error'
+import { isDemoSubdomain } from '@/utils/server-actions'
+import { DEMO_SPACE_MEMBERS } from '@/constants'
 
 export const POST = withAuthApiRequired(
   async (req, { params }: { params: { slug: string } }) => {
+    const isDemo = await isDemoSubdomain(req)
+    if (isDemo) {
+      return NextResponse.json({})
+    }
     try {
       const body: InviteMember[] = await req.json()
       const spacedfClient = await spaceClient()
@@ -29,6 +35,10 @@ export const GET = withAuthApiRequired(
       limit = 10,
       search = '',
     } = Object.fromEntries(searchParams)
+    const isDemo = await isDemoSubdomain(req)
+    if (isDemo) {
+      return NextResponse.json(DEMO_SPACE_MEMBERS)
+    }
     const spacedfClient = await spaceClient()
     const members = await spacedfClient.spaceRoleUsers.list(params.slug, {
       offset: +pageIndex * +limit,
