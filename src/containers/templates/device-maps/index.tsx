@@ -16,6 +16,8 @@ import DeckglLayers from './deckgl-layers'
 import LoadingScreen from './loading-screen'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
+import MapClusters from './map-clusters'
+import SpacedfLogo from '@/components/common/spacedf-logo'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -176,10 +178,12 @@ const DeviceMaps = () => {
   return (
     <div className="relative size-full overflow-hidden">
       <div ref={mapRefContainer} className="absolute inset-0" />
+      <SpacedfLogo />
       <DeckglLayers />
       <SelectMapType />
       <ModelType />
       {isShowLoading && <LoadingScreen />}
+      <MapClusters />
     </div>
   )
 }
