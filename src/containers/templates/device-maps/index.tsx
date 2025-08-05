@@ -41,7 +41,10 @@ const DeviceMaps = () => {
         isMapReady: state.isMapReady,
         setMap: state.setMap,
         updateBooleanState: state.updateBooleanState,
-        mapType: state.mapType,
+        mapType:
+          state.mapType ||
+          (localStorage.getItem('mapType') as MapType) ||
+          'default',
       }))
     )
 
@@ -59,7 +62,7 @@ const DeviceMaps = () => {
     const isThreeD = modelType === '3d'
 
     const { style, config } = getMapStyle(
-      mapType,
+      mapType || (localStorage.getItem('mapType') as MapType) || 'default',
       resolvedTheme as 'dark' | 'light'
     )
 
@@ -122,14 +125,17 @@ const DeviceMaps = () => {
     if (!isMapReady || !map) return
 
     const { style, config } = getMapStyle(
-      mapType,
+      mapType || (localStorage.getItem('mapType') as MapType) || 'default',
       resolvedTheme as 'dark' | 'light'
     )
 
     map.setStyle(style, { config, diff: true } as any)
 
     map.once('style.load', () => {
-      renderMapResources(map, mapType)
+      renderMapResources(
+        map,
+        mapType || (localStorage.getItem('mapType') as MapType) || 'default'
+      )
     })
   }, [isMapReady, mapType, map, resolvedTheme])
 
