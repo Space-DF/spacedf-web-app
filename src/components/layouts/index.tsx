@@ -2,12 +2,13 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { checkMapRendered } from '@/app/[locale]/[organization]/(withDynamicLayout)/digital-twins/helper'
 import { COOKIES } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
+import { useDeviceMapsStore } from '@/stores/template/device-maps'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -23,7 +24,6 @@ import {
   ResizablePanelGroup,
 } from '../ui/resizable'
 import Sidebar from './sidebar'
-import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -50,19 +50,19 @@ const DynamicLayout = ({
   const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
   const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
 
+  const { map, isMapReady } = useDeviceMapsStore(
+    useShallow((state) => ({ map: state.map, isMapReady: state.isMapReady }))
+  )
+
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
 
   useEffect(() => {
-    const isMapLoaded = checkMapRendered()
-
-    if (isMapLoaded) {
+    if (isMapReady) {
       if (resizeMapLayoutTimeOutId.current) {
         clearTimeout(resizeMapLayoutTimeOutId.current)
       }
-
-      const map = window.mapInstance.getMapInstance()
 
       if (map?.getContainer()?.style) {
         map.getContainer().style.animationDuration = '0.5s'
@@ -80,7 +80,7 @@ const DynamicLayout = ({
         }
       }, 500)
     }
-  }, [JSON.stringify(dynamicLayouts)])
+  }, [JSON.stringify(dynamicLayouts), isMapReady])
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -165,19 +165,16 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    const isMapLoaded = checkMapRendered()
-
-    if (isMapLoaded) {
+    if (isMapReady) {
       if (resizeMapTimeOutId.current) {
         clearTimeout(resizeMapTimeOutId.current)
       }
-
-      const map = window.mapInstance.getMapInstance()
 
       if (map?.getContainer()?.style) {
         map.getContainer().style.animationDuration = '0.5s'
         map.getContainer().style.opacity = '0.5'
         map.getContainer().style.filter = 'blur(10px)'
+        map.getContainer().style.zIndex = '100'
       }
 
       resizeMapTimeOutId.current = setTimeout(() => {
@@ -187,6 +184,7 @@ const DynamicLayout = ({
           map.getContainer().style.animationDuration = '0.5s'
           map.getContainer().style.opacity = '1'
           map.getContainer().style.filter = 'blur(0px)'
+          map.getContainer().style.zIndex = '0'
         }
       }, 500)
     }

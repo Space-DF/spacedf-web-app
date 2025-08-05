@@ -1,10 +1,10 @@
 'use client'
+import { useMounted } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { Moon, Sun } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
 import { Button } from '../ui/button'
-import { useMounted } from '@/hooks'
 
 type ThemeToggleProps = {
   isCollapsed: boolean
@@ -18,7 +18,7 @@ const ThemeToggle = ({ isCollapsed }: ThemeToggleProps) => {
 
 const ExpandedToggle = () => {
   const t = useTranslations('common')
-  const { theme: currentTheme, setTheme, themes, systemTheme } = useTheme()
+  const { setTheme, themes, resolvedTheme } = useTheme()
   const { mounted } = useMounted()
 
   const themesWithOutSystem = themes.filter((theme) => theme !== 'system')
@@ -28,13 +28,14 @@ const ExpandedToggle = () => {
   return (
     <div className="flex w-full rounded-lg bg-brand-fill-dark-soft p-1 dark:bg-brand-heading">
       {themesWithOutSystem.map((theme) => {
-        const isActive =
-          theme === (currentTheme === 'system' ? systemTheme : currentTheme)
+        const isActive = theme === (resolvedTheme as 'dark' | 'light')
 
         return (
           <div
             key={theme}
             onClick={() => {
+              if (resolvedTheme === theme) return
+
               window.dispatchEvent(
                 new CustomEvent('themeUpdated', {
                   detail: {
