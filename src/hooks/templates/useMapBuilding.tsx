@@ -1,12 +1,10 @@
-'use client'
+import { useCallback } from 'react'
 
-export const useDraw3DBuilding = () => {
-  const startDrawBuilding = () => {
-    const map = window.mapInstance?.getMapInstance()
-
+export const useMapBuilding = () => {
+  const applyMapBuilding = useCallback((map: mapboxgl.Map) => {
     if (!map) return
 
-    if (map?.getLayer('3d-buildings')) return
+    if (map.getLayer('3d-buildings')) return
 
     map.addLayer(
       {
@@ -15,7 +13,7 @@ export const useDraw3DBuilding = () => {
         'source-layer': 'building',
         filter: ['==', 'extrude', 'true'],
         type: 'fill-extrusion',
-        minzoom: 10,
+        minzoom: 14,
         paint: {
           'fill-extrusion-color': '#aaa',
           'fill-extrusion-height': [
@@ -37,23 +35,31 @@ export const useDraw3DBuilding = () => {
             ['get', 'min_height'],
           ],
           'fill-extrusion-opacity': 0.6,
+          'fill-extrusion-height-transition': {
+            duration: 300,
+            delay: 0,
+          },
+          'fill-extrusion-base-transition': {
+            duration: 300,
+            delay: 0,
+          },
         },
       },
       'road-label-simple'
     )
-  }
+  }, [])
 
-  const remove3DBuildingLayer = () => {
-    const map = window.mapInstance?.getMapInstance()
-    if (!map || !map?.isStyleLoaded()) return
+  const removeMapBuilding = useCallback(async (map: mapboxgl.Map) => {
+    if (!map) return
 
-    if (map?.getLayer('3d-buildings')) {
-      map.removeLayer('3d-buildings')
-    }
-  }
+    if (!map.getLayer('3d-buildings')) return
+
+    map.removeLayer('3d-buildings')
+    // Wait for transition to finish, then remove the layer
+  }, [])
 
   return {
-    startDrawBuilding,
-    remove3DBuildingLayer,
+    applyMapBuilding,
+    removeMapBuilding,
   }
 }

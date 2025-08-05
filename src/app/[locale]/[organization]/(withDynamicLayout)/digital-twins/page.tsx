@@ -1,11 +1,13 @@
-import { SelectMapType } from '@/components/ui/select-map-type'
-import { DigitalTwinsContainer } from './containers'
+import dynamic from 'next/dynamic'
 
+const currentTemplate = 'device-maps'
 export default function DigitalTwins() {
-  return (
-    <div>
-      <DigitalTwinsContainer />
-      <SelectMapType />
-    </div>
+  const Template = dynamic(
+    () => import(`@/containers/templates/${currentTemplate}`),
+    {
+      ssr: false,
+    }
   )
+
+  return <Template />
 }
