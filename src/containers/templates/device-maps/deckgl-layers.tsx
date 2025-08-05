@@ -155,7 +155,7 @@ const DeckglLayers = () => {
   useEffect(() => {
     if (!isStartRender) return
 
-    const mapType = localStorage.getItem('modelType') as '2d' | '3d'
+    const mapType = (localStorage.getItem('modelType') as '2d' | '3d') || '2d'
 
     if (mapType === '2d') {
       render2DLayers(false)
