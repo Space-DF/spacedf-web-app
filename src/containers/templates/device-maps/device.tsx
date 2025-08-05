@@ -9,6 +9,7 @@ import { easeOut } from 'popmotion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import mapboxgl from 'mapbox-gl'
+import { MapType } from '@/utils/map'
 
 type CreateRotatingLayerProps = {
   device: DeviceType
@@ -30,7 +31,10 @@ const Device = ({ deviceId }: { deviceId: string }) => {
   const { map, isMapReady } = useDeviceMapsStore(
     useShallow((state) => ({
       map: state.map,
-      mapType: state.mapType,
+      mapType:
+        state.mapType ||
+        (localStorage.getItem('mapType') as MapType) ||
+        'default',
       isMapReady: state.isMapReady,
     }))
   )

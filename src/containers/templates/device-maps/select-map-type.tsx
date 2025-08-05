@@ -43,7 +43,10 @@ const mapTypes: MapTypeItem[] = [
 export const SelectMapType = () => {
   const { mapType, isMapReady } = useDeviceMapsStore(
     useShallow((state) => ({
-      mapType: state.mapType,
+      mapType:
+        state.mapType ||
+        (localStorage.getItem('mapType') as MapType) ||
+        'default',
       isMapReady: state.isMapReady,
     }))
   )
@@ -142,7 +145,10 @@ export const SelectMapType = () => {
 const MapTypeSelection = ({ name, id, thumbnail }: MapTypeItem) => {
   const { mapType, setMapType, isMapReady } = useDeviceMapsStore(
     useShallow((state) => ({
-      mapType: state.mapType,
+      mapType:
+        state.mapType ||
+        (localStorage.getItem('mapType') as MapType) ||
+        'default',
       setMapType: state.setMapType,
       isMapReady: state.isMapReady,
     }))

@@ -40,7 +40,10 @@ const DeckglLayers = () => {
   const { map, modelType } = useDeviceMapsStore(
     useShallow((state) => ({
       map: state.map,
-      modelType: state.modelType,
+      modelType:
+        state.modelType ||
+        (localStorage.getItem('modelType') as '2d' | '3d') ||
+        '2d',
     }))
   )
 
@@ -129,7 +132,9 @@ const DeckglLayers = () => {
       removeAllMarkers()
       handleRender3DLayer(false, 0)
     } else {
-      updateMapResources(modelType)
+      updateMapResources(
+        modelType || (localStorage.getItem('modelType') as '2d' | '3d')
+      )
     }
   }, [isMinZoom, modelType])
 
@@ -160,7 +165,10 @@ const DeckglLayers = () => {
 
   useEffect(() => {
     if (deviceSelected) {
-      handleDeviceSelected(deviceSelected, modelType)
+      handleDeviceSelected(
+        deviceSelected,
+        modelType || (localStorage.getItem('modelType') as '2d' | '3d')
+      )
     }
   }, [deviceSelected, modelType])
 

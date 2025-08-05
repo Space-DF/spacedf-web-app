@@ -6,8 +6,8 @@ type ModelType = '3d' | '2d'
 type DeviceMapsStore = {
   //state
   map: mapboxgl.Map | null
-  mapType: MapType
-  modelType: ModelType
+  mapType: MapType | null
+  modelType: ModelType | null
   isMapReady: boolean
 
   //actions
@@ -21,8 +21,8 @@ type DeviceMapsStore = {
 export const useDeviceMapsStore = create<DeviceMapsStore>((set) => ({
   map: null as mapboxgl.Map | null,
   isMapReady: false,
-  mapType: (localStorage.getItem('mapType') as MapType) || 'default',
-  modelType: (localStorage.getItem('modelType') as ModelType) || '2d',
+  mapType: null,
+  modelType: null,
 
   setMap: (map) => set({ map }),
   setMapType: (mapType) => {

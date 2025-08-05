@@ -7,6 +7,7 @@ import Supercluster from 'supercluster'
 import { useDeviceMapsStore } from '@/stores/template/device-maps'
 import { delay } from '@/utils'
 import { useTheme } from 'next-themes'
+import { MapType } from '@/utils/map'
 
 const MapClusters = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -23,7 +24,10 @@ const MapClusters = () => {
   const { map, mapType } = useDeviceMapsStore(
     useShallow((state) => ({
       map: state.map,
-      mapType: state.mapType,
+      mapType:
+        state.mapType ||
+        (localStorage.getItem('mapType') as MapType) ||
+        'default',
     }))
   )
 
