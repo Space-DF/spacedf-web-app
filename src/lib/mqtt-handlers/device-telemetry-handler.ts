@@ -79,24 +79,6 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
       console.log('❌ [DEBUG] No valid location data found in payload')
     }
 
-    // Handle battery level
-    if (typeof payload.battery === 'number') {
-      deviceUpdate.battery = payload.battery
-      console.log('🔋 [DEBUG] Battery parsed:', deviceUpdate.battery)
-    }
-
-    // Handle device status
-    if (payload.status && ['active', 'inactive'].includes(payload.status)) {
-      deviceUpdate.status = payload.status as 'active' | 'inactive'
-      console.log('📊 [DEBUG] Status parsed:', deviceUpdate.status)
-    }
-
-    // Handle device name updates
-    if (typeof payload.name === 'string') {
-      deviceUpdate.name = payload.name
-      console.log('🏷️ [DEBUG] Name parsed:', deviceUpdate.name)
-    }
-
     console.log('✅ [DEBUG] Final parsed device update:', deviceUpdate)
 
     return deviceUpdate
