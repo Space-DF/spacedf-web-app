@@ -1,4 +1,10 @@
-import { MQTT_PASSWORD, MQTT_USERNAME } from '@/shared/env'
+import {
+  MQTT_BROKER,
+  MQTT_PASSWORD,
+  MQTT_PORT,
+  MQTT_PROTOCOL,
+  MQTT_USERNAME,
+} from '@/shared/env'
 import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
@@ -15,7 +21,7 @@ const PREVIEW_PATH = {
   tracki: '/images/3d-preview/airtag.png',
 }
 
-const MQTT_BROKER = 'ws://api.v0.spacedf.net:8083/mqtt'
+const MQTT_BROKER_URL = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
 // const mqttService = MqttService.getInstance(MQTT_BROKER)
 // const client = mqttService.client
 
@@ -39,7 +45,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const mqttConnect = () => {
     setClient(
-      mqtt.connect(MQTT_BROKER, {
+      mqtt.connect(MQTT_BROKER_URL, {
         clientId: 'spacedf-web-app-121212',
         username: MQTT_USERNAME,
         password: MQTT_PASSWORD,

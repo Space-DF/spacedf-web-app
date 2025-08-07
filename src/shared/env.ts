@@ -5,6 +5,7 @@ export const NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN =
   process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
 
 export const MQTT_BROKER = process.env.NEXT_PUBLIC_MQTT_BROKER || ''
+export const MQTT_PROTOCOL = process.env.NEXT_PUBLIC_MQTT_PROTOCOL || 'ws'
 
 export const MQTT_PORT = process.env.NEXT_PUBLIC_MQTT_PORT || ''
 export const MQTT_CLIENT_ID = process.env.NEXT_PUBLIC_MQTT_CLIENT_ID || ''
