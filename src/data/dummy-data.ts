@@ -31,7 +31,7 @@ export const spaceList: TSpace[] = [
 export const devices: Device[] = [
   {
     name: 'DMZ 01 -1511-M01',
-    id: '1',
+    id: 'rak4630-rs3-C1F4',
     status: 'active',
     template: '123',
     type: 'rak',
@@ -56,7 +56,7 @@ export const devices: Device[] = [
 
   {
     name: 'DMZ 01 -1511-M02',
-    id: '2',
+    id: 'RAK_Sticker_50E5',
     status: 'active',
     template: '456',
     type: 'rak',

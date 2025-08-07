@@ -76,7 +76,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
     deviceSelected,
     currentDeviceData,
     setDeviceSelected,
-    setDeviceReceivedData,
+    setDeviceState,
   } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
@@ -84,7 +84,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
       deviceSelected: state.deviceSelected,
       currentDeviceData: state.devices[deviceId],
       setDeviceSelected: state.setDeviceSelected,
-      setDeviceReceivedData: state.setDeviceReceivedData,
+      setDeviceState: state.setDeviceState,
       modelPreview: state.modelPreview,
     }))
   )
@@ -202,7 +202,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
         })
       }
 
-      setDeviceReceivedData(deviceId, newData)
+      setDeviceState(deviceId, newData)
 
       dataStartUpdated.current = true
     }

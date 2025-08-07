@@ -189,7 +189,7 @@ const DeviceMaps = () => {
 
   const handleUpdateLocation = () => {
     const newDevices: Device[] = Object.values(devices).map((device) => {
-      if (device.id === '1') {
+      if (device.id === 'rak4630-rs3-C1F4') {
         return {
           ...device,
           latestLocation: [

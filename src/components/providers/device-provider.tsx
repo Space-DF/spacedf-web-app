@@ -3,8 +3,9 @@ import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
 import mqtt, { MqttClient } from 'mqtt'
-import { PropsWithChildren, useEffect, useState } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { MQTTRouter, DeviceTelemetryHandler } from '@/lib/mqtt-handlers'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -20,6 +21,8 @@ const MQTT_BROKER = 'ws://api.v0.spacedf.net:8083/mqtt'
 
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const [client, setClient] = useState<MqttClient | null>(null)
+  const mqttRouterRef = useRef<MQTTRouter | null>(null)
+
   const { setDeviceModel, setInitializedSuccess, setDevices, setModelPreview } =
     useDeviceStore(
       useShallow((state) => ({
@@ -49,6 +52,18 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
+    // Initialize MQTT router and handlers
+    mqttRouterRef.current = new MQTTRouter()
+
+    // Register device telemetry handler with entire store
+    const deviceTelemetryHandler = new DeviceTelemetryHandler(useDeviceStore)
+    mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
+
+    console.log(
+      '📡 MQTT handlers registered:',
+      mqttRouterRef.current.getRegisteredHandlers()
+    )
+
     mqttConnect()
   }, [])
 
@@ -67,9 +82,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       }
 
       const onMessage = (topic: string, payload: Buffer) => {
-        const payloadString = new TextDecoder().decode(payload)
-        const payloadJson = JSON.parse(payloadString)
-        console.log('📥 MQTT received', topic, payloadJson)
+        // Route message through the strategy pattern
+        mqttRouterRef.current?.routeMessage(topic, payload)
       }
 
       client.on('connect', onConnect)

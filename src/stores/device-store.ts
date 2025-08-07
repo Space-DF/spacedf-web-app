@@ -35,7 +35,7 @@ type DeviceModelAction = {
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
 
-  setDeviceReceivedData: (deviceId: string, data: Partial<Device>) => void
+  setDeviceState: (deviceId: string, data: Partial<Device>) => void
 }
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
@@ -81,13 +81,31 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
       }))
     },
 
-    setDeviceReceivedData: (deviceId, data) => {
-      return set((state) => ({
-        devices: {
-          ...state.devices,
-          [deviceId]: { ...state.devices[deviceId], ...data },
-        },
-      }))
+    setDeviceState: (deviceId, data) => {
+      console.log('🔄 [DEBUG] Device state update triggered:', {
+        deviceId,
+        updateData: data,
+        timestamp: new Date().toISOString(),
+      })
+
+      return set((state) => {
+        const previousState = state.devices[deviceId]
+        const newState = { ...previousState, ...data }
+
+        console.log('🔄 [DEBUG] Device state change:', {
+          deviceId,
+          before: previousState,
+          after: newState,
+          changes: data,
+        })
+
+        return {
+          devices: {
+            ...state.devices,
+            [deviceId]: newState,
+          },
+        }
+      })
     },
 
     setInitializedSuccess: (newState) =>
