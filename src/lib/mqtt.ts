@@ -1,3 +1,4 @@
+import { MQTT_CLIENT_ID, MQTT_PASSWORD, MQTT_USERNAME } from '@/shared/env'
 import mqtt, { IClientOptions, MqttClient } from 'mqtt'
 
 class MqttService {
@@ -7,8 +8,17 @@ class MqttService {
   private readonly options: IClientOptions
 
   private constructor(brokerUrl: string) {
+    console.log(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)
     this.brokerUrl = brokerUrl
-    this.options = {}
+    this.options = {
+      clientId: 'spacedf-web-app-121212',
+      username: MQTT_USERNAME,
+      password: MQTT_PASSWORD,
+      clean: true,
+      reconnectPeriod: 20 * 1000,
+      connectTimeout: 30 * 1000,
+      // port: 8083,
+    }
     // this.decodedUserToken()
     this.connect()
   }
@@ -26,9 +36,7 @@ class MqttService {
     if (!this.client) {
       this.client = mqtt.connect(this.brokerUrl, this.options)
 
-      this.client.on('connect', () => {
-        console.log('Connected to MQTT broker')
-      })
+      this.client.on('connect', () => {})
 
       this.client.on('error', () => {
         // console.error('MQTT Connection Error:', err)

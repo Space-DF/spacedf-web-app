@@ -1,9 +1,11 @@
 'use client'
 
+import SpacedfLogo from '@/components/common/spacedf-logo'
+import { Button } from '@/components/ui/button'
 import { useMapClusters } from '@/hooks/templates/useCluster'
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
-import { useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useDeviceMapsStore } from '@/stores/template/device-maps'
 import { delay } from '@/utils'
 import { getMapStyle, MapType } from '@/utils/map'
@@ -14,10 +16,9 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import DeckglLayers from './deckgl-layers'
 import LoadingScreen from './loading-screen'
+import MapClusters from './map-clusters'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
-import MapClusters from './map-clusters'
-import SpacedfLogo from '@/components/common/spacedf-logo'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -48,12 +49,17 @@ const DeviceMaps = () => {
       }))
     )
 
-  const { devices, deviceIds } = useDeviceStore(
+  const { devices, deviceIds, setDevices } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       deviceIds: Object.keys(state.devices),
+      setDevices: state.setDevices,
     }))
   )
+
+  useEffect(() => {
+    console.log({ devices })
+  }, [devices])
 
   useEffect(() => {
     if (!mapRefContainer.current) return
@@ -181,6 +187,29 @@ const DeviceMaps = () => {
     [devices, map]
   )
 
+  const handleUpdateLocation = () => {
+    const newDevices: Device[] = Object.values(devices).map((device) => {
+      if (device.id === '1') {
+        return {
+          ...device,
+          latestLocation: [
+            (device.latestLocation?.[0] ?? 0) + 0.0001,
+            (device.latestLocation?.[1] ?? 0) + 0.0001,
+          ],
+        }
+      }
+      return device
+    })
+
+    // map?.flyTo({
+    //   center: [106.666666, 10.783333],
+    //   zoom: 17,
+    //   pitch: 90,
+    // })
+
+    setDevices(newDevices)
+  }
+
   return (
     <div className="relative size-full overflow-hidden">
       <div ref={mapRefContainer} className="absolute inset-0" />
@@ -190,6 +219,12 @@ const DeviceMaps = () => {
       <ModelType />
       {isShowLoading && <LoadingScreen />}
       <MapClusters />
+      <Button
+        className="absolute bottom-4 right-4"
+        onClick={handleUpdateLocation}
+      >
+        Update Location
+      </Button>
     </div>
   )
 }

@@ -1,10 +1,9 @@
 'use client'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { useDeviceMapsStore } from '@/stores/template/device-maps'
-import { delay } from '@/utils'
 import { Deck, ScenegraphLayer } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
-import { animate, easeOut, linear } from 'popmotion'
+import { easeOut } from 'popmotion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -20,20 +19,14 @@ function getMapViewState(map: mapboxgl.Map) {
 
 const DeckglLayers = () => {
   const deckRef = useRef<Deck | null>(null)
+  const layerRef = useRef<ScenegraphLayer[]>([])
   const [isStartRender, setIsStartRender] = useState(false)
 
   const markerRef = useRef<Record<string, mapboxgl.Marker | null>>({})
 
   const [isMinZoom, setIsMinZoom] = useState(false)
 
-  const animationRef = useRef<
-    Record<
-      string,
-      {
-        stop: () => void
-      }
-    >
-  >({})
+  const stopAnimation = useRef<() => void>(() => {})
 
   const isFirstLoad = useRef(true)
 
@@ -62,6 +55,8 @@ const DeckglLayers = () => {
       setDeviceSelected: state.setDeviceSelected,
     }))
   )
+
+  // const previousDeviceSelected = usePrevious(deviceSelected)
 
   useEffect(() => {
     const handle = (e: CustomEvent) => {
@@ -93,7 +88,6 @@ const DeckglLayers = () => {
           width: map.getCanvas().clientWidth,
           height: map.getCanvas().clientHeight,
         })
-        deckRef.current.redraw()
       }
     })
 
@@ -163,14 +157,59 @@ const DeckglLayers = () => {
     handleRender3DLayer(false, mapType === '3d' ? 1 : 0)
   }, [isStartRender])
 
-  useEffect(() => {
-    if (deviceSelected) {
-      handleDeviceSelected(
-        deviceSelected,
-        modelType || (localStorage.getItem('modelType') as '2d' | '3d')
+  // useEffect(() => {
+  //   if (deviceSelected && deviceSelected !== previousDeviceSelected) {
+  //     startAnimation(deviceSelected)
+
+  //     return () => {
+  //       stopAllAnimations()
+  //     }
+  //   }
+  // }, [deviceSelected, modelType, previousDeviceSelected])
+
+  const updateLayer = (
+    id: string,
+    rotation?: number,
+    position?: [number, number]
+  ) => {
+    if (!deckRef.current) return [] as ScenegraphLayer[]
+
+    const currentLayers = deckRef.current?.props.layers || []
+
+    const newLayers = currentLayers.map((layer: any) => {
+      if (layer.id !== id) return layer
+      const device = devices[id]
+
+      return getLayer(
+        { ...device, latestLocation: position || device.latestLocation },
+        1,
+        rotation
       )
-    }
-  }, [deviceSelected, modelType])
+    })
+
+    return newLayers
+  }
+
+  useEffect(() => {
+    if (!deckRef.current || !isStartRender || isFirstLoad.current) return
+    const layers = deckRef.current?.props.layers || []
+
+    layers.forEach((layer: any) => {
+      if (
+        JSON.stringify(layer.props.data[0].position) !==
+          JSON.stringify(devices[layer.id].latestLocation) &&
+        layer.id !== deviceSelected
+      ) {
+        const newLayers = updateLayer(layer.id)
+
+        deckRef.current?.setProps({
+          layers: newLayers,
+        })
+
+        layerRef.current = newLayers || []
+      }
+    })
+  }, [devices, isStartRender, deviceSelected])
 
   const initializeDeck = useCallback((map: mapboxgl.Map) => {
     const deck = new Deck({
@@ -183,14 +222,14 @@ const DeckglLayers = () => {
         pitch: map.getPitch(),
       },
 
-      onClick(info) {
-        if (info?.object) {
-          const layer = info.layer
-          if (layer?.id && layer?.id !== deviceSelected) {
-            setDeviceSelected(layer?.id)
-          }
-        }
-      },
+      // onClick(info) {
+      //   if (info?.object) {
+      //     const layer = info.layer
+      //     if (layer?.id && layer?.id !== deviceSelected) {
+      //       setDeviceSelected(layer?.id)
+      //     }
+      //   }
+      // },
 
       parent: map.getCanvasContainer() as HTMLDivElement,
       controller: false, // Important: Let Mapbox handle interactions
@@ -200,20 +239,20 @@ const DeckglLayers = () => {
     deckRef.current = deck
   }, [])
 
-  const stopAnimation = useCallback((deviceId: string) => {
-    if (animationRef.current[deviceId]) {
-      animationRef.current[deviceId].stop()
-      delete animationRef.current[deviceId]
-    }
-  }, [])
+  // const stopAnimation = useCallback((deviceId: string) => {
+  //   if (animationRef.current[deviceId]) {
+  //     animationRef.current[deviceId].stop()
+  //     delete animationRef.current[deviceId]
+  //   }
+  // }, [])
 
-  const stopAllAnimations = useCallback(() => {
-    Object.keys(animationRef.current).forEach((deviceId) => {
-      stopAnimation(deviceId)
-    })
+  // const stopAllAnimations = useCallback(() => {
+  //   Object.keys(animationRef.current).forEach((deviceId) => {
+  //     stopAnimation(deviceId)
+  //   })
 
-    animationRef.current = {}
-  }, [stopAnimation])
+  //   animationRef.current = {}
+  // }, [stopAnimation])
 
   const updateMapResources = (modelType: '2d' | '3d') => {
     if (!map) return
@@ -233,6 +272,11 @@ const DeckglLayers = () => {
         return
     }
   }
+
+  const stopAllAnimations = useCallback(() => {
+    stopAnimation.current()
+    stopAnimation.current = () => {}
+  }, [])
 
   const render2DLayers = useCallback(
     (hasFling: boolean = false) => {
@@ -282,8 +326,6 @@ const DeckglLayers = () => {
       deckRef.current?.setProps({
         layers,
       })
-
-      deckRef.current?.redraw()
     },
     [map, devices, deviceModels]
   )
@@ -309,7 +351,13 @@ const DeckglLayers = () => {
 
   const removeAllMarkers = () => {
     Object.values(markerRef.current).forEach((marker) => {
-      marker?.remove()
+      const el = marker?.getElement()
+
+      el?.classList.add('fade-out')
+
+      setTimeout(() => {
+        el?.remove()
+      }, 600)
     })
 
     markerRef.current = {}
@@ -347,7 +395,7 @@ const DeckglLayers = () => {
             duration: 500,
             easing: easeOut,
           },
-          getOrientation: {
+          getPosition: {
             duration: 1000,
             easing: easeOut,
           },
@@ -359,67 +407,55 @@ const DeckglLayers = () => {
     [deviceModels]
   )
 
-  const handleDeviceSelected = useCallback(
-    async (deviceId: string, modelType: '2d' | '3d') => {
-      const device = devices[deviceId]
-      if (!device) return
+  // const handleDeviceSelected = useCallback(
+  //   async (deviceId: string, modelType: '2d' | '3d') => {
+  //     const device = devices[deviceId]
+  //     if (!device) return
 
-      if (modelType === '2d') {
-        map?.flyTo({
-          center: device.latestLocation,
-          zoom: 20,
-        })
-      }
+  //   },
+  //   [devices, map]
+  // )
 
-      if (modelType === '3d') {
-        map?.flyTo({
-          center: device.latestLocation,
-          zoom: 19,
-          pitch: 90,
-        })
-        await delay(500)
-        startAnimation(deviceId)
-      }
-    },
-    [devices, map]
-  )
+  // const startAnimation = useCallback(
+  //   (deviceId: string) => {
+  //     console.log('run start')
+  //     const device = devices[deviceId]
+  //     if (!device) return
 
-  const startAnimation = useCallback(
-    (deviceId: string) => {
-      const device = devices[deviceId]
-      if (!device) return
+  //     const animation = animate({
+  //       from:
+  //         device.layerProps?.orientation?.yaw === 360
+  //           ? 0
+  //           : device.layerProps?.orientation?.yaw || 0,
+  //       to: 360 - (device.layerProps?.orientation?.yaw || 0) || 360,
+  //       duration: 2000,
+  //       repeat: Infinity,
+  //       ease: linear,
+  //       onUpdate: (rotation) => {
+  //         const deviceData = devices[deviceId]
+  //         const newLayers = updateLayer(
+  //           deviceId,
+  //           rotation,
+  //           deviceData.latestLocation,
+  //           false
+  //         )
 
-      const animation = animate({
-        from: 0,
-        to: 360,
-        duration: 5000,
-        repeat: Infinity,
-        ease: linear,
-        onUpdate: (rotation) => {
-          const newLayer = getLayer(device, 1, rotation)
+  //         deckRef.current?.setProps({
+  //           layers: newLayers,
+  //         })
 
-          const newLayers = deckRef.current?.props.layers.map((layer: any) => {
-            if (layer.id === deviceId) {
-              return newLayer
-            }
+  //         layerRef.current = newLayers || []
+  //       },
+  //     })
 
-            return getLayer(devices[layer.id], 1)
-          })
+  //     stopAnimation.current = animation.stop
 
-          deckRef.current?.setProps({
-            layers: newLayers,
-          })
-
-          deckRef.current?.redraw()
-        },
-      })
-
-      animationRef.current[deviceId] = {
-        stop: animation.stop,
-      }
-    },
-    [devices]
-  )
+  //     // animationRef.current[deviceId] = {
+  //     //   stop: animation.stop,
+  //     // }
+  //   },
+  //   [devices]
+  // )
 
   return <></>
 }

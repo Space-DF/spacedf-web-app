@@ -377,11 +377,11 @@ const DeviceSelected = () => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceData.id}
+            content={deviceData?.id}
           />
           <InformationItem
             label={`${t('device_name')}:`}
-            content={deviceData.name}
+            content={deviceData?.name}
           />
           <InformationItem
             label={`${t('deveui')}:`}

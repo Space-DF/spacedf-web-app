@@ -43,7 +43,6 @@ const MapClusters = () => {
       window.removeEventListener('mapLoaded', () => {
         mapRef.current = null
         supercluster.current = null
-        initializeCluster()
       })
     }
   }, [])

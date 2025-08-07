@@ -1,7 +1,10 @@
+import { MQTT_PASSWORD, MQTT_USERNAME } from '@/shared/env'
 import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
+import mqtt, { MqttClient } from 'mqtt'
 import { PropsWithChildren, useEffect, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -11,18 +14,73 @@ const PREVIEW_PATH = {
   tracki: '/images/3d-preview/airtag.png',
 }
 
+const MQTT_BROKER = 'ws://api.v0.spacedf.net:8083/mqtt'
+// const mqttService = MqttService.getInstance(MQTT_BROKER)
+// const client = mqttService.client
+
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
+  const [client, setClient] = useState<MqttClient | null>(null)
   const { setDeviceModel, setInitializedSuccess, setDevices, setModelPreview } =
-    useDeviceStore()
+    useDeviceStore(
+      useShallow((state) => ({
+        setDeviceModel: state.setDeviceModel,
+        setInitializedSuccess: state.setInitializedSuccess,
+        setDevices: state.setDevices,
+        setModelPreview: state.setModelPreview,
+      }))
+    )
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
     initializedDevices: false,
   })
 
+  const mqttConnect = () => {
+    setClient(
+      mqtt.connect(MQTT_BROKER, {
+        clientId: 'spacedf-web-app-121212',
+        username: MQTT_USERNAME,
+        password: MQTT_PASSWORD,
+        clean: true,
+        keepalive: 60,
+        reconnectPeriod: 60 * 60 * 1000,
+        connectTimeout: 30 * 1000,
+      })
+    )
+  }
+
+  useEffect(() => {
+    mqttConnect()
+  }, [])
+
   useEffect(() => {
     loadModels()
     getDevices()
   }, [])
+
+  useEffect(() => {
+    if (client) {
+      const onConnect = () => {
+        console.log('✅ MQTT connected')
+        client.subscribe('device/+/telemetry', (err) => {
+          if (!err) console.log('📡 Subscribed to device/+/telemetry')
+        })
+      }
+
+      const onMessage = (topic: string, payload: Buffer) => {
+        const payloadString = new TextDecoder().decode(payload)
+        const payloadJson = JSON.parse(payloadString)
+        console.log('📥 MQTT received', topic, payloadJson)
+      }
+
+      client.on('connect', onConnect)
+      client.on('message', onMessage)
+
+      return () => {
+        client.removeListener('connect', onConnect)
+        client.removeListener('message', onMessage)
+      }
+    }
+  }, [client])
 
   useEffect(() => {
     if (fetchStatus.initializedDevices && fetchStatus.initializedModels) {
