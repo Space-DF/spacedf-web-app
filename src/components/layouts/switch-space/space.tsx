@@ -55,7 +55,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
           <div className="flex flex-col items-start justify-between font-medium">
             <p
               className={cn(
-                'text-sm font-semibold',
+                'text-sm font-semibold w-full wrap-anywhere line-clamp-1',
                 isSelected ? 'text-brand-heading dark:text-white' : 'text-white'
               )}
             >
