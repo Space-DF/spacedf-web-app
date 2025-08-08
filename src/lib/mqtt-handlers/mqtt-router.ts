@@ -7,7 +7,7 @@ export class MQTTRouter {
     this.handlers.push(handler)
   }
 
-  routeMessage(topic: string, payload: Buffer): void {
+  routeMessage(topic: string, payload: Buffer): any[] {
     try {
       const payloadString = new TextDecoder().decode(payload)
       const payloadJson: MQTTMessagePayload = JSON.parse(payloadString)
@@ -21,14 +21,17 @@ export class MQTTRouter {
 
       if (matchingHandlers.length === 0) {
         console.warn('⚠️  No handler found for topic:', topic)
-        return
+        return []
       }
 
-      matchingHandlers.forEach((handler) => {
-        handler.handle(topic, payloadJson)
-      })
+      const results = matchingHandlers
+        .map((handler) => handler.handle(topic, payloadJson))
+        .filter((result) => result !== null && result !== undefined)
+
+      return results
     } catch (error) {
       console.error('❌ Error routing MQTT message:', error)
+      return []
     }
   }
 

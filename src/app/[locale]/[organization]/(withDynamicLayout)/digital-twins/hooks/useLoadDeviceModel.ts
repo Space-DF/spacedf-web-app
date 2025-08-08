@@ -2,7 +2,6 @@
 
 import { usePrevious } from '@/hooks/usePrevious'
 import { Device as DeviceType, useDeviceStore } from '@/stores/device-store'
-import { createMQTTStore } from '@/stores/mqtt'
 import { Material } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
@@ -68,8 +67,6 @@ const DEFAULT_THEME: Theme = {
   effects: [lightingEffect],
 }
 
-const useMQTTStore = createMQTTStore()
-
 export const useLoadDeviceModel = (deviceId: string) => {
   const {
     models,
@@ -89,12 +86,8 @@ export const useLoadDeviceModel = (deviceId: string) => {
     }))
   )
 
-  const { subscribeToDevice, deviceReceivedData } = useMQTTStore(
-    useShallow((state) => ({
-      subscribeToDevice: state.subscribeToDevice,
-      deviceReceivedData: state.deviceReceivedData[deviceId],
-    }))
-  )
+  // Device data comes directly from store (updated by DeviceTelemetryHandler)
+  // No need for manual subscriptions - handler catches all device/+/telemetry automatically
 
   const { updateClusters } = useMapGroupCluster()
 
@@ -119,7 +112,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
 
   useEffect(() => {
     loadDeviceModel()
-    subscribeToDevice(deviceId)
+    // No manual subscription needed - DeviceTelemetryHandler automatically handles all devices
   }, [])
 
   useEffect(() => {
@@ -176,37 +169,35 @@ export const useLoadDeviceModel = (deviceId: string) => {
   }
 
   useEffect(() => {
-    if (deviceReceivedData) {
-      let newData = deviceReceivedData
+    // Watch for location updates from the device store (updated by DeviceTelemetryHandler)
+    if (currentDeviceData?.latestLocation) {
+      let newData = {}
 
-      if (
-        deviceSelected === deviceId &&
-        'latestLocation' in deviceReceivedData
-      ) {
+      if (deviceSelected === deviceId) {
+        // Build realtime trip when device is selected and location updates
         newData = {
-          ...deviceReceivedData,
           realtimeTrip: [
             ...(currentDeviceData.realtimeTrip || []),
-            deviceReceivedData.latestLocation as [number, number],
+            currentDeviceData.latestLocation as [number, number],
           ],
         }
 
         const map = window.mapInstance.getMapInstance()
 
         map?.easeTo({
-          center: deviceReceivedData.latestLocation as [number, number],
+          center: currentDeviceData.latestLocation as [number, number],
           zoom: 17,
           duration: 500,
           essential: true,
           pitch: 60,
         })
-      }
 
-      setDeviceState(deviceId, newData)
+        setDeviceState(deviceId, newData)
+      }
 
       dataStartUpdated.current = true
     }
-  }, [JSON.stringify(deviceReceivedData), deviceSelected])
+  }, [JSON.stringify(currentDeviceData?.latestLocation), deviceSelected])
 
   useEffect(() => {
     if (!dataStartUpdated.current) return

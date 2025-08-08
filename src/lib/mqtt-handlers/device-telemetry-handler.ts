@@ -1,10 +1,15 @@
-import { Device, useDeviceStore } from '@/stores/device-store'
+import { Device } from '@/stores/device-store'
 import { BaseMQTTHandler, MQTTMessagePayload } from './base-handler'
+
+export interface DeviceTelemetryData {
+  deviceId: string
+  deviceUpdate: Partial<Device>
+}
 
 export class DeviceTelemetryHandler extends BaseMQTTHandler {
   readonly topicPattern = 'device/+/telemetry'
 
-  constructor(private deviceStore: typeof useDeviceStore) {
+  constructor() {
     super()
   }
 
@@ -12,23 +17,29 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
     return this.matchesWildcardPattern(topic, this.topicPattern)
   }
 
-  handle(topic: string, payload: MQTTMessagePayload): void {
+  handle(
+    topic: string,
+    payload: MQTTMessagePayload
+  ): DeviceTelemetryData | null {
     try {
       const _params = this.extractTopicParams(topic, this.topicPattern)
       const deviceId = this.extractDeviceId(topic)
 
       if (!deviceId) {
         console.warn('❌ Could not extract device ID from topic:', topic)
-        return
+        return null
       }
 
       const deviceUpdate = this.parseDeviceData(payload)
 
       if (Object.keys(deviceUpdate).length > 0) {
-        this.deviceStore.getState().setDeviceState(deviceId, deviceUpdate)
+        return { deviceId, deviceUpdate }
       }
+
+      return null
     } catch (error) {
       console.error('❌ Error handling device telemetry:', error)
+      return null
     }
   }
 

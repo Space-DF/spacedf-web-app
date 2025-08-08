@@ -6,7 +6,7 @@ export abstract class BaseMQTTHandler {
   abstract readonly topicPattern: string
 
   abstract canHandle(topic: string): boolean
-  abstract handle(topic: string, payload: MQTTMessagePayload): void
+  abstract handle(topic: string, payload: MQTTMessagePayload): any
 
   protected matchesWildcardPattern(topic: string, pattern: string): boolean {
     const topicParts = topic.split('/')
