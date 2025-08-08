@@ -1,21 +1,19 @@
 'use client'
 
 import SpacedfLogo from '@/components/common/spacedf-logo'
-import { Button } from '@/components/ui/button'
 import { useMapClusters } from '@/hooks/templates/useCluster'
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
+import { usePrevious } from '@/hooks/usePrevious'
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
-import { Device, useDeviceStore } from '@/stores/device-store'
+import { useDeviceStore } from '@/stores/device-store'
 import { useDeviceMapsStore } from '@/stores/template/device-maps'
-import { delay } from '@/utils'
 import { getMapStyle, MapType } from '@/utils/map'
 import { Deck } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
 import { useTheme } from 'next-themes'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import DeckglLayers from './deckgl-layers'
-import LoadingScreen from './loading-screen'
 import MapClusters from './map-clusters'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
@@ -33,8 +31,6 @@ const DeviceMaps = () => {
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
   const { handleCluster } = useMapClusters()
 
-  const [isShowLoading, setIsShowLoading] = useState(false)
-
   const { isMapReady, setMap, updateBooleanState, map, mapType } =
     useDeviceMapsStore(
       useShallow((state) => ({
@@ -49,17 +45,16 @@ const DeviceMaps = () => {
       }))
     )
 
-  const { devices, deviceIds, setDevices } = useDeviceStore(
+  const { devices, deviceIds, deviceSelected } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       deviceIds: Object.keys(state.devices),
       setDevices: state.setDevices,
+      deviceSelected: state.deviceSelected,
+      initializedSuccess: state.initializedSuccess,
     }))
   )
-
-  useEffect(() => {
-    console.log({ devices })
-  }, [devices])
+  const previousDeviceSelected = usePrevious(deviceSelected)
 
   useEffect(() => {
     if (!mapRefContainer.current) return
@@ -100,7 +95,6 @@ const DeviceMaps = () => {
 
       map.on('zoomend', async () => {
         if (isFirstLoad.current) {
-          await initializeResources()
           isFirstLoad.current = false
         } else {
           window.dispatchEvent(
@@ -114,16 +108,11 @@ const DeviceMaps = () => {
       })
     })
 
-    // map.on('move', () => {
-    //   updateClusters(map)
-    // })
-
     return () => {
       map.remove()
       deckRef.current?.finalize()
       deckRef.current = null
       setMap(null)
-      setIsShowLoading(false)
     }
   }, [])
 
@@ -147,17 +136,22 @@ const DeviceMaps = () => {
 
   useEffect(() => {
     if (!isMapReady || deviceIds.length === 0) return
-    zoomToDevice(deviceIds[0])
+    zoomToDevice(deviceIds[0], true)
   }, [isMapReady, JSON.stringify(deviceIds)])
 
-  const initializeResources = async () => {
-    // Optional: loading animation
-    setIsShowLoading(true)
-    // await delay(300)
-    // setIsZooming(false)
-    await delay(1000)
-    setIsShowLoading(false)
-  }
+  useEffect(() => {
+    if (!isMapReady) return
+
+    if (deviceSelected && deviceSelected !== previousDeviceSelected) {
+      zoomToDevice(deviceSelected)
+    }
+
+    if (previousDeviceSelected && !deviceSelected) {
+      map?.flyTo({
+        zoom: 17,
+      })
+    }
+  }, [isMapReady, deviceSelected, previousDeviceSelected])
 
   const renderMapResources = useCallback(
     async (map: mapboxgl.Map, mapType: MapType) => {
@@ -171,7 +165,7 @@ const DeviceMaps = () => {
   )
 
   const zoomToDevice = useCallback(
-    (deviceId: string) => {
+    (deviceId: string, isFirstLoad = false) => {
       if (!map) return
       const device = devices[deviceId]
       if (!device || !device.latestLocation) return
@@ -181,34 +175,34 @@ const DeviceMaps = () => {
 
       map.flyTo({
         center: [lng, lat],
-        zoom: 17,
+        zoom: isFirstLoad ? 17 : 19,
       })
     },
     [devices, map]
   )
 
-  const handleUpdateLocation = () => {
-    const newDevices: Device[] = Object.values(devices).map((device) => {
-      if (device.id === 'rak4630-rs3-C1F4') {
-        return {
-          ...device,
-          latestLocation: [
-            (device.latestLocation?.[0] ?? 0) + 0.0001,
-            (device.latestLocation?.[1] ?? 0) + 0.0001,
-          ],
-        }
-      }
-      return device
-    })
+  // const handleUpdateLocation = () => {
+  //   const newDevices: Device[] = Object.values(devices).map((device) => {
+  //     if (device.id === 'rak4630-rs3-C1F4') {
+  //       return {
+  //         ...device,
+  //         latestLocation: [
+  //           (device.latestLocation?.[0] ?? 0) + 0.0001,
+  //           (device.latestLocation?.[1] ?? 0) + 0.0001,
+  //         ],
+  //       }
+  //     }
+  //     return device
+  //   })
 
-    // map?.flyTo({
-    //   center: [106.666666, 10.783333],
-    //   zoom: 17,
-    //   pitch: 90,
-    // })
+  //   // map?.flyTo({
+  //   //   center: [106.666666, 10.783333],
+  //   //   zoom: 17,
+  //   //   pitch: 90,
+  //   // })
 
-    setDevices(newDevices)
-  }
+  //   setDevices(newDevices)
+  // }
 
   return (
     <div className="relative size-full overflow-hidden">
@@ -217,14 +211,14 @@ const DeviceMaps = () => {
       <DeckglLayers />
       <SelectMapType />
       <ModelType />
-      {isShowLoading && <LoadingScreen />}
+      {/* {isShowLoading && <LoadingScreen />} */}
       <MapClusters />
-      <Button
+      {/* <Button
         className="absolute bottom-4 right-4"
         onClick={handleUpdateLocation}
       >
         Update Location
-      </Button>
+      </Button> */}
     </div>
   )
 }

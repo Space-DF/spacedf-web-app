@@ -1,3 +1,4 @@
+import { DeviceTelemetryHandler, MQTTRouter } from '@/lib/mqtt-handlers'
 import {
   MQTT_BROKER,
   MQTT_PASSWORD,
@@ -11,7 +12,6 @@ import { GLTFLoader } from '@loaders.gl/gltf'
 import mqtt, { MqttClient } from 'mqtt'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { MQTTRouter, DeviceTelemetryHandler } from '@/lib/mqtt-handlers'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -38,6 +38,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         setModelPreview: state.setModelPreview,
       }))
     )
+
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
     initializedDevices: false,
@@ -51,17 +52,18 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         password: MQTT_PASSWORD,
         clean: true,
         keepalive: 60,
-        reconnectPeriod: 60 * 60 * 1000,
-        connectTimeout: 30 * 1000,
+        reconnectPeriod: 4000,
+        connectTimeout: 15000,
       })
     )
   }
 
   useEffect(() => {
+    mqttConnect()
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()
 
-    // Register device telemetry handler with entire store
+    // // Register device telemetry handler with entire store
     const deviceTelemetryHandler = new DeviceTelemetryHandler(useDeviceStore)
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
 
@@ -69,8 +71,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       '📡 MQTT handlers registered:',
       mqttRouterRef.current.getRegisteredHandlers()
     )
-
-    mqttConnect()
   }, [])
 
   useEffect(() => {
@@ -82,6 +82,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     if (client) {
       const onConnect = () => {
         console.log('✅ MQTT connected')
+        // toast.success('Connected', {
+        //   closeButton: true,
+        //   position: 'bottom-right',
+        // })
         client.subscribe('device/+/telemetry', (err) => {
           if (!err) console.log('📡 Subscribed to device/+/telemetry')
         })
@@ -94,6 +98,33 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
       client.on('connect', onConnect)
       client.on('message', onMessage)
+
+      client.on('reconnect', () => {
+        console.log('🔄 MQTT reconnecting...')
+        // toast.info('Reconnecting...', {
+        //   closeButton: true,
+        //   position: 'bottom-right',
+        // })
+      })
+      client.on('offline', () => {
+        // setStatus('disconnected')
+        console.log('❌ MQTT disconnected')
+
+        // toast.error('Disconnected', {
+        //   closeButton: true,
+        //   position: 'bottom-right',
+        // })
+      })
+      client.on('close', () => console.log('🔌 MQTT connection closed'))
+      client.on('end', () => console.log('🚪 MQTT client ended'))
+
+      client.on('error', (err) => {
+        console.log('❌ MQTT error:', err)
+      })
+
+      client.on('disconnect', () => {
+        // console.log('❌ MQTT disconnected')
+      })
 
       return () => {
         client.removeListener('connect', onConnect)
