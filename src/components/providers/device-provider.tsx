@@ -46,7 +46,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const mqttConnect = () => {
     setClient(
       mqtt.connect(MQTT_BROKER_URL, {
-        clientId: 'spacedf-web-app-121212',
+        clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         username: MQTT_USERNAME,
         password: MQTT_PASSWORD,
         clean: true,
