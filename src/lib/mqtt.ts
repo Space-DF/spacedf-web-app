@@ -11,7 +11,7 @@ class MqttService {
     console.log(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)
     this.brokerUrl = brokerUrl
     this.options = {
-      clientId: 'spacedf-web-app-121212',
+      clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       username: MQTT_USERNAME,
       password: MQTT_PASSWORD,
       clean: true,
@@ -36,10 +36,12 @@ class MqttService {
     if (!this.client) {
       this.client = mqtt.connect(this.brokerUrl, this.options)
 
-      this.client.on('connect', () => {})
+      this.client.on('connect', () => {
+        console.log('Connected to MQTT broker')
+      })
 
-      this.client.on('error', () => {
-        // console.error('MQTT Connection Error:', err)
+      this.client.on('error', (err) => {
+        console.error('MQTT Connection Error:', err)
       })
 
       this.client.on('close', () => {
