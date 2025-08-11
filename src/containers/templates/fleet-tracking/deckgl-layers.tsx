@@ -1,6 +1,6 @@
 'use client'
 import { Device, useDeviceStore } from '@/stores/device-store'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { Deck, ScenegraphLayer } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
 import { easeOut } from 'popmotion'
@@ -55,12 +55,12 @@ const DeckglLayers = () => {
 
   const isFirstLoad = useRef(true)
 
-  const { map, modelType } = useDeviceMapsStore(
+  const { map, modelType } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       modelType:
         state.modelType ||
-        (localStorage.getItem('modelType') as '2d' | '3d') ||
+        (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
         '2d',
     }))
   )
@@ -160,7 +160,8 @@ const DeckglLayers = () => {
       handleRender3DLayer(false, 0)
     } else {
       updateMapResources(
-        modelType || (localStorage.getItem('modelType') as '2d' | '3d')
+        modelType ||
+          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d')
       )
     }
   }, [isMinZoom, modelType])
@@ -182,7 +183,8 @@ const DeckglLayers = () => {
   useEffect(() => {
     if (!isStartRender || !map) return
 
-    const mapType = (localStorage.getItem('modelType') as '2d' | '3d') || '2d'
+    const mapType =
+      (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
 
     if (mapType === '2d') {
       render2DLayers(false)

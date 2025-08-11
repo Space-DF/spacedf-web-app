@@ -8,7 +8,7 @@ import StreetMapType from '/public/images/map-type-thumbnail/street-type.png'
 
 import ImageWithBlur from '@/components/ui/image-blur'
 import { cn } from '@/lib/utils'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { Layers2 } from 'lucide-react'
 import { StaticImageData } from 'next/image'
 
@@ -41,11 +41,11 @@ const mapTypes: MapTypeItem[] = [
 // const isMapReady = true
 
 export const SelectMapType = () => {
-  const { mapType, isMapReady } = useDeviceMapsStore(
+  const { mapType, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
       mapType:
         state.mapType ||
-        (localStorage.getItem('mapType') as MapType) ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
         'default',
       isMapReady: state.isMapReady,
     }))
@@ -143,11 +143,11 @@ export const SelectMapType = () => {
 }
 
 const MapTypeSelection = ({ name, id, thumbnail }: MapTypeItem) => {
-  const { mapType, setMapType, isMapReady } = useDeviceMapsStore(
+  const { mapType, setMapType, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
       mapType:
         state.mapType ||
-        (localStorage.getItem('mapType') as MapType) ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
         'default',
       setMapType: state.setMapType,
       isMapReady: state.isMapReady,

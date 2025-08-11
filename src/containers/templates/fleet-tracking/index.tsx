@@ -6,7 +6,7 @@ import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { usePrevious } from '@/hooks/usePrevious'
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
 import { useDeviceStore } from '@/stores/device-store'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { getMapStyle, MapType } from '@/utils/map'
 import { Deck } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
@@ -22,7 +22,7 @@ mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
 const minZoom = 15
 
-const DeviceMaps = () => {
+const FleetTracking = () => {
   const mapRefContainer = useRef<HTMLDivElement>(null)
   const deckRef = useRef<Deck | null>(null)
   const isFirstLoad = useRef(true)
@@ -32,7 +32,7 @@ const DeviceMaps = () => {
   const { handleCluster } = useMapClusters()
 
   const { isMapReady, setMap, updateBooleanState, map, mapType } =
-    useDeviceMapsStore(
+    useFleetTrackingStore(
       useShallow((state) => ({
         map: state.map,
         isMapReady: state.isMapReady,
@@ -40,7 +40,7 @@ const DeviceMaps = () => {
         updateBooleanState: state.updateBooleanState,
         mapType:
           state.mapType ||
-          (localStorage.getItem('mapType') as MapType) ||
+          (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
           'default',
       }))
     )
@@ -59,11 +59,14 @@ const DeviceMaps = () => {
   useEffect(() => {
     if (!mapRefContainer.current) return
 
-    const modelType = (localStorage.getItem('modelType') as '2d' | '3d') || '2d'
+    const modelType =
+      (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
     const isThreeD = modelType === '3d'
 
     const { style, config } = getMapStyle(
-      mapType || (localStorage.getItem('mapType') as MapType) || 'default',
+      mapType ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+        'default',
       resolvedTheme as 'dark' | 'light'
     )
 
@@ -120,7 +123,9 @@ const DeviceMaps = () => {
     if (!isMapReady || !map) return
 
     const { style, config } = getMapStyle(
-      mapType || (localStorage.getItem('mapType') as MapType) || 'default',
+      mapType ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+        'default',
       resolvedTheme as 'dark' | 'light'
     )
 
@@ -223,4 +228,4 @@ const DeviceMaps = () => {
   )
 }
 
-export default memo(DeviceMaps)
+export default memo(FleetTracking)

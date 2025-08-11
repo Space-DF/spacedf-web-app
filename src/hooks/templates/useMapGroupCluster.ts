@@ -1,5 +1,5 @@
 import { useDeviceStore } from '@/stores/device-store'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { delay } from '@/utils'
 import * as mapboxgl from 'mapbox-gl'
 import { useTheme } from 'next-themes'
@@ -14,7 +14,7 @@ const cluster = new Supercluster({
 
 export const useMapGroupCluster = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
-  const { map } = useDeviceMapsStore(
+  const { map } = useFleetTrackingStore(
     useShallow((state) => ({ map: state.map }))
   )
 

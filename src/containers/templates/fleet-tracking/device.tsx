@@ -1,7 +1,7 @@
 'use client'
 
 import { useDeviceStore, Device as DeviceType } from '@/stores/device-store'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import { ScenegraphLayer } from 'deck.gl'
@@ -28,12 +28,12 @@ const Device = ({ deviceId }: { deviceId: string }) => {
 
   const overlayId = `device-model-overlay-${deviceId}`
 
-  const { map, isMapReady } = useDeviceMapsStore(
+  const { map, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       mapType:
         state.mapType ||
-        (localStorage.getItem('mapType') as MapType) ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
         'default',
       isMapReady: state.isMapReady,
     }))
@@ -65,7 +65,8 @@ const Device = ({ deviceId }: { deviceId: string }) => {
 
     if (is3DModelReady) {
       handleRenderDataToMap(
-        (localStorage.getItem('modelType') as '2d' | '3d') || '2d'
+        (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
+          '2d'
       )
     }
   }, [isDeviceDataReady, isMapReady, is3DModelReady])
@@ -138,7 +139,7 @@ const Device = ({ deviceId }: { deviceId: string }) => {
   const prepare3DModel = useCallback(() => {
     setIs3DModelReady(true)
     const defaultType =
-      (localStorage.getItem('modelType') as '2d' | '3d') || '2d'
+      (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
 
     if (is3DModelReady) return
 
