@@ -64,5 +64,10 @@
   "radius": "Radius",
   "type": "Type",
   "color": "Color",
-  "created": "Created"
+  "created": "Created",
+  "this_organization_does_not_exist": "This organization does not exist.",
+  "oops_something_went_wrong": "Oops! Something went wrong.",
+  "go_to_space_df": "Go to SpaceDF",
+  "create_new_organization": "Create a new organization",
+  "powered_by": "Powered by"
 }

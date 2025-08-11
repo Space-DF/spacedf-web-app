@@ -6,6 +6,7 @@ import { COOKIES } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
+import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
 import { useDeviceMapsStore } from '@/stores/template/device-maps'
@@ -32,6 +33,8 @@ type DynamicLayoutProps = {
   defaultMainLayout: number[]
   defaultCollapsed: boolean
 } & PropsWithChildren
+
+const COLLAPSED_LAYOUT = [4, 96]
 
 const DynamicLayout = ({
   children,
@@ -114,6 +117,7 @@ const DynamicLayout = ({
     }
   }
   const [sidebarWidth, mainWidth] = useResponsiveLayout(defaultMainLayout)
+  const collapseThreshold = useResponsiveCollapseThreshold()
 
   const handleSetDynamicLayout = () => {
     if (!prevLayouts.current.length && dynamicLayoutRight.length)
@@ -189,15 +193,17 @@ const DynamicLayout = ({
       }, 500)
     }
 
-    if (sizes[0] <= 8 && !isCollapsed) {
+    // Use responsive collapse threshold from hook (updates with screen size changes)
+    if (sizes[0] <= collapseThreshold) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
-    } else if (sizes[0] > 8 && isCollapsed) {
+      mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
+      setCookie(COOKIES.MAIN_LAYOUTS, COLLAPSED_LAYOUT)
+    } else if (sizes[0] > collapseThreshold && isCollapsed) {
+      setCookie(COOKIES.MAIN_LAYOUTS, sizes)
       setCollapsed(false)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
     }
-
-    setCookie(COOKIES.MAIN_LAYOUTS, sizes)
   }
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
@@ -214,14 +220,6 @@ const DynamicLayout = ({
 
   const layoutCannotDuplicate = useMemo(() => {
     return <Dashboard />
-    // if (dynamicLayouts.includes('devices'))
-    //   return (
-    //     <div>
-    //       <Dashboard />
-    //     </div>
-    //   )
-    //
-    // return <Users />
   }, [dynamicLayouts])
 
   const { isShowAll, second, first } =

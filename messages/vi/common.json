@@ -57,5 +57,10 @@
   "radius": "Bán kính",
   "type": "Loại",
   "color": "Màu sắc",
-  "created": "Ngày tạo"
+  "created": "Ngày tạo",
+  "this_organization_does_not_exist": "Tổ chức này không tồn tại.",
+  "oops_something_went_wrong": "Oops! Có lỗi xảy ra.",
+  "go_to_space_df": "Vào SpaceDF",
+  "create_new_organization": "Tạo tổ chức mới",
+  "powered_by": "Phát triển bởi"
 }
