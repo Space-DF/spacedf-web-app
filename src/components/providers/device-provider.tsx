@@ -1,7 +1,14 @@
 import { useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
-import { PropsWithChildren, useEffect, useState } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import {
+  MQTTRouter,
+  DeviceTelemetryHandler,
+  DeviceTelemetryData,
+} from '@/lib/mqtt-handlers'
+import MqttService from '@/lib/mqtt'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -12,12 +19,93 @@ const PREVIEW_PATH = {
 }
 
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
-  const { setDeviceModel, setInitializedSuccess, setDevices, setModelPreview } =
-    useDeviceStore()
+  const mqttServiceRef = useRef<MqttService | null>(null)
+  const mqttRouterRef = useRef<MQTTRouter | null>(null)
+
+  const {
+    setDeviceModel,
+    setInitializedSuccess,
+    setDevices,
+    setModelPreview,
+    setDeviceState,
+  } = useDeviceStore(
+    useShallow((state) => ({
+      setDeviceModel: state.setDeviceModel,
+      setInitializedSuccess: state.setInitializedSuccess,
+      setDevices: state.setDevices,
+      setModelPreview: state.setModelPreview,
+      setDeviceState: state.setDeviceState,
+    }))
+  )
+
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
     initializedDevices: false,
   })
+
+  // Handler for processed telemetry data
+  const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
+    // Business logic: Update device store with parsed telemetry data
+    setDeviceState(data.deviceId, data.deviceUpdate)
+
+    // Additional business logic can be added here:
+    // - Check for alerts (low battery, geofence violations)
+    // - Log device activity
+    // - Trigger notifications
+    console.log(
+      `📍 Device ${data.deviceId} telemetry updated:`,
+      data.deviceUpdate
+    )
+  }
+
+  useEffect(() => {
+    // Initialize MQTT router and handlers
+    mqttRouterRef.current = new MQTTRouter()
+
+    // Register device telemetry handler (no store dependency)
+    const deviceTelemetryHandler = new DeviceTelemetryHandler()
+    mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
+
+    console.log(
+      '📡 MQTT handlers registered:',
+      mqttRouterRef.current.getRegisteredHandlers()
+    )
+
+    // Initialize MQTT connection
+    mqttServiceRef.current = MqttService.getInstance()
+    mqttServiceRef.current.initialize()
+
+    mqttServiceRef.current.setEventCallbacks({
+      onConnect: () => {
+        console.log('✅ MQTT connected')
+        // Subscribe to device telemetry (handler parses all devices)
+        mqttServiceRef.current?.subscribe('device/+/telemetry')
+      },
+      onDisconnect: () => {
+        console.log('❌ MQTT disconnected')
+      },
+      onError: (err) => {
+        console.log('❌ MQTT error:', err)
+      },
+      onMessage: (topic: string, payload: Buffer) => {
+        // Route through handler system and get parsed results
+        const results =
+          mqttRouterRef.current?.routeMessage(topic, payload) || []
+
+        // Handle each parsed result
+        results.forEach((result) => {
+          if (
+            result &&
+            typeof result === 'object' &&
+            'deviceId' in result &&
+            'deviceUpdate' in result
+          ) {
+            handleDeviceTelemetry(result as DeviceTelemetryData)
+          }
+        })
+      },
+    })
+  }, [])
 
   useEffect(() => {
     loadModels()

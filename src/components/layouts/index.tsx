@@ -169,7 +169,7 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    if (isMapReady) {
+    if (isMapReady && map) {
       if (resizeMapTimeOutId.current) {
         clearTimeout(resizeMapTimeOutId.current)
       }

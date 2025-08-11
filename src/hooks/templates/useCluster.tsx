@@ -114,8 +114,6 @@ export const useMapClusters = () => {
   const handleCluster = useCallback(
     (map: mapboxgl.Map) => {
       if (!map) return
-
-      console.log({ devices })
     },
     [devices]
   )

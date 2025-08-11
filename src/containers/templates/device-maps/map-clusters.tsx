@@ -43,7 +43,6 @@ const MapClusters = () => {
       window.removeEventListener('mapLoaded', () => {
         mapRef.current = null
         supercluster.current = null
-        initializeCluster()
       })
     }
   }, [])
@@ -53,6 +52,15 @@ const MapClusters = () => {
       initializeCluster()
     }
   }, [resolvedTheme, mapType])
+
+  //cleanup layers
+  useEffect(() => {
+    return () => {
+      cleanupLayers()
+      mapRef.current = null
+      supercluster.current = null
+    }
+  }, [])
 
   useEffect(() => {
     if (!map) return
@@ -69,16 +77,7 @@ const MapClusters = () => {
       updateCluster()
     })
 
-    // Add hover effects
-    map.on('mouseenter', 'clusters', () => {
-      map.getCanvas().style.cursor = 'pointer'
-    })
-
-    map.on('mouseleave', 'clusters', () => {
-      map.getCanvas().style.cursor = ''
-    })
-
-    map.on('click', 'clusters', (e) => {
+    const handleClusterClicked = (e: mapboxgl.MapMouseEvent) => {
       const features = e.features!
       const clusterId = features[0].properties!.cluster_id
 
@@ -110,7 +109,30 @@ const MapClusters = () => {
           }
         }
       }
-    })
+    }
+
+    const handleMouseEnter = () => {
+      map.getCanvas().style.cursor = 'pointer'
+    }
+
+    const handleMouseLeave = () => {
+      map.getCanvas().style.cursor = ''
+    }
+
+    // Add hover effects
+    map.on('mouseenter', 'clusters', handleMouseEnter)
+    map.on('mouseleave', 'clusters', handleMouseLeave)
+
+    map.on('click', 'clusters', handleClusterClicked)
+
+    return () => {
+      map.off('move', updateCluster)
+      map.off('moveend', updateCluster)
+      map.off('zoomend', updateCluster)
+      map.off('click', 'clusters', handleClusterClicked)
+      map.off('mouseenter', 'clusters', handleMouseEnter)
+      map.off('mouseleave', 'clusters', handleMouseLeave)
+    }
   }, [map])
 
   // Initialize Supercluster
@@ -202,86 +224,113 @@ const MapClusters = () => {
     }
   }
 
-  const initializeCluster = async () => {
+  const cleanupLayers = () => {
     if (!mapRef.current) return
 
-    await delay(500)
-
-    mapRef.current.addSource('clusters', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [],
-      },
-    })
-
-    // Add unclustered points source
-    mapRef.current.addSource('unclustered-points', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [],
-      },
-    })
-
-    const path =
-      resolvedTheme === 'dark'
-        ? '/images/cluster-dark.png'
-        : '/images/cluster-light.png'
-
-    mapRef.current.loadImage(path, (error, image) => {
-      if (error) throw error
-      if (!mapRef.current?.hasImage('cluster-gradient')) {
-        mapRef.current?.addImage('cluster-gradient', image as any)
+    const layers = ['clusters', 'cluster-count', 'unclustered-point']
+    for (const id of layers) {
+      if (mapRef.current && typeof mapRef.current.getLayer !== 'function') {
+        mapRef.current.removeLayer(id)
       }
-    })
+    }
 
-    // Add cluster layer
-    mapRef.current.addLayer({
-      id: 'clusters',
-      type: 'symbol',
-      source: 'clusters',
-      layout: {
-        'icon-image': 'cluster-gradient',
-        'icon-size': 0.25,
-        'icon-allow-overlap': true,
-      },
-    })
+    const sources = ['clusters', 'unclustered-points']
+    for (const id of sources) {
+      if (
+        mapRef.current &&
+        typeof mapRef.current.getLayer !== 'function' &&
+        mapRef.current.getSource(id)
+      ) {
+        mapRef.current.removeSource(id)
+      }
+    }
 
-    mapRef.current.addLayer({
-      id: 'cluster-count',
-      type: 'symbol',
-      source: 'clusters',
-      layout: {
-        'text-field': '{point_count}',
-        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 16,
-        'text-offset': [0, -0.4],
-        'text-allow-overlap': true,
-        'text-ignore-placement': true,
-      },
-      paint: {
-        'text-color': '#ffffff',
-      },
-    })
+    if (mapRef.current && mapRef.current.hasImage('cluster-gradient')) {
+      mapRef.current.removeImage('cluster-gradient')
+    }
+  }
 
-    // Add individual points layer
-    mapRef.current.addLayer({
-      id: 'unclustered-point',
-      type: 'circle',
-      source: 'clusters-source',
-      filter: ['!', ['has', 'point_count']],
-      paint: {
-        'circle-color': '#11b4da',
-        'circle-radius': 4,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#fff',
-      },
-    })
+  const initializeCluster = async () => {
+    if (mapRef.current && typeof mapRef.current.addSource === 'function') {
+      await delay(800)
+      if (!mapRef.current.loaded()) return
 
-    setTimeout(() => {
-      updateCluster()
-    }, 1000)
+      mapRef.current.addSource('clusters', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      })
+
+      // Add unclustered points source
+      mapRef.current.addSource('unclustered-points', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      })
+
+      const path =
+        resolvedTheme === 'dark'
+          ? '/images/cluster-dark.png'
+          : '/images/cluster-light.png'
+
+      mapRef.current.loadImage(path, (error, image) => {
+        if (error) throw error
+        if (!mapRef.current?.hasImage('cluster-gradient')) {
+          mapRef.current?.addImage('cluster-gradient', image as any)
+        }
+      })
+
+      // Add cluster layer
+      mapRef.current.addLayer({
+        id: 'clusters',
+        type: 'symbol',
+        source: 'clusters',
+        layout: {
+          'icon-image': 'cluster-gradient',
+          'icon-size': 0.25,
+          'icon-allow-overlap': true,
+        },
+      })
+
+      mapRef.current.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'clusters',
+        layout: {
+          'text-field': '{point_count}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 16,
+          'text-offset': [0, -0.4],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          'text-color': '#ffffff',
+        },
+      })
+
+      // Add individual points layer
+      mapRef.current.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'clusters-source',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': '#11b4da',
+          'circle-radius': 4,
+          'circle-stroke-width': 1,
+          'circle-stroke-color': '#fff',
+        },
+      })
+
+      setTimeout(() => {
+        updateCluster()
+      }, 1000)
+    }
   }
 
   return <></>

@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useDeviceStore } from '@/stores/device-store'
+import { useShallow } from 'zustand/react/shallow'
 
 const InformationItem = (props: { label: string; content: string }) => {
   return (
@@ -26,6 +28,13 @@ const InformationItem = (props: { label: string; content: string }) => {
 
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
+
+  const { deviceDataSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+      deviceDataSelected: state.devices[state.deviceSelected] || {},
+    }))
+  )
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
@@ -72,10 +81,13 @@ const DeviceSelected = () => {
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-2 gap-y-1">
-          <InformationItem label={`${t('device_id')}:`} content={'1'} />
+          <InformationItem
+            label={`${t('device_id')}:`}
+            content={deviceDataSelected?.id || ''}
+          />
           <InformationItem
             label={`${t('device_name')}:`}
-            content={'Device 1'}
+            content={deviceDataSelected?.name || ''}
           />
           <InformationItem
             label={`${t('deveui')}:`}

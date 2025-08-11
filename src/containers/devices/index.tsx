@@ -329,6 +329,8 @@ const DeviceSelected = () => {
 
   const deviceData = devices[deviceSelected]
 
+  console.log({ deviceData })
+
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
@@ -377,11 +379,11 @@ const DeviceSelected = () => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceData.id}
+            content={deviceData?.id}
           />
           <InformationItem
             label={`${t('device_name')}:`}
-            content={deviceData.name}
+            content={deviceData?.name}
           />
           <InformationItem
             label={`${t('deveui')}:`}
