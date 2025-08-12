@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Equalizer } from '@/components/icons/equalizer'
 import { cn } from '@/lib/utils'
+import { StreamVideo } from '@/containers/components/stream-video'
 
 const chartData = [
   {
@@ -58,7 +59,7 @@ interface WidgetProp {
 const WidgetContainer = ({ children, className }: WidgetProp) => (
   <div
     className={cn(
-      'size-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft',
+      'size-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft space-y-1',
       className
     )}
   >
@@ -242,6 +243,15 @@ const WidgetSensor = ({
   </WidgetContainer>
 )
 
+const WidgetCamera = () => {
+  return (
+    <WidgetContainer className="flex flex-col">
+      <WidgetTitle>Camera DMZ 01-1511-M01</WidgetTitle>
+      <StreamVideo />
+    </WidgetContainer>
+  )
+}
+
 export {
   WidgetSensor,
   WidgetSwitch,
@@ -251,4 +261,5 @@ export {
   WidgetChart,
   PolarChart,
   WidgetTitle,
+  WidgetCamera,
 }
