@@ -4,7 +4,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import { memo, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import Supercluster from 'supercluster'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { delay } from '@/utils'
 import { useTheme } from 'next-themes'
 import { MapType } from '@/utils/map'
@@ -21,12 +21,12 @@ const MapClusters = () => {
     }))
   )
 
-  const { map, mapType } = useDeviceMapsStore(
+  const { map, mapType } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       mapType:
         state.mapType ||
-        (localStorage.getItem('mapType') as MapType) ||
+        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
         'default',
     }))
   )

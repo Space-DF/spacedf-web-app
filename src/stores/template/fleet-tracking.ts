@@ -3,7 +3,7 @@ import { create } from 'zustand'
 
 type ModelType = '3d' | '2d'
 
-type DeviceMapsStore = {
+type FleetTrackingStore = {
   //state
   map: mapboxgl.Map | null
   mapType: MapType | null
@@ -18,7 +18,7 @@ type DeviceMapsStore = {
   setModelType: (modelType: ModelType) => void
 }
 
-export const useDeviceMapsStore = create<DeviceMapsStore>((set) => ({
+export const useFleetTrackingStore = create<FleetTrackingStore>((set) => ({
   map: null as mapboxgl.Map | null,
   isMapReady: false,
   mapType: null,
@@ -26,12 +26,12 @@ export const useDeviceMapsStore = create<DeviceMapsStore>((set) => ({
 
   setMap: (map) => set({ map }),
   setMapType: (mapType) => {
-    localStorage.setItem('mapType', mapType)
+    localStorage.setItem('fleet-tracking:mapType', mapType)
     return set({ mapType })
   },
 
   setModelType: (modelType) => {
-    localStorage.setItem('modelType', modelType)
+    localStorage.setItem('fleet-tracking:modelType', modelType)
     return set({ modelType })
   },
 

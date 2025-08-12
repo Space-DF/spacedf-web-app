@@ -9,7 +9,7 @@ import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
-import { useDeviceMapsStore } from '@/stores/template/device-maps'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -53,7 +53,7 @@ const DynamicLayout = ({
   const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
   const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
 
-  const { map, isMapReady } = useDeviceMapsStore(
+  const { map, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({ map: state.map, isMapReady: state.isMapReady }))
   )
 
