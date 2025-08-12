@@ -52,6 +52,8 @@ export const brandColors = {
   'background-fill-central': 'hsl(var(--background-fill-central))',
   'background-fill-heart': 'hsl(var(--background-fill-heart))',
   'background-stroke-surface': 'hsl(var(--background-stroke-surface))',
+  'component-progressbar-container':
+    'hsl(var(--component-progressbar-container))',
   'background-stroke-outermost': 'hsl(var(--background-stroke-outermost))',
   'background-stroke-middle': 'hsl(var(--background-stroke-middle))',
   'background-stroke-inner': 'hsl(var(--background-stroke-inner))',

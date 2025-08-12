@@ -16,6 +16,7 @@ import {
   WidgetChart,
   PolarChart,
   WidgetTitle,
+  WidgetCamera,
 } from './mock-data.components'
 import { PreviewChart } from '../widget-selected/components/chart-widget/components/preview-chart'
 import TablePreview from '../widget-selected/components/table-widget/components/table-preview'
@@ -124,32 +125,47 @@ export const MockData: React.FC<Props> = ({ isEdit }) => {
                     <GaugeWidget widget={widget} />
                   </div>
                 )
+              case 'camera':
+                return (
+                  <div key={widget.id}>
+                    <WidgetCamera />
+                  </div>
+                )
               default:
                 return null
             }
           })}
+        <div key="0-left">
+          <WidgetCamera />
+        </div>
+        <div key="0-right">
+          <WidgetCamera />
+        </div>
         <div key="1">
+          <WidgetCamera />
+        </div>
+        <div key="2">
           <WidgetSlider />
         </div>
-        <div key={'2'}>
+        <div key="3">
           <WidgetChart className="dark:text-[#4006AA]">
             <WidgetTitle>Water Flood Level</WidgetTitle>
           </WidgetChart>
         </div>
-        <div key="3">
+        <div key="4">
           <WidgetSwitch>
             <WidgetTitle>Text</WidgetTitle>
           </WidgetSwitch>
         </div>
-        <div key="4">
+        <div key="5">
           <WidgetSensor status="on">
             <WidgetTitle>Text</WidgetTitle>{' '}
           </WidgetSensor>
         </div>
-        <div key="5">
+        <div key="6">
           <WidgetText />
         </div>
-        <div key={'6'} className="h-fit">
+        <div key="7" className="h-fit">
           <PolarChart className="aspect-square dark:text-[#4006AA]">
             <WidgetTitle>New Gauge Widget</WidgetTitle>
           </PolarChart>
