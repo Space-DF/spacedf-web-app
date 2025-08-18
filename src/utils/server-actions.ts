@@ -28,3 +28,9 @@ export const isDemoSubdomain = async (req: NextRequest) => {
   const subdomain = await getValidSubdomain(host)
   return subdomain === DEMO_SUBDOMAIN
 }
+
+export const isDanangSubdomain = async (req: NextRequest) => {
+  const host = req.headers.get('host')
+  const subdomain = await getValidSubdomain(host)
+  return subdomain === 'danang'
+}

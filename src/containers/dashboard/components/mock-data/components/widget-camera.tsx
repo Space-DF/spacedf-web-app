@@ -5,7 +5,7 @@ export const WidgetCamera = ({ title }: { title: string }) => {
   return (
     <WidgetContainer className="flex flex-col">
       <WidgetTitle>{title}</WidgetTitle>
-      <StreamVideo />
+      <StreamVideo autoPlay={false} />
     </WidgetContainer>
   )
 }
