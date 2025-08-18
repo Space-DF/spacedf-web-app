@@ -1,12 +1,15 @@
 import {
   Dispatch,
   forwardRef,
+  memo,
   SetStateAction,
   useEffect,
   useRef,
-  useState,
 } from 'react'
+import { WebRTCOptimizer, scheduleWork } from '@/utils/webrtc-optimizer'
+
 const MAX_RETRIES = 3
+const optimizer = WebRTCOptimizer.getInstance()
 
 function waitForIceGathering(pc: RTCPeerConnection) {
   return new Promise((resolve) => {
@@ -32,15 +35,24 @@ function waitForIceGathering(pc: RTCPeerConnection) {
 
 interface Props {
   setConnectionState: Dispatch<SetStateAction<RTCPeerConnectionState>>
+  autoPlay?: boolean
+  isPlaying?: boolean
+  isFullscreen?: boolean
 }
 
-export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
-  ({ setConnectionState }, videoRef) => {
+const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
+  ({ setConnectionState, autoPlay = true, isFullscreen = false }, videoRef) => {
     const peerRef = useRef<RTCPeerConnection | null>(null)
-    const [isRetrying, setIsRetrying] = useState(false)
-
+    const isRetryingRef = useRef<boolean>(false)
     const streamSetRef = useRef<boolean>(false)
     const retryCountRef = useRef<number>(0)
+    const performanceMonitorRef = useRef<(() => void) | null>(null)
+
+    const debouncedRetry = optimizer.debounceRetry(() => {
+      cleanup()
+      initializeWebRTC()
+      isRetryingRef.current = false
+    })
 
     useEffect(() => {
       initializeWebRTC()
@@ -49,32 +61,22 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
       }
     }, [])
 
+    // Handle fullscreen optimizations
+    useEffect(() => {
+      if (videoRef && typeof videoRef !== 'function' && videoRef.current) {
+        if (isFullscreen) {
+          optimizer.optimizeForFullscreen(videoRef.current)
+        } else {
+          optimizer.resetFullscreenOptimizations(videoRef.current)
+        }
+      }
+    }, [isFullscreen])
+
     async function initializeWebRTC() {
       try {
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:chanh-c4b5c4.hub.dev.jupyter.com.au:8555' },
-            {
-              urls: [
-                'turn:ap-southeast-2.coturn.dev.jupyter.com.au:3478?transport=udp',
-                'turn:ap-southeast-2.coturn.dev.jupyter.com.au:3478?transport=tcp',
-              ],
-              username: 'ap-southeast-2-dev-jupyter',
-              credential: 'Z08242522ZBQHX263VIJ1',
-            },
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-          ],
-        })
+        const pc = new RTCPeerConnection(optimizer.getOptimizedRTCConfig())
 
         peerRef.current = pc
-
-        pc.ontrack = (event) => {
-          if (videoRef && typeof videoRef !== 'function' && videoRef.current) {
-            videoRef.current.srcObject = event.streams[0]
-          }
-        }
 
         pc.onconnectionstatechange = () => {
           setConnectionState(pc.connectionState)
@@ -87,8 +89,7 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
           }
         }
 
-        pc.addTransceiver('video', { direction: 'recvonly' })
-        pc.addTransceiver('audio', { direction: 'recvonly' })
+        pc.addTransceiver('video', optimizer.getOptimizedTransceiverConfig())
 
         pc.ontrack = (event) => {
           if (
@@ -101,6 +102,19 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
             const stream = event.streams[0]
             videoRef.current.srcObject = stream
             streamSetRef.current = true
+
+            // Apply all optimizations
+            optimizer.optimizeVideoElement(videoRef.current)
+
+            // Apply fullscreen optimizations if needed
+            if (isFullscreen) {
+              optimizer.optimizeForFullscreen(videoRef.current)
+            }
+
+            // Start performance monitoring
+            performanceMonitorRef.current = optimizer.monitorPerformance(
+              videoRef.current
+            )
 
             const tryPlayVideo = () => {
               if (
@@ -115,6 +129,11 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
                   playPromise
                     .then(() => {
                       console.log('▶️ Video started playing successfully')
+                      // Log performance stats
+                      scheduleWork(() => {
+                        const stats = optimizer.getPerformanceStats()
+                        console.log('📊 Performance stats:', stats)
+                      })
                     })
                     .catch((err) => {
                       console.warn(
@@ -168,45 +187,54 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
           sdp: data.sdp as string,
         }
         await pc.setRemoteDescription(answer)
-      } catch (err) {
-        console.error('❌ WebRTC init error:', err)
+      } catch {
         handleRetry()
       }
     }
     async function handleRetry() {
-      if (isRetrying || retryCountRef.current >= MAX_RETRIES) return
-      setIsRetrying(true)
+      if (isRetryingRef.current || retryCountRef.current >= MAX_RETRIES) return
+      isRetryingRef.current = true
       retryCountRef.current++
 
-      const delay = Math.pow(2, retryCountRef.current + 1) * 1000
-
-      setTimeout(() => {
-        cleanup()
-        initializeWebRTC()
-        setIsRetrying(false)
-      }, delay)
+      // Use debounced retry to prevent retry storm
+      debouncedRetry()
     }
 
     async function cleanup() {
+      // Stop performance monitoring
+      if (performanceMonitorRef.current) {
+        performanceMonitorRef.current()
+        performanceMonitorRef.current = null
+      }
+
       peerRef.current?.close()
       peerRef.current = null
+
       if (videoRef && typeof videoRef !== 'function' && videoRef.current) {
         videoRef.current.srcObject = null
+        // Reset video element styles
+        videoRef.current.style.transform = ''
       }
+
       streamSetRef.current = false
+      retryCountRef.current = 0
+      optimizer.resetStats()
     }
 
     return (
       <video
         ref={videoRef}
-        autoPlay
+        autoPlay={autoPlay}
         playsInline
         controls={false}
         muted
-        className="max-h-full max-w-full object-contain"
+        preload="none"
+        className="max-h-full max-w-full object-cover"
       />
     )
   }
 )
 
 WebRTCVideo.displayName = 'WebRTCVideo'
+
+export default memo(WebRTCVideo)

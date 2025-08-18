@@ -1,24 +1,31 @@
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
-import { WebRTCVideo } from './webrtc-video'
-import { useRef, useState } from 'react'
+import WebRTCVideo from './webrtc-video'
+import { useRef, useState, useEffect } from 'react'
+import { LoaderCircle } from 'lucide-react'
 
 interface VideoPlaybarProps {
   isPlaying?: boolean
   onPlayPause?: () => void
   className?: string
+  onFullScreen: () => void
+  isFullscreen?: boolean
+  onExitFullscreen?: () => void
 }
 
 const VideoPlaybar = ({
   isPlaying = false,
   className,
   onPlayPause,
+  onFullScreen,
+  isFullscreen = false,
+  onExitFullscreen,
 }: VideoPlaybarProps) => {
   return (
     <div
       className={cn(
-        'flex items-center gap-2 p-1 bg-brand-component-progressbar-container backdrop-blur-sm rounded-full shadow-thin-border',
+        'flex items-center gap-2 p-1 bg-brand-component-progressbar-container backdrop-blur-sm rounded-full shadow-thin-border opacity-0 group-hover:opacity-100 transition-opacity duration-300',
         className
       )}
     >
@@ -53,7 +60,7 @@ const VideoPlaybar = ({
           classNameThumb="bg-white w-3 h-3 border-0 shadow-lg"
         />
       </div>
-      <button>
+      <button onClick={isFullscreen ? onExitFullscreen : onFullScreen}>
         <Image
           src={'/images/maximize.svg'}
           alt="maximize"
@@ -65,7 +72,9 @@ const VideoPlaybar = ({
   )
 }
 
-interface Props {}
+interface Props {
+  autoPlay?: boolean
+}
 
 const getConnectionStatus = (state: RTCPeerConnectionState): string =>
   state === 'connected'
@@ -85,7 +94,9 @@ export const StreamVideo: React.FC<Props> = () => {
   const [connectionState, setConnectionState] =
     useState<RTCPeerConnectionState>('new')
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isPaused, setIsPaused] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   function togglePlayPause() {
     if (!videoRef.current?.srcObject) return
@@ -94,8 +105,57 @@ export const StreamVideo: React.FC<Props> = () => {
     setIsPaused(!isPaused)
   }
 
+  const handleFullScreen = async () => {
+    try {
+      if (containerRef.current && !document.fullscreenElement) {
+        await containerRef.current.requestFullscreen()
+        setIsFullscreen(true)
+      }
+    } catch {
+      // Fallback to video element fullscreen
+      if (videoRef.current) {
+        await videoRef.current.requestFullscreen()
+        setIsFullscreen(true)
+      }
+    }
+  }
+
+  const handleExitFullScreen = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen()
+      setIsFullscreen(false)
+    }
+  }
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isFullscreen) {
+        handleExitFullScreen()
+      }
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isFullscreen])
+
   return (
-    <div className="relative flex-1 overflow-hidden rounded">
+    <div
+      ref={containerRef}
+      className={cn(
+        'relative flex-1 overflow-hidden rounded group',
+        isFullscreen && 'fixed inset-0 z-50 bg-black rounded-none'
+      )}
+    >
       <div className="absolute top-4 left-4 z-20">
         <div className="flex space-x-2 items-center text-xs">
           <div className="relative">
@@ -121,26 +181,44 @@ export const StreamVideo: React.FC<Props> = () => {
           <p className="text-white">{getConnectionStatus(connectionState)}</p>
         </div>
       </div>
-
-      {/* Video container with conditional blur */}
       <div
         className={cn(
-          'relative w-full h-full',
-          connectionState !== 'connected' && 'blur-sm'
+          'relative w-full h-full flex',
+          connectionState !== 'connected' && 'bg-black/20',
+          isFullscreen && 'h-screen'
         )}
       >
-        <WebRTCVideo setConnectionState={setConnectionState} ref={videoRef} />
+        <WebRTCVideo
+          isFullscreen={isFullscreen}
+          setConnectionState={setConnectionState}
+          ref={videoRef}
+        />
       </div>
 
-      {/* Blur overlay for non-connected states */}
       {connectionState !== 'connected' && (
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-10 pointer-events-none flex items-center justify-center">
+          <p className="size-full justify-center flex items-center">
+            <LoaderCircle className="text-brand-bright-lavender size-10 animate-spin " />
+          </p>
+        </div>
       )}
 
       <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none z-10" />
-      <div className="absolute bottom-0 left-0 w-full z-10">
+      <div
+        className={cn(
+          'absolute bottom-0 left-0 w-full z-10',
+          isFullscreen &&
+            'opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+        )}
+      >
         <div className="p-1.5">
-          <VideoPlaybar isPlaying={!isPaused} onPlayPause={togglePlayPause} />
+          <VideoPlaybar
+            onFullScreen={handleFullScreen}
+            onExitFullscreen={handleExitFullScreen}
+            isFullscreen={isFullscreen}
+            isPlaying={!isPaused}
+            onPlayPause={togglePlayPause}
+          />
         </div>
       </div>
     </div>
