@@ -20,7 +20,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { WidgetType } from '@/widget-models/widget'
 import { toast } from 'sonner'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TabContents = () => {
   return (
@@ -55,7 +54,6 @@ const ValueWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
-  const { mutate } = useGetWidgets()
   const form = useForm<ValuePayload>({
     resolver: zodResolver(valueSchema),
     defaultValues: defaultValueWidgetValues,
@@ -94,12 +92,7 @@ const ValueWidget: React.FC<Props> = ({
   )
 
   const { createWidget } = useCreateWidget({
-    onSuccess: (newWidget) => {
-      mutate((prevData: any) => {
-        const newData = [...prevData, newWidget]
-        return newData
-      }, false)
-
+    onSuccess: () => {
       toast.success('Created value widget successfully')
       onSaveWidget()
     },

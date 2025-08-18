@@ -110,6 +110,7 @@ export const useDeviceHistory = () => {
     const dataHistories = deviceData?.histories
 
     const mapInstance = window.mapInstance
+    if (!mapInstance) return
     const map = mapInstance.getMapInstance()
 
     const controlIcon = (map?._controls as any).find(
@@ -180,6 +181,7 @@ export const useDeviceHistory = () => {
 
   const removeRoute = () => {
     const mapInstance = window.mapInstance
+    if (!mapInstance) return
     const map = mapInstance.getMapInstance()
 
     // Remove the route layer if it exists

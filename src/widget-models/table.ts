@@ -1,6 +1,6 @@
 import { WidgetInfo } from './widget'
 
-class Column {
+export class Column {
   column_name: string
   column_type: string
   field: string
@@ -12,7 +12,7 @@ class Column {
   }
 }
 
-class Condition {
+export class Condition {
   condition_type: string
   text_color: string
   bg_color: string

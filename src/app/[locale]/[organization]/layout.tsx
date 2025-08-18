@@ -3,7 +3,7 @@ import { getValidSubdomain } from '@/utils/subdomain'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-const AVAILABLE_ORGS = ['demo', 'develop', 'digitalfortress']
+const AVAILABLE_ORGS = ['demo', 'develop', 'digitalfortress', 'danang']
 
 export default async function Layout({
   children,

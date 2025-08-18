@@ -18,7 +18,6 @@ import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 import { toast } from 'sonner'
 
 interface Props {
@@ -64,7 +63,6 @@ const ChartWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
-  const { mutate } = useGetWidgets()
   const form = useForm<ChartPayload>({
     resolver: zodResolver(chartSchema),
     defaultValues: defaultChartValues,
@@ -72,12 +70,7 @@ const ChartWidget: React.FC<Props> = ({
   })
 
   const { createWidget } = useCreateWidget({
-    onSuccess: (newWidget) => {
-      mutate((prevData: any) => {
-        const newData = [...prevData, newWidget]
-        return newData
-      }, false)
-
+    onSuccess: () => {
       toast.success('Created chart widget successfully')
       onSaveWidget()
     },

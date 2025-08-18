@@ -4,6 +4,13 @@ export enum WidgetType {
   Map = 'map',
   Gauge = 'gauge',
   Value = 'value',
+  Camera = 'camera',
+  Unit = 'unit',
+  Progress = 'progress',
+  Switch = 'switch',
+  Sensor = 'sensor',
+  Text = 'text',
+  Distance = 'distance',
 }
 
 export enum AggregationFunction {

@@ -80,7 +80,7 @@ export const TestContainer = () => {
       <Button
         onClick={() => {
           //   const newId = uuidv4()
-          const newData = (data || []).map((widget, index) =>
+          const newData = (data?.widgets || []).map((widget, index) =>
             index === 0 ? { ...widget, sources: [] } : widget
           )
 
@@ -92,7 +92,7 @@ export const TestContainer = () => {
 
       <Button
         onClick={() => {
-          const itemUpdate = data?.[0]
+          const itemUpdate = data?.widgets[0]
 
           updateWidget({
             widgetId: itemUpdate?.id || '',
@@ -108,7 +108,7 @@ export const TestContainer = () => {
 
       <Button
         onClick={() => {
-          const itemUpdate = data?.[0]
+          const itemUpdate = data?.widgets[0]
           deleteWidget({
             widgetId: itemUpdate?.id || '',
           })

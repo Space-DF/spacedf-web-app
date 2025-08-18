@@ -21,7 +21,6 @@ import Conditionals from './components/conditionals'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { toast } from 'sonner'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TABLE_TABS_KEY = [
   TabKey.Sources,
@@ -63,7 +62,6 @@ const TableWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
-  const { mutate } = useGetWidgets()
   const form = useForm<dataTablePayload>({
     resolver: zodResolver(dataTableSchema),
     defaultValues: dataTableDefault,
@@ -75,15 +73,12 @@ const TableWidget: React.FC<Props> = ({
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
 
+  console.log({ columns, source, widget_info, conditionals })
+
   const tableValue = form.getValues()
 
   const { createWidget } = useCreateWidget({
-    onSuccess: (newWidget) => {
-      mutate((prevData: any) => {
-        const newData = [...prevData, newWidget]
-        return newData
-      }, false)
-
+    onSuccess: () => {
       toast.success('Created table widget successfully')
       onSaveWidget()
     },

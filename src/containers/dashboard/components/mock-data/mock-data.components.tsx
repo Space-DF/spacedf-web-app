@@ -1,53 +1,15 @@
 import React from 'react'
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
   Label,
   PolarRadiusAxis,
   RadialBar,
   RadialBarChart,
   ResponsiveContainer,
-  XAxis,
-  YAxis,
 } from 'recharts'
 
-import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Equalizer } from '@/components/icons/equalizer'
 import { cn } from '@/lib/utils'
-import { StreamVideo } from '@/containers/components/stream-video'
-
-const chartData = [
-  {
-    day: 'Mon',
-    uv: 50,
-  },
-  {
-    day: 'Tue',
-    uv: 60,
-  },
-  {
-    day: 'Wed',
-    uv: 40,
-  },
-  {
-    day: 'Thu',
-    uv: 70,
-  },
-  {
-    day: 'Fri',
-    uv: 50,
-  },
-  {
-    day: 'Sat',
-    uv: 40,
-  },
-  {
-    day: 'Sun',
-    uv: 60,
-  },
-]
+import { WidgetContainer, WidgetTitle } from './components'
 
 const polarData = [{ desktop: 215 }]
 
@@ -55,66 +17,6 @@ interface WidgetProp {
   children?: React.ReactNode
   className?: string
 }
-
-const WidgetContainer = ({ children, className }: WidgetProp) => (
-  <div
-    className={cn(
-      'size-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft space-y-1',
-      className
-    )}
-  >
-    {children}
-  </div>
-)
-
-const WidgetTitle = ({ children, className }: WidgetProp) => (
-  <div
-    className={cn(
-      'line-clamp-1 text-sm font-medium text-brand-component-text-dark',
-      className
-    )}
-  >
-    {children}
-  </div>
-)
-
-const WidgetChart = ({ children }: WidgetProp) => (
-  <WidgetContainer>
-    {children}
-    <ResponsiveContainer className={'pb-3'}>
-      <AreaChart accessibilityLayer data={chartData}>
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="15%" stopColor="currentColor" stopOpacity={0.8} />
-            <stop offset="95%" stopColor="currentColor" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          width={20}
-          tick={{ fontSize: 12 }}
-        />
-        <XAxis
-          dataKey="day"
-          axisLine={false}
-          tickLine={false}
-          tickFormatter={(value) => value.slice(0, 3)}
-          tick={{ fontSize: 12 }}
-        />
-        <CartesianGrid vertical={false} opacity={0.3} />
-        <Area
-          type="linear"
-          dataKey="uv"
-          stroke="currentColor"
-          strokeWidth={2}
-          fillOpacity={1}
-          fill="url(#colorUv)"
-        />
-      </AreaChart>
-    </ResponsiveContainer>
-  </WidgetContainer>
-)
 
 const PolarChart = ({ children, className }: WidgetProp) => (
   <WidgetContainer>
@@ -211,55 +113,4 @@ const WidgetText = () => {
   )
 }
 
-const WidgetSwitch = ({ children, className }: WidgetProp) => {
-  return (
-    <WidgetContainer className="flex flex-col gap-1">
-      {children}
-      <Switch checked className={className} />
-    </WidgetContainer>
-  )
-}
-
-const WidgetSensor = ({
-  children,
-  className,
-  status,
-}: {
-  className?: string
-  children: React.ReactNode
-  status: 'on' | 'off'
-}) => (
-  <WidgetContainer className="flex gap-3">
-    <div className="relative flex size-7 items-center justify-center rounded-full">
-      <div className="absolute inset-0 rounded-full bg-brand-icon-dark opacity-20 dark:bg-brand-dark-fill-secondary" />
-      <Equalizer className={cn('relative z-10 opacity-100', className)} />
-    </div>
-    <div>
-      {children}
-      <p className="text-sm capitalize text-brand-component-text-gray">
-        {status}
-      </p>
-    </div>
-  </WidgetContainer>
-)
-
-const WidgetCamera = () => {
-  return (
-    <WidgetContainer className="flex flex-col">
-      <WidgetTitle>Camera DMZ 01-1511-M01</WidgetTitle>
-      <StreamVideo />
-    </WidgetContainer>
-  )
-}
-
-export {
-  WidgetSensor,
-  WidgetSwitch,
-  WidgetContainer,
-  WidgetText,
-  WidgetSlider,
-  WidgetChart,
-  PolarChart,
-  WidgetTitle,
-  WidgetCamera,
-}
+export { WidgetText, WidgetSlider, PolarChart }
