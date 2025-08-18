@@ -17,7 +17,7 @@ import DeleteAccount from './delete-account'
 import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
-import { useSession } from 'next-auth/react'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const settings = [
   {
@@ -51,9 +51,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   const [currentSetting, setCurrentSetting] = useState('profile')
   const t = useTranslations('common')
 
-  const { status } = useSession()
-
-  const isAuthenticated = status === 'authenticated'
+  const isAuthenticated = useAuthenticated()
 
   const authSettings = useMemo(() => {
     if (isAuthenticated) {

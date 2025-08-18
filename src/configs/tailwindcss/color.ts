@@ -177,6 +177,7 @@ export const brandColors = {
   'component-hover-warning-light': 'hsl(var(--component-hover-warning-light))',
   'component-hover-warning-soft': 'hsl(var(--component-hover-warning-soft))',
   'component-fill-default-chart': 'hsl(var(--background-fill-default-chart))',
+  'component-fill-sensor': 'hsl(var(--component-fill-sensor))',
 }
 
 export const dark = {}

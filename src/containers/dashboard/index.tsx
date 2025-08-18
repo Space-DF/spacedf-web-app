@@ -8,7 +8,7 @@ import {
   PlusIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
@@ -40,7 +40,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { MockData } from '@/containers/dashboard/components/mock-data/mock-data'
@@ -49,6 +48,10 @@ import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
 import WidgetSelected from './components/widget-selected'
 import { WidgetType } from '@/widget-models/widget'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useDashboard } from './hooks/useDashboard'
+import { useScreenLayoutStore } from '@/stores/dashboard-layout'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 export interface Dashboard {
   value: string
@@ -57,43 +60,11 @@ export interface Dashboard {
   id: number
 }
 
-let dashboards: Dashboard[] = [
-  {
-    value: 'next.js',
-    label: 'Smart Fleet Monitor',
-    isDefault: true,
-    id: 1,
-  },
-  {
-    value: 'sveltekit',
-    label: 'Dashboard 2',
-    isDefault: false,
-    id: 2,
-  },
-  {
-    value: 'nuxt.js',
-    label: 'Dashboard 3',
-    isDefault: false,
-    id: 3,
-  },
-  {
-    value: 'remix',
-    label: 'Dashboard 4',
-    isDefault: false,
-    id: 4,
-  },
-  {
-    value: 'astro',
-    label: 'Dashboard 5',
-    isDefault: false,
-    id: 5,
-  },
-]
-
 const Dashboard = () => {
   const t = useTranslations()
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState<Dashboard>(dashboards[0])
+  const { data: dashboards = [] } = useDashboard()
+  const [selected, setSelected] = useState<Dashboard>()
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
 
@@ -103,8 +74,19 @@ const Dashboard = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
+  const isAuth = useAuthenticated()
+
+  const { setLayouts } = useScreenLayoutStore((state) => ({
+    setLayouts: state.setLayouts,
+  }))
+
+  const { data: widgetLayout } = useGetWidgets(selected?.id)
+
+  useEffect(() => {
+    if (widgetLayout) {
+      setLayouts(widgetLayout.layouts)
+    }
+  }, [widgetLayout])
 
   const {
     isViewAllDashboard,
@@ -115,6 +97,12 @@ const Dashboard = () => {
     setEdit,
   } = useDashboardStore()
 
+  useEffect(() => {
+    if (dashboards.length > 0) {
+      setSelected(dashboards[0])
+    }
+  }, [dashboards])
+
   const handleCreateNewDashBoard = () => {
     setOpen(false)
     const value = {
@@ -123,7 +111,6 @@ const Dashboard = () => {
       isDefault: false,
       id: Math.floor(Math.random() * 1000) + 1,
     }
-    dashboards = [value, ...dashboards]
     setSelected(value)
   }
   const handleViewAllDashboard = () => {
@@ -152,6 +139,13 @@ const Dashboard = () => {
     setSelectedWidget('')
   }
 
+  const handleCancelEdit = () => {
+    if (widgetLayout) {
+      setLayouts(widgetLayout.layouts)
+    }
+    setEdit(false)
+  }
+
   return (
     <>
       {!isAddWidgetOpen ? (
@@ -175,7 +169,7 @@ const Dashboard = () => {
                   setOpen(open)
                 }}
               >
-                <PopoverTrigger asChild className="overflow-hidden">
+                <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
@@ -225,7 +219,7 @@ const Dashboard = () => {
                               'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
                               {
                                 'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
-                                  selected.value === dashboard.value,
+                                  selected?.value === dashboard.value,
                               }
                             )}
                           >
@@ -261,7 +255,7 @@ const Dashboard = () => {
                 {isEdit ? (
                   <div className="w-full flex flex-1 gap-2">
                     <Button
-                      onClick={() => setEdit(false)}
+                      onClick={handleCancelEdit}
                       variant="outline"
                       className="dark:bg-transparent"
                     >
@@ -299,11 +293,11 @@ const Dashboard = () => {
               <>
                 {isEdit && (
                   <div className="mb-6 flex flex-col items-center gap-3">
-                    {!selected.isDefault && (
+                    {/* {!selected?.isDefault && (
                       <div className="text-brand-component-text-dark">
                         {t('dashboard.let_add_some_widget')}
                       </div>
-                    )}
+                    )} */}
                     <Button
                       className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white dark:border-brand-component-stroke-light"
                       onClick={() => setIsAddWidgetOpen(true)}
@@ -313,10 +307,13 @@ const Dashboard = () => {
                     </Button>
                   </div>
                 )}
-                <MockData isEdit={isEdit} />
-                {!selected.isDefault && (
+                {widgetLayout?.widgets.length === 0 && (
                   <Nodata content={t('common.no_widget')} />
                 )}
+                <MockData
+                  isEdit={isEdit}
+                  widgets={widgetLayout?.widgets || []}
+                />
               </>
             )}
           </div>

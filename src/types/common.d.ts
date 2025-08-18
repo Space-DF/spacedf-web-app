@@ -24,6 +24,9 @@ export type SpaceUser = {
   avatar?: string
 }
 
+export type MakeRequired<T> = {
+  [K in keyof T]-?: T[K]
+}
 // export interface APIResponse<TResponse = any> extends FullResponse<T> {
 //   response: {
 //     Message: string

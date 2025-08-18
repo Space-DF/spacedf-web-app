@@ -10,6 +10,7 @@ import {
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
 import { useIsDemo } from '@/hooks/useIsDemo'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -46,6 +47,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const isDemo = useIsDemo()
 
+  const isAuthenticated = useAuthenticated()
+
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
     // Business logic: Update device store with parsed telemetry data
@@ -62,7 +65,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (isDemo) return
+    if (isDemo || !isAuthenticated) return
 
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()

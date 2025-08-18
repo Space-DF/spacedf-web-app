@@ -8,7 +8,7 @@ import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { LogOut } from 'lucide-react'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { forwardRef, useEffect, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
@@ -37,6 +37,7 @@ import ThemeToggle from './theme-toggle'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useRouter } from 'next/navigation'
 import { useIsDemo } from '@/hooks/useIsDemo'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
@@ -115,10 +116,8 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const t = useTranslations('common')
   const { mounted } = useMounted()
 
-  const { status } = useSession()
+  const isAuth = useAuthenticated()
   const isDemo = useIsDemo()
-
-  const isAuth = status === 'authenticated'
 
   const handleCollapsedChange = () => {
     setCollapsed(true)
@@ -228,11 +227,10 @@ const CollapsedSidebar = ({
 
   const router = useRouter()
 
-  const { status } = useSession()
   const { mounted } = useMounted()
   const t = useTranslations('common')
 
-  const isAuth = status === 'authenticated'
+  const isAuth = useAuthenticated()
 
   const handleCollapsedChange = () => {
     setCollapsed(false)
@@ -332,9 +330,7 @@ const CollapsedSidebar = ({
 }
 
 const Navigations = () => {
-  const { status } = useSession()
-
-  const isAuth = status === 'authenticated'
+  const isAuth = useAuthenticated()
   const t = useTranslations('common')
   return (
     <div
@@ -420,9 +416,8 @@ const CollapsedNavigation = () => {
     useShallow((state) => state.toggleDynamicLayout)
   )
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
-  const { status } = useSession()
 
-  const isAuth = status === 'authenticated'
+  const isAuth = useAuthenticated()
 
   return (
     <div className="my-4 flex w-full flex-col items-center justify-center gap-1">
