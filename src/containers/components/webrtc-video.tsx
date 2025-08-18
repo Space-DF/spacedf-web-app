@@ -37,9 +37,10 @@ interface Props {
 export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
   ({ setConnectionState }, videoRef) => {
     const peerRef = useRef<RTCPeerConnection | null>(null)
-    const [retryCount, setRetryCount] = useState(0)
     const [isRetrying, setIsRetrying] = useState(false)
-    const [streamSet, setStreamSet] = useState(false)
+
+    const streamSetRef = useRef<boolean>(false)
+    const retryCountRef = useRef<number>(0)
 
     useEffect(() => {
       initializeWebRTC()
@@ -95,13 +96,11 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
             typeof videoRef !== 'function' &&
             videoRef.current &&
             event.streams.length > 0 &&
-            !streamSet
+            !streamSetRef.current
           ) {
             const stream = event.streams[0]
             videoRef.current.srcObject = stream
-            // Set stream only once
-            videoRef.current.srcObject = stream
-            setStreamSet(true)
+            streamSetRef.current = true
 
             const tryPlayVideo = () => {
               if (
@@ -175,11 +174,11 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
       }
     }
     async function handleRetry() {
-      if (isRetrying || retryCount >= MAX_RETRIES) return
+      if (isRetrying || retryCountRef.current >= MAX_RETRIES) return
       setIsRetrying(true)
-      setRetryCount((c) => c + 1)
+      retryCountRef.current++
 
-      const delay = Math.pow(2, retryCount + 1) * 1000
+      const delay = Math.pow(2, retryCountRef.current + 1) * 1000
 
       setTimeout(() => {
         cleanup()
@@ -194,7 +193,7 @@ export const WebRTCVideo = forwardRef<HTMLVideoElement, Props>(
       if (videoRef && typeof videoRef !== 'function' && videoRef.current) {
         videoRef.current.srcObject = null
       }
-      setStreamSet(false)
+      streamSetRef.current = false
     }
 
     return (
