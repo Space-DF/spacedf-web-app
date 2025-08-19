@@ -59,9 +59,9 @@ import { getNewLayouts, useLayout } from '@/stores'
 import { useDeviceStore } from '@/stores/device-store'
 import { useIdentityStore } from '@/stores/identity-store'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
-import { useSession } from 'next-auth/react'
 import DeviceDetail from './components/device-detail'
 import Image from 'next/image'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -136,8 +136,7 @@ const AddDeviceDialog = () => {
   const setOpenDrawerIdentity = useIdentityStore(
     useShallow((state) => state.setOpenDrawerIdentity)
   )
-  const { status } = useSession()
-  const isAuth = status === 'authenticated'
+  const isAuth = useAuthenticated()
 
   const steps: Record<Step, Steps> = {
     select_mode: {
@@ -377,11 +376,11 @@ const DeviceSelected = () => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceData.id}
+            content={deviceData?.id}
           />
           <InformationItem
             label={`${t('device_name')}:`}
-            content={deviceData.name}
+            content={deviceData?.name}
           />
           <InformationItem
             label={`${t('deveui')}:`}

@@ -15,7 +15,6 @@ import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TABLE_TABS_KEY = [TabKey.Sources, TabKey.Info]
 
@@ -46,7 +45,6 @@ const TableWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
-  const { mutate } = useGetWidgets()
   const form = useForm<mapPayload>({
     resolver: zodResolver(mapSchema),
     defaultValues: defaultMapValues,
@@ -63,12 +61,7 @@ const TableWidget: React.FC<Props> = ({
   })
 
   const { createWidget } = useCreateWidget({
-    onSuccess: (newWidget) => {
-      mutate((prevData: any) => {
-        const newData = [...prevData, newWidget]
-        return newData
-      }, false)
-
+    onSuccess: () => {
       toast.success('Created map widget successfully')
       onSaveWidget()
     },

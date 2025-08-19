@@ -140,6 +140,8 @@
     --component-hover-warning-light: 39.63, 100%, 78.63%;
     --component-hover-warning-soft: 40, 100%, 96.47%;
     --background-fill-default-chart: 229, 27%, 12%;
+    --component-progressbar-container: 240, 16%, 15%, 0.3;
+    --component-fill-sensor: 231, 84%, 76%;
 
     /*"--icon-light-fixed": "#FFFFFF",*/
     /*"--icon-dark": "#171A28",*/
@@ -419,6 +421,8 @@
     --component-hover-warning-light: 39.23, 100%, 64.31%;
     --component-hover-warning-soft: 39.11, 98.75%, 31.37%;
     --background-fill-default-chart: 0, 0%, 100%;
+    --component-progressbar-container: 240, 16%, 15%, 0.3;
+    --component-fill-sensor: 231, 84%, 76%;
 
     /*"--icon-light-fixed": "#FFFFFF",*/
     /*"--icon-dark": "#FFFFFF",*/

@@ -1,6 +1,9 @@
+import { OrgNotExist } from '@/components/layouts/org-not-exist'
 import { getValidSubdomain } from '@/utils/subdomain'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+
+const AVAILABLE_ORGS = ['demo', 'develop', 'digitalfortress', 'danang']
 
 export default async function Layout({
   children,
@@ -16,6 +19,10 @@ export default async function Layout({
 
   if (!org) {
     redirect('/')
+  }
+
+  if (!AVAILABLE_ORGS.includes(org)) {
+    return <OrgNotExist />
   }
 
   return <section>{children}</section>

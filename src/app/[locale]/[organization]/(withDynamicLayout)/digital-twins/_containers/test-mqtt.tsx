@@ -1,52 +1,37 @@
 'use client'
 
-import { createMQTTStore } from '@/stores/mqtt'
-// import client from './mqtt'
+import { useEffect, useState } from 'react'
+import MqttService from '@/lib/mqtt'
 
-import { useShallow } from 'zustand/react/shallow'
-
-// const TOPIC = 'test/topic'
-
-const useMQTTStore = createMQTTStore('test/topic')
+const TOPIC = 'test/topic'
 
 export const TestMQTT = () => {
-  const { message, publish } = useMQTTStore(
-    useShallow((state) => ({
-      message: state.message,
-      publish: state.publish,
-    }))
-  )
+  const [message, setMessage] = useState<string>('')
+  const [mqttService, setMqttService] = useState<MqttService | null>(null)
 
-  console.log({ message })
-  //   const [message, setMessage] = useState<string>('')
+  useEffect(() => {
+    const service = MqttService.getInstance()
+    service.initialize()
+    setMqttService(service)
 
-  //   useEffect(() => {
-  //     client.subscribe(TOPIC, (err) => {
-  //       if (!err) {
-  //         // console.log(`📡 Subscribed to topic: ${TOPIC}`)
-  //       }
-  //     })
+    // Subscribe to test topic
+    service.subscribe(TOPIC, {
+      callback: (topic, payload) => {
+        if (topic === TOPIC) {
+          setMessage(payload.toString())
+        }
+      },
+    })
 
-  //     client.on('message', (topic, payload) => {
-  //       //   console.log(`📩 Received: ${payload.toString()} from ${topic}`)
-  //       setMessage(payload.toString())
-  //     })
+    return () => {
+      service.unsubscribe(TOPIC)
+    }
+  }, [])
 
-  //     return () => {
-  //       client.unsubscribe(TOPIC)
-  //     }
-  //   }, [])
-
-  //   const handlePublish = () => {
-  //     const payload = 'Hello MQTT from React!'
-  //     client.publish(TOPIC, payload, { qos: 1 }, (err) => {
-  //       if (err) {
-  //         // console.error('❌ Publish error:', err)
-  //       } else {
-  //         // console.log(`📤 Sent: ${payload}`)
-  //       }
-  //     })
-  //   }
+  const handlePublish = () => {
+    const payload = 'Hello MQTT from React!'
+    mqttService?.publish(TOPIC, payload, { qos: 1 })
+  }
 
   console.log('rerender')
 
@@ -55,7 +40,7 @@ export const TestMQTT = () => {
       <h2 className="text-lg font-bold">MQTT WebSocket in React</h2>
       <p>Received message: {message}</p>
       <button
-        onClick={() => publish('Hello MQTT from React!')}
+        onClick={handlePublish}
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
       >
         Send Message

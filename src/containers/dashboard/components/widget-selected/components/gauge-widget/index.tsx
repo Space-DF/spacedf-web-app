@@ -17,7 +17,6 @@ import { WidgetType } from '@/widget-models/widget'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { toast } from 'sonner'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
 
 const TabContents = () => {
   return (
@@ -52,7 +51,6 @@ const GaugeWidget: React.FC<Props> = ({
   onBack,
 }) => {
   const t = useTranslations('dashboard')
-  const { mutate } = useGetWidgets()
   const form = useForm<GaugePayload>({
     resolver: zodResolver(gaugeSchema),
     defaultValues: defaultGaugeValues,
@@ -79,12 +77,7 @@ const GaugeWidget: React.FC<Props> = ({
     })
 
   const { createWidget } = useCreateWidget({
-    onSuccess: (newWidget) => {
-      mutate((prevData: any) => {
-        const newData = [...prevData, newWidget]
-        return newData
-      }, false)
-
+    onSuccess: () => {
       toast.success('Created gauge widget successfully')
       onSaveWidget()
     },

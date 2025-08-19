@@ -29,53 +29,53 @@ const chartConfig = {
 
 export const dailyOrders = [
   {
+    'source.0': 42,
+    'source.1': 48,
+    'source.2': 35,
+    'source.3': 58,
+    'source.4': 45,
+  },
+  {
+    'source.0': 55,
+    'source.1': 41,
+    'source.2': 62,
+    'source.3': 47,
+    'source.4': 39,
+  },
+  {
     'source.0': 38,
-    'source.1': 22,
+    'source.1': 56,
     'source.2': 44,
-    'source.3': 93,
-    'source.4': 3,
+    'source.3': 32,
+    'source.4': 61,
+  },
+  {
+    'source.0': 61,
+    'source.1': 43,
+    'source.2': 51,
+    'source.3': 57,
+    'source.4': 36,
+  },
+  {
+    'source.0': 46,
+    'source.1': 59,
+    'source.2': 33,
+    'source.3': 52,
+    'source.4': 48,
   },
   {
     'source.0': 53,
-    'source.1': 57,
-    'source.2': 61,
-    'source.3': 39,
-    'source.4': 9,
+    'source.1': 37,
+    'source.2': 59,
+    'source.3': 41,
+    'source.4': 54,
   },
   {
-    'source.0': 38,
-    'source.1': 49,
-    'source.2': 68,
-    'source.3': 24,
-    'source.4': 92,
-  },
-  {
-    'source.0': 85,
-    'source.1': 96,
-    'source.2': 16,
-    'source.3': 53,
-    'source.4': 18,
-  },
-  {
-    'source.0': 9,
-    'source.1': 23,
-    'source.2': 58,
-    'source.3': 37,
-    'source.4': 94,
-  },
-  {
-    'source.0': 50,
-    'source.1': 68,
-    'source.2': 20,
-    'source.3': 3,
-    'source.4': 20,
-  },
-  {
-    'source.0': 83,
-    'source.1': 75,
-    'source.2': 2,
-    'source.3': 46,
-    'source.4': 95,
+    'source.0': 40,
+    'source.1': 62,
+    'source.2': 45,
+    'source.3': 49,
+    'source.4': 34,
   },
 ]
 
@@ -83,7 +83,7 @@ const today = dayjs()
 
 const generateData = (format: TimeFormat) =>
   dailyOrders.map((order, index) => {
-    const date = today.add(index, 'day').format(format)
+    const date = today.add(index * 2, 'minutes').format(format)
     return { ...order, day: date }
   })
 
@@ -181,6 +181,7 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
 }) => {
   const data = generateData(format)
   return (
+    // <div className="space-y-1">
     <ChartContainer
       config={chartConfig}
       className="size-full"
@@ -232,8 +233,26 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
         {sources.map((source, index) =>
           renderChartComponents(source.chart_type, source, index, showData)
         )}
-        <Legend />
         <Tooltip />
+        <Legend
+          content={
+            <div className="w-full flex justify-center">
+              <div className="flex space-x-2">
+                {sources.map((source, index) => (
+                  <div key={index} className="flex items-center space-x-1">
+                    <div
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: `#${source.color}` }}
+                    />
+                    <p className="text-sm text-brand-component-text-grat">
+                      {source.legend}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          }
+        />
       </ComposedChart>
     </ChartContainer>
   )

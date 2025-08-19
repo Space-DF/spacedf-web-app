@@ -52,6 +52,8 @@ export const brandColors = {
   'background-fill-central': 'hsl(var(--background-fill-central))',
   'background-fill-heart': 'hsl(var(--background-fill-heart))',
   'background-stroke-surface': 'hsl(var(--background-stroke-surface))',
+  'component-progressbar-container':
+    'hsl(var(--component-progressbar-container))',
   'background-stroke-outermost': 'hsl(var(--background-stroke-outermost))',
   'background-stroke-middle': 'hsl(var(--background-stroke-middle))',
   'background-stroke-inner': 'hsl(var(--background-stroke-inner))',
@@ -175,6 +177,7 @@ export const brandColors = {
   'component-hover-warning-light': 'hsl(var(--component-hover-warning-light))',
   'component-hover-warning-soft': 'hsl(var(--component-hover-warning-soft))',
   'component-fill-default-chart': 'hsl(var(--background-fill-default-chart))',
+  'component-fill-sensor': 'hsl(var(--component-fill-sensor))',
 }
 
 export const dark = {}

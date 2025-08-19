@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowLeftIcon, X } from 'lucide-react'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { useShallow } from 'zustand/react/shallow'
@@ -35,6 +35,7 @@ import Image from 'next/image'
 import { useProfile } from '@/components/layouts/general-setting/hooks/useProfile'
 import { AuthTypeEnum } from '@/types/auth'
 import { toast } from 'sonner'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
   const data = {
@@ -79,13 +80,12 @@ const Identity = () => {
     setFormType: state.setFormType,
   }))
 
-  const { status } = useSession()
   const { isOrganization } = useOrganization()
   const searchParams = useSearchParams()
   const [identityStep, setIdentityStep] =
     useState<`${IdentityStepEnum}`>('authentication')
 
-  const isAuthenticated = status === 'authenticated'
+  const isAuthenticated = useAuthenticated()
 
   useEffect(() => {
     if (!isAuthenticated) return setIdentityStep('authentication')

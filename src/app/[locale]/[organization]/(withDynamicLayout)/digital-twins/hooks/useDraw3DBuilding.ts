@@ -36,7 +36,7 @@ export const useDraw3DBuilding = () => {
             15.05,
             ['get', 'min_height'],
           ],
-          'fill-extrusion-opacity': 0.3,
+          'fill-extrusion-opacity': 0.6,
         },
       },
       'road-label-simple'
