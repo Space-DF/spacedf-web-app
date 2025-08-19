@@ -9,8 +9,8 @@ import {
   DeviceTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
-import { useIsDemo } from '@/hooks/useIsDemo'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
+// import { useIsDemo } from '@/hooks/useIsDemo'
+// import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -45,9 +45,9 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     initializedDevices: false,
   })
 
-  const isDemo = useIsDemo()
+  // const isDemo = useIsDemo()
 
-  const isAuthenticated = useAuthenticated()
+  // const isAuthenticated = useAuthenticated()
 
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
@@ -65,7 +65,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (isDemo || !isAuthenticated) return
+    // if (isDemo || !isAuthenticated) return
 
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()
@@ -113,7 +113,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         })
       },
     })
-  }, [isDemo])
+  }, [])
 
   useEffect(() => {
     loadModels()
