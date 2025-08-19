@@ -48,7 +48,7 @@ import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
 import WidgetSelected from './components/widget-selected'
 import { WidgetType } from '@/widget-models/widget'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
+// import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useDashboard } from './hooks/useDashboard'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
@@ -74,7 +74,7 @@ const Dashboard = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
-  const isAuth = useAuthenticated()
+  // const isAuth = useAuthenticated()
 
   const { setLayouts } = useScreenLayoutStore((state) => ({
     setLayouts: state.setLayouts,
@@ -163,9 +163,8 @@ const Dashboard = () => {
               </div>
             ) : (
               <Popover
-                open={isAuth && open}
+                open={open}
                 onOpenChange={(open) => {
-                  if (!isAuth) return
                   setOpen(open)
                 }}
               >
