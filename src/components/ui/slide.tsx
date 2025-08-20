@@ -119,7 +119,7 @@ export const Slide = React.forwardRef<HTMLDivElement, SlideProps>(
           <motion.div
             ref={ref}
             className={cn(
-              'z-10 absolute bg-background shadow-lg border overflow-hidden left-0 top-0',
+              'z-20 absolute bg-background shadow-lg border overflow-hidden left-0 top-0',
               slideConfig.className,
               className
             )}

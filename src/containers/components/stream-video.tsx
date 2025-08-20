@@ -148,6 +148,8 @@ export const StreamVideo: React.FC<Props> = () => {
     }
   }, [isFullscreen])
 
+  const statusColor = getConnectionStatusColor(connectionState)
+
   return (
     <div
       ref={containerRef}
@@ -159,22 +161,17 @@ export const StreamVideo: React.FC<Props> = () => {
       <div className="absolute top-4 left-4 z-20">
         <div className="flex space-x-2 items-center text-xs">
           <div className="relative">
-            <div
-              className={cn(
-                'size-2 rounded-full',
-                getConnectionStatusColor(connectionState)
-              )}
-            />
+            <div className={cn('size-2 rounded-full', statusColor)} />
             <div
               className={cn(
                 'absolute inset-0 size-2 rounded-full animate-ping opacity-75',
-                getConnectionStatusColor(connectionState)
+                statusColor
               )}
             />
             <div
               className={cn(
                 'absolute inset-0 size-2  rounded-full animate-pulse',
-                getConnectionStatusColor(connectionState)
+                statusColor
               )}
             />
           </div>
