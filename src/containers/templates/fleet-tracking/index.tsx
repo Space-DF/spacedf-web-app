@@ -154,6 +154,7 @@ const FleetTracking = () => {
     if (previousDeviceSelected && !deviceSelected) {
       map?.flyTo({
         zoom: 17,
+        center: devices[previousDeviceSelected].latestLocation,
       })
     }
   }, [isMapReady, deviceSelected, previousDeviceSelected])
@@ -199,12 +200,6 @@ const FleetTracking = () => {
   //     }
   //     return device
   //   })
-
-  //   // map?.flyTo({
-  //   //   center: [106.666666, 10.783333],
-  //   //   zoom: 17,
-  //   //   pitch: 90,
-  //   // })
 
   //   setDevices(newDevices)
   // }
