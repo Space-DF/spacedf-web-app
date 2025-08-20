@@ -397,24 +397,60 @@ const DeckglLayers = () => {
     [map, devices, deviceModels]
   )
 
-  const getMarker = useCallback((deviceData: Device) => {
-    const el = document.createElement('div')
+  const getMarker = useCallback(
+    (deviceData: Device) => {
+      const el = document.createElement('div')
 
-    el.className = `${deviceData.type}-marker`
-    el.id = `${deviceData.type}-marker-${deviceData.id}`
+      el.className = `${deviceData.type}-marker`
+      el.id = `${deviceData.type}-marker-${deviceData.id}`
 
-    el.addEventListener('click', () => {
-      setDeviceSelected(deviceData.id)
-    })
+      el.addEventListener('click', () => {
+        setDeviceSelected(deviceData.id)
+      })
 
-    // Add style for opacity and transition
-    el.style.opacity = '0'
-    // el.style.transition = 'opacity 0.5s ease-in-out'
+      // Add style for opacity and transition
+      el.style.opacity = '0'
+      // el.style.transition = 'opacity 0.5s ease-in-out'
 
-    return new mapboxgl.Marker(el, {
-      offset: [0, -90],
-    })
-  }, [])
+      // Dynamic sizing based on zoom level to maintain consistent visual size
+      const updateMarkerSize = () => {
+        if (!map) return
+        const zoom = map.getZoom()
+
+        // Use original marker dimensions as base at zoom level 17
+        const baseZoom = 17
+        const baseWidth = 70
+        const baseHeight = 100
+
+        // Calculate scale factor (minimum 0.5x for visibility, maximum 1x)
+        const scaleFactor = Math.min(1, Math.max(0.6, zoom / baseZoom))
+
+        const scaledWidth = baseWidth * scaleFactor
+        const scaledHeight = baseHeight * scaleFactor
+
+        el.style.width = `${scaledWidth}px`
+        el.style.height = `${scaledHeight}px`
+      }
+
+      // Initial sizing
+      updateMarkerSize()
+
+      // Update size when zoom changes
+      const marker = new mapboxgl.Marker(el, {
+        anchor: 'center', // Use center anchor for small circular markers
+        pitchAlignment: 'viewport', // Keep marker aligned with viewport, not map plane
+        rotationAlignment: 'viewport', // Keep marker rotation aligned with viewport
+      })
+
+      // Listen for zoom changes to update marker size
+      if (map) {
+        map.on('zoom', updateMarkerSize)
+      }
+
+      return marker
+    },
+    [map]
+  )
 
   const removeAllMarkers = () => {
     Object.values(markerRef.current).forEach((marker) => {
