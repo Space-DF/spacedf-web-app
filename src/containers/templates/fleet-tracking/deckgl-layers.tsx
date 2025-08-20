@@ -71,13 +71,14 @@ const DeckglLayers = () => {
 
   const isFirstLoad = useRef(true)
 
-  const { map, modelType } = useFleetTrackingStore(
+  const { map, modelType, setModelType } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       modelType:
         state.modelType ||
         (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
         '2d',
+      setModelType: state.setModelType,
     }))
   )
 
@@ -334,11 +335,10 @@ const DeckglLayers = () => {
   }, [])
 
   useEffect(() => {
-    console.log({ modelType, deviceSelected })
-    if (modelType === '3d' && deviceSelected) {
-      console.log({ deviceSelected })
-      stopAllAnimations(1, true)
+    if (deviceSelected) {
       startAnimation(deviceSelected)
+    } else {
+      stopAllAnimations()
     }
   }, [deviceSelected, modelType])
 
@@ -351,6 +351,7 @@ const DeckglLayers = () => {
         stopAllAnimations()
         handleRender3DLayer(false, 0)
         render2DLayers(true)
+        setDeviceSelected('')
         return
 
       case '3d':
@@ -360,19 +361,12 @@ const DeckglLayers = () => {
     }
   }
 
-  const stopAllAnimations = useCallback(
-    (opacity?: number, isRerenderLayer: boolean = false) => {
-      if (stopAnimation.current) {
-        stopAnimation.current()
-        stopAnimation.current = () => {}
-
-        if (isRerenderLayer) {
-          handleRender3DLayer(false, opacity)
-        }
-      }
-    },
-    [devices, map, deviceModels]
-  )
+  const stopAllAnimations = useCallback(() => {
+    if (stopAnimation.current) {
+      stopAnimation.current()
+      stopAnimation.current = () => {}
+    }
+  }, [devices, map, deviceModels])
 
   const render2DLayers = useCallback(
     (hasFling: boolean = false) => {
@@ -441,6 +435,7 @@ const DeckglLayers = () => {
 
       el.addEventListener('click', () => {
         setDeviceSelected(deviceData.id)
+        setModelType('3d')
       })
 
       // Add style for opacity and transition
@@ -555,6 +550,15 @@ const DeckglLayers = () => {
 
   const startAnimation = useCallback(
     (deviceId: string) => {
+      if (stopAnimation.current) {
+        stopAnimation.current()
+        stopAnimation.current = () => {}
+
+        if (modelType === '3d') {
+          handleRender3DLayer(false, 1)
+        }
+      }
+
       const device = devices[deviceId]
       if (!device) return
 
@@ -586,7 +590,7 @@ const DeckglLayers = () => {
 
       stopAnimation.current = animation.stop
     },
-    [devices, map]
+    [devices, map, modelType]
   )
 
   return <></>
