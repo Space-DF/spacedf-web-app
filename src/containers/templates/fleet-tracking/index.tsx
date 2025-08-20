@@ -151,12 +151,12 @@ const FleetTracking = () => {
       zoomToDevice(deviceSelected)
     }
 
-    if (previousDeviceSelected && !deviceSelected) {
-      map?.flyTo({
-        zoom: 17,
-        center: devices[previousDeviceSelected].latestLocation,
-      })
-    }
+    // if (previousDeviceSelected && !deviceSelected) {
+    //   map?.flyTo({
+    //     zoom: 17,
+    //     center: devices[previousDeviceSelected].latestLocation,
+    //   })
+    // }
   }, [isMapReady, deviceSelected, previousDeviceSelected])
 
   const renderMapResources = useCallback(
