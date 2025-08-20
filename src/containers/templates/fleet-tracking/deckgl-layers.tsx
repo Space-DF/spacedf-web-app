@@ -394,7 +394,7 @@ const DeckglLayers = () => {
         if (markerRef.current[deviceId] && markerRef.current) {
           markerRef.current[deviceId]
             ?.setLngLat([...(device.latestLocation || [0, 0])])
-            .addTo(map)
+            ?.addTo(map)
         }
       })
     },
