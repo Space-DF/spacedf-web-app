@@ -148,7 +148,7 @@ const FleetTracking = () => {
     if (!isMapReady) return
 
     if (deviceSelected && deviceSelected !== previousDeviceSelected) {
-      zoomToDevice(deviceSelected)
+      zoomToDevice(deviceSelected, false, true)
     }
 
     // if (previousDeviceSelected && !deviceSelected) {
@@ -171,7 +171,7 @@ const FleetTracking = () => {
   )
 
   const zoomToDevice = useCallback(
-    (deviceId: string, isFirstLoad = false) => {
+    (deviceId: string, isFirstLoad = false, isFocus = false) => {
       if (!map) return
       const device = devices[deviceId]
       if (!device || !device.latestLocation) return
@@ -182,6 +182,9 @@ const FleetTracking = () => {
       map.flyTo({
         center: [lng, lat],
         zoom: isFirstLoad ? 17 : 19,
+        ...(isFocus && {
+          pitch: 90,
+        }),
       })
     },
     [devices, map]
