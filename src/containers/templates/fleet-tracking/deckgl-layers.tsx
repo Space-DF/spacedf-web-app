@@ -334,17 +334,17 @@ const DeckglLayers = () => {
   }, [])
 
   useEffect(() => {
-    stopAllAnimations(1, true)
-    if (deviceSelected) {
+    console.log({ modelType, deviceSelected })
+    if (modelType === '3d' && deviceSelected) {
+      console.log({ deviceSelected })
+      stopAllAnimations(1, true)
       startAnimation(deviceSelected)
     }
-  }, [deviceSelected])
+  }, [deviceSelected, modelType])
 
   const updateMapResources = (modelType: '2d' | '3d') => {
     if (!map) return
     setIsStartRender(true)
-
-    setDeviceSelected('')
 
     switch (modelType) {
       case '2d':
