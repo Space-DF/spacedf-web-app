@@ -16,6 +16,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { Material } from '@deck.gl/core'
 import Supercluster from 'supercluster'
 import { useGetDevices } from '@/hooks/useDevices'
+import { transformDeviceData } from '@/utils/map'
 
 type CreateRotatingLayerProps = {
   device: Device
@@ -83,9 +84,9 @@ export const useLoadDeviceModels = () => {
     }))
   )
 
-  const { data } = useGetDevices()
+  const { data: deviceSpaces } = useGetDevices()
 
-  const devices = data || {}
+  const devices: Device[] | undefined = transformDeviceData(deviceSpaces || [])
 
   const startAnimation = useCallback(
     (device: Device, modelsProps: Record<string, GLTFWithBuffers>) => {
@@ -106,9 +107,13 @@ export const useLoadDeviceModels = () => {
                 model: modelsProps[device.type],
               })
             }
+            const currentDevice = devices?.find(
+              (device) => device.id === layer.id
+            )
+            if (!currentDevice) return
             return createRotatingLayer({
-              device: devices[layer.id],
-              model: modelsProps[devices?.[layer.id]?.type],
+              device: currentDevice,
+              model: modelsProps[currentDevice?.type],
             })
           })
 
@@ -124,16 +129,17 @@ export const useLoadDeviceModels = () => {
 
   useEffect(() => {
     if (!map.current || !window.devicesMapOverlay || !deviceSelected) return
-
+    const currentDevice = devices?.find(
+      (device) => device.id === deviceSelected
+    )
+    if (!currentDevice) return
     map.current.flyTo({
-      center: devices[deviceSelected].location,
+      center: currentDevice.latestLocation,
       zoom: 19,
       duration: 2000,
       essential: true,
       pitch: 77,
     })
-
-    const currentDevice = devices[deviceSelected]
 
     startAnimation(currentDevice, models)
   }, [deviceSelected, models])
@@ -161,7 +167,9 @@ export const useLoadDeviceModels = () => {
 
     return new ScenegraphLayer({
       id: device.id,
-      data: [{ position: [...(device.location as [number, number]), 20] }],
+      data: [
+        { position: [...(device.latestLocation as [number, number]), 20] },
+      ],
       scenegraph: model,
       getPosition: (d) => d.position,
       sizeScale: 15,
@@ -181,22 +189,23 @@ export const useLoadDeviceModels = () => {
 
       map.current = mapInstance
 
-      Object.values(devices).forEach((device) => {
+      devices?.forEach((device) => {
         const model = models[device.type]
         layers.push(createRotatingLayer({ device, model }))
       })
 
-      const devicePoints = Object.values(devices)
-        .filter(
+      const devicePoints = devices
+        ?.filter(
           (device) =>
-            Array.isArray(device.location) && device.location.length === 2
+            Array.isArray(device.latestLocation) &&
+            device.latestLocation.length === 2
         ) // Ensure valid locations
         .map((device) => ({
           type: 'Feature',
           properties: { id: device.id, type: device.type },
           geometry: {
             type: 'Point',
-            coordinates: device.location as [number, number],
+            coordinates: device.latestLocation as [number, number],
           },
         }))
 

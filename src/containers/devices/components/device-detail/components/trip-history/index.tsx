@@ -19,6 +19,9 @@ import TripDetail from './components/trip-detail'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
+import { useGetTrips } from './hooks/useGetTrips'
+import { calculateTotalDistance } from '@/utils/map'
+import { Checkpoint } from '@/types/trip'
 
 const RANGE_VALUES = [
   {
@@ -40,50 +43,13 @@ const RANGE_VALUES = [
 ]
 
 interface ListItem {
-  id: number
+  id: string
   name: string
-  distance: number
+  distance: string
   duration: number
   time: Date
+  checkpoints: Checkpoint[]
 }
-
-const TRIP_HISTORY: ListItem[] = [
-  {
-    id: 1,
-    name: 'Morning Commute',
-    distance: 14.5,
-    duration: 3600000, // 1 hour
-    time: new Date('2024-03-20T08:30:00'),
-  },
-  {
-    id: 2,
-    name: 'Evening Return',
-    distance: 15.2,
-    duration: 3900000, // 1 hour 5 minutes
-    time: new Date('2024-03-20T17:45:00'),
-  },
-  {
-    id: 3,
-    name: 'Weekend Trip',
-    distance: 45.8,
-    duration: 7200000, // 2 hours
-    time: new Date('2024-03-18T10:15:00'),
-  },
-  {
-    id: 4,
-    name: 'Grocery Run',
-    distance: 8.3,
-    duration: 1800000, // 30 minutes
-    time: new Date('2024-03-19T15:20:00'),
-  },
-  {
-    id: 5,
-    name: 'Business Meeting',
-    distance: 22.4,
-    duration: 4500000, // 1 hour 15 minutes
-    time: new Date('2024-03-17T09:00:00'),
-  },
-]
 
 const INITIAL_VISIBLE_COUNT = 2
 
@@ -95,11 +61,28 @@ const TripHistory = () => {
       deviceSelected: state.deviceSelected,
     }))
   )
+  const { data: trips } = useGetTrips(deviceSelected)
+
+  const tripHistory: ListItem[] =
+    trips?.map((trip) => ({
+      id: trip.id,
+      name: 'Weekend Trip',
+      checkpoints: trip.checkpoints,
+      distance: calculateTotalDistance(trip.checkpoints),
+      duration: trip.checkpoints.reduce((acc, checkpoint) => {
+        return (
+          acc +
+          (new Date(checkpoint.timestamp).getTime() -
+            new Date(trip.started_at).getTime())
+        )
+      }, 0),
+      time: new Date(trip.started_at),
+    })) || []
 
   const { startDrawHistory } = useDeviceHistory()
 
   const handleStartDrawHistory = (item: ListItem) => {
-    startDrawHistory(deviceSelected)
+    startDrawHistory(item.checkpoints)
     setSelectedTrip(item)
   }
 
@@ -167,6 +150,7 @@ const TripHistory = () => {
       <TripDetail
         open={!!selectedTrip}
         onClose={() => setSelectedTrip(undefined)}
+        checkpoints={selectedTrip?.checkpoints}
       />
       <div className="flex flex-col gap-4 relative">
         <div className="flex items-center justify-between">
@@ -195,7 +179,7 @@ const TripHistory = () => {
           </div>
         </div>
         <ExpandableList
-          items={TRIP_HISTORY}
+          items={tripHistory}
           initialCount={INITIAL_VISIBLE_COUNT}
           renderItem={renderTripHistoryItem}
         />

@@ -148,7 +148,7 @@ api.setInterceptors({
     }
 
     // Handle 401 Unauthorized errors
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       const refreshTokenResponse = await fetch('/api/auth/refresh-token', {
         method: 'POST',
         body: JSON.stringify({ refreshToken: session?.user?.refresh }),
