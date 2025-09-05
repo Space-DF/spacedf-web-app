@@ -389,7 +389,7 @@ const DeviceSelected = () => {
           <InformationItem label={`${t('description')}:`} content={'150'} />
         </div>
 
-        <Button onClick={() => startDrawHistory(deviceSelected)}>
+        <Button onClick={() => startDrawHistory()}>
           {t('device_history')}
         </Button>
       </div>
@@ -399,8 +399,7 @@ const DeviceSelected = () => {
 
 const DevicesList = () => {
   const t = useTranslations('addNewDevice')
-  const { data } = useGetDevices()
-  const devices = Object.values(data || {}) || []
+  const { data: devices } = useGetDevices()
 
   const { deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
@@ -427,17 +426,17 @@ const DevicesList = () => {
       <div className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
         <div className="px-2.5 flex-1 transition-all duration-300">
           <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
-            {devices.map((item) => (
+            {devices?.map((item) => (
               <div
                 key={item.id}
                 className={cn(
                   'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                   {
                     'border-brand-component-stroke-dark':
-                      item.id === deviceSelected,
+                      item.device.id === deviceSelected,
                   }
                 )}
-                onClick={() => setDeviceSelected(item.id)}
+                onClick={() => setDeviceSelected(item.device.id)}
               >
                 <div className="space-y-2 mb-2">
                   <div className="flex items-start justify-between">
@@ -450,12 +449,16 @@ const DevicesList = () => {
                     />
                   </div>
                   <div className="text-xs font-medium">
-                    <span className="leading-[18px]">{item.name}</span>
+                    <span className="leading-[18px]">
+                      {item.device.lorawan_device.name}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-medium ">
                   <Map size={16} className="text-brand-text-gray" />
-                  <span className="leading-[18px]">{item.origin}</span>
+                  <span className="leading-[18px]">
+                    {item.device.lorawan_device.location}
+                  </span>
                 </div>
               </div>
             ))}

@@ -1,21 +1,25 @@
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { IconLayer } from 'deck.gl'
 import { useEffect, useRef } from 'react'
-import { useGetDevices } from './useDevices'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useGlobalStore } from '@/stores'
 import { usePrevious } from './usePrevious'
+import { Checkpoint } from '@/types/trip'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 
 export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
 
-  const { data: devices } = useGetDevices()
-
-  const { deviceSelected } = useDeviceStore(
+  const { deviceSelected, deviceHistory } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
+      deviceHistory: state.deviceHistory,
     }))
+  )
+
+  const { map } = useFleetTrackingStore(
+    useShallow((state) => ({ map: state.map }))
   )
 
   const { mapType, isMapInitialized } = useGlobalStore(
@@ -29,9 +33,6 @@ export const useDeviceHistory = () => {
   const previousMapType = usePrevious(mapType)
 
   useEffect(() => {
-    if (!window.mapInstance || !isMapInitialized) return
-
-    const map = window.mapInstance.getMapInstance()
     if (!map) return
 
     const handleStyleChange = () => {
@@ -40,7 +41,7 @@ export const useDeviceHistory = () => {
       )
 
       if (isHasRouteLayer) {
-        startDrawHistory()
+        startDrawHistory(deviceHistory)
       }
     }
 
@@ -49,7 +50,13 @@ export const useDeviceHistory = () => {
         handleStyleChange()
       }, 500)
     }
-  }, [deviceSelected, isMapInitialized, mapType, previousMapType])
+  }, [
+    deviceSelected,
+    isMapInitialized,
+    mapType,
+    previousMapType,
+    deviceHistory,
+  ])
 
   async function getRoute(dataHistories: Record<string, any>) {
     const end = dataHistories.end
@@ -100,18 +107,17 @@ export const useDeviceHistory = () => {
     return layer
   }
 
-  const startDrawHistory = async (deviceId?: string) => {
-    const currentDevice = deviceId || deviceSelected
-
-    if (!devices || !currentDevice) return
-
-    const deviceData = devices[+currentDevice - 1]
-
-    const dataHistories = deviceData?.histories
-
-    const mapInstance = window.mapInstance
-    if (!mapInstance) return
-    const map = mapInstance.getMapInstance()
+  const startDrawHistory = async (checkpoints?: Checkpoint[]) => {
+    const histories = checkpoints || deviceHistory
+    if (!histories?.length) return
+    const dataHistories = {
+      end: [
+        histories[histories.length - 1].longitude,
+        histories[histories.length - 1].latitude,
+      ],
+      start: [histories[0].longitude, histories[0].latitude],
+    }
+    if (!map) return
 
     const controlIcon = (map?._controls as any).find(
       (control: any) => control._props?.id === 'device-histories'
@@ -180,9 +186,7 @@ export const useDeviceHistory = () => {
   }
 
   const removeRoute = () => {
-    const mapInstance = window.mapInstance
-    if (!mapInstance) return
-    const map = mapInstance.getMapInstance()
+    if (!map) return
 
     // Remove the route layer if it exists
     if (map?.getLayer('route')) {

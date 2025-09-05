@@ -1,5 +1,8 @@
-import { Device } from '@/stores/device-store'
+import { Device as StoreDevice } from '@/stores/device-store'
 import { TSpace } from '@/types/common'
+import { DeviceSpace } from '@/types/device-space'
+import { Device as ApiDevice } from '@/types/device'
+import { Trip } from '@/types/trip'
 
 export const spaceList: TSpace[] = [
   {
@@ -28,7 +31,7 @@ export const spaceList: TSpace[] = [
   },
 ]
 
-export const devices: Device[] = [
+export const devices: StoreDevice[] = [
   {
     name: 'Rak 4630-RS3-C1F4',
     id: 'rak4630-rs3-C1F4',
@@ -319,3 +322,69 @@ export const devices: Device[] = [
     origin: 'Vietnam',
   },
 ]
+
+export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
+  const apiDevice: ApiDevice = {
+    id: d.id,
+    device_connector: 'connector1',
+    device_model: d.type ?? 'rak',
+    status: d.status,
+    lorawan_device: {
+      name: d.name,
+      dev_eui: d.id,
+      location: d.origin ?? 'Unknown',
+      tags: [],
+    },
+    type: d.type,
+  }
+
+  const latest_checkpoint = d.latestLocation
+    ? {
+        longitude: d.latestLocation[0],
+        latitude: d.latestLocation[1],
+        timestamp: new Date().toISOString(),
+      }
+    : undefined
+
+  return {
+    id: d.id,
+    name: d.name,
+    description: d.name,
+    device: apiDevice,
+    latest_checkpoint,
+  }
+})
+
+export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
+  const source = devices[index]
+  const now = new Date().toISOString()
+
+  const checkpointsFromHistories: {
+    latitude: number
+    longitude: number
+    timestamp: string
+  }[] = []
+
+  if (source?.histories?.start) {
+    checkpointsFromHistories.push({
+      longitude: source.histories.start[0],
+      latitude: source.histories.start[1],
+      timestamp: now,
+    })
+  }
+
+  if (source?.histories?.start) {
+    checkpointsFromHistories.push({
+      longitude: source.histories.end[0],
+      latitude: source.histories.end[1],
+      timestamp: now,
+    })
+  }
+
+  return {
+    id: String(index + 1),
+    space_device: space.id,
+    started_at: checkpointsFromHistories[0]?.timestamp ?? now,
+    checkpoints: checkpointsFromHistories,
+  }
+})

@@ -56,7 +56,7 @@ export interface PaginationResponse<T = unknown> {
   count?: number
   next?: string
   previous?: string
-  results?: T[]
+  results: T[]
 }
 
 export type Response<T = unknown> = {
