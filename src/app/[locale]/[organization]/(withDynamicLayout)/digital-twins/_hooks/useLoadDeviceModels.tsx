@@ -86,7 +86,7 @@ export const useLoadDeviceModels = () => {
 
   const { data: deviceSpaces } = useGetDevices()
 
-  const devices: Device[] | undefined = transformDeviceData(deviceSpaces || [])
+  const devices = transformDeviceData(deviceSpaces || [])
 
   const startAnimation = useCallback(
     (device: Device, modelsProps: Record<string, GLTFWithBuffers>) => {
