@@ -7,6 +7,7 @@ import { useGlobalStore } from '@/stores'
 import { usePrevious } from './usePrevious'
 import { Checkpoint } from '@/types/trip'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
+import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
 
 export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
@@ -58,11 +59,12 @@ export const useDeviceHistory = () => {
     deviceHistory,
   ])
 
-  async function getRoute(dataHistories: Record<string, any>) {
-    const end = dataHistories.end
-    const start = dataHistories.start
+  async function getRoute(dataHistories: number[][]) {
+    if (!dataHistories.length) return []
+    const end = dataHistories[dataHistories.length - 1]
+    const start = dataHistories[0]
 
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.join(',')};${end.join(',')}?geometries=geojson&access_token=${process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.join(',')};${end.join(',')}?geometries=geojson&access_token=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
 
     try {
       const response = await fetch(url)
@@ -110,13 +112,10 @@ export const useDeviceHistory = () => {
   const startDrawHistory = async (checkpoints?: Checkpoint[]) => {
     const histories = checkpoints || deviceHistory
     if (!histories?.length) return
-    const dataHistories = {
-      end: [
-        histories[histories.length - 1].longitude,
-        histories[histories.length - 1].latitude,
-      ],
-      start: [histories[0].longitude, histories[0].latitude],
-    }
+    const coordinates = histories.map((checkpoint) => [
+      checkpoint.longitude,
+      checkpoint.latitude,
+    ])
     if (!map) return
 
     const controlIcon = (map?._controls as any).find(
@@ -132,14 +131,14 @@ export const useDeviceHistory = () => {
     // }
     // map?.removeLayer('IconLayer')
 
-    const data = await getRoute(dataHistories)
+    const data = await getRoute(coordinates)
 
     const geojson = {
       type: 'Feature',
       properties: {},
       geometry: {
         type: 'LineString',
-        coordinates: data,
+        coordinates,
       },
     }
 

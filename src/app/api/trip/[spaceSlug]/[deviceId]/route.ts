@@ -15,7 +15,6 @@ export const GET = withAuthApiRequired(
     const isDemo = await isDemoSubdomain(request)
 
     if (isDemo) {
-      console.log({ deviceId, dummyTrips })
       const trips = dummyTrips.filter((trip) => trip.space_device === deviceId)
       return NextResponse.json(trips, {
         status: 200,
