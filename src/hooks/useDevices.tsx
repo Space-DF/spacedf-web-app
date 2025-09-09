@@ -13,7 +13,7 @@ export function getDevices<T>(url: string): Promise<T> {
 export function useGetDevices(configs: SWRConfiguration = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   return useSWR(
-    `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}`,
+    `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}`,
     getDevices<DeviceSpace[]>,
     configs
   )

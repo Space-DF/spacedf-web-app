@@ -392,7 +392,7 @@ const DeckglLayers = () => {
         }
       })
     },
-    [map, devices, deviceModels]
+    [map, devices, deviceModels, deviceIds]
   )
 
   const handleRender3DLayer = useCallback(
