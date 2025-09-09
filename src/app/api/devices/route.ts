@@ -1,4 +1,4 @@
-import { devices as dummyDevice } from '@/data/dummy-data'
+import { deviceSpaces as dummyDevice } from '@/data/dummy-data'
 import { NextResponse } from 'next/server'
 
 const GET = async () => {

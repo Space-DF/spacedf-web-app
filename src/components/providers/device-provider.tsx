@@ -170,7 +170,9 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const getDevices = async () => {
     try {
-      const response = await fetch(`/api/devices/${spaceSlug}`)
+      const response = await fetch(
+        `/api/devices${spaceSlug ? `/${spaceSlug}` : ''}`
+      )
       const data: DeviceSpace[] = await response.json()
       const devices: Device[] = transformDeviceData(data)
       setDevices(devices)

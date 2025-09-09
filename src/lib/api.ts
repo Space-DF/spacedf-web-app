@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react'
+import { getSession, signOut } from 'next-auth/react'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -163,6 +163,8 @@ api.setInterceptors({
             },
           })
         }
+      } else {
+        signOut({ redirect: false })
       }
     }
     throw error

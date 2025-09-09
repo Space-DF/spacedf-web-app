@@ -60,7 +60,6 @@ export const useDeviceHistory = () => {
   ])
 
   async function getRoute(dataHistories: number[][]) {
-    if (!dataHistories.length) return []
     const end = dataHistories[dataHistories.length - 1]
     const start = dataHistories[0]
 
@@ -164,7 +163,7 @@ export const useDeviceHistory = () => {
       })
     }
 
-    const icon = getIconLayer(data[0])
+    const icon = getIconLayer(coordinates[0])
 
     const deckOverlay = new MapboxOverlay({
       layers: [icon],
