@@ -272,7 +272,7 @@ const TimeFrame = () => {
             <FormField
               control={form.control}
               name="timeframe.resolution"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <>
                   <FormItem className="relative flex flex-col">
                     <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
@@ -282,7 +282,7 @@ const TimeFrame = () => {
                       <Input
                         className="border-input"
                         {...field}
-                        isError={!!form.formState.errors.timeframe?.resolution}
+                        isError={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

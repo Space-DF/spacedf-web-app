@@ -86,7 +86,7 @@ export function SpaceDelete({ space }: { space: Space }) {
               <FormField
                 control={form.control}
                 name="text"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t.rich('to_confirm_please_type_delete_below', {
@@ -97,7 +97,7 @@ export function SpaceDelete({ space }: { space: Space }) {
                       <Input
                         className="h-10 rounded-lg border-0 bg-brand-component-fill-dark-soft shadow-none"
                         {...field}
-                        isError={!!form.formState.errors.text}
+                        isError={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

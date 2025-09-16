@@ -129,16 +129,13 @@ const Source = () => {
       <FormField
         control={control}
         name="source.unit"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
               {t('unit')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                isError={!!form.formState.errors.source?.unit}
-              />
+              <Input {...field} isError={!!fieldState.error} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -147,7 +144,7 @@ const Source = () => {
       <FormField
         control={control}
         name="source.decimal"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
               {t('decimal_places')}
@@ -158,7 +155,7 @@ const Source = () => {
                 max={10}
                 type="number"
                 {...field}
-                isError={!!form.formState.errors.source?.decimal}
+                isError={!!fieldState.error}
               />
             </FormControl>
             <FormMessage />

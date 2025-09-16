@@ -67,7 +67,7 @@ const SignUpForm = () => {
               <FormField
                 control={form.control}
                 name="first_name"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className="flex-1">
                     <FormLabel>{t('first_name')}</FormLabel>
                     <FormControl>
@@ -75,7 +75,7 @@ const SignUpForm = () => {
                         prefixCpn={<CircleUserRound size={16} />}
                         {...field}
                         placeholder={t('first_name')}
-                        isError={!!form.formState.errors.first_name}
+                        isError={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

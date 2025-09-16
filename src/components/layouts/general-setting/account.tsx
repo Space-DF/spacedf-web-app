@@ -69,7 +69,7 @@ const Account = () => {
           <FormField
             control={form.control}
             name="email"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel>Email</FormLabel>
                 <FormControl>
@@ -79,7 +79,7 @@ const Account = () => {
                     placeholder="Email"
                     disabled
                     {...field}
-                    isError={!!form.formState.errors.email}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -107,7 +107,7 @@ const Account = () => {
           <FormField
             control={form.control}
             name="current_password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel>{t('current_password')}</FormLabel>
                 <FormControl>
@@ -129,7 +129,7 @@ const Account = () => {
                     }
                     placeholder={t('current_password')}
                     {...field}
-                    isError={!!form.formState.errors.current_password}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -139,7 +139,7 @@ const Account = () => {
           <FormField
             control={form.control}
             name="new_password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel>{t('new_password')}</FormLabel>
                 <FormControl>
@@ -161,7 +161,7 @@ const Account = () => {
                     }
                     placeholder={t('new_password')}
                     {...field}
-                    isError={!!form.formState.errors.new_password}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormDescription className="text-xs font-medium text-brand-text-gray">
@@ -174,7 +174,7 @@ const Account = () => {
           <FormField
             control={form.control}
             name="confirm_password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel>{t('confirm_new_password')}</FormLabel>
                 <FormControl>
@@ -198,7 +198,7 @@ const Account = () => {
                     }
                     placeholder={t('confirm_new_password')}
                     {...field}
-                    isError={!!form.formState.errors.confirm_password}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormDescription className="text-xs font-medium text-brand-text-gray">

@@ -73,7 +73,7 @@ export const ForgotPasswordForm = () => {
               <FormField
                 control={form.control}
                 name="email"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel className="text-brand-component-text-gray text-sm]">
                       Email
@@ -83,7 +83,7 @@ export const ForgotPasswordForm = () => {
                         prefixCpn={<Mail size={16} />}
                         placeholder={t('your_email')}
                         {...field}
-                        isError={!!form.formState.errors.email}
+                        isError={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

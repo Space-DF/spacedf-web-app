@@ -186,7 +186,7 @@ const Column: React.FC<ColumnProps> = ({
             <FormField
               control={control}
               name={`columns.${index}.column_name`}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel
                     className="text-sm font-semibold !text-brand-component-text-dark"
@@ -201,9 +201,7 @@ const Column: React.FC<ColumnProps> = ({
                       value={
                         FIELD_DISPLAY_NAME[field.value] || field.value || ''
                       }
-                      isError={
-                        !!form.formState.errors.columns?.[index]?.column_name
-                      }
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />

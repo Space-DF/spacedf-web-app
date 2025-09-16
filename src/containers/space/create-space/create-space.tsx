@@ -91,7 +91,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
           <FormField
             control={form.control}
             name="space_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-brand-text-dark">
                   {t('space_name')}
@@ -102,7 +102,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                     placeholder={t('space_name')}
                     className="border-0 shadow-none"
                     {...field}
-                    isError={!!form.formState.errors.space_name}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />

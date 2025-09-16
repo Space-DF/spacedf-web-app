@@ -198,7 +198,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>{t('geofence_name')}</FormLabel>
                   <FormControl>
@@ -206,7 +206,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('geofence_name')}
                       {...field}
-                      isError={!!form.formState.errors.name}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />

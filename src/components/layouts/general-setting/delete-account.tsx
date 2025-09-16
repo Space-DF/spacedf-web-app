@@ -65,7 +65,7 @@ const Account = () => {
           <FormField
             control={form.control}
             name="email"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel className="font-semibold">Email</FormLabel>
                 <FormControl>
@@ -74,7 +74,7 @@ const Account = () => {
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     {...field}
-                    isError={!!form.formState.errors.email}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />

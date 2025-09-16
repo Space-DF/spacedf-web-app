@@ -35,7 +35,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
           <FormField
             control={form.control}
             name="first_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1" defaultValue={''}>
                 <FormLabel className="">First name</FormLabel>
                 <FormControl>
@@ -43,7 +43,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
                     {...field}
                     placeholder="Space user"
                     className="border-none"
-                    isError={!!form.formState.errors.first_name}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
               </FormItem>
@@ -53,7 +53,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
           <FormField
             control={form.control}
             name="last_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem className="flex-1">
                 <FormLabel className="">Last Name</FormLabel>
                 <FormControl>
@@ -61,7 +61,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
                     {...field}
                     placeholder="Space user"
                     className="border-none"
-                    isError={!!form.formState.errors.last_name}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
               </FormItem>

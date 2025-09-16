@@ -189,7 +189,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
               <FormField
                 control={control}
                 name={`conditionals.${index}.value`}
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   const selectedField = allFields.find(
                     (f) => f === watch(`conditionals.${index}.field`)
                   )
@@ -225,10 +225,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                             placeholder={t('value')}
                             onChange={(e) => field.onChange(e.target.value)}
                             value={field.value}
-                            isError={
-                              !!form.formState.errors.conditionals?.[index]
-                                ?.value
-                            }
+                            isError={!!fieldState.error}
                           />
                         )}
                       </FormControl>

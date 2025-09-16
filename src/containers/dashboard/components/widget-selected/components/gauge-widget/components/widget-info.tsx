@@ -21,7 +21,7 @@ const WidgetInfo = () => {
       <FormField
         control={form.control}
         name="widget_info.name"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel
               className="text-xs font-semibold text-brand-component-text-dark"
@@ -30,10 +30,7 @@ const WidgetInfo = () => {
               {t('widget_name')}
             </FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                isError={!!form.formState.errors.widget_info?.name}
-              />
+              <Input {...field} isError={!!fieldState.error} />
             </FormControl>
             <FormMessage />
           </FormItem>
