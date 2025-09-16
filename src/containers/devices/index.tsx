@@ -575,6 +575,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!form.formState.errors.dev_eui}
                 />
               </FormControl>
               <FormMessage />
@@ -595,6 +596,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!form.formState.errors.join_eui}
                 />
               </FormControl>
               <FormMessage />
@@ -615,6 +617,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!form.formState.errors.device_name}
                 />
               </FormControl>
               <FormMessage />

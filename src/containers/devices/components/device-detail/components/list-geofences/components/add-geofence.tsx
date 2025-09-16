@@ -206,6 +206,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('geofence_name')}
                       {...field}
+                      isError={!!form.formState.errors.name}
                     />
                   </FormControl>
                   <FormMessage />
@@ -223,6 +224,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('tag')}
                       {...field}
+                      isError={!!form.formState.errors.tag}
                     />
                   </FormControl>
                   <FormMessage />
@@ -240,6 +242,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('latitude')}
                       {...field}
+                      isError={!!form.formState.errors.latitude}
                     />
                   </FormControl>
                   <FormMessage />
@@ -257,6 +260,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('longitude')}
                       {...field}
+                      isError={!!form.formState.errors.longitude}
                     />
                   </FormControl>
                   <FormMessage />
@@ -274,6 +278,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
                       className="border-none"
                       placeholder={t('radius')}
                       {...field}
+                      isError={!!form.formState.errors.radius}
                     />
                   </FormControl>
                   <FormMessage />

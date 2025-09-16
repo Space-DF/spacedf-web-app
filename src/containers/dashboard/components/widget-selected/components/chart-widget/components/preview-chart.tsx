@@ -97,19 +97,12 @@ interface PreviewLineChartProps {
   format?: TimeFormat
 }
 
-interface ChartComponentProps {
-  chartType: ChartType
-  source: ChartSources
-  index: number
+const renderChartComponents = (
+  chartType: ChartType,
+  source: ChartSources,
+  index: number,
   showData?: boolean
-}
-
-const ChartComponent = ({
-  chartType,
-  source,
-  index,
-  showData,
-}: ChartComponentProps) => {
+) => {
   const color =
     source.color === 'default'
       ? brandColors['component-fill-default-chart']
@@ -237,15 +230,9 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
           className="text-sm"
         />
         <CartesianGrid horizontal={showXGrid} vertical={false} />
-        {sources.map((source, index) => (
-          <ChartComponent
-            key={index}
-            chartType={source.chart_type}
-            source={source}
-            index={index}
-            showData={showData}
-          />
-        ))}
+        {sources.map((source, index) =>
+          renderChartComponents(source.chart_type, source, index, showData)
+        )}
         <Tooltip />
         <Legend
           content={

@@ -75,6 +75,7 @@ const SignUpForm = () => {
                         prefixCpn={<CircleUserRound size={16} />}
                         {...field}
                         placeholder={t('first_name')}
+                        isError={!!form.formState.errors.first_name}
                       />
                     </FormControl>
                     <FormMessage />
@@ -92,6 +93,7 @@ const SignUpForm = () => {
                         prefixCpn={<CircleUserRound size={16} />}
                         {...field}
                         placeholder={t('last_name')}
+                        isError={!!form.formState.errors.last_name}
                       />
                     </FormControl>
                     <FormMessage />
@@ -110,6 +112,7 @@ const SignUpForm = () => {
                       prefixCpn={<Mail size={16} />}
                       {...field}
                       placeholder="Email"
+                      isError={!!form.formState.errors.email}
                     />
                   </FormControl>
                   <FormMessage />
@@ -141,6 +144,7 @@ const SignUpForm = () => {
                       }
                       {...field}
                       placeholder={t('password')}
+                      isError={!!form.formState.errors.password}
                     />
                   </FormControl>
                   <FormMessage />
@@ -173,6 +177,7 @@ const SignUpForm = () => {
                       }
                       {...field}
                       placeholder={t('password')}
+                      isError={!!form.formState.errors.confirm_password}
                     />
                   </FormControl>
                   <FormMessage />

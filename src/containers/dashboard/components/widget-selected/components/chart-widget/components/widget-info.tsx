@@ -32,7 +32,10 @@ const ChartWidgetInfo: React.FC<Props> = () => {
               {t('widget_name')}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input
+                {...field}
+                isError={!!form.formState.errors.widget_info?.name}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

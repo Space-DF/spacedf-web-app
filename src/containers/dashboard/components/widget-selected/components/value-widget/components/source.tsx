@@ -33,7 +33,8 @@ const mockFieldData = [
 ]
 
 const Source = () => {
-  const { control } = useFormContext<ValuePayload>()
+  const form = useFormContext<ValuePayload>()
+  const { control } = form
   const t = useTranslations('dashboard')
   return (
     <div className="space-y-4 mb-2">
@@ -134,7 +135,10 @@ const Source = () => {
               {t('unit')}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input
+                {...field}
+                isError={!!form.formState.errors.source?.unit}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -149,7 +153,13 @@ const Source = () => {
               {t('decimal_places')}
             </FormLabel>
             <FormControl>
-              <Input min={0} max={10} type="number" {...field} />
+              <Input
+                min={0}
+                max={10}
+                type="number"
+                {...field}
+                isError={!!form.formState.errors.source?.decimal}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

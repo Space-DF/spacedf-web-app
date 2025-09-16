@@ -102,6 +102,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                     placeholder={t('space_name')}
                     className="border-0 shadow-none"
                     {...field}
+                    isError={!!form.formState.errors.space_name}
                   />
                 </FormControl>
                 <FormMessage />

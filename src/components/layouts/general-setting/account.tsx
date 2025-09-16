@@ -79,6 +79,7 @@ const Account = () => {
                     placeholder="Email"
                     disabled
                     {...field}
+                    isError={!!form.formState.errors.email}
                   />
                 </FormControl>
                 <FormMessage />
@@ -128,6 +129,7 @@ const Account = () => {
                     }
                     placeholder={t('current_password')}
                     {...field}
+                    isError={!!form.formState.errors.current_password}
                   />
                 </FormControl>
                 <FormMessage />
@@ -159,6 +161,7 @@ const Account = () => {
                     }
                     placeholder={t('new_password')}
                     {...field}
+                    isError={!!form.formState.errors.new_password}
                   />
                 </FormControl>
                 <FormDescription className="text-xs font-medium text-brand-text-gray">
@@ -195,6 +198,7 @@ const Account = () => {
                     }
                     placeholder={t('confirm_new_password')}
                     {...field}
+                    isError={!!form.formState.errors.confirm_password}
                   />
                 </FormControl>
                 <FormDescription className="text-xs font-medium text-brand-text-gray">

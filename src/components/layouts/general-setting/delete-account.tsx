@@ -74,6 +74,7 @@ const Account = () => {
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     {...field}
+                    isError={!!form.formState.errors.email}
                   />
                 </FormControl>
                 <FormMessage />

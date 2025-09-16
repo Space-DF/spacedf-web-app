@@ -53,7 +53,8 @@ const Column: React.FC<ColumnProps> = ({
   onRemove,
 }) => {
   const t = useTranslations('dashboard')
-  const { control, setValue } = useFormContext<dataTablePayload>()
+  const form = useFormContext<dataTablePayload>()
+  const { control, setValue } = form
   const [openDialog, setOpenDialog] = useState(false)
 
   const [devices, column_type] = useWatch({
@@ -199,6 +200,9 @@ const Column: React.FC<ColumnProps> = ({
                       onChange={(e) => field.onChange(e.target.value)}
                       value={
                         FIELD_DISPLAY_NAME[field.value] || field.value || ''
+                      }
+                      isError={
+                        !!form.formState.errors.columns?.[index]?.column_name
                       }
                     />
                   </FormControl>

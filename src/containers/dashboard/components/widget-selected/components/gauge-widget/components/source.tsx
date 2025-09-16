@@ -188,7 +188,12 @@ const Source = () => {
                 {t('min')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} disabled />
+                <Input
+                  type="number"
+                  {...field}
+                  disabled
+                  isError={!!form.formState.errors.source?.min}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -203,7 +208,12 @@ const Source = () => {
                 {t('max')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} disabled />
+                <Input
+                  type="number"
+                  {...field}
+                  disabled
+                  isError={!!form.formState.errors.source?.max}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -224,6 +234,7 @@ const Source = () => {
                   type="number"
                   {...field}
                   onChange={handleDecimalChange}
+                  isError={!!form.formState.errors.source?.decimal}
                 />
               </FormControl>
               <FormMessage />
@@ -239,7 +250,11 @@ const Source = () => {
                 {t('unit')}
               </FormLabel>
               <FormControl>
-                <Input {...field} onChange={handleUnitChange} />
+                <Input
+                  {...field}
+                  onChange={handleUnitChange}
+                  isError={!!form.formState.errors.source?.unit}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -318,6 +333,10 @@ const Source = () => {
                           min={min}
                           max={max}
                           onChange={(e) => handleValueChange(e, index)}
+                          isError={
+                            !!form.formState.errors.source?.values?.[index]
+                              ?.value
+                          }
                         />
                       </FormControl>
                       <FormMessage />

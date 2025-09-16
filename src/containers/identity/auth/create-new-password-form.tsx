@@ -92,6 +92,7 @@ export const CreateNewPasswordForm = () => {
                       }
                       {...field}
                       placeholder={t('new_password')}
+                      isError={!!form.formState.errors.password}
                     />
                   </FormControl>
                   <FormMessage />
@@ -126,6 +127,7 @@ export const CreateNewPasswordForm = () => {
                       }
                       {...field}
                       placeholder={t('confirm_password')}
+                      isError={!!form.formState.errors.confirmPassword}
                     />
                   </FormControl>
                   <FormMessage />

@@ -51,5 +51,6 @@
   "email_sent": "Email sent successfully",
   "email_not_sent": "Email not sent, please try again",
   "password_reset_failed": "Password reset failed",
-  "reset_password_link_expired": "Reset password link expired"
+  "reset_password_link_expired": "Reset password link expired",
+  "invalid_code": "Invalid code"
 }

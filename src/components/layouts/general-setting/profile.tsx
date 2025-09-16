@@ -170,6 +170,7 @@ const Profile = () => {
                       placeholder={t('first_name')}
                       disabled={isLoading}
                       {...field}
+                      isError={!!form.formState.errors.first_name}
                     />
                   </FormControl>
                   <FormMessage />
@@ -189,6 +190,7 @@ const Profile = () => {
                       placeholder={t('last_name')}
                       disabled={isLoading}
                       {...field}
+                      isError={!!form.formState.errors.last_name}
                     />
                   </FormControl>
                   <FormMessage />
@@ -209,6 +211,7 @@ const Profile = () => {
                     placeholder={t('location')}
                     disabled={isLoading}
                     {...field}
+                    isError={!!form.formState.errors.location}
                   />
                 </FormControl>
                 <FormMessage />
@@ -228,6 +231,7 @@ const Profile = () => {
                     placeholder={t('company_name')}
                     {...field}
                     disabled={isLoading}
+                    isError={!!form.formState.errors.company_name}
                   />
                 </FormControl>
                 <FormMessage />
@@ -247,6 +251,7 @@ const Profile = () => {
                     placeholder={t('title')}
                     disabled={isLoading}
                     {...field}
+                    isError={!!form.formState.errors.title}
                   />
                 </FormControl>
                 <FormMessage />

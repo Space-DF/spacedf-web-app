@@ -108,6 +108,7 @@ export function InformationTab({ space }: { space: Space }) {
                     placeholder={t('space_name')}
                     className="h-10 border-0 shadow-none"
                     {...field}
+                    isError={!!form.formState.errors.space_name}
                   />
                 </FormControl>
                 <FormMessage />
@@ -128,6 +129,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!form.formState.errors.created_at}
                     />
                   </FormControl>
                   <FormMessage />
@@ -147,6 +149,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!form.formState.errors.owner}
                     />
                   </FormControl>
                   <FormMessage />
@@ -166,6 +169,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!form.formState.errors.space_member}
                     />
                   </FormControl>
                   <FormMessage />
@@ -186,6 +190,7 @@ export function InformationTab({ space }: { space: Space }) {
                     placeholder={t('enter_the_description')}
                     className="resize-none border-0 shadow-none"
                     {...field}
+                    isError={!!form.formState.errors.description}
                   />
                 </FormControl>
                 <FormMessage />

@@ -43,6 +43,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
                     {...field}
                     placeholder="Space user"
                     className="border-none"
+                    isError={!!form.formState.errors.first_name}
                   />
                 </FormControl>
               </FormItem>
@@ -60,6 +61,7 @@ export const UpdateProfile = ({ onNextStep }: { onNextStep: Function }) => {
                     {...field}
                     placeholder="Space user"
                     className="border-none"
+                    isError={!!form.formState.errors.last_name}
                   />
                 </FormControl>
               </FormItem>

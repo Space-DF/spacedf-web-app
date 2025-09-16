@@ -83,6 +83,7 @@ export const ForgotPasswordForm = () => {
                         prefixCpn={<Mail size={16} />}
                         placeholder={t('your_email')}
                         {...field}
+                        isError={!!form.formState.errors.email}
                       />
                     </FormControl>
                     <FormMessage />

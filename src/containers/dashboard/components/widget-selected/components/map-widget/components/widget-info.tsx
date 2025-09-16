@@ -14,12 +14,12 @@ import { mapPayload } from '@/validator'
 interface Props {}
 
 const TableWidgetInfo: React.FC<Props> = () => {
-  const { control } = useFormContext<mapPayload>()
+  const form = useFormContext<mapPayload>()
   const t = useTranslations()
   return (
     <div className="mt-4 size-full px-4">
       <FormField
-        control={control}
+        control={form.control}
         name="widget_info.name"
         render={({ field }) => (
           <FormItem>
@@ -30,7 +30,10 @@ const TableWidgetInfo: React.FC<Props> = () => {
               {t('dashboard.widget_name')}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input
+                {...field}
+                isError={!!form.formState.errors.widget_info?.name}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

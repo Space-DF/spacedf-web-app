@@ -95,6 +95,7 @@ const SignInForm = () => {
                       {...field}
                       placeholder="Email"
                       className=""
+                      isError={!!form.formState.errors.email}
                     />
                   </FormControl>
 
@@ -128,6 +129,7 @@ const SignInForm = () => {
                       }
                       {...field}
                       placeholder={t('password')}
+                      isError={!!form.formState.errors.password}
                     />
                   </FormControl>
 

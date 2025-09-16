@@ -14,7 +14,8 @@ import { useTranslations } from 'next-intl'
 interface Props {}
 
 const TableWidgetInfo: React.FC<Props> = () => {
-  const { control } = useFormContext<dataTablePayload>()
+  const form = useFormContext<dataTablePayload>()
+  const { control } = form
   const t = useTranslations()
   return (
     <div className="mt-4 size-full px-4">
@@ -30,7 +31,10 @@ const TableWidgetInfo: React.FC<Props> = () => {
               {t('dashboard.widget_name')}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input
+                {...field}
+                isError={!!form.formState.errors.widget_info?.name}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

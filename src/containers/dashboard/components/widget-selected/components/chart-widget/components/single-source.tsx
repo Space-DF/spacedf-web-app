@@ -298,6 +298,9 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                         {...field}
                         className="border-none outline-none ring-0 focus:outline-none focus:ring-0"
                         onChange={handleLegendManualChange}
+                        isError={
+                          !!form.formState.errors.sources?.[index]?.legend
+                        }
                       />
                     </FormControl>
                     <FormMessage />

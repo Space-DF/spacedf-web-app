@@ -283,7 +283,11 @@ const TimeFrame = () => {
                       {t('resolution')}
                     </FormLabel>
                     <FormControl>
-                      <Input className="border-input" {...field} />
+                      <Input
+                        className="border-input"
+                        {...field}
+                        isError={!!form.formState.errors.timeframe?.resolution}
+                      />
                     </FormControl>
                     <FormMessage />
                     <FormField

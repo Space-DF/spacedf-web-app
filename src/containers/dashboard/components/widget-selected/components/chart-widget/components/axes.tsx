@@ -120,7 +120,10 @@ const Axes: React.FC<Props> = () => {
                       {t('unit')}
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input
+                        {...field}
+                        isError={!!form.formState.errors.axes?.y_axis?.unit}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
