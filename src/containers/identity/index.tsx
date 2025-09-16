@@ -29,7 +29,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { useDecodedToken } from './auth/hooks/useDecodedToken'
-import { DialogContent } from '@/components/ui/dialog'
+import { DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Dialog } from '@/components/ui/dialog'
 import Image from 'next/image'
 import { useProfile } from '@/components/layouts/general-setting/hooks/useProfile'
@@ -234,6 +234,7 @@ const Identity = () => {
       </Drawer>
       {openGuideline && <Guideline />}
       <Dialog open={isDifferentUser}>
+        <DialogTitle />
         <DialogContent showCloseIcon={false} className="p-4">
           <div className="flex w-full flex-col items-center justify-center gap-y-4">
             <div className="w-full justify-center flex">

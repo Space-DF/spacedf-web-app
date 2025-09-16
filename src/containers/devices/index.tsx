@@ -564,7 +564,7 @@ const AddDeviceForm = ({
         <FormField
           control={form.control}
           name="dev_eui"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('devui')}
@@ -575,6 +575,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -584,7 +585,7 @@ const AddDeviceForm = ({
         <FormField
           control={form.control}
           name="join_eui"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('joineui')}
@@ -595,6 +596,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -604,7 +606,7 @@ const AddDeviceForm = ({
         <FormField
           control={form.control}
           name="device_name"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('device_name')}
@@ -615,6 +617,7 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  isError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -624,7 +627,7 @@ const AddDeviceForm = ({
         <FormField
           control={form.control}
           name="description"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
                 {t('description')}
@@ -635,6 +638,7 @@ const AddDeviceForm = ({
                   placeholder={t('enter_description')}
                   className="resize-none"
                   {...field}
+                  isError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />

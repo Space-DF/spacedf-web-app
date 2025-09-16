@@ -37,5 +37,6 @@
   "email_not_sent": "Email không được gửi, xin hãy thử lại",
   "password_reset_failed": "Không thể đặt lại mật khẩu",
   "password_reset_successful": "Mật khẩu đã được đặt lại thành công",
-  "reset_password_link_expired": "Liên kết đặt lại mật khẩu đã hết hạn"
+  "reset_password_link_expired": "Liên kết đặt lại mật khẩu đã hết hạn",
+  "invalid_code": "Mã không hợp lệ"
 }

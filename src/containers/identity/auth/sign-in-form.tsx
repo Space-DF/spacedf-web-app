@@ -86,7 +86,7 @@ const SignInForm = () => {
               control={form.control}
               name="email"
               defaultValue={initialData?.email}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="">Email</FormLabel>
                   <FormControl>
@@ -95,6 +95,7 @@ const SignInForm = () => {
                       {...field}
                       placeholder="Email"
                       className=""
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
 
@@ -107,7 +108,7 @@ const SignInForm = () => {
               control={form.control}
               name="password"
               defaultValue={initialData?.password}
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="">{t('password')}</FormLabel>
                   <FormControl>
@@ -128,6 +129,7 @@ const SignInForm = () => {
                       }
                       {...field}
                       placeholder={t('password')}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
 

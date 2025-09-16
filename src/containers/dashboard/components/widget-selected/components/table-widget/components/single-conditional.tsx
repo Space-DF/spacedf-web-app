@@ -49,7 +49,8 @@ interface ConditionalProps {
 
 const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
   const t = useTranslations('dashboard')
-  const { control, watch } = useFormContext<dataTablePayload>()
+  const form = useFormContext<dataTablePayload>()
+  const { control, watch } = form
   const [openDialog, setOpenDialog] = useState(false)
 
   const [text_color, bg_color] = watch([
@@ -188,7 +189,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
               <FormField
                 control={control}
                 name={`conditionals.${index}.value`}
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   const selectedField = allFields.find(
                     (f) => f === watch(`conditionals.${index}.field`)
                   )
@@ -224,6 +225,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                             placeholder={t('value')}
                             onChange={(e) => field.onChange(e.target.value)}
                             value={field.value}
+                            isError={!!fieldState.error}
                           />
                         )}
                       </FormControl>

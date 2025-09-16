@@ -69,7 +69,7 @@ export const CreateNewPasswordForm = () => {
             <FormField
               control={form.control}
               name="password"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-brand-component-text-gray text-sm">
                     {t('new_password')}
@@ -92,6 +92,7 @@ export const CreateNewPasswordForm = () => {
                       }
                       {...field}
                       placeholder={t('new_password')}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -126,6 +127,7 @@ export const CreateNewPasswordForm = () => {
                       }
                       {...field}
                       placeholder={t('confirm_password')}
+                      isError={!!form.formState.errors.confirmPassword}
                     />
                   </FormControl>
                   <FormMessage />

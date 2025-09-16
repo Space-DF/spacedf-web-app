@@ -160,7 +160,7 @@ const Profile = () => {
             <FormField
               control={form.control}
               name="first_name"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
                   <FormLabel>{t('first_name')}</FormLabel>
                   <FormControl>
@@ -170,6 +170,7 @@ const Profile = () => {
                       placeholder={t('first_name')}
                       disabled={isLoading}
                       {...field}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -179,7 +180,7 @@ const Profile = () => {
             <FormField
               control={form.control}
               name="last_name"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
                   <FormLabel>{t('last_name')}</FormLabel>
                   <FormControl>
@@ -189,6 +190,7 @@ const Profile = () => {
                       placeholder={t('last_name')}
                       disabled={isLoading}
                       {...field}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -199,7 +201,7 @@ const Profile = () => {
           <FormField
             control={form.control}
             name="location"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel>{t('location')}</FormLabel>
                 <FormControl>
@@ -209,6 +211,7 @@ const Profile = () => {
                     placeholder={t('location')}
                     disabled={isLoading}
                     {...field}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -218,7 +221,7 @@ const Profile = () => {
           <FormField
             control={form.control}
             name="company_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel>{t('company_name')}</FormLabel>
                 <FormControl>
@@ -228,6 +231,7 @@ const Profile = () => {
                     placeholder={t('company_name')}
                     {...field}
                     disabled={isLoading}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -237,7 +241,7 @@ const Profile = () => {
           <FormField
             control={form.control}
             name="title"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel>{t('title')}</FormLabel>
                 <FormControl>
@@ -247,6 +251,7 @@ const Profile = () => {
                     placeholder={t('title')}
                     disabled={isLoading}
                     {...field}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
