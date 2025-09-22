@@ -1,9 +1,11 @@
 import useSWR from 'swr'
-import { Dashboard } from '..'
+import { Dashboard } from '@/types/dashboard'
+import { fetcher } from '@/utils'
+import { useParams } from 'next/navigation'
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
-
-export const useDashboard = () =>
-  useSWR<Dashboard[]>('/api/dashboard', fetcher, {
+export const useDashboard = () => {
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  return useSWR<Dashboard[]>(`/api/dashboard/${spaceSlug}`, fetcher, {
     fallbackData: [],
   })
+}

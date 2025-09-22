@@ -77,3 +77,5 @@ export const isEmail = (email: string) => {
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
+
+export const fetcher = (url: string) => fetch(url).then((res) => res.json())

@@ -9,7 +9,7 @@ export function getWidgets<T>(url: string): Promise<T> {
 }
 
 export function useGetWidgets(
-  dashboardId?: number,
+  dashboardId?: string,
   configs: SWRConfiguration = {}
 ) {
   return useSWR(

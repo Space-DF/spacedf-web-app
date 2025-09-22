@@ -32,7 +32,6 @@ import { DataTable } from '@/components/ui/data-table'
 import { getColumns } from '@/containers/dashboard/column'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -48,26 +47,22 @@ import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
 import WidgetSelected from './components/widget-selected'
 import { WidgetType } from '@/widget-models/widget'
-// import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useDashboard } from './hooks/useDashboard'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
-
-export interface Dashboard {
-  value: string
-  label: string
-  isDefault: boolean
-  id: number
-}
+import { useCreateDashboard } from './hooks/useCreateDashboard'
+import { Dashboard as DashboardType } from '@/types/dashboard'
+import { useDeleteDashboard } from './hooks/useDeleteDashboard'
 
 const Dashboard = () => {
   const t = useTranslations()
   const [open, setOpen] = useState(false)
-  const { data: dashboards = [] } = useDashboard()
-  const [selected, setSelected] = useState<Dashboard>()
+  const { data: dashboards = [], mutate } = useDashboard()
+  const [selected, setSelected] = useState<DashboardType>()
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
 
+  const { trigger: createDashboard, isMutating } = useCreateDashboard()
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
@@ -97,27 +92,25 @@ const Dashboard = () => {
     setEdit,
   } = useDashboardStore()
 
+  const { trigger: deleteDashboard, isMutating: isDeleting } =
+    useDeleteDashboard(deleteId)
+
   useEffect(() => {
     if (dashboards.length > 0) {
       setSelected(dashboards[0])
     }
   }, [dashboards])
 
-  const handleCreateNewDashBoard = () => {
+  const handleCreateNewDashBoard = async () => {
+    const dashboard = await createDashboard({ name: 'Unnamed Dashboard' })
     setOpen(false)
-    const value = {
-      value: `new-dashboard-${Math.floor(Math.random() * 1000) + 1}`,
-      label: 'Unnamed Dashboard',
-      isDefault: false,
-      id: Math.floor(Math.random() * 1000) + 1,
-    }
-    setSelected(value)
+    setSelected(dashboard)
   }
   const handleViewAllDashboard = () => {
     setOpen(false)
     setViewAllDashboard(true)
   }
-  const handleDeleteSpace = (id: number) => {
+  const handleDeleteSpace = (id: string) => {
     setDeleteId(id)
   }
   const onSelectWidget = (widgetTitle: WidgetType) => {
@@ -144,6 +137,12 @@ const Dashboard = () => {
       setLayouts(widgetLayout.layouts)
     }
     setEdit(false)
+  }
+
+  const handleDeleteDashboard = async () => {
+    await deleteDashboard()
+    await mutate()
+    setDeleteId(undefined)
   }
 
   return (
@@ -184,9 +183,9 @@ const Dashboard = () => {
                     <div className="line-clamp-1 w-full flex-1 text-left">
                       {selected
                         ? dashboards.find(
-                            (dashboard) => dashboard.value === selected.value
-                          )?.label
-                        : 'Dashboard 1'}
+                            (dashboard) => dashboard.id === selected.id
+                          )?.name
+                        : 'Unknown Dashboard'}
                     </div>
                     <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
                   </Button>
@@ -204,11 +203,11 @@ const Dashboard = () => {
                       <CommandGroup className="mt-3 p-0">
                         {dashboards.map((dashboard) => (
                           <CommandItem
-                            key={dashboard.value}
-                            value={dashboard.value}
+                            key={dashboard.id}
+                            value={dashboard.id}
                             onSelect={(currentValue) => {
                               const itemSelect = dashboards.find(
-                                (dashboard) => dashboard.value === currentValue
+                                (dashboard) => dashboard.id === currentValue
                               )
                               setSelected(itemSelect!)
                               setOpen(false)
@@ -218,11 +217,11 @@ const Dashboard = () => {
                               'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
                               {
                                 'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
-                                  selected?.value === dashboard.value,
+                                  selected?.id === dashboard.id,
                               }
                             )}
                           >
-                            {dashboard.label}
+                            {dashboard.name}
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -238,6 +237,8 @@ const Dashboard = () => {
                       <Button
                         className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
                         onClick={handleCreateNewDashBoard}
+                        disabled={isMutating}
+                        loading={isMutating}
                       >
                         {t('dashboard.create_new_dashboard')}
                         <PlusIcon size={16} />
@@ -292,11 +293,6 @@ const Dashboard = () => {
               <>
                 {isEdit && (
                   <div className="mb-6 flex flex-col items-center gap-3">
-                    {/* {!selected?.isDefault && (
-                      <div className="text-brand-component-text-dark">
-                        {t('dashboard.let_add_some_widget')}
-                      </div>
-                    )} */}
                     <Button
                       className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white dark:border-brand-component-stroke-light"
                       onClick={() => setIsAddWidgetOpen(true)}
@@ -335,12 +331,13 @@ const Dashboard = () => {
                 <AlertDialogCancel className="h-12 flex-1 border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none">
                   {t('dashboard.cancel')}
                 </AlertDialogCancel>
-                <AlertDialogAction
+                <Button
+                  loading={isDeleting}
                   className="h-12 flex-1 items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative text-base font-semibold text-white shadow-sm transition-all hover:bg-brand-component-fill-negative hover:opacity-70 dark:border-brand-component-stroke-light"
-                  // onClick={() => router.push('/')}
+                  onClick={handleDeleteDashboard}
                 >
                   {t('dashboard.delete')}
-                </AlertDialogAction>
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
