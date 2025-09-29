@@ -1,21 +1,16 @@
-import { WidgetMap } from '@/types/widget'
 import { WidgetContainer, WidgetTitle } from '.'
+import { mapPayload } from '@/validator'
 
-export const MapWidget = ({
-  latitude,
-  longitude,
-  title,
-  map_type,
-}: WidgetMap) => {
+export const MapWidget = ({ sources, widget_info }: mapPayload) => {
   return (
     <WidgetContainer className="flex flex-col ">
-      <WidgetTitle>{title}</WidgetTitle>
+      <WidgetTitle>{widget_info.name}</WidgetTitle>
       <iframe
         style={{
           filter: 'invert(90%) hue-rotate(180deg)',
         }}
         className="flex-1 size-full rounded"
-        src={`https://www.google.com/maps?q=${latitude},${longitude}&z=15&t=${map_type}&output=embed`}
+        src={`https://www.google.com/maps?q=${sources[0].coordinate[0]},${sources[0].coordinate[1]}&z=15&t=${sources[0].map_type}&output=embed`}
         loading="lazy"
       />
     </WidgetContainer>

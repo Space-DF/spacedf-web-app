@@ -1,17 +1,23 @@
 import { WidgetContainer, WidgetTitle } from '.'
+import { WidgetInfo } from '@/widget-models/widget'
 
 interface WidgetUnitProps {
-  title: string
+  widget_info: WidgetInfo
   status?: string
   value: number
   unit: string
 }
 
-export const WidgetUnit = ({ title, status, value, unit }: WidgetUnitProps) => {
+export const WidgetUnit = ({
+  widget_info,
+  status,
+  value,
+  unit,
+}: WidgetUnitProps) => {
   return (
     <WidgetContainer className="flex flex-col justify-between">
       <div>
-        <WidgetTitle className="font-semibold">{title}</WidgetTitle>
+        <WidgetTitle className="font-semibold">{widget_info.name}</WidgetTitle>
         <p>{status}</p>
       </div>
       <div className="flex items-baseline space-x-1">

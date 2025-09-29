@@ -1,7 +1,6 @@
 import {
   Widget,
   WidgetChart,
-  WidgetMap,
   WidgetProgress,
   WidgetTable,
 } from '@/types/widget'
@@ -18,6 +17,7 @@ import { WidgetUnit } from './components/widget-unit'
 import { WidgetSwitch } from './components/widget-switch'
 import { ProgressWidget } from './components/widget-progress'
 import { WidgetSensor } from './components/widget-sensor'
+import { mapPayload } from '@/validator'
 
 export const getWidgetByType = (widget: Widget) => {
   switch (widget.type) {
@@ -27,43 +27,43 @@ export const getWidgetByType = (widget: Widget) => {
           <TextWidget content={widget.content || ''} />
         </div>
       )
-    case 'map':
+    case WidgetType.Map:
       return (
         <div key={widget.id}>
-          <MapWidget {...(widget as WidgetMap)} />
+          <MapWidget {...(widget as mapPayload)} />
         </div>
       )
-    case 'value':
+    case WidgetType.Value:
       return (
         <div key={widget.id}>
           <ValueWidget widget={widget} />
         </div>
       )
-    case 'table':
+    case WidgetType.Table:
       return (
         <div key={widget.id}>
           <TableWidget {...(widget as MakeRequired<WidgetTable>)} />
         </div>
       )
-    case 'chart':
+    case WidgetType.Chart:
       return (
         <div key={widget.id}>
           <ChartWidget {...(widget as WidgetChart)} isShowFullChart />
         </div>
       )
-    case 'gauge':
+    case WidgetType.Gauge:
       return (
         <div key={widget.id}>
           <GaugeWidget widget={widget} />
         </div>
       )
-    case 'camera':
+    case WidgetType.Camera:
       return (
         <div key={widget.id}>
-          <WidgetCamera title={widget.title!} />
+          <WidgetCamera widget_info={widget.widget_info!} />
         </div>
       )
-    case 'unit':
+    case WidgetType.Unit:
       return (
         <div key={widget.id}>
           <WidgetUnit {...(widget as MakeRequired<Widget>)} />
@@ -78,14 +78,17 @@ export const getWidgetByType = (widget: Widget) => {
     case WidgetType.Switch:
       return (
         <div key={widget.id}>
-          <WidgetSwitch title={widget.title!} color={widget.color!} />
+          <WidgetSwitch
+            widget_info={widget.widget_info!}
+            color={widget.color!}
+          />
         </div>
       )
     case WidgetType.Sensor:
       return (
         <div key={widget.id}>
           <WidgetSensor
-            title={widget.title!}
+            widget_info={widget.widget_info!}
             value={widget.value!}
             sensorType={widget.sensor_type}
             color={widget.color}

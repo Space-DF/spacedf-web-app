@@ -3,6 +3,7 @@ import { WidgetContainer, WidgetTitle } from '.'
 import { cn } from '@/lib/utils'
 import { Distance } from '@/components/icons/distance'
 import { Location } from '@/components/icons/location'
+import { WidgetInfo } from '@/widget-models/widget'
 
 const getIconBySensorType = (sensorType?: string) => {
   switch (sensorType) {
@@ -17,19 +18,21 @@ const getIconBySensorType = (sensorType?: string) => {
   }
 }
 
-export const WidgetSensor = ({
-  title,
-  className,
-  value,
-  sensorType,
-  color,
-}: {
-  title: string
+interface WidgetSensorProps {
+  widget_info: WidgetInfo
   className?: string
   value: string
   sensorType?: string
   color?: string
-}) => {
+}
+
+export const WidgetSensor = ({
+  widget_info,
+  className,
+  value,
+  sensorType,
+  color,
+}: WidgetSensorProps) => {
   const Icon = getIconBySensorType(sensorType)
 
   return (
@@ -47,7 +50,7 @@ export const WidgetSensor = ({
         )}
       </div>
       <div>
-        <WidgetTitle>{title}</WidgetTitle>
+        <WidgetTitle>{widget_info.name}</WidgetTitle>
         <p className="text-sm capitalize text-brand-component-text-gray">
           {value}
         </p>

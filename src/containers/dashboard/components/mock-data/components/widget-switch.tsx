@@ -1,20 +1,21 @@
 import { Switch } from '@/components/ui/switch'
 import { WidgetContainer, WidgetTitle } from '.'
+import { WidgetInfo } from '@/widget-models/widget'
 
 interface WidgetSwitchProps {
-  title: string
+  widget_info: WidgetInfo
   className?: string
   color?: string
 }
 
 export const WidgetSwitch = ({
-  title,
+  widget_info,
   className,
   color,
 }: WidgetSwitchProps) => {
   return (
     <WidgetContainer className="flex flex-col gap-1">
-      <WidgetTitle>{title}</WidgetTitle>
+      <WidgetTitle>{widget_info.name}</WidgetTitle>
       <Switch
         checked
         className={className}
