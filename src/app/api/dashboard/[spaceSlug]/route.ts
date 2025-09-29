@@ -1,35 +1,23 @@
 import { auth } from '@/lib/auth'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
+import { Dashboard } from '@/types/dashboard'
 import { handleError } from '@/utils/error'
 import { isDemoSubdomain } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
-export interface Dashboard {
-  value: string
-  label: string
-  isDefault: boolean
-  id: number
-}
-
 const DEMO_DASHBOARDS: Dashboard[] = [
   {
-    value: '1',
-    label: 'Smart Fleet Monitor',
-    isDefault: true,
-    id: 1,
+    name: 'Smart Fleet Monitor',
+    id: '1',
   },
   {
-    value: '2',
-    label: 'Custom Color Dashboard',
-    isDefault: false,
-    id: 2,
+    name: 'Custom Color Dashboard',
+    id: '2',
   },
   {
-    value: '3',
-    label: 'Default Monitor',
-    isDefault: false,
-    id: 3,
+    name: 'Default Monitor',
+    id: '3',
   },
 ]
 
@@ -67,16 +55,11 @@ export const POST = withAuthApiRequired(
     try {
       const body = await request.json()
       const spacedfClient = await spaceClient()
-      const dashboard = await spacedfClient.dashboards.create(
-        {
-          ...body,
+      const dashboard = await spacedfClient.dashboards.create(body, {
+        headers: {
+          'X-Space': params.spaceSlug,
         },
-        {
-          headers: {
-            'X-Space': params.spaceSlug,
-          },
-        }
-      )
+      })
       return NextResponse.json(dashboard)
     } catch (error) {
       return handleError(error)

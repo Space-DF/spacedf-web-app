@@ -8,7 +8,7 @@ interface Props extends WidgetChart {
 
 export const ChartWidget = ({
   sources,
-  title,
+  widget_info,
   orientation,
   format,
   hideAxis,
@@ -21,7 +21,7 @@ export const ChartWidget = ({
 
   return (
     <WidgetContainer className="flex flex-col justify-center">
-      <WidgetTitle>{title}</WidgetTitle>
+      <WidgetTitle>{widget_info.name}</WidgetTitle>
       <PreviewChart
         sources={sources}
         isSingleSource={isSingleSource}

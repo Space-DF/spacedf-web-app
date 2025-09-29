@@ -24,9 +24,14 @@ const columnsLayout: Record<string, number> = {
 interface Props {
   isEdit?: boolean
   widgets: Widget[]
+  onChangeWidgets: (widgets: any[]) => void
 }
 
-export const MockData: React.FC<Props> = ({ isEdit, widgets }) => {
+export const MockData: React.FC<Props> = ({
+  isEdit,
+  widgets,
+  onChangeWidgets,
+}) => {
   const { mounted } = useMounted()
   const [currentBreakpoint, setCurrentBreakpoint] = useState<string>('')
   const { layouts, setLayouts } = useScreenLayoutStore((state) => ({
@@ -34,7 +39,8 @@ export const MockData: React.FC<Props> = ({ isEdit, widgets }) => {
     setLayouts: state.setLayouts,
   }))
 
-  const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
+  const handleLayoutChange = (layout: Layout[], layouts: Layouts) => {
+    onChangeWidgets(layout)
     setLayouts(layouts)
   }
   const handleBreakpointChange = (newBreakpoint: string) => {

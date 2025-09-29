@@ -1,19 +1,24 @@
 import { TimeFormat } from '@/constants'
-import { Device } from '@/validator'
+import { Device, mapPayload } from '@/validator'
 import { ChartType, Orientation } from '@/widget-models/chart'
 import { Table } from '@/widget-models/table'
-import { WidgetType } from '@/widget-models/widget'
+import { WidgetInfo, WidgetType } from '@/widget-models/widget'
 import { Layout } from 'react-grid-layout'
 
 export interface WidgetUnit {
-  title: string
+  widget_info: {
+    name: string
+    appearance: {
+      show_value: boolean
+    }
+  }
   value: number
   unit: string
   status?: string
 }
 
 export interface WidgetChart {
-  title: string
+  widget_info: WidgetInfo
   orientation: Orientation
   hideAxis: boolean
   showXGrid: boolean
@@ -27,14 +32,6 @@ export interface WidgetChart {
     chart_type: ChartType
   }[]
 }
-
-export interface WidgetMap {
-  title: string
-  latitude: number
-  longitude: number
-  map_type: string
-}
-
 export interface WidgetTable extends Table {
   source: Device[]
 }
@@ -44,7 +41,7 @@ export interface WidgetText {
 }
 
 export interface WidgetProgress {
-  title: string
+  widget_info: WidgetInfo
   value: number
   unit: string
   min: number
@@ -63,21 +60,15 @@ export type Widget = {
   type: WidgetType
 } & Partial<WidgetUnit> &
   Partial<WidgetChart> &
-  Partial<WidgetMap> &
+  Partial<mapPayload> &
   Partial<WidgetTable> &
   Partial<WidgetProgress> &
   Partial<WidgetText> &
-  Partial<WidgetSensor>
+  Partial<WidgetSensor> &
+  Layout
 
 export interface WidgetLayout {
   id: string
-  dashboardId: number
-  widgets: Widget[]
-  layouts: {
-    sm: Layout[]
-    md: Layout[]
-    lg: Layout[]
-    xl: Layout[]
-    xxl: Layout[]
-  }
+  dashboard: string
+  configuration: Widget & Layout
 }

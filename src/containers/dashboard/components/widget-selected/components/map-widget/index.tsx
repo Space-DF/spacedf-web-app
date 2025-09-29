@@ -88,13 +88,11 @@ const TableWidget: React.FC<Props> = ({
 
   const handleAddMapWidget = async () => {
     await trigger()
-    const newId = uuidv4()
     const newWidgetData = {
-      ...mapValue,
-      id: newId,
-      widget_type: selectedWidget,
-      widget_size: {
-        i: newId,
+      configuration: {
+        id: uuidv4(),
+        ...mapValue,
+        type: selectedWidget,
         x: 0,
         y: 0,
         w: 4,
