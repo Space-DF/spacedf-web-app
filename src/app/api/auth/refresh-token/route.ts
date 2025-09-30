@@ -31,7 +31,7 @@ export const POST = async (request: NextRequest) => {
     salt: SESSION_SALT,
   })
 
-  const response = NextResponse.json({ success: true })
+  const response = NextResponse.json(data)
   response.headers.set('Set-Cookie', createAuthCookieString(newSessionToken))
 
   return response

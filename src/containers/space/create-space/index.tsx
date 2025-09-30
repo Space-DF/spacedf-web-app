@@ -15,6 +15,7 @@ import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useIsDemo } from '@/hooks/useIsDemo'
+import { useRefreshToken } from '../space-settings/hooks/useRefreshToken'
 
 const formSchema = z.object({
   space_name: z
@@ -40,6 +41,7 @@ const OrganizationSetting = () => {
   const { mutate: getSpaces } = useGetSpaces()
 
   const isDemo = useIsDemo()
+  const { trigger: refreshToken } = useRefreshToken()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -64,7 +66,8 @@ const OrganizationSetting = () => {
           }
           return result
         })
-        .finally(() => {
+        .finally(async () => {
+          await refreshToken()
           setIsCreating(false)
         })
       setLoadingText({

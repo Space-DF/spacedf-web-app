@@ -28,7 +28,12 @@ export const GET = async (
   try {
     const isDemo = await isDemoSubdomain(request)
     const session = await auth()
-    if (isDemo || !session) {
+    if (
+      isDemo ||
+      !session ||
+      !params.spaceSlug ||
+      params.spaceSlug === 'undefined'
+    ) {
       return NextResponse.json(DEMO_DASHBOARDS)
     }
     const spacedfClient = await spaceClient()

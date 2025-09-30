@@ -164,8 +164,23 @@ export const WidgetList: React.FC<Props> = ({
   useEffect(() => {
     if (dashboards.length > 0) {
       setDashboardId(dashboards[0].id)
+      return
     }
-  }, [dashboards])
+    if (dashboardId && !dashboards.length) {
+      setDashboardId(undefined)
+      return
+    }
+  }, [JSON.stringify(dashboards), dashboardId])
+
+  const currentDashboardName = useMemo(() => {
+    if (dashboardId) {
+      const dashboard = dashboards.find(
+        (dashboard) => dashboard.id === dashboardId
+      )
+      return dashboard?.name || 'Select Dashboard'
+    }
+    return 'Select Dashboard'
+  }, [dashboardId, dashboards])
 
   return (
     <RightSideBarLayout
@@ -200,11 +215,7 @@ export const WidgetList: React.FC<Props> = ({
                 )}
               >
                 <div className="line-clamp-1 w-full flex-1 text-left">
-                  {dashboardId
-                    ? dashboards.find(
-                        (dashboard) => dashboard.id === dashboardId
-                      )?.name
-                    : 'Unknown Dashboard'}
+                  {currentDashboardName}
                 </div>
                 <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
               </Button>
