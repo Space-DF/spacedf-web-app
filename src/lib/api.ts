@@ -20,6 +20,8 @@ class FetchInstance {
   private interceptors: Interceptor = {}
   private timeout: number
   private lastRequest?: { url: string; config: RequestConfig }
+  private refreshTokenPromise: Promise<boolean> | null = null
+  private pendingRequests: Array<() => void> = []
 
   constructor(config: { baseURL: string; timeout?: number }) {
     this.timeout = config.timeout || 30000
@@ -27,6 +29,44 @@ class FetchInstance {
 
   setInterceptors(interceptors: Interceptor) {
     this.interceptors = interceptors
+  }
+
+  private async handleRefreshToken(): Promise<boolean> {
+    if (this.refreshTokenPromise) {
+      return this.refreshTokenPromise
+    }
+
+    // Tạo promise mới cho refresh token
+    this.refreshTokenPromise = this.performRefreshToken()
+
+    try {
+      const result = await this.refreshTokenPromise
+      return result
+    } finally {
+      this.refreshTokenPromise = null
+      this.pendingRequests.forEach((resolve) => resolve())
+      this.pendingRequests = []
+    }
+  }
+
+  private async performRefreshToken(): Promise<boolean> {
+    try {
+      const session = await getSession()
+      const refreshTokenResponse = await fetch('/api/auth/refresh-token', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken: session?.user?.refresh }),
+      })
+
+      return refreshTokenResponse.ok
+    } catch {
+      return false
+    }
+  }
+
+  private async waitForRefreshToken(): Promise<void> {
+    return new Promise((resolve) => {
+      this.pendingRequests.push(resolve)
+    })
   }
 
   private async fetchWithTimeout(
@@ -140,7 +180,6 @@ api.setInterceptors({
     return response
   },
   onError: async (error: RequestError) => {
-    const session = await getSession()
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
         throw new Error('Request timeout')
@@ -149,22 +188,24 @@ api.setInterceptors({
 
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
-      const refreshTokenResponse = await fetch('/api/auth/refresh-token', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: session?.user?.refresh }),
-      })
-      if (refreshTokenResponse.ok) {
-        const lastRequest = api['lastRequest']
-        if (lastRequest) {
-          return api.request(lastRequest.url, {
-            ...lastRequest.config,
-            headers: {
-              ...lastRequest.config.headers,
-            },
-          })
-        }
+      if (api['refreshTokenPromise']) {
+        await api['waitForRefreshToken']()
       } else {
-        signOut({ redirect: false })
+        const refreshSuccess = await api['handleRefreshToken']()
+
+        if (!refreshSuccess) {
+          signOut({ redirect: false })
+          throw error
+        }
+      }
+      const lastRequest = api['lastRequest']
+      if (lastRequest) {
+        return api.request(lastRequest.url, {
+          ...lastRequest.config,
+          headers: {
+            ...lastRequest.config.headers,
+          },
+        })
       }
     }
     throw error

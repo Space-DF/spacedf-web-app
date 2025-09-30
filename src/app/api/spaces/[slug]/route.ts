@@ -35,21 +35,21 @@ const GET = withAuthApiRequired(
   }
 )
 
-const DELETE = withAuthApiRequired(async (req) => {
-  try {
-    const body = await req.json()
-    const { slug_name } = body
-    const spacedfClient = await spaceClient()
-    const deleteSpaceResponse = await spacedfClient.spaces.delete({
-      'X-Space': slug_name,
-    })
-    return NextResponse.json({
-      data: deleteSpaceResponse,
-      status: 200,
-    })
-  } catch (errors) {
-    return handleError(errors)
+const DELETE = withAuthApiRequired(
+  async (_, { params }: { params: { slug: string } }) => {
+    try {
+      const spacedfClient = await spaceClient()
+      const deleteSpaceResponse = await spacedfClient.spaces.delete({
+        'X-Space': params.slug,
+      })
+      return NextResponse.json({
+        data: deleteSpaceResponse,
+        status: 200,
+      })
+    } catch (errors) {
+      return handleError(errors)
+    }
   }
-})
+)
 
 export { GET, DELETE }

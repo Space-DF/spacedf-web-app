@@ -24,6 +24,7 @@ import {
   useGetSpaces,
 } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useIsDemo } from '@/hooks/useIsDemo'
+import { useRefreshToken } from './hooks/useRefreshToken'
 
 const formSchema = z.object({
   text: z.string({ message: 'This field cannot be empty' }),
@@ -37,6 +38,7 @@ export function SpaceDelete({ space }: { space: Space }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const { trigger: refreshToken } = useRefreshToken()
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
@@ -59,6 +61,7 @@ export function SpaceDelete({ space }: { space: Space }) {
     const spaceFirst = spaceList.filter(
       ({ slug_name }) => slug_name !== space.slug_name
     )[0]
+    await refreshToken()
     router.push(spaceFirst?.slug_name ? `/spaces/${spaceFirst.slug_name}` : '/')
   }
 
