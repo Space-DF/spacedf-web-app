@@ -97,7 +97,7 @@ export function InformationTab({ space }: { space: Space }) {
           <FormField
             control={form.control}
             name="space_name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-brand-component-text-dark">
                   {t('space_name')}
@@ -108,6 +108,7 @@ export function InformationTab({ space }: { space: Space }) {
                     placeholder={t('space_name')}
                     className="h-10 border-0 shadow-none"
                     {...field}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -118,7 +119,7 @@ export function InformationTab({ space }: { space: Space }) {
             <FormField
               control={form.control}
               name="created_at"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
                   <FormLabel className="text-brand-component-text-dark">
                     {t('creation_date')}
@@ -128,6 +129,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -137,7 +139,7 @@ export function InformationTab({ space }: { space: Space }) {
             <FormField
               control={form.control}
               name="owner"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
                   <FormLabel className="text-brand-component-text-dark">
                     {t('owner_name')}
@@ -147,6 +149,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -156,7 +159,7 @@ export function InformationTab({ space }: { space: Space }) {
             <FormField
               control={form.control}
               name="space_member"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem className="flex-1">
                   <FormLabel className="text-brand-component-text-dark">
                     {t('space_member')}
@@ -166,6 +169,7 @@ export function InformationTab({ space }: { space: Space }) {
                       disabled
                       className="h-10 border-0 shadow-none"
                       {...field}
+                      isError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />
@@ -176,7 +180,7 @@ export function InformationTab({ space }: { space: Space }) {
           <FormField
             control={form.control}
             name="description"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="text-brand-component-text-gray">
                   {t('description_of_the_space')}
@@ -186,6 +190,7 @@ export function InformationTab({ space }: { space: Space }) {
                     placeholder={t('enter_the_description')}
                     className="resize-none border-0 shadow-none"
                     {...field}
+                    isError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />

@@ -1,10 +1,15 @@
 import { StreamVideo } from '@/containers/components/stream-video'
 import { WidgetContainer, WidgetTitle } from '.'
+import { WidgetInfo } from '@/widget-models/widget'
 
-export const WidgetCamera = ({ title }: { title: string }) => {
+interface WidgetCameraProps {
+  widget_info: WidgetInfo
+}
+
+export const WidgetCamera = ({ widget_info }: WidgetCameraProps) => {
   return (
     <WidgetContainer className="flex flex-col">
-      <WidgetTitle>{title}</WidgetTitle>
+      <WidgetTitle>{widget_info.name}</WidgetTitle>
       <StreamVideo autoPlay={false} />
     </WidgetContainer>
   )

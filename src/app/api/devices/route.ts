@@ -1,11 +1,9 @@
-import { devices } from '@/data/dummy-data'
-import { isDanangSubdomain } from '@/utils/server-actions'
-import { NextRequest, NextResponse } from 'next/server'
+import { deviceSpaces as dummyDevice } from '@/data/dummy-data'
+import { NextResponse } from 'next/server'
 
-const GET = async (request: NextRequest) => {
+const GET = async () => {
   try {
-    const isDanang = await isDanangSubdomain(request)
-    return NextResponse.json(isDanang ? [devices[0]] : devices, {
+    return NextResponse.json([dummyDevice[0]], {
       status: 200,
     })
   } catch (errors: any) {

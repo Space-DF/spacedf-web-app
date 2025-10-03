@@ -21,7 +21,8 @@ const getDeviceNames = (devices: Device[]) => {
 
 const Source: React.FC = () => {
   const t = useTranslations()
-  const { setValue, watch } = useFormContext<dataTablePayload>()
+  const form = useFormContext<dataTablePayload>()
+  const { setValue, watch } = form
   const selectedDevices = watch('source.devices') || []
 
   const toggleDevice = (device: (typeof DEVICES)[0]) => {
@@ -83,6 +84,7 @@ const Source: React.FC = () => {
                     (d) => d.device_id === device.device_id
                   )}
                   onChange={() => toggleDevice(device)}
+                  isError={!!form.formState.errors.source?.devices}
                 />
                 <Label className="text-sm text-brand-component-text-dark">
                   {device.device_name}

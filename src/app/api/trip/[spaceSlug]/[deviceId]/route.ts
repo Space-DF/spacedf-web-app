@@ -1,0 +1,41 @@
+import { dummyTrips } from '@/data/dummy-data'
+import { auth } from '@/lib/auth'
+import { spaceClient } from '@/lib/spacedf'
+import { handleError } from '@/utils/error'
+import { isDemoSubdomain } from '@/utils/server-actions'
+import { NextRequest, NextResponse } from 'next/server'
+
+export const GET = async (
+  request: NextRequest,
+  { params }: { params: { deviceId: string; spaceSlug: string } }
+) => {
+  const { deviceId, spaceSlug } = params
+
+  try {
+    const isDemo = await isDemoSubdomain(request)
+    const session = await auth()
+    if (isDemo || !spaceSlug || !session) {
+      const trips = dummyTrips.filter((trip) => trip.space_device === deviceId)
+      return NextResponse.json(trips, {
+        status: 200,
+      })
+    }
+
+    const client = await spaceClient()
+    client.setAccessToken(session.user.access)
+    const trips = await client.trip.list(
+      {
+        space_device__device_id: deviceId,
+        include_checkpoints: true,
+      },
+      {
+        headers: {
+          'X-Space': spaceSlug,
+        },
+      }
+    )
+    return NextResponse.json(trips.results)
+  } catch (error) {
+    return handleError(error)
+  }
+}

@@ -14,6 +14,7 @@ import {
 
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
+import Image from 'next/image'
 
 const Form = FormProvider
 
@@ -176,7 +177,9 @@ const FormMessage = React.forwardRef<
       )}
       {...props}
     >
-      {icon}
+      {icon ?? (
+        <Image src="/images/info.svg" alt="info" width={16} height={16} />
+      )}
       {body}
     </p>
   )

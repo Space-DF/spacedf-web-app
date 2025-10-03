@@ -2,12 +2,12 @@
 
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslations } from 'next-intl'
-import { Dashboard } from '.'
+import { Dashboard } from '@/types/dashboard'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash } from 'lucide-react'
 
 interface ColumnProps {
-  handleDeleteSpace: (id: number) => void
+  handleDeleteSpace: (id: string) => void
   t: ReturnType<typeof useTranslations>
 }
 
@@ -19,7 +19,7 @@ export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
       accessorKey: 'name',
       header: t('dashboard.name' as any),
       cell: ({ row: { original } }) => {
-        return <div className="flex items-center gap-2">{original.label}</div>
+        return <div className="flex items-center gap-2">{original.name}</div>
       },
     },
     {

@@ -69,7 +69,7 @@ const ChartWidget: React.FC<Props> = ({
     mode: 'onChange',
   })
 
-  const { createWidget } = useCreateWidget({
+  const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
       toast.success('Created chart widget successfully')
       onSaveWidget()
@@ -121,13 +121,11 @@ const ChartWidget: React.FC<Props> = ({
   const handleAddChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
-    const newId = uuidv4()
     const newWidgetData = {
-      ...chartValue,
-      id: newId,
-      widget_type: selectedWidget,
-      widget_size: {
-        i: newId,
+      configuration: {
+        ...chartValue,
+        id: uuidv4(),
+        type: selectedWidget,
         x: 0,
         y: 0,
         w: 4,
@@ -148,7 +146,9 @@ const ChartWidget: React.FC<Props> = ({
         </div>
       }
       externalButton={
-        <Button onClick={handleAddChartWidget}>{t('save')}</Button>
+        <Button onClick={handleAddChartWidget} loading={isMutating}>
+          {t('save')}
+        </Button>
       }
       onClose={onClose}
     >

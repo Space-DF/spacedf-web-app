@@ -27,6 +27,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { useSearchParams } from 'next/navigation'
 import useSignUp from './hooks/useSignUp'
 import { signIn } from 'next-auth/react'
+import { cn } from '@/lib/utils'
+
 export const OTPSchema = z.object({
   otp: z.string().min(6, {
     message: 'Your one-time password must be 6 characters.',
@@ -72,16 +74,25 @@ const OTPForm = () => {
     setTimeRemaining(TIME_REMAINING)
   }
 
-  const { isDirty, isValid } = form.formState
+  const { isDirty, isValid, errors } = form.formState
   const { trigger: joinSpace } = useJoinSpace()
+
+  const isInvalidCode = !!errors.otp?.message
 
   const onSubmit = async () => {
     const value = signUpForm.getValues()
 
-    const res = await triggerSignUp({
-      ...value,
-      otp: form.getValues('otp'),
-    })
+    const res = await triggerSignUp(
+      {
+        ...value,
+        otp: form.getValues('otp'),
+      },
+      {
+        onError: (error) => {
+          form.setError('otp', { message: error.message })
+        },
+      }
+    )
 
     await signIn('credentials', {
       redirect: false,
@@ -116,7 +127,11 @@ const OTPForm = () => {
                           <InputOTPSlot
                             key={index}
                             index={index}
-                            className="h-[70px] w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold"
+                            className={cn(
+                              'h-[70px] w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold',
+                              isInvalidCode &&
+                                'border-red-600 bg-brand-component-fill-negative-soft'
+                            )}
                           />
                         ))}
                       </InputOTPGroup>

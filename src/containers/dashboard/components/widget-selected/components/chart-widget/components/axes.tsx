@@ -114,13 +114,13 @@ const Axes: React.FC<Props> = () => {
               <FormField
                 control={form.control}
                 name="axes.y_axis.unit"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
                       {t('unit')}
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} isError={!!fieldState.error} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

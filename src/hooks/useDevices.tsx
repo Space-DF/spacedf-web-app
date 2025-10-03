@@ -1,9 +1,8 @@
 import api from '@/lib/api'
-import { Device } from '@/stores/device-store'
+import { DeviceSpace } from '@/types/device-space'
+import { useParams } from 'next/navigation'
 
 import useSWR, { SWRConfiguration } from 'swr'
-
-export type UseGetDeviceResponse = Record<string, Device>
 
 export const SWR_GET_DEVICE_ENDPOINT = '/api/devices'
 
@@ -12,9 +11,10 @@ export function getDevices<T>(url: string): Promise<T> {
 }
 
 export function useGetDevices(configs: SWRConfiguration = {}) {
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
   return useSWR(
-    SWR_GET_DEVICE_ENDPOINT,
-    getDevices<UseGetDeviceResponse>,
+    `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}`,
+    getDevices<DeviceSpace[]>,
     configs
   )
 }

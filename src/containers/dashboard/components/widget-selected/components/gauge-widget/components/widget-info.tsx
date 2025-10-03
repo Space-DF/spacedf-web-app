@@ -14,14 +14,14 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
 const WidgetInfo = () => {
-  const { control } = useFormContext<GaugePayload>()
+  const form = useFormContext<GaugePayload>()
   const t = useTranslations('dashboard')
   return (
     <div className="space-y-4">
       <FormField
-        control={control}
+        control={form.control}
         name="widget_info.name"
-        render={({ field }) => (
+        render={({ field, fieldState }) => (
           <FormItem>
             <FormLabel
               className="text-xs font-semibold text-brand-component-text-dark"
@@ -30,7 +30,7 @@ const WidgetInfo = () => {
               {t('widget_name')}
             </FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} isError={!!fieldState.error} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -42,7 +42,7 @@ const WidgetInfo = () => {
         </Label>
         <div className="grid grid-cols-2 gap-2">
           <FormField
-            control={control}
+            control={form.control}
             name="widget_info.appearance.show_state"
             render={({ field }) => (
               <FormItem className="flex items-center space-x-2">
@@ -59,7 +59,7 @@ const WidgetInfo = () => {
             )}
           />
           <FormField
-            control={control}
+            control={form.control}
             name="widget_info.appearance.show_value"
             render={({ field }) => (
               <FormItem className="flex items-center space-x-2">

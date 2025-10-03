@@ -2,19 +2,18 @@
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 const modelTypes = ['2d', '3d']
 
 export const ModelType = () => {
-  const [modelType, setModelType] = useState<'2d' | '3d'>(
-    (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
-  )
-
-  const { setModelTypeStore } = useFleetTrackingStore(
+  const { setModelTypeStore, modelType } = useFleetTrackingStore(
     useShallow((state) => ({
       setModelTypeStore: state.setModelType,
+      modelType:
+        state.modelType ||
+        (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
+        '2d',
     }))
   )
 
@@ -31,14 +30,12 @@ export const ModelType = () => {
               },
             })
           )
-
-          setModelType(value as '2d' | '3d')
           setModelTypeStore(value as '2d' | '3d')
         }}
         type="single"
         variant="default"
         defaultValue="2d"
-        value={modelType}
+        value={modelType || '2d'}
         className="bg-muted shadow-lg rounded-lg gap-0"
       >
         {modelTypes.map((type) => (

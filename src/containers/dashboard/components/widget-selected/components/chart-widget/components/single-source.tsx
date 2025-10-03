@@ -272,7 +272,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
               <FormField
                 control={form.control}
                 name={`sources.${index}.legend`}
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
                       <FormLabel className="text-sm font-semibold text-brand-component-text-dark">
@@ -298,6 +298,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                         {...field}
                         className="border-none outline-none ring-0 focus:outline-none focus:ring-0"
                         onChange={handleLegendManualChange}
+                        isError={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

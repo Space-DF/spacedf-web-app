@@ -73,8 +73,6 @@ const TableWidget: React.FC<Props> = ({
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
 
-  console.log({ columns, source, widget_info, conditionals })
-
   const tableValue = form.getValues()
 
   const { createWidget } = useCreateWidget({
@@ -106,13 +104,11 @@ const TableWidget: React.FC<Props> = ({
   const handleAddTableWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
-    const newId = uuidv4()
     const newWidgetData = {
-      ...tableValue,
-      id: newId,
-      widget_type: selectedWidget,
-      widget_size: {
-        i: newId,
+      configuration: {
+        ...tableValue,
+        id: uuidv4(),
+        type: selectedWidget,
         x: 0,
         y: 0,
         w: 4,

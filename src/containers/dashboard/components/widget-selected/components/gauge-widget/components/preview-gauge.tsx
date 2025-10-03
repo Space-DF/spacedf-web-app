@@ -102,43 +102,41 @@ const CircularChart: React.FC<CircularChartProps> = ({
     [rangesColor, chartData]
   )
   return (
-    <div className="relative flex w-full h-full items-center justify-center min-h-0">
-      <div className="w-full h-full max-w-full max-h-full aspect-square">
-        <GaugeComponent
-          key={gaugeKey}
-          type="radial"
-          arc={{
-            padding: 0.005,
-            colorArray: rangesColor,
-            subArcs: chartData,
-          }}
-          className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:max-w-full [&>svg]:max-h-full"
-          minValue={min}
-          maxValue={max}
-          pointer={{ type: 'needle', animationDelay: 0, animate: isAnimate }}
-          value={value}
-          labels={{
-            valueLabel: {
+    <div className="relative flex w-full h-full items-center justify-center">
+      <GaugeComponent
+        key={gaugeKey}
+        type="radial"
+        arc={{
+          padding: 0.005,
+          colorArray: rangesColor,
+          subArcs: chartData,
+        }}
+        className="size-full [&>svg]:size-full"
+        minValue={min}
+        maxValue={max}
+        pointer={{ type: 'needle', animationDelay: 0, animate: isAnimate }}
+        value={value}
+        labels={{
+          valueLabel: {
+            hide: !showValue,
+            formatTextValue(value) {
+              return `${value.toFixed(decimal)} ${unit?.slice(0, 10) || ''}`
+            },
+            style: {
+              textShadow: 'none',
+              fill: brandColors['component-fill-default-chart'],
+            },
+          },
+          tickLabels: {
+            defaultTickValueConfig: {
               hide: !showValue,
               formatTextValue(value) {
-                return `${value.toFixed(decimal)} ${unit?.slice(0, 10) || ''}`
-              },
-              style: {
-                textShadow: 'none',
-                fill: brandColors['component-fill-default-chart'],
+                return value.toFixed(0)
               },
             },
-            tickLabels: {
-              defaultTickValueConfig: {
-                hide: !showValue,
-                formatTextValue(value) {
-                  return value.toFixed(0)
-                },
-              },
-            },
-          }}
-        />
-      </div>
+          },
+        }}
+      />
     </div>
   )
 }
@@ -148,7 +146,7 @@ const LinearChart: React.FC<LinearChartProps> = ({
   min = 0,
   max = 100,
   ranges,
-  height: _height = 20,
+  height = 20,
   unit,
   decimal = 0,
   values,
@@ -189,8 +187,8 @@ const LinearChart: React.FC<LinearChartProps> = ({
   }, [values, min, max])
 
   return (
-    <div className="w-full h-full flex flex-col min-h-0 pt-2 space-y-2">
-      <div className="flex-shrink-0">
+    <div className="size-full pt-2  space-y-4">
+      <div className="h-4">
         {showValue && (
           <span className="text-lg font-bold text-brand-component-text-dark line-clamp-1">
             {getDecimal(value, decimal)} {unit?.slice(0, 10)}
@@ -198,53 +196,49 @@ const LinearChart: React.FC<LinearChartProps> = ({
         )}
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0 space-y-2">
-        <div className="flex-shrink-0">
-          <Slider
-            classNameTrack="bg-transparent dark:bg-transparent"
-            classNameThumb="bg-transparent dark:bg-transparent"
-            className="mx-1"
-            classNameRange="bg-transparent dark:bg-transparent"
-            disabled
-            value={[currentPercent]}
-            thumbIcon={
-              <Triangle
-                className="text-brand-component-text-dark w-4 h-4 rotate-180"
-                fill={brandColors['component-fill-default-chart']}
-              />
-            }
-          />
-        </div>
-        <div className="flex-1 min-h-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart layout="vertical" data={[chartData]} barGap={5}>
-              <XAxis type="number" domain={[min, max]} hide />
-              <YAxis type="category" hide />
+      <div>
+        <Slider
+          classNameTrack="bg-transparent dark:bg-transparent"
+          classNameThumb="bg-transparent dark:bg-transparent"
+          className="mb-2 mx-1"
+          classNameRange="bg-transparent dark:bg-transparent"
+          disabled
+          value={[currentPercent]}
+          thumbIcon={
+            <Triangle
+              className="text-brand-component-text-dark w-4 h-4 rotate-180"
+              fill={brandColors['component-fill-default-chart']}
+            />
+          }
+        />
+        <ResponsiveContainer height={height}>
+          <BarChart layout="vertical" data={[chartData]} barGap={5}>
+            <XAxis type="number" domain={[min, max]} hide />
+            <YAxis type="category" hide />
+            <Bar
+              dataKey="value"
+              stackId="b"
+              fill={brandColors['component-fill-default-chart']}
+              radius={[10, 10, 10, 10]}
+            />
+            <Bar
+              dataKey="firstValue"
+              stackId="b"
+              fill={brandColors['component-fill-default-chart']}
+              radius={[10, 10, 10, 10]}
+            />
+            {ranges.map((range, index) => (
               <Bar
-                dataKey="value"
+                key={index}
+                dataKey={`value${index}`}
                 stackId="b"
-                fill={brandColors['component-fill-default-chart']}
+                fill={range.color}
                 radius={[10, 10, 10, 10]}
               />
-              <Bar
-                dataKey="firstValue"
-                stackId="b"
-                fill={brandColors['component-fill-default-chart']}
-                radius={[10, 10, 10, 10]}
-              />
-              {ranges.map((range, index) => (
-                <Bar
-                  key={index}
-                  dataKey={`value${index}`}
-                  stackId="b"
-                  fill={range.color}
-                  radius={[10, 10, 10, 10]}
-                />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex-shrink-0 w-full flex justify-between">
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+        <div className="w-full flex justify-between">
           <span className="text-sm text-brand-component-text-dark line-clamp-1">
             {min}
           </span>

@@ -6,10 +6,14 @@ export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   startAdornment?: JSX.Element
   endAdornment?: JSX.Element
+  isError?: boolean
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, startAdornment, endAdornment, ...props }, ref) => {
+  (
+    { className, type, startAdornment, endAdornment, isError, ...props },
+    ref
+  ) => {
     const hasAdornment = Boolean(startAdornment) || Boolean(endAdornment)
     return (
       // <input
@@ -39,7 +43,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <input
               type={type}
               className={cn(
-                'flex h-full w-full rounded-md border-none bg-transparent py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0'
+                'flex h-full w-full rounded-md border-none bg-transparent py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
+                isError &&
+                  '!ring-red-600 ring-2 ring-offset-2 bg-brand-component-fill-negative-soft'
               )}
               ref={ref}
               {...props}
@@ -53,7 +59,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               'flex h-9 w-full rounded-lg border border-brand-stroke-dark-soft bg-brand-fill-dark-soft px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:text-white dark:ring-brand-stroke-outermost focus-visible:ring-0 focus-visible:ring-offset-0',
-              className
+              className,
+              isError &&
+                'ring-red-600 ring-1 ring-offset-1 focus-visible:ring-red-600 focus-visible:ring-1 focus-visible:ring-offset-1 bg-brand-component-fill-negative-soft'
             )}
             ref={ref}
             {...props}
@@ -70,10 +78,19 @@ const InputWithIcon = React.forwardRef<
     prefixCpn?: React.ReactNode
     suffixCpn?: React.ReactNode
     wrapperClass?: string
+    isError?: boolean
   }
 >(
   (
-    { className, type, prefixCpn, suffixCpn, wrapperClass = '', ...props },
+    {
+      className,
+      type,
+      prefixCpn,
+      suffixCpn,
+      wrapperClass = '',
+      isError,
+      ...props
+    },
     ref
   ) => {
     return (
@@ -91,6 +108,7 @@ const InputWithIcon = React.forwardRef<
           )}
           type={type}
           ref={ref}
+          isError={isError}
           {...props}
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 transform text-brand-text-gray">

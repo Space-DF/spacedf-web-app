@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { WidgetContainer, WidgetTitle } from '.'
 import { Progress } from '@/components/ui/progress'
+import { WidgetInfo } from '@/widget-models/widget'
 
 interface ProgressWidgetProps {
-  title: string
+  widget_info: WidgetInfo
   value: number
   unit: string
   min: number
@@ -12,7 +13,7 @@ interface ProgressWidgetProps {
 }
 
 export const ProgressWidget = ({
-  title,
+  widget_info,
   value,
   unit,
   min,
@@ -25,7 +26,7 @@ export const ProgressWidget = ({
   return (
     <WidgetContainer>
       <div className="flex justify-between items-center">
-        <WidgetTitle>{title}</WidgetTitle>
+        <WidgetTitle>{widget_info.name}</WidgetTitle>
         <p className="font-semibold">{unit}</p>
       </div>
       <Progress

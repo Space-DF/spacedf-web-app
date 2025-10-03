@@ -11,7 +11,7 @@ export const TableWidget = ({
     <WidgetContainer>
       <WidgetTitle>{widget_info?.name}</WidgetTitle>
       <TablePreview
-        source={source}
+        source={source.devices}
         columns={columns}
         conditionals={conditions}
       />

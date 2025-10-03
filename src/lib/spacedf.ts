@@ -6,6 +6,7 @@ export class SpaceDFClient {
   private client: SpaceDF | null = null
   private token?: string | undefined
   private api_key: string
+  private currentOrganization: string = ''
 
   private constructor() {
     this.token = undefined
@@ -20,6 +21,7 @@ export class SpaceDFClient {
     } else {
       organization = await getServerOrganization()
     }
+    this.currentOrganization = organization
     this.client = new SpaceDF({
       organization: organization || '',
       APIKey: this.api_key,
@@ -30,8 +32,24 @@ export class SpaceDFClient {
     if (!SpaceDFClient.instance) {
       SpaceDFClient.instance = new SpaceDFClient()
       await SpaceDFClient.instance.initialize()
+    } else {
+      await SpaceDFClient.instance.checkAndUpdateOrganization()
     }
     return SpaceDFClient.instance
+  }
+
+  private async checkAndUpdateOrganization() {
+    let newOrganization = ''
+
+    if (typeof window !== 'undefined') {
+      newOrganization = await getClientOrganization()
+    } else {
+      newOrganization = await getServerOrganization()
+    }
+
+    if (newOrganization !== this.currentOrganization) {
+      await this.initialize()
+    }
   }
 
   public setToken(token: string): void {
@@ -56,9 +74,17 @@ export class SpaceDFClient {
     }
     return this.client
   }
+
+  public static resetInstance(): void {
+    SpaceDFClient.instance = null
+  }
 }
 
 export const spaceClient = async () => {
   const spacedfSDK = await SpaceDFClient.getInstance()
   return spacedfSDK.getClient()
+}
+
+export const resetSpaceClient = () => {
+  SpaceDFClient.resetInstance()
 }

@@ -1,4 +1,4 @@
-import { useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
 import { PropsWithChildren, useEffect, useRef, useState } from 'react'
@@ -9,6 +9,9 @@ import {
   DeviceTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
+import { useParams } from 'next/navigation'
+import { DeviceSpace } from '@/types/device-space'
+import { transformDeviceData } from '@/utils/map'
 // import { useIsDemo } from '@/hooks/useIsDemo'
 // import { useAuthenticated } from '@/hooks/useAuthenticated'
 
@@ -39,6 +42,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setDeviceState: state.setDeviceState,
     }))
   )
+
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
@@ -165,9 +170,12 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const getDevices = async () => {
     try {
-      const response = await fetch('/api/devices')
-      const data = await response.json()
-      setDevices(data)
+      const response = await fetch(
+        `/api/devices${spaceSlug ? `/${spaceSlug}` : ''}`
+      )
+      const data: DeviceSpace[] = await response.json()
+      const devices: Device[] = transformDeviceData(data)
+      setDevices(devices)
       setFetchStatus((prev) => ({
         ...prev,
         initializedDevices: true,

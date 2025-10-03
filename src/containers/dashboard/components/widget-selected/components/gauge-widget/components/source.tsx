@@ -182,13 +182,18 @@ const Source = () => {
         <FormField
           control={control}
           name="source.min"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
                 {t('min')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} disabled />
+                <Input
+                  type="number"
+                  {...field}
+                  disabled
+                  isError={!!fieldState.error}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -197,13 +202,18 @@ const Source = () => {
         <FormField
           control={control}
           name="source.max"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
                 {t('max')}
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} disabled />
+                <Input
+                  type="number"
+                  {...field}
+                  disabled
+                  isError={!!fieldState.error}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -212,7 +222,7 @@ const Source = () => {
         <FormField
           control={control}
           name="source.decimal"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
                 {t('decimal_places')}
@@ -224,6 +234,7 @@ const Source = () => {
                   type="number"
                   {...field}
                   onChange={handleDecimalChange}
+                  isError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -233,13 +244,17 @@ const Source = () => {
         <FormField
           control={control}
           name="source.unit"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
                 {t('unit')}
               </FormLabel>
               <FormControl>
-                <Input {...field} onChange={handleUnitChange} />
+                <Input
+                  {...field}
+                  onChange={handleUnitChange}
+                  isError={!!fieldState.error}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -306,7 +321,7 @@ const Source = () => {
                 <FormField
                   control={control}
                   name={`source.values.${index}.value`}
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem className="col-span-4">
                       <FormLabel className="text-xs font-semibold text-brand-component-text-dark">
                         {t('value')}
@@ -318,6 +333,7 @@ const Source = () => {
                           min={min}
                           max={max}
                           onChange={(e) => handleValueChange(e, index)}
+                          isError={!!fieldState.error}
                         />
                       </FormControl>
                       <FormMessage />

@@ -105,13 +105,11 @@ const GaugeWidget: React.FC<Props> = ({
   const handleAddGaugeWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
-    const newId = uuidv4()
     const newWidgetData = {
-      ...gaugeValue,
-      id: newId,
-      widget_type: selectedWidget,
-      widget_size: {
-        i: newId,
+      configuration: {
+        ...gaugeValue,
+        id: uuidv4(),
+        type: selectedWidget,
         x: 0,
         y: 0,
         w: 3,

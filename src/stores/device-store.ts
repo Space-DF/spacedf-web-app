@@ -1,3 +1,4 @@
+import { Checkpoint } from '@/types/trip'
 import {
   GpsTrackerAttributes,
   RakAttributes,
@@ -27,6 +28,7 @@ type DeviceModelState = {
   deviceSelected: string
   initializedSuccess: boolean
   setInitializedSuccess: (newState: boolean) => void
+  deviceHistory: Checkpoint[]
 }
 
 type DeviceModelAction = {
@@ -36,6 +38,8 @@ type DeviceModelAction = {
   setDeviceSelected: (id: string) => void
 
   setDeviceState: (deviceId: string, data: Partial<Device>) => void
+
+  setDeviceHistory: (data: Checkpoint[]) => void
 }
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
@@ -45,7 +49,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     deviceSelected: '',
     initializedSuccess: false,
     modelPreview: {} as Record<SupportedModels, string>,
-
+    deviceHistory: [],
     setDeviceModel(key, bufferModel) {
       return set((state) => ({
         models: {
@@ -78,6 +82,12 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
           }),
           {}
         ),
+      }))
+    },
+
+    setDeviceHistory: (data) => {
+      return set(() => ({
+        deviceHistory: data,
       }))
     },
 

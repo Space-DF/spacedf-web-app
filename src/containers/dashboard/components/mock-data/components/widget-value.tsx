@@ -21,8 +21,8 @@ export const ValueWidget = ({ widget }: Props) => {
 
   return (
     <WidgetContainer>
-      <div className="rounded-lg size-full bg-brand-component-fill-gray-soft p-2">
-        <div className="flex gap-2 flex-col size-full rounded-md bg-brand-background-fill-outermost p-1">
+      <div className="rounded-lg size-full p-2">
+        <div className="flex gap-2 flex-col size-full">
           <div className="w-full">
             <div className="h-5">
               <p className="truncate font-semibold text-brand-component-text-dark">

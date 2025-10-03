@@ -39,8 +39,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({
       sdp: sdpResponse,
     })
-  } catch (error) {
-    console.error('Error in camera API:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to process WebRTC request' },
       { status: 500 }

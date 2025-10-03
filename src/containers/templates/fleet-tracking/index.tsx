@@ -45,19 +45,20 @@ const FleetTracking = () => {
       }))
     )
 
-  const { devices, deviceIds, deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      devices: state.devices,
-      deviceIds: Object.keys(state.devices),
-      setDevices: state.setDevices,
-      deviceSelected: state.deviceSelected,
-      initializedSuccess: state.initializedSuccess,
-    }))
-  )
+  const { devices, deviceIds, deviceSelected, initializedSuccess } =
+    useDeviceStore(
+      useShallow((state) => ({
+        devices: state.devices,
+        deviceIds: Object.keys(state.devices),
+        setDevices: state.setDevices,
+        deviceSelected: state.deviceSelected,
+        initializedSuccess: state.initializedSuccess,
+      }))
+    )
   const previousDeviceSelected = usePrevious(deviceSelected)
 
   useEffect(() => {
-    if (!mapRefContainer.current) return
+    if (!mapRefContainer.current || !initializedSuccess) return
 
     const modelType =
       (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
@@ -83,6 +84,7 @@ const FleetTracking = () => {
     map.on('load', () => {
       map.resize()
       map.addControl(new mapboxgl.NavigationControl())
+
       updateBooleanState('isMapReady', true)
       setMap(map)
 
@@ -116,8 +118,9 @@ const FleetTracking = () => {
       deckRef.current?.finalize()
       deckRef.current = null
       setMap(null)
+      window.location.reload()
     }
-  }, [])
+  }, [initializedSuccess])
 
   useEffect(() => {
     if (!isMapReady || !map) return
@@ -148,14 +151,15 @@ const FleetTracking = () => {
     if (!isMapReady) return
 
     if (deviceSelected && deviceSelected !== previousDeviceSelected) {
-      zoomToDevice(deviceSelected)
+      zoomToDevice(deviceSelected, false, true)
     }
 
-    if (previousDeviceSelected && !deviceSelected) {
-      map?.flyTo({
-        zoom: 17,
-      })
-    }
+    // if (previousDeviceSelected && !deviceSelected) {
+    //   map?.flyTo({
+    //     zoom: 17,
+    //     center: devices[previousDeviceSelected].latestLocation,
+    //   })
+    // }
   }, [isMapReady, deviceSelected, previousDeviceSelected])
 
   const renderMapResources = useCallback(
@@ -170,7 +174,7 @@ const FleetTracking = () => {
   )
 
   const zoomToDevice = useCallback(
-    (deviceId: string, isFirstLoad = false) => {
+    (deviceId: string, isFirstLoad = false, isFocus = false) => {
       if (!map) return
       const device = devices[deviceId]
       if (!device || !device.latestLocation) return
@@ -181,6 +185,9 @@ const FleetTracking = () => {
       map.flyTo({
         center: [lng, lat],
         zoom: isFirstLoad ? 17 : 19,
+        ...(isFocus && {
+          pitch: 90,
+        }),
       })
     },
     [devices, map]
@@ -200,12 +207,6 @@ const FleetTracking = () => {
   //     return device
   //   })
 
-  //   // map?.flyTo({
-  //   //   center: [106.666666, 10.783333],
-  //   //   zoom: 17,
-  //   //   pitch: 90,
-  //   // })
-
   //   setDevices(newDevices)
   // }
 
@@ -216,7 +217,7 @@ const FleetTracking = () => {
       <DeckglLayers />
       <SelectMapType />
       <ModelType />
-      {/* {isShowLoading && <LoadingScreen />} */}
+
       <MapClusters />
       {/* <Button
         className="absolute bottom-4 right-4"
