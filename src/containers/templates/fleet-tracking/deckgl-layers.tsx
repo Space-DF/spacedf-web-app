@@ -382,6 +382,7 @@ const DeckglLayers = () => {
         const device = devices[deviceId]
 
         if (!markerRef.current?.[deviceId]) {
+          if (typeof document === 'undefined') return
           markerRef.current[deviceId] = getMarker(device)
         }
 

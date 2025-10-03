@@ -45,19 +45,20 @@ const FleetTracking = () => {
       }))
     )
 
-  const { devices, deviceIds, deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      devices: state.devices,
-      deviceIds: Object.keys(state.devices),
-      setDevices: state.setDevices,
-      deviceSelected: state.deviceSelected,
-      initializedSuccess: state.initializedSuccess,
-    }))
-  )
+  const { devices, deviceIds, deviceSelected, initializedSuccess } =
+    useDeviceStore(
+      useShallow((state) => ({
+        devices: state.devices,
+        deviceIds: Object.keys(state.devices),
+        setDevices: state.setDevices,
+        deviceSelected: state.deviceSelected,
+        initializedSuccess: state.initializedSuccess,
+      }))
+    )
   const previousDeviceSelected = usePrevious(deviceSelected)
 
   useEffect(() => {
-    if (!mapRefContainer.current) return
+    if (!mapRefContainer.current || !initializedSuccess) return
 
     const modelType =
       (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
@@ -83,6 +84,7 @@ const FleetTracking = () => {
     map.on('load', () => {
       map.resize()
       map.addControl(new mapboxgl.NavigationControl())
+
       updateBooleanState('isMapReady', true)
       setMap(map)
 
@@ -116,8 +118,9 @@ const FleetTracking = () => {
       deckRef.current?.finalize()
       deckRef.current = null
       setMap(null)
+      window.location.reload()
     }
-  }, [])
+  }, [initializedSuccess])
 
   useEffect(() => {
     if (!isMapReady || !map) return
@@ -214,7 +217,7 @@ const FleetTracking = () => {
       <DeckglLayers />
       <SelectMapType />
       <ModelType />
-      {/* {isShowLoading && <LoadingScreen />} */}
+
       <MapClusters />
       {/* <Button
         className="absolute bottom-4 right-4"
