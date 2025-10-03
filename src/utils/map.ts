@@ -1,3 +1,4 @@
+import { DEVICE_LAYER_PROPERTIES } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import { DeviceSpace } from '@/types/device-space'
 import { ConfigSpecification } from 'mapbox-gl'
@@ -94,15 +95,7 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
       ...device.device,
       status: device.device.status as 'active' | 'inactive',
       id: device.id,
-      layerProps: {
-        sizeScale: 200,
-        rotation: 'yaw',
-        orientation: {
-          pitch: 0,
-          yaw: 90,
-          roll: 90,
-        },
-      },
+      layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
       type: device.device.type || 'rak',
       histories: {
         end: device.latest_checkpoint
