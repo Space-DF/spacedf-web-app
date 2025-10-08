@@ -31,7 +31,7 @@ const FleetTracking = () => {
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
   const { handleCluster } = useMapClusters()
 
-  const { isMapReady, setMap, updateBooleanState, map, mapType } =
+  const { isMapReady, setMap, updateBooleanState, map, mapType, modelType } =
     useFleetTrackingStore(
       useShallow((state) => ({
         map: state.map,
@@ -42,6 +42,10 @@ const FleetTracking = () => {
           state.mapType ||
           (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
           'default',
+        modelType:
+          state.modelType ||
+          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
+          '2d',
       }))
     )
 
@@ -151,15 +155,12 @@ const FleetTracking = () => {
     if (!isMapReady) return
 
     if (deviceSelected && deviceSelected !== previousDeviceSelected) {
-      zoomToDevice(deviceSelected, false, true)
+      zoomToDevice(deviceSelected, false)
     }
 
-    // if (previousDeviceSelected && !deviceSelected) {
-    //   map?.flyTo({
-    //     zoom: 17,
-    //     center: devices[previousDeviceSelected].latestLocation,
-    //   })
-    // }
+    if (!deviceSelected && previousDeviceSelected) {
+      zoomToDevice(previousDeviceSelected, true)
+    }
   }, [isMapReady, deviceSelected, previousDeviceSelected])
 
   const renderMapResources = useCallback(
@@ -174,7 +175,7 @@ const FleetTracking = () => {
   )
 
   const zoomToDevice = useCallback(
-    (deviceId: string, isFirstLoad = false, isFocus = false) => {
+    (deviceId: string, isFirstLoad = false) => {
       if (!map) return
       const device = devices[deviceId]
       if (!device || !device.latestLocation) return
@@ -185,12 +186,12 @@ const FleetTracking = () => {
       map.flyTo({
         center: [lng, lat],
         zoom: isFirstLoad ? 17 : 19,
-        ...(isFocus && {
+        ...(modelType === '3d' && {
           pitch: 90,
         }),
       })
     },
-    [devices, map]
+    [devices, map, modelType]
   )
 
   // const handleUpdateLocation = () => {

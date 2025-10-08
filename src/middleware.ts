@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import createMiddleware from 'next-intl/middleware'
 import { cookies } from 'next/headers'
@@ -37,6 +37,13 @@ export default async function middleware(request: NextRequest) {
   })
 
   const subdomain = await getValidSubdomain(host)
+
+  if (!subdomain) {
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://myspacedf.com'
+    const demoUrl = baseUrl.replace('://', '://demo.')
+
+    return NextResponse.redirect(demoUrl, 308)
+  }
 
   if (subdomain) {
     url.pathname = `/${locale}/${subdomain}/${segments.join('/') || ''}` // Rewrite path for dynamic subdomain

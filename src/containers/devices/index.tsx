@@ -10,7 +10,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
@@ -80,12 +80,33 @@ const Devices = () => {
     }))
   )
 
+  const previousDeviceSelected = usePrevious(deviceSelected)
+
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   // const [selected, setSelected] = useState<number>()
 
   const handleCloseSlide = () => {
     setDeviceSelected('')
+  }
+
+  useEffect(() => {
+    handleDeviceTabVisible()
+  }, [deviceSelected, previousDeviceSelected, JSON.stringify(dynamicLayouts)])
+
+  const handleDeviceTabVisible = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    if (deviceSelected) {
+      const isDeviceShow = dynamicLayouts.includes(NavigationEnums.DEVICES)
+
+      if (!isDeviceShow) {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+
+        toggleDynamicLayout(NavigationEnums.DEVICES)
+      }
+    }
   }
 
   return (
