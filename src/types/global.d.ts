@@ -74,6 +74,7 @@ export type Response<T = unknown> = {
 export type ApiErrorResponse = {
   detail: string
   code?: number
+  result?: string
 } & Record<string, any>
 
 declare global {
