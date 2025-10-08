@@ -1,3 +1,4 @@
+import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { deviceSpaces as dummyDevice } from '@/data/dummy-data'
 import { auth } from '@/lib/auth'
 import { spaceClient } from '@/lib/spacedf'
@@ -38,5 +39,22 @@ const GET = async (
     return handleError(errors)
   }
 }
+
+export const POST = withAuthApiRequired(
+  async (request, { params }: { params: { spaceSlug: string } }) => {
+    try {
+      const body = await request.json()
+      const client = await spaceClient()
+      const device = await client.deviceSpaces.create(body, {
+        headers: {
+          'X-Space': params.spaceSlug,
+        },
+      })
+      return NextResponse.json(device)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)
 
 export { GET }

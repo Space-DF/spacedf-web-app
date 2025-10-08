@@ -1,3 +1,4 @@
+import { LorawanDevice } from '@/types/device'
 import { Checkpoint } from '@/types/trip'
 import {
   GpsTrackerAttributes,
@@ -9,6 +10,7 @@ import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import { create } from 'zustand'
 
 export type Device = {
+  lorawan_device?: LorawanDevice
   name: string
   id: string
   status: 'active' | 'inactive'
