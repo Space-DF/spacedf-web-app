@@ -31,8 +31,8 @@ export type mapSource = z.infer<typeof mapSchema>['sources'][number]
 export const defaultSourceMapValues: mapPayload['sources'] = [
   {
     device_id: '',
-    coordinate: [0, 0],
-    map_type: MapType.SatelLite,
+    coordinate: [16.05204105833857, 108.2168072245793],
+    map_type: MapType.RoadMap,
   },
 ]
 
