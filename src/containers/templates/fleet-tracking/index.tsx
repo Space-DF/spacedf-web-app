@@ -161,7 +161,7 @@ const FleetTracking = () => {
     if (!deviceSelected && previousDeviceSelected) {
       zoomToDevice(previousDeviceSelected, true)
     }
-  }, [isMapReady, deviceSelected, previousDeviceSelected])
+  }, [isMapReady, deviceSelected, previousDeviceSelected, modelType])
 
   const renderMapResources = useCallback(
     async (map: mapboxgl.Map, mapType: MapType) => {
@@ -186,9 +186,7 @@ const FleetTracking = () => {
       map.flyTo({
         center: [lng, lat],
         zoom: isFirstLoad ? 17 : 19,
-        ...(modelType === '3d' && {
-          pitch: 90,
-        }),
+        pitch: modelType === '3d' ? 90 : 0,
       })
     },
     [devices, map, modelType]
