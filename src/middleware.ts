@@ -39,8 +39,7 @@ export default async function middleware(request: NextRequest) {
   const subdomain = await getValidSubdomain(host)
 
   if (!subdomain) {
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://myspacedf.com'
-    const demoUrl = baseUrl.replace('://', '://demo.')
+    const demoUrl = `${request.nextUrl.protocol}//demo.${request.nextUrl.host}`
 
     return NextResponse.redirect(demoUrl, 308)
   }

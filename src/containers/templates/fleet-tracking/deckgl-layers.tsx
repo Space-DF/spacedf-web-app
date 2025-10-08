@@ -352,7 +352,6 @@ const DeckglLayers = () => {
         stopAllAnimations()
         handleRender3DLayer(false, 0)
         render2DLayers(true)
-        setDeviceSelected('')
         return
 
       case '3d':
