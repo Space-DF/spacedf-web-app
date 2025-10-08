@@ -66,6 +66,7 @@ import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { toast } from 'sonner'
 import { DeviceSpace } from '@/types/device-space'
 import { KeyedMutator } from 'swr'
+import { usePrevious } from '@/hooks/usePrevious'
 
 const Devices = () => {
   const t = useTranslations('common')
