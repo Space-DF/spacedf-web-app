@@ -1,6 +1,6 @@
 import { SupportedModels } from '@/utils/model-objects/devices/gps-tracker/type'
 
-interface LorawanDevice {
+export interface LorawanDevice {
   name: string
   dev_eui: string
   location: string
