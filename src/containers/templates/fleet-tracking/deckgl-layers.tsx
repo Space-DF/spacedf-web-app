@@ -71,7 +71,7 @@ const DeckglLayers = () => {
 
   const isFirstLoad = useRef(true)
 
-  const { map, modelType, setModelType } = useFleetTrackingStore(
+  const { map, modelType } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       modelType:
@@ -339,6 +339,7 @@ const DeckglLayers = () => {
       startAnimation(deviceSelected)
     } else {
       stopAllAnimations()
+      handleRender3DLayer(false, modelType === '3d' ? 1 : 0)
     }
   }, [deviceSelected, modelType])
 
@@ -436,7 +437,6 @@ const DeckglLayers = () => {
 
       el.addEventListener('click', () => {
         setDeviceSelected(deviceData.id)
-        setModelType('3d')
       })
 
       // Add style for opacity and transition
