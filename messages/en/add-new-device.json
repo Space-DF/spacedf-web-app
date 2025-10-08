@@ -28,5 +28,6 @@
   "device_history": "Device History",
   "device": "Device",
   "add_device_successfully": "Add device successfully",
-  "failed_to_add_device": "Failed to add device"
+  "failed_to_add_device": "Failed to add device",
+  "failed_to_scan_qr_code": "Failed to scan QR code"
 }

@@ -1,17 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Scanner } from '@yudiel/react-qr-scanner'
+import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
 import {
   ArrowLeft,
   CircleCheck,
   Ellipsis,
+  LoaderCircle,
   Map,
   Pencil,
   Search,
   Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, {
+  memo,
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+} from 'react'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import DeviceIcon from '/public/images/device-icon.webp'
@@ -67,6 +74,7 @@ import { toast } from 'sonner'
 import { DeviceSpace } from '@/types/device-space'
 import { KeyedMutator } from 'swr'
 import { usePrevious } from '@/hooks/usePrevious'
+import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -168,10 +176,23 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   )
   const isAuth = useAuthenticated()
 
+  const form = useForm<AddDeviceSchema>({
+    resolver: zodResolver(addDeviceSchema),
+  })
+
+  const handleReset = () => {
+    setStep('select_mode')
+    setMode('auto')
+    setOpen(false)
+    form.reset()
+  }
+
   const handleAddDeviceSuccess = async () => {
     await mutate()
-    setOpen(false)
+    handleReset()
   }
+
+  const isAutoMode = mode === 'auto'
 
   const steps: Record<Step, Steps> = {
     select_mode: {
@@ -204,7 +225,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     },
     scan_qr: {
       label: t('addNewDevice.scan_qr_code'),
-      component: <AddDeviceScanQR />,
+      component: <AddDeviceScanQR setStep={setStep} />,
     },
     add_device_auto: {
       label: t('addNewDevice.device_informations'),
@@ -213,7 +234,11 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
       ),
     },
     add_device_manual: {
-      label: t('addNewDevice.add_devices_manually'),
+      label: t(
+        isAutoMode
+          ? 'addNewDevice.device_informations'
+          : 'addNewDevice.add_devices_manually'
+      ),
       component: (
         <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
       ),
@@ -274,7 +299,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
           <div
             className={cn('flex gap-4 px-4 pb-4', { 'pt-4': !isShowHeader })}
           >
-            {steps[step].component}
+            <FormProvider {...form}>{steps[step].component}</FormProvider>
           </div>
         </DialogContent>
       </Dialog>
@@ -507,17 +532,39 @@ const DevicesList = () => {
   )
 }
 
-const AddDeviceScanQR = () => {
+interface AddDeviceScanQRProps {
+  setStep: Dispatch<SetStateAction<Step>>
+}
+
+const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
+  const { trigger: checkClaimCode, isMutating } = useCheckClaimCode()
+  const t = useTranslations('addNewDevice')
+
+  const form = useFormContext<AddDeviceSchema>()
+
+  const handleScan = async (result: IDetectedBarcode[]) => {
+    const response = await checkClaimCode(result[0].rawValue, {
+      onError: (error) => {
+        toast.error(error.message || t('failed_to_scan_qr_code'))
+      },
+    })
+    toast.success(t('scan_qr_code_successfully'))
+    form.setValue('dev_eui', response.lorawan_device.dev_eui)
+    setStep('add_device_manual')
+  }
+
+  const handleError = () => {
+    toast.error(t('failed_to_scan_qr_code'))
+  }
+
   return (
-    <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray">
-      <Scanner
-        onScan={(result) => {
-          console.info(`\x1b[34mFunc: Scanner - PARAMS: result\x1b[0m`, result)
-        }}
-        onError={(err) => {
-          console.info(`\x1b[34mFunc: Scanner - PARAMS: err\x1b[0m`, err)
-        }}
-      />
+    <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray relative">
+      <Scanner allowMultiple onScan={handleScan} onError={handleError} />
+      {isMutating && (
+        <div className="absolute size-full justify-center flex items-center z-10 bg-black/70 backdrop-blur-sm top-0 left-0">
+          <LoaderCircle className="text-brand-bright-lavender size-10 animate-spin" />
+        </div>
+      )}
     </div>
   )
 }
@@ -570,18 +617,13 @@ export type AddDeviceSchema = z.infer<typeof addDeviceSchema>
 
 const AddDeviceForm = ({
   mode,
-  defaultValues,
   onSuccess,
 }: {
   mode: Mode
-  defaultValues?: AddDeviceSchema
   onSuccess: () => Promise<void>
 }) => {
   const t = useTranslations('addNewDevice')
-  const form = useForm<AddDeviceSchema>({
-    resolver: zodResolver(addDeviceSchema),
-    defaultValues,
-  })
+  const form = useFormContext<AddDeviceSchema>()
   const { trigger: addDevice, isMutating } = useAddDeviceManually()
 
   async function onSubmit(values: AddDeviceSchema) {
@@ -638,7 +680,6 @@ const AddDeviceForm = ({
               </FormLabel>
               <FormControl>
                 <Input
-                  disabled={isModeAuto}
                   placeholder="Device 1"
                   {...field}
                   isError={!!fieldState.error}
@@ -658,7 +699,6 @@ const AddDeviceForm = ({
               </FormLabel>
               <FormControl>
                 <Textarea
-                  disabled={isModeAuto}
                   placeholder={t('enter_description')}
                   className="resize-none"
                   {...field}
