@@ -91,8 +91,8 @@ export function calculateTotalDistance(
 export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
   return deviceSpace.map((device) => {
     return {
-      name: device.device.lorawan_device.name,
       ...device.device,
+      name: device.name,
       status: device.device.status as 'active' | 'inactive',
       id: device.id,
       layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
@@ -120,6 +120,7 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
           : [108.22135225454248, 16.059130598128093],
       ],
       origin: 'Vietnam',
+      description: device.description,
     }
   })
 }
