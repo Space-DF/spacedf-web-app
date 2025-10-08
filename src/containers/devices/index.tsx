@@ -10,7 +10,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
@@ -62,6 +62,11 @@ import { setCookie, uppercaseFirstLetter } from '@/utils'
 import DeviceDetail from './components/device-detail'
 import Image from 'next/image'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useAddDeviceManually } from './hooks/useAddDeviceManually'
+import { toast } from 'sonner'
+import { DeviceSpace } from '@/types/device-space'
+import { KeyedMutator } from 'swr'
+import { usePrevious } from '@/hooks/usePrevious'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -76,12 +81,33 @@ const Devices = () => {
     }))
   )
 
+  const previousDeviceSelected = usePrevious(deviceSelected)
+
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   // const [selected, setSelected] = useState<number>()
 
   const handleCloseSlide = () => {
     setDeviceSelected('')
+  }
+
+  useEffect(() => {
+    handleDeviceTabVisible()
+  }, [deviceSelected, previousDeviceSelected, JSON.stringify(dynamicLayouts)])
+
+  const handleDeviceTabVisible = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    if (deviceSelected) {
+      const isDeviceShow = dynamicLayouts.includes(NavigationEnums.DEVICES)
+
+      if (!isDeviceShow) {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+
+        toggleDynamicLayout(NavigationEnums.DEVICES)
+      }
+    }
   }
 
   return (
@@ -126,7 +152,11 @@ interface Steps {
   component: React.ReactNode
 }
 
-const AddDeviceDialog = () => {
+interface Props {
+  mutate: KeyedMutator<DeviceSpace[]>
+}
+
+const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   const t = useTranslations()
   const [step, setStep] = useState<Step>('select_mode')
   // const [step, setStep] = useState<Step>('select_mode')
@@ -137,6 +167,11 @@ const AddDeviceDialog = () => {
     useShallow((state) => state.setOpenDrawerIdentity)
   )
   const isAuth = useAuthenticated()
+
+  const handleAddDeviceSuccess = async () => {
+    await mutate()
+    setOpen(false)
+  }
 
   const steps: Record<Step, Steps> = {
     select_mode: {
@@ -173,11 +208,15 @@ const AddDeviceDialog = () => {
     },
     add_device_auto: {
       label: t('addNewDevice.device_informations'),
-      component: <AddDeviceForm mode={mode} />,
+      component: (
+        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+      ),
     },
     add_device_manual: {
       label: t('addNewDevice.add_devices_manually'),
-      component: <AddDeviceForm mode={mode} />,
+      component: (
+        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+      ),
     },
     add_device_success: {
       label: '',
@@ -399,12 +438,13 @@ const DeviceSelected = () => {
 
 const DevicesList = () => {
   const t = useTranslations('addNewDevice')
-  const { data: devices } = useGetDevices()
+  const { data: devices, mutate } = useGetDevices()
 
   const { deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
+      setDevices: state.setDevices,
     }))
   )
 
@@ -414,7 +454,7 @@ const DevicesList = () => {
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
-        <AddDeviceDialog />
+        <AddDeviceDialog mutate={mutate} />
       </div>
       <InputWithIcon
         prefixCpn={
@@ -433,10 +473,10 @@ const DevicesList = () => {
                   'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                   {
                     'border-brand-component-stroke-dark':
-                      item.device.id === deviceSelected,
+                      item.id === deviceSelected,
                   }
                 )}
-                onClick={() => setDeviceSelected(item.device.id)}
+                onClick={() => setDeviceSelected(item.id)}
               >
                 <div className="space-y-2 mb-2">
                   <div className="flex items-start justify-between">
@@ -449,15 +489,13 @@ const DevicesList = () => {
                     />
                   </div>
                   <div className="text-xs font-medium">
-                    <span className="leading-[18px]">
-                      {item.device.lorawan_device.name}
-                    </span>
+                    <span className="leading-[18px]">{item.name}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-medium ">
                   <Map size={16} className="text-brand-text-gray" />
                   <span className="leading-[18px]">
-                    {item.device.lorawan_device.location}
+                    {item.device.lorawan_device.location || 'Unknown'}
                   </span>
                 </div>
               </div>
@@ -518,11 +556,8 @@ const AddDeviceSuccess = () => {
 }
 
 const addDeviceSchema = z.object({
-  device_name: z.string({ message: 'This field cannot be empty' }),
+  name: z.string({ message: 'This field cannot be empty' }),
   dev_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
-    message: 'Must be at least 16 characters long.',
-  }),
-  join_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
     message: 'Must be at least 16 characters long.',
   }),
   description: z
@@ -531,23 +566,33 @@ const addDeviceSchema = z.object({
     .optional(),
 })
 
+export type AddDeviceSchema = z.infer<typeof addDeviceSchema>
+
 const AddDeviceForm = ({
   mode,
   defaultValues,
+  onSuccess,
 }: {
   mode: Mode
-  defaultValues?: z.infer<typeof addDeviceSchema>
+  defaultValues?: AddDeviceSchema
+  onSuccess: () => Promise<void>
 }) => {
   const t = useTranslations('addNewDevice')
-  const form = useForm<z.infer<typeof addDeviceSchema>>({
+  const form = useForm<AddDeviceSchema>({
     resolver: zodResolver(addDeviceSchema),
     defaultValues,
   })
+  const { trigger: addDevice, isMutating } = useAddDeviceManually()
 
-  function onSubmit(values: z.infer<typeof addDeviceSchema>) {
-    console.info(`\x1b[34mFunc: onSubmit - PARAMS: values\x1b[0m`, values)
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: AddDeviceSchema) {
+    await addDevice(values, {
+      onSuccess: async () => {
+        await onSuccess()
+        toast.success(t('add_device_successfully'))
+      },
+      onError: (error) =>
+        toast.error(error.message || t('failed_to_add_device')),
+    })
   }
 
   const isModeAuto = mode === 'auto'
@@ -584,28 +629,7 @@ const AddDeviceForm = ({
         />
         <FormField
           control={form.control}
-          name="join_eui"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('joineui')}
-                <span className="text-brand-component-text-accent">*</span>
-              </FormLabel>
-              <FormControl>
-                <Input
-                  disabled={isModeAuto}
-                  placeholder="00 04 A3 0B  00 1B B0 DF"
-                  {...field}
-                  isError={!!fieldState.error}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="device_name"
+          name="name"
           render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
@@ -615,7 +639,7 @@ const AddDeviceForm = ({
               <FormControl>
                 <Input
                   disabled={isModeAuto}
-                  placeholder="00 04 A3 0B  00 1B B0 DF"
+                  placeholder="Device 1"
                   {...field}
                   isError={!!fieldState.error}
                 />
@@ -649,7 +673,9 @@ const AddDeviceForm = ({
           <Button type="button" variant="outline">
             {t('cancel')}
           </Button>
-          <Button type="submit">{t('add_device')}</Button>
+          <Button type="submit" loading={isMutating}>
+            {t('add_device')}
+          </Button>
         </div>
       </form>
     </Form>

@@ -26,5 +26,7 @@
   "devices_list": "Devices list",
   "no_selected_devices": "No Selected Devices",
   "device_history": "Device History",
-  "device": "Device"
+  "device": "Device",
+  "add_device_successfully": "Add device successfully",
+  "failed_to_add_device": "Failed to add device"
 }

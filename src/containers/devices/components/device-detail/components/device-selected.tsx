@@ -31,7 +31,6 @@ const DeviceSelected = () => {
 
   const { deviceDataSelected } = useDeviceStore(
     useShallow((state) => ({
-      deviceSelected: state.deviceSelected,
       deviceDataSelected: state.devices[state.deviceSelected] || {},
     }))
   )
@@ -91,9 +90,12 @@ const DeviceSelected = () => {
           />
           <InformationItem
             label={`${t('deveui')}:`}
-            content={'Mild Steel Cement Lined'}
+            content={deviceDataSelected?.lorawan_device?.dev_eui || ''}
           />
-          <InformationItem label={`${t('description')}:`} content={'150'} />
+          <InformationItem
+            label={`${t('description')}:`}
+            content={deviceDataSelected?.description || ''}
+          />
         </div>
       </div>
     </div>
