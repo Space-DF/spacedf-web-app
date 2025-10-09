@@ -317,7 +317,7 @@ const MapClusters = () => {
       mapRef.current.addLayer({
         id: 'unclustered-point',
         type: 'circle',
-        source: 'clusters-source',
+        source: 'unclustered-points',
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': '#11b4da',
