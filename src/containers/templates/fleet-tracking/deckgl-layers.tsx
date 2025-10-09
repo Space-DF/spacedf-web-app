@@ -139,11 +139,23 @@ const DeckglLayers = () => {
     })
 
     map.on('zoomend', () => {
-      const features = map?.queryRenderedFeatures({
-        layers: ['clusters'],
-      })
+      // Check if the clusters layer exists before querying
+      const style = map.getStyle()
+      const hasClusterLayer = style?.layers?.some(
+        (layer) => layer.id === 'clusters'
+      )
 
-      if (isFirstLoad.current && !features.length) {
+      if (hasClusterLayer) {
+        const features = map?.queryRenderedFeatures({
+          layers: ['clusters'],
+        })
+
+        if (isFirstLoad.current && !features.length) {
+          setIsStartRender(true)
+          isFirstLoad.current = false
+        }
+      } else if (isFirstLoad.current) {
+        // If clusters layer doesn't exist, just start rendering
         setIsStartRender(true)
         isFirstLoad.current = false
       }
