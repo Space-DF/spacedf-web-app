@@ -121,5 +121,7 @@
   "custom_timerange": "Display min, max, average or change over a timeframe",
   "operation": "Operation",
   "widgets_updated_successfully": "Widgets updated successfully",
-  "widgets_update_failed": "Widgets update failed"
+  "widgets_update_failed": "Widgets update failed",
+  "device_removed_successfully": "Device removed successfully",
+  "failed_to_remove_device": "Failed to remove device"
 }

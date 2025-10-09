@@ -67,7 +67,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
       }))
     },
 
-    setDeviceSelected(id: string) {
+    setDeviceSelected(id) {
       return set(() => ({
         deviceSelected: id,
       }))
