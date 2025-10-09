@@ -1,4 +1,4 @@
-import { PropsWithChildren, useMemo, useState } from 'react'
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -48,10 +48,16 @@ const settings = [
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
-  const [currentSetting, setCurrentSetting] = useState('profile')
+  const [currentSetting, setCurrentSetting] = useState('appearance')
   const t = useTranslations('common')
 
   const isAuthenticated = useAuthenticated()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setCurrentSetting('profile')
+    }
+  }, [isAuthenticated])
 
   const authSettings = useMemo(() => {
     if (isAuthenticated) {
