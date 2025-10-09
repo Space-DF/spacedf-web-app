@@ -5,7 +5,7 @@ import { useMapClusters } from '@/hooks/templates/useCluster'
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { usePrevious } from '@/hooks/usePrevious'
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
-import { useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { getMapStyle, MapType } from '@/utils/map'
 import { Deck } from 'deck.gl'
@@ -17,6 +17,7 @@ import DeckglLayers from './deckgl-layers'
 import MapClusters from './map-clusters'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
+import { getUserLocation } from '@/utils'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -147,15 +148,15 @@ const FleetTracking = () => {
   }, [isMapReady, mapType, map, resolvedTheme])
 
   useEffect(() => {
-    if (!isMapReady || deviceIds.length === 0) return
-    zoomToDevice(deviceIds[0], true)
+    if (!isMapReady) return
+    zoomToDevice(deviceIds, true)
   }, [isMapReady, JSON.stringify(deviceIds)])
 
   useEffect(() => {
     if (!isMapReady) return
 
     if (deviceSelected && deviceSelected !== previousDeviceSelected) {
-      zoomToDevice(deviceSelected, false)
+      zoomToDevice([deviceSelected], false)
     }
 
     if (!deviceSelected && previousDeviceSelected) {
@@ -174,20 +175,101 @@ const FleetTracking = () => {
     [mapType, applyMapBuilding, removeMapBuilding]
   )
 
-  const zoomToDevice = useCallback(
-    (deviceId: string, isFirstLoad = false) => {
-      if (!map) return
-      const device = devices[deviceId]
-      if (!device || !device.latestLocation) return
+  const getBoundsFromCoordinates = (coordinates: number[][]) => {
+    if (!coordinates.length)
+      return [
+        [0, 0],
+        [0, 0],
+      ] as number[][]
 
-      const [lng, lat] = device.latestLocation
-      if (!lng || !lat) return
+    let minLng = coordinates[0][0]
+    let minLat = coordinates[0][1]
+    let maxLng = coordinates[0][0]
+    let maxLat = coordinates[0][1]
 
+    coordinates.forEach(([lng, lat]) => {
+      if (lng < minLng) minLng = lng
+      if (lat < minLat) minLat = lat
+      if (lng > maxLng) maxLng = lng
+      if (lat > maxLat) maxLat = lat
+    })
+
+    return [
+      [minLng, minLat],
+      [maxLng, maxLat],
+    ]
+  }
+
+  const zoomToDefault = async (_: Device[], isFirstLoad: boolean) => {
+    if (!map) return
+
+    try {
+      const [lng, lat] = await getUserLocation()
       map.flyTo({
         center: [lng, lat],
         zoom: isFirstLoad ? 17 : 19,
         pitch: modelType === '3d' ? 90 : 0,
       })
+    } catch (error) {
+      console.warn('Could not get user location:', error)
+      map.flyTo({
+        center: [108.0016002, 15.9722964],
+        zoom: 5,
+        pitch: modelType === '3d' ? 90 : 0,
+      })
+    }
+  }
+
+  const zoomToSingleDevice = (listDevice: Device[], isFirstLoad: boolean) => {
+    if (!map) return
+    const [lng, lat] = listDevice[0].latestLocation || [0, 0]
+    if (!lng || !lat) return
+
+    map.flyTo({
+      center: [lng, lat],
+      zoom: isFirstLoad ? 17 : 19,
+      pitch: modelType === '3d' ? 90 : 0,
+    })
+  }
+
+  const zoomToMultipleDevices = (listDevice: Device[]) => {
+    if (!map) return
+    const coordinates = listDevice
+      .map((d) => d?.latestLocation)
+      .filter(
+        (loc): loc is [number, number] => Array.isArray(loc) && loc.length === 2
+      )
+
+    if (!coordinates.length) return
+
+    const bounds = getBoundsFromCoordinates(coordinates)
+
+    map.fitBounds([bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]], {
+      padding: 100,
+      pitch: modelType === '3d' ? 90 : 0,
+    })
+  }
+
+  const strategies: Record<
+    string,
+    (listDevice: Device[], isFirstLoad: boolean) => void
+  > = {
+    '0': zoomToDefault,
+    '1': zoomToSingleDevice,
+    multi: zoomToMultipleDevices,
+  }
+
+  const zoomToDevice = useCallback(
+    async (deviceId: string[], isFirstLoad = false) => {
+      if (!map) return
+      const listDevice = deviceId.map((id) => devices[id]).filter(Boolean)
+
+      const count = listDevice?.length
+
+      const key = count === 0 ? '0' : count === 1 ? '1' : 'multi'
+      const zoomStrategy = strategies[key]
+
+      zoomStrategy?.(listDevice, isFirstLoad)
     },
     [devices, map, modelType]
   )
