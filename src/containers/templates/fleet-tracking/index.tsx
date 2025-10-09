@@ -17,7 +17,6 @@ import DeckglLayers from './deckgl-layers'
 import MapClusters from './map-clusters'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
-import { getUserLocation } from '@/utils'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -27,6 +26,7 @@ const FleetTracking = () => {
   const mapRefContainer = useRef<HTMLDivElement>(null)
   const deckRef = useRef<Deck | null>(null)
   const isFirstLoad = useRef(true)
+  const geolocateControlRef = useRef<mapboxgl.GeolocateControl | null>(null)
 
   const { resolvedTheme } = useTheme()
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
@@ -85,6 +85,16 @@ const FleetTracking = () => {
       pitch: isThreeD ? 90 : 0,
       antialias: true,
     })
+
+    const geolocateControl = new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,
+      showUserHeading: true,
+    })
+    geolocateControlRef.current = geolocateControl
+    map.addControl(geolocateControl)
 
     map.on('load', () => {
       map.resize()
@@ -203,20 +213,32 @@ const FleetTracking = () => {
   const zoomToDefault = async (_: Device[], isFirstLoad: boolean) => {
     if (!map) return
 
-    try {
-      const [lng, lat] = await getUserLocation()
-      map.flyTo({
-        center: [lng, lat],
-        zoom: isFirstLoad ? 17 : 19,
-        pitch: modelType === '3d' ? 90 : 0,
-      })
-    } catch (error) {
-      console.warn('Could not get user location:', error)
-      map.flyTo({
-        center: [108.0016002, 15.9722964],
-        zoom: 5,
-        pitch: modelType === '3d' ? 90 : 0,
-      })
+    if (geolocateControlRef.current) {
+      geolocateControlRef.current.trigger()
+
+      if (isFirstLoad) {
+        const onLocate = (e: any) => {
+          map.flyTo({
+            center: [e.coords.longitude, e.coords.latitude],
+            zoom: 17,
+            pitch: modelType === '3d' ? 90 : 0,
+          })
+          map.off('geolocate', onLocate)
+        }
+
+        const onError = (err: any) => {
+          console.warn('Could not get user location:', err)
+          map.flyTo({
+            center: [108.0016002, 15.9722964],
+            zoom: 5,
+            pitch: modelType === '3d' ? 90 : 0,
+          })
+          map.off('error', onError)
+        }
+
+        map.on('geolocate', onLocate)
+        map.on('error', onError)
+      }
     }
   }
 
@@ -297,7 +319,7 @@ const FleetTracking = () => {
       <SpacedfLogo />
       <DeckglLayers />
       <SelectMapType />
-      <ModelType />
+      {!!deviceIds.length && <ModelType />}
 
       <MapClusters />
       {/* <Button
