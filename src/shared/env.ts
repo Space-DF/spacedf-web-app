@@ -12,3 +12,6 @@ export const MQTT_CLIENT_ID = process.env.NEXT_PUBLIC_MQTT_CLIENT_ID || ''
 
 export const MQTT_USERNAME = process.env.NEXT_PUBLIC_MQTT_USERNAME || ''
 export const MQTT_PASSWORD = process.env.NEXT_PUBLIC_MQTT_PASSWORD || ''
+
+export const ADMIN_SITE_URL =
+  process.env.NEXT_PUBLIC_ADMIN_SITE_URL || 'https://spacedf.com'
