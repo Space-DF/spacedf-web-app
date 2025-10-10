@@ -75,6 +75,7 @@ import { DeviceSpace } from '@/types/device-space'
 import { KeyedMutator } from 'swr'
 import { usePrevious } from '@/hooks/usePrevious'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
+import { countTwoDigitNumbers, formatValueEUI } from './utils'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -604,9 +605,21 @@ const AddDeviceSuccess = () => {
 
 const addDeviceSchema = z.object({
   name: z.string({ message: 'This field cannot be empty' }),
-  dev_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
-    message: 'Must be at least 16 characters long.',
-  }),
+  dev_eui: z
+    .string({ message: 'This field cannot be empty' })
+    .min(16, {
+      message: 'Must be at least 16 characters long.',
+    })
+    .refine(
+      (str) => {
+        const numbers = str.split(' ')
+        const twoDigitCount = numbers.filter((num) => num.length === 2).length
+        return twoDigitCount === 8
+      },
+      {
+        message: 'Dev EUI must be 8 bytes',
+      }
+    ),
   description: z
     .string()
     .max(500, { message: 'This field must not exceed 500 characters' })
@@ -627,14 +640,17 @@ const AddDeviceForm = ({
   const { trigger: addDevice, isMutating } = useAddDeviceManually()
 
   async function onSubmit(values: AddDeviceSchema) {
-    await addDevice(values, {
-      onSuccess: async () => {
-        await onSuccess()
-        toast.success(t('add_device_successfully'))
-      },
-      onError: (error) =>
-        toast.error(error.message || t('failed_to_add_device')),
-    })
+    await addDevice(
+      { ...values, dev_eui: values.dev_eui.replace(/\s+/g, '') },
+      {
+        onSuccess: async () => {
+          await onSuccess()
+          toast.success(t('add_device_successfully'))
+        },
+        onError: (error) =>
+          toast.error(error.message || t('failed_to_add_device')),
+      }
+    )
   }
 
   const isModeAuto = mode === 'auto'
@@ -662,6 +678,17 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  onChange={(e) => {
+                    const rawValue = e.target.value.replace(/\s/g, '')
+                    const binaryValue = formatValueEUI(rawValue)
+                    if (
+                      /^\d*$/.test(rawValue) &&
+                      countTwoDigitNumbers(binaryValue) <= 8 &&
+                      binaryValue.split(' ').length <= 8
+                    ) {
+                      field.onChange(binaryValue)
+                    }
+                  }}
                   isError={!!fieldState.error}
                 />
               </FormControl>
