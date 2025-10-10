@@ -127,38 +127,47 @@ class FetchInstance {
   }
 
   post<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
       method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 
   put<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
       method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 
   patch<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      method: 'PATCH',
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 

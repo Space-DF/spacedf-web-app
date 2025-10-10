@@ -48,16 +48,44 @@ const POST = withAuthApiRequired(async (req) => {
 })
 
 const PATCH = withAuthApiRequired(async (req) => {
-  const body = await req.json()
+  const formData = await req.formData()
+  const logo = formData.get('logo') as File
+  const name = formData.get('name')
+  const description = formData.get('description')
+
+  let logoUrl = undefined
+
   const spacedfClient = await spaceClient()
+  if (logo && typeof logo !== 'string') {
+    const data = await spacedfClient.presignedUrl.get()
+    const presignedUrl = data.presigned_url
+    const fileBuffer = await logo.arrayBuffer()
+    const responseImage = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: fileBuffer,
+    })
+    if (!responseImage.ok) {
+      return NextResponse.json({
+        message: 'Presigned url is not valid',
+        status: 400,
+      })
+    }
+
+    logoUrl = data.file_name
+  }
 
   const { searchParams } = new URL(req.url)
 
-  const space_slug = searchParams.get('slug_name')
-
+  const space_slug = searchParams.get('slug_name') as string
   try {
-    const updatedSpaceResponse = await spacedfClient.spaces.update({
-      ...body,
+    const space = {
+      name: name as string,
+      description: description as string,
+      logo: logoUrl as string,
+    }
+
+    const updatedSpaceResponse = await spacedfClient.spaces.partialUpdate({
+      ...space,
       'X-Space': space_slug,
     })
 
