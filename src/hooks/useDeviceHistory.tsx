@@ -7,7 +7,7 @@ import { useGlobalStore } from '@/stores'
 import { usePrevious } from './usePrevious'
 import { Checkpoint } from '@/types/trip'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
+import { LngLatBoundsLike } from 'mapbox-gl'
 
 export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
@@ -59,25 +59,6 @@ export const useDeviceHistory = () => {
     deviceHistory,
   ])
 
-  async function getRoute(dataHistories: number[][]) {
-    const end = dataHistories[dataHistories.length - 1]
-    const start = dataHistories[0]
-
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start.join(',')};${end.join(',')}?geometries=geojson&access_token=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`
-
-    try {
-      const response = await fetch(url)
-      if (!response.ok) throw new Error('Failed to fetch route data')
-      const data = await response.json()
-
-      const route = data.routes[0].geometry.coordinates
-
-      return route
-    } catch (error) {
-      console.error('Error fetching route:', error)
-    }
-  }
-
   const getIconLayer = (coordinates: number[] = []) => {
     const layer = new IconLayer({
       id: 'IconLayer',
@@ -125,13 +106,6 @@ export const useDeviceHistory = () => {
       map?.removeControl(controlIcon)
     }
 
-    // if (controlRef.current) {
-    //   map?.removeControl(controlRef.current)
-    // }
-    // map?.removeLayer('IconLayer')
-
-    const data = await getRoute(coordinates)
-
     const geojson = {
       type: 'Feature',
       properties: {},
@@ -174,13 +148,34 @@ export const useDeviceHistory = () => {
 
     map?.addControl(deckOverlay)
 
-    map?.flyTo({
-      center: data[data.length - 1] || [],
-      zoom: 18,
-      pitch: 45,
-      bearing: 0,
-      duration: 5000,
-    })
+    // Calculate bounds to fit all checkpoints
+    if (coordinates.length > 0) {
+      const bounds = coordinates.reduce(
+        (bounds, coord) => {
+          return [
+            [
+              Math.min(bounds[0][0], coord[0]),
+              Math.min(bounds[0][1], coord[1]),
+            ],
+            [
+              Math.max(bounds[1][0], coord[0]),
+              Math.max(bounds[1][1], coord[1]),
+            ],
+          ]
+        },
+        [
+          [coordinates[0][0], coordinates[0][1]],
+          [coordinates[0][0], coordinates[0][1]],
+        ]
+      )
+
+      map?.fitBounds(bounds as LngLatBoundsLike, {
+        padding: { top: 100, bottom: 100, left: 100, right: 100 },
+        duration: 5000,
+        pitch: 45,
+        bearing: 0,
+      })
+    }
   }
 
   const removeRoute = () => {
