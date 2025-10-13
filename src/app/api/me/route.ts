@@ -1,4 +1,3 @@
-import { Profile } from '@/types/profile'
 import { NextRequest, NextResponse } from 'next/server'
 import { spaceClient } from '@/lib/spacedf'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
@@ -60,9 +59,40 @@ export const PUT = withAuthApiRequired(async (request: NextRequest) => {
     if (isDemo) {
       return NextResponse.json(DEMO_USER)
     }
-    const body: Omit<Profile, 'id'> = await request.json()
     const spacedfClient = await spaceClient()
-    const response = await spacedfClient.users.updateMe(body)
+    const formData = await request.formData()
+    let avatar = undefined as string | undefined
+    const file = formData.get('avatar') as File
+    if (file && typeof file !== 'string') {
+      const data = await spacedfClient.presignedUrl.get()
+      const presignedUrl = data.presigned_url
+      const fileBuffer = await file.arrayBuffer()
+      const responseImage = await fetch(presignedUrl, {
+        method: 'PUT',
+        body: fileBuffer,
+      })
+      if (!responseImage.ok) {
+        return NextResponse.json(
+          { message: 'Presigned url is not valid' },
+          { status: 400 }
+        )
+      }
+      avatar = data.file_name
+    }
+    const first_name = formData.get('first_name') as string
+    const last_name = formData.get('last_name') as string
+    const company_name = formData.get('company_name') as string
+    const location = formData.get('location') as string
+    const title = formData.get('title') as string
+
+    const response = await spacedfClient.users.updateMe({
+      avatar,
+      first_name,
+      last_name,
+      company_name,
+      location,
+      title,
+    })
     return NextResponse.json(response)
   } catch (error) {
     return handleError(error)

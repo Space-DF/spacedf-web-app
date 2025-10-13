@@ -6,4 +6,5 @@ export type Profile = {
   email?: string
   company_name?: string
   title?: string
+  location?: string
 }
