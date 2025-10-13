@@ -22,6 +22,7 @@ import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import DeviceIcon from '/public/images/device-icon.webp'
+import DeviceTracki from '/public/images/device-tracki.webp'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
@@ -68,6 +69,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
 import DeviceDetail from './components/device-detail'
 import Image from 'next/image'
+import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { toast } from 'sonner'
@@ -137,11 +139,7 @@ const Devices = () => {
         <div>
           <DeviceSelected />
         </div>
-        <DevicesList
-        // selected={selected}
-        // handleSelected={(id: number) => setSelected(id)}
-        />
-        {/*<Nodata content={t('nodata', { module: t('devices') })} />*/}
+        <DevicesList />
       </div>
     </RightSideBarLayout>
   )
@@ -168,7 +166,6 @@ interface Props {
 const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   const t = useTranslations()
   const [step, setStep] = useState<Step>('select_mode')
-  // const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
   const [open, setOpen] = useState(false)
 
@@ -181,16 +178,16 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     resolver: zodResolver(addDeviceSchema),
   })
 
-  const handleReset = () => {
+  const handleReset = (value: boolean) => {
     setStep('select_mode')
     setMode('auto')
-    setOpen(false)
     form.reset()
+    setOpen(value)
   }
 
   const handleAddDeviceSuccess = async () => {
     await mutate()
-    handleReset()
+    setStep('add_device_success')
   }
 
   const isAutoMode = mode === 'auto'
@@ -246,7 +243,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     },
     add_device_success: {
       label: '',
-      component: <AddDeviceSuccess />,
+      component: <AddDeviceSuccess onReset={() => handleReset(false)} />,
     },
   }
 
@@ -275,13 +272,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
         </span>
         <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
       </Button>
-      <Dialog
-        open={open}
-        onOpenChange={(open) => {
-          setOpen(open)
-          setStep('select_mode')
-        }}
-      >
+      <Dialog open={open} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
             <DialogHeader className="border-0">
@@ -549,8 +540,7 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
         toast.error(error.message || t('failed_to_scan_qr_code'))
       },
     })
-    toast.success(t('scan_qr_code_successfully'))
-    form.setValue('dev_eui', response.lorawan_device.dev_eui)
+    form.setValue('dev_eui', formatValueEUI(response.lorawan_device.dev_eui))
     setStep('add_device_manual')
   }
 
@@ -560,7 +550,12 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
 
   return (
     <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray relative">
-      <Scanner allowMultiple onScan={handleScan} onError={handleError} />
+      <Scanner
+        allowMultiple
+        onScan={handleScan}
+        onError={handleError}
+        paused={isMutating}
+      />
       {isMutating && (
         <div className="absolute size-full justify-center flex items-center z-10 bg-black/70 backdrop-blur-sm top-0 left-0">
           <LoaderCircle className="text-brand-bright-lavender size-10 animate-spin" />
@@ -570,26 +565,44 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
   )
 }
 
-const AddDeviceSuccess = () => {
+interface AddDeviceSuccessProps {
+  onReset: () => void
+}
+
+const AddDeviceSuccess: React.FC<AddDeviceSuccessProps> = ({ onReset }) => {
   const t = useTranslations('addNewDevice')
+
+  const form = useFormContext<AddDeviceSchema>()
+
+  const deviceName = form.getValues('name')
+
   return (
     <div className="w-full">
-      {/* TODO: add image device */}
+      <div className="flex justify-center w-full">
+        <Image
+          src={DeviceTracki}
+          alt="DMZ 01 -1511-M01"
+          width={208}
+          height={208}
+          className="size-52"
+        />
+      </div>
       <div className="my-4 flex flex-col items-center gap-2">
-        <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-text-dark">
-          <CircleCheck
-            size={36}
-            fill="currentColor"
-            stroke="white"
-            className="text-brand-semantic-success"
+        <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-component-text-dark">
+          <Image
+            src={CircleCheckSvg}
+            width={30}
+            height={30}
+            alt="image"
+            className="size-7"
           />{' '}
           {t('congratulations')}
         </div>
-        <div className="text-sm font-medium text-brand-text-gray">
+        <div className="text-sm font-medium text-brand-component-text-gray">
           {t.rich('you_have_successfully_added_the_gps_tracker_to_the_space', {
-            device: 'GPS Tracker',
+            device: deviceName,
             span: (chunk) => (
-              <span className="font-semibold text-brand-text-dark">
+              <span className="font-semibold text-brand-component-text-dark">
                 {chunk}
               </span>
             ),
@@ -597,7 +610,9 @@ const AddDeviceSuccess = () => {
         </div>
       </div>
       <DialogClose asChild>
-        <Button className="h-12 w-full">{t('done')}</Button>
+        <Button className="h-12 w-full" onClick={onReset}>
+          {t('done')}
+        </Button>
       </DialogClose>
     </div>
   )
@@ -659,7 +674,7 @@ const AddDeviceForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
         {isModeAuto && (
-          <div className="flex items-center gap-1 bg-brand-semantic-success-light p-2 text-xs font-semibold text-brand-semantic-success">
+          <div className="flex items-center gap-1 bg-brand-component-fill-positive-soft p-2 text-xs font-semibold text-brand-semantic-success rounded-sm">
             <CircleCheck size={16} />
             {t('scan_qr_code_successfully')}
           </div>
