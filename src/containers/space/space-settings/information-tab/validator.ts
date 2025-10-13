@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const spaceMemberSchema = z.object({
-  space_name: z
+  name: z
     .string()
     .min(1, {
       message: 'This field cannot be empty',
@@ -17,7 +17,8 @@ export const spaceMemberSchema = z.object({
     .max(50, {
       message: 'This field must be less than or equal to 50 characters',
     }),
-  owner: z.string(),
-  space_member: z.string(),
+  created_by: z.string(),
+  total_member: z.coerce.number(),
   description: z.string().optional(),
+  logo: z.any().optional(),
 })
