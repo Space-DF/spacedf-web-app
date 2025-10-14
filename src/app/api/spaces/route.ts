@@ -34,9 +34,41 @@ const POST = withAuthApiRequired(async (req) => {
     if (isDemo) {
       return NextResponse.json({})
     }
-    const body = await req.json()
+    const formData = await req.formData()
+    let logo: string | undefined = undefined
+    const file = formData.get('logo') as File
+    if (!file || typeof file === 'string') {
+      return NextResponse.json(
+        {
+          message: 'Logo is required',
+        },
+        {
+          status: 400,
+        }
+      )
+    }
     const spacedfClient = await spaceClient()
-    const createSpaceResponse = await spacedfClient.spaces.create(body)
+    const data = await spacedfClient.presignedUrl.get()
+    const presignedUrl = data.presigned_url
+    const fileBuffer = await file.arrayBuffer()
+    const responseImage = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: fileBuffer,
+    })
+    if (!responseImage.ok) {
+      return NextResponse.json({
+        message: 'Presigned url is not valid',
+        status: 400,
+      })
+    }
+    logo = data.file_name
+    const name = formData.get('name') as string
+    const slug_name = formData.get('slug_name') as string
+    const createSpaceResponse = await spacedfClient.spaces.create({
+      logo: logo as string,
+      name,
+      slug_name,
+    })
 
     return NextResponse.json({
       data: createSpaceResponse,
