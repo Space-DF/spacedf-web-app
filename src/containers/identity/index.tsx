@@ -186,7 +186,7 @@ const Identity = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent className="sm:max-w-md">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                        <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
                           {t('cancel')}
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-center">

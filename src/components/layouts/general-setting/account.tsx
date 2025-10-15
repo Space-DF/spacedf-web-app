@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -23,6 +23,7 @@ import {
   currentPasswordSchema,
   newPasswordSchema,
 } from '@/utils'
+import { useProfile } from './hooks/useProfile'
 
 const profileSchema = z
   .object({
@@ -51,6 +52,12 @@ const Account = () => {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
+  const { data: profile } = useProfile()
+
+  useEffect(() => {
+    if (!profile) return
+    form.setValue('email', profile.email)
+  }, [profile])
 
   function onSubmit(values: z.infer<typeof profileSchema>) {
     // Upon click this button:
