@@ -105,12 +105,7 @@ class FetchInstance {
       }
 
       if (!interceptedResponse.ok) {
-        const error = new Error(
-          `HTTP error! status: ${interceptedResponse.status}`
-        ) as RequestError
-        error.response = interceptedResponse
-        error.config = requestConfig
-        throw error
+        throw await interceptedResponse.json()
       }
 
       return interceptedResponse.json()
@@ -217,6 +212,7 @@ api.setInterceptors({
         })
       }
     }
+    console.log({ error })
     throw error
   },
 })

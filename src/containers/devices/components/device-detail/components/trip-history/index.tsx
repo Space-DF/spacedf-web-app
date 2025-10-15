@@ -14,14 +14,14 @@ import { format } from 'date-fns'
 import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import TripDetail from './components/trip-detail'
 import { useDeviceStore } from '@/stores/device-store'
-import { useShallow } from 'zustand/react/shallow'
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useGetTrips } from './hooks/useGetTrips'
 import { calculateTotalDistance } from '@/utils/map'
 import { Checkpoint } from '@/types/trip'
+import { useGetDevices } from '@/hooks/useDevices'
 
 const RANGE_VALUES = [
   {
@@ -56,12 +56,17 @@ const INITIAL_VISIBLE_COUNT = 2
 const TripHistory = () => {
   const t = useTranslations('common')
   const [selectedTrip, setSelectedTrip] = useState<ListItem>()
-  const { deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      deviceSelected: state.deviceSelected,
-    }))
-  )
-  const { data: trips } = useGetTrips(deviceSelected)
+  const { data: devices } = useGetDevices()
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+
+  const currentDeviceId = useMemo(() => {
+    const currentDeviceSpace = devices?.find(
+      (device) => device.id === deviceSelected
+    )
+    return currentDeviceSpace?.device.id
+  }, [devices, deviceSelected])
+
+  const { data: trips } = useGetTrips(currentDeviceId)
 
   const tripHistory: ListItem[] =
     trips?.map((trip) => ({
