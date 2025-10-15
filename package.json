@@ -49,6 +49,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@space-df/sdk": "^0.0.1-dev.25",
     "@tanstack/react-table": "^8.20.6",
+    "@tanstack/react-virtual": "^3.13.12",
     "@types/mapbox-gl": "^3.4.0",
     "@yudiel/react-qr-scanner": "^2.0.8",
     "class-variance-authority": "^0.7.1",

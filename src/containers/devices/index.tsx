@@ -17,6 +17,7 @@ import React, {
   useState,
   Dispatch,
   SetStateAction,
+  useRef,
 } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
@@ -78,6 +79,7 @@ import { KeyedMutator } from 'swr'
 import { usePrevious } from '@/hooks/usePrevious'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -463,7 +465,13 @@ const DeviceSelected = () => {
 
 const DevicesList = () => {
   const t = useTranslations('addNewDevice')
-  const { data: devices, mutate } = useGetDevices()
+  const {
+    data: devices = [],
+    mutate,
+    isReachingEnd,
+    isLoading,
+    setSize,
+  } = useGetDevices()
 
   const { deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
@@ -472,6 +480,43 @@ const DevicesList = () => {
       setDevices: state.setDevices,
     }))
   )
+
+  const parentRef = useRef<HTMLDivElement>(null)
+  const fetchingRef = useRef(false)
+
+  const rowCount = Math.ceil(devices.length / 2)
+
+  const rowVirtualizer = useVirtualizer({
+    count: isReachingEnd ? rowCount : rowCount + 1,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 106,
+    overscan: 5,
+  })
+
+  const virtualItems = rowVirtualizer.getVirtualItems()
+
+  useEffect(() => {
+    const [lastItem] = [...virtualItems].reverse()
+
+    if (!lastItem) return
+
+    if (
+      lastItem.index >= rowCount - 1 &&
+      !isLoading &&
+      !isReachingEnd &&
+      !fetchingRef.current
+    ) {
+      fetchingRef.current = true
+      setSize((prevSize) => prevSize + 1)
+    }
+  }, [virtualItems.length, rowCount, isLoading, isReachingEnd, setSize])
+
+  // Reset fetching ref when loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      fetchingRef.current = false
+    }
+  }, [isLoading])
 
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
@@ -488,43 +533,85 @@ const DevicesList = () => {
         placeholder={t('device')}
         wrapperClass="w-full"
       />
-      <div className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-        <div className="px-2.5 flex-1 transition-all duration-300">
-          <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
-            {devices?.map((item) => (
-              <div
-                key={item.id}
-                className={cn(
-                  'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                  {
-                    'border-brand-component-stroke-dark':
-                      item.id === deviceSelected,
-                  }
-                )}
-                onClick={() => setDeviceSelected(item.id)}
-              >
-                <div className="space-y-2 mb-2">
-                  <div className="flex items-start justify-between">
-                    <div className="size-8">
-                      <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+      <div
+        className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
+        ref={parentRef}
+      >
+        <div className="flex-1 transition-all duration-300">
+          <div
+            className="relative w-full"
+            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+          >
+            {virtualItems.map((virtualRow) => {
+              const startIndex = virtualRow.index * 2
+              const endIndex = Math.min(startIndex + 2, devices.length)
+              const rowDevices = devices.slice(startIndex, endIndex)
+
+              // Show loading indicator for the last row when loading more
+              if (virtualRow.index === rowCount && isLoading) {
+                return (
+                  <div
+                    key={virtualRow.key}
+                    className="absolute top-0 left-0 w-full flex items-center justify-center"
+                    style={{
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
+                    <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
+                  </div>
+                )
+              }
+
+              return (
+                <div
+                  key={virtualRow.key}
+                  className="absolute top-0 left-0 w-full grid grid-cols-2 gap-1"
+                  style={{
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
+                >
+                  {rowDevices.map((device) => (
+                    <div
+                      key={device.id}
+                      className={cn(
+                        'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                        {
+                          'border-brand-component-stroke-dark':
+                            device?.id === deviceSelected,
+                        }
+                      )}
+                      onClick={() => setDeviceSelected(device?.id)}
+                    >
+                      <div className="space-y-2 mb-2">
+                        <div className="flex items-start justify-between">
+                          <div className="size-8">
+                            <ImageWithBlur
+                              src={DeviceIcon}
+                              alt="DMZ 01 -1511-M01"
+                            />
+                          </div>
+                          <Ellipsis
+                            size={16}
+                            className="text-brand-component-text-gray"
+                          />
+                        </div>
+                        <div className="text-xs font-medium">
+                          <span className="leading-[18px]">{device.name}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-medium ">
+                        <Map size={16} className="text-brand-text-gray" />
+                        <span className="leading-[18px]">
+                          {device.device.lorawan_device.location || 'Unknown'}
+                        </span>
+                      </div>
                     </div>
-                    <Ellipsis
-                      size={16}
-                      className="text-brand-component-text-gray"
-                    />
-                  </div>
-                  <div className="text-xs font-medium">
-                    <span className="leading-[18px]">{item.name}</span>
-                  </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2 text-xs font-medium ">
-                  <Map size={16} className="text-brand-text-gray" />
-                  <span className="leading-[18px]">
-                    {item.device.lorawan_device.location || 'Unknown'}
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>
