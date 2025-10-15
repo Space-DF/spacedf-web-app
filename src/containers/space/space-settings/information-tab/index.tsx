@@ -71,9 +71,11 @@ export function InformationTab({ space }: { space: Space }) {
   }
 
   function onSubmit() {
-    updateSpace(form.getValues(), {
+    const values = form.getValues()
+    updateSpace(values, {
       onSuccess: () => {
         toast.success(t('space_updated_successfully'))
+        form.reset(values)
       },
       onError: (error) => {
         toast.error(error.message || t('failed_to_update_space'))
@@ -256,6 +258,7 @@ export function InformationTab({ space }: { space: Space }) {
                 type="submit"
                 className="h-12 flex-1 items-center rounded-lg border-4 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-medium text-brand-component-text-light-fixed shadow-sm dark:border-brand-component-stroke-light dark:bg-brand-component-fill-secondary"
                 loading={isMutating}
+                disabled={!isDirty}
               >
                 {t('save_changes')}
               </Button>

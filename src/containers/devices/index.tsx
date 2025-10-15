@@ -228,7 +228,11 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     add_device_auto: {
       label: t('addNewDevice.device_informations'),
       component: (
-        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+        <AddDeviceForm
+          mode={mode}
+          onSuccess={handleAddDeviceSuccess}
+          onClose={() => handleReset(false)}
+        />
       ),
     },
     add_device_manual: {
@@ -238,7 +242,11 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
           : 'addNewDevice.add_devices_manually'
       ),
       component: (
-        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+        <AddDeviceForm
+          mode={mode}
+          onSuccess={handleAddDeviceSuccess}
+          onClose={() => handleReset(false)}
+        />
       ),
     },
     add_device_success: {
@@ -646,9 +654,11 @@ export type AddDeviceSchema = z.infer<typeof addDeviceSchema>
 const AddDeviceForm = ({
   mode,
   onSuccess,
+  onClose,
 }: {
   mode: Mode
   onSuccess: () => Promise<void>
+  onClose: () => void
 }) => {
   const t = useTranslations('addNewDevice')
   const form = useFormContext<AddDeviceSchema>()
@@ -752,7 +762,7 @@ const AddDeviceForm = ({
           )}
         />
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" onClick={onClose}>
             {t('cancel')}
           </Button>
           <Button type="submit" loading={isMutating}>
