@@ -43,7 +43,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
       <div className="flex size-full items-center justify-center">
         <div className="flex w-4/5 animate-opacity-display-effect flex-col gap-4">
           <div className="flex flex-col gap-3">
-            <FormLabel className="text-brand-text-dark">
+            <FormLabel className="text-brand-component-text-dark">
               {t('space_image')}
             </FormLabel>
             <div className="flex gap-3">
@@ -60,7 +60,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="gap-2 rounded-lg text-base font-semibold text-brand-text-dark shadow-none"
+                  className="gap-2 rounded-lg text-base font-semibold text-brand-component-text-dark shadow-none"
                   onClick={() => fileRef.current?.click()}
                 >
                   {t('upload_image')}
@@ -77,7 +77,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
             name="space_name"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-brand-text-dark">
+                <FormLabel className="text-brand-component-text-dark">
                   {t('space_name')}
                   <span className="text-brand-semantic-accent">*</span>
                 </FormLabel>

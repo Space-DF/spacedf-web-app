@@ -154,7 +154,7 @@ export const SearchMember = ({
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col gap-1">
-                  <div className="text-sm font-semibold text-brand-text-dark">
+                  <div className="text-sm font-semibold text-brand-component-text-dark">
                     {inputValue}
                   </div>
                   <div className="text-sm font-medium text-brand-text-gray">

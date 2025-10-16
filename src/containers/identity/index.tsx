@@ -169,7 +169,7 @@ const Identity = () => {
   return (
     <>
       <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-        <DrawerContent className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white">
+        <DrawerContent className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost">
           <div className="flex size-full flex-col overflow-auto">
             <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
               <p className="text-base font-semibold">
@@ -247,7 +247,7 @@ const Identity = () => {
               />
             </div>
             <div className="flex flex-col space-y-2">
-              <p className="text-center text-2xl font-bold text-brand-text-dark">
+              <p className="text-center text-2xl font-bold text-brand-component-text-dark">
                 {t('you_are_logged_into_a_different_account')}
               </p>
               <p className="text-center text-sm text-brand-text-gray">

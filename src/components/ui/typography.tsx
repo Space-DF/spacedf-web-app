@@ -10,7 +10,10 @@ const TypographyPrimary = ({ className, ...resProps }: TypographyProps) => {
   return (
     <p
       {...resProps}
-      className={cn('text-brand-text-dark dark:text-white', className)}
+      className={cn(
+        'text-brand-component-text-dark dark:text-white',
+        className
+      )}
     />
   )
 }
