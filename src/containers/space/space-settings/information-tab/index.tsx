@@ -92,7 +92,9 @@ export function InformationTab({ space }: { space: Space }) {
     }
     const imageUrl = URL.createObjectURL(image)
     setPreviewImage(imageUrl)
-    form.setValue('logo', image)
+    form.setValue('logo', image, {
+      shouldDirty: true,
+    })
   }
 
   return (

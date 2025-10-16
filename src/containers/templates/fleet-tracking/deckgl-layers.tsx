@@ -47,7 +47,15 @@ function animateMarkerMove(
     const lng = from.lng + (to.lng - from.lng) * t
     const lat = from.lat + (to.lat - from.lat) * t
 
-    marker.setLngLat([lng, lat])
+    try {
+      if (marker && marker.getElement()) {
+        marker.setLngLat([lng, lat])
+      } else {
+        return
+      }
+    } catch {
+      return
+    }
 
     if (t < 1) {
       requestAnimationFrame(animate)
@@ -105,10 +113,59 @@ const DeckglLayers = () => {
     })
   }, [devices])
 
+  const initializeDeck = useCallback(
+    (map: mapboxgl.Map) => {
+      if (!map || !map.getCanvasContainer()) {
+        return
+      }
+
+      const canvasContainer = map.getCanvasContainer()
+
+      if (!canvasContainer) {
+        return
+      }
+
+      // Clean up existing deck instance if any
+      if (deckRef.current) {
+        deckRef.current.finalize()
+        deckRef.current = null
+      }
+
+      const deck = new Deck({
+        layers: [],
+        viewState: {
+          longitude: map.getCenter().lng,
+          latitude: map.getCenter().lat,
+          zoom: map.getZoom(),
+          bearing: map.getBearing(),
+          pitch: map.getPitch(),
+        },
+
+        onClick(info) {
+          if (info?.object) {
+            const layer = info.layer
+            if (layer?.id && layer?.id !== deviceSelected) {
+              setDeviceSelected(layer?.id)
+            }
+          }
+        },
+
+        parent: canvasContainer as HTMLDivElement,
+        controller: false, // Important: Let Mapbox handle interactions
+        useDevicePixels: true,
+      })
+
+      deckRef.current = deck
+    },
+    [deviceSelected, setDeviceSelected]
+  )
+
   useEffect(() => {
     const handle = (e: CustomEvent) => {
       const map = e.detail.map
-      initializeDeck(map)
+      if (map && map.getCanvasContainer()) {
+        initializeDeck(map)
+      }
     }
 
     window.addEventListener('mapLoaded', handle as EventListener)
@@ -116,7 +173,20 @@ const DeckglLayers = () => {
     return () => {
       window.removeEventListener('mapLoaded', handle as EventListener)
     }
-  }, [])
+  }, [initializeDeck])
+
+  // Fallback: Initialize deck if map is available but deck wasn't initialized
+  useEffect(() => {
+    if (map && !deckRef.current && map.getCanvasContainer()) {
+      const timer = setTimeout(() => {
+        if (map.getCanvasContainer()) {
+          initializeDeck(map)
+        }
+      }, 100)
+
+      return () => clearTimeout(timer)
+    }
+  }, [map, initializeDeck])
 
   useEffect(() => {
     if (!map) return
@@ -318,34 +388,6 @@ const DeckglLayers = () => {
     }
   }, [devices, isStartRender, deviceSelected, modelType])
 
-  const initializeDeck = useCallback((map: mapboxgl.Map) => {
-    const deck = new Deck({
-      layers: [],
-      viewState: {
-        longitude: map.getCenter().lng,
-        latitude: map.getCenter().lat,
-        zoom: map.getZoom(),
-        bearing: map.getBearing(),
-        pitch: map.getPitch(),
-      },
-
-      onClick(info) {
-        if (info?.object) {
-          const layer = info.layer
-          if (layer?.id && layer?.id !== deviceSelected) {
-            setDeviceSelected(layer?.id)
-          }
-        }
-      },
-
-      parent: map.getCanvasContainer() as HTMLDivElement,
-      controller: false, // Important: Let Mapbox handle interactions
-      useDevicePixels: true,
-    })
-
-    deckRef.current = deck
-  }, [])
-
   useEffect(() => {
     if (deviceSelected) {
       startAnimation(deviceSelected)
@@ -398,10 +440,13 @@ const DeckglLayers = () => {
           markerRef.current[deviceId] = getMarker(device)
         }
 
-        if (markerRef.current[deviceId] && markerRef.current) {
-          markerRef.current[deviceId]
-            ?.setLngLat([...(device.latestLocation || [0, 0])])
-            ?.addTo(map)
+        const marker = markerRef.current[deviceId]
+        if (marker && markerRef.current && map) {
+          try {
+            marker.setLngLat([...(device.latestLocation || [0, 0])]).addTo(map)
+          } catch (error) {
+            console.warn(`Failed to add marker for device ${deviceId}:`, error)
+          }
         }
       })
     },

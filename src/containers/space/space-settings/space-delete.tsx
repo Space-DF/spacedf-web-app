@@ -56,13 +56,13 @@ export function SpaceDelete({ space }: { space: Space }) {
         slug_name: space.slug_name,
         name: space.name,
       })
+      await refreshToken()
     }
-    setStep('information')
     const spaceFirst = spaceList.filter(
       ({ slug_name }) => slug_name !== space.slug_name
     )[0]
-    await refreshToken()
     router.push(spaceFirst?.slug_name ? `/spaces/${spaceFirst.slug_name}` : '/')
+    setStep('information')
   }
 
   return (

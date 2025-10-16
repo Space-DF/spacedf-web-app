@@ -105,13 +105,17 @@ const FleetTracking = () => {
 
       handleCluster(map)
 
-      window.dispatchEvent(
-        new CustomEvent('mapLoaded', {
-          detail: {
-            map,
-          },
-        })
-      )
+      requestAnimationFrame(() => {
+        if (map.getCanvasContainer()) {
+          window.dispatchEvent(
+            new CustomEvent('mapLoaded', {
+              detail: {
+                map,
+              },
+            })
+          )
+        }
+      })
 
       map.on('zoomend', async () => {
         if (isFirstLoad.current) {
