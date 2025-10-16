@@ -91,7 +91,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="text-sm text-brand-text-dark sm:max-w-[800px]">
+      <DialogContent className="text-sm text-brand-component-text-dark sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>{t('general_settings')}</DialogTitle>
         </DialogHeader>
@@ -134,7 +134,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                 'bg-brand-fill-surface dark:bg-brand-fill-outermost'
             )}
           >
-            <div className="text-brand-text-dark dark:text-brand-dark-text-gray">
+            <div className="text-brand-component-text-dark dark:text-brand-dark-text-gray">
               {renderSetting}
             </div>
           </div>

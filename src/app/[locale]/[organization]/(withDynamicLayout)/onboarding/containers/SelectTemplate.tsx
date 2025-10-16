@@ -71,7 +71,7 @@ const Template = ({
             onClick={() => router.push(href)}
           />
         </div>
-        <div className="m-auto h-1/3 max-w-[80%] text-center text-sm font-semibold text-brand-text-dark duration-200 dark:text-white">
+        <div className="m-auto h-1/3 max-w-[80%] text-center text-sm font-semibold text-brand-component-text-dark duration-200 dark:text-white">
           {title}
         </div>
       </div>

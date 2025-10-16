@@ -74,7 +74,7 @@ const DeviceSelected = () => {
             </AlertDialogTrigger>
             <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
                   {t('remove_device')}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">

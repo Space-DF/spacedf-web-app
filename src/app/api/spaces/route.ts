@@ -70,10 +70,7 @@ const POST = withAuthApiRequired(async (req) => {
       slug_name,
     })
 
-    return NextResponse.json({
-      data: createSpaceResponse,
-      status: 200,
-    })
+    return NextResponse.json(createSpaceResponse)
   } catch (errors) {
     return handleError(errors)
   }

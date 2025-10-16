@@ -39,7 +39,7 @@ const QRCode = () => {
           )}
         >
           Scan this code with the{' '}
-          <strong className="text-brand-text-dark dark:text-white">
+          <strong className="text-brand-component-text-dark">
             SpaceDF App
           </strong>
           <br />

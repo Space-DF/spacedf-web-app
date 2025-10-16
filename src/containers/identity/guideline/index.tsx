@@ -94,7 +94,7 @@ export default function Guideline() {
         <DrawerTitle />
       </VisuallyHidden>
       <DrawerContent
-        className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white"
+        className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost dark:text-white"
         aria-describedby={undefined}
       >
         <div className="flex size-full flex-col overflow-auto">

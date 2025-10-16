@@ -59,7 +59,7 @@ const Account = () => {
             <TriangleAlert size={16} />
             {t('warning_this_is_a_potentially_destructive_action')}
           </div>
-          <div className="font-semibold text-brand-text-dark dark:text-white">
+          <div className="font-semibold text-brand-component-text-dark dark:text-white">
             {t('to_confirm_please_enter_your_email_below')}
           </div>
           <FormField

@@ -32,7 +32,7 @@ export default function CreateSpaceHeader() {
   }
 
   return (
-    <div className="flex items-center gap-1 border-b border-brand-stroke-dark-soft p-4 font-semibold text-brand-text-dark dark:text-white">
+    <div className="flex items-center gap-1 border-b border-brand-stroke-dark-soft p-4 font-semibold text-brand-component-text-dark dark:text-white">
       <ArrowLeft
         size={20}
         className="cursor-pointer text-brand-text-gray"
@@ -48,7 +48,7 @@ export default function CreateSpaceHeader() {
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent className="max-w-md p-4 sm:rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+            <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
               {t('are_you_sure')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium text-brand-text-gray">

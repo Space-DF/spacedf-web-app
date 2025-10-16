@@ -90,7 +90,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
+          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
         )}
         id="sidebar-id"
       >
@@ -379,7 +379,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
         className={cn(
           'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
           isDisplayed
-            ? 'text-brand-text-dark dark:text-white'
+            ? 'text-brand-component-text-dark dark:text-white'
             : 'text-brand-text-gray dark:text-brand-dark-text-gray'
         )}
         htmlFor={navigation.href}

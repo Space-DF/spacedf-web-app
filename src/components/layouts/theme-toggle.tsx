@@ -49,7 +49,7 @@ const ExpandedToggle = () => {
             className={cn(
               'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[6px] p-1 capitalize duration-300',
               isActive
-                ? 'bg-white text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white'
+                ? 'bg-white text-brand-component-text-dark dark:bg-brand-fill-outermost dark:text-white'
                 : 'bg-transparent text-brand-text-gray dark:text-brand-dark-text-gray'
             )}
           >
