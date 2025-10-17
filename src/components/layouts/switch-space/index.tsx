@@ -22,6 +22,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 import { cn } from '@/lib/utils'
+import { useIdentityStore } from '@/stores/identity-store'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -39,6 +40,12 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const defaultSpace = useMemo(
     () => spaceList.find((space) => space.default_display) || spaceList.at(-1),
     [spaceList]
+  )
+
+  const { openGuideline } = useIdentityStore(
+    useShallow((state) => ({
+      openGuideline: state.openGuideline,
+    }))
   )
 
   const token = searchParams.get('token')
@@ -73,7 +80,8 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       defaultSpace &&
       !decodedToken &&
       !isDecodedTokenLoading &&
-      !token
+      !token &&
+      !openGuideline
     ) {
       router.replace(`/spaces/${defaultSpace.slug_name}`)
     }
@@ -85,6 +93,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     token,
     router,
     defaultSpace,
+    openGuideline,
   ])
 
   useEffect(() => {

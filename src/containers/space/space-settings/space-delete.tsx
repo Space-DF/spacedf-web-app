@@ -62,7 +62,6 @@ export function SpaceDelete({ space }: { space: Space }) {
       ({ slug_name }) => slug_name !== space.slug_name
     )[0]
     router.push(spaceFirst?.slug_name ? `/spaces/${spaceFirst.slug_name}` : '/')
-    setStep('information')
   }
 
   return (
