@@ -8,11 +8,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const GET = async (
   request: NextRequest,
-  { params }: { params: { spaceSlug: string } }
+  { params }: { params: { spaceSlug: string; limit: string; offset: string } }
 ) => {
+  const { limit = 10, offset = 0, spaceSlug } = params
   try {
     const session = await auth()
-    if (!session || !params.spaceSlug)
+    if (!session || !spaceSlug)
       return NextResponse.json([dummyDevice[0]], {
         status: 200,
       })
@@ -25,10 +26,10 @@ const GET = async (
     const client = await spaceClient()
     client.setAccessToken(session.user.access)
     const devices = await client.deviceSpaces.list(
-      { include_latest_checkpoint: true },
+      { include_latest_checkpoint: true, offset: +offset, limit: +limit },
       {
         headers: {
-          'X-Space': params.spaceSlug,
+          'X-Space': spaceSlug,
         },
       }
     )

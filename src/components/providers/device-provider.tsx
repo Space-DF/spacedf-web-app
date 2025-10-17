@@ -9,9 +9,8 @@ import {
   DeviceTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
-import { useParams } from 'next/navigation'
-import { DeviceSpace } from '@/types/device-space'
 import { transformDeviceData } from '@/utils/map'
+import { useGetDevices } from '@/hooks/useDevices'
 // import { useIsDemo } from '@/hooks/useIsDemo'
 // import { useAuthenticated } from '@/hooks/useAuthenticated'
 
@@ -43,7 +42,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     }))
   )
 
-  const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  const { data: deviceSpaces } = useGetDevices()
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
@@ -120,10 +119,21 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     })
   }, [])
 
+  const getDevices = async () => {
+    try {
+      const devices: Device[] = transformDeviceData(deviceSpaces || [])
+      setDevices(devices)
+      setFetchStatus((prev) => ({
+        ...prev,
+        initializedDevices: true,
+      }))
+    } catch {}
+  }
+
   useEffect(() => {
     loadModels()
     getDevices()
-  }, [])
+  }, [deviceSpaces])
 
   useEffect(() => {
     if (fetchStatus.initializedDevices && fetchStatus.initializedModels) {
@@ -166,21 +176,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       console.error({ error })
     } finally {
     }
-  }
-
-  const getDevices = async () => {
-    try {
-      const response = await fetch(
-        `/api/devices${spaceSlug ? `/${spaceSlug}` : ''}`
-      )
-      const data: DeviceSpace[] = await response.json()
-      const devices: Device[] = transformDeviceData(data)
-      setDevices(devices)
-      setFetchStatus((prev) => ({
-        ...prev,
-        initializedDevices: true,
-      }))
-    } catch {}
   }
 
   return <>{children}</>
