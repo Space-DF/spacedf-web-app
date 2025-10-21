@@ -209,6 +209,9 @@ const DeckglLayers = () => {
     })
 
     map.on('zoomend', () => {
+      // Check if style is loaded before accessing it
+      if (!map.isStyleLoaded()) return
+
       // Check if the clusters layer exists before querying
       const style = map.getStyle()
       const hasClusterLayer = style?.layers?.some(
@@ -340,27 +343,21 @@ const DeckglLayers = () => {
 
     if (modelType === '2d' && Object.keys(markerRef.current).length) {
       Object.values(devices).forEach((device) => {
-        const latestLocation = device.latestLocation
         const marker = markerRef.current[device.id]
+        if (marker && device.latestLocation) {
+          const currentPos = marker.getLngLat()
 
-        const prevLocation = marker?.getLngLat()
-
-        const isLocationChanged =
-          JSON.stringify(prevLocation) !== JSON.stringify(latestLocation)
-
-        if (isLocationChanged && latestLocation && marker) {
-          // marker?.setLngLat([latestLocation[0], latestLocation[1]])
-          animateMarkerMove(
-            marker,
-            {
-              lat: prevLocation?.lat || 0,
-              lng: prevLocation?.lng || 0,
-            } as mapboxgl.LngLat,
-            {
-              lat: latestLocation[1],
-              lng: latestLocation[0],
-            }
-          )
+          // Simple coordinate comparison without caching - much faster than JSON.stringify
+          if (
+            Math.abs(currentPos.lng - device.latestLocation[0]) > 0.00001 ||
+            Math.abs(currentPos.lat - device.latestLocation[1]) > 0.00001
+          ) {
+            // Keep existing animation system
+            animateMarkerMove(marker, currentPos, {
+              lat: device.latestLocation[1],
+              lng: device.latestLocation[0],
+            })
+          }
         }
       })
     }
@@ -649,6 +646,26 @@ const DeckglLayers = () => {
     },
     [devices, map, modelType]
   )
+
+  // Cleanup Deck.gl resources when component unmounts
+  useEffect(() => {
+    return () => {
+      // Stop all animations
+      stopAllAnimations()
+
+      // Finalize deck instance and clean up WebGL resources
+      if (deckRef.current) {
+        deckRef.current.finalize()
+        deckRef.current = null
+      }
+
+      // Clear layer references
+      layerRef.current = []
+
+      // Remove all markers
+      removeAllMarkers()
+    }
+  }, [])
 
   return <></>
 }

@@ -527,5 +527,32 @@ export const useLoadDeviceModel = (deviceId: string) => {
     //   ?.removeControl(deviceTripRealtimeRef.current as any)
   }
 
+  // Cleanup MapboxOverlay resources when hook unmounts
+  useEffect(() => {
+    return () => {
+      const map = window.mapInstance.getMapInstance()
+
+      // Remove device model overlay
+      if (deviceModelOverlayRef.current && map) {
+        map.removeControl(deviceModelOverlayRef.current)
+        deviceModelOverlayRef.current.finalize?.()
+        deviceModelOverlayRef.current = null
+      }
+
+      // Remove device trip realtime overlay
+      if (deviceTripRealtimeRef.current && map) {
+        map.removeControl(deviceTripRealtimeRef.current)
+        deviceTripRealtimeRef.current.finalize?.()
+        deviceTripRealtimeRef.current = null
+      }
+
+      // Stop any running animations
+      if (animationRef.current) {
+        animationRef.current.stop()
+        animationRef.current = null
+      }
+    }
+  }, [])
+
   return { removeDeviceTripRealtime }
 }

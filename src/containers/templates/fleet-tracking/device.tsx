@@ -321,6 +321,18 @@ const Device = ({ deviceId }: { deviceId: string }) => {
     }, 600)
   }, [])
 
+  // Cleanup WebGL resources when component unmounts
+  useEffect(() => {
+    return () => {
+      // Remove overlay from map and dispose resources
+      if (deviceModelOverlayRef.current && mapRef.current) {
+        mapRef.current.removeControl(deviceModelOverlayRef.current)
+        deviceModelOverlayRef.current.finalize?.()
+        deviceModelOverlayRef.current = null
+      }
+    }
+  }, [])
+
   return null
 }
 

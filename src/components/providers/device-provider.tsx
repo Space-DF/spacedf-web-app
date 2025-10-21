@@ -113,6 +113,19 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         })
       },
     })
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // Unsubscribe from all topics
+      mqttServiceRef.current?.unsubscribe('device/+/telemetry')
+
+      // Disconnect MQTT service
+      mqttServiceRef.current?.disconnect()
+
+      // Clear references
+      mqttRouterRef.current = null
+      mqttServiceRef.current = null
+    }
   }, [])
 
   const getDevices = async () => {
