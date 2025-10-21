@@ -94,21 +94,9 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     },
 
     setDeviceState: (deviceId, data) => {
-      console.log('🔄 [DEBUG] Device state update triggered:', {
-        deviceId,
-        updateData: data,
-        timestamp: new Date().toISOString(),
-      })
       return set((state) => {
         const previousState = state.devices[deviceId]
         const newState = { ...previousState, ...data }
-
-        console.log('🔄 [DEBUG] Device state change:', {
-          deviceId,
-          before: previousState,
-          after: newState,
-          changes: data,
-        })
 
         return {
           devices: {

@@ -62,10 +62,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // - Check for alerts (low battery, geofence violations)
     // - Log device activity
     // - Trigger notifications
-    console.log(
-      `📍 Device ${data.deviceId} telemetry updated:`,
-      data.deviceUpdate
-    )
   }
 
   useEffect(() => {
