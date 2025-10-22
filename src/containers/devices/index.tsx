@@ -598,7 +598,9 @@ const DevicesList = () => {
                           />
                         </div>
                         <div className="text-xs font-medium">
-                          <span className="leading-[18px]">{device.name}</span>
+                          <span className="leading-[18px] line-clamp-1">
+                            {device.name}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 text-xs font-medium ">

@@ -9,8 +9,8 @@ import { routing } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { auth } from '@/lib/auth'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { readSession } from '@/utils/server-actions'
 
 export const metadata: Metadata = {
   title: 'Space DF',
@@ -31,7 +31,7 @@ export default async function RootLayout({
 
   const messages = await getMessages()
 
-  const session = await auth()
+  const session = await readSession()
 
   return (
     <html lang="en" suppressHydrationWarning>
