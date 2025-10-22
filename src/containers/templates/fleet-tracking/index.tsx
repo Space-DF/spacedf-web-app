@@ -294,7 +294,6 @@ const FleetTracking = () => {
 
       const key = count === 0 ? '0' : count === 1 ? '1' : 'multi'
       const zoomStrategy = strategies[key]
-      console.log('ZOOM STRATEGY', zoomStrategy)
 
       zoomStrategy?.(listDevice, isFirstLoad)
     },
