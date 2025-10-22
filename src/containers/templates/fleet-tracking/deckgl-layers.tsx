@@ -73,8 +73,6 @@ const DeckglLayers = () => {
   const markerRef = useRef<Record<string, mapboxgl.Marker | null>>({})
   const latestLocationRef = useRef<Record<string, [number, number]>>({})
 
-  const [isMinZoom, setIsMinZoom] = useState(false)
-
   const stopAnimation = useRef<() => void>(() => {})
 
   const isFirstLoad = useRef(true)
@@ -245,8 +243,24 @@ const DeckglLayers = () => {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      const { isMinZoom } = (e as CustomEvent).detail
-      setIsMinZoom(isMinZoom)
+      const { map } = (e as CustomEvent).detail
+      if (window.supercluster && map) {
+        const hasCluster = checkHasCluster(map)
+
+        if (!hasCluster) {
+          updateMapResources(
+            modelType ||
+              (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d'),
+            map,
+            false
+          )
+        } else {
+          setDeviceSelected('')
+          stopAllAnimations()
+          removeAllMarkers()
+          handleRender3DLayer(false, 0)
+        }
+      }
     }
 
     window.addEventListener('mapZoomEnd', handler)
@@ -254,27 +268,23 @@ const DeckglLayers = () => {
     return () => {
       window.removeEventListener('mapZoomEnd', handler)
     }
-  }, [])
+  }, [modelType])
 
   useEffect(() => {
-    if (isMinZoom) {
-      setDeviceSelected('')
-      stopAllAnimations()
-      removeAllMarkers()
-      handleRender3DLayer(false, 0)
-    } else {
-      updateMapResources(
-        modelType ||
-          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d')
-      )
-    }
-  }, [isMinZoom, modelType])
-
-  useEffect(() => {
+    if (!map) return
     const handler = (e: Event) => {
       const { modelType } = (e as CustomEvent).detail
 
-      updateMapResources(modelType)
+      const hasCluster = checkHasCluster(map)
+      if (!hasCluster) {
+        updateMapResources(modelType, map as mapboxgl.Map, true)
+      } else {
+        removeAllMarkers()
+        handleRender3DLayer(false, 0)
+        map.easeTo({
+          pitch: modelType === '3d' ? 90 : 0,
+        })
+      }
     }
 
     window.addEventListener('modelTypeUpdated', handler)
@@ -293,8 +303,28 @@ const DeckglLayers = () => {
     if (mapType === '2d') {
       render2DLayers(false)
     }
-    handleRender3DLayer(false, mapType === '3d' ? 1 : 0)
+    handleRender3DLayer(
+      false,
+      mapType === '3d' && !checkHasCluster(map) ? 1 : 0
+    )
   }, [isStartRender, map])
+
+  const checkHasCluster = (map?: mapboxgl.Map) => {
+    if (!map || !window.supercluster) return false
+    const zoom = map.getZoom()
+
+    const bounds = map.getBounds()
+    if (!bounds) return false
+
+    const bbox = [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth(),
+    ]
+    const clusters = (window.supercluster as any).getClusters(bbox, zoom)
+    return clusters.some((f: any) => !!f.properties.cluster)
+  }
 
   const updateLayer = (props: UpdateLayerProps) => {
     const { id, rotation, position, hasPositionTransition, isDeviceSelected } =
@@ -392,25 +422,33 @@ const DeckglLayers = () => {
     if (deviceSelected) {
       startAnimation(deviceSelected)
     } else {
+      if (!map) return
       stopAllAnimations()
-      handleRender3DLayer(false, modelType === '3d' ? 1 : 0)
+      handleRender3DLayer(
+        false,
+        modelType === '3d' && !checkHasCluster(map) ? 1 : 0
+      )
     }
-  }, [deviceSelected, modelType])
+  }, [deviceSelected, modelType, map])
 
-  const updateMapResources = (modelType: '2d' | '3d') => {
+  const updateMapResources = (
+    modelType: '2d' | '3d',
+    map?: mapboxgl.Map,
+    hasFling?: boolean
+  ) => {
     if (!map) return
     setIsStartRender(true)
 
     switch (modelType) {
       case '2d':
         stopAllAnimations()
-        handleRender3DLayer(false, 0)
+        handleRender3DLayer(hasFling, 0)
         render2DLayers(true)
         return
 
       case '3d':
         removeAllMarkers()
-        handleRender3DLayer(true, 1)
+        handleRender3DLayer(hasFling, 1)
         return
     }
   }

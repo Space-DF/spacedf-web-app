@@ -48,7 +48,6 @@ export const useMapGroupCluster = () => {
           const clusterId = feature.properties.cluster_id
           const leaves = cluster.getLeaves(clusterId, Infinity)
           leaves.forEach((leaf) => {
-            // console.log({ leaves })
             if (leaf.properties?.id) {
               newClusteredDeviceIds.add(leaf.properties.id)
             }
