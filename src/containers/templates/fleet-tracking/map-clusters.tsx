@@ -1,13 +1,13 @@
 'use client'
 
 import { useDeviceStore } from '@/stores/device-store'
-import { memo, useEffect, useRef } from 'react'
-import { useShallow } from 'zustand/react/shallow'
-import Supercluster from 'supercluster'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { delay } from '@/utils'
-import { useTheme } from 'next-themes'
 import { MapType } from '@/utils/map'
+import { useTheme } from 'next-themes'
+import { memo, useEffect, useRef } from 'react'
+import Supercluster from 'supercluster'
+import { useShallow } from 'zustand/react/shallow'
 
 const MapClusters = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -35,8 +35,6 @@ const MapClusters = () => {
     window.addEventListener('mapLoaded', (event) => {
       const map = (event as CustomEvent).detail.map as mapboxgl.Map
       mapRef.current = map
-
-      initializeCluster()
     })
 
     return () => {
@@ -48,33 +46,34 @@ const MapClusters = () => {
   }, [])
 
   useEffect(() => {
-    if (mapRef.current && supercluster.current) {
-      initializeCluster()
+    if (map && supercluster.current) {
+      initializeCluster(map)
     }
-  }, [resolvedTheme, mapType])
+  }, [resolvedTheme, mapType, map])
 
   //cleanup layers
   useEffect(() => {
+    if (!map) return
+
     return () => {
-      cleanupLayers()
-      mapRef.current = null
+      cleanupLayers(map)
       supercluster.current = null
     }
-  }, [])
+  }, [map])
 
   useEffect(() => {
     if (!map) return
 
     map.on('moveend', () => {
-      updateCluster()
+      updateCluster(map)
     })
 
     map.on('zoomend', () => {
-      updateCluster()
+      updateCluster(map)
     })
 
     map.on('move', () => {
-      updateCluster()
+      updateCluster(map)
     })
 
     const handleClusterClicked = (e: mapboxgl.MapMouseEvent) => {
@@ -126,9 +125,9 @@ const MapClusters = () => {
     map.on('click', 'clusters', handleClusterClicked)
 
     return () => {
-      map.off('move', updateCluster)
-      map.off('moveend', updateCluster)
-      map.off('zoomend', updateCluster)
+      map.off('move', () => updateCluster(map))
+      map.off('moveend', () => updateCluster(map))
+      map.off('zoomend', () => updateCluster(map))
       map.off('click', 'clusters', handleClusterClicked)
       map.off('mouseenter', 'clusters', handleMouseEnter)
       map.off('mouseleave', 'clusters', handleMouseLeave)
@@ -159,12 +158,22 @@ const MapClusters = () => {
       },
     }))
 
+    if (!map) return
     supercluster.current.load(geoJsonPoints as any)
 
-    if (mapRef.current) {
-      updateCluster()
+    // if (map) {
+    //   console.log('loading cluster')
+    //   updateCluster()
+    // }
+
+    map?.on('style.load', () => {
+      initializeCluster(map)
+    })
+
+    return () => {
+      map?.off('style.load', () => initializeCluster(map))
     }
-  }, [devices])
+  }, [devices, map])
 
   //   useEffect(() => {
   //     if (!mapRef.current) return
@@ -174,10 +183,10 @@ const MapClusters = () => {
   //     }
   //   }, [mapRef.current])
 
-  const updateCluster = () => {
-    if (!mapRef.current || !supercluster.current) return
+  const updateCluster = (map: mapboxgl.Map) => {
+    if (!map || !supercluster.current) return
 
-    const bounds = mapRef.current.getBounds()
+    const bounds = map.getBounds()
 
     let bbox = [] as number[]
 
@@ -190,7 +199,7 @@ const MapClusters = () => {
       ]
     }
 
-    const zoom = Math.floor(mapRef.current.getZoom())
+    const zoom = Math.floor(map.getZoom())
 
     const clusters = supercluster.current.getClusters(bbox as any, zoom)
 
@@ -205,43 +214,43 @@ const MapClusters = () => {
       }
     })
 
+    // console.log({
+    //   clusterFeatures: mapRef.current.getSource('clusters'),
+    // })
+
     // console.log({ mapRef, clusterFeatures, pointFeatures })
 
     // Update cluster source
-    if (mapRef.current.getSource('clusters')) {
-      ;(mapRef.current.getSource('clusters') as any)?.setData({
+    if (map.getSource('clusters')) {
+      ;(map.getSource('clusters') as any)?.setData({
         type: 'FeatureCollection',
         features: clusterFeatures,
       })
     }
 
     // Update points source
-    if (mapRef.current.getSource('unclustered-points')) {
-      ;(mapRef.current.getSource('unclustered-points') as any)?.setData({
+    if (map.getSource('unclustered-points')) {
+      ;(map.getSource('unclustered-points') as any)?.setData({
         type: 'FeatureCollection',
         features: pointFeatures,
       })
     }
   }
 
-  const cleanupLayers = () => {
-    if (!mapRef.current) return
+  const cleanupLayers = (map: mapboxgl.Map) => {
+    if (!map) return
 
     const layers = ['clusters', 'cluster-count', 'unclustered-point']
     for (const id of layers) {
-      if (mapRef.current && typeof mapRef.current.getLayer !== 'function') {
-        mapRef.current.removeLayer(id)
+      if (map && typeof map.getLayer !== 'function') {
+        map.removeLayer(id)
       }
     }
 
     const sources = ['clusters', 'unclustered-points']
     for (const id of sources) {
-      if (
-        mapRef.current &&
-        typeof mapRef.current.getLayer !== 'function' &&
-        mapRef.current.getSource(id)
-      ) {
-        mapRef.current.removeSource(id)
+      if (map && typeof map.getLayer !== 'function' && map.getSource(id)) {
+        map.removeSource(id)
       }
     }
 
@@ -250,12 +259,12 @@ const MapClusters = () => {
     }
   }
 
-  const initializeCluster = async () => {
-    if (mapRef.current && typeof mapRef.current.addSource === 'function') {
+  const initializeCluster = async (map: mapboxgl.Map) => {
+    if (map && typeof map.addSource === 'function') {
       await delay(800)
-      if (!mapRef.current.loaded()) return
+      if (!map.loaded()) return
 
-      mapRef.current.addSource('clusters', {
+      map.addSource('clusters', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -264,7 +273,7 @@ const MapClusters = () => {
       })
 
       // Add unclustered points source
-      mapRef.current.addSource('unclustered-points', {
+      map.addSource('unclustered-points', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -277,7 +286,7 @@ const MapClusters = () => {
           ? '/images/cluster-dark.png'
           : '/images/cluster-light.png'
 
-      mapRef.current.loadImage(path, (error, image) => {
+      map.loadImage(path, (error, image) => {
         if (error) throw error
         if (!mapRef.current?.hasImage('cluster-gradient')) {
           mapRef.current?.addImage('cluster-gradient', image as any)
@@ -285,7 +294,7 @@ const MapClusters = () => {
       })
 
       // Add cluster layer
-      mapRef.current.addLayer({
+      map.addLayer({
         id: 'clusters',
         type: 'symbol',
         source: 'clusters',
@@ -296,7 +305,7 @@ const MapClusters = () => {
         },
       })
 
-      mapRef.current.addLayer({
+      map.addLayer({
         id: 'cluster-count',
         type: 'symbol',
         source: 'clusters',
@@ -314,7 +323,7 @@ const MapClusters = () => {
       })
 
       // Add individual points layer
-      mapRef.current.addLayer({
+      map.addLayer({
         id: 'unclustered-point',
         type: 'circle',
         source: 'unclustered-points',
@@ -326,11 +335,9 @@ const MapClusters = () => {
           'circle-stroke-color': '#fff',
         },
       })
-
-      setTimeout(() => {
-        updateCluster()
-      }, 1000)
     }
+
+    updateCluster(map)
   }
 
   return <></>

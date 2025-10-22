@@ -1,7 +1,6 @@
 'use client'
 
 import SpacedfLogo from '@/components/common/spacedf-logo'
-import { useMapClusters } from '@/hooks/templates/useCluster'
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { usePrevious } from '@/hooks/usePrevious'
 import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
@@ -30,7 +29,6 @@ const FleetTracking = () => {
 
   const { resolvedTheme } = useTheme()
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
-  const { handleCluster } = useMapClusters()
 
   const { isMapReady, setMap, updateBooleanState, map, mapType, modelType } =
     useFleetTrackingStore(
@@ -102,8 +100,6 @@ const FleetTracking = () => {
 
       updateBooleanState('isMapReady', true)
       setMap(map)
-
-      handleCluster(map)
 
       requestAnimationFrame(() => {
         if (map.getCanvasContainer()) {
