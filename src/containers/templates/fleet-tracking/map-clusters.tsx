@@ -9,6 +9,8 @@ import { memo, useEffect, useRef } from 'react'
 import Supercluster from 'supercluster'
 import { useShallow } from 'zustand/react/shallow'
 
+const MaxZoom = 15
+
 const MapClusters = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const supercluster = useRef<Supercluster | null>(null)
@@ -77,39 +79,49 @@ const MapClusters = () => {
     })
 
     const handleClusterClicked = (e: mapboxgl.MapMouseEvent) => {
-      const features = e.features!
-      const clusterId = features[0].properties!.cluster_id
+      const features = e.features
+      if (!features?.length || !supercluster.current || !map) return
 
-      if (supercluster.current) {
-        try {
-          let expansionZoom =
-            supercluster.current.getClusterExpansionZoom(clusterId)
+      const clusterFeature = features[0]
+      const { cluster_id } = clusterFeature.properties!
 
-          if (expansionZoom <= 12) {
-            expansionZoom = 14
-          }
-
-          if (map) {
-            map.flyTo({
-              center: (features[0].geometry as any).coordinates,
-              zoom: expansionZoom,
-              duration: 500,
-            })
-          }
-        } catch (error) {
-          console.error('❌ Error getting expansion zoom:', error)
-          // Fallback: just zoom in by 2 levels
-          if (map) {
-            map.flyTo({
-              center: (features[0].geometry as any).coordinates,
-              zoom: map.getZoom() + 2,
-              duration: 500,
-            })
-          }
+      try {
+        // If it's a fake cluster (single point)
+        if (
+          typeof cluster_id === 'string' &&
+          cluster_id.startsWith('single-')
+        ) {
+          map.flyTo({
+            center: (clusterFeature.geometry as any).coordinates,
+            zoom: Math.max(map.getZoom() + 2, 15),
+            duration: 500,
+          })
+          return
         }
+
+        // If it's a real cluster (in Supercluster)
+        let expansionZoom =
+          supercluster.current.getClusterExpansionZoom(cluster_id)
+
+        // Limit max zoom to prevent zooming too close
+        expansionZoom = Math.min(expansionZoom, 16)
+
+        map.flyTo({
+          center: (clusterFeature.geometry as any).coordinates,
+          zoom: expansionZoom,
+          duration: 500,
+        })
+      } catch (error) {
+        console.error('❌ Error getting expansion zoom:', error)
+
+        // Fallback: only zoom slightly
+        map.flyTo({
+          center: (clusterFeature.geometry as any).coordinates,
+          zoom: Math.min(map.getZoom() + 2, 16),
+          duration: 500,
+        })
       }
     }
-
     const handleMouseEnter = () => {
       map.getCanvas().style.cursor = 'pointer'
     }
@@ -139,7 +151,7 @@ const MapClusters = () => {
     // Setup Supercluster
     supercluster.current = new Supercluster({
       radius: 60,
-      maxZoom: 14,
+      maxZoom: MaxZoom,
       minPoints: 1,
     })
 
@@ -199,7 +211,7 @@ const MapClusters = () => {
       ]
     }
 
-    const zoom = Math.floor(map.getZoom())
+    const zoom = map.getZoom()
 
     const clusters = supercluster.current.getClusters(bbox as any, zoom)
 
@@ -210,17 +222,27 @@ const MapClusters = () => {
       if (cluster.properties.cluster) {
         clusterFeatures.push(cluster)
       } else {
-        pointFeatures.push(cluster)
+        if (zoom < MaxZoom) {
+          //handle fake cluster when only one device is visible
+          const fakeCluster = {
+            type: 'Feature',
+            geometry: cluster.geometry,
+            properties: {
+              ...cluster.properties,
+              cluster: true,
+              cluster_id: `single-${cluster.properties.id || cluster.properties.deviceId}`,
+              point_count: 1,
+              point_count_abbreviated: 1,
+            },
+          }
+          clusterFeatures.push(fakeCluster)
+        } else {
+          //show normal point when zoom >= MaxZoom
+          pointFeatures.push(cluster)
+        }
       }
     })
 
-    // console.log({
-    //   clusterFeatures: mapRef.current.getSource('clusters'),
-    // })
-
-    // console.log({ mapRef, clusterFeatures, pointFeatures })
-
-    // Update cluster source
     if (map.getSource('clusters')) {
       ;(map.getSource('clusters') as any)?.setData({
         type: 'FeatureCollection',
@@ -235,6 +257,8 @@ const MapClusters = () => {
         features: pointFeatures,
       })
     }
+
+    window.supercluster = supercluster.current as any
   }
 
   const cleanupLayers = (map: mapboxgl.Map) => {
@@ -260,11 +284,12 @@ const MapClusters = () => {
   }
 
   const initializeCluster = async (map: mapboxgl.Map) => {
+    if (!map || !Object.keys(devices).length) return
     if (map && typeof map.addSource === 'function') {
       await delay(800)
       if (!map.loaded()) return
 
-      map.addSource('clusters', {
+      map?.addSource('clusters', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -273,7 +298,7 @@ const MapClusters = () => {
       })
 
       // Add unclustered points source
-      map.addSource('unclustered-points', {
+      map?.addSource('unclustered-points', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
@@ -286,7 +311,7 @@ const MapClusters = () => {
           ? '/images/cluster-dark.png'
           : '/images/cluster-light.png'
 
-      map.loadImage(path, (error, image) => {
+      map?.loadImage(path, (error, image) => {
         if (error) throw error
         if (!mapRef.current?.hasImage('cluster-gradient')) {
           mapRef.current?.addImage('cluster-gradient', image as any)
@@ -294,7 +319,7 @@ const MapClusters = () => {
       })
 
       // Add cluster layer
-      map.addLayer({
+      map?.addLayer({
         id: 'clusters',
         type: 'symbol',
         source: 'clusters',
@@ -305,7 +330,7 @@ const MapClusters = () => {
         },
       })
 
-      map.addLayer({
+      map?.addLayer({
         id: 'cluster-count',
         type: 'symbol',
         source: 'clusters',
@@ -323,7 +348,7 @@ const MapClusters = () => {
       })
 
       // Add individual points layer
-      map.addLayer({
+      map?.addLayer({
         id: 'unclustered-point',
         type: 'circle',
         source: 'unclustered-points',
@@ -339,6 +364,17 @@ const MapClusters = () => {
 
     updateCluster(map)
   }
+
+  useEffect(() => {
+    if (!map) return
+    return () => {
+      if (map?.getSource('clusters')) {
+        map.removeLayer('clusters')
+        map.removeLayer('cluster-count')
+        map.removeSource('clusters')
+      }
+    }
+  }, [map])
 
   return <></>
 }

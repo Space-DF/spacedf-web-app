@@ -58,6 +58,7 @@ const FleetTracking = () => {
         initializedSuccess: state.initializedSuccess,
       }))
     )
+
   const previousDeviceSelected = usePrevious(deviceSelected)
 
   useEffect(() => {
@@ -121,6 +122,7 @@ const FleetTracking = () => {
             new CustomEvent('mapZoomEnd', {
               detail: {
                 isMinZoom: map.getZoom() < minZoom,
+                map,
               },
             })
           )
@@ -163,16 +165,16 @@ const FleetTracking = () => {
   }, [isMapReady, JSON.stringify(deviceIds)])
 
   useEffect(() => {
-    if (!isMapReady) return
+    if (!isMapReady || !map) return
 
     if (deviceSelected && deviceSelected !== previousDeviceSelected) {
       zoomToDevice([deviceSelected], false)
     }
 
-    if (!deviceSelected && previousDeviceSelected) {
-      zoomToDevice(previousDeviceSelected, true)
+    if (!deviceSelected && previousDeviceSelected && map?.getZoom() > minZoom) {
+      zoomToDevice([previousDeviceSelected], true)
     }
-  }, [isMapReady, deviceSelected, previousDeviceSelected, modelType])
+  }, [isMapReady, deviceSelected, previousDeviceSelected, modelType, map])
 
   const renderMapResources = useCallback(
     async (map: mapboxgl.Map, mapType: MapType) => {
@@ -221,23 +223,25 @@ const FleetTracking = () => {
           map.flyTo({
             center: [e.coords.longitude, e.coords.latitude],
             zoom: 17,
-            pitch: modelType === '3d' ? 90 : 0,
+            pitch: 0,
           })
-          map.off('geolocate', onLocate)
+          geolocateControlRef.current?.off('geolocate', onLocate)
+          geolocateControlRef.current?.off('error', onError)
         }
 
         const onError = (err: any) => {
           console.warn('Could not get user location:', err)
           map.flyTo({
-            center: [108.0016002, 15.9722964],
+            center: [108.20623, 16.047079], // fallback: Vietnam center
             zoom: 5,
-            pitch: modelType === '3d' ? 90 : 0,
+            pitch: 0,
           })
-          map.off('error', onError)
+          geolocateControlRef.current?.off('geolocate', onLocate)
+          geolocateControlRef.current?.off('error', onError)
         }
 
-        map.on('geolocate', onLocate)
-        map.on('error', onError)
+        geolocateControlRef.current.on('geolocate', onLocate)
+        geolocateControlRef.current.on('error', onError)
       }
     }
   }
@@ -284,7 +288,7 @@ const FleetTracking = () => {
   const zoomToDevice = useCallback(
     async (deviceId: string[], isFirstLoad = false) => {
       if (!map) return
-      const listDevice = deviceId.map((id) => devices[id]).filter(Boolean)
+      const listDevice = deviceId.map((id) => devices?.[id]).filter(Boolean)
 
       const count = listDevice?.length
 
