@@ -6,7 +6,7 @@ import { SpaceDFClient } from './spacedf'
 import { JWT } from 'next-auth/jwt'
 
 const MINUTES_EXPIRE = 60
-const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
+const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 58 * 1000
 
 async function performRefresh(token: JWT): Promise<JWT> {
   try {
