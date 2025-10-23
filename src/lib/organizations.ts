@@ -1,6 +1,6 @@
 'use server'
 
-import { spaceClient } from '@/lib/spacedf'
+import { SpaceDFClient } from '@/lib/spacedf'
 
 /**
  * Validates if an organization slug exists using the SpaceDF SDK
@@ -9,10 +9,9 @@ import { spaceClient } from '@/lib/spacedf'
  */
 export async function checkSlugName(slugName: string): Promise<boolean> {
   try {
-    const client = await spaceClient()
+    const spaceDFInstance = await SpaceDFClient.getInstance()
+    const client = spaceDFInstance.getClient()
 
-    // Assuming the SDK has a method to check organization existence
-    // This may need to be adjusted based on actual SDK API
     const result = await client.organizations.checkSlugName(slugName)
 
     return result.exists || false
