@@ -3,7 +3,7 @@ import { getValidSubdomain } from '@/utils/subdomain'
 import {
   checkSlugName,
   validateOrganizationFallback,
-} from '@/utils/organization-validation'
+} from '@/lib/organizations'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
