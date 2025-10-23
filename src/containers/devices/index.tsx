@@ -637,7 +637,10 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
         toast.error(error.message || t('failed_to_scan_qr_code'))
       },
     })
-    form.setValue('dev_eui', formatValueEUI(response.lorawan_device.dev_eui))
+    form.setValue(
+      'dev_eui',
+      formatValueEUI(response.lorawan_device.dev_eui).toUpperCase()
+    )
     setStep('add_device_manual')
   }
 
@@ -792,15 +795,21 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  value={field.value}
                   onChange={(e) => {
-                    const rawValue = e.target.value.replace(/\s/g, '')
-                    const binaryValue = formatValueEUI(rawValue)
-                    if (
-                      /^\d*$/.test(rawValue) &&
-                      countTwoDigitNumbers(binaryValue) <= 8 &&
-                      binaryValue.split(' ').length <= 8
-                    ) {
-                      field.onChange(binaryValue)
+                    const rawValue = e.target.value
+                      .replace(/\s/g, '')
+                      .toUpperCase()
+
+                    if (/^[0-9A-Fa-f]*$/.test(rawValue)) {
+                      const binaryValue = formatValueEUI(rawValue)
+
+                      if (
+                        countTwoDigitNumbers(binaryValue) <= 8 &&
+                        binaryValue.split(' ').length <= 8
+                      ) {
+                        field.onChange(binaryValue)
+                      }
                     }
                   }}
                   isError={!!fieldState.error}
