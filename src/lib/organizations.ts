@@ -14,7 +14,8 @@ export async function checkSlugName(slugName: string): Promise<boolean> {
 
     const result = await client.organizations.checkSlugName(slugName)
 
-    return result.exists || false
+    // API returns { result: "The organization is valid." } for valid orgs
+    return result?.result === 'The organization is valid.'
   } catch (error) {
     console.error('Error validating organization slug:', error)
     return false
