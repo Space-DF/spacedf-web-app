@@ -637,7 +637,10 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
         toast.error(error.message || t('failed_to_scan_qr_code'))
       },
     })
-    form.setValue('dev_eui', formatValueEUI(response.lorawan_device.dev_eui))
+    form.setValue(
+      'dev_eui',
+      formatValueEUI(response.lorawan_device.dev_eui).toUpperCase()
+    )
     setStep('add_device_manual')
   }
 
