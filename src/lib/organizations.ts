@@ -26,7 +26,9 @@ export async function checkSlugName(slugName: string): Promise<boolean> {
  * Fallback validation using the current hardcoded list
  * This can be removed once SDK validation is confirmed working
  */
-export function validateOrganizationFallback(org: string): boolean {
+export async function validateOrganizationFallback(
+  org: string
+): Promise<boolean> {
   const AVAILABLE_ORGS = ['demo', 'develop', 'digitalfortress', 'danang']
   return AVAILABLE_ORGS.includes(org)
 }
