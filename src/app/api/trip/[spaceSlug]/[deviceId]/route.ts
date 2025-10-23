@@ -1,8 +1,7 @@
 import { dummyTrips } from '@/data/dummy-data'
-import { auth } from '@/lib/auth'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { isDemoSubdomain } from '@/utils/server-actions'
+import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (
@@ -13,7 +12,7 @@ export const GET = async (
 
   try {
     const isDemo = await isDemoSubdomain(request)
-    const session = await auth()
+    const session = await readSession()
     if (isDemo || !spaceSlug || !session) {
       const trips = dummyTrips.filter((trip) => trip.space_device === deviceId)
       return NextResponse.json(trips, {
@@ -22,7 +21,7 @@ export const GET = async (
     }
 
     const client = await spaceClient()
-    client.setAccessToken(session.user.access)
+    client.setAccessToken(session?.user?.access as string)
     const trips = await client.trip.list(
       {
         space_device__device_id: deviceId,

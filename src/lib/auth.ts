@@ -1,11 +1,35 @@
-import NextAuth from 'next-auth'
+import NextAuth, { Session } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
 import { NEXTAUTH_SECRET } from '@/shared/env'
 import { SpaceDFClient } from './spacedf'
+import { JWT } from 'next-auth/jwt'
 
 const MINUTES_EXPIRE = 60
-const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
+const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 58 * 1000
+
+async function performRefresh(token: JWT): Promise<JWT> {
+  try {
+    const spaceDFInstance = await SpaceDFClient.getInstance()
+    const client = spaceDFInstance.getClient()
+    const refreshedTokens = await client.auth.refreshToken({
+      refresh: token.refresh,
+    })
+
+    return {
+      ...token,
+      access: refreshedTokens.access as string,
+      refresh: refreshedTokens.refresh,
+      accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
+      error: undefined,
+    }
+  } catch {
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError',
+    }
+  }
+}
 
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   secret: NEXTAUTH_SECRET,
@@ -53,8 +77,9 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       if (token) {
         session.user.access = token.access
         session.user.refresh = token.refresh
+        session.error = token.error
       }
-      return session
+      return {} as Session
     },
     async jwt({ token, user }) {
       if (user) {
@@ -65,7 +90,14 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
           accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
       }
-      return token
+
+      // Return previous token if not expired
+      if (Date.now() < (token.accessTokenExpires as number)) {
+        return token
+      }
+
+      // Token expired, refresh it
+      return await performRefresh(token)
     },
   },
   trustHost: true,

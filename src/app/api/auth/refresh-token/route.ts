@@ -1,6 +1,7 @@
 import { SpaceDFClient } from '@/lib/spacedf'
+import { readSession } from '@/utils/server-actions'
 import { encode } from 'next-auth/jwt'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 const createAuthCookieString = (token: string) => {
   const SESSION_SECURE = process.env.NEXTAUTH_URL?.startsWith('https://')
@@ -13,8 +14,12 @@ const createAuthCookieString = (token: string) => {
   }`
 }
 
-export const POST = async (request: NextRequest) => {
-  const { refreshToken } = await request.json()
+export const POST = async () => {
+  const session = await readSession()
+  const refreshToken = session?.user?.refresh
+  if (!refreshToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const spacedf = await SpaceDFClient.getInstance()
   const client = spacedf.getClient()
   const SESSION_SECURE = process.env.NEXTAUTH_URL?.startsWith('https://')

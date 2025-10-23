@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/lib/auth'
+import { readSession } from '@/utils/server-actions'
 
 type CreateOrganizationActionPayload = {
   name: string
@@ -11,7 +11,7 @@ type CreateOrganizationActionPayload = {
 export const createOrganizationAction = async (
   payload: CreateOrganizationActionPayload
 ) => {
-  const session = await auth()
+  const session = await readSession()
 
   // return new NextResponse(
   //   JSON.stringify({
