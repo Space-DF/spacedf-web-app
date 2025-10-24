@@ -16,6 +16,7 @@ import DeckglLayers from './deckgl-layers'
 import MapClusters from './map-clusters'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
+import { Button } from '@/components/ui/button'
 
 mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -48,7 +49,7 @@ const FleetTracking = () => {
       }))
     )
 
-  const { devices, deviceIds, deviceSelected, initializedSuccess } =
+  const { devices, deviceIds, deviceSelected, initializedSuccess, setDevices } =
     useDeviceStore(
       useShallow((state) => ({
         devices: state.devices,
@@ -63,6 +64,8 @@ const FleetTracking = () => {
 
   useEffect(() => {
     if (!mapRefContainer.current || !initializedSuccess) return
+
+    let frameID: number
 
     const modelType =
       (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
@@ -95,6 +98,21 @@ const FleetTracking = () => {
     geolocateControlRef.current = geolocateControl
     map.addControl(geolocateControl)
 
+    const handleZoomEnd = () => {
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false
+      } else {
+        window.dispatchEvent(
+          new CustomEvent('mapZoomEnd', {
+            detail: {
+              isMinZoom: map.getZoom() < minZoom,
+              map,
+            },
+          })
+        )
+      }
+    }
+
     map.on('load', () => {
       map.resize()
       map.addControl(new mapboxgl.NavigationControl())
@@ -102,7 +120,7 @@ const FleetTracking = () => {
       updateBooleanState('isMapReady', true)
       setMap(map)
 
-      requestAnimationFrame(() => {
+      frameID = requestAnimationFrame(() => {
         if (map.getCanvasContainer()) {
           window.dispatchEvent(
             new CustomEvent('mapLoaded', {
@@ -114,20 +132,7 @@ const FleetTracking = () => {
         }
       })
 
-      map.on('zoomend', async () => {
-        if (isFirstLoad.current) {
-          isFirstLoad.current = false
-        } else {
-          window.dispatchEvent(
-            new CustomEvent('mapZoomEnd', {
-              detail: {
-                isMinZoom: map.getZoom() < minZoom,
-                map,
-              },
-            })
-          )
-        }
-      })
+      map.on('zoomend', handleZoomEnd)
     })
 
     return () => {
@@ -136,6 +141,9 @@ const FleetTracking = () => {
       deckRef.current = null
       setMap(null)
       window.location.reload()
+
+      map.off('zoomend', handleZoomEnd)
+      cancelAnimationFrame(frameID)
     }
   }, [initializedSuccess])
 
@@ -157,6 +165,10 @@ const FleetTracking = () => {
         mapType || (localStorage.getItem('mapType') as MapType) || 'default'
       )
     })
+
+    return () => {
+      map.off('style.load', () => renderMapResources(map, mapType))
+    }
   }, [isMapReady, mapType, map, resolvedTheme])
 
   useEffect(() => {
@@ -300,22 +312,23 @@ const FleetTracking = () => {
     [devices, map, modelType]
   )
 
-  // const handleUpdateLocation = () => {
-  //   const newDevices: Device[] = Object.values(devices).map((device) => {
-  //     if (device.id === 'rak4630-rs3-C1F4') {
-  //       return {
-  //         ...device,
-  //         latestLocation: [
-  //           (device.latestLocation?.[0] ?? 0) + 0.0001,
-  //           (device.latestLocation?.[1] ?? 0) + 0.0001,
-  //         ],
-  //       }
-  //     }
-  //     return device
-  //   })
+  const handleUpdateLocation = () => {
+    // console.log({ devices })
+    const newDevices: Device[] = Object.values(devices).map((device) => {
+      if (device.id === 'rak4630-rs3-C1F4') {
+        return {
+          ...device,
+          latestLocation: [
+            (device.latestLocation?.[0] ?? 0) + 0.0001,
+            (device.latestLocation?.[1] ?? 0) + 0.0001,
+          ],
+        }
+      }
+      return device
+    })
 
-  //   setDevices(newDevices)
-  // }
+    setDevices(newDevices)
+  }
 
   return (
     <div className="relative size-full overflow-hidden">
@@ -326,12 +339,12 @@ const FleetTracking = () => {
       {!!deviceIds.length && <ModelType />}
 
       <MapClusters />
-      {/* <Button
+      <Button
         className="absolute bottom-4 right-4"
         onClick={handleUpdateLocation}
       >
         Update Location
-      </Button> */}
+      </Button>
     </div>
   )
 }

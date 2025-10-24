@@ -27,7 +27,7 @@ const getKey = (
 
 export function useGetDevices(configs: SWRConfiguration = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  const { data, ...rest } = useSWRInfinite(
+  const { data, isLoading, ...rest } = useSWRInfinite(
     (pageIndex, previousPageData) =>
       getKey(pageIndex, previousPageData, spaceSlug),
     getDevices<DeviceSpace[]>,
@@ -35,5 +35,5 @@ export function useGetDevices(configs: SWRConfiguration = {}) {
   )
   const flatData = useMemo(() => data?.flat(), [data])
   const isReachingEnd = data ? data[data.length - 1]?.length < PAGE_SIZE : false
-  return { data: flatData, isReachingEnd, ...rest }
+  return { data: flatData, isReachingEnd, isLoading, ...rest }
 }

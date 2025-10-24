@@ -2,17 +2,14 @@
 
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { delay } from '@/utils'
-import { MapType } from '@/utils/map'
 import { useTheme } from 'next-themes'
 import { memo, useEffect, useRef } from 'react'
 import Supercluster from 'supercluster'
 import { useShallow } from 'zustand/react/shallow'
 
-const MaxZoom = 15
+const MaxZoom = 14
 
 const MapClusters = () => {
-  const mapRef = useRef<mapboxgl.Map | null>(null)
   const supercluster = useRef<Supercluster | null>(null)
 
   const { resolvedTheme } = useTheme()
@@ -23,54 +20,52 @@ const MapClusters = () => {
     }))
   )
 
-  const { map, mapType } = useFleetTrackingStore(
+  const { map, updateBooleanState } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
-      mapType:
-        state.mapType ||
-        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-        'default',
+      isClusterVisible: state.isClusterVisible,
+      updateBooleanState: state.updateBooleanState,
     }))
   )
 
   useEffect(() => {
-    window.addEventListener('mapLoaded', (event) => {
-      const map = (event as CustomEvent).detail.map as mapboxgl.Map
-      mapRef.current = map
-    })
+    if (!map) return
 
-    return () => {
-      window.removeEventListener('mapLoaded', () => {
-        mapRef.current = null
-        supercluster.current = null
+    map.on('style.load', () => {
+      supercluster.current = new Supercluster({
+        radius: 60,
+        maxZoom: MaxZoom,
+        minPoints: 1,
       })
-    }
-  }, [])
 
-  useEffect(() => {
-    if (map && supercluster.current) {
+      const devicesArray = Object.values(devices)
+
+      //   // Convert to GeoJSON and load
+      const geoJsonPoints = devicesArray.map((device) => ({
+        type: 'Feature',
+        properties: device,
+        geometry: {
+          type: 'Point',
+          coordinates: [
+            device.latestLocation?.[0] ?? 0,
+            device.latestLocation?.[1] ?? 0,
+          ],
+        },
+      }))
+      supercluster.current.load(geoJsonPoints as any)
+
       initializeCluster(map)
-    }
-  }, [resolvedTheme, mapType, map])
+      updateCluster(map)
 
-  //cleanup layers
-  useEffect(() => {
-    if (!map) return
-
-    return () => {
-      cleanupLayers(map)
-      supercluster.current = null
-    }
-  }, [map])
-
-  useEffect(() => {
-    if (!map) return
+      // loadCluster()
+    })
 
     map.on('moveend', () => {
       updateCluster(map)
     })
 
     map.on('zoomend', () => {
+      handleClusterVisibleChange(map)
       updateCluster(map)
     })
 
@@ -78,6 +73,57 @@ const MapClusters = () => {
       updateCluster(map)
     })
 
+    return () => {
+      if (map) {
+        map.off('style.load', () => {
+          initializeCluster(map)
+          updateCluster(map)
+        })
+
+        map.off('moveend', () => {
+          updateCluster(map)
+        })
+
+        map.off('zoomend', () => {
+          updateCluster(map)
+        })
+
+        map.off('move', () => {
+          updateCluster(map)
+        })
+      }
+    }
+  }, [map, devices])
+
+  // useEffect(() => {
+  //   setClusterImagePath(
+  //     resolvedTheme === 'dark'
+  //       ? '/images/cluster-dark.png'
+  //       : '/images/cluster-light.png'
+  //   )
+  // }, [resolvedTheme])
+
+  useEffect(() => {
+    if (!map) return
+
+    const path =
+      resolvedTheme === 'dark'
+        ? '/images/cluster-dark.png'
+        : '/images/cluster-light.png'
+
+    if (map.hasImage('cluster-gradient')) {
+      map.removeImage('cluster-gradient')
+    }
+
+    map.loadImage(path, (error, image) => {
+      if (error) throw error
+      map.addImage('cluster-gradient', image as any)
+      updateCluster(map)
+    })
+  }, [map, resolvedTheme])
+
+  useEffect(() => {
+    if (!map) return
     const handleClusterClicked = (e: mapboxgl.MapMouseEvent) => {
       const features = e.features
       if (!features?.length || !supercluster.current || !map) return
@@ -137,7 +183,10 @@ const MapClusters = () => {
     map.on('click', 'clusters', handleClusterClicked)
 
     return () => {
-      map.off('move', () => updateCluster(map))
+      map.off('move', () => {
+        // handleClusterVisibleChange(map)
+        updateCluster(map)
+      })
       map.off('moveend', () => updateCluster(map))
       map.off('zoomend', () => updateCluster(map))
       map.off('click', 'clusters', handleClusterClicked)
@@ -145,55 +194,6 @@ const MapClusters = () => {
       map.off('mouseleave', 'clusters', handleMouseLeave)
     }
   }, [map])
-
-  // Initialize Supercluster
-  useEffect(() => {
-    // Setup Supercluster
-    supercluster.current = new Supercluster({
-      radius: 60,
-      maxZoom: MaxZoom,
-      minPoints: 1,
-    })
-
-    const devicesArray = Object.values(devices)
-
-    // Convert to GeoJSON and load
-    const geoJsonPoints = devicesArray.map((device) => ({
-      type: 'Feature',
-      properties: device,
-      geometry: {
-        type: 'Point',
-        coordinates: [
-          device.latestLocation?.[0] ?? 0,
-          device.latestLocation?.[1] ?? 0,
-        ],
-      },
-    }))
-
-    if (!map) return
-    supercluster.current.load(geoJsonPoints as any)
-
-    // if (map) {
-    //   console.log('loading cluster')
-    //   updateCluster()
-    // }
-
-    map?.on('style.load', () => {
-      initializeCluster(map)
-    })
-
-    return () => {
-      map?.off('style.load', () => initializeCluster(map))
-    }
-  }, [devices, map])
-
-  //   useEffect(() => {
-  //     if (!mapRef.current) return
-
-  //     return () => {
-  //       if (mapRef.current) mapRef.current.remove()
-  //     }
-  //   }, [mapRef.current])
 
   const updateCluster = (map: mapboxgl.Map) => {
     if (!map || !supercluster.current) return
@@ -222,7 +222,7 @@ const MapClusters = () => {
       if (cluster.properties.cluster) {
         clusterFeatures.push(cluster)
       } else {
-        if (zoom < MaxZoom) {
+        if (zoom < MaxZoom + 1) {
           //handle fake cluster when only one device is visible
           const fakeCluster = {
             type: 'Feature',
@@ -261,65 +261,31 @@ const MapClusters = () => {
     window.supercluster = supercluster.current as any
   }
 
-  const cleanupLayers = (map: mapboxgl.Map) => {
+  const initializeCluster = (map: mapboxgl.Map) => {
     if (!map) return
-
-    const layers = ['clusters', 'cluster-count', 'unclustered-point']
-    for (const id of layers) {
-      if (map && typeof map.getLayer !== 'function') {
-        map.removeLayer(id)
-      }
-    }
-
-    const sources = ['clusters', 'unclustered-points']
-    for (const id of sources) {
-      if (map && typeof map.getLayer !== 'function' && map.getSource(id)) {
-        map.removeSource(id)
-      }
-    }
-
-    if (mapRef.current && mapRef.current.hasImage('cluster-gradient')) {
-      mapRef.current.removeImage('cluster-gradient')
-    }
-  }
-
-  const initializeCluster = async (map: mapboxgl.Map) => {
-    if (!map || !Object.keys(devices).length) return
-    if (map && typeof map.addSource === 'function') {
-      await delay(800)
-      if (!map.loaded()) return
-
-      map?.addSource('clusters', {
+    if (!map.getSource('clusters')) {
+      map.addSource('clusters', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
           features: [],
         },
       })
-
-      // Add unclustered points source
-      map?.addSource('unclustered-points', {
+    }
+    // Add unclustered points source
+    if (!map.getSource('unclustered-points')) {
+      map.addSource('unclustered-points', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
           features: [],
         },
       })
+    }
 
-      const path =
-        resolvedTheme === 'dark'
-          ? '/images/cluster-dark.png'
-          : '/images/cluster-light.png'
-
-      map?.loadImage(path, (error, image) => {
-        if (error) throw error
-        if (!mapRef.current?.hasImage('cluster-gradient')) {
-          mapRef.current?.addImage('cluster-gradient', image as any)
-        }
-      })
-
-      // Add cluster layer
-      map?.addLayer({
+    // Add cluster layer
+    if (!map.getLayer('clusters')) {
+      map.addLayer({
         id: 'clusters',
         type: 'symbol',
         source: 'clusters',
@@ -329,8 +295,10 @@ const MapClusters = () => {
           'icon-allow-overlap': true,
         },
       })
+    }
 
-      map?.addLayer({
+    if (!map.getLayer('cluster-count')) {
+      map.addLayer({
         id: 'cluster-count',
         type: 'symbol',
         source: 'clusters',
@@ -346,9 +314,11 @@ const MapClusters = () => {
           'text-color': '#ffffff',
         },
       })
+    }
 
-      // Add individual points layer
-      map?.addLayer({
+    // Add individual points layer
+    if (!map.getLayer('unclustered-point')) {
+      map.addLayer({
         id: 'unclustered-point',
         type: 'circle',
         source: 'unclustered-points',
@@ -361,20 +331,28 @@ const MapClusters = () => {
         },
       })
     }
-
-    updateCluster(map)
   }
 
-  useEffect(() => {
-    if (!map) return
-    return () => {
-      if (map?.getSource('clusters')) {
-        map.removeLayer('clusters')
-        map.removeLayer('cluster-count')
-        map.removeSource('clusters')
-      }
-    }
-  }, [map])
+  const handleClusterVisibleChange = (map: mapboxgl.Map) => {
+    if (!map || !supercluster.current) return
+
+    const zoom = map.getZoom()
+    const bounds = map.getBounds()
+    if (!bounds) return
+
+    const bbox = [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth(),
+    ]
+
+    const clusters = supercluster.current?.getClusters(bbox as any, zoom)
+
+    const hasCluster = clusters.some((f: any) => !!f.properties.cluster)
+
+    updateBooleanState('isClusterVisible', hasCluster)
+  }
 
   return <></>
 }

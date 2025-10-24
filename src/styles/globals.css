@@ -213,7 +213,11 @@ html {
 }
 
 .fade-out {
-  animation: fadeOut 0.5s ease forwards;
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.marker-hidden {
+  display: none;
 }
 
 .tracki-marker {
