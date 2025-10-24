@@ -74,7 +74,9 @@ const DynamicLayout = ({
       }
 
       resizeMapLayoutTimeOutId.current = setTimeout(() => {
-        map?.resize()
+        if (map && map.getCanvas()) {
+          map.resize()
+        }
 
         if (map?.getContainer()?.style) {
           map.getContainer().style.animationDuration = '0.5s'
@@ -182,7 +184,9 @@ const DynamicLayout = ({
       }
 
       resizeMapTimeOutId.current = setTimeout(() => {
-        map?.resize()
+        if (map && map.getCanvas()) {
+          map.resize()
+        }
 
         if (map?.getContainer()?.style) {
           map.getContainer().style.animationDuration = '0.5s'

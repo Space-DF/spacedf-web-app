@@ -208,6 +208,7 @@ const DeckglLayers = () => {
 
     map.on('zoomend', () => {
       // Check if the clusters layer exists before querying
+      if (!map.isStyleLoaded()) return
       const style = map.getStyle()
       const hasClusterLayer = style?.layers?.some(
         (layer) => layer.id === 'clusters'

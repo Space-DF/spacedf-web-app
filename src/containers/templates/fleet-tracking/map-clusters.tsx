@@ -58,7 +58,9 @@ const MapClusters = () => {
     if (!map) return
 
     return () => {
-      cleanupLayers(map)
+      if (map.isStyleLoaded && map.isStyleLoaded()) {
+        cleanupLayers(map)
+      }
       supercluster.current = null
     }
   }, [map])
@@ -196,7 +198,14 @@ const MapClusters = () => {
   //   }, [mapRef.current])
 
   const updateCluster = (map: mapboxgl.Map) => {
-    if (!map || !supercluster.current) return
+    if (
+      !map ||
+      !supercluster.current ||
+      !map.isStyleLoaded ||
+      !map.isStyleLoaded() ||
+      !map.getSource
+    )
+      return
 
     const bounds = map.getBounds()
 
@@ -243,43 +252,61 @@ const MapClusters = () => {
       }
     })
 
-    if (map.getSource('clusters')) {
-      ;(map.getSource('clusters') as any)?.setData({
-        type: 'FeatureCollection',
-        features: clusterFeatures,
-      })
+    try {
+      const clustersSource = map.getSource && map.getSource('clusters')
+      if (clustersSource && (clustersSource as any).setData) {
+        ;(clustersSource as any).setData({
+          type: 'FeatureCollection',
+          features: clusterFeatures,
+        })
+      }
+    } catch (error) {
+      console.warn('Error updating clusters source:', error)
     }
 
     // Update points source
-    if (map.getSource('unclustered-points')) {
-      ;(map.getSource('unclustered-points') as any)?.setData({
-        type: 'FeatureCollection',
-        features: pointFeatures,
-      })
+    try {
+      const pointsSource = map.getSource && map.getSource('unclustered-points')
+      if (pointsSource && (pointsSource as any).setData) {
+        ;(pointsSource as any).setData({
+          type: 'FeatureCollection',
+          features: pointFeatures,
+        })
+      }
+    } catch (error) {
+      console.warn('Error updating points source:', error)
     }
 
     window.supercluster = supercluster.current as any
   }
 
   const cleanupLayers = (map: mapboxgl.Map) => {
-    if (!map) return
+    if (!map || !map.isStyleLoaded || !map.isStyleLoaded()) return
 
-    const layers = ['clusters', 'cluster-count', 'unclustered-point']
-    for (const id of layers) {
-      if (map && typeof map.getLayer !== 'function') {
-        map.removeLayer(id)
+    try {
+      const layers = ['clusters', 'cluster-count', 'unclustered-point']
+      for (const id of layers) {
+        if (map.getLayer && map.getLayer(id)) {
+          map.removeLayer(id)
+        }
       }
-    }
 
-    const sources = ['clusters', 'unclustered-points']
-    for (const id of sources) {
-      if (map && typeof map.getLayer !== 'function' && map.getSource(id)) {
-        map.removeSource(id)
+      const sources = ['clusters', 'unclustered-points']
+      for (const id of sources) {
+        if (map.getSource && map.getSource(id)) {
+          map.removeSource(id)
+        }
       }
-    }
 
-    if (mapRef.current && mapRef.current.hasImage('cluster-gradient')) {
-      mapRef.current.removeImage('cluster-gradient')
+      if (
+        mapRef.current &&
+        mapRef.current.hasImage &&
+        mapRef.current.hasImage('cluster-gradient')
+      ) {
+        mapRef.current.removeImage('cluster-gradient')
+      }
+    } catch (error) {
+      console.warn('Error during layer cleanup:', error)
     }
   }
 
@@ -368,10 +395,19 @@ const MapClusters = () => {
   useEffect(() => {
     if (!map) return
     return () => {
-      if (map?.getSource('clusters')) {
-        map.removeLayer('clusters')
-        map.removeLayer('cluster-count')
-        map.removeSource('clusters')
+      try {
+        if (
+          map?.getSource &&
+          map?.isStyleLoaded &&
+          map.isStyleLoaded() &&
+          map.getSource('clusters')
+        ) {
+          if (map.getLayer('clusters')) map.removeLayer('clusters')
+          if (map.getLayer('cluster-count')) map.removeLayer('cluster-count')
+          map.removeSource('clusters')
+        }
+      } catch (error) {
+        console.warn('Error in cleanup effect:', error)
       }
     }
   }, [map])
