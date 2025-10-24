@@ -105,7 +105,7 @@ export const SelectMapType = () => {
     )
 
   return (
-    <div className="h-dvh absolute z-50 flex items-end flex-col justify-end left-2">
+    <div className="bottom-2 absolute z-50 flex items-end flex-col justify-end left-2">
       <div className="group flex items-center gap-3 min-h-20 mb-7">
         <div className="border-[2px] rounded-lg border-white shadow-md ">
           <div className="size-16 overflow-hidden rounded-lg relative">

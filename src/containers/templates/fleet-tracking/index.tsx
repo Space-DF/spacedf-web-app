@@ -95,12 +95,14 @@ const FleetTracking = () => {
     geolocateControlRef.current = geolocateControl
     map.addControl(geolocateControl)
 
-    map.on('load', () => {
+    map.once('load', () => {
       map.resize()
       map.addControl(new mapboxgl.NavigationControl())
 
-      updateBooleanState('isMapReady', true)
-      setMap(map)
+      setTimeout(() => {
+        updateBooleanState('isMapReady', true)
+        setMap(map)
+      }, 500)
 
       requestAnimationFrame(() => {
         if (map.getCanvasContainer()) {
@@ -131,13 +133,24 @@ const FleetTracking = () => {
     })
 
     return () => {
-      map.remove()
       deckRef.current?.finalize()
       deckRef.current = null
       setMap(null)
-      window.location.reload()
     }
   }, [initializedSuccess])
+
+  useEffect(() => {
+    return () => {
+      try {
+        if (map && map.getContainer()) {
+          map.remove()
+          window.location.reload()
+        }
+      } catch (error) {
+        console.warn('Map remove error:', error)
+      }
+    }
+  }, [map])
 
   useEffect(() => {
     if (!isMapReady || !map) return

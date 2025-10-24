@@ -51,17 +51,19 @@ const DeckglLayers = () => {
   const deviceRotationRef = useRef<any>(null)
   const markerHandlersRef = useRef<Record<string, () => void>>({})
 
-  const { map, modelType, isClusterVisible } = useFleetTrackingStore(
-    useShallow((state) => ({
-      map: state.map,
-      modelType:
-        state.modelType ||
-        (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
-        '2d',
-      setModelType: state.setModelType,
-      isClusterVisible: state.isClusterVisible,
-    }))
-  )
+  const { map, modelType, isClusterVisible, isMapReady } =
+    useFleetTrackingStore(
+      useShallow((state) => ({
+        map: state.map,
+        isMapReady: state.isMapReady,
+        modelType:
+          state.modelType ||
+          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
+          '2d',
+        setModelType: state.setModelType,
+        isClusterVisible: state.isClusterVisible,
+      }))
+    )
 
   const prevModelType = usePrevious(modelType)
 
@@ -139,10 +141,14 @@ const DeckglLayers = () => {
       initializeDeck(map)
     }
 
-    if (!markerRef.current) {
+    if (!markerRef.current && isMapReady && map) {
       initializeDeviceMarker()
     }
-  }, [map])
+
+    return () => {
+      markerRef.current = null
+    }
+  }, [map, isMapReady])
 
   useEffect(() => {
     return () => {
@@ -225,6 +231,7 @@ const DeckglLayers = () => {
 
       //handle marker move
       const currentPos = marker.getLngLat()
+      if (!currentPos) return
       const deviceId = marker.getElement()?.id.split('marker-')[1]
       const currentDeviceLocation = devices[deviceId ?? '']?.latestLocation
 
@@ -379,6 +386,7 @@ const DeckglLayers = () => {
 
   const initializeDeviceMarker = useCallback(() => {
     const deviceIds = Object.keys(devices)
+    console.log({ deviceIds })
 
     if (!map || !deviceIds.length) return
 
@@ -391,7 +399,7 @@ const DeckglLayers = () => {
 
       const marker = createDeviceMarker(device)
 
-      if (marker && map) {
+      if (marker && map && map.loaded()) {
         marker.setLngLat([...(device.latestLocation || [0, 0])]).addTo(map)
       }
 

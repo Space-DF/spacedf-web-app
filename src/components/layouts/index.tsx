@@ -62,28 +62,44 @@ const DynamicLayout = ({
   }, [])
 
   useEffect(() => {
-    if (isMapReady) {
+    if (!isMapReady || !map) return
+
+    if (resizeMapLayoutTimeOutId.current) {
+      clearTimeout(resizeMapLayoutTimeOutId.current)
+    }
+
+    const container = map.getContainer?.()
+    if (container?.style) {
+      container.style.animationDuration = '0.5s'
+      container.style.opacity = '0.5'
+      container.style.filter = 'blur(10px)'
+    }
+
+    resizeMapLayoutTimeOutId.current = setTimeout(() => {
+      try {
+        const c = map.getContainer?.()
+        const hasSize = c?.clientWidth > 0 && c?.clientHeight > 0
+        if (map.loaded() && hasSize) {
+          map.resize()
+        }
+      } catch (err) {
+        console.warn('Map resize failed:', err)
+      }
+
+      const c2 = map.getContainer?.()
+      if (c2?.style) {
+        c2.style.animationDuration = '0.5s'
+        c2.style.opacity = '1'
+        c2.style.filter = 'blur(0px)'
+      }
+    }, 500)
+
+    return () => {
       if (resizeMapLayoutTimeOutId.current) {
         clearTimeout(resizeMapLayoutTimeOutId.current)
       }
-
-      if (map?.getContainer()?.style) {
-        map.getContainer().style.animationDuration = '0.5s'
-        map.getContainer().style.opacity = '0.5'
-        map.getContainer().style.filter = 'blur(10px)'
-      }
-
-      resizeMapLayoutTimeOutId.current = setTimeout(() => {
-        map?.resize()
-
-        if (map?.getContainer()?.style) {
-          map.getContainer().style.animationDuration = '0.5s'
-          map.getContainer().style.opacity = '1'
-          map.getContainer().style.filter = 'blur(0px)'
-        }
-      }, 500)
     }
-  }, [JSON.stringify(dynamicLayouts), isMapReady])
+  }, [dynamicLayouts, isMapReady, map])
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -169,7 +185,7 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    if (isMapReady && map) {
+    if (isMapReady && map && map.loaded()) {
       if (resizeMapTimeOutId.current) {
         clearTimeout(resizeMapTimeOutId.current)
       }
@@ -182,8 +198,17 @@ const DynamicLayout = ({
       }
 
       resizeMapTimeOutId.current = setTimeout(() => {
-        map?.resize()
+        try {
+          const container = map?.getContainer?.()
+          const hasSize =
+            container?.clientWidth > 0 && container?.clientHeight > 0
 
+          if (map?.loaded() && hasSize) {
+            map.resize()
+          }
+        } catch (err) {
+          console.warn('Map resize failed (ignore):', err)
+        }
         if (map?.getContainer()?.style) {
           map.getContainer().style.animationDuration = '0.5s'
           map.getContainer().style.opacity = '1'
