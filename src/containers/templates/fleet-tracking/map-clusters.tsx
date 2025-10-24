@@ -251,7 +251,7 @@ const MapClusters = () => {
             geometry: cluster.geometry,
             properties: {
               ...cluster.properties,
-              cluster: true,
+              cluster: map.getZoom() < MaxZoom + 1 ? false : true,
               cluster_id: `single-${cluster.properties.id || cluster.properties.deviceId}`,
               point_count: 1,
               point_count_abbreviated: 1,
@@ -372,7 +372,8 @@ const MapClusters = () => {
 
     const hasCluster =
       clusters.some((f: any) => !!f.properties.cluster) ||
-      (deviceCount === 1 && zoom < MaxZoom + 1)
+      deviceCount === 1 ||
+      zoom < MaxZoom + 1
 
     updateBooleanState('isClusterVisible', hasCluster)
   }
