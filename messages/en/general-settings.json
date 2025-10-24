@@ -31,5 +31,8 @@
   "set_time_zone": "Set time zone automatically",
   "delete_account_success": "Delete account success",
   "delete_account_error": "Delete account error",
-  "email_not_match": "Email not match"
+  "email_not_match": "Email not match",
+  "update_password_success": "Update password success",
+  "update_password_error": "Update password error",
+  "update_user_profile_error": "Update user profile error"
 }

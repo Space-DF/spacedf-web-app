@@ -33,5 +33,8 @@
   "to_confirm_enter_email": "Để xác nhận, hãy nhập email xuống dưới",
   "delete_account_success": "Xoá tài khoản người dùng thành công",
   "delete_account_error": "Xoá tài khoản người dùng thất bại",
-  "email_not_match": "Email không khớp"
+  "email_not_match": "Email không khớp",
+  "update_password_success": "Cập nhật mật khẩu thành công",
+  "update_password_error": "Cập nhật mật khẩu thất bại",
+  "update_user_profile_error": "Cập nhật hồ sơ người dùng thất bại"
 }

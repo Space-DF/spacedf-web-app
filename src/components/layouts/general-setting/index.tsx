@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useGeneralSetting } from './store/useGeneralSetting'
 
 const settings = [
   {
@@ -48,7 +49,9 @@ const settings = [
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
-  const [currentSetting, setCurrentSetting] = useState('appearance')
+  const { isOpen, currentSetting, setIsOpen, setCurrentSetting } =
+    useGeneralSetting()
+
   const t = useTranslations('common')
 
   const isAuthenticated = useAuthenticated()
@@ -88,8 +91,15 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
     }
   }, [currentSetting])
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setCurrentSetting(isAuthenticated ? 'profile' : 'appearance')
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="text-sm text-brand-component-text-dark sm:max-w-[800px]">
         <DialogHeader>
