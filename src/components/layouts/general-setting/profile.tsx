@@ -68,9 +68,18 @@ const Profile = () => {
 
   const { data: profile, isLoading, mutate } = useProfile()
   async function onSubmit(values: z.infer<typeof profileSchema>) {
-    await updateProfile({ ...values, avatar: values.avatar as File })
-    toast.success(t('update_user_profile'))
-    mutate()
+    await updateProfile(
+      { ...values, avatar: values.avatar as File },
+      {
+        onSuccess: () => {
+          toast.success(t('update_user_profile'))
+          mutate()
+        },
+        onError: (error) => {
+          toast.error(error.message || t('update_user_profile_error'))
+        },
+      }
+    )
   }
 
   useEffect(() => {

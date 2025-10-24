@@ -7,4 +7,9 @@ const getProfile = (url: string) => {
 }
 
 export const useProfile = (isAuthenticated = true) =>
-  useSWR(isAuthenticated ? `/api/me` : null, getProfile)
+  useSWR(isAuthenticated ? `/api/me` : null, getProfile, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    refreshInterval: 0,
+    dedupingInterval: 0,
+  })

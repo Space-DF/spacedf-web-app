@@ -24,6 +24,9 @@ import {
   newPasswordSchema,
 } from '@/utils'
 import { useProfile } from './hooks/useProfile'
+import { useChangePassword } from './hooks/useChangePassword'
+import { toast } from 'sonner'
+import { useGeneralSetting } from './store/useGeneralSetting'
 
 const profileSchema = z
   .object({
@@ -54,16 +57,34 @@ const Account = () => {
   })
   const { data: profile } = useProfile()
 
+  const { closeDialog, setCurrentSetting } = useGeneralSetting()
+
+  const { trigger: changePassword, isMutating: isChangingPassword } =
+    useChangePassword()
+
   useEffect(() => {
     if (!profile) return
     form.setValue('email', profile.email)
   }, [profile])
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    // Upon click this button:
-    //   If 2.3, 2.4, 2.4 correct → Update Successfully → Redirect to [A.I.6 HOME SCREEN (Organization)]
-    // Other case → Error Message
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    await changePassword(
+      {
+        password: values.current_password,
+        new_password: values.new_password,
+      },
+      {
+        onSuccess: () => {
+          form.reset()
+          toast.success(t('update_password_success'))
+          closeDialog()
+          setCurrentSetting('profile')
+        },
+        onError: (error) => {
+          toast.error(error.message || t('update_password_error'))
+        },
+      }
+    )
   }
 
   return (
@@ -217,7 +238,7 @@ const Account = () => {
           />
 
           <div className="mt-4 flex gap-2">
-            <Button size="lg" className="w-full">
+            <Button size="lg" className="w-full" loading={isChangingPassword}>
               {t('update_password')}
             </Button>
           </div>
