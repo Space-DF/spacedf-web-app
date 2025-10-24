@@ -11,6 +11,7 @@ import {
 import MqttService from '@/lib/mqtt'
 import { transformDeviceData } from '@/utils/map'
 import { useGetDevices } from '@/hooks/useDevices'
+import { useGlobalStore } from '@/stores'
 // import { useIsDemo } from '@/hooks/useIsDemo'
 // import { useAuthenticated } from '@/hooks/useAuthenticated'
 
@@ -42,7 +43,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     }))
   )
 
-  const { data: deviceSpaces } = useGetDevices()
+  const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
+
+  const { setGlobalLoading } = useGlobalStore(
+    useShallow((state) => ({
+      setGlobalLoading: state.setGlobalLoading,
+    }))
+  )
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
@@ -123,10 +130,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     try {
       const devices: Device[] = transformDeviceData(deviceSpaces || [])
       setDevices(devices)
-      setFetchStatus((prev) => ({
-        ...prev,
-        initializedDevices: true,
-      }))
     } catch {}
   }
 
@@ -136,12 +139,12 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }, [deviceSpaces])
 
   useEffect(() => {
-    if (fetchStatus.initializedDevices && fetchStatus.initializedModels) {
-      setTimeout(() => {
-        setInitializedSuccess(true)
-      }, 1000)
+    setGlobalLoading(true)
+    if (!isLoadingDevices && fetchStatus.initializedModels) {
+      setGlobalLoading(false)
+      setInitializedSuccess(true)
     }
-  }, [fetchStatus.initializedDevices, fetchStatus.initializedModels])
+  }, [fetchStatus.initializedModels, isLoadingDevices])
 
   const loadModels = async () => {
     try {

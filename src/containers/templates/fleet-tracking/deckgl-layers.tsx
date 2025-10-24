@@ -1,36 +1,14 @@
 'use client'
+import { usePrevious } from '@/hooks/usePrevious'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { Deck, ScenegraphLayer } from 'deck.gl'
+import { SupportedModels } from '@/utils/model-objects/devices/gps-tracker/type'
+import { MapboxOverlay } from '@deck.gl/mapbox'
+import { ScenegraphLayer } from 'deck.gl'
 import mapboxgl from 'mapbox-gl'
 import { animate, easeOut, linear } from 'popmotion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-
-type LayerProps = {
-  deviceData: Device
-  opacity?: number
-  rotation?: number
-  hasPositionTransition?: boolean
-}
-
-type UpdateLayerProps = {
-  id: string
-  rotation?: number
-  position?: [number, number]
-  hasPositionTransition?: boolean
-  isDeviceSelected?: boolean
-}
-
-function getMapViewState(map: mapboxgl.Map) {
-  return {
-    longitude: map.getCenter().lng,
-    latitude: map.getCenter().lat,
-    zoom: map.getZoom(),
-    bearing: map.getBearing(),
-    pitch: map.getPitch(),
-  }
-}
 
 function animateMarkerMove(
   marker: mapboxgl.Marker,
@@ -66,18 +44,14 @@ function animateMarkerMove(
 }
 
 const DeckglLayers = () => {
-  const deckRef = useRef<Deck | null>(null)
-  const layerRef = useRef<ScenegraphLayer[]>([])
-  const [isStartRender, setIsStartRender] = useState(false)
+  const deckRef = useRef<MapboxOverlay | null>(null)
 
-  const markerRef = useRef<Record<string, mapboxgl.Marker | null>>({})
-  const latestLocationRef = useRef<Record<string, [number, number]>>({})
+  const markerRef = useRef<Record<string, mapboxgl.Marker | null> | null>(null)
 
-  const stopAnimation = useRef<() => void>(() => {})
+  const deviceRotationRef = useRef<any>(null)
+  const markerHandlersRef = useRef<Record<string, () => void>>({})
 
-  const isFirstLoad = useRef(true)
-
-  const { map, modelType } = useFleetTrackingStore(
+  const { map, modelType, isClusterVisible } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       modelType:
@@ -85,480 +59,370 @@ const DeckglLayers = () => {
         (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
         '2d',
       setModelType: state.setModelType,
+      isClusterVisible: state.isClusterVisible,
     }))
   )
 
-  const {
-    devices,
-    deviceModels,
-    deviceIds,
-    setDeviceSelected,
-    deviceSelected,
-  } = useDeviceStore(
-    useShallow((state) => ({
-      devices: state.devices,
-      deviceIds: Object.keys(state.devices),
-      deviceModels: state.models,
-      deviceSelected: state.deviceSelected,
-      setDeviceSelected: state.setDeviceSelected,
-    }))
-  )
+  const prevModelType = usePrevious(modelType)
+
+  const { devices, deviceModels, setDeviceSelected, deviceSelected } =
+    useDeviceStore(
+      useShallow((state) => ({
+        devices: state.devices,
+        deviceIds: Object.keys(state.devices),
+        deviceModels: state.models,
+        deviceSelected: state.deviceSelected,
+        setDeviceSelected: state.setDeviceSelected,
+      }))
+    )
 
   useEffect(() => {
-    Object.keys(devices).forEach((deviceId) => {
-      latestLocationRef.current[deviceId] = devices[deviceId]
-        .latestLocation || [0, 0]
-    })
-  }, [devices])
-
-  const initializeDeck = useCallback(
-    (map: mapboxgl.Map) => {
-      if (!map || !map.getCanvasContainer()) {
-        return
-      }
-
-      const canvasContainer = map.getCanvasContainer()
-
-      if (!canvasContainer) {
-        return
-      }
-
-      // Clean up existing deck instance if any
-      if (deckRef.current) {
-        deckRef.current.finalize()
-        deckRef.current = null
-      }
-
-      const deck = new Deck({
-        layers: [],
-        viewState: {
-          longitude: map.getCenter().lng,
-          latitude: map.getCenter().lat,
-          zoom: map.getZoom(),
-          bearing: map.getBearing(),
-          pitch: map.getPitch(),
-        },
-
-        onClick(info) {
-          if (info?.object) {
-            const layer = info.layer
-            if (layer?.id && layer?.id !== deviceSelected) {
-              setDeviceSelected(layer?.id)
-            }
-          }
-        },
-
-        parent: canvasContainer as HTMLDivElement,
-        controller: false, // Important: Let Mapbox handle interactions
-        useDevicePixels: true,
+    if (prevModelType !== modelType && map) {
+      const zoom = map.getZoom()
+      map?.easeTo({
+        pitch: modelType === '2d' ? 0 : 90,
+        zoom: zoom >= 18 ? zoom - 3 : zoom,
       })
-
-      deckRef.current = deck
-    },
-    [deviceSelected, setDeviceSelected]
-  )
-
-  useEffect(() => {
-    const handle = (e: CustomEvent) => {
-      const map = e.detail.map
-      if (map && map.getCanvasContainer()) {
-        initializeDeck(map)
-      }
     }
-
-    window.addEventListener('mapLoaded', handle as EventListener)
-
-    return () => {
-      window.removeEventListener('mapLoaded', handle as EventListener)
-    }
-  }, [initializeDeck])
-
-  // Fallback: Initialize deck if map is available but deck wasn't initialized
-  useEffect(() => {
-    if (map && !deckRef.current && map.getCanvasContainer()) {
-      const timer = setTimeout(() => {
-        if (map.getCanvasContainer()) {
-          initializeDeck(map)
-        }
-      }, 100)
-
-      return () => clearTimeout(timer)
-    }
-  }, [map, initializeDeck])
+  }, [prevModelType, modelType, map])
 
   useEffect(() => {
     if (!map) return
+    console.log({ isClusterVisible })
 
-    map.on('move', () => {
-      if (deckRef.current) {
-        deckRef.current.setProps({
-          viewState: getMapViewState(map),
-        })
-      }
-    })
+    if (!isClusterVisible) {
+      showDeviceLayerOnMap(modelType)
+    } else {
+      setDeviceSelected('')
+      hideDeviceLayerOnMap(modelType)
+    }
+  }, [isClusterVisible, modelType, prevModelType, devices])
 
-    map.on('resize', () => {
-      if (deckRef.current) {
-        deckRef.current.setProps({
-          width: map.getCanvas().clientWidth,
-          height: map.getCanvas().clientHeight,
-        })
-      }
-    })
+  useEffect(() => {
+    const updateMarkerSize = () => {
+      if (!map) return
+      const zoom = map.getZoom()
 
-    map.on('zoomend', () => {
-      // Check if the clusters layer exists before querying
-      const style = map.getStyle()
-      const hasClusterLayer = style?.layers?.some(
-        (layer) => layer.id === 'clusters'
-      )
+      // Use original marker dimensions as base at zoom level 17
+      const baseZoom = 17
+      const baseWidth = 70
+      const baseHeight = 100
 
-      if (hasClusterLayer) {
-        const features = map?.queryRenderedFeatures({
-          layers: ['clusters'],
-        })
+      // Calculate scale factor (minimum 0.5x for visibility, maximum 1x)
+      const scaleFactor = Math.min(1, Math.max(0.6, zoom / baseZoom))
 
-        if (isFirstLoad.current && !features.length) {
-          setIsStartRender(true)
-          isFirstLoad.current = false
+      const scaledWidth = baseWidth * scaleFactor
+      const scaledHeight = baseHeight * scaleFactor
+
+      if (!markerRef.current) return
+
+      Object.values(markerRef.current).forEach((marker) => {
+        if (!marker) return
+        const el = marker.getElement()
+        if (el) {
+          el.style.width = `${scaledWidth}px`
+          el.style.height = `${scaledHeight}px`
         }
-      } else if (isFirstLoad.current) {
-        // If clusters layer doesn't exist, just start rendering
-        setIsStartRender(true)
-        isFirstLoad.current = false
-      }
-    })
+      })
+    }
+
+    // Initial sizing
+    map?.on('zoom', updateMarkerSize)
 
     return () => {
-      if (deckRef.current) {
-        deckRef.current.finalize()
-        deckRef.current = null
-      }
-
-      removeAllMarkers()
-      stopAllAnimations()
-      setDeviceSelected('')
+      map?.off('zoom', updateMarkerSize)
     }
   }, [map])
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      const { map } = (e as CustomEvent).detail
-      if (window.supercluster && map) {
-        const hasCluster = checkHasCluster(map)
-
-        if (!hasCluster) {
-          updateMapResources(
-            modelType ||
-              (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d'),
-            map,
-            false
-          )
-        } else {
-          setDeviceSelected('')
-          stopAllAnimations()
-          removeAllMarkers()
-          handleRender3DLayer(false, 0)
-        }
-      }
+    if (map && map.getCanvasContainer() && !deckRef.current) {
+      initializeDeck(map)
     }
 
-    window.addEventListener('mapZoomEnd', handler)
-
-    return () => {
-      window.removeEventListener('mapZoomEnd', handler)
+    if (!markerRef.current) {
+      initializeDeviceMarker()
     }
-  }, [modelType])
+  }, [map])
 
   useEffect(() => {
-    if (!map) return
-    const handler = (e: Event) => {
-      const { modelType } = (e as CustomEvent).detail
-
-      const hasCluster = checkHasCluster(map)
-      if (!hasCluster) {
-        updateMapResources(modelType, map as mapboxgl.Map, true)
-      } else {
-        removeAllMarkers()
-        handleRender3DLayer(false, 0)
-        map.easeTo({
-          pitch: modelType === '3d' ? 90 : 0,
-        })
-      }
-    }
-
-    window.addEventListener('modelTypeUpdated', handler)
-
     return () => {
-      window.removeEventListener('modelTypeUpdated', handler)
+      stopDeviceRotation()
+
+      Object.values(markerHandlersRef.current).forEach((handler) => handler())
+      markerHandlersRef.current = {}
+
+      map?.removeControl(deckRef.current as any)
+      deckRef.current = null
+      deviceRotationRef.current = null
     }
-  }, [map, devices, deviceModels])
+  }, [map])
 
   useEffect(() => {
-    if (!isStartRender || !map) return
+    if (!deviceSelected || modelType !== '3d' || !map) return
 
-    const mapType =
-      (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
+    const device = devices[deviceSelected]
 
-    if (mapType === '2d') {
-      render2DLayers(false)
-    }
-    handleRender3DLayer(
-      false,
-      mapType === '3d' && !checkHasCluster(map) ? 1 : 0
-    )
-  }, [isStartRender, map])
+    if (!device) return
 
-  const checkHasCluster = (map?: mapboxgl.Map) => {
-    if (!map || !window.supercluster) return false
-    const zoom = map.getZoom()
+    startDeviceRotation(device)
 
-    const bounds = map.getBounds()
-    if (!bounds) return false
-
-    const bbox = [
-      bounds.getWest(),
-      bounds.getSouth(),
-      bounds.getEast(),
-      bounds.getNorth(),
-    ]
-    const clusters = (window.supercluster as any).getClusters(bbox, zoom)
-    return clusters.some((f: any) => !!f.properties.cluster)
-  }
-
-  const updateLayer = (props: UpdateLayerProps) => {
-    const { id, rotation, position, hasPositionTransition, isDeviceSelected } =
-      props
-
-    if (!deckRef.current) return [] as ScenegraphLayer[]
-
-    const currentLayers = deckRef.current?.props.layers || []
-
-    const newLayers = currentLayers.map((layer: any) => {
-      if (layer.id !== id) return layer
-      const device = devices[id]
-
-      if (
-        isDeviceSelected &&
-        JSON.stringify(layer.props.data[0].position) !==
-          JSON.stringify(position)
-      ) {
-        map?.easeTo({
-          center: position || device.latestLocation,
-          zoom: 19,
-          duration: 1000,
-        })
-      }
-
-      return getLayer({
-        deviceData: {
-          ...device,
-          latestLocation: position || device.latestLocation,
-        },
-        opacity: layer.props?.opacity,
-        rotation,
-        hasPositionTransition,
-      })
+    map?.flyTo({
+      center: device.latestLocation,
+      zoom: 19,
+      duration: 1000,
+      essential: true,
     })
 
-    return newLayers
-  }
+    return () => {
+      stopDeviceRotation()
+    }
+  }, [deviceSelected, devices, modelType])
 
-  useEffect(() => {
-    if (!isStartRender || isFirstLoad.current) return
-    const layers = deckRef.current?.props.layers || []
-
-    if (modelType === '2d' && Object.keys(markerRef.current).length) {
-      Object.values(devices).forEach((device) => {
-        const latestLocation = device.latestLocation
-        const marker = markerRef.current[device.id]
-
-        const prevLocation = marker?.getLngLat()
-
-        const isLocationChanged =
-          JSON.stringify(prevLocation) !== JSON.stringify(latestLocation)
-
-        if (isLocationChanged && latestLocation && marker) {
-          // marker?.setLngLat([latestLocation[0], latestLocation[1]])
-          animateMarkerMove(
-            marker,
-            {
-              lat: prevLocation?.lat || 0,
-              lng: prevLocation?.lng || 0,
-            } as mapboxgl.LngLat,
-            {
-              lat: latestLocation[1],
-              lng: latestLocation[0],
-            }
-          )
-        }
-      })
+  const showDeviceLayerOnMap = (modelType: '2d' | '3d') => {
+    if (modelType === '2d') {
+      stopDeviceRotation()
+      handleDevice3DModel('hidden')
+      handleMarkerVisible()
     }
 
-    if (modelType === '3d' && deckRef.current) {
-      layers.forEach((layer: any) => {
-        if (
-          JSON.stringify(layer.props.data[0].position) !==
-            JSON.stringify(devices[layer.id].latestLocation) &&
-          layer.id !== deviceSelected
-        ) {
-          const newLayers = updateLayer({
-            id: layer.id,
-            hasPositionTransition: true,
-            isDeviceSelected: layer.id === deviceSelected,
-          })
-
-          deckRef.current?.setProps({
-            layers: newLayers,
-          })
-
-          layerRef.current = newLayers || []
-        }
-      })
-    }
-  }, [devices, isStartRender, deviceSelected, modelType])
-
-  useEffect(() => {
-    if (deviceSelected) {
-      startAnimation(deviceSelected)
-    } else {
-      if (!map) return
-      stopAllAnimations()
-      handleRender3DLayer(
-        false,
-        modelType === '3d' && !checkHasCluster(map) ? 1 : 0
-      )
-    }
-  }, [deviceSelected, modelType, map])
-
-  const updateMapResources = (
-    modelType: '2d' | '3d',
-    map?: mapboxgl.Map,
-    hasFling?: boolean
-  ) => {
-    if (!map) return
-    setIsStartRender(true)
-
-    switch (modelType) {
-      case '2d':
-        stopAllAnimations()
-        handleRender3DLayer(hasFling, 0)
-        render2DLayers(true)
-        return
-
-      case '3d':
-        removeAllMarkers()
-        handleRender3DLayer(hasFling, 1)
-        return
+    if (modelType === '3d') {
+      handleMarkerHidden()
+      handleDevice3DModel('visible')
     }
   }
 
-  const stopAllAnimations = useCallback(() => {
-    if (stopAnimation.current) {
-      stopAnimation.current()
-      stopAnimation.current = () => {}
+  const hideDeviceLayerOnMap = (modelType: '2d' | '3d') => {
+    stopDeviceRotation()
+    if (modelType === '2d') {
+      handleMarkerHidden()
     }
-  }, [devices, map, deviceModels])
 
-  const render2DLayers = useCallback(
-    (hasFling: boolean = false) => {
-      if (!map || !deviceIds.length) return
+    if (modelType === '3d') {
+      handleDevice3DModel('hidden')
+    }
+  }
 
-      if (hasFling) {
-        map.easeTo({
-          pitch: 0,
-        })
-      }
+  const handleMarkerVisible = () => {
+    if (!markerRef.current) return
+    let timeoutId: any
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
 
-      deviceIds.forEach((deviceId) => {
-        const device = devices[deviceId]
+    Object.values(markerRef.current).forEach((marker) => {
+      if (!marker) return
+      const el = marker?.getElement()
 
-        if (!markerRef.current?.[deviceId]) {
-          if (typeof document === 'undefined') return
-          markerRef.current[deviceId] = getMarker(device)
-        }
-
-        const marker = markerRef.current[deviceId]
-        if (marker && markerRef.current && map) {
-          try {
-            marker.setLngLat([...(device.latestLocation || [0, 0])]).addTo(map)
-          } catch (error) {
-            console.warn(`Failed to add marker for device ${deviceId}:`, error)
+      if (el) {
+        el.classList.remove('fade-out')
+        el.classList.add('fade-in')
+        timeoutId = setTimeout(() => {
+          if (el) {
+            el.style.display = 'block'
           }
-        }
-      })
-    },
-    [map, devices, deviceModels, deviceIds]
-  )
-
-  const handleRender3DLayer = useCallback(
-    (hasFling: boolean = false, opacity?: number) => {
-      if (!map) return
-      const deviceIds = Object.keys(devices)
-
-      if (hasFling) {
-        map.easeTo({
-          pitch: 90,
-        })
+        }, 300)
       }
 
-      if (!deviceIds.length) return
+      //handle marker move
+      const currentPos = marker.getLngLat()
+      const deviceId = marker.getElement()?.id.split('marker-')[1]
+      const currentDeviceLocation = devices[deviceId ?? '']?.latestLocation
 
-      const layers = deviceIds.map((deviceId) => {
-        const device = devices[deviceId]
+      if (
+        currentPos.lng !== currentDeviceLocation?.[0] ||
+        currentPos.lat !== currentDeviceLocation?.[1]
+      ) {
+        const newLngLat = {
+          lng: currentDeviceLocation?.[0] || 0,
+          lat: currentDeviceLocation?.[1] || 0,
+        }
 
-        const layer = getLayer({
-          deviceData: device,
-          opacity,
-          hasPositionTransition: true,
-        })
-        return layer
+        animateMarkerMove(marker, currentPos, newLngLat)
+
+        if (deviceSelected === deviceId) {
+          map?.flyTo({
+            center: newLngLat,
+            zoom: 19,
+            duration: 1000,
+            essential: true,
+          })
+        }
+      }
+    })
+  }
+
+  const handleMarkerHidden = () => {
+    if (!markerRef.current) return
+    let timeoutId: any
+
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+
+    Object.values(markerRef.current).forEach(async (marker) => {
+      const el = marker?.getElement()
+      el?.classList.remove('fade-in')
+      el?.classList.add('fade-out')
+      timeoutId = setTimeout(() => {
+        if (el) {
+          el.style.display = 'none'
+        }
+      }, 300)
+    })
+  }
+
+  const handleDevice3DModel = (type: 'visible' | 'hidden' = 'visible') => {
+    const deviceIds = Object.keys(devices)
+    if (!deviceIds.length) return
+
+    const layers = createDevicesLayers(devices, type)
+
+    if (!layers.length) return
+
+    deckRef.current?.setProps({
+      layers: layers,
+    })
+  }
+
+  const createDevicesLayers = (
+    devices: Record<string, Device>,
+    type: 'visible' | 'hidden' = 'visible'
+  ) => {
+    const visibleDevices = Object.values(devices).filter(
+      (d) => Array.isArray(d.latestLocation) && d.latestLocation.length === 2
+    )
+
+    if (!visibleDevices.length) return []
+
+    const layers: ScenegraphLayer[] = []
+
+    // group by model type
+    const grouped = visibleDevices.reduce(
+      (acc, d) => {
+        acc[d.type] = acc[d.type] || []
+        acc[d.type].push(d)
+        return acc
+      },
+      {} as Record<string, Device[]>
+    )
+
+    Object.entries(grouped).forEach(([typeKey, group]) => {
+      const layer = new ScenegraphLayer({
+        id: `device-layer-${typeKey}`,
+        data: group.map((d) => ({
+          id: d.id,
+          position: d.latestLocation,
+          orientation: [
+            d.layerProps?.orientation?.pitch || 0,
+            d.layerProps?.orientation?.yaw || 0,
+            d.layerProps?.orientation?.roll || 0,
+          ],
+          selected: d.id === deviceSelected,
+        })),
+        scenegraph: deviceModels[typeKey as SupportedModels],
+        getPosition: (d) => [d.position[0], d.position[1], 20],
+        getOrientation: (d) => d.orientation,
+        sizeScale: group[0].layerProps?.sizeScale || 200,
+        pickable: true,
+        opacity: type === 'visible' ? 1 : 0,
+        onClick: ({ object }) => {
+          if (object) setDeviceSelected(object.id)
+        },
+        transitions: {
+          getPosition: {
+            duration: 0,
+            easing: linear,
+          },
+          opacity: {
+            duration: 300,
+            easing: linear,
+          },
+          getOrientation: { duration: 800, easing: easeOut },
+        },
+        updateTriggers: {
+          getPosition: group.map((d) => [
+            d.latestLocation?.[0],
+            d.latestLocation?.[1],
+          ]),
+          getOrientation: group.map((d) => [
+            d.layerProps?.orientation?.pitch,
+            d.layerProps?.orientation?.yaw,
+            d.layerProps?.orientation?.roll,
+          ]),
+        },
+        _lighting: 'pbr',
       })
 
-      deckRef.current?.setProps({
-        layers,
-      })
-    },
-    [map, devices, deviceModels]
-  )
+      layers.push(layer)
+    })
 
-  const getMarker = useCallback(
+    return layers
+  }
+
+  const stopDeviceRotation = () => {
+    if (deviceRotationRef.current) {
+      deviceRotationRef.current.stop()
+      deviceRotationRef.current = null
+    }
+  }
+
+  const initializeDeck = (map: mapboxgl.Map) => {
+    if (!map) return
+
+    deckRef.current = new MapboxOverlay({
+      interleaved: true,
+      layers: [],
+    })
+
+    map.addControl(deckRef.current)
+  }
+
+  const initializeDeviceMarker = useCallback(() => {
+    const deviceIds = Object.keys(devices)
+
+    if (!map || !deviceIds.length) return
+
+    const deviceMarkers: Record<string, mapboxgl.Marker | null> = {}
+
+    deviceIds.forEach((deviceId) => {
+      const device = devices[deviceId]
+
+      if (!device) return
+
+      const marker = createDeviceMarker(device)
+
+      if (marker && map) {
+        marker.setLngLat([...(device.latestLocation || [0, 0])]).addTo(map)
+      }
+
+      deviceMarkers[deviceId] = marker
+    })
+
+    markerRef.current = deviceMarkers
+  }, [devices, map])
+
+  const createDeviceMarker = useCallback(
     (deviceData: Device) => {
       const el = document.createElement('div')
 
       el.className = `${deviceData.type}-marker`
-      el.id = `${deviceData.type}-marker-${deviceData.id}`
+      el.id = `marker-${deviceData.id}`
 
-      el.addEventListener('click', () => {
+      const handleClick = () => {
         setDeviceSelected(deviceData.id)
-      })
+      }
+
+      el.addEventListener('click', handleClick)
+
+      markerHandlersRef.current[deviceData.id] = () => {
+        el.removeEventListener('click', handleClick)
+      }
 
       // Add style for opacity and transition
-      el.style.opacity = '0'
+      el.style.display = 'none'
       // el.style.transition = 'opacity 0.5s ease-in-out'
 
       // Dynamic sizing based on zoom level to maintain consistent visual size
-      const updateMarkerSize = () => {
-        if (!map) return
-        const zoom = map.getZoom()
-
-        // Use original marker dimensions as base at zoom level 17
-        const baseZoom = 17
-        const baseWidth = 70
-        const baseHeight = 100
-
-        // Calculate scale factor (minimum 0.5x for visibility, maximum 1x)
-        const scaleFactor = Math.min(1, Math.max(0.6, zoom / baseZoom))
-
-        const scaledWidth = baseWidth * scaleFactor
-        const scaledHeight = baseHeight * scaleFactor
-
-        el.style.width = `${scaledWidth}px`
-        el.style.height = `${scaledHeight}px`
-      }
-
-      // Initial sizing
-      updateMarkerSize()
 
       // Update size when zoom changes
       const marker = new mapboxgl.Marker(el, {
@@ -567,125 +431,65 @@ const DeckglLayers = () => {
         rotationAlignment: 'viewport', // Keep marker rotation aligned with viewport
       })
 
-      // Listen for zoom changes to update marker size
-      if (map) {
-        map.on('zoom', updateMarkerSize)
-      }
+      // Override remove method to cleanup
 
       return marker
     },
     [map]
   )
 
-  const removeAllMarkers = () => {
-    Object.values(markerRef.current).forEach((marker) => {
-      const el = marker?.getElement()
-
-      el?.classList.add('fade-out')
-
-      setTimeout(() => {
-        el?.remove()
-      }, 600)
-    })
-
-    markerRef.current = {}
-  }
-
-  const getLayer = useCallback(
-    (props: LayerProps) => {
-      const { deviceData, opacity, rotation, hasPositionTransition } = props
-      const deviceId = deviceData.id
-      const model = deviceModels[deviceData.type]
-
-      const deviceOpacity = typeof opacity === 'number' ? opacity : 1
-
-      const isPassedRotation = typeof rotation === 'number'
-
-      const getOrientation = () => {
-        if (isPassedRotation)
-          return {
-            ...(deviceData?.layerProps?.orientation || {}),
-            [deviceData?.layerProps?.rotation || '']: rotation,
-          }
-
-        return deviceData?.layerProps?.orientation
+  const startDeviceRotation = useCallback(
+    (deviceData: Device) => {
+      if (deviceRotationRef.current) {
+        deviceRotationRef.current.stop()
+        deviceRotationRef.current = null
       }
 
-      const { pitch = 0, yaw = 0, roll = 0 } = getOrientation()
-
-      return new ScenegraphLayer({
-        id: deviceId,
-        data: [
-          {
-            position: deviceData.latestLocation,
-            orientation: [pitch, yaw, roll],
-          },
-        ],
-        getPosition: (d) => [d.position[0], d.position[1], 20],
-        getOrientation: (d) => [
-          d.orientation[0],
-          d.orientation[1],
-          d.orientation[2],
-        ],
-        scenegraph: model,
-        pickable: true,
-        _lighting: 'pbr',
-        opacity: deviceOpacity,
-        transitions: {
-          opacity: { duration: 500, easing: easeOut },
-          ...(hasPositionTransition && {
-            getPosition: { duration: 1000, easing: easeOut },
-          }),
-        },
-        ...(deviceData.layerProps || {}),
-      })
-    },
-    [deviceModels]
-  )
-
-  const startAnimation = useCallback(
-    (deviceId: string) => {
-      if (stopAnimation.current) {
-        stopAnimation.current()
-        stopAnimation.current = () => {}
-
-        if (modelType === '3d') {
-          handleRender3DLayer(false, 1)
-        }
-      }
-
-      const device = devices[deviceId]
-      if (!device) return
-
-      const animation = animate({
+      deviceRotationRef.current = animate({
         from:
-          device.layerProps?.orientation?.yaw === 360
+          deviceData.layerProps?.orientation?.yaw === 360
             ? 0
-            : device.layerProps?.orientation?.yaw || 0,
-        to: 360 - (device.layerProps?.orientation?.yaw || 0) || 360,
+            : deviceData.layerProps?.orientation?.yaw || 0,
+        to: 360 - (deviceData.layerProps?.orientation?.yaw || 0) || 360,
         duration: 2000,
         repeat: Infinity,
         ease: linear,
         onUpdate: (rotation) => {
-          const newLayers = updateLayer({
-            id: deviceId,
-            rotation,
-            position: latestLocationRef.current[deviceId],
-            hasPositionTransition: false,
-            isDeviceSelected: true,
-          })
+          const newDevicesData = Object.entries(devices).map(
+            ([key, device]) => {
+              if (device.id === deviceData.id) {
+                return [
+                  key,
+                  {
+                    ...device,
+                    layerProps: {
+                      ...device.layerProps,
+                      orientation: {
+                        ...device.layerProps?.orientation,
+                        yaw: rotation,
+                      },
+                    },
+                  },
+                ]
+              }
 
-          deckRef.current?.setProps({
-            layers: newLayers,
-          })
+              return [key, device]
+            }
+          )
 
-          layerRef.current = newLayers || []
+          const newDevices = Object.fromEntries(newDevicesData)
+
+          const newLayers = createDevicesLayers(newDevices, 'visible')
+
+          if (newLayers.length) {
+            deckRef.current?.setProps({
+              layers: newLayers,
+            })
+          }
         },
       })
-
-      stopAnimation.current = animation.stop
     },
-    [devices, map, modelType]
+    [devices]
   )
 
   return <></>
