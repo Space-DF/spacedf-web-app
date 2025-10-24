@@ -80,18 +80,13 @@ const DeckglLayers = () => {
 
   useEffect(() => {
     if (prevModelType !== modelType && map) {
-      const zoom = map.getZoom()
-      map?.easeTo({
-        pitch: modelType === '2d' ? 0 : 90,
-        zoom: zoom >= 18 ? zoom - 3 : zoom,
-      })
+      handleZoom()
     }
   }, [prevModelType, modelType, map])
 
   useEffect(() => {
     if (!map) return
 
-    console.log({ isClusterVisible })
     if (!isClusterVisible) {
       showDeviceLayerOnMap(modelType)
     } else {
@@ -183,6 +178,19 @@ const DeckglLayers = () => {
       stopDeviceRotation()
     }
   }, [deviceSelected, devices, modelType])
+
+  const handleZoom = () => {
+    if (!map) return
+    const zoom = map.getZoom()
+
+    const pitch = modelType === '2d' ? 0 : 90
+    map?.easeTo({
+      pitch,
+
+      zoom: zoom >= 18 ? zoom - 3 : zoom,
+      essential: true,
+    })
+  }
 
   const showDeviceLayerOnMap = (modelType: '2d' | '3d') => {
     if (modelType === '2d') {

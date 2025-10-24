@@ -65,7 +65,6 @@ const MapClusters = () => {
     })
 
     map.on('zoomend', () => {
-      handleClusterVisibleChange(map)
       updateCluster(map)
     })
 
@@ -272,6 +271,10 @@ const MapClusters = () => {
       })
     }
 
+    const hasCluster = !!clusterFeatures.length
+
+    updateBooleanState('isClusterVisible', hasCluster)
+
     // Update points source
     if (map.getSource('unclustered-points')) {
       ;(map.getSource('unclustered-points') as any)?.setData({
@@ -351,31 +354,6 @@ const MapClusters = () => {
         },
       })
     }
-  }
-
-  const handleClusterVisibleChange = (map: mapboxgl.Map) => {
-    if (!map || !supercluster.current) return
-
-    const zoom = map.getZoom()
-    const bounds = map.getBounds()
-    if (!bounds) return
-
-    const bbox = [
-      bounds.getWest(),
-      bounds.getSouth(),
-      bounds.getEast(),
-      bounds.getNorth(),
-    ]
-
-    const deviceCount = Object.keys(devices).length
-    const clusters = supercluster.current?.getClusters(bbox as any, zoom)
-
-    const hasCluster =
-      clusters.some((f: any) => !!f.properties.cluster) ||
-      deviceCount === 1 ||
-      zoom < MaxZoom + 1
-
-    updateBooleanState('isClusterVisible', hasCluster)
   }
 
   return <></>
