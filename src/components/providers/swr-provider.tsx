@@ -7,6 +7,7 @@ const SWRProvider = ({ children }: PropsWithChildren) => {
       value={{
         fetcher: (url) => fetch(url).then((res) => res.json()),
         provider: () => new Map(),
+        revalidateOnFocus: false,
       }}
     >
       {children}

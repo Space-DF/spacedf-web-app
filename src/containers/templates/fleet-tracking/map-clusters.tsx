@@ -95,6 +95,28 @@ const MapClusters = () => {
     }
   }, [map, devices])
 
+  useEffect(() => {
+    if (!map || !supercluster.current) return
+
+    const devicesArray = Object.values(devices)
+
+    //   // Convert to GeoJSON and load
+    const geoJsonPoints = devicesArray.map((device) => ({
+      type: 'Feature',
+      properties: device,
+      geometry: {
+        type: 'Point',
+        coordinates: [
+          device.latestLocation?.[0] ?? 0,
+          device.latestLocation?.[1] ?? 0,
+        ],
+      },
+    }))
+    supercluster.current.load(geoJsonPoints as any)
+
+    updateCluster(map)
+  }, [devices, map])
+
   // useEffect(() => {
   //   setClusterImagePath(
   //     resolvedTheme === 'dark'
@@ -257,8 +279,6 @@ const MapClusters = () => {
         features: pointFeatures,
       })
     }
-
-    window.supercluster = supercluster.current as any
   }
 
   const initializeCluster = (map: mapboxgl.Map) => {
@@ -347,9 +367,12 @@ const MapClusters = () => {
       bounds.getNorth(),
     ]
 
+    const deviceCount = Object.keys(devices).length
     const clusters = supercluster.current?.getClusters(bbox as any, zoom)
 
-    const hasCluster = clusters.some((f: any) => !!f.properties.cluster)
+    const hasCluster =
+      clusters.some((f: any) => !!f.properties.cluster) ||
+      (deviceCount === 1 && zoom < MaxZoom + 1)
 
     updateBooleanState('isClusterVisible', hasCluster)
   }
