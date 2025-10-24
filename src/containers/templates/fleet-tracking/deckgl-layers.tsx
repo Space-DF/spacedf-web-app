@@ -90,7 +90,6 @@ const DeckglLayers = () => {
 
   useEffect(() => {
     if (!map) return
-    console.log({ isClusterVisible })
 
     if (!isClusterVisible) {
       showDeviceLayerOnMap(modelType)
@@ -386,7 +385,6 @@ const DeckglLayers = () => {
 
   const initializeDeviceMarker = useCallback(() => {
     const deviceIds = Object.keys(devices)
-    console.log({ deviceIds })
 
     if (!map || !deviceIds.length) return
 
