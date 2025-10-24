@@ -91,6 +91,7 @@ const DeckglLayers = () => {
   useEffect(() => {
     if (!map) return
 
+    console.log({ isClusterVisible })
     if (!isClusterVisible) {
       showDeviceLayerOnMap(modelType)
     } else {
