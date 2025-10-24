@@ -1,9 +1,9 @@
 export const formatValueEUI = (value: string) => {
-  const digitsOnly = value.replace(/\D/g, '')
+  const hexOnly = value.replace(/[^0-9A-Fa-f]/g, '')
 
   const groups = []
-  for (let i = 0; i < digitsOnly.length; i += 2) {
-    groups.push(digitsOnly.substring(i, i + 2))
+  for (let i = 0; i < hexOnly.length; i += 2) {
+    groups.push(hexOnly.substring(i, i + 2))
   }
 
   return groups.join(' ')

@@ -1,9 +1,8 @@
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { deviceSpaces as dummyDevice } from '@/data/dummy-data'
-import { auth } from '@/lib/auth'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { isDemoSubdomain } from '@/utils/server-actions'
+import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 const GET = async (
@@ -12,7 +11,7 @@ const GET = async (
 ) => {
   const { limit = 10, offset = 0, spaceSlug } = params
   try {
-    const session = await auth()
+    const session = await readSession()
     if (!session || !spaceSlug)
       return NextResponse.json([dummyDevice[0]], {
         status: 200,
@@ -24,7 +23,7 @@ const GET = async (
       })
     }
     const client = await spaceClient()
-    client.setAccessToken(session.user.access)
+    client.setAccessToken(session?.user?.access as string)
     const devices = await client.deviceSpaces.list(
       { include_latest_checkpoint: true, offset: +offset, limit: +limit },
       {

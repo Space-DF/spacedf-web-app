@@ -7,6 +7,7 @@ declare module '@auth/core/types' {
       refresh: string
     } & DefaultSession['user'] &
       User
+    error?: string
   }
 
   interface User {
@@ -24,5 +25,7 @@ declare module '@auth/core/jwt' {
   interface JWT {
     access: string
     refresh: string
+    accessTokenExpires?: number
+    error?: string
   }
 }

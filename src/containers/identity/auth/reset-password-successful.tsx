@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { useAuthForm } from './stores/useAuthForm'
 import { useShallow } from 'zustand/react/shallow'
-import { useSession } from 'next-auth/react'
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useIdentityStore } from '@/stores/identity-store'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 export const ResetPasswordSuccessful = () => {
   const t = useTranslations('signUp')
@@ -22,14 +22,14 @@ export const ResetPasswordSuccessful = () => {
     }))
   )
 
-  const session = useSession()
+  const isAuthenticated = useAuthenticated()
   const router = useRouter()
 
   const handleLogin = useCallback(() => {
-    if (!session.data?.user) return setFormType('signIn')
+    if (!isAuthenticated) return setFormType('signIn')
     setOpenDrawer(false)
     router.replace('/')
-  }, [session.data?.user, setFormType, router, setOpenDrawer])
+  }, [isAuthenticated, setFormType, router, setOpenDrawer])
 
   return (
     <div className="space-y-6 flex flex-col items-center justify-center  w-full animate-opacity-display-effect self-start">

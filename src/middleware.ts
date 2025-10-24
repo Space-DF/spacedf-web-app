@@ -18,7 +18,6 @@ export default async function middleware(request: NextRequest) {
   const defaultLocale = (cookies().get('NEXT_LOCALE')?.value || 'en') as Locale
 
   let [, locale, ...segments] = request.nextUrl.pathname.split('/')
-
   const host = request.headers.get('host')
 
   const isLocaleValid = locales.includes(locale as Locale)

@@ -1,4 +1,4 @@
-import { getSession, signOut } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -29,38 +29,6 @@ class FetchInstance {
 
   setInterceptors(interceptors: Interceptor) {
     this.interceptors = interceptors
-  }
-
-  private async handleRefreshToken(): Promise<boolean> {
-    if (this.refreshTokenPromise) {
-      return this.refreshTokenPromise
-    }
-
-    // Tạo promise mới cho refresh token
-    this.refreshTokenPromise = this.performRefreshToken()
-
-    try {
-      const result = await this.refreshTokenPromise
-      return result
-    } finally {
-      this.refreshTokenPromise = null
-      this.pendingRequests.forEach((resolve) => resolve())
-      this.pendingRequests = []
-    }
-  }
-
-  private async performRefreshToken(): Promise<boolean> {
-    try {
-      const session = await getSession()
-      const refreshTokenResponse = await fetch('/api/auth/refresh-token', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: session?.user?.refresh }),
-      })
-
-      return refreshTokenResponse.ok
-    } catch {
-      return false
-    }
   }
 
   private async waitForRefreshToken(): Promise<void> {
@@ -105,7 +73,18 @@ class FetchInstance {
       }
 
       if (!interceptedResponse.ok) {
-        throw await interceptedResponse.json()
+        const errorData = await interceptedResponse.json()
+        const error = new Error(
+          errorData.message || errorData.detail || 'Request failed'
+        ) as RequestError
+        error.response = interceptedResponse
+        error.config = requestConfig
+        Object.assign(error, {
+          status: interceptedResponse.status,
+          statusText: interceptedResponse.statusText,
+          data: errorData,
+        })
+        throw error
       }
 
       return interceptedResponse.json()
@@ -192,27 +171,9 @@ api.setInterceptors({
 
     // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
-      if (api['refreshTokenPromise']) {
-        await api['waitForRefreshToken']()
-      } else {
-        const refreshSuccess = await api['handleRefreshToken']()
-
-        if (!refreshSuccess) {
-          signOut({ redirect: false })
-          throw error
-        }
-      }
-      const lastRequest = api['lastRequest']
-      if (lastRequest) {
-        return api.request(lastRequest.url, {
-          ...lastRequest.config,
-          headers: {
-            ...lastRequest.config.headers,
-          },
-        })
-      }
+      signOut({ redirect: false })
+      window.location.href = '/'
     }
-    console.log({ error })
     throw error
   },
 })

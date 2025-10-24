@@ -1,11 +1,10 @@
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { isDemoSubdomain } from '@/utils/server-actions'
+import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextResponse, NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { DEMO_WIDGET_DASHBOARD } from '@/constants/widget'
-import { auth } from '@/lib/auth'
 
 export const POST = withAuthApiRequired(
   async (
@@ -55,7 +54,7 @@ export const GET = async (
 
   try {
     const isDemo = await isDemoSubdomain(request)
-    const session = await auth()
+    const session = await readSession()
     if (isDemo || !session?.user) {
       const currentWidgets = DEMO_WIDGET_DASHBOARD.filter(
         (dashboard) => dashboard.dashboard === dashboardId
