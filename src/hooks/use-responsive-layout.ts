@@ -5,6 +5,8 @@ export const useResponsiveLayout = (defaultLayout: number[] = [15, 85]) => {
   const [layout, setLayout] = useState(() => getResponsiveLayout(defaultLayout))
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const handleResize = () => {
       setLayout(getResponsiveLayout(defaultLayout))
     }

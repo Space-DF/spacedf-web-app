@@ -2,7 +2,7 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { COOKIES } from '@/constants'
+import { COOKIES, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
@@ -219,7 +219,7 @@ const DynamicLayout = ({
     }
 
     // Use responsive collapse threshold from hook (updates with screen size changes)
-    if (sizes[0] <= collapseThreshold) {
+    if (sizes[0] < collapseThreshold) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
       mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
@@ -228,8 +228,27 @@ const DynamicLayout = ({
       setCookie(COOKIES.MAIN_LAYOUTS, sizes)
       setCollapsed(false)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+      mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
     }
   }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleResize = () => {
+      const screenWidth = window.innerWidth
+      if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
+        setCollapsed(true)
+        setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
+        mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
+        setCookie(COOKIES.MAIN_LAYOUTS, COLLAPSED_LAYOUT)
+      }
+    }
+
+    handleResize()
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
   const getRightMinSize = () => {
@@ -260,7 +279,7 @@ const DynamicLayout = ({
         >
           <ResizablePanel
             minSize={4}
-            maxSize={18}
+            maxSize={30}
             defaultSize={sidebarWidth}
             className="duration-200"
           >
