@@ -10,7 +10,10 @@ export const getResponsiveLayout = (
 
   const screenWidth = window.innerWidth
   let sidebarWidth = defaultLayout[0]
-  if (screenWidth < 1480) {
+
+  if (screenWidth < 1024) {
+    sidebarWidth = 30
+  } else if (screenWidth < 1480) {
     sidebarWidth = 20
   } else {
     sidebarWidth = 15
@@ -27,10 +30,7 @@ export const getResponsiveCollapseThreshold = (): number => {
   if (typeof window === 'undefined') return SIDEBAR_COLLAPSE_THRESHOLDS.DESKTOP
 
   const screenWidth = window.innerWidth
-
-  if (screenWidth < RESPONSIVE_BREAKPOINTS.MOBILE) {
-    return SIDEBAR_COLLAPSE_THRESHOLDS.MOBILE
-  } else if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
+  if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
     return SIDEBAR_COLLAPSE_THRESHOLDS.TABLET
   } else if (screenWidth < RESPONSIVE_BREAKPOINTS.DESKTOP) {
     return SIDEBAR_COLLAPSE_THRESHOLDS.DESKTOP
