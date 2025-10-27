@@ -28,7 +28,7 @@ export default async function Layout({
 
   if (!isValidOrganization) {
     // Fallback to hardcoded validation for backwards compatibility
-    const isValidFallback = validateOrganizationFallback(org)
+    const isValidFallback = await validateOrganizationFallback(org)
 
     if (!isValidFallback) {
       return <OrgNotExist />
