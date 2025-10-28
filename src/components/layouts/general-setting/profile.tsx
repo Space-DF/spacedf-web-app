@@ -119,7 +119,7 @@ const Profile = () => {
       >
         <p className="mb-3 font-semibold">{t('avatar')}</p>
         <div className="mb-4 flex gap-3">
-          <Avatar className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-600">
+          <Avatar className="flex h-24 w-24 items-center justify-center bg-purple-200 dark:bg-purple-600">
             <Suspense fallback={<AvatarFallback>{t('avatar')}</AvatarFallback>}>
               <div className="relative">
                 <ImageWithBlur
@@ -127,7 +127,7 @@ const Profile = () => {
                   width={previewImageSize}
                   height={previewImageSize}
                   alt="space-df"
-                  className="size-full rounded-full object-cover"
+                  className="size-full object-cover"
                 />
               </div>
             </Suspense>

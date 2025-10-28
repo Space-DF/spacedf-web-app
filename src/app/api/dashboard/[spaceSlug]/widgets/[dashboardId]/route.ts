@@ -63,6 +63,7 @@ export const GET = async (
       return NextResponse.json(currentWidgets)
     }
     const spacedfClient = await spaceClient()
+    spacedfClient.setAccessToken(session?.user?.access as string)
     const widgets = await spacedfClient.dashboards.listWidgets(
       dashboardId,
       {},
