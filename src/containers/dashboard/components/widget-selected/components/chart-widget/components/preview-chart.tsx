@@ -170,6 +170,12 @@ const renderChartComponents = (
   }
 }
 
+const getColor = (source: ChartSources) => {
+  return source.color === 'default'
+    ? brandColors['component-fill-default-chart']
+    : `#${source.color}`
+}
+
 const PreviewChart: React.FC<PreviewLineChartProps> = ({
   sources,
   isSingleSource,
@@ -194,10 +200,6 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
       >
         <defs>
           {sources.map((source, index) => {
-            const color =
-              source.color === 'default'
-                ? brandColors['component-fill-default-chart']
-                : `#${source.color}`
             return (
               <linearGradient
                 key={index}
@@ -207,8 +209,16 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
                 x2="0"
                 y2="1"
               >
-                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-                <stop offset="75%" stopColor={color} stopOpacity={0.05} />
+                <stop
+                  offset="0%"
+                  stopColor={getColor(source)}
+                  stopOpacity={0.4}
+                />
+                <stop
+                  offset="75%"
+                  stopColor={getColor(source)}
+                  stopOpacity={0.05}
+                />
               </linearGradient>
             )
           })}
@@ -238,17 +248,22 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
           content={
             <div className="w-full flex justify-center">
               <div className="flex space-x-2">
-                {sources.map((source, index) => (
-                  <div key={index} className="flex items-center space-x-1">
-                    <div
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: `#${source.color}` }}
-                    />
-                    <p className="text-sm text-brand-component-text-grat">
-                      {source.legend}
-                    </p>
-                  </div>
-                ))}
+                {sources.map((source, index) => {
+                  if (!source.show_legend) {
+                    return <></>
+                  }
+                  return (
+                    <div key={index} className="flex items-center space-x-1">
+                      <div
+                        className="size-2 rounded-full"
+                        style={{ backgroundColor: getColor(source) }}
+                      />
+                      <p className="text-sm text-brand-component-text-grat">
+                        {source.legend}
+                      </p>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           }

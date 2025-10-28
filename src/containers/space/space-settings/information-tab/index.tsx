@@ -37,7 +37,14 @@ const getDefaultValue = (space: Space) => {
   }
 }
 
-export function InformationTab({ space }: { space: Space }) {
+interface InformationTabProps {
+  space: Space
+  mutateSpaceDetails: () => void
+}
+export function InformationTab({
+  space,
+  mutateSpaceDetails,
+}: InformationTabProps) {
   const t = useTranslations('space')
   const { setStep } = useSpaceSettings()
   const { setShouldBackToHome, setOpenAlertDialog } = useSpaceSettings()
@@ -76,6 +83,7 @@ export function InformationTab({ space }: { space: Space }) {
       onSuccess: () => {
         toast.success(t('space_updated_successfully'))
         form.reset(values)
+        mutateSpaceDetails()
       },
       onError: (error) => {
         toast.error(error.message || t('failed_to_update_space'))

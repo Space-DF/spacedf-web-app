@@ -10,7 +10,9 @@ import { useGetSpaceDetails } from '@/app/[locale]/[organization]/(withAuth)/spa
 
 export default function WorkspaceSettings() {
   const params = useParams()
-  const { data: spaces } = useGetSpaceDetails(params.spaceSlug as string)
+  const { data: spaces, mutate: mutateSpaceDetails } = useGetSpaceDetails(
+    params.spaceSlug as string
+  )
   const spaceDetail = spaces?.data.results?.find(
     (space) => space.slug_name === params.spaceSlug
   )
@@ -20,7 +22,10 @@ export default function WorkspaceSettings() {
       {spaceDetail && (
         <div className="relative flex min-h-dvh bg-brand-background-fill-surface">
           <SpacePreviewImage />
-          <SpaceSettings spaceDetail={spaceDetail} />
+          <SpaceSettings
+            spaceDetail={spaceDetail}
+            mutateSpaceDetails={mutateSpaceDetails}
+          />
         </div>
       )}
     </EffectLayout>

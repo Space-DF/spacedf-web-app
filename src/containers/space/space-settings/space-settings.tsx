@@ -13,7 +13,14 @@ import { UserList } from '@/components/icons'
 
 type Step = 'information' | 'delete'
 
-export function SpaceSettings({ spaceDetail }: { spaceDetail: Space }) {
+interface SpaceSettingsProps {
+  spaceDetail: Space
+  mutateSpaceDetails: () => void
+}
+export function SpaceSettings({
+  spaceDetail,
+  mutateSpaceDetails,
+}: SpaceSettingsProps) {
   const t = useTranslations()
   const { step } = useSpaceSettings()
 
@@ -46,7 +53,10 @@ export function SpaceSettings({ spaceDetail }: { spaceDetail: Space }) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent className="mt-0 h-full" value="information">
-                <InformationTab space={spaceDetail} />
+                <InformationTab
+                  space={spaceDetail}
+                  mutateSpaceDetails={mutateSpaceDetails}
+                />
               </TabsContent>
               <TabsContent className="mt-0 h-full" value="member">
                 <MemberTab space={spaceDetail} />

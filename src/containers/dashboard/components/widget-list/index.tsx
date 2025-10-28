@@ -19,7 +19,6 @@ import {
   ArrowUpRight,
   ChevronsUpDown,
   Grid2x2Plus,
-  Pencil,
   PlusIcon,
 } from 'lucide-react'
 import {
@@ -46,6 +45,9 @@ import { useDeleteDashboard } from '../../hooks/useDeleteDashboard'
 import { useDashboard } from '../../hooks/useDashboard'
 import { useUpdateWidgets } from './hooks/useUpdateWidgets'
 import { toast } from 'sonner'
+import { WidgetAction } from './components/widget-action'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useIdentityStore } from '@/stores/identity-store'
 
 interface Props {
   onCloseSideBar: () => void
@@ -80,7 +82,10 @@ export const WidgetList: React.FC<Props> = ({
     setDashboardId,
   } = useDashboardStore()
   const t = useTranslations()
-
+  const isAuthenticated = useAuthenticated()
+  const setOpenDrawerIdentity = useIdentityStore(
+    (state) => state.setOpenDrawerIdentity
+  )
   const [open, setOpen] = useState(false)
 
   const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
@@ -118,6 +123,7 @@ export const WidgetList: React.FC<Props> = ({
 
   const handleCreateNewDashBoard = async () => {
     if (isDemo) return
+    if (!isAuthenticated) return setOpenDrawerIdentity(true)
     const dashboard = await createDashboard({ name: 'Unnamed Dashboard' })
     setOpen(false)
     setDashboardId(dashboard.id)
@@ -279,38 +285,15 @@ export const WidgetList: React.FC<Props> = ({
         )
       }
       externalButton={
-        !isViewAllDashboard && (
-          <div className="flex gap-2 ">
-            {isEdit ? (
-              <div className="w-full flex flex-1 gap-2">
-                <Button
-                  onClick={handleCancelEdit}
-                  variant="outline"
-                  className="dark:bg-transparent"
-                >
-                  {t('dashboard.cancel')}
-                </Button>
-                <Button
-                  onClick={handleSaveDashboard}
-                  className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
-                  loading={isUpdatingWidgets}
-                >
-                  {t('dashboard.save')}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={() => {
-                  setEdit(true)
-                }}
-                size="icon"
-                className="size-8 gap-2 rounded-lg"
-              >
-                <Pencil size={16} />
-              </Button>
-            )}
-          </div>
-        )
+        <WidgetAction
+          isViewAllDashboard={isViewAllDashboard}
+          isEdit={isEdit}
+          handleCancelEdit={handleCancelEdit}
+          handleSaveDashboard={handleSaveDashboard}
+          isUpdatingWidgets={isUpdatingWidgets}
+          setEdit={setEdit}
+          dashboardId={dashboardId}
+        />
       }
     >
       <div className="mt-4">
