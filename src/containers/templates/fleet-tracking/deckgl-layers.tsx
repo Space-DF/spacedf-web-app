@@ -10,6 +10,7 @@ import { animate, easeOut, linear } from 'popmotion'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
+//? function to animate the marker move
 function animateMarkerMove(
   marker: mapboxgl.Marker,
   from: mapboxgl.LngLat,
@@ -22,6 +23,7 @@ function animateMarkerMove(
     const elapsed = time - start
     const t = Math.min(elapsed / duration, 1)
 
+    //? calculate the new longitude and latitude
     const lng = from.lng + (to.lng - from.lng) * t
     const lat = from.lat + (to.lat - from.lat) * t
 
@@ -65,8 +67,6 @@ const DeckglLayers = () => {
       }))
     )
 
-  const prevModelType = usePrevious(modelType)
-
   const { devices, deviceModels, setDeviceSelected, deviceSelected } =
     useDeviceStore(
       useShallow((state) => ({
@@ -78,12 +78,12 @@ const DeckglLayers = () => {
       }))
     )
 
-  useEffect(() => {
-    if (prevModelType !== modelType && map) {
-      handleZoom()
-    }
-  }, [prevModelType, modelType, map])
+  const prevModelType = usePrevious(modelType)
 
+  const prevDeviceSelected = usePrevious(deviceSelected)
+  const prevDevices: Record<string, Device> = usePrevious(devices) || {}
+
+  //? use effect to show/hide the device layer when the cluster is visible/hidden
   useEffect(() => {
     if (!map) return
 
@@ -95,6 +95,80 @@ const DeckglLayers = () => {
     }
   }, [isClusterVisible, modelType, prevModelType, devices])
 
+  //? use effect to handle devices count changed so we need to add/remove the markers
+  useEffect(() => {
+    if (!devices) return
+    const currentDeviceCount = Object.keys(devices).length
+    const prevDeviceCount = Object.keys(prevDevices).length
+
+    if (!markerRef.current || !map) return
+    if (currentDeviceCount === prevDeviceCount || !markerRef.current) return
+
+    const handleDeviceSelected = (deviceId: string) => {
+      setDeviceSelected(deviceId)
+    }
+
+    const deviceCountIncrease = currentDeviceCount - prevDeviceCount > 0
+
+    if (deviceCountIncrease) {
+      const firstMarker = Object.values(
+        markerRef.current!
+      )[0] as mapboxgl.Marker
+
+      const newDeviceIds = Object.keys(devices).filter(
+        (deviceId) => !Object.keys(prevDevices).includes(deviceId)
+      )
+
+      newDeviceIds.forEach((deviceId) => {
+        const deviceData = devices[deviceId]
+
+        if (!deviceData) return
+
+        const newEl = firstMarker.getElement().cloneNode(true) as HTMLElement
+        newEl.id = `marker-${deviceId}`
+
+        const newMarkerOptions: mapboxgl.MarkerOptions = {
+          element: newEl,
+          anchor: 'center',
+          pitchAlignment: 'viewport',
+          rotationAlignment: 'viewport',
+        }
+
+        newEl.addEventListener('click', () => {
+          handleDeviceSelected(deviceId)
+        })
+
+        const newMarker = new mapboxgl.Marker(newEl, newMarkerOptions)
+        newMarker.setLngLat(deviceData.latestLocation!)
+        newMarker.addTo(map)
+        markerRef.current![deviceId] = newMarker
+      })
+    } else {
+      const removedDeviceIds = Object.keys(prevDevices).filter(
+        (deviceId) => !Object.keys(devices).includes(deviceId)
+      )
+
+      removedDeviceIds.forEach((deviceId) => {
+        const marker = markerRef.current![deviceId]
+        if (!marker) return
+        marker.remove()
+
+        delete markerRef.current![deviceId]
+      })
+    }
+
+    return () => {
+      Object.keys(markerHandlersRef.current).forEach((deviceId) => {
+        const handler = markerHandlersRef.current![deviceId]
+        if (!handler) return
+        handler()
+      })
+
+      markerHandlersRef.current = {}
+    }
+  }, [devices, prevDevices, map])
+
+  //? use effect to update the marker size when the zoom changes
   useEffect(() => {
     const updateMarkerSize = () => {
       if (!map) return
@@ -123,7 +197,7 @@ const DeckglLayers = () => {
       })
     }
 
-    // Initial sizing
+    //? initial sizing
     map?.on('zoom', updateMarkerSize)
 
     return () => {
@@ -131,6 +205,29 @@ const DeckglLayers = () => {
     }
   }, [map])
 
+  //? use effect to update the pitch when the model type changes
+  useEffect(() => {
+    if (!map) return
+
+    const handleModelTypeUpdated = (event: any) => {
+      const { modelType } = event.detail
+      const newPitch = modelType === '2d' ? 0 : 90
+
+      map?.easeTo({
+        pitch: newPitch,
+        duration: 500,
+        essential: true,
+      })
+    }
+
+    window.addEventListener('modelTypeUpdated', handleModelTypeUpdated)
+
+    return () => {
+      window.removeEventListener('modelTypeUpdated', handleModelTypeUpdated)
+    }
+  }, [map])
+
+  //? use effect to initialize the deck and device markers
   useEffect(() => {
     if (map && map.getCanvasContainer() && !deckRef.current) {
       initializeDeck(map)
@@ -158,6 +255,7 @@ const DeckglLayers = () => {
     }
   }, [map])
 
+  //? use effect to start device rotation when the model type is 3d
   useEffect(() => {
     if (!deviceSelected || modelType !== '3d' || !map) return
 
@@ -166,32 +264,33 @@ const DeckglLayers = () => {
     if (!device) return
 
     startDeviceRotation(device)
-
-    map?.flyTo({
-      center: device.latestLocation,
-      zoom: 19,
-      duration: 1000,
-      essential: true,
-    })
-
     return () => {
       stopDeviceRotation()
     }
   }, [deviceSelected, devices, modelType])
 
-  const handleZoom = () => {
-    if (!map) return
-    const zoom = map.getZoom()
+  //? use effect to zoom to the selected device when it changes
+  useEffect(() => {
+    if (!map || !deviceSelected || deviceSelected === prevDeviceSelected) return
+    const device = devices[deviceSelected]
+    if (!device) return
+    let timeoutId: any = null
 
-    const pitch = modelType === '2d' ? 0 : 90
-    map?.easeTo({
-      pitch,
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    timeoutId = setTimeout(() => {
+      map?.easeTo({
+        center: device.latestLocation,
+        zoom: 18,
+        duration: 500,
+        essential: true,
+        pitch: modelType === '3d' ? 90 : 0,
+      })
+    }, 200)
+  }, [map, deviceSelected, devices, prevDeviceSelected, modelType])
 
-      zoom: zoom >= 18 ? zoom - 3 : zoom,
-      essential: true,
-    })
-  }
-
+  //? function to show the device layer on the map
   const showDeviceLayerOnMap = (modelType: '2d' | '3d') => {
     if (modelType === '2d') {
       stopDeviceRotation()
@@ -205,6 +304,7 @@ const DeckglLayers = () => {
     }
   }
 
+  //? function to hide the device layer on the map
   const hideDeviceLayerOnMap = (modelType: '2d' | '3d') => {
     stopDeviceRotation()
     if (modelType === '2d') {
@@ -216,6 +316,7 @@ const DeckglLayers = () => {
     }
   }
 
+  //? function to handle the marker visible
   const handleMarkerVisible = () => {
     if (!markerRef.current) return
     let timeoutId: any
@@ -243,6 +344,7 @@ const DeckglLayers = () => {
       const deviceId = marker.getElement()?.id.split('marker-')[1]
       const currentDeviceLocation = devices[deviceId ?? '']?.latestLocation
 
+      //? if the marker is not at the same position as the device, animate the marker to the device
       if (
         currentPos.lng !== currentDeviceLocation?.[0] ||
         currentPos.lat !== currentDeviceLocation?.[1]
@@ -254,8 +356,9 @@ const DeckglLayers = () => {
 
         animateMarkerMove(marker, currentPos, newLngLat)
 
+        //? if the device is selected and the marker is not at the same position as the device, zoom to the device
         if (deviceSelected === deviceId) {
-          map?.flyTo({
+          map?.easeTo({
             center: newLngLat,
             zoom: 19,
             duration: 1000,
@@ -266,6 +369,7 @@ const DeckglLayers = () => {
     })
   }
 
+  //? function to handle the marker hidden
   const handleMarkerHidden = () => {
     if (!markerRef.current) return
     let timeoutId: any
@@ -286,6 +390,7 @@ const DeckglLayers = () => {
     })
   }
 
+  //? function to handle the device 3d model
   const handleDevice3DModel = (type: 'visible' | 'hidden' = 'visible') => {
     const deviceIds = Object.keys(devices)
     if (!deviceIds.length) return
@@ -299,6 +404,7 @@ const DeckglLayers = () => {
     })
   }
 
+  //? function to create the devices layers
   const createDevicesLayers = (
     devices: Record<string, Device>,
     type: 'visible' | 'hidden' = 'visible'
@@ -341,7 +447,7 @@ const DeckglLayers = () => {
         pickable: true,
         opacity: type === 'visible' ? 1 : 0,
         onClick: ({ object }) => {
-          if (object) setDeviceSelected(object.id)
+          setDeviceSelected(object.id)
         },
         transitions: {
           getPosition: {
@@ -354,6 +460,8 @@ const DeckglLayers = () => {
           },
           getOrientation: { duration: 800, easing: easeOut },
         },
+
+        //? update triggers for the devices layers
         updateTriggers: {
           getPosition: group.map((d) => [
             d.latestLocation?.[0],
@@ -392,13 +500,14 @@ const DeckglLayers = () => {
     map.addControl(deckRef.current)
   }
 
-  const initializeDeviceMarker = useCallback(() => {
+  const initializeDeviceMarker = () => {
     const deviceIds = Object.keys(devices)
 
     if (!map || !deviceIds.length) return
 
     const deviceMarkers: Record<string, mapboxgl.Marker | null> = {}
 
+    //? loop through the devices and create the markers
     deviceIds.forEach((deviceId) => {
       const device = devices[deviceId]
 
@@ -414,7 +523,7 @@ const DeckglLayers = () => {
     })
 
     markerRef.current = deviceMarkers
-  }, [devices, map])
+  }
 
   const createDeviceMarker = useCallback(
     (deviceData: Device) => {
@@ -427,6 +536,7 @@ const DeckglLayers = () => {
         setDeviceSelected(deviceData.id)
       }
 
+      //? add the handler to the marker click event
       el.addEventListener('click', handleClick)
 
       markerHandlersRef.current[deviceData.id] = () => {

@@ -25,6 +25,7 @@ const FleetTracking = () => {
   const mapRefContainer = useRef<HTMLDivElement>(null)
   const deckRef = useRef<Deck | null>(null)
   const isFirstLoad = useRef(true)
+  const isFirstZoom = useRef(true)
   const geolocateControlRef = useRef<mapboxgl.GeolocateControl | null>(null)
 
   const { resolvedTheme } = useTheme()
@@ -174,20 +175,26 @@ const FleetTracking = () => {
 
   useEffect(() => {
     if (!isMapReady) return
-    zoomToDevice(deviceIds, true)
+    if (isFirstZoom.current) {
+      zoomToDevice(deviceIds, true)
+      isFirstZoom.current = false
+    }
   }, [isMapReady, JSON.stringify(deviceIds)])
 
   useEffect(() => {
     if (!isMapReady || !map) return
 
-    if (deviceSelected && deviceSelected !== previousDeviceSelected) {
-      zoomToDevice([deviceSelected], false)
-    }
-
     if (!deviceSelected && previousDeviceSelected && map?.getZoom() > minZoom) {
-      zoomToDevice([previousDeviceSelected], true)
+      zoomToSingleDevice([devices[previousDeviceSelected]], false, 16)
     }
-  }, [isMapReady, deviceSelected, previousDeviceSelected, modelType, map])
+  }, [
+    isMapReady,
+    deviceSelected,
+    previousDeviceSelected,
+    modelType,
+    map,
+    devices,
+  ])
 
   const renderMapResources = useCallback(
     async (map: mapboxgl.Map, mapType: MapType) => {
@@ -259,14 +266,22 @@ const FleetTracking = () => {
     }
   }
 
-  const zoomToSingleDevice = (listDevice: Device[], isFirstLoad: boolean) => {
+  const zoomToSingleDevice = (
+    listDevice: Device[],
+    isFirstLoad: boolean,
+    zoomLevel?: number
+  ) => {
     if (!map) return
     const [lng, lat] = listDevice[0].latestLocation || [0, 0]
+
+    console.log({ lat, lng })
     if (!lng || !lat) return
 
-    map.flyTo({
+    map.easeTo({
       center: [lng, lat],
-      zoom: isFirstLoad ? 17 : 19,
+      zoom: isFirstLoad ? 17 : zoomLevel || 19,
+      duration: 500,
+      essential: true,
       pitch: modelType === '3d' ? 90 : 0,
     })
   }
