@@ -48,7 +48,7 @@ export const delay = async (delayMsTime: number = 0) => {
   })
 }
 
-export const getClientOrganization = async () => {
+export const getClientOrganization = () => {
   if (typeof window !== 'undefined') {
     // On client side, get the host from window
     return Cookies.get('organization') || ''
