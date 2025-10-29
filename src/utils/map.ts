@@ -1,7 +1,9 @@
 import { DEVICE_LAYER_PROPERTIES } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import { DeviceSpace } from '@/types/device-space'
+import { Checkpoint } from '@/types/trip'
 import { ConfigSpecification } from 'mapbox-gl'
+import { getClientOrganization } from './common'
 
 type MapType = 'default' | '3D_map' | 'street'
 const getMapStyle = (
@@ -88,8 +90,40 @@ export function calculateTotalDistance(
   return totalDistance.toFixed(2) // km
 }
 
+const dummyTestingLocations = [
+  [108.22135225454248, 16.059130598128093],
+  [108.22135225454248, 16.059130598128093],
+  [126.9970831, 37.550263],
+  [108.6690844, 15.5036719],
+]
+
+const formatCheckpoint = (
+  latestCheckpoint?: Checkpoint,
+  dataIndex?: number
+): [number, number] => {
+  //#region: TODO: Handle data for testing. Remove this later.
+  if (dataIndex !== undefined && !latestCheckpoint) {
+    if (dummyTestingLocations[dataIndex])
+      return dummyTestingLocations[dataIndex] as [number, number]
+    return [108.22135225454248, 16.059130598128093]
+  }
+  //#endregion
+
+  if (!latestCheckpoint) {
+    return [108.22135225454248, 16.059130598128093]
+  }
+
+  return [latestCheckpoint.longitude, latestCheckpoint.latitude]
+}
+
 export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
-  return deviceSpace.map((device) => {
+  const currentOrg = getClientOrganization()
+
+  const orgTestingEnv = process.env.NEXT_PUBLIC_ORG_TESTING_ENV
+
+  const isDataTesting = currentOrg === orgTestingEnv
+
+  return deviceSpace.map((device, index) => {
     return {
       ...device.device,
       name: device.name,
@@ -98,26 +132,20 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
       layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
       type: device.device.type || 'rak',
       histories: {
-        end: device.latest_checkpoint
-          ? [
-              device.latest_checkpoint?.longitude,
-              device.latest_checkpoint?.latitude,
-            ]
-          : [108.22135225454248, 16.059130598128093],
+        end: formatCheckpoint(
+          device.latest_checkpoint,
+          isDataTesting ? index : undefined
+        ),
       },
-      latestLocation: device.latest_checkpoint
-        ? [
-            device.latest_checkpoint?.longitude,
-            device.latest_checkpoint?.latitude,
-          ]
-        : [108.22135225454248, 16.059130598128093],
+      latestLocation: formatCheckpoint(
+        device.latest_checkpoint,
+        isDataTesting ? index : undefined
+      ),
       realtimeTrip: [
-        device.latest_checkpoint
-          ? [
-              device.latest_checkpoint?.longitude,
-              device.latest_checkpoint?.latitude,
-            ]
-          : [108.22135225454248, 16.059130598128093],
+        formatCheckpoint(
+          device.latest_checkpoint,
+          isDataTesting ? index : undefined
+        ),
       ],
       origin: 'Vietnam',
       description: device.description,
