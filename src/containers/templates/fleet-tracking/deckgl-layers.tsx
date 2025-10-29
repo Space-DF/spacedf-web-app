@@ -95,6 +95,7 @@ const DeckglLayers = () => {
     }
   }, [isClusterVisible, modelType, prevModelType, devices])
 
+  //? use effect to handle devices count changed so we need to add/remove the markers
   useEffect(() => {
     if (!devices) return
     const currentDeviceCount = Object.keys(devices).length

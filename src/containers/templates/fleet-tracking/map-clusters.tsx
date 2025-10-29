@@ -20,11 +20,12 @@ const MapClusters = () => {
     }))
   )
 
-  const { map, updateBooleanState } = useFleetTrackingStore(
+  const { map, updateBooleanState, mapType } = useFleetTrackingStore(
     useShallow((state) => ({
       map: state.map,
       isClusterVisible: state.isClusterVisible,
       updateBooleanState: state.updateBooleanState,
+      mapType: state.mapType,
     }))
   )
 
@@ -116,14 +117,7 @@ const MapClusters = () => {
     updateCluster(map)
   }, [devices, map])
 
-  // useEffect(() => {
-  //   setClusterImagePath(
-  //     resolvedTheme === 'dark'
-  //       ? '/images/cluster-dark.png'
-  //       : '/images/cluster-light.png'
-  //   )
-  // }, [resolvedTheme])
-
+  //? use effect to handle theme changed so we need to update the cluster image
   useEffect(() => {
     if (!map) return
 
@@ -141,8 +135,9 @@ const MapClusters = () => {
       map.addImage('cluster-gradient', image as any)
       updateCluster(map)
     })
-  }, [map, resolvedTheme])
+  }, [map, resolvedTheme, mapType])
 
+  //? use effect to handle cluster clicked so we need to zoom to the cluster
   useEffect(() => {
     if (!map) return
     const handleClusterClicked = (e: mapboxgl.MapMouseEvent) => {
