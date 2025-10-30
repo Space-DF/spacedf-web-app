@@ -12,8 +12,6 @@ export class MQTTRouter {
       const payloadString = new TextDecoder().decode(payload)
       const payloadJson: MQTTMessagePayload = JSON.parse(payloadString)
 
-      console.log('📥 MQTT received', topic, payloadJson)
-
       // Find and execute matching handlers
       const matchingHandlers = this.handlers.filter((handler) =>
         handler.canHandle(topic)

@@ -49,7 +49,9 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
   }
 
   private parseDeviceData(payload: MQTTMessagePayload): Partial<Device> {
-    const deviceUpdate: Partial<Device> = {}
+    const deviceUpdate: Partial<Device> = {
+      ...payload,
+    }
 
     // Handle location updates
     if (payload.location?.latitude && payload.location?.longitude) {

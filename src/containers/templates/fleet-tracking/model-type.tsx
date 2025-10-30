@@ -18,7 +18,7 @@ export const ModelType = () => {
   )
 
   return (
-    <div className="absolute top-3 right-20">
+    <div className="absolute top-3 right-20 model-type-control">
       <ToggleGroup
         onValueChange={(value) => {
           if (!value) return

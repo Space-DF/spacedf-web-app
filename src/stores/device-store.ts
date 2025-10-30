@@ -1,3 +1,4 @@
+import { DEVICE_LAYER_PROPERTIES } from '@/constants/device-property'
 import { LorawanDevice } from '@/types/device'
 import { Checkpoint } from '@/types/trip'
 import {
@@ -94,21 +95,19 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     },
 
     setDeviceState: (deviceId, data) => {
-      console.log('🔄 [DEBUG] Device state update triggered:', {
-        deviceId,
-        updateData: data,
-        timestamp: new Date().toISOString(),
-      })
       return set((state) => {
-        const previousState = state.devices[deviceId]
-        const newState = { ...previousState, ...data }
+        const previousState: Device = state.devices[deviceId]
+          ? state.devices[deviceId]
+          : {
+              type: 'rak',
+              layerProps: DEVICE_LAYER_PROPERTIES['rak'],
+              id: deviceId,
+              name: 'Unknown-' + deviceId,
+              status: 'active',
+              histories: [data.latestLocation],
+            }
 
-        console.log('🔄 [DEBUG] Device state change:', {
-          deviceId,
-          before: previousState,
-          after: newState,
-          changes: data,
-        })
+        const newState = { ...previousState, ...data }
 
         return {
           devices: {

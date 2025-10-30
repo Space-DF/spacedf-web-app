@@ -14,6 +14,7 @@ import { memo, useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import DeckglLayers from './deckgl-layers'
 import MapClusters from './map-clusters'
+import { MapControl } from './map-control'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
 
@@ -26,7 +27,7 @@ const FleetTracking = () => {
   const deckRef = useRef<Deck | null>(null)
   const isFirstLoad = useRef(true)
   const isFirstZoom = useRef(true)
-  const geolocateControlRef = useRef<mapboxgl.GeolocateControl | null>(null)
+  const isNeedToHandleGeolocateDenied = useRef(true)
 
   const { resolvedTheme } = useTheme()
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
@@ -86,19 +87,8 @@ const FleetTracking = () => {
       antialias: true,
     })
 
-    const geolocateControl = new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-      showUserHeading: true,
-    })
-    geolocateControlRef.current = geolocateControl
-    map.addControl(geolocateControl)
-
     map.once('load', () => {
       map.resize()
-      map.addControl(new mapboxgl.NavigationControl())
 
       setTimeout(() => {
         updateBooleanState('isMapReady', true)
@@ -118,6 +108,9 @@ const FleetTracking = () => {
       })
 
       map.on('zoomend', async () => {
+        if (isNeedToHandleGeolocateDenied.current) {
+          isNeedToHandleGeolocateDenied.current = false
+        }
         if (isFirstLoad.current) {
           isFirstLoad.current = false
         } else {
@@ -196,6 +189,30 @@ const FleetTracking = () => {
     devices,
   ])
 
+  useEffect(() => {
+    if (!map) return
+
+    const handleGeolocateDenied = () => {
+      if (!isNeedToHandleGeolocateDenied.current) return
+      map.flyTo({
+        center: [108.20623, 16.047079], // fallback: Vietnam center
+        zoom: 5,
+        pitch: 0,
+      })
+
+      isNeedToHandleGeolocateDenied.current = false
+    }
+
+    window.addEventListener('spacedf_geolocate_denied', handleGeolocateDenied)
+
+    return () => {
+      window.removeEventListener(
+        'spacedf_geolocate_denied',
+        handleGeolocateDenied
+      )
+    }
+  }, [map])
+
   const renderMapResources = useCallback(
     async (map: mapboxgl.Map, mapType: MapType) => {
       if (mapType === 'default') {
@@ -232,40 +249,6 @@ const FleetTracking = () => {
     ]
   }
 
-  const zoomToDefault = async (_: Device[], isFirstLoad: boolean) => {
-    if (!map) return
-
-    if (geolocateControlRef.current) {
-      geolocateControlRef.current.trigger()
-
-      if (isFirstLoad) {
-        const onLocate = (e: any) => {
-          map.flyTo({
-            center: [e.coords.longitude, e.coords.latitude],
-            zoom: 17,
-            pitch: 0,
-          })
-          geolocateControlRef.current?.off('geolocate', onLocate)
-          geolocateControlRef.current?.off('error', onError)
-        }
-
-        const onError = (err: any) => {
-          console.warn('Could not get user location:', err)
-          map.flyTo({
-            center: [108.20623, 16.047079], // fallback: Vietnam center
-            zoom: 5,
-            pitch: 0,
-          })
-          geolocateControlRef.current?.off('geolocate', onLocate)
-          geolocateControlRef.current?.off('error', onError)
-        }
-
-        geolocateControlRef.current.on('geolocate', onLocate)
-        geolocateControlRef.current.on('error', onError)
-      }
-    }
-  }
-
   const zoomToSingleDevice = (
     listDevice: Device[],
     isFirstLoad: boolean,
@@ -274,13 +257,12 @@ const FleetTracking = () => {
     if (!map) return
     const [lng, lat] = listDevice[0].latestLocation || [0, 0]
 
-    console.log({ lat, lng })
     if (!lng || !lat) return
 
-    map.easeTo({
+    map.flyTo({
       center: [lng, lat],
       zoom: isFirstLoad ? 17 : zoomLevel || 19,
-      duration: 500,
+      duration: isFirstLoad ? 6000 : 500,
       essential: true,
       pitch: modelType === '3d' ? 90 : 0,
     })
@@ -308,7 +290,6 @@ const FleetTracking = () => {
     string,
     (listDevice: Device[], isFirstLoad: boolean) => void
   > = {
-    '0': zoomToDefault,
     '1': zoomToSingleDevice,
     multi: zoomToMultipleDevices,
   }
@@ -318,9 +299,11 @@ const FleetTracking = () => {
       if (!map) return
       const listDevice = deviceId.map((id) => devices?.[id]).filter(Boolean)
 
+      if (listDevice.length === 0) return
+
       const count = listDevice?.length
 
-      const key = count === 0 ? '0' : count === 1 ? '1' : 'multi'
+      const key = count === 1 ? '1' : 'multi'
       const zoomStrategy = strategies[key]
 
       zoomStrategy?.(listDevice, isFirstLoad)
@@ -351,6 +334,7 @@ const FleetTracking = () => {
       <SpacedfLogo />
       <DeckglLayers />
       <SelectMapType />
+      <MapControl />
       {!!deviceIds.length && <ModelType />}
 
       <MapClusters />
