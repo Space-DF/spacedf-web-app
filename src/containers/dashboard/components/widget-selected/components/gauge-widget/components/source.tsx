@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ChevronDown, PlusIcon } from 'lucide-react'
-import { mockDeviceData } from '../../chart-widget/components/single-source'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -31,6 +30,7 @@ import { GaugeType } from '@/widget-models/gauge'
 import ColorSelect from '../../color-select'
 import { Button } from '@/components/ui/button'
 import XCircle from '@/components/icons/x-circle'
+import { useGetDevices } from '@/hooks/useDevices'
 
 const mockFieldData = [
   {
@@ -56,6 +56,8 @@ const Source = () => {
     name: 'source.values',
   })
 
+  const { data: devices = [] } = useGetDevices()
+
   const [min, max] = useWatch({
     control,
     name: ['source.min', 'source.max'],
@@ -73,15 +75,29 @@ const Source = () => {
     e: ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    const value = Number(e.target.value)
-    if (value > max || value < min) return
-    setValue(`source.values.${index}.value`, +value)
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (inputValue === '') {
+      setValue(`source.values.${index}.value`, 0)
+      return
+    }
+    if (isNaN(numericValue)) return
+    if (numericValue > max) return setValue(`source.values.${index}.value`, max)
+    if (numericValue < min) return setValue(`source.values.${index}.value`, min)
+    setValue(`source.values.${index}.value`, numericValue)
   }
 
   const handleDecimalChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value)
-    if (value > 10 || value < 0) return
-    setValue('source.decimal', value)
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (inputValue === '') {
+      setValue('source.decimal', 0)
+      return
+    }
+    if (isNaN(numericValue)) return
+    if (numericValue > 10) return setValue('source.decimal', 10)
+    if (numericValue < 0) return setValue('source.decimal', 0)
+    setValue('source.decimal', numericValue)
   }
 
   const handleUnitChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,11 +139,17 @@ const Source = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                     <SelectGroup>
-                      {mockDeviceData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {device.name}
+                      {devices.length > 0 ? (
+                        devices.map((device) => (
+                          <SelectItem value={device.id} key={device.id}>
+                            {device.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no_device" key="no_device" disabled>
+                          {t('no_devices_found')}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -229,9 +251,6 @@ const Source = () => {
               </FormLabel>
               <FormControl>
                 <Input
-                  min={0}
-                  max={10}
-                  type="number"
                   {...field}
                   onChange={handleDecimalChange}
                   isError={!!fieldState.error}
@@ -329,9 +348,6 @@ const Source = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          type="number"
-                          min={min}
-                          max={max}
                           onChange={(e) => handleValueChange(e, index)}
                           isError={!!fieldState.error}
                         />

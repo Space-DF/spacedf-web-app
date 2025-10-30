@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import {
   FormControl,
   FormField,
@@ -17,9 +17,9 @@ import {
 } from '@/components/ui/select'
 import { ValuePayload } from '@/validator'
 import { ChevronDown } from 'lucide-react'
-import { mockDeviceData } from '../../chart-widget/components/single-source'
 import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
+import { useGetDevices } from '@/hooks/useDevices'
 
 const mockFieldData = [
   {
@@ -35,7 +35,24 @@ const mockFieldData = [
 const Source = () => {
   const form = useFormContext<ValuePayload>()
   const { control } = form
+
+  const { data: devices = [] } = useGetDevices()
+
   const t = useTranslations('dashboard')
+
+  const handleDecimalChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (inputValue === '') {
+      form.setValue('source.decimal', 0)
+      return
+    }
+    if (isNaN(numericValue)) return
+    if (numericValue > 10) return form.setValue('source.decimal', 10)
+    if (numericValue < 0) return form.setValue('source.decimal', 0)
+    form.setValue('source.decimal', numericValue)
+  }
+
   return (
     <div className="space-y-4 mb-2">
       <div className="grid grid-cols-2 gap-2 gap-y-4">
@@ -69,11 +86,17 @@ const Source = () => {
                   </SelectTrigger>
                   <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                     <SelectGroup>
-                      {mockDeviceData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {device.name}
+                      {devices.length > 0 ? (
+                        devices.map((device) => (
+                          <SelectItem value={device.id} key={device.id}>
+                            {device.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no_device" key="no_device" disabled>
+                          {t('no_devices_found')}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -151,10 +174,8 @@ const Source = () => {
             </FormLabel>
             <FormControl>
               <Input
-                min={0}
-                max={10}
-                type="number"
                 {...field}
+                onChange={handleDecimalChange}
                 isError={!!fieldState.error}
               />
             </FormControl>

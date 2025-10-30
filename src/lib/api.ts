@@ -1,5 +1,3 @@
-import { signOut } from 'next-auth/react'
-
 type RequestConfig = RequestInit & {
   baseURL?: string
   timeout?: number
@@ -19,9 +17,6 @@ type RequestError = Error & {
 class FetchInstance {
   private interceptors: Interceptor = {}
   private timeout: number
-  private lastRequest?: { url: string; config: RequestConfig }
-  private refreshTokenPromise: Promise<boolean> | null = null
-  private pendingRequests: Array<() => void> = []
 
   constructor(config: { baseURL: string; timeout?: number }) {
     this.timeout = config.timeout || 30000
@@ -29,12 +24,6 @@ class FetchInstance {
 
   setInterceptors(interceptors: Interceptor) {
     this.interceptors = interceptors
-  }
-
-  private async waitForRefreshToken(): Promise<void> {
-    return new Promise((resolve) => {
-      this.pendingRequests.push(resolve)
-    })
   }
 
   private async fetchWithTimeout(
@@ -59,7 +48,6 @@ class FetchInstance {
 
   async request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
     try {
-      this.lastRequest = { url: endpoint, config }
       let requestConfig = { ...config }
       if (this.interceptors.onRequest) {
         requestConfig = await this.interceptors.onRequest(requestConfig)
@@ -167,12 +155,6 @@ api.setInterceptors({
       if (error.name === 'AbortError') {
         throw new Error('Request timeout')
       }
-    }
-
-    // Handle 401 Unauthorized errors
-    if (error.response?.status === 401) {
-      signOut({ redirect: false })
-      window.location.href = '/'
     }
     throw error
   },

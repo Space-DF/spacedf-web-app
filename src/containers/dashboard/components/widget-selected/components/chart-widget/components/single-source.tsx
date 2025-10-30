@@ -43,6 +43,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
 import { ChartPayload } from '@/validator'
+import { useGetDevices } from '@/hooks/useDevices'
 
 export const mockDeviceData = [
   {
@@ -85,6 +86,7 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
+  const { data: devices = [] } = useGetDevices()
   const form = useFormContext<ChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
   const [isLegendManualChange, setIsLegendManualChange] = useState(false)
@@ -93,8 +95,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
 
   const selectDevice = useMemo(
     () =>
-      mockDeviceData.find((device) => device.id === deviceId)?.name ||
-      t('add_device'),
+      devices.find((device) => device.id === deviceId)?.name || t('add_device'),
     [deviceId]
   )
 
@@ -210,11 +211,21 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                           </SelectTrigger>
                           <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                             <SelectGroup>
-                              {mockDeviceData.map((device) => (
-                                <SelectItem value={device.id} key={device.id}>
-                                  {device.name}
+                              {devices.length > 0 ? (
+                                devices.map((device) => (
+                                  <SelectItem value={device.id} key={device.id}>
+                                    {device.name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem
+                                  value="no_device"
+                                  key="no_device"
+                                  disabled
+                                >
+                                  {t('no_devices_found')}
                                 </SelectItem>
-                              ))}
+                              )}
                             </SelectGroup>
                           </SelectContent>
                         </Select>

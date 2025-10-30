@@ -53,8 +53,7 @@ export const gaugeSchema = z.object({
     from: z.date({ required_error: 'Please select date from' }).optional(),
     until: z.date({ required_error: 'Please select date until' }).optional(),
     resolution: z
-      .string()
-      .regex(/^\d*$/, 'Only numbers are allowed')
+      .number({ invalid_type_error: 'Only numbers are allowed' })
       .optional(),
     type: z.enum(
       [

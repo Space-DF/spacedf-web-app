@@ -5,8 +5,8 @@ import { NEXTAUTH_SECRET } from '@/shared/env'
 import { SpaceDFClient } from './spacedf'
 import { JWT } from 'next-auth/jwt'
 
-const MINUTES_EXPIRE = 60
-const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 58 * 1000
+const MINUTES_EXPIRE = 58
+const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
 
 async function performRefresh(token: JWT): Promise<JWT> {
   try {
@@ -77,7 +77,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       if (token) {
         session.user.access = token.access
         session.user.refresh = token.refresh
-        session.error = token.error
+        session.user.error = token.error
       }
       return {} as Session
     },

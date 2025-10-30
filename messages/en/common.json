@@ -69,5 +69,6 @@
   "oops_something_went_wrong": "Oops! Something went wrong.",
   "go_to_space_df": "Go to SpaceDF",
   "create_new_organization": "Create a new organization",
-  "powered_by": "Powered by"
+  "powered_by": "Powered by",
+  "session_expired": "Session expired, please login again"
 }
