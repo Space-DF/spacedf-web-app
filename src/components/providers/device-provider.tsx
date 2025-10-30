@@ -12,6 +12,7 @@ import MqttService from '@/lib/mqtt'
 import { transformDeviceData } from '@/utils/map'
 import { useGetDevices } from '@/hooks/useDevices'
 import { useGlobalStore } from '@/stores'
+import { toast } from 'sonner'
 // import { useIsDemo } from '@/hooks/useIsDemo'
 // import { useAuthenticated } from '@/hooks/useAuthenticated'
 
@@ -69,10 +70,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // - Check for alerts (low battery, geofence violations)
     // - Log device activity
     // - Trigger notifications
-    console.log(
-      `📍 Device ${data.deviceId} telemetry updated:`,
-      data.deviceUpdate
-    )
   }
 
   useEffect(() => {
@@ -85,26 +82,32 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     const deviceTelemetryHandler = new DeviceTelemetryHandler()
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
 
-    console.log(
-      '📡 MQTT handlers registered:',
-      mqttRouterRef.current.getRegisteredHandlers()
-    )
-
     // Initialize MQTT connection
     mqttServiceRef.current = MqttService.getInstance()
     mqttServiceRef.current.initialize()
 
     mqttServiceRef.current.setEventCallbacks({
+      onReconnect: () => {
+        toast.info('MQTT reconnecting...', {
+          position: 'bottom-right',
+        })
+      },
       onConnect: () => {
-        console.log('✅ MQTT connected')
+        toast.success('MQTT connected', {
+          position: 'bottom-right',
+        })
         // Subscribe to device telemetry (handler parses all devices)
         mqttServiceRef.current?.subscribe('device/+/telemetry')
       },
       onDisconnect: () => {
-        console.log('❌ MQTT disconnected')
+        toast.error('MQTT disconnected', {
+          position: 'bottom-right',
+        })
       },
       onError: (err) => {
-        console.log('❌ MQTT error:', err)
+        toast.error('MQTT error: ' + err.message, {
+          position: 'bottom-right',
+        })
       },
       onMessage: (topic: string, payload: Buffer) => {
         // Route through handler system and get parsed results

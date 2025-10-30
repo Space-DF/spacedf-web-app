@@ -24,6 +24,7 @@ export interface MqttEventCallbacks {
   onDisconnect?: () => void
   onError?: (error: Error) => void
   onMessage?: (topic: string, payload: Buffer) => void
+  onReconnect?: () => void
 }
 
 class MqttService {
@@ -76,32 +77,28 @@ class MqttService {
     this.client = mqtt.connect(this.brokerUrl, this.options)
 
     this.client.on('connect', () => {
-      console.log('✅ MQTT connected')
       this.connectionStatus = 'connected'
       this.eventCallbacks.onConnect?.()
       this.resubscribeToTopics()
     })
 
     this.client.on('error', (err) => {
-      console.error('❌ MQTT Connection Error:', err)
       this.connectionStatus = 'error'
       this.eventCallbacks.onError?.(err)
     })
 
     this.client.on('close', () => {
-      console.log('🔌 MQTT Connection Closed')
       this.connectionStatus = 'disconnected'
       this.client = null
       this.eventCallbacks.onDisconnect?.()
     })
 
     this.client.on('reconnect', () => {
-      console.log('🔄 MQTT reconnecting...')
       this.connectionStatus = 'connecting'
+      this.eventCallbacks.onReconnect?.()
     })
 
     this.client.on('offline', () => {
-      console.log('📱 MQTT offline')
       this.connectionStatus = 'disconnected'
     })
 
@@ -157,7 +154,7 @@ class MqttService {
       if (subscription) {
         this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
           if (!err) {
-            console.log(`📡 Resubscribed to ${topic}`)
+            // console.log(`📡 Resubscribed to ${topic}`)
           } else {
             console.error(`❌ Failed to resubscribe to ${topic}:`, err)
           }
@@ -184,7 +181,7 @@ class MqttService {
     if (this.client && this.connectionStatus === 'connected') {
       this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
         if (!err) {
-          console.log(`📡 Subscribed to ${topic}`)
+          // console.log(`📡 Subscribed to ${topic}`)
         } else {
           console.error(`❌ Failed to subscribe to ${topic}:`, err)
         }
@@ -198,7 +195,7 @@ class MqttService {
     if (this.client && this.connectionStatus === 'connected') {
       this.client.unsubscribe(topic, (err) => {
         if (!err) {
-          console.log(`📡 Unsubscribed from ${topic}`)
+          // console.log(`📡 Unsubscribed from ${topic}`)
         } else {
           console.error(`❌ Failed to unsubscribe from ${topic}:`, err)
         }
