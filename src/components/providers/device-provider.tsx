@@ -70,6 +70,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // - Check for alerts (low battery, geofence violations)
     // - Log device activity
     // - Trigger notifications
+    // TODO: Please remove this console.log after testing
+    console.log(
+      `📍 Device ${data.deviceId} telemetry updated:`,
+      data.deviceUpdate
+    )
   }
 
   useEffect(() => {
@@ -93,6 +98,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         })
       },
       onConnect: () => {
+        console.log('✅ MQTT connected')
         toast.success('MQTT connected', {
           position: 'bottom-right',
         })
@@ -100,6 +106,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         mqttServiceRef.current?.subscribe('device/+/telemetry')
       },
       onDisconnect: () => {
+        console.log('❌ MQTT disconnected')
         toast.error('MQTT disconnected', {
           position: 'bottom-right',
         })
