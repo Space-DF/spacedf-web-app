@@ -154,7 +154,7 @@ class MqttService {
       if (subscription) {
         this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
           if (!err) {
-            // console.log(`📡 Resubscribed to ${topic}`)
+            console.log(`📡 Resubscribed to ${topic}`)
           } else {
             console.error(`❌ Failed to resubscribe to ${topic}:`, err)
           }
@@ -181,7 +181,7 @@ class MqttService {
     if (this.client && this.connectionStatus === 'connected') {
       this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
         if (!err) {
-          // console.log(`📡 Subscribed to ${topic}`)
+          console.log(`📡 Subscribed to ${topic}`)
         } else {
           console.error(`❌ Failed to subscribe to ${topic}:`, err)
         }
@@ -195,7 +195,7 @@ class MqttService {
     if (this.client && this.connectionStatus === 'connected') {
       this.client.unsubscribe(topic, (err) => {
         if (!err) {
-          // console.log(`📡 Unsubscribed from ${topic}`)
+          console.log(`📡 Unsubscribed from ${topic}`)
         } else {
           console.error(`❌ Failed to unsubscribe from ${topic}:`, err)
         }
