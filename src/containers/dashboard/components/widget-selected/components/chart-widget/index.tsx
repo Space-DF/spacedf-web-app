@@ -19,6 +19,7 @@ import ChartWidgetInfo from './components/widget-info'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
+import { useShowDummyData } from '@/hooks/useShowDummyData'
 
 interface Props {
   selectedWidget: WidgetType
@@ -99,15 +100,16 @@ const ChartWidget: React.FC<Props> = ({
 
   const chartValue = form.getValues()
 
-  const sourcesData = useWatch({
-    control,
-    name: 'sources',
-  })
-  const isSingleSource = sourcesData.length === 1
-
-  const widgetName = useWatch({ control, name: 'widget_info.name' })
-
-  const [showData, orientation, unit, hideAxis, showXGrid, format] = useWatch({
+  const [
+    showData,
+    orientation,
+    unit,
+    hideAxis,
+    showXGrid,
+    format,
+    widgetName,
+    sourcesData,
+  ] = useWatch({
     control,
     name: [
       'widget_info.appearance.show_value',
@@ -116,8 +118,15 @@ const ChartWidget: React.FC<Props> = ({
       'axes.hide_axis',
       'axes.is_show_grid',
       'axes.format',
+      'widget_info.name',
+      'sources',
     ],
   })
+
+  const isSingleSource = sourcesData.length === 1
+
+  const showDummyData = useShowDummyData()
+
   const handleAddChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
@@ -136,6 +145,8 @@ const ChartWidget: React.FC<Props> = ({
     }
     createWidget(newWidgetData)
   }
+
+  const lastOrderValue = showDummyData ? dailyOrders.at(-1)?.['source.0'] : 0
 
   return (
     <RightSideBarLayout
@@ -166,7 +177,7 @@ const ChartWidget: React.FC<Props> = ({
                 <div className="grid grid-cols-1">
                   {sourcesData.length === 1 && (
                     <p className="truncate text-lg font-bold">
-                      {`${dailyOrders.at(-1)?.['source.0']} ${unit}`}
+                      {`${lastOrderValue} ${unit}`}
                     </p>
                   )}
                   <PreviewChart

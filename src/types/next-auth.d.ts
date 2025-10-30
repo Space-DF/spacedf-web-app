@@ -7,12 +7,12 @@ declare module '@auth/core/types' {
       refresh: string
     } & DefaultSession['user'] &
       User
-    error?: string
   }
 
   interface User {
     access: string
     refresh: string
+    error?: string
   }
 
   interface Account {

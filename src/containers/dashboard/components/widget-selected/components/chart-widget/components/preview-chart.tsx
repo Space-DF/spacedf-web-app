@@ -19,6 +19,7 @@ import {
   LabelList,
 } from 'recharts'
 import { brandColors } from '@/configs'
+import { useShowDummyData } from '@/hooks/useShowDummyData'
 
 const chartConfig = {
   desktop: {
@@ -185,9 +186,9 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   showXGrid = false,
   format = TimeFormat.FULL_DATE_MONTH_YEAR,
 }) => {
-  const data = generateData(format)
+  const showDummyData = useShowDummyData()
+  const data = showDummyData ? generateData(format) : []
   return (
-    // <div className="space-y-1">
     <ChartContainer
       config={chartConfig}
       className="size-full"

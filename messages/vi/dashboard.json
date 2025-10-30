@@ -123,5 +123,6 @@
   "widgets_updated_successfully": "Tiện ích đã được cập nhật thành công",
   "widgets_update_failed": "Tiện ích đã được cập nhật thất bại",
   "device_removed_successfully": "Thiết bị đã được xóa thành công",
-  "failed_to_remove_device": "Thiết bị đã được xóa thất bại"
+  "failed_to_remove_device": "Thiết bị đã được xóa thất bại",
+  "no_devices_found": "Không tìm thấy thiết bị"
 }

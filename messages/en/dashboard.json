@@ -123,5 +123,6 @@
   "widgets_updated_successfully": "Widgets updated successfully",
   "widgets_update_failed": "Widgets update failed",
   "device_removed_successfully": "Device removed successfully",
-  "failed_to_remove_device": "Failed to remove device"
+  "failed_to_remove_device": "Failed to remove device",
+  "no_devices_found": "No devices found"
 }

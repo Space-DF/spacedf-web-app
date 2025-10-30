@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Popover,
@@ -148,6 +148,14 @@ const TimeFrame = () => {
     }
   }, [])
 
+  const handleResolutionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (isNaN(numericValue) || inputValue === '')
+      return form.setValue('timeframe.resolution', 0)
+    form.setValue('timeframe.resolution', numericValue)
+  }
+
   return (
     <Tabs
       value={activeTab}
@@ -286,6 +294,7 @@ const TimeFrame = () => {
                       <Input
                         className="border-input"
                         {...field}
+                        onChange={handleResolutionChange}
                         isError={!!fieldState.error}
                       />
                     </FormControl>

@@ -46,8 +46,7 @@ export const chartSchema = z
       from: z.date({ required_error: 'Please select date from' }),
       until: z.date({ required_error: 'Please select date until' }),
       resolution: z
-        .string()
-        .regex(/^\d*$/, 'Only numbers are allowed')
+        .number({ invalid_type_error: 'Only numbers are allowed' })
         .optional(),
       type: z.enum(
         [

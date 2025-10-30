@@ -62,5 +62,6 @@
   "oops_something_went_wrong": "Oops! Có lỗi xảy ra.",
   "go_to_space_df": "Vào SpaceDF",
   "create_new_organization": "Tạo tổ chức mới",
-  "powered_by": "Phát triển bởi"
+  "powered_by": "Phát triển bởi",
+  "session_expired": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"
 }
