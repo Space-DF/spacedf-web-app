@@ -152,7 +152,7 @@ export const MapControl = () => {
   }, [bearing])
 
   return (
-    <div className="mapbox-custom-controls fixed top-3.5 right-4 z-50 flex flex-col gap-3">
+    <div className="mapbox-custom-controls absolute top-3.5 right-4 z-50 flex flex-col gap-3">
       <Button
         className="bg-muted rounded-lg border shadow cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-600 hover:dark:text-slate-500"
         variant="ghost"

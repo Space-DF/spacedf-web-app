@@ -172,12 +172,12 @@ const ChartWidget: React.FC<Props> = ({
             <div className="rounded-lg bg-brand-component-fill-gray-soft p-2">
               <div className="space-y-3 rounded-md bg-brand-background-fill-outermost p-3">
                 <p className="truncate font-semibold text-brand-component-text-dark">
-                  {widgetName}
+                  {widgetName} {unit ? `(${unit})` : ''}
                 </p>
                 <div className="grid grid-cols-1">
                   {sourcesData.length === 1 && (
                     <p className="truncate text-lg font-bold">
-                      {`${lastOrderValue} ${unit}`}
+                      {`${lastOrderValue}`}
                     </p>
                   )}
                   <PreviewChart
