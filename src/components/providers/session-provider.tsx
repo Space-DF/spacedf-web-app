@@ -7,7 +7,6 @@ import { SessionProvider, signIn } from 'next-auth/react'
 import { PropsWithChildren, useCallback, useEffect } from 'react'
 import LoadingFullScreen from '../ui/loading-fullscreen'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SessionWatcher } from './session-watcher'
 
 export const NextAuthSessionProvider = ({
   children,
@@ -39,8 +38,7 @@ export const NextAuthSessionProvider = ({
   }
 
   return (
-    <SessionProvider session={session} refetchOnWindowFocus>
-      <SessionWatcher />
+    <SessionProvider session={session}>
       {children}
       <Identity />
     </SessionProvider>
