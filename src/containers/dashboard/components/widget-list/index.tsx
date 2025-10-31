@@ -168,7 +168,7 @@ export const WidgetList: React.FC<Props> = ({
   }, [currentWidgetLayout])
 
   useEffect(() => {
-    if (dashboards.length > 0) {
+    if (dashboards.length > 0 && !dashboardId) {
       setDashboardId(dashboards[0].id)
       return
     }
@@ -176,7 +176,7 @@ export const WidgetList: React.FC<Props> = ({
       setDashboardId(undefined)
       return
     }
-  }, [JSON.stringify(dashboards), dashboardId])
+  }, [dashboards, dashboardId])
 
   const currentDashboardName = useMemo(() => {
     if (dashboardId) {
