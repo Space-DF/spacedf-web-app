@@ -126,6 +126,7 @@ const DeckglLayers = () => {
 
         const newEl = firstMarker.getElement().cloneNode(true) as HTMLElement
         newEl.id = `marker-${deviceId}`
+        newEl.className = `${deviceData.type}-marker`
 
         const newMarkerOptions: mapboxgl.MarkerOptions = {
           element: newEl,
@@ -257,6 +258,7 @@ const DeckglLayers = () => {
 
   //? use effect to start device rotation when the model type is 3d
   useEffect(() => {
+    console.log({ devices })
     if (!deviceSelected || modelType !== '3d' || !map) return
 
     const device = devices[deviceSelected]
@@ -538,10 +540,6 @@ const DeckglLayers = () => {
 
       //? add the handler to the marker click event
       el.addEventListener('click', handleClick)
-
-      markerHandlersRef.current[deviceData.id] = () => {
-        el.removeEventListener('click', handleClick)
-      }
 
       // Add style for opacity and transition
       el.style.display = 'none'
