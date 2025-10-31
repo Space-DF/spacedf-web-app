@@ -2,6 +2,7 @@ import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useExpandable } from '@/hooks/useExandable'
+import { Nodata } from '../ui'
 
 interface ExpandableListProps<T> {
   items: T[]
@@ -30,6 +31,7 @@ const ExpandableList = <T,>({
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
+      {!items.length && <Nodata />}
       {visibleItems.map((item, index) => renderItem(item, index, true))}
       <div
         className="overflow-hidden transition-all duration-700 ease-in-out"

@@ -24,6 +24,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
 import { useAuthForm } from './stores/useAuthForm'
+import { mutate } from 'swr'
 
 const singInSchema = z.object({
   email: z
@@ -66,6 +67,7 @@ const SignInForm = () => {
           toast.error(t('sign_in_failed_please_try_again'))
         } else {
           setOpenDrawer(false)
+          mutate(() => true, undefined, { revalidate: true })
         }
       } catch (error) {
         console.error({ error })
