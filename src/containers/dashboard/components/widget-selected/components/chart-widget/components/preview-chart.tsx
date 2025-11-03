@@ -247,19 +247,22 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
         <Tooltip />
         <Legend
           content={
-            <div className="w-full flex justify-center">
-              <div className="flex space-x-2">
+            <div className="w-full overflow-x-auto custom-scrollbar scroll-smooth pb-1">
+              <div className="flex space-x-4 justify-center min-w-max">
                 {sources.map((source, index) => {
                   if (!source.show_legend) {
                     return <></>
                   }
                   return (
-                    <div key={index} className="flex items-center space-x-1">
+                    <div
+                      key={index}
+                      className="flex items-center space-x-1 flex-shrink-0"
+                    >
                       <div
                         className="size-2 rounded-full"
                         style={{ backgroundColor: getColor(source) }}
                       />
-                      <p className="text-sm text-brand-component-text-grat">
+                      <p className="text-sm text-brand-component-text-gray whitespace-nowrap">
                         {source.legend}
                       </p>
                     </div>
