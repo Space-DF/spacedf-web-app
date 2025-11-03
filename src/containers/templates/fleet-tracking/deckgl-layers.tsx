@@ -258,7 +258,6 @@ const DeckglLayers = () => {
 
   //? use effect to start device rotation when the model type is 3d
   useEffect(() => {
-    console.log({ devices })
     if (!deviceSelected || modelType !== '3d' || !map) return
 
     const device = devices[deviceSelected]
