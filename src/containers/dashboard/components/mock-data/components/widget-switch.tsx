@@ -6,18 +6,20 @@ interface WidgetSwitchProps {
   widget_info: WidgetInfo
   className?: string
   color?: string
+  checked?: boolean
 }
 
 export const WidgetSwitch = ({
   widget_info,
   className,
   color,
+  checked = true,
 }: WidgetSwitchProps) => {
   return (
     <WidgetContainer className="flex flex-col gap-1">
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <Switch
-        checked
+        defaultChecked={checked}
         className={className}
         style={{ backgroundColor: color }}
       />

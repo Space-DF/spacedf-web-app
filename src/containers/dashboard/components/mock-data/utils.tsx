@@ -81,6 +81,7 @@ export const getWidgetByType = (widget: Widget) => {
           <WidgetSwitch
             widget_info={widget.widget_info!}
             color={widget.color!}
+            checked={widget.enabled}
           />
         </div>
       )
