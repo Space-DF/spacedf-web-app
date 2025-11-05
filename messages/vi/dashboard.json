@@ -125,5 +125,9 @@
   "device_removed_successfully": "Thiết bị đã được xóa thành công",
   "failed_to_remove_device": "Thiết bị đã được xóa thất bại",
   "no_devices_found": "Không tìm thấy thiết bị",
-  "add_switch_widget": "Thêm tiện ích chuyển đổi"
+  "add_switch_widget": "Thêm tiện ích chuyển đổi",
+  "add_slider_widget": "Thêm tiện ích thanh trượt",
+  "step": "Bước",
+  "value_from": "Giá trị từ",
+  "value_to": "Giá trị đến"
 }

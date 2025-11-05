@@ -12,6 +12,7 @@ const Slider = React.forwardRef<
     classNameThumb?: string
     thumbIcon?: React.ReactNode
     classNameTrack?: string
+    thumbChildren?: React.ReactNode
   }
 >(
   (
@@ -21,6 +22,7 @@ const Slider = React.forwardRef<
       classNameThumb,
       classNameTrack,
       thumbIcon,
+      thumbChildren,
       ...props
     },
     ref
@@ -53,10 +55,12 @@ const Slider = React.forwardRef<
       ) : (
         <SliderPrimitive.Thumb
           className={cn(
-            'block size-3 rounded-full bg-brand-icon-dark shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-dark-fill-secondary',
+            'block group size-3 rounded-full bg-brand-icon-dark shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:bg-brand-dark-fill-secondary',
             classNameThumb
           )}
-        />
+        >
+          {thumbChildren}
+        </SliderPrimitive.Thumb>
       )}
     </SliderPrimitive.Root>
   )
