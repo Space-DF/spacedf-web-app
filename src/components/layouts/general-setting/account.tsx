@@ -28,8 +28,8 @@ import { useChangePassword } from './hooks/useChangePassword'
 import { toast } from 'sonner'
 import { useGeneralSetting } from './store/useGeneralSetting'
 
-const profileSchema = z
-  .object({
+const createProfileSchema = (isSetPassword: boolean) => {
+  const baseSchema = z.object({
     email: z
       .string()
       .email({ message: 'Please enter a valid email address' })
@@ -38,24 +38,35 @@ const profileSchema = z
         message: 'Email must be less than or equal to 50 characters',
       })
       .optional(),
-    current_password: currentPasswordSchema,
+    current_password: isSetPassword
+      ? currentPasswordSchema
+      : z.string().optional(),
     new_password: newPasswordSchema,
     confirm_password: confirmPasswordSchema,
   })
-  .refine((data) => data.new_password === data.confirm_password, {
-    message: 'Confirm new password must match the new password entered above',
-    path: ['confirm_password'],
-  })
+
+  return baseSchema.refine(
+    (data) => data.new_password === data.confirm_password,
+    {
+      message: 'Confirm new password must match the new password entered above',
+      path: ['confirm_password'],
+    }
+  )
+}
 
 const Account = () => {
   const t = useTranslations('generalSettings')
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowNewPassword, setIsShowNewPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
+  const { data: profile } = useProfile()
+
+  const isSetPassword = profile?.is_set_password ?? false
+  const profileSchema = createProfileSchema(isSetPassword)
+
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
-  const { data: profile } = useProfile()
 
   const { closeDialog, setCurrentSetting } = useGeneralSetting()
 
@@ -132,38 +143,40 @@ const Account = () => {
             <Switch defaultChecked />
           </div>
           <Separator className="!my-6" />
-          <FormField
-            control={form.control}
-            name="current_password"
-            render={({ field, fieldState }) => (
-              <FormItem className="flex-1">
-                <FormLabel>{t('current_password')}</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
-                    prefixCpn={<LockKeyhole size={16} />}
-                    type={isShowPassword ? 'text' : 'password'}
-                    suffixCpn={
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => setIsShowPassword(!isShowPassword)}
-                      >
-                        {isShowPassword ? (
-                          <Eye size={16} />
-                        ) : (
-                          <EyeOff size={16} />
-                        )}
-                      </span>
-                    }
-                    placeholder={t('current_password')}
-                    {...field}
-                    isError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {isSetPassword && (
+            <FormField
+              control={form.control}
+              name="current_password"
+              render={({ field, fieldState }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>{t('current_password')}</FormLabel>
+                  <FormControl>
+                    <InputWithIcon
+                      className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                      prefixCpn={<LockKeyhole size={16} />}
+                      type={isShowPassword ? 'text' : 'password'}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                        >
+                          {isShowPassword ? (
+                            <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
+                          )}
+                        </span>
+                      }
+                      placeholder={t('current_password')}
+                      {...field}
+                      isError={!!fieldState.error}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={form.control}
             name="new_password"

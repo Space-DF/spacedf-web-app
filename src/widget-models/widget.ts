@@ -11,6 +11,7 @@ export enum WidgetType {
   Sensor = 'sensor',
   Text = 'text',
   Distance = 'distance',
+  Slider = 'slider',
 }
 
 export enum AggregationFunction {

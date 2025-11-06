@@ -21,13 +21,15 @@ const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
     icon?: React.ReactNode
+    isError?: boolean
   }
->(({ className, icon, children, ...props }, ref) => (
+>(({ className, icon, children, isError, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
       'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-brand-stroke-dark-soft bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost focus:dark:ring-brand-stroke-outermost [&>span]:line-clamp-1',
-      className
+      className,
+      isError && 'ring-red-600 ring-1 bg-brand-component-fill-negative-soft'
     )}
     {...props}
   >

@@ -28,6 +28,7 @@ import { useSearchParams } from 'next/navigation'
 import useSignUp from './hooks/useSignUp'
 import { signIn } from 'next-auth/react'
 import { cn } from '@/lib/utils'
+import { mutate } from 'swr'
 
 export const OTPSchema = z.object({
   otp: z.string().min(6, {
@@ -99,6 +100,7 @@ const OTPForm = () => {
       sigUpSuccessfully: true,
       dataUser: JSON.stringify(res),
     })
+    mutate(() => true, undefined, { revalidate: true })
     setOpenDrawer(false)
     if (!token) {
       setOpenGuideline(true)

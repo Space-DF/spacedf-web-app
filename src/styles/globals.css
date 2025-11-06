@@ -348,6 +348,25 @@ video::-webkit-media-controls-start-playback-button {
   background-image: url('/images/arrows-in.svg');
 }
 
+/* Custom scrollbar utility class */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #282c3f;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -355,4 +374,8 @@ video::-webkit-media-controls-start-playback-button {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.scrollbar-custom {
+  scrollbar-width: thin;
 }

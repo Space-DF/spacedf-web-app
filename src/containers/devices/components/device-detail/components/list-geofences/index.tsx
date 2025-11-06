@@ -16,6 +16,7 @@ import { Trash2 } from '@/components/icons/trash2'
 import { useCallback, useState } from 'react'
 import ExpandableList from '@/components/common/expandable-list'
 import AddGeofence from './components/add-geofence'
+import { useShowDummyData } from '@/hooks/useShowDummyData'
 
 interface ListItem {
   id: number
@@ -75,6 +76,10 @@ const INITIAL_VISIBLE_COUNT = 2
 const ListGeofences = () => {
   const t = useTranslations('common')
   const [isAddGeofence, setIsAddGeofence] = useState(false)
+
+  const showDummyData = useShowDummyData()
+
+  const listGeofences = showDummyData ? LIST_GEOFENCES : []
 
   const renderGeofenceItem = useCallback(
     (item: ListItem, index: number, isExpanded: boolean) => {
@@ -153,7 +158,7 @@ const ListGeofences = () => {
           </Button>
         </div>
         <ExpandableList
-          items={LIST_GEOFENCES}
+          items={listGeofences}
           initialCount={INITIAL_VISIBLE_COUNT}
           renderItem={renderGeofenceItem}
         />

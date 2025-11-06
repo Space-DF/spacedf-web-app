@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import ExpandableList from '@/components/common/expandable-list'
+import { useShowDummyData } from '@/hooks/useShowDummyData'
 
 const DATE_VALUES = [
   {
@@ -79,6 +80,10 @@ const INITIAL_VISIBLE_COUNT = 2
 
 const ListEvent = () => {
   const t = useTranslations('common')
+
+  const showDummyData = useShowDummyData()
+
+  const listEvent = showDummyData ? LIST_EVENT : []
 
   const renderEventItem = useCallback(
     (item: ListItem, index: number, isExpanded: boolean) => (
@@ -163,7 +168,7 @@ const ListEvent = () => {
         </div>
       </div>
       <ExpandableList
-        items={LIST_EVENT}
+        items={listEvent}
         initialCount={INITIAL_VISIBLE_COUNT}
         renderItem={renderEventItem}
       />

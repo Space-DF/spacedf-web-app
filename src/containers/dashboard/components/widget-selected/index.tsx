@@ -7,6 +7,8 @@ import MapWidget from './components/map-widget'
 
 import GaugeWidget from './components/gauge-widget'
 import ValueWidget from './components/value-widget'
+import SwitchWidget from './components/switch-widget'
+import SliderWidget from './components/slider-widget'
 interface Props {
   selectedWidget: WidgetType
   onSaveWidget: () => void
@@ -60,6 +62,24 @@ const WidgetSelected: React.FC<Props> = ({
     case WidgetType.Value:
       return (
         <ValueWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onSaveWidget={onSaveWidget}
+          onBack={onBack}
+        />
+      )
+    case WidgetType.Switch:
+      return (
+        <SwitchWidget
+          selectedWidget={selectedWidget}
+          onClose={onClose}
+          onSaveWidget={onSaveWidget}
+          onBack={onBack}
+        />
+      )
+    case WidgetType.Slider:
+      return (
+        <SliderWidget
           selectedWidget={selectedWidget}
           onClose={onClose}
           onSaveWidget={onSaveWidget}

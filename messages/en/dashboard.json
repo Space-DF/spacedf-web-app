@@ -124,5 +124,10 @@
   "widgets_update_failed": "Widgets update failed",
   "device_removed_successfully": "Device removed successfully",
   "failed_to_remove_device": "Failed to remove device",
-  "no_devices_found": "No devices found"
+  "no_devices_found": "No devices found",
+  "add_switch_widget": "Add Switch Widget",
+  "add_slider_widget": "Add Slider Widget",
+  "step": "Step",
+  "value_from": "Value from",
+  "value_to": "Value to"
 }

@@ -7,4 +7,5 @@ export type Profile = {
   company_name?: string
   title?: string
   location?: string
+  is_set_password?: boolean
 }

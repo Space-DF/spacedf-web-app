@@ -3,7 +3,7 @@ import useSWRMutation from 'swr/mutation'
 
 const changePassword = async (
   url: string,
-  { arg }: { arg: { password: string; new_password: string } }
+  { arg }: { arg: { password?: string; new_password: string } }
 ) => api.put(url, arg)
 
 export const useChangePassword = () => {
