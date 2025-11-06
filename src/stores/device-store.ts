@@ -117,12 +117,13 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
         }
 
         const newState = { ...previousState, ...data }
-
         return {
-          devices: {
-            ...state.devices,
-            [deviceId]: newState,
-          },
+          devices: currentDevice
+            ? {
+                ...state.devices,
+                [currentDevice.id]: newState,
+              }
+            : state.devices,
         }
       })
     },
