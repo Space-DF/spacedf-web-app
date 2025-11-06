@@ -179,6 +179,9 @@ const FleetTracking = () => {
 
     if (!deviceSelected && previousDeviceSelected && map?.getZoom() > minZoom) {
       zoomToSingleDevice([devices[previousDeviceSelected]], false, 16)
+      setTimeout(() => {
+        map?.resize()
+      }, 200)
     }
   }, [
     isMapReady,
@@ -279,6 +282,23 @@ const FleetTracking = () => {
     if (!coordinates.length) return
 
     const bounds = getBoundsFromCoordinates(coordinates)
+
+    const [firstLng, firstLat] = coordinates[0]
+    const allSameLocation = coordinates.every(
+      ([lng, lat]) => lng === firstLng && lat === firstLat
+    )
+
+    if (allSameLocation) {
+      map.flyTo({
+        center: [firstLng, firstLat],
+        zoom: 18,
+        duration: isFirstLoad ? 6000 : 500,
+        essential: true,
+        pitch: modelType === '3d' ? 90 : 0,
+      })
+
+      return
+    }
 
     map.fitBounds([bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]], {
       padding: 100,

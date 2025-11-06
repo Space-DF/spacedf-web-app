@@ -108,16 +108,25 @@ const Devices = () => {
     handleDeviceTabVisible()
   }, [deviceSelected, previousDeviceSelected, JSON.stringify(dynamicLayouts)])
 
+  useEffect(() => {
+    const handle = (e: CustomEvent) => {
+      const isChecked = e.detail.checked
+      if (!isChecked) {
+        setDeviceSelected('')
+      }
+    }
+    window.addEventListener('deviceLayoutUpdated', handle as EventListener)
+    return () =>
+      window.removeEventListener('deviceLayoutUpdated', handle as EventListener)
+  }, [])
+
   const handleDeviceTabVisible = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     if (deviceSelected) {
       const isDeviceShow = dynamicLayouts.includes(NavigationEnums.DEVICES)
-
       if (!isDeviceShow) {
         const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
-
         setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-
         toggleDynamicLayout(NavigationEnums.DEVICES)
       }
     }
