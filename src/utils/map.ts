@@ -129,6 +129,7 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
       name: device.name,
       status: device.device.status as 'active' | 'inactive',
       id: device.id,
+      deviceId: device.device.id,
       layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
       type: device.device.type || 'rak',
       histories: {

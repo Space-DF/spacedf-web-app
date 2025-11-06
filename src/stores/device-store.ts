@@ -21,6 +21,7 @@ export type Device = {
   latestLocation?: [number, number]
   realtimeTrip?: [number, number][]
   origin?: string
+  deviceId?: string
 } & GpsTrackerAttributes &
   (TrackiAttributes | RakAttributes)
 
@@ -96,16 +97,18 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
-        const previousState: Device = state.devices[deviceId]
-          ? state.devices[deviceId]
-          : {
-              type: 'rak',
-              layerProps: DEVICE_LAYER_PROPERTIES['rak'],
-              id: deviceId,
-              name: 'Unknown-' + deviceId,
-              status: 'active',
-              histories: [data.latestLocation],
-            }
+        const currentDevice = Object.values(state.devices).find(
+          (device) => device.deviceId === deviceId
+        )
+        const previousState: Device = currentDevice || {
+          type: 'rak',
+          layerProps: DEVICE_LAYER_PROPERTIES['rak'],
+          id: deviceId,
+          name: 'Unknown-' + deviceId,
+          status: 'active',
+          histories: [data.latestLocation],
+          deviceId: data.deviceId,
+        }
 
         const newState = { ...previousState, ...data }
 
