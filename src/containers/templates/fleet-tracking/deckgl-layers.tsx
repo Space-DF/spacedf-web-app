@@ -291,6 +291,19 @@ const DeckglLayers = () => {
     }, 200)
   }, [map, deviceSelected, devices, prevDeviceSelected, modelType])
 
+  useEffect(() => {
+    if (!map) return
+    if (deviceSelected !== prevDeviceSelected && modelType === '3d') {
+      const resetLayers = createDevicesLayers(
+        devices,
+        isClusterVisible ? 'hidden' : 'visible'
+      )
+      deckRef.current?.setProps({
+        layers: resetLayers,
+      })
+    }
+  }, [devices, deviceSelected, prevDevices, modelType, isClusterVisible])
+
   //? function to show the device layer on the map
   const showDeviceLayerOnMap = (modelType: '2d' | '3d') => {
     if (modelType === '2d') {
