@@ -40,7 +40,10 @@ type DeviceModelAction = {
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
 
-  setDeviceState: (deviceId: string, data: Partial<Device>) => void
+  setDeviceState: (
+    deviceId: string,
+    data: Partial<Device & { device_eui: string }>
+  ) => void
 
   setDeviceHistory: (data: Checkpoint[]) => void
 }
@@ -105,6 +108,9 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
               name: 'Unknown-' + deviceId,
               status: 'active',
               histories: [data.latestLocation],
+              lorawan_device: {
+                dev_eui: data.device_eui,
+              } as LorawanDevice,
             }
 
         const newState = { ...previousState, ...data }
