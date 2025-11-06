@@ -101,7 +101,7 @@ const DeviceSelected = () => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceDataSelected?.id || ''}
+            content={deviceDataSelected?.deviceId || ''}
           />
           <InformationItem
             label={`${t('device_name')}:`}
