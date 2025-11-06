@@ -2,6 +2,9 @@
 
 import { COOKIES, NavigationData, Navigation as TNavigation } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useIsDemo } from '@/hooks/useIsDemo'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
 import { CommonModalProps } from '@/types/common'
@@ -10,6 +13,7 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { forwardRef, useEffect, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
@@ -34,10 +38,6 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
-import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
-import { useRouter } from 'next/navigation'
-import { useIsDemo } from '@/hooks/useIsDemo'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
 type SidebarChildProps = {
   setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
@@ -354,13 +354,12 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
+
   const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
 
   const isDisplayed = dynamicLayouts.includes(navigation.href)
 
   const handleCheckedChange = () => {
-    // window.mapInstance.resize()
-
     const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
 
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
@@ -399,6 +398,16 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           checked={navigation.isAlwayEnabled}
           onCheckedChange={() => {
             if (!navigation.isAlwayEnabled) {
+              if (navigation.href === 'devices') {
+                window.dispatchEvent(
+                  new CustomEvent('deviceLayoutUpdated', {
+                    detail: {
+                      checked: !dynamicLayouts.includes('devices'),
+                    },
+                  })
+                )
+              }
+
               handleCheckedChange()
             }
           }}
