@@ -13,8 +13,8 @@ import { transformDeviceData } from '@/utils/map'
 import { useGetDevices } from '@/hooks/useDevices'
 import { useGlobalStore } from '@/stores'
 import { toast } from 'sonner'
-// import { useIsDemo } from '@/hooks/useIsDemo'
-// import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useParams } from 'next/navigation'
+import { useIsDemo } from '@/hooks/useIsDemo'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -27,6 +27,15 @@ const PREVIEW_PATH = {
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const mqttServiceRef = useRef<MqttService | null>(null)
   const mqttRouterRef = useRef<MQTTRouter | null>(null)
+  const { spaceSlug, organization } = useParams<{
+    spaceSlug: string
+    organization: string
+  }>()
+  const isDemo = useIsDemo()
+  const mqttTopic =
+    spaceSlug && organization && !isDemo
+      ? `tenant/${organization}/space/${spaceSlug}/device/+/telemetry`
+      : 'tenant/all/space/all/device/+/telemetry'
 
   const {
     setDeviceModel,
@@ -57,10 +66,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     initializedDevices: false,
   })
 
-  // const isDemo = useIsDemo()
-
-  // const isAuthenticated = useAuthenticated()
-
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
     // Business logic: Update device store with parsed telemetry data
@@ -78,8 +83,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    // if (isDemo || !isAuthenticated) return
-
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()
 
@@ -88,52 +91,55 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
 
     // Initialize MQTT connection
-    mqttServiceRef.current = MqttService.getInstance()
-    mqttServiceRef.current.initialize()
+    const handleMqttConnect = async () => {
+      mqttServiceRef.current = MqttService.getInstance()
+      await mqttServiceRef.current.initialize()
 
-    mqttServiceRef.current.setEventCallbacks({
-      onReconnect: () => {
-        toast.info('MQTT reconnecting...', {
-          position: 'bottom-right',
-        })
-      },
-      onConnect: () => {
-        console.log('✅ MQTT connected')
-        toast.success('MQTT connected', {
-          position: 'bottom-right',
-        })
-        // Subscribe to device telemetry (handler parses all devices)
-        mqttServiceRef.current?.subscribe('device/+/telemetry')
-      },
-      onDisconnect: () => {
-        console.log('❌ MQTT disconnected')
-        toast.error('MQTT disconnected', {
-          position: 'bottom-right',
-        })
-      },
-      onError: (err) => {
-        toast.error('MQTT error: ' + err.message, {
-          position: 'bottom-right',
-        })
-      },
-      onMessage: (topic: string, payload: Buffer) => {
-        // Route through handler system and get parsed results
-        const results =
-          mqttRouterRef.current?.routeMessage(topic, payload) || []
+      mqttServiceRef.current.setEventCallbacks({
+        onReconnect: () => {
+          toast.info('MQTT reconnecting...', {
+            position: 'bottom-right',
+          })
+        },
+        onConnect: () => {
+          console.log('✅ MQTT connected')
+          toast.success('MQTT connected', {
+            position: 'bottom-right',
+          })
+          // Subscribe to device telemetry (handler parses all devices)
+          mqttServiceRef.current?.subscribe(mqttTopic)
+        },
+        onDisconnect: () => {
+          console.log('❌ MQTT disconnected')
+          toast.error('MQTT disconnected', {
+            position: 'bottom-right',
+          })
+        },
+        onError: (err) => {
+          toast.error('MQTT error: ' + err.message, {
+            position: 'bottom-right',
+          })
+        },
+        onMessage: (topic: string, payload: Buffer) => {
+          // Route through handler system and get parsed results
+          const results =
+            mqttRouterRef.current?.routeMessage(topic, payload) || []
 
-        // Handle each parsed result
-        results.forEach((result) => {
-          if (
-            result &&
-            typeof result === 'object' &&
-            'deviceId' in result &&
-            'deviceUpdate' in result
-          ) {
-            handleDeviceTelemetry(result as DeviceTelemetryData)
-          }
-        })
-      },
-    })
+          // Handle each parsed result
+          results.forEach((result) => {
+            if (
+              result &&
+              typeof result === 'object' &&
+              'deviceId' in result &&
+              'deviceUpdate' in result
+            ) {
+              handleDeviceTelemetry(result as DeviceTelemetryData)
+            }
+          })
+        },
+      })
+    }
+    handleMqttConnect()
   }, [])
 
   const getDevices = async () => {

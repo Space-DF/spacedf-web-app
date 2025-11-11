@@ -43,18 +43,20 @@ const ExpandableList = <T,>({
           )}
         </div>
       </div>
-      <button
-        className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
-        onClick={toggleExpand}
-      >
-        <p>{isExpanded ? 'Less' : 'More'}</p>{' '}
-        <ChevronDown
-          className={cn(
-            'size-5 transition-transform duration-300',
-            isExpanded ? 'rotate-180' : ''
-          )}
-        />
-      </button>
+      {items.length > initialCount && (
+        <button
+          className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
+          onClick={toggleExpand}
+        >
+          <p>{isExpanded ? 'Less' : 'More'}</p>{' '}
+          <ChevronDown
+            className={cn(
+              'size-5 transition-transform duration-300',
+              isExpanded ? 'rotate-180' : ''
+            )}
+          />
+        </button>
+      )}
     </div>
   )
 }

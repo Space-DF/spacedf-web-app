@@ -87,7 +87,7 @@ export const useLoadDeviceModel = (deviceId: string) => {
   )
 
   // Device data comes directly from store (updated by DeviceTelemetryHandler)
-  // No need for manual subscriptions - handler catches all device/+/telemetry automatically
+  // No need for manual subscriptions - handler catches all tenant/all/space/all/device/+/telemetry automatically
 
   const { updateClusters } = useMapGroupCluster()
 

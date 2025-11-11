@@ -27,6 +27,11 @@ export interface MqttEventCallbacks {
   onReconnect?: () => void
 }
 
+const getMqttToken = async () => {
+  const mqttToken = await fetch('/api/mqtt-token')
+  return mqttToken.json()
+}
+
 class MqttService {
   private static instance: MqttService
   public client: MqttClient | null = null
@@ -40,8 +45,6 @@ class MqttService {
     this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
     this.options = {
       clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      username: MQTT_USERNAME,
-      password: MQTT_PASSWORD,
       clean: false,
       keepalive: 30,
       reconnectPeriod: 60 * 1000,
@@ -56,25 +59,34 @@ class MqttService {
     return MqttService.instance
   }
 
-  public initialize(): void {
+  public async initialize(): Promise<void> {
     if (!this.client) {
-      this.connect()
+      await this.connect()
     }
   }
 
-  public reconnect(): void {
+  public async reconnect(): Promise<void> {
     if (this.client) {
       this.client.reconnect()
     } else {
-      this.connect()
+      await this.connect()
     }
   }
 
-  private connect(): void {
+  private async connect(): Promise<void> {
     if (this.client) return
-
+    const mqttToken = await getMqttToken()
     this.connectionStatus = 'connecting'
-    this.client = mqtt.connect(this.brokerUrl, this.options)
+    const options = {
+      ...this.options,
+      username: MQTT_USERNAME,
+      password: MQTT_PASSWORD,
+    }
+    if (mqttToken?.mqtt_token) {
+      options.username = mqttToken.mqtt_token
+      options.password = ''
+    }
+    this.client = mqtt.connect(this.brokerUrl, options)
 
     this.client.on('connect', () => {
       this.connectionStatus = 'connected'

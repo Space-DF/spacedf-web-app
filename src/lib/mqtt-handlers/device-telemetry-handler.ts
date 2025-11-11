@@ -7,7 +7,7 @@ export interface DeviceTelemetryData {
 }
 
 export class DeviceTelemetryHandler extends BaseMQTTHandler {
-  readonly topicPattern = 'device/+/telemetry'
+  readonly topicPattern = 'tenant/all/space/all/device/+/telemetry'
 
   constructor() {
     super()
