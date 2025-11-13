@@ -20,6 +20,7 @@ export interface MqttTopicSubscription {
 }
 
 export interface MqttEventCallbacks {
+  onSubscribed?: () => void
   onConnect?: () => void
   onDisconnect?: () => void
   onError?: (error: Error) => void
@@ -41,7 +42,7 @@ class MqttService {
   private eventCallbacks: MqttEventCallbacks = {}
   private connectionStatus: MqttConnectionStatus = 'disconnected'
 
-  private constructor() {
+  private constructor(organization: string) {
     this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
     this.options = {
       clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -49,12 +50,18 @@ class MqttService {
       keepalive: 30,
       reconnectPeriod: 60 * 1000,
       connectTimeout: 30 * 1000,
+      properties: {
+        userProperties: {
+          organization: organization,
+        },
+      },
+      protocolVersion: 5,
     }
   }
 
-  public static getInstance(): MqttService {
+  public static getInstance(organization: string): MqttService {
     if (!MqttService.instance) {
-      MqttService.instance = new MqttService()
+      MqttService.instance = new MqttService(organization)
     }
     return MqttService.instance
   }
@@ -176,29 +183,38 @@ class MqttService {
   }
 
   public subscribe(
-    topic: string,
+    topic: string | string[],
     options?: {
       qos?: 0 | 1 | 2
       callback?: (topic: string, payload: Buffer) => void
     }
   ): void {
-    const subscription: MqttTopicSubscription = {
-      topic,
-      qos: options?.qos || 0,
-      callback: options?.callback,
-    }
+    const topics = Array.isArray(topic) ? topic : [topic]
+    const qos = options?.qos || 0
+    let subscribed = true
+    topics.forEach((singleTopic, index) => {
+      const subscription: MqttTopicSubscription = {
+        topic: singleTopic,
+        qos,
+        callback: options?.callback,
+      }
 
-    this.subscriptions.set(topic, subscription)
+      this.subscriptions.set(singleTopic, subscription)
 
-    if (this.client && this.connectionStatus === 'connected') {
-      this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
-        if (!err) {
-          console.log(`📡 Subscribed to ${topic}`)
-        } else {
-          console.error(`❌ Failed to subscribe to ${topic}:`, err)
-        }
-      })
-    }
+      if (this.client && this.connectionStatus === 'connected') {
+        this.client.subscribe(singleTopic, { qos }, (err) => {
+          if (!err) {
+            console.log(`📡 Subscribed to ${singleTopic}`)
+            if (index === topics.length - 1 && subscribed) {
+              this.eventCallbacks.onSubscribed?.()
+            }
+          } else {
+            console.error(`❌ Failed to subscribe to ${singleTopic}:`, err)
+            subscribed = false
+          }
+        })
+      }
+    })
   }
 
   public unsubscribe(topic: string): void {
