@@ -15,6 +15,7 @@ import { useGlobalStore } from '@/stores'
 import { toast } from 'sonner'
 import { useParams } from 'next/navigation'
 import { useIsDemo } from '@/hooks/useIsDemo'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -32,10 +33,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     organization: string
   }>()
   const isDemo = useIsDemo()
+  const isAuthenticated = useAuthenticated()
+
+  const publicTopic = `tenant/${organization}/device/+/telemetry`
   const mqttTopic =
-    spaceSlug && organization && !isDemo
+    spaceSlug && organization && !isDemo && isAuthenticated
       ? `tenant/${organization}/space/${spaceSlug}/device/+/telemetry`
-      : 'tenant/all/space/all/device/+/telemetry'
+      : publicTopic
 
   const {
     setDeviceModel,
@@ -92,7 +96,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
     // Initialize MQTT connection
     const handleMqttConnect = async () => {
-      mqttServiceRef.current = MqttService.getInstance()
+      mqttServiceRef.current = MqttService.getInstance(organization)
       await mqttServiceRef.current.initialize()
 
       mqttServiceRef.current.setEventCallbacks({
@@ -102,12 +106,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
         },
         onConnect: () => {
+          mqttServiceRef.current?.subscribe([mqttTopic, publicTopic])
+        },
+        onSubscribed: () => {
           console.log('✅ MQTT connected')
           toast.success('MQTT connected', {
             position: 'bottom-right',
           })
-          // Subscribe to device telemetry (handler parses all devices)
-          mqttServiceRef.current?.subscribe(mqttTopic)
         },
         onDisconnect: () => {
           console.log('❌ MQTT disconnected')

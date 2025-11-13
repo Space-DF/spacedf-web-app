@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import MqttService from '@/lib/mqtt'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const TOPIC = 'test/topic'
 
 export const TestMQTT = () => {
   const [message, setMessage] = useState<string>('')
   const [mqttService, setMqttService] = useState<MqttService | null>(null)
-
+  const { organization } = useOrganization()
   useEffect(() => {
-    const service = MqttService.getInstance()
+    const service = MqttService.getInstance(organization)
     service.initialize()
     setMqttService(service)
 
@@ -32,8 +33,6 @@ export const TestMQTT = () => {
     const payload = 'Hello MQTT from React!'
     mqttService?.publish(TOPIC, payload, { qos: 1 })
   }
-
-  console.log('rerender')
 
   return (
     <div className="p-4">
