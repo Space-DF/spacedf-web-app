@@ -7,14 +7,24 @@ export interface DeviceTelemetryData {
 }
 
 export class DeviceTelemetryHandler extends BaseMQTTHandler {
-  readonly topicPattern = 'tenant/all/space/all/device/+/telemetry'
+  private readonly topicPatterns = [
+    'tenant/+/space/+/device/+/telemetry',
+    'tenant/+/device/+/telemetry',
+  ]
 
   constructor() {
     super()
   }
 
+  get topicPattern(): string {
+    // Return first pattern for compatibility, but we check all patterns
+    return this.topicPatterns[0]
+  }
+
   canHandle(topic: string): boolean {
-    return this.matchesWildcardPattern(topic, this.topicPattern)
+    return this.topicPatterns.some((pattern) =>
+      this.matchesWildcardPattern(topic, pattern)
+    )
   }
 
   handle(
@@ -22,7 +32,6 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
     payload: MQTTMessagePayload
   ): DeviceTelemetryData | null {
     try {
-      const _params = this.extractTopicParams(topic, this.topicPattern)
       const deviceId = this.extractDeviceId(topic)
 
       if (!deviceId) {
@@ -45,7 +54,13 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
 
   private extractDeviceId(topic: string): string | null {
     const topicParts = topic.split('/')
-    return topicParts.length >= 2 ? topicParts[1] : null
+
+    const deviceIndex = topicParts.indexOf('device')
+
+    if (deviceIndex === -1 || deviceIndex === topicParts.length - 1) {
+      return null
+    }
+    return topicParts[deviceIndex + 1] || null
   }
 
   private parseDeviceData(payload: MQTTMessagePayload): Partial<Device> {
