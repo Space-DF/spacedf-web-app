@@ -61,8 +61,10 @@ export const SelectMapType = () => {
     }
 
     fleetTrackingMap.on('load', handleLoad)
+    fleetTrackingMap.on('reattach', handleLoad)
 
     return () => {
+      fleetTrackingMap.off('reattach', handleLoad)
       fleetTrackingMap.off('load', handleLoad)
     }
   }, [])

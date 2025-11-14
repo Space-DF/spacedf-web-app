@@ -2,7 +2,8 @@
 
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { useZoomStrategies } from '@/hooks/templates/useZoomStrategies'
-import { useDeviceStore } from '@/stores/device-store'
+import { useGlobalStore } from '@/stores'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
 import { getMapStyle, MapType } from '@/utils/map'
@@ -21,8 +22,20 @@ export default function FleetTracking() {
   const fleetTrackingMapRef = useRef<HTMLDivElement>(null)
   const isFirstHandleZoom = useRef(true)
 
+  const { isGlobalLoading } = useGlobalStore(
+    useShallow((state) => ({
+      isGlobalLoading: state.isGlobalLoading,
+    }))
+  )
+
+  const { updateBooleanState } = useFleetTrackingStore(
+    useShallow((state) => ({
+      updateBooleanState: state.updateBooleanState,
+    }))
+  )
+
   //stores
-  const { devices, devicesIds, initializedSuccess } = useDeviceStore(
+  const { devices, initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       devicesIds: Object.keys(state.devices),
@@ -52,6 +65,10 @@ export default function FleetTracking() {
   }, [])
 
   useEffect(() => {
+    fleetTrackingMap.setDevices(devices)
+  }, [devices])
+
+  useEffect(() => {
     if (!fleetTrackingMapRef.current || !initializedSuccess) return
 
     const { style, config } = getMapStyle(
@@ -70,6 +87,11 @@ export default function FleetTracking() {
         preserveDrawingBuffer: true,
       })
     }
+
+    if (fleetTrackingMap.isInitialized && !isGlobalLoading) {
+      fleetTrackingMap.setContainer(fleetTrackingMapRef.current)
+    }
+
     const handleStyleLoad = (map: mapboxgl.Map) => {
       if (resolvedMapType === 'default') {
         applyMapBuilding(map)
@@ -103,15 +125,19 @@ export default function FleetTracking() {
 
     resizeObserver.observe(fleetTrackingMapRef.current)
 
+    updateBooleanState('isMapReady', true)
+
     fleetTrackingMap.on('style.load', handleStyleLoad)
 
     return () => {
       fleetTrackingMap.off('style.load', handleStyleLoad)
       resizeObserver.disconnect()
       if (resizeTimeout) clearTimeout(resizeTimeout)
-      window.location.reload()
+
+      // fleetTrackingMap.remove()
+      // window.location.reload()
     }
-  }, [initializedSuccess])
+  }, [initializedSuccess, isGlobalLoading])
 
   useEffect(() => {
     if (!fleetTrackingMap.isInitialized) return
@@ -141,24 +167,46 @@ export default function FleetTracking() {
 
   useEffect(() => {
     if (!isFirstHandleZoom.current) return
-    const handleStrategyZoom = (map: mapboxgl.Map) => {
-      if (!map) return
+
+    const handleStrategyZoom = (
+      map: mapboxgl.Map,
+      devices: Record<string, Device>
+    ) => {
+      if (!map || !Object.keys(devices).length) return
 
       isFirstHandleZoom.current = false
 
-      if (devicesIds.length > 1) {
+      if (Object.keys(devices).length > 1) {
         zoomToFitDevices(devices, map)
       }
 
-      if (devicesIds.length === 1) {
+      if (Object.keys(devices).length === 1) {
         zoomToSingleDevice(Object.values(devices)[0], map)
       }
     }
 
-    fleetTrackingMap.on('load', handleStrategyZoom)
+    fleetTrackingMap.on('load', (map: mapboxgl.Map) => {
+      const devices = fleetTrackingMap.getDevices()
+      handleStrategyZoom(map, devices)
+    })
+
+    fleetTrackingMap.on('reattach', (map: mapboxgl.Map) => {
+      isFirstHandleZoom.current = true
+      const devices = fleetTrackingMap.getDevices()
+      handleStrategyZoom(map, devices)
+    })
 
     return () => {
-      fleetTrackingMap.off('load', handleStrategyZoom)
+      fleetTrackingMap.off('reattach', (map: mapboxgl.Map) => {
+        isFirstHandleZoom.current = true
+        const devices = fleetTrackingMap.getDevices()
+        handleStrategyZoom(map, devices)
+      })
+
+      fleetTrackingMap.off('load', (map: mapboxgl.Map) => {
+        const devices = fleetTrackingMap.getDevices()
+        handleStrategyZoom(map, devices)
+      })
     }
   }, [devices])
 

@@ -79,8 +79,6 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     },
 
     setDevices: (data) => {
-      if (!data.length) return
-
       return set(() => ({
         devices: data.reduce(
           (acc, device) => ({

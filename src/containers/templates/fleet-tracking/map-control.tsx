@@ -8,13 +8,13 @@ import {
 } from '@/components/icons/map-control-icons'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useDeviceStore } from '@/stores/device-store'
 import { Expand, Shrink } from 'lucide-react'
 import mapboxgl, { NavigationControl } from 'mapbox-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
+import { useShallow } from 'zustand/react/shallow'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 const VIETNAM_CENTER: [number, number] = [108.2022, 16.0544]
@@ -26,14 +26,18 @@ export const MapControl = () => {
     null
   )
 
+  const { isMapReady } = useFleetTrackingStore(
+    useShallow((state) => ({
+      isMapReady: state.isMapReady,
+    }))
+  )
+  const mapRef = useRef<mapboxgl.Map | null>(null)
+
   const [isGeolocateAllowed, setIsGeolocateAllowed] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const isFirstAskGeoPermission = useRef(true)
 
   const [bearing, setBearing] = useState(0)
-
-  const { devices } = useDeviceStore(
-    useShallow((state) => ({ devices: state.devices }))
-  )
 
   useEffect(() => {
     const handleRotate = (map: mapboxgl.Map | null) => {
@@ -42,6 +46,8 @@ export const MapControl = () => {
     }
 
     const handleMapReady = (map: mapboxgl.Map) => {
+      mapRef.current = map
+
       mapControlRef.current = new mapboxgl.NavigationControl()
       mapFullscreenControlRef.current = new mapboxgl.FullscreenControl()
 
@@ -57,73 +63,77 @@ export const MapControl = () => {
 
     fleetTrackingMap.on('rotate', handleRotate)
     fleetTrackingMap.on('load', handleMapReady)
+    fleetTrackingMap.on('reattach', handleMapReady)
 
     return () => {
       fleetTrackingMap.off('rotate', handleRotate)
+      fleetTrackingMap.off('reattach', handleMapReady)
       fleetTrackingMap.off('load', handleMapReady)
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
   }, [])
 
   useEffect(() => {
-    const map = fleetTrackingMap.getMap()
+    if (!isMapReady) return
 
-    geolocateControlRef.current = new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-      showUserHeading: true,
-    })
+    function onGeolocate() {
+      setIsGeolocateAllowed(true)
+    }
 
-    const isEmptyDevices = !Object.keys(devices).length
+    function onError() {
+      setIsGeolocateAllowed(false)
+      isFirstAskGeoPermission.current = false
+      const map = fleetTrackingMap.getMap()
+      map?.flyTo({
+        center: VIETNAM_CENTER,
+        zoom: 5,
+        duration: 1500,
+        essential: true,
+      })
+    }
 
-    const handleMapLoad = (map: mapboxgl.Map) => {
-      if (geolocateControlRef.current) {
+    const onLoad = (map: mapboxgl.Map) => {
+      const devices = fleetTrackingMap.getDevices()
+      const isEmptyDevices = Object.keys(devices).length === 0
+
+      if (!geolocateControlRef.current) {
+        geolocateControlRef.current = new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+          showUserHeading: true,
+        })
+
         map.addControl(geolocateControlRef.current)
 
         if (isEmptyDevices) {
+          console.log('request')
           navigator.permissions.query({ name: 'geolocation' }).then(() => {
             geolocateControlRef.current?.trigger()
           })
+
+          geolocateControlRef.current.on('geolocate', onGeolocate)
+          geolocateControlRef.current.on('error', onError)
         }
       }
     }
 
-    fleetTrackingMap.on('load', handleMapLoad)
-
-    const onGeolocate = () => {
-      setIsGeolocateAllowed(true)
-    }
-
-    const onError = (_: any) => {
-      setIsGeolocateAllowed(false)
-      const map = fleetTrackingMap.getMap()
-
-      if (map) {
-        map?.flyTo({
-          center: VIETNAM_CENTER,
-          zoom: 5,
-          duration: 2000,
-          essential: true,
-        })
-      }
-    }
-
-    geolocateControlRef.current.on('geolocate', onGeolocate)
-    geolocateControlRef.current.on('error', onError)
+    fleetTrackingMap.on('load', onLoad)
+    fleetTrackingMap.on('reattach', onLoad)
 
     return () => {
-      if (geolocateControlRef.current && map) {
+      fleetTrackingMap.off('load', onLoad)
+      fleetTrackingMap.off('reattach', onLoad)
+
+      if (geolocateControlRef.current) {
+        if (fleetTrackingMap.getMap()) {
+          fleetTrackingMap.getMap()?.removeControl(geolocateControlRef.current!)
+        }
         geolocateControlRef.current.off('geolocate', onGeolocate)
         geolocateControlRef.current.off('error', onError)
-
         geolocateControlRef.current = null
       }
-
-      fleetTrackingMap.off('load', handleMapLoad)
     }
-  }, [Object.keys(devices).length])
+  }, [isMapReady])
 
   const rotateCompassStyle = useMemo(() => {
     return {
@@ -137,9 +147,22 @@ export const MapControl = () => {
         className="bg-muted rounded-lg border shadow cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-600 hover:dark:text-slate-500"
         variant="ghost"
         size="icon"
+        key={isGeolocateAllowed ? 'geolocate-allowed' : 'geolocate-not-allowed'}
         onClick={() => {
-          if (!geolocateControlRef.current || isGeolocateAllowed) return
-          geolocateControlRef.current.trigger()
+          if (!geolocateControlRef.current) return
+
+          if (isGeolocateAllowed) {
+            geolocateControlRef.current._clearWatch()
+            geolocateControlRef.current._watchState = 'OFF'
+            ;(geolocateControlRef.current as any)._geolocationWatchID =
+              undefined
+            geolocateControlRef.current._lastKnownPosition = undefined
+
+            setIsGeolocateAllowed(false)
+          } else {
+            geolocateControlRef.current?.trigger()
+            setIsGeolocateAllowed(true)
+          }
         }}
       >
         {!isGeolocateAllowed ? (
