@@ -128,7 +128,8 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const handleSignOut = () => {
     if (isDemo) return
     signOut({ redirect: false })
-    router.replace('/')
+    window.history.replaceState({}, '', window.location.pathname)
+    router.push('/', { scroll: false })
   }
 
   return (
@@ -240,7 +241,8 @@ const CollapsedSidebar = ({
 
   const handleSignOut = () => {
     signOut({ redirect: false })
-    router.replace('/')
+    window.history.replaceState({}, '', window.location.pathname)
+    router.push('/', { scroll: false })
   }
 
   return (

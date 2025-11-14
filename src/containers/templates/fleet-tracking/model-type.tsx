@@ -2,10 +2,12 @@
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
+import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
 import { useShallow } from 'zustand/react/shallow'
 
 const modelTypes = ['2d', '3d']
 
+const fleetTrackingMap = FleetTrackingMap.getInstance()
 export const ModelType = () => {
   const { setModelTypeStore, modelType } = useFleetTrackingStore(
     useShallow((state) => ({
@@ -18,18 +20,19 @@ export const ModelType = () => {
   )
 
   return (
-    <div className="absolute top-3 right-20 model-type-control">
+    <div className="absolute top-3 right-20 model-type-control z-[2]">
       <ToggleGroup
         onValueChange={(value) => {
           if (!value) return
+          fleetTrackingMap.updatePitch(value === '3d' ? 90 : 0)
 
-          window.dispatchEvent(
-            new CustomEvent('modelTypeUpdated', {
-              detail: {
-                modelType: value,
-              },
-            })
-          )
+          // window.dispatchEvent(
+          //   new CustomEvent('modelTypeUpdated', {
+          //     detail: {
+          //       modelType: value,
+          //     },
+          //   })
+          // )
           setModelTypeStore(value as '2d' | '3d')
         }}
         type="single"

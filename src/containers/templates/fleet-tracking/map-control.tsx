@@ -9,11 +9,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useDeviceStore } from '@/stores/device-store'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { Expand, Shrink } from 'lucide-react'
 import mapboxgl, { NavigationControl } from 'mapbox-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+
+import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
+
+const fleetTrackingMap = FleetTrackingMap.getInstance()
 
 export const MapControl = () => {
   const mapControlRef = useRef<NavigationControl | null>(null)
@@ -26,83 +29,43 @@ export const MapControl = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   const [bearing, setBearing] = useState(0)
-  const { map } = useFleetTrackingStore(
-    useShallow((state) => ({ map: state.map }))
-  )
+
   const { devices } = useDeviceStore(
     useShallow((state) => ({ devices: state.devices }))
   )
 
   useEffect(() => {
-    if (!map) return
-
-    const mapContainer = map.getContainer()
-    const controlElement = document.querySelector('.mapbox-custom-controls')
-    const modelTypeControlElement = document.querySelector(
-      '.model-type-control'
-    )
-
-    mapControlRef.current = new mapboxgl.NavigationControl()
-    mapFullscreenControlRef.current = new mapboxgl.FullscreenControl()
-    map.addControl(mapControlRef.current)
-    map.addControl(mapFullscreenControlRef.current)
-
-    const handleRotate = () => {
-      const bearing = map.getBearing()
+    const handleRotate = (map: mapboxgl.Map | null) => {
+      const bearing = map?.getBearing() || 0
       setBearing(bearing)
     }
 
-    const handleFullscreenChange = () => {
-      const fullscreenElement = document.fullscreenElement
-      if (fullscreenElement === mapContainer) {
-        setIsFullscreen(true)
-        if (controlElement && !mapContainer.contains(controlElement)) {
-          mapContainer.appendChild(controlElement)
-        }
+    const handleMapReady = (map: mapboxgl.Map) => {
+      mapControlRef.current = new mapboxgl.NavigationControl()
+      mapFullscreenControlRef.current = new mapboxgl.FullscreenControl()
 
-        if (
-          modelTypeControlElement &&
-          !mapContainer.contains(modelTypeControlElement)
-        ) {
-          mapContainer.appendChild(modelTypeControlElement)
-        }
-      } else {
-        setIsFullscreen(false)
-        if (controlElement && document.body.contains(controlElement)) return
-        document.body.appendChild(controlElement!)
-
-        if (
-          modelTypeControlElement &&
-          document.body.contains(modelTypeControlElement)
-        )
-          return
-        document.body.appendChild(modelTypeControlElement!)
-      }
+      map.addControl(mapControlRef.current)
+      map.addControl(mapFullscreenControlRef.current)
     }
 
-    map.on('rotate', handleRotate)
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
 
+    fleetTrackingMap.on('rotate', handleRotate)
+    fleetTrackingMap.on('load', handleMapReady)
+
     return () => {
-      if (map) {
-        if (mapControlRef.current) {
-          map.removeControl(mapControlRef.current)
-          mapControlRef.current = null
-        }
-
-        if (mapFullscreenControlRef.current) {
-          map.removeControl(mapFullscreenControlRef.current)
-          mapFullscreenControlRef.current = null
-        }
-        map.off('rotate', handleRotate)
-      }
-
+      fleetTrackingMap.off('rotate', handleRotate)
+      fleetTrackingMap.off('load', handleMapReady)
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
-  }, [map])
+  }, [])
 
   useEffect(() => {
+    const map = fleetTrackingMap.getMap()
     if (!map) return
 
     geolocateControlRef.current = new mapboxgl.GeolocateControl({
@@ -143,7 +106,7 @@ export const MapControl = () => {
         geolocateControlRef.current = null
       }
     }
-  }, [map, Object.keys(devices).length])
+  }, [Object.keys(devices).length])
 
   const rotateCompassStyle = useMemo(() => {
     return {
@@ -152,7 +115,7 @@ export const MapControl = () => {
   }, [bearing])
 
   return (
-    <div className="mapbox-custom-controls absolute top-3.5 right-4 z-50 flex flex-col gap-3">
+    <div className="mapbox-custom-controls absolute top-3.5 right-4 z-[2] flex flex-col gap-3">
       <Button
         className="bg-muted rounded-lg border shadow cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-600 hover:dark:text-slate-500"
         variant="ghost"

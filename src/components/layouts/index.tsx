@@ -5,11 +5,10 @@ import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 import { COOKIES, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
-import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -50,56 +49,9 @@ const DynamicLayout = ({
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
-  const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
-  const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
-
-  const { map, isMapReady } = useFleetTrackingStore(
-    useShallow((state) => ({ map: state.map, isMapReady: state.isMapReady }))
-  )
-
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
-
-  useEffect(() => {
-    if (!isMapReady || !map) return
-
-    if (resizeMapLayoutTimeOutId.current) {
-      clearTimeout(resizeMapLayoutTimeOutId.current)
-    }
-
-    const container = map.getContainer?.()
-    if (container?.style) {
-      container.style.animationDuration = '0.5s'
-      container.style.opacity = '0.5'
-      container.style.filter = 'blur(10px)'
-    }
-
-    resizeMapLayoutTimeOutId.current = setTimeout(() => {
-      try {
-        const c = map.getContainer?.()
-        const hasSize = c?.clientWidth > 0 && c?.clientHeight > 0
-        if (map.loaded() && hasSize) {
-          map.resize()
-        }
-      } catch (err) {
-        console.warn('Map resize failed:', err)
-      }
-
-      const c2 = map.getContainer?.()
-      if (c2?.style) {
-        c2.style.animationDuration = '0.5s'
-        c2.style.opacity = '1'
-        c2.style.filter = 'blur(0px)'
-      }
-    }, 500)
-
-    return () => {
-      if (resizeMapLayoutTimeOutId.current) {
-        clearTimeout(resizeMapLayoutTimeOutId.current)
-      }
-    }
-  }, [dynamicLayouts, isMapReady, map])
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -185,39 +137,6 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    if (isMapReady && map && map.loaded()) {
-      if (resizeMapTimeOutId.current) {
-        clearTimeout(resizeMapTimeOutId.current)
-      }
-
-      if (map?.getContainer()?.style) {
-        map.getContainer().style.animationDuration = '0.5s'
-        map.getContainer().style.opacity = '0.5'
-        map.getContainer().style.filter = 'blur(10px)'
-        map.getContainer().style.zIndex = '100'
-      }
-
-      resizeMapTimeOutId.current = setTimeout(() => {
-        try {
-          const container = map?.getContainer?.()
-          const hasSize =
-            container?.clientWidth > 0 && container?.clientHeight > 0
-
-          if (map?.loaded() && hasSize) {
-            map.resize()
-          }
-        } catch (err) {
-          console.warn('Map resize failed (ignore):', err)
-        }
-        if (map?.getContainer()?.style) {
-          map.getContainer().style.animationDuration = '0.5s'
-          map.getContainer().style.opacity = '1'
-          map.getContainer().style.filter = 'blur(0px)'
-          map.getContainer().style.zIndex = '0'
-        }
-      }, 500)
-    }
-
     // Use responsive collapse threshold from hook (updates with screen size changes)
     if (sizes[0] < collapseThreshold) {
       setCollapsed(true)
