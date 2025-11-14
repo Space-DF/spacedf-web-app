@@ -51,7 +51,7 @@ type DeviceModelAction = {
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
   (set) => ({
-    devices: {},
+    devices: {} as Record<string, Device>,
     models: {} as Record<SupportedModels, GLTFWithBuffers>,
     deviceSelected: '',
     initializedSuccess: false,
