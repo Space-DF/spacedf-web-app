@@ -73,8 +73,6 @@ export const DeviceLayers = () => {
     return () => {
       deckglInstance.off('layer-click', handleDeviceSelected)
       markerInstance.off('marker-click', handleDeviceSelected)
-      markerInstance.remove()
-      deckglInstance.remove()
     }
   }, [])
 
