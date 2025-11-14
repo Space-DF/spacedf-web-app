@@ -28,9 +28,10 @@ export default function FleetTracking() {
     }))
   )
 
-  const { updateBooleanState } = useFleetTrackingStore(
+  const { updateBooleanState, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
       updateBooleanState: state.updateBooleanState,
+      isMapReady: state.isMapReady,
     }))
   )
 
@@ -166,7 +167,7 @@ export default function FleetTracking() {
   }, [mapType, resolvedTheme])
 
   useEffect(() => {
-    if (!isFirstHandleZoom.current) return
+    if (!isFirstHandleZoom.current || !isMapReady) return
 
     const handleStrategyZoom = (
       map: mapboxgl.Map,
@@ -208,7 +209,7 @@ export default function FleetTracking() {
         handleStrategyZoom(map, devices)
       })
     }
-  }, [devices])
+  }, [devices, isMapReady])
 
   return (
     <div
