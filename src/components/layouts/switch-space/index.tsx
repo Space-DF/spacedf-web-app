@@ -55,7 +55,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
       if (!params.spaceSlug || params.spaceSlug === spaceSlug) return
-      router.replace(`/spaces/${spaceSlug}`)
+      router.push(`/spaces/${spaceSlug}`)
     },
     [router, params.spaceSlug]
   )
@@ -83,7 +83,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       !token &&
       !openGuideline
     ) {
-      router.replace(`/spaces/${defaultSpace.slug_name}`)
+      router.push(`/spaces/${defaultSpace.slug_name}`)
     }
   }, [
     params.spaceSlug,

@@ -242,7 +242,7 @@ const CollapsedSidebar = ({
   const handleSignOut = () => {
     signOut({ redirect: false })
     window.history.replaceState({}, '', window.location.pathname)
-    router.push('/', { scroll: false })
+    router.push('/')
   }
 
   return (

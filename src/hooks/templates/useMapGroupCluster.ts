@@ -59,7 +59,6 @@ export const useMapGroupCluster = () => {
 
       const source = map.getSource('clusters-source') as mapboxgl.GeoJSONSource
 
-      // console.log({ source })
       if (source) {
         source.setData({
           type: 'FeatureCollection',

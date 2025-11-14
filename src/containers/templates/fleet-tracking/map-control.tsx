@@ -17,6 +17,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
+const VIETNAM_CENTER: [number, number] = [108.2022, 16.0544]
 
 export const MapControl = () => {
   const mapControlRef = useRef<NavigationControl | null>(null)
@@ -66,7 +67,6 @@ export const MapControl = () => {
 
   useEffect(() => {
     const map = fleetTrackingMap.getMap()
-    if (!map) return
 
     geolocateControlRef.current = new mapboxgl.GeolocateControl({
       positionOptions: {
@@ -76,15 +76,21 @@ export const MapControl = () => {
       showUserHeading: true,
     })
 
-    map.addControl(geolocateControlRef.current)
-
     const isEmptyDevices = !Object.keys(devices).length
 
-    if (isEmptyDevices) {
-      navigator.permissions.query({ name: 'geolocation' }).then(() => {
-        geolocateControlRef.current?.trigger()
-      })
+    const handleMapLoad = (map: mapboxgl.Map) => {
+      if (geolocateControlRef.current) {
+        map.addControl(geolocateControlRef.current)
+
+        if (isEmptyDevices) {
+          navigator.permissions.query({ name: 'geolocation' }).then(() => {
+            geolocateControlRef.current?.trigger()
+          })
+        }
+      }
     }
+
+    fleetTrackingMap.on('load', handleMapLoad)
 
     const onGeolocate = () => {
       setIsGeolocateAllowed(true)
@@ -92,7 +98,16 @@ export const MapControl = () => {
 
     const onError = (_: any) => {
       setIsGeolocateAllowed(false)
-      window.dispatchEvent(new CustomEvent('spacedf_geolocate_denied'))
+      const map = fleetTrackingMap.getMap()
+
+      if (map) {
+        map?.flyTo({
+          center: VIETNAM_CENTER,
+          zoom: 5,
+          duration: 2000,
+          essential: true,
+        })
+      }
     }
 
     geolocateControlRef.current.on('geolocate', onGeolocate)
@@ -105,6 +120,8 @@ export const MapControl = () => {
 
         geolocateControlRef.current = null
       }
+
+      fleetTrackingMap.off('load', handleMapLoad)
     }
   }, [Object.keys(devices).length])
 

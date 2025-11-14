@@ -1,20 +1,19 @@
 'use client'
 
+import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
+import { useZoomStrategies } from '@/hooks/templates/useZoomStrategies'
 import { useDeviceStore } from '@/stores/device-store'
-import { getMapStyle, MapType } from '@/utils/map'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
+import { getMapStyle, MapType } from '@/utils/map'
 import { useTheme } from 'next-themes'
 import { useEffect, useMemo, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { ModelType } from './model-type'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { SelectMapType } from './select-map-type'
-import { MapControl } from './map-control'
-import { useZoomStrategies } from '@/hooks/templates/useZoomStrategies'
-import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
-import { MapCluster } from './map-cluster'
 import { DeviceLayers } from './device-layers'
-import { TestDevice } from './test-device'
+import { MapCluster } from './map-cluster'
+import { MapControl } from './map-control'
+import { ModelType } from './model-type'
+import { SelectMapType } from './select-map-type'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 export default function FleetTracking() {
@@ -23,14 +22,10 @@ export default function FleetTracking() {
   const isFirstHandleZoom = useRef(true)
 
   //stores
-  const { devices, devicesIds } = useDeviceStore(
+  const { devices, devicesIds, initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
       devices: state.devices,
       devicesIds: Object.keys(state.devices),
-    }))
-  )
-  const { initializedSuccess } = useDeviceStore(
-    useShallow((state) => ({
       initializedSuccess: state.initializedSuccess,
     }))
   )
@@ -65,8 +60,6 @@ export default function FleetTracking() {
     )
 
     if (!fleetTrackingMap.isInitialized) {
-      console.log('init map')
-
       fleetTrackingMap.init(fleetTrackingMapRef.current, {
         style,
         config,
@@ -116,8 +109,7 @@ export default function FleetTracking() {
       fleetTrackingMap.off('style.load', handleStyleLoad)
       resizeObserver.disconnect()
       if (resizeTimeout) clearTimeout(resizeTimeout)
-
-      fleetTrackingMap.remove()
+      window.location.reload()
     }
   }, [initializedSuccess])
 
@@ -148,9 +140,7 @@ export default function FleetTracking() {
   }, [mapType, resolvedTheme])
 
   useEffect(() => {
-    console.log({ devices })
     if (!isFirstHandleZoom.current) return
-
     const handleStrategyZoom = (map: mapboxgl.Map) => {
       if (!map) return
 
@@ -182,7 +172,7 @@ export default function FleetTracking() {
       <MapControl />
       <MapCluster />
       <DeviceLayers />
-      <TestDevice />
+      {/* <TestDevice /> */}
     </div>
   )
 }
