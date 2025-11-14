@@ -48,7 +48,7 @@ export const DeviceLayers = () => {
     return () => {
       fleetTrackingMap.off('style.load', handleMapLoaded)
     }
-  }, [devices])
+  }, [devices, deviceModels])
 
   useEffect(() => {
     handleLayerType()
