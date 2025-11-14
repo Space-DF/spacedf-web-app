@@ -150,6 +150,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const getDevices = async () => {
     try {
       const devices: Device[] = transformDeviceData(deviceSpaces || [])
+
       setDevices(devices)
     } catch {}
   }

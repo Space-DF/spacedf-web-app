@@ -73,7 +73,7 @@ export const useZoomStrategies = () => {
       if (allSameLocation) {
         map.flyTo({
           center: [firstLng, firstLat],
-          zoom: 18,
+          zoom: 15,
           duration: 5000,
           pitch: resolvedPitch,
         })
