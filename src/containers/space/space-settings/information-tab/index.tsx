@@ -126,13 +126,25 @@ export function InformationTab({
               </FormLabel>
               <div className="flex gap-3">
                 <div className="size-24 rounded-lg border border-brand-component-stroke-dark-soft">
-                  <ImageWithBlur
-                    src={previewImage || space.logo || OrganizationThumb}
-                    className="size-full rounded-lg object-cover"
-                    alt=""
-                    width={96}
-                    height={96}
-                  />
+                  {previewImage || space.logo ? (
+                    <ImageWithBlur
+                      src={previewImage || space.logo || OrganizationThumb}
+                      className="size-full rounded-lg object-cover"
+                      alt=""
+                      width={96}
+                      height={96}
+                    />
+                  ) : (
+                    <div className="p-7 bg-brand-component-fill-secondary-soft rounded-lg ">
+                      <ImageWithBlur
+                        src={OrganizationThumb}
+                        className={'size-full object-cover'}
+                        alt=""
+                        width={40}
+                        height={40}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-col items-start gap-2">
                   <Button

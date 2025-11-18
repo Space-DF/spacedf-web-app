@@ -7,9 +7,7 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
-import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
@@ -39,7 +37,6 @@ import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
 type SidebarChildProps = {
-  setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
 }
 
@@ -95,11 +92,9 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
         id="sidebar-id"
       >
         <ExpandedSidebar
-          setOpen={setOpen}
           onCollapseChanges={() => handleCollapseChanges(true)}
         />
         <CollapsedSidebar
-          setOpen={setOpen}
           onCollapseChanges={() => handleCollapseChanges(false)}
         />
       </div>
@@ -108,7 +103,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   )
 })
 
-const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
+const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
@@ -153,23 +148,8 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
             onClick={handleCollapsedChange}
           />
         </div>
-        <Button
-          onClick={() => setOpen?.(true)}
-          className={cn(
-            'my-3 h-10 w-full justify-between rounded-lg bg-brand-fill-dark-soft duration-200 dark:bg-brand-heading'
-          )}
-          variant="ghost"
-        >
-          <div className="flex items-center gap-2 text-brand-text-gray">
-            <MagnifyingGlassIcon className="size-5" />
-            {t('search')}
-          </div>
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center bg-transparent text-sm font-medium text-muted-foreground opacity-100">
-            <span className="text-lg">⌘</span>K
-          </kbd>
-        </Button>
 
-        <Separator orientation="horizontal" />
+        <Separator orientation="horizontal" className="mt-3" />
         <Navigations />
       </div>
 
@@ -219,10 +199,7 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   )
 }
 
-const CollapsedSidebar = ({
-  setOpen,
-  onCollapseChanges,
-}: SidebarChildProps) => {
+const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
 
@@ -269,14 +246,6 @@ const CollapsedSidebar = ({
             </div>
             {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
             {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="!rounded-lg text-brand-text-gray"
-              onClick={() => setOpen?.(true)}
-            >
-              <MagnifyingGlassIcon className="size-5" />
-            </Button>
           </div>
 
           <Separator orientation="horizontal" />
