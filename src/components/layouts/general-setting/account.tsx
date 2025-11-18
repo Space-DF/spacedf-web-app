@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { InputWithIcon } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -125,23 +123,6 @@ const Account = () => {
               </FormItem>
             )}
           />
-
-          <div className="flex items-center gap-2">
-            <div className="grid w-full flex-1 items-center gap-1.5">
-              <Label
-                htmlFor="email"
-                className="gap-2 text-xs font-semibold text-brand-heading"
-              >
-                {t('authenticator_app')}
-              </Label>
-              <p className="text-xs font-normal text-brand-text-gray">
-                {t(
-                  'once_you_login_spacedf_we_will_send_you_a_notification_in_email'
-                )}
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
           <Separator className="!my-6" />
           {isSetPassword && (
             <FormField

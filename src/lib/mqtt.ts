@@ -6,6 +6,7 @@ import {
   MQTT_USERNAME,
 } from '@/shared/env'
 import mqtt, { IClientOptions, MqttClient } from 'mqtt'
+import api from './api'
 
 export type MqttConnectionStatus =
   | 'connecting'
@@ -28,10 +29,8 @@ export interface MqttEventCallbacks {
   onReconnect?: () => void
 }
 
-const getMqttToken = async () => {
-  const mqttToken = await fetch('/api/mqtt-token')
-  return mqttToken.json()
-}
+const getMqttToken = async () =>
+  api.get<{ mqtt_token: string }>('/api/mqtt-token')
 
 class MqttService {
   private static instance: MqttService

@@ -6,13 +6,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
-import { CircleUser, Globe, Trash } from 'lucide-react'
+import { CircleUser, Trash } from 'lucide-react'
 import { Laptop, SettingIcon } from '../../icons'
 import { cn } from '@/lib/utils'
 import Profile from './profile'
 import Account from './account'
 import Appearance from './appearance'
-import Language from './language'
+// import Language from './language'
 import DeleteAccount from './delete-account'
 import React from 'react'
 import { Separator } from '@/components/ui/separator'
@@ -36,11 +36,11 @@ const settings = [
     icon: <Laptop />,
     label: 'Appearance',
   },
-  {
-    key: 'language',
-    icon: <Globe size={16} />,
-    label: 'Language',
-  },
+  // {
+  //   key: 'language',
+  //   icon: <Globe size={16} />,
+  //   label: 'Language',
+  // },
   {
     key: 'delete_account',
     icon: <Trash size={16} />,
@@ -82,8 +82,8 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         return <Account />
       case 'appearance':
         return <Appearance />
-      case 'language':
-        return <Language />
+      // case 'language':
+      //   return <Language />
       case 'delete_account':
         return <DeleteAccount />
       default:
