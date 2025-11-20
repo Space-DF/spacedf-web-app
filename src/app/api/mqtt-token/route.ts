@@ -10,6 +10,7 @@ export async function GET() {
       return NextResponse.json({ mqtt_token: null })
     }
     const spacedfClient = await spaceClient()
+    spacedfClient.setAccessToken(sessionCookie?.user?.access)
     await spacedfClient.users.getMe()
     return NextResponse.json({ mqtt_token: sessionCookie?.user?.access })
   } catch (error) {

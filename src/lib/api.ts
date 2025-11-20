@@ -241,6 +241,12 @@ api.setInterceptors({
       }
     }
 
+    if (error.response?.status === 403) {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'
+      }
+    }
+
     throw error
   },
 })
