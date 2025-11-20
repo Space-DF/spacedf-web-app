@@ -27,13 +27,11 @@ export const GET = async (
   try {
     const isDemo = await isDemoSubdomain(request)
     const session = await readSession()
-    if (
-      isDemo ||
-      !session ||
-      !params.spaceSlug ||
-      params.spaceSlug === 'undefined'
-    ) {
+    if (isDemo) {
       return NextResponse.json(DEMO_DASHBOARDS)
+    }
+    if (!params.spaceSlug || params.spaceSlug === 'undefined' || !session) {
+      return NextResponse.json([])
     }
     const spacedfClient = await spaceClient()
     spacedfClient.setAccessToken(session?.user?.access as string)

@@ -1,12 +1,13 @@
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { readSession } from '@/utils/server-actions'
-import { NextResponse } from 'next/server'
+import { isDemoSubdomain, readSession } from '@/utils/server-actions'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const sessionCookie = await readSession()
-    if (!sessionCookie) {
+    const isDemo = await isDemoSubdomain(req)
+    if (!sessionCookie || isDemo) {
       return NextResponse.json({ mqtt_token: null })
     }
     const spacedfClient = await spaceClient()

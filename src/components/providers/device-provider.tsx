@@ -87,6 +87,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
+    if (isDemo) return
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()
 
@@ -116,6 +117,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           console.log('✅ MQTT connected')
           toast.success('MQTT connected', {
             position: 'bottom-right',
+            id: 'mqtt-connected',
           })
         },
         onDisconnect: () => {
@@ -152,7 +154,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     return () => {
       mqttServiceRef.current?.disconnect()
     }
-  }, [isAuthorized, spaceSlugName, organization])
+  }, [isAuthorized, spaceSlugName, organization, isDemo])
 
   const getDevices = async () => {
     try {
