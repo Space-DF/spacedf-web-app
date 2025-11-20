@@ -7,9 +7,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const GET = async (
   request: NextRequest,
-  { params }: { params: { spaceSlug: string; limit: string; offset: string } }
+  { params }: { params: { spaceSlug: string } }
 ) => {
-  const { limit = 10, offset = 0, spaceSlug } = params
+  const { spaceSlug } = params
+  const searchParams = request.nextUrl.searchParams
+  const limit = searchParams.get('limit') || '10'
+  const offset = searchParams.get('offset') || '0'
   try {
     const session = await readSession()
     if (!session || !spaceSlug)

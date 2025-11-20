@@ -28,18 +28,18 @@ const PREVIEW_PATH = {
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const mqttServiceRef = useRef<MqttService | null>(null)
   const mqttRouterRef = useRef<MQTTRouter | null>(null)
-  const { spaceSlug, organization } = useParams<{
-    spaceSlug: string
+  const { organization, spaceSlug } = useParams<{
     organization: string
+    spaceSlug: string
   }>()
   const isDemo = useIsDemo()
   const isAuthenticated = useAuthenticated()
 
-  const publicTopic = `tenant/${organization}/device/+/telemetry`
-  const mqttTopic =
-    spaceSlug && organization && !isDemo && isAuthenticated
-      ? `tenant/${organization}/space/${spaceSlug}/device/+/telemetry`
-      : publicTopic
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
+  const spaceSlugName = currentSpace?.slug_name || spaceSlug
+
+  const isAuthorized =
+    organization && spaceSlugName && !isDemo && isAuthenticated
 
   const {
     setDeviceModel,
@@ -106,7 +106,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
         },
         onConnect: () => {
-          mqttServiceRef.current?.subscribe([mqttTopic, publicTopic])
+          const publicTopic = `tenant/${organization}/device/+/telemetry`
+          const spaceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+          mqttServiceRef.current?.subscribe(
+            isAuthorized ? [spaceTopic, publicTopic] : [publicTopic]
+          )
         },
         onSubscribed: () => {
           console.log('✅ MQTT connected')
@@ -145,7 +149,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       })
     }
     handleMqttConnect()
-  }, [])
+    return () => {
+      mqttServiceRef.current?.disconnect()
+    }
+  }, [isAuthorized, spaceSlugName, organization])
 
   const getDevices = async () => {
     try {

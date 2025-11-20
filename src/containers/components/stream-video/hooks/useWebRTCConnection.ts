@@ -186,7 +186,7 @@ export const useWebRTCConnection = ({
 
   const debouncedRetry = optimizer.debounceRetry(() => {
     cleanup(false)
-    initializeWebRTC()
+    // initializeWebRTC()
     isRetryingRef.current = false
   })
 
@@ -225,7 +225,7 @@ export const useWebRTCConnection = ({
 
   // Initialize WebRTC on mount
   useEffect(() => {
-    initializeWebRTC()
+    // initializeWebRTC()
     return () => {
       cleanup(true)
     }

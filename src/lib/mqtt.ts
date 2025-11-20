@@ -40,6 +40,8 @@ class MqttService {
   private subscriptions: Map<string, MqttTopicSubscription> = new Map()
   private eventCallbacks: MqttEventCallbacks = {}
   private connectionStatus: MqttConnectionStatus = 'disconnected'
+  private isReconnecting = false
+  private manualDisconnect = false
 
   private constructor(organization: string) {
     this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
@@ -47,7 +49,7 @@ class MqttService {
       clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       clean: false,
       keepalive: 30,
-      reconnectPeriod: 60 * 1000,
+      reconnectPeriod: 0,
       connectTimeout: 30 * 1000,
       properties: {
         userProperties: {
@@ -95,6 +97,7 @@ class MqttService {
     this.client = mqtt.connect(this.brokerUrl, options)
 
     this.client.on('connect', () => {
+      this.manualDisconnect = false
       this.connectionStatus = 'connected'
       this.eventCallbacks.onConnect?.()
       this.resubscribeToTopics()
@@ -105,15 +108,19 @@ class MqttService {
       this.eventCallbacks.onError?.(err)
     })
 
-    this.client.on('close', () => {
+    this.client.on('close', async () => {
+      if (this.manualDisconnect) return
+
       this.connectionStatus = 'disconnected'
       this.client = null
-      this.eventCallbacks.onDisconnect?.()
-    })
 
-    this.client.on('reconnect', () => {
-      this.connectionStatus = 'connecting'
-      this.eventCallbacks.onReconnect?.()
+      if (this.isReconnecting) return
+      this.isReconnecting = true
+
+      await new Promise((r) => setTimeout(r, 1000))
+      await this.connect()
+
+      this.isReconnecting = false
     })
 
     this.client.on('offline', () => {
@@ -267,6 +274,7 @@ class MqttService {
   }
 
   public disconnect(): void {
+    this.manualDisconnect = true
     if (this.client) {
       this.client.end()
       this.client = null
