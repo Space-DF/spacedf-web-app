@@ -7,6 +7,7 @@ import {
 } from '@/shared/env'
 import mqtt, { IClientOptions, MqttClient } from 'mqtt'
 import api from './api'
+import { sleep } from '@/utils'
 
 export type MqttConnectionStatus =
   | 'connecting'
@@ -42,6 +43,8 @@ class MqttService {
   private connectionStatus: MqttConnectionStatus = 'disconnected'
   private isReconnecting = false
   private manualDisconnect = false
+  private connectRetryCount = 0
+  private readonly maxConnectRetries = 3
 
   private constructor(organization: string) {
     this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
@@ -74,6 +77,7 @@ class MqttService {
   }
 
   public async reconnect(): Promise<void> {
+    this.connectRetryCount = 0
     if (this.client) {
       this.client.reconnect()
     } else {
@@ -99,12 +103,14 @@ class MqttService {
     this.client.on('connect', () => {
       this.manualDisconnect = false
       this.connectionStatus = 'connected'
+      this.connectRetryCount = 0
       this.eventCallbacks.onConnect?.()
       this.resubscribeToTopics()
     })
 
     this.client.on('error', (err) => {
       this.connectionStatus = 'error'
+      this.connectRetryCount++
       this.eventCallbacks.onError?.(err)
     })
 
@@ -112,15 +118,17 @@ class MqttService {
       if (this.manualDisconnect) return
 
       this.connectionStatus = 'disconnected'
+      this.client?.end()
       this.client = null
 
       if (this.isReconnecting) return
       this.isReconnecting = true
 
-      await new Promise((r) => setTimeout(r, 1000))
-      await this.connect()
-
-      this.isReconnecting = false
+      if (this.connectRetryCount < this.maxConnectRetries) {
+        await sleep(1000)
+        await this.connect()
+        this.isReconnecting = false
+      }
     })
 
     this.client.on('offline', () => {
