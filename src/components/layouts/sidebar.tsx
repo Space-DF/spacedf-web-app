@@ -36,6 +36,7 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
+import { useCache } from '@/hooks/useCache'
 type SidebarChildProps = {
   onCollapseChanges?: () => void
 }
@@ -114,17 +115,20 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isAuth = useAuthenticated()
   const isDemo = useIsDemo()
 
+  const { clearAllCache } = useCache()
+
   const handleCollapsedChange = () => {
     setCollapsed(true)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
     onCollapseChanges?.()
   }
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (isDemo) return
-    signOut({ redirect: false })
+    await signOut({ redirect: false })
     window.history.replaceState({}, '', window.location.pathname)
     router.push('/', { scroll: false })
+    clearAllCache()
   }
 
   return (
@@ -202,7 +206,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
 const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
   const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
+  const { clearAllCache } = useCache()
   const router = useRouter()
 
   const { mounted } = useMounted()
@@ -216,9 +220,10 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     onCollapseChanges?.()
   }
 
-  const handleSignOut = () => {
-    signOut({ redirect: false })
+  const handleSignOut = async () => {
+    await signOut({ redirect: false })
     window.history.replaceState({}, '', window.location.pathname)
+    clearAllCache()
     router.push('/')
   }
 

@@ -109,6 +109,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         onConnect: () => {
           const publicTopic = `tenant/${organization}/device/+/telemetry`
           const spaceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+
+          const currentSubscriptions =
+            mqttServiceRef.current?.getSubscriptions() || []
+          currentSubscriptions.forEach((topic) => {
+            mqttServiceRef.current?.unsubscribe(topic)
+          })
+
           mqttServiceRef.current?.subscribe(
             isAuthorized ? [spaceTopic, publicTopic] : [publicTopic]
           )
