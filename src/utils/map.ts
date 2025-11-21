@@ -105,12 +105,12 @@ const formatCheckpoint = (
   if (dataIndex !== undefined && !latestCheckpoint) {
     if (dummyTestingLocations[dataIndex])
       return dummyTestingLocations[dataIndex] as [number, number]
-    return [108.22135225454248, 16.059130598128093]
+    return [0, 0]
   }
   //#endregion
 
   if (!latestCheckpoint) {
-    return [108.22135225454248, 16.059130598128093]
+    return [0, 0]
   }
 
   return [latestCheckpoint.longitude, latestCheckpoint.latitude]
@@ -124,6 +124,11 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
   const isDataTesting = currentOrg === orgTestingEnv
 
   return deviceSpace.map((device, index) => {
+    const checkpoint = formatCheckpoint(
+      device.latest_checkpoint,
+      isDataTesting ? index : undefined
+    )
+
     return {
       ...device.device,
       name: device.name,
@@ -133,21 +138,10 @@ export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
       layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
       type: device.device.type || 'rak',
       histories: {
-        end: formatCheckpoint(
-          device.latest_checkpoint,
-          isDataTesting ? index : undefined
-        ),
+        end: checkpoint,
       },
-      latestLocation: formatCheckpoint(
-        device.latest_checkpoint,
-        isDataTesting ? index : undefined
-      ),
-      realtimeTrip: [
-        formatCheckpoint(
-          device.latest_checkpoint,
-          isDataTesting ? index : undefined
-        ),
-      ],
+      latestLocation: checkpoint,
+      realtimeTrip: checkpoint ? [checkpoint] : [],
       origin: 'Vietnam',
       description: device.description,
     }

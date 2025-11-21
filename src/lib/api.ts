@@ -1,4 +1,6 @@
 import { signOut } from 'next-auth/react'
+import MqttService from './mqtt'
+import { getClientOrganization } from '@/utils'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -216,6 +218,7 @@ api.setInterceptors({
           if (refreshResponse.ok) {
             api.refreshAttempts = 0
             api.processQueue(null, 'refreshed')
+            MqttService.getInstance(getClientOrganization()).reconnect()
             return api.request(originalEndpoint, originalConfig)
           } else {
             const refreshError = new Error('Token refresh failed')
@@ -238,12 +241,6 @@ api.setInterceptors({
         } finally {
           api.isRefreshing = false
         }
-      }
-    }
-
-    if (error.response?.status === 403) {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/'
       }
     }
 
