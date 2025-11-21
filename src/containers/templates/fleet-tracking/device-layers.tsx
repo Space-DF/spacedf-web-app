@@ -16,7 +16,7 @@ export const DeviceLayers = () => {
   const { devices, deviceModels, setDeviceSelected, deviceSelected } =
     useDeviceStore(
       useShallow((state) => ({
-        devices: state.devices,
+        devices: state.devicesFleetTracking,
         deviceModels: state.models,
         deviceSelected: state.deviceSelected,
         setDeviceSelected: state.setDeviceSelected,
@@ -86,8 +86,14 @@ export const DeviceLayers = () => {
       const map = fleetTrackingMap.getMap()
 
       if (map) {
+        const device = devices[deviceSelected]
+
+        if (!device) return
+
+        if (!device.latestLocation?.every((loc) => loc)) return
+
         map.flyTo({
-          center: devices[deviceSelected].latestLocation,
+          center: device.latestLocation as [number, number],
           zoom: 18,
           duration: 500,
           essential: true,

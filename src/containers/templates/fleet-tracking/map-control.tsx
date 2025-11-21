@@ -8,7 +8,6 @@ import {
 } from '@/components/icons/map-control-icons'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Expand, Shrink } from 'lucide-react'
 import mapboxgl, { NavigationControl } from 'mapbox-gl'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -22,19 +21,18 @@ const VIETNAM_CENTER: [number, number] = [108.2022, 16.0544]
 export const MapControl = () => {
   const mapControlRef = useRef<NavigationControl | null>(null)
   const geolocateControlRef = useRef<mapboxgl.GeolocateControl | null>(null)
-  const mapFullscreenControlRef = useRef<mapboxgl.FullscreenControl | null>(
-    null
-  )
+  // const mapFullscreenControlRef = useRef<mapboxgl.FullscreenControl | null>(
+  //   null
+  // )
 
   const { isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
       isMapReady: state.isMapReady,
     }))
   )
-  const mapRef = useRef<mapboxgl.Map | null>(null)
 
   const [isGeolocateAllowed, setIsGeolocateAllowed] = useState(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  // const [isFullscreen, setIsFullscreen] = useState(false)
   const isFirstAskGeoPermission = useRef(true)
 
   const [bearing, setBearing] = useState(0)
@@ -46,30 +44,43 @@ export const MapControl = () => {
     }
 
     const handleMapReady = (map: mapboxgl.Map) => {
-      mapRef.current = map
+      if (mapControlRef.current) {
+        map.removeControl(mapControlRef.current)
+      }
+      // if (mapFullscreenControlRef.current) {
+      //   map.removeControl(mapFullscreenControlRef.current)
+      // }
 
       mapControlRef.current = new mapboxgl.NavigationControl()
-      mapFullscreenControlRef.current = new mapboxgl.FullscreenControl()
+      // mapFullscreenControlRef.current = new mapboxgl.FullscreenControl()
 
       map.addControl(mapControlRef.current)
-      map.addControl(mapFullscreenControlRef.current)
+      // map.addControl(mapFullscreenControlRef.current)
     }
 
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
+    // const handleFullscreenChange = () => {
+    //   setIsFullscreen(!!document.fullscreenElement)
+    // }
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    // document.addEventListener('fullscreenchange', handleFullscreenChange)
 
     fleetTrackingMap.on('rotate', handleRotate)
     fleetTrackingMap.on('load', handleMapReady)
     fleetTrackingMap.on('reattach', handleMapReady)
 
     return () => {
+      const map = fleetTrackingMap.getMap()
+      if (map) {
+        map.removeControl(mapControlRef.current!)
+        // map.removeControl(mapFullscreenControlRef.current!)
+        mapControlRef.current = null
+        // mapFullscreenControlRef.current = null
+      }
+
       fleetTrackingMap.off('rotate', handleRotate)
       fleetTrackingMap.off('reattach', handleMapReady)
       fleetTrackingMap.off('load', handleMapReady)
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      // document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
   }, [])
 
@@ -77,7 +88,17 @@ export const MapControl = () => {
     if (!isMapReady) return
 
     function onGeolocate() {
+      const currentModelType = localStorage.getItem(
+        'fleet-tracking:modelType'
+      ) as '2d' | '3d'
+
       setIsGeolocateAllowed(true)
+      const map = fleetTrackingMap.getMap()
+      if (currentModelType === '3d') {
+        map?.easeTo({
+          pitch: 90,
+        })
+      }
     }
 
     function onError() {
@@ -106,11 +127,13 @@ export const MapControl = () => {
         map.addControl(geolocateControlRef.current)
 
         if (isEmptyDevices) {
-          console.log('request')
           navigator.permissions.query({ name: 'geolocation' }).then(() => {
             geolocateControlRef.current?.trigger()
           })
 
+          geolocateControlRef.current.on('geolocate', onGeolocate)
+          geolocateControlRef.current.on('error', onError)
+        } else {
           geolocateControlRef.current.on('geolocate', onGeolocate)
           geolocateControlRef.current.on('error', onError)
         }
@@ -212,7 +235,7 @@ export const MapControl = () => {
         <CompassIcon style={rotateCompassStyle} />
       </Button>
 
-      <Button
+      {/* <Button
         className="bg-muted rounded-lg border shadow cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-600 hover:dark:text-slate-500"
         variant="ghost"
         size="icon"
@@ -222,7 +245,7 @@ export const MapControl = () => {
         }}
       >
         {!isFullscreen ? <Expand size={20} /> : <Shrink size={20} />}
-      </Button>
+      </Button> */}
     </div>
   )
 }

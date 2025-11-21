@@ -7,7 +7,7 @@ import { SupportedModels } from '../model-objects/devices/gps-tracker/type'
 import EventEmitter from '../event'
 import { IControl } from 'mapbox-gl'
 
-const DESTROY_LAYERS_INTERVAL = 30000 // 30 seconds
+const DESTROY_LAYERS_INTERVAL = 30000 // 60 seconds
 
 class DeckGLInstance {
   private static instance: DeckGLInstance
@@ -101,7 +101,7 @@ class DeckGLInstance {
                 latest[1] !== initialLocation[1])
             ) {
               this.map?.easeTo({
-                center: latest,
+                center: latest as [number, number],
                 zoom: 18,
                 duration: 500,
                 essential: true,
@@ -259,6 +259,8 @@ class DeckGLInstance {
       this.scheduleLayerDestroy()
       this.stopDeviceRotationAnimation()
       this.hasLayerRotation = false
+    } else {
+      if (this.destroyTimer) clearTimeout(this.destroyTimer)
     }
 
     if (this.hasLayerRotation) return

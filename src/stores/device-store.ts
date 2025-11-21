@@ -29,6 +29,7 @@ type DeviceModelState = {
   models: Record<SupportedModels, GLTFWithBuffers>
   modelPreview: Record<SupportedModels, string>
   devices: Record<string, Device>
+  devicesFleetTracking: Record<string, Device>
   deviceSelected: string
   initializedSuccess: boolean
   setInitializedSuccess: (newState: boolean) => void
@@ -49,9 +50,20 @@ type DeviceModelAction = {
   setDeviceHistory: (data: Checkpoint[]) => void
 }
 
+const reduceDevices = (data: Device[]) => {
+  return data.reduce(
+    (acc, device) => ({
+      ...acc,
+      [device.id]: device,
+    }),
+    {} as Record<string, Device>
+  )
+}
+
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
   (set) => ({
     devices: {} as Record<string, Device>,
+    devicesFleetTracking: {} as Record<string, Device>,
     models: {} as Record<SupportedModels, GLTFWithBuffers>,
     deviceSelected: '',
     initializedSuccess: false,
@@ -79,14 +91,13 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     },
 
     setDevices: (data) => {
+      const validDevices = data.filter((device) =>
+        device.latestLocation?.every((loc) => loc)
+      )
+
       return set(() => ({
-        devices: data.reduce(
-          (acc, device) => ({
-            ...acc,
-            [device.id]: device,
-          }),
-          {}
-        ),
+        devicesFleetTracking: reduceDevices(validDevices),
+        devices: reduceDevices(data),
       }))
     },
 
@@ -101,6 +112,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
         const currentDevice = Object.values(state.devices).find(
           (device) => device.deviceId === deviceId
         )
+
         const previousState: Device = currentDevice || {
           type: 'rak',
           layerProps: DEVICE_LAYER_PROPERTIES['rak'],
@@ -115,13 +127,20 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
         }
 
         const newState = { ...previousState, ...data }
+        const newDevices = currentDevice
+          ? {
+              ...state.devices,
+              [currentDevice.id]: newState,
+            }
+          : state.devices
+
         return {
-          devices: currentDevice
-            ? {
-                ...state.devices,
-                [currentDevice.id]: newState,
-              }
-            : state.devices,
+          devices: newDevices,
+          devicesFleetTracking: reduceDevices(
+            Object.values(newDevices).filter((device) =>
+              device.latestLocation?.every((loc) => loc)
+            )
+          ),
         }
       })
     },

@@ -6,8 +6,8 @@ import { useShallow } from 'zustand/react/shallow'
 export const TestDevice = () => {
   const { devicesArray, setDevices } = useDeviceStore(
     useShallow((state) => ({
-      devices: state.devices,
-      devicesArray: Object.values(state.devices),
+      devices: state.devicesFleetTracking,
+      devicesArray: Object.values(state.devicesFleetTracking),
       setDevices: state.setDevices,
     }))
   )

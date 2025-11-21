@@ -38,8 +38,8 @@ export default function FleetTracking() {
   //stores
   const { devices, initializedSuccess } = useDeviceStore(
     useShallow((state) => ({
-      devices: state.devices,
-      devicesIds: Object.keys(state.devices),
+      devices: state.devicesFleetTracking,
+      devicesIds: Object.keys(state.devicesFleetTracking),
       initializedSuccess: state.initializedSuccess,
     }))
   )

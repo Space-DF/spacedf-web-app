@@ -16,7 +16,7 @@ export const MapCluster = () => {
 
   const { devices } = useDeviceStore(
     useShallow((state) => ({
-      devices: state.devices,
+      devices: state.devicesFleetTracking,
     }))
   )
   const { resolvedTheme } = useTheme()
