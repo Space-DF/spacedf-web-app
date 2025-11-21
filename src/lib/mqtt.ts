@@ -78,11 +78,9 @@ class MqttService {
 
   public async reconnect(): Promise<void> {
     this.connectRetryCount = 0
-    if (this.client) {
-      this.client.reconnect()
-    } else {
-      await this.connect()
-    }
+    this.client?.end()
+    this.client = null
+    await this.connect()
   }
 
   private async connect(): Promise<void> {
