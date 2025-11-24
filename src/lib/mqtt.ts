@@ -44,6 +44,7 @@ class MqttService {
   private isReconnecting = false
   private manualDisconnect = false
   private connectRetryCount = 0
+  private subscribeRetryCount = 0
   private readonly maxConnectRetries = 3
 
   private constructor(organization: string) {
@@ -113,7 +114,11 @@ class MqttService {
     })
 
     this.client.on('close', async () => {
-      if (this.manualDisconnect) return
+      if (
+        this.manualDisconnect ||
+        this.subscribeRetryCount < this.maxConnectRetries
+      )
+        return
 
       this.connectionStatus = 'disconnected'
       this.client?.end()
@@ -121,7 +126,7 @@ class MqttService {
 
       if (this.isReconnecting) return
       this.isReconnecting = true
-
+      this.subscribeRetryCount++
       if (this.connectRetryCount < this.maxConnectRetries) {
         await sleep(1000)
         await this.connect()
@@ -219,6 +224,7 @@ class MqttService {
             console.log(`📡 Subscribed to ${singleTopic}`)
             if (index === topics.length - 1 && subscribed) {
               this.eventCallbacks.onSubscribed?.()
+              this.subscribeRetryCount = 0
             }
           } else {
             console.error(`❌ Failed to subscribe to ${singleTopic}:`, err)

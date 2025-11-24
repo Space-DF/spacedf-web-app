@@ -24,7 +24,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
 import { useAuthForm } from './stores/useAuthForm'
-import { mutate } from 'swr'
+import { useCache } from '@/hooks/useCache'
 
 const singInSchema = z.object({
   email: z
@@ -59,6 +59,8 @@ const SignInForm = () => {
     }))
   )
 
+  const { clearAllCache } = useCache()
+
   const onSubmit = (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
       try {
@@ -67,7 +69,7 @@ const SignInForm = () => {
           toast.error(t('sign_in_failed_please_try_again'))
         } else {
           setOpenDrawer(false)
-          mutate(() => true, undefined, { revalidate: true })
+          clearAllCache()
         }
       } catch (error) {
         console.error({ error })
