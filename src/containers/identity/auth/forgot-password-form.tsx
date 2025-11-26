@@ -75,7 +75,7 @@ export const ForgotPasswordForm = () => {
                 name="email"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-brand-component-text-gray text-sm]">
+                    <FormLabel className="text-brand-component-text-gray text-sm">
                       Email
                     </FormLabel>
                     <FormControl>

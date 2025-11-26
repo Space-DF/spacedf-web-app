@@ -1,25 +1,21 @@
-import { dummyTrips } from '@/data/dummy-data'
 import { spaceClient } from '@/lib/spacedf'
+import { Trip } from '@/types/trip'
 import { handleError } from '@/utils/error'
 import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { deviceId: string; spaceSlug: string } }
+  { params }: { params: { deviceId: string } }
 ) => {
-  const { deviceId, spaceSlug } = params
-
   try {
+    const spaceSlug = request.nextUrl.searchParams.get('spaceSlug')
+    const { deviceId } = params
     const isDemo = await isDemoSubdomain(request)
     const session = await readSession()
-    if (isDemo || !spaceSlug || !session) {
-      const trips = dummyTrips.filter((trip) => trip.device_id === deviceId)
-      return NextResponse.json(trips, {
-        status: 200,
-      })
+    if (isDemo || !session) {
+      return NextResponse.json([])
     }
-
     const client = await spaceClient()
     client.setAccessToken(session?.user?.access as string)
     const trips = await client.trip.list(
@@ -33,7 +29,22 @@ export const GET = async (
         },
       }
     )
-    return NextResponse.json(trips.results)
+    const latestTrip = trips.results[0] as unknown as Trip
+    if (!latestTrip) {
+      return NextResponse.json([])
+    }
+    const tripDetail = (await client.trip.retrieve(
+      latestTrip.id,
+      {
+        include_checkpoints: true,
+      },
+      {
+        headers: {
+          'X-Space': spaceSlug,
+        },
+      }
+    )) as unknown as Trip
+    return NextResponse.json(tripDetail.checkpoints)
   } catch (error) {
     return handleError(error)
   }
