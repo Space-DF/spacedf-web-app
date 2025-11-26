@@ -9,6 +9,8 @@ export interface LorawanDevice {
 
 export interface Device {
   id: string
+  device_id?: string
+  device_name: string
   device_connector: string
   device_model: string
   status: string

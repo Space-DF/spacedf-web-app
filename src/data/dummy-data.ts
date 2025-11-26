@@ -326,6 +326,8 @@ export const devices: StoreDevice[] = [
 export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
   const apiDevice: ApiDevice = {
     id: d.id,
+    device_id: d.deviceId,
+    device_name: d.name,
     device_connector: 'connector1',
     device_model: d.type ?? 'rak',
     status: d.status,
@@ -343,6 +345,7 @@ export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
         longitude: d.latestLocation[0],
         latitude: d.latestLocation[1],
         timestamp: new Date().toISOString(),
+        accuracy: 0,
       }
     : undefined
 
@@ -363,6 +366,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     latitude: number
     longitude: number
     timestamp: string
+    accuracy: number
   }[] = []
 
   if (source?.histories?.start) {
@@ -370,6 +374,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
       longitude: source.histories.start[0],
       latitude: source.histories.start[1],
       timestamp: now,
+      accuracy: 0,
     })
   }
 
@@ -378,6 +383,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
       longitude: source.histories.end[0],
       latitude: source.histories.end[1],
       timestamp: now,
+      accuracy: 0,
     })
   }
 
@@ -386,5 +392,12 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     space_device: space.id,
     started_at: checkpointsFromHistories[0]?.timestamp ?? now,
     checkpoints: checkpointsFromHistories,
+    space_device_id: space.id,
+    device_id: space.device.id,
+    device_name: space.device.device_name,
+    is_finished: false,
+    last_latitude: checkpointsFromHistories[0]?.latitude ?? 0,
+    last_longitude: checkpointsFromHistories[0]?.longitude ?? 0,
+    last_report: checkpointsFromHistories[0]?.timestamp ?? now,
   }
 })
