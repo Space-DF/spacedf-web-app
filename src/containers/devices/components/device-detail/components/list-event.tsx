@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import {
   Select,
   SelectContent,
@@ -13,6 +13,11 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import ExpandableList from '@/components/common/expandable-list'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
+import { useEvents } from '../hooks/useEvents'
+import { useDeviceStore } from '@/stores/device-store'
+import dayjs from 'dayjs'
+import { useTripAddress } from './trip-history/hooks/useTripAddress'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const DATE_VALUES = [
   {
@@ -69,8 +74,8 @@ const LIST_EVENT = [
 ]
 
 interface ListItem {
-  id: number
-  title: string
+  id: string
+  // title: string
   status: string
   times: string
   location: string
@@ -78,12 +83,79 @@ interface ListItem {
 
 const INITIAL_VISIBLE_COUNT = 2
 
+const skeletonItems = Array.from(
+  { length: INITIAL_VISIBLE_COUNT },
+  (_, index) => ({
+    id: `skeleton-${index}`,
+    status: 'loading',
+    times: '',
+    location: '',
+  })
+)
+
 const ListEvent = () => {
   const t = useTranslations('common')
 
   const showDummyData = useShowDummyData()
 
-  const listEvent = showDummyData ? LIST_EVENT : []
+  const deviceDataSelected = useDeviceStore(
+    (state) => state.devices[state.deviceSelected]
+  )
+
+  const { data: events, isLoading: isLoadingEvents } = useEvents(
+    deviceDataSelected?.deviceId
+  )
+
+  const listLocation = useMemo(() => {
+    return events?.map((event) => ({
+      latitude: event.latitude,
+      longitude: event.longitude,
+    }))
+  }, [events])
+
+  const { data: listLocationName = [], isLoading: isLoadingLocation } =
+    useTripAddress(listLocation)
+
+  const listEvent = useMemo(
+    () =>
+      showDummyData
+        ? LIST_EVENT
+        : events?.map((event, index) => ({
+            id: event.timestamp,
+            status: 'online',
+            times: dayjs(event.timestamp).format('HH:mm'),
+            location: isLoadingLocation ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              listLocationName[index] || 'Unknown location'
+            ),
+          })),
+    [events, showDummyData, isLoadingLocation, listLocationName]
+  )
+
+  const renderSkeletonItem = useCallback(
+    (item: ListItem) => (
+      <div
+        key={item.id}
+        className="flex items-start gap-2 p-2 rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm"
+      >
+        <Skeleton className="size-6 rounded-full" />
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="flex flex-col gap-y-1">
+            <div className="flex items-center gap-x-1">
+              <Skeleton className="size-4" />
+              <Skeleton className="w-16 h-3" />
+            </div>
+            <div className="flex items-center gap-x-1">
+              <Skeleton className="size-4" />
+              <Skeleton className="w-32 h-3" />
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+    []
+  )
 
   const renderEventItem = useCallback(
     (item: ListItem, index: number, isExpanded: boolean) => (
@@ -110,9 +182,9 @@ const ListEvent = () => {
           )}
         </div>
         <div className="flex flex-col gap-1">
-          <div className="text-sm font-medium text-brand-component-text-dark">
+          {/* <div className="text-sm font-medium text-brand-component-text-dark">
             {item.title}
-          </div>
+          </div> */}
           <div className="flex flex-col gap-y-1">
             <div className="flex items-center gap-x-1">
               <Image
@@ -167,11 +239,17 @@ const ListEvent = () => {
           </Select>
         </div>
       </div>
-      <ExpandableList
-        items={listEvent}
-        initialCount={INITIAL_VISIBLE_COUNT}
-        renderItem={renderEventItem}
-      />
+      {isLoadingEvents ? (
+        <div className="flex flex-col gap-2">
+          {skeletonItems.map((item) => renderSkeletonItem(item))}
+        </div>
+      ) : (
+        <ExpandableList
+          items={listEvent as ListItem[]}
+          initialCount={INITIAL_VISIBLE_COUNT}
+          renderItem={renderEventItem}
+        />
+      )}
     </div>
   )
 }

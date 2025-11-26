@@ -1,4 +1,5 @@
 import { DynamicLayout, NavigationEnums, dynamicLayoutKeys } from '@/constants'
+import api from '@/lib/api'
 import Cookies from 'js-cookie'
 
 export const getLocalStorage = (key: string, initialValue: any) => {
@@ -78,4 +79,4 @@ export const isEmail = (email: string) => {
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
-export const fetcher = (url: string) => fetch(url).then((res) => res.json())
+export const fetcher = <T>(url: string) => api.get<T>(url)

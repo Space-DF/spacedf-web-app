@@ -6,25 +6,20 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { deviceId: string; spaceSlug: string } }
+  { params }: { params: { tripId: string; spaceSlug: string } }
 ) => {
-  const { deviceId, spaceSlug } = params
-
   try {
+    const { tripId, spaceSlug } = params
     const isDemo = await isDemoSubdomain(request)
     const session = await readSession()
-    if (isDemo || !spaceSlug || !session) {
-      const trips = dummyTrips.filter((trip) => trip.device_id === deviceId)
-      return NextResponse.json(trips, {
-        status: 200,
-      })
+    if (isDemo || !session) {
+      return NextResponse.json(dummyTrips.find((trip) => trip.id === tripId))
     }
-
     const client = await spaceClient()
     client.setAccessToken(session?.user?.access as string)
-    const trips = await client.trip.list(
+    const trip = await client.trip.retrieve(
+      tripId,
       {
-        space_device__device_id: deviceId,
         include_checkpoints: true,
       },
       {
@@ -33,7 +28,7 @@ export const GET = async (
         },
       }
     )
-    return NextResponse.json(trips.results)
+    return NextResponse.json(trip)
   } catch (error) {
     return handleError(error)
   }
