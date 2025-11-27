@@ -18,7 +18,6 @@ import Image from 'next/image'
 import { useCallback, useMemo, useState } from 'react'
 import TripDetail from './components/trip-detail'
 import { useDeviceStore } from '@/stores/device-store'
-import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useGetTrips } from './hooks/useGetTrips'
 import { Checkpoint } from '@/types/trip'
 import { useGetDevices } from '@/hooks/useDevices'
@@ -49,7 +48,7 @@ interface ListItem {
   name: string | React.ReactNode
   distance: string
   duration: number
-  time: Date
+  time?: Date
   checkpoints: Checkpoint[]
 }
 
@@ -110,12 +109,14 @@ const TripHistory = () => {
 
   const { data: trips = [], isLoading } = useGetTrips(currentDeviceId)
 
-  const { data: tripAddresses } = useTripAddress(
-    trips.map((trip) => ({
+  const listLocation = useMemo(() => {
+    return trips.map((trip) => ({
       longitude: trip.last_longitude,
       latitude: trip.last_latitude,
     }))
-  )
+  }, [trips])
+
+  const { data: tripAddresses } = useTripAddress(listLocation)
 
   const tripHistory: ListItem[] = useMemo(
     () =>
@@ -125,15 +126,12 @@ const TripHistory = () => {
         checkpoints: trip.checkpoints,
         distance: '0',
         duration: dayjs(trip.last_report).diff(dayjs(trip.started_at)),
-        time: new Date(trip.last_report),
+        time: trip.last_report ? new Date(trip.last_report) : undefined,
       })) || [],
     [trips, tripAddresses]
   )
 
-  const { startDrawHistory } = useDeviceHistory()
-
   const handleStartDrawHistory = (item: ListItem) => {
-    startDrawHistory(item.checkpoints)
     setSelectedTrip(item.id)
   }
 
@@ -167,18 +165,20 @@ const TripHistory = () => {
                   {item.name}
                 </span>
                 <span className="text-xs text-brand-component-stroke-gray">
-                  {format(item.time, 'HH:mm dd/MM/yyyy')}
+                  {item.time
+                    ? format(item.time, 'HH:mm dd/MM/yyyy')
+                    : 'Unknown'}
                 </span>
               </div>
               <div className="flex gap-x-9">
-                <div className="flex flex-col gap-y-1">
+                {/* <div className="flex flex-col gap-y-1">
                   <p className="text-[14px] font-semibold text-brand-component-text-dark">
                     {item.distance} km
                   </p>
                   <span className="text-[11px] text-brand-component-stroke-gray">
                     {t('distance')}
                   </span>
-                </div>
+                </div> */}
                 <div className="flex flex-col gap-y-1">
                   <p className="text-[14px] font-semibold text-brand-component-text-dark">
                     {formatDuration(item.duration)}

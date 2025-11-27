@@ -401,3 +401,17 @@ video::-webkit-media-controls-start-playback-button {
     @apply !border-brand-component-stroke-warning !bg-brand-component-fill-warning-soft;
   }
 }
+
+.route-point-popup .mapboxgl-popup-content {
+  background-color: #171a28;
+  width: 54px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.route-point-popup.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #171a28;
+}

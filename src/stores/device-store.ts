@@ -132,7 +132,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
               ...state.devices,
               [currentDevice.id]: newState,
             }
-          : state.devices
+          : { ...state.devices, [deviceId]: newState }
 
         return {
           devices: newDevices,

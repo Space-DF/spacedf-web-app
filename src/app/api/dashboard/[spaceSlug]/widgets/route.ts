@@ -15,7 +15,6 @@ export const PUT = withAuthApiRequired(
       })
       return NextResponse.json(response)
     } catch (error) {
-      console.log({ error })
       return handleError(error)
     }
   }

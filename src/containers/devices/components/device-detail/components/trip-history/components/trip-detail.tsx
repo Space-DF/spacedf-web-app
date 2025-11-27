@@ -16,9 +16,10 @@ import { format } from 'date-fns'
 import { ArrowLeft, ChevronDown, Clock, Ellipsis, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGetTrip } from '../hooks/useGetTrip'
 import { Checkpoint } from '@/types/trip'
+import { useTripAddress } from '../hooks/useTripAddress'
 interface TripDetailProps {
   open: boolean
   onClose: () => void
@@ -60,14 +61,31 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const { data: trip, isLoading } = useGetTrip(tripId)
-
+  const { startDrawHistory, removeRoute } = useDeviceHistory()
   const checkpoints = trip?.checkpoints || []
+
+  const listLocation = useMemo(() => {
+    return checkpoints.map((checkpoint) => ({
+      longitude: checkpoint.longitude,
+      latitude: checkpoint.latitude,
+    }))
+  }, [checkpoints])
+
+  const { data: listLocationName = [], isLoading: isLoadingLocation } =
+    useTripAddress(listLocation)
 
   const visibleCheckpoints: Checkpoint[] = isExpanded
     ? checkpoints
     : checkpoints.slice(0, 3)
 
-  const { removeRoute } = useDeviceHistory()
+  useEffect(() => {
+    if (open && checkpoints.length > 0) {
+      startDrawHistory(checkpoints)
+      return () => {
+        removeRoute()
+      }
+    }
+  }, [open, checkpoints])
 
   const handleClose = () => {
     removeRoute()
@@ -108,7 +126,10 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
               {visibleCheckpoints.map((item, index) => {
                 const isLast = index === visibleCheckpoints.length - 1
                 return (
-                  <TimelineItem status="done" key={item.timestamp}>
+                  <TimelineItem
+                    status="done"
+                    key={`${item.timestamp}-${index}`}
+                  >
                     <TimelineHeading className="w-full flex items-center justify-between">
                       <p className="text-brand-component-text-dark font-semibold text-sm">
                         {isLast ? 'Stop' : 'Start'}
@@ -134,17 +155,28 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                     {!isLast && <TimelineLine done />}
                     <TimelineContent className="text-xs text-brand-component-text-gray">
                       <div className="flex flex-col space-y-1">
-                        <div>238 Trung Nu Vuong, Hai Chau, Da Nang</div>
+                        <div>
+                          {isLoadingLocation ? (
+                            <Skeleton className="w-20 h-4" />
+                          ) : listLocationName[index] ? (
+                            listLocationName[index]
+                          ) : (
+                            'Unknown location'
+                          )}
+                        </div>
                         <div className="flex items-center space-x-1">
                           <Clock className="size-4" />
                           <p>
-                            {format(item.timestamp, 'hh:mm a')} -{' '}
-                            {format(item.timestamp, 'hh:mm a')}
+                            {item.timestamp
+                              ? format(item.timestamp, 'hh:mm a')
+                              : 'Unknown'}
                           </p>
                         </div>
                       </div>
                       <div className="mt-3">
-                        {format(item.timestamp, 'EEEE dd MMMM yyyy')}
+                        {item.timestamp
+                          ? format(item.timestamp, 'EEEE dd MMMM yyyy')
+                          : 'Unknown'}
                       </div>
                     </TimelineContent>
                   </TimelineItem>
