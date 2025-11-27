@@ -10,13 +10,14 @@ type FleetTrackingStore = {
   modelType: ModelType | null
   isMapReady: boolean
   isClusterVisible: boolean
+  isAlreadyShowTripRoute: boolean
 
   //actions
   setMap: (map: mapboxgl.Map | null) => void
   setMapType: (mapType: MapType) => void
 
   updateBooleanState: (
-    key: 'isMapReady' | 'isClusterVisible',
+    key: 'isMapReady' | 'isClusterVisible' | 'isAlreadyShowTripRoute',
     value: boolean
   ) => void
   setModelType: (modelType: ModelType) => void
@@ -28,6 +29,7 @@ export const useFleetTrackingStore = create<FleetTrackingStore>((set) => ({
   mapType: null,
   modelType: null,
   isClusterVisible: true,
+  isAlreadyShowTripRoute: false,
 
   setMap: (map) => set({ map }),
   setMapType: (mapType) => {

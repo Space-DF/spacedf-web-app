@@ -55,7 +55,6 @@ const OrganizationSetting = () => {
       },
       {
         onSuccess: async (data) => {
-          console.log('data', data)
           setLoadingText({
             duration: 3000,
             loadingTitle: t('congratulations'),

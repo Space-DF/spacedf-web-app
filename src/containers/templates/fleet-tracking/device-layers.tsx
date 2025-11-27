@@ -1,6 +1,7 @@
 'use client'
 
 import { usePrevious } from '@/hooks/usePrevious'
+import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { DeckGLInstance } from '@/utils/fleet-tracking-map/deckgl-instance'
@@ -13,25 +14,35 @@ const markerInstance = MarkerInstance.getInstance()
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 const deckglInstance = DeckGLInstance.getInstance()
 export const DeviceLayers = () => {
-  const { devices, deviceModels, setDeviceSelected, deviceSelected } =
-    useDeviceStore(
-      useShallow((state) => ({
-        devices: state.devicesFleetTracking,
-        deviceModels: state.models,
-        deviceSelected: state.deviceSelected,
-        setDeviceSelected: state.setDeviceSelected,
-      }))
-    )
-
-  const { isClusterVisible, modelType } = useFleetTrackingStore(
+  const {
+    devices,
+    deviceModels,
+    setDeviceSelected,
+    deviceSelected,
+    deviceHistory,
+  } = useDeviceStore(
     useShallow((state) => ({
-      isClusterVisible: state.isClusterVisible,
-      modelType:
-        state.modelType ||
-        (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
-        '2d',
+      devices: state.devicesFleetTracking,
+      deviceModels: state.models,
+      deviceSelected: state.deviceSelected,
+      setDeviceSelected: state.setDeviceSelected,
+      deviceHistory: state.deviceHistory,
     }))
   )
+
+  const { startDrawHistory } = useDeviceHistory()
+
+  const { isClusterVisible, modelType, isAlreadyShowTripRoute } =
+    useFleetTrackingStore(
+      useShallow((state) => ({
+        isClusterVisible: state.isClusterVisible,
+        modelType:
+          state.modelType ||
+          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') ||
+          '2d',
+        isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
+      }))
+    )
 
   const prevDeviceSelected = usePrevious(deviceSelected)
   const prevModelType = usePrevious(modelType)
@@ -111,12 +122,36 @@ export const DeviceLayers = () => {
 
   useEffect(() => {
     if (
-      modelType !== prevModelType ||
-      isClusterVisible !== prevIsClusterVisible
+      !isAlreadyShowTripRoute &&
+      (modelType !== prevModelType || isClusterVisible !== prevIsClusterVisible)
     ) {
       setDeviceSelected('')
     }
-  }, [modelType, isClusterVisible, prevIsClusterVisible, prevModelType])
+  }, [
+    modelType,
+    isClusterVisible,
+    prevIsClusterVisible,
+    prevModelType,
+    isAlreadyShowTripRoute,
+  ])
+
+  // Handle device history redraw when modelType changes
+  useEffect(() => {
+    const map = fleetTrackingMap.getMap()
+    if (!map || !deviceHistory?.length) return
+    if (prevModelType && prevModelType !== modelType) {
+      const controlIcon = (map?._controls as any).find(
+        (control: any) => control._props?.id === 'device-histories'
+      )
+
+      if (controlIcon) {
+        map?.removeControl(controlIcon)
+        setTimeout(() => {
+          startDrawHistory(deviceHistory)
+        }, 100)
+      }
+    }
+  }, [modelType, deviceHistory])
 
   const handleDeviceRotation = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
