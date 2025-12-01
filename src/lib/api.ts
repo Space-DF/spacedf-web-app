@@ -1,6 +1,7 @@
 import { signOut } from 'next-auth/react'
 import MqttService from './mqtt'
 import { getClientOrganization } from '@/utils'
+import { toast } from 'sonner'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -242,6 +243,10 @@ api.setInterceptors({
           api.isRefreshing = false
         }
       }
+    }
+
+    if (error.response?.status === 403) {
+      toast.error('You are not authorized to access this resource')
     }
 
     throw error

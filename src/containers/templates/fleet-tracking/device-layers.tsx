@@ -62,8 +62,9 @@ export const DeviceLayers = () => {
   }, [devices, deviceModels])
 
   useEffect(() => {
+    if (isAlreadyShowTripRoute) return
     handleLayerType()
-  }, [devices, isClusterVisible, modelType])
+  }, [devices, isClusterVisible, modelType, isAlreadyShowTripRoute])
 
   useEffect(() => {
     const handleDeviceSelected = (object: any) => {

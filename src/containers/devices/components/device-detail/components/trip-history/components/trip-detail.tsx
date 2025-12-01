@@ -124,7 +124,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
           ) : (
             <Timeline>
               {visibleCheckpoints.map((item, index) => {
-                const isLast = index === visibleCheckpoints.length - 1
+                const isLast = index === checkpoints.length - 1
                 return (
                   <TimelineItem
                     status="done"
