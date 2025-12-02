@@ -82,38 +82,20 @@ class FleetTrackingMap {
   }
 
   async setContainer(newContainer: HTMLDivElement) {
-    await new Promise((r) => setTimeout(r, 200)) // small delay if needed
+    await new Promise((resolve) => setTimeout(resolve, 2000))
     if (!this.map) return
 
     const currentContainer = this.map.getContainer()
+
     if (currentContainer.parentElement === newContainer) return
 
-    // If map container is fullscreen, exit fullscreen first
-    try {
-      const fsEl = document.fullscreenElement
-      if (fsEl && fsEl.contains(currentContainer)) {
-        await document.exitFullscreen()
-      }
-    } catch (e) {
-      console.warn('exitFullscreen failed', e)
-    }
-
     newContainer.appendChild(currentContainer)
+    this.map?.resize()
 
-    // wait for layout to settle
-    requestAnimationFrame(() => {
-      try {
-        this.map?.resize()
-      } catch (error: any) {
-        console.error('resize failed', error)
-      }
-      // optionally set view
-      this.map?.setZoom(0.5)
-      this.map?.setCenter([0, 0])
+    this.map.setZoom(0.5)
+    this.map.setCenter([0, 0])
 
-      // notify UI
-      this.emit('reattach', this.map)
-    })
+    this.emit('reattach', this.map)
   }
 
   remove() {
