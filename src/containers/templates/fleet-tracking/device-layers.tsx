@@ -176,7 +176,6 @@ export const DeviceLayers = () => {
         break
       case '3d':
         markerInstance.hideAllMarkers()
-
         if (isClusterVisible) {
           deckglInstance.syncLayers(devices, 'hidden')
         } else {

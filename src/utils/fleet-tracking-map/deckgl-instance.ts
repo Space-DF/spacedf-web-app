@@ -50,6 +50,8 @@ class DeckGLInstance {
       this.rotationRef = null
     }
 
+    this.focusedDevice = null
+
     if (this.isVisible) {
       this.resetLayersState()
     }
@@ -71,6 +73,7 @@ class DeckGLInstance {
     if (!this.map || !this.isInitialized || !this.isVisible) return
 
     this.hasLayerRotation = true
+    this.focusedDevice = deviceId
 
     const deviceData = this.devices[deviceId]
 
@@ -251,6 +254,15 @@ class DeckGLInstance {
   ) {
     if (!this.map || !this.isInitialized) return
 
+    const hadDeviceDeleted =
+      this.hasLayerRotation &&
+      Object.keys(this.devices).some((id) => !devices[id])
+
+    const rotatingDeviceDeleted =
+      this.hasLayerRotation &&
+      this.focusedDevice &&
+      !devices[this.focusedDevice]
+
     this.devices = devices
 
     this.isVisible = type === 'visible'
@@ -263,7 +275,12 @@ class DeckGLInstance {
       if (this.destroyTimer) clearTimeout(this.destroyTimer)
     }
 
-    if (this.hasLayerRotation) return
+    if (rotatingDeviceDeleted) {
+      this.stopDeviceRotationAnimation()
+      this.hasLayerRotation = false
+    }
+
+    if (this.hasLayerRotation && !hadDeviceDeleted) return
 
     const layers = this.buildLayers(devices, type)
     this.layers = layers || []
