@@ -87,18 +87,24 @@ export const MapControl = () => {
   useEffect(() => {
     if (!isMapReady) return
 
-    function onGeolocate() {
+    function onGeolocate(e: any) {
+      const [currentLng, currentLat] = [e.coords.longitude, e.coords.latitude]
+
       const currentModelType = localStorage.getItem(
         'fleet-tracking:modelType'
       ) as '2d' | '3d'
 
       setIsGeolocateAllowed(true)
       const map = fleetTrackingMap.getMap()
-      if (currentModelType === '3d') {
-        map?.easeTo({
-          pitch: 90,
-        })
-      }
+      if (!map) return
+      const currentZoom = map?.getZoom() || 18
+      map?.flyTo({
+        center: [currentLng, currentLat],
+        zoom: 18,
+        duration: currentZoom < 10 ? (10 - currentZoom) * 500 : 1000,
+        essential: true,
+        pitch: currentModelType === '3d' ? 90 : 0,
+      })
     }
 
     function onError() {
