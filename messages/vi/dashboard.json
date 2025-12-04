@@ -129,5 +129,11 @@
   "add_slider_widget": "Thêm tiện ích thanh trượt",
   "step": "Bước",
   "value_from": "Giá trị từ",
-  "value_to": "Giá trị đến"
+  "value_to": "Giá trị đến",
+  "create_dashboard": "Tạo Dashboard",
+  "dashboard_name": "Tên Dashboard",
+  "enter_dashboard_name": "Nhập tên Dashboard",
+  "dashboard_updated_successfully": "Dashboard đã được cập nhật thành công",
+  "dashboard_update_failed": "Dashboard đã được cập nhật thất bại",
+  "update_dashboard": "Cập nhật Dashboard"
 }

@@ -15,18 +15,20 @@ const fleetTrackingMap = FleetTrackingMap.getInstance()
 const deckglInstance = DeckGLInstance.getInstance()
 export const DeviceLayers = () => {
   const {
-    devices,
+    devicesFleetTracking,
     deviceModels,
     setDeviceSelected,
     deviceSelected,
     deviceHistory,
+    devices,
   } = useDeviceStore(
     useShallow((state) => ({
-      devices: state.devicesFleetTracking,
+      devicesFleetTracking: state.devicesFleetTracking,
       deviceModels: state.models,
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
       deviceHistory: state.deviceHistory,
+      devices: state.devices,
     }))
   )
 
@@ -59,12 +61,17 @@ export const DeviceLayers = () => {
     return () => {
       fleetTrackingMap.off('style.load', handleMapLoaded)
     }
-  }, [devices, deviceModels])
+  }, [devicesFleetTracking, deviceModels])
 
   useEffect(() => {
     if (isAlreadyShowTripRoute) return
     handleLayerType()
-  }, [devices, isClusterVisible, modelType, isAlreadyShowTripRoute])
+  }, [
+    devicesFleetTracking,
+    isClusterVisible,
+    modelType,
+    isAlreadyShowTripRoute,
+  ])
 
   useEffect(() => {
     const handleDeviceSelected = (object: any) => {
@@ -98,7 +105,7 @@ export const DeviceLayers = () => {
       const map = fleetTrackingMap.getMap()
 
       if (map) {
-        const device = devices[deviceSelected]
+        const device = devicesFleetTracking[deviceSelected]
 
         if (!device) return
 
@@ -119,7 +126,7 @@ export const DeviceLayers = () => {
         markerInstance.focusMarker(deviceSelected)
       }
     }
-  }, [deviceSelected, prevDeviceSelected, devices, modelType])
+  }, [deviceSelected, prevDeviceSelected, devicesFleetTracking, modelType])
 
   useEffect(() => {
     if (
@@ -135,6 +142,12 @@ export const DeviceLayers = () => {
     prevModelType,
     isAlreadyShowTripRoute,
   ])
+
+  useEffect(() => {
+    if (deviceSelected && !devices[deviceSelected]) {
+      setDeviceSelected('')
+    }
+  }, [devices, deviceSelected, setDeviceSelected])
 
   // Handle device history redraw when modelType changes
   useEffect(() => {
@@ -163,13 +176,13 @@ export const DeviceLayers = () => {
     switch (modelType) {
       case '2d':
         if (deckglInstance.checkLayerAvailable()) {
-          deckglInstance.syncLayers(devices, 'hidden')
+          deckglInstance.syncLayers(devicesFleetTracking, 'hidden')
         }
 
         if (isClusterVisible) {
           markerInstance.hideAllMarkers()
         } else {
-          markerInstance.syncDevices(devices)
+          markerInstance.syncDevices(devicesFleetTracking)
           markerInstance.displayAllMarkers()
         }
 
@@ -177,9 +190,9 @@ export const DeviceLayers = () => {
       case '3d':
         markerInstance.hideAllMarkers()
         if (isClusterVisible) {
-          deckglInstance.syncLayers(devices, 'hidden')
+          deckglInstance.syncLayers(devicesFleetTracking, 'hidden')
         } else {
-          deckglInstance.syncLayers(devices, 'visible')
+          deckglInstance.syncLayers(devicesFleetTracking, 'visible')
         }
         break
     }

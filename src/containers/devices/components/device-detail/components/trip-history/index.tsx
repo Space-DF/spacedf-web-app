@@ -1,18 +1,10 @@
 import ExpandableList from '@/components/common/expandable-list'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { formatDuration } from '@/utils/time'
 
 import { format } from 'date-fns'
-import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useCallback, useMemo, useState } from 'react'
@@ -23,25 +15,6 @@ import { Checkpoint } from '@/types/trip'
 import { useGetDevices } from '@/hooks/useDevices'
 import dayjs from 'dayjs'
 import { useTripAddress } from './hooks/useTripAddress'
-
-const RANGE_VALUES = [
-  {
-    value: 'recently',
-    label: 'Recently',
-  },
-  {
-    value: 'last_week',
-    label: 'Last Week',
-  },
-  {
-    value: 'last_month',
-    label: 'Last Month',
-  },
-  {
-    value: 'last_year',
-    label: 'Last Year',
-  },
-]
 
 interface ListItem {
   id: string
@@ -208,26 +181,6 @@ const TripHistory = () => {
           <Label className="text-brand-component-text-dark text-sm font-semibold">
             {t('trip_history')}
           </Label>
-          <div className="flex items-center gap-2">
-            <Select defaultValue="recently">
-              <SelectTrigger
-                icon={<ChevronDown className="size-4" />}
-                className="bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light rounded-lg border-none outline-none focus:ring-0 min-w-28 h-6"
-              >
-                <SelectValue
-                  placeholder="Select range time"
-                  className="min-w-30 h-6"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {RANGE_VALUES.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
         {isLoading ? (
           <div className="flex flex-col gap-3">

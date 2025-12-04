@@ -1,5 +1,4 @@
 import { Nodata, RightSideBarLayout } from '@/components/ui'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slide } from '@/components/ui/slide'
 import {
@@ -13,7 +12,7 @@ import {
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
-import { ArrowLeft, ChevronDown, Clock, Ellipsis, MapPin } from 'lucide-react'
+import { ArrowLeft, ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
@@ -62,7 +61,10 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
 
   const { data: trip, isLoading } = useGetTrip(tripId)
   const { startDrawHistory, removeRoute } = useDeviceHistory()
-  const checkpoints = trip?.checkpoints || []
+  const checkpoints = useMemo(
+    () => [...(trip?.checkpoints || [])].reverse(),
+    [trip?.checkpoints]
+  )
 
   const listLocation = useMemo(() => {
     return checkpoints.map((checkpoint) => ({
@@ -118,13 +120,14 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
         allowClose={false}
       >
         {!isLoading && visibleCheckpoints.length === 0 && <Nodata />}
-        <ScrollArea className="h-full mt-4">
+        <div className="h-full mt-4">
           {isLoading ? (
             <TimelineSkeleton />
           ) : (
             <Timeline>
               {visibleCheckpoints.map((item, index) => {
                 const isLast = index === checkpoints.length - 1
+                const isLastVisible = index === visibleCheckpoints.length - 1
                 return (
                   <TimelineItem
                     status="done"
@@ -134,7 +137,6 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                       <p className="text-brand-component-text-dark font-semibold text-sm">
                         {isLast ? 'Stop' : 'Start'}
                       </p>
-                      <Ellipsis className="size-[18px] cursor-pointer text-brand-component-text-gray" />
                     </TimelineHeading>
                     <TimelineDot
                       status="custom"
@@ -152,7 +154,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                         )
                       }
                     />
-                    {!isLast && <TimelineLine done />}
+                    {!isLastVisible && <TimelineLine done />}
                     <TimelineContent className="text-xs text-brand-component-text-gray">
                       <div className="flex flex-col space-y-1">
                         <div>
@@ -198,7 +200,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
               />
             </button>
           )}
-        </ScrollArea>
+        </div>
       </RightSideBarLayout>
     </Slide>
   )

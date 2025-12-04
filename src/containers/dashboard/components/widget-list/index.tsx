@@ -33,8 +33,6 @@ import {
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { useTranslations } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
-import { useCreateDashboard } from '../../hooks/useCreateDashboard'
-import { useIsDemo } from '@/hooks/useIsDemo'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Widget, WidgetLayout } from '@/types/widget'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
@@ -46,8 +44,7 @@ import { useDashboard } from '../../hooks/useDashboard'
 import { useUpdateWidgets } from './hooks/useUpdateWidgets'
 import { toast } from 'sonner'
 import { WidgetAction } from './components/widget-action'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useIdentityStore } from '@/stores/identity-store'
+import { DashboardDialog } from './components/dashboard-dialog'
 
 interface Props {
   onCloseSideBar: () => void
@@ -82,10 +79,7 @@ export const WidgetList: React.FC<Props> = ({
     setDashboardId,
   } = useDashboardStore()
   const t = useTranslations()
-  const isAuthenticated = useAuthenticated()
-  const setOpenDrawerIdentity = useIdentityStore(
-    (state) => state.setOpenDrawerIdentity
-  )
+
   const [open, setOpen] = useState(false)
 
   const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
@@ -98,9 +92,6 @@ export const WidgetList: React.FC<Props> = ({
   }, [])
 
   const { data: dashboards = [], mutate } = useDashboard()
-
-  const { trigger: createDashboard, isMutating: isCreatingDashboard } =
-    useCreateDashboard()
 
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)
@@ -117,17 +108,7 @@ export const WidgetList: React.FC<Props> = ({
     return widgets
   }, [widgetLayouts])
 
-  const isDemo = useIsDemo()
-
   const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
-
-  const handleCreateNewDashBoard = async () => {
-    if (isDemo) return
-    if (!isAuthenticated) return setOpenDrawerIdentity(true)
-    const dashboard = await createDashboard({ name: 'Unnamed Dashboard' })
-    setOpen(false)
-    setDashboardId(dashboard.id)
-  }
 
   const handleCancelEdit = () => {
     if (currentWidgetLayout.length) {
@@ -270,14 +251,15 @@ export const WidgetList: React.FC<Props> = ({
                     {t('dashboard.view_all_dashboard')}
                     <ArrowUpRight />
                   </Button>
-                  <Button
-                    className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
-                    onClick={handleCreateNewDashBoard}
-                    loading={isCreatingDashboard}
+                  <DashboardDialog
+                    setDashboardId={setDashboardId}
+                    closePopover={() => setOpen(false)}
                   >
-                    {t('dashboard.create_new_dashboard')}
-                    <PlusIcon size={16} />
-                  </Button>
+                    <Button className="h-8 w-full gap-2 rounded-lg text-sm font-semibold">
+                      {t('dashboard.create_new_dashboard')}
+                      <PlusIcon size={16} />
+                    </Button>
+                  </DashboardDialog>
                 </CommandList>
               </Command>
             </PopoverContent>

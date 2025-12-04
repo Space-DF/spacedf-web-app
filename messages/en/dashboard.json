@@ -129,5 +129,11 @@
   "add_slider_widget": "Add Slider Widget",
   "step": "Step",
   "value_from": "Value from",
-  "value_to": "Value to"
+  "value_to": "Value to",
+  "create_dashboard": "Create Dashboard",
+  "dashboard_name": "Dashboard Name",
+  "enter_dashboard_name": "Enter dashboard name",
+  "dashboard_updated_successfully": "Dashboard updated successfully",
+  "dashboard_update_failed": "Dashboard update failed",
+  "update_dashboard": "Update Dashboard"
 }
