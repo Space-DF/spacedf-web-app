@@ -7,6 +7,17 @@ export class MQTTRouter {
     this.handlers.push(handler)
   }
 
+  unregisterHandler(handler: BaseMQTTHandler): void {
+    const index = this.handlers.indexOf(handler)
+    if (index > -1) {
+      this.handlers.splice(index, 1)
+    }
+  }
+
+  clearHandlers(): void {
+    this.handlers = []
+  }
+
   routeMessage(topic: string, payload: Buffer): any[] {
     try {
       const payloadString = new TextDecoder().decode(payload)
@@ -35,5 +46,9 @@ export class MQTTRouter {
 
   getRegisteredHandlers(): string[] {
     return this.handlers.map((handler) => handler.topicPattern)
+  }
+
+  cleanup(): void {
+    this.clearHandlers()
   }
 }

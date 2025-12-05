@@ -121,7 +121,7 @@ export const MapControl = () => {
       if (!geolocateControlRef.current) {
         geolocateControlRef.current = new mapboxgl.GeolocateControl({
           positionOptions: { enableHighAccuracy: true },
-          trackUserLocation: true,
+          trackUserLocation: false,
           showUserHeading: true,
         })
 

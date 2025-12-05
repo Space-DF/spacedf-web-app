@@ -100,7 +100,8 @@ class FleetTrackingMap {
 
   remove() {
     if (!this.map) return
-
+    this.clearAllListeners()
+    this.devices = {}
     this.map.remove()
     this.map = null
     this.isInitialized = false

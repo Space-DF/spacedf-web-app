@@ -10,7 +10,7 @@ import { IControl } from 'mapbox-gl'
 const DESTROY_LAYERS_INTERVAL = 30000 // 60 seconds
 
 class DeckGLInstance {
-  private static instance: DeckGLInstance
+  private static instance: DeckGLInstance | undefined
   private emitter = new EventEmitter()
   private map: mapboxgl.Map | null = null
   private deck: MapboxOverlay | null = null
@@ -311,12 +311,28 @@ class DeckGLInstance {
   remove() {
     if (!this.map) return
 
-    this.map.removeControl(this.deck as unknown as IControl)
-    this.deck = null
+    this.stopDeviceRotationAnimation()
+    if (this.destroyTimer) {
+      clearTimeout(this.destroyTimer)
+      this.destroyTimer = null
+    }
+
+    this.emitter.clear()
+    if (this.deck) {
+      this.map.removeControl(this.deck as unknown as IControl)
+      this.deck = null
+    }
+
     this.layers = []
     this.devices = {}
+    this.deviceModels = {}
     this.focusedDevice = null
     this.isInitialized = false
+    this.hasLayerRotation = false
+    this.isLayersAvailable = false
+    this.isVisible = false
+    this.map = null
+    DeckGLInstance.instance = undefined
   }
 }
 

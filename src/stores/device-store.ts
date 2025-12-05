@@ -49,6 +49,7 @@ type DeviceModelAction = {
   ) => void
 
   setDeviceHistory: (data: Checkpoint[]) => void
+  clearDeviceModels: () => void
 }
 
 const reduceDevices = (data: Device[]) => {
@@ -136,6 +137,12 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
     setInitializedSuccess: (newState) =>
       set(() => ({
         initializedSuccess: newState,
+      })),
+
+    clearDeviceModels: () =>
+      set(() => ({
+        models: {} as Record<SupportedModels, GLTFWithBuffers>,
+        modelPreview: {} as Record<SupportedModels, string>,
       })),
   }))
 )

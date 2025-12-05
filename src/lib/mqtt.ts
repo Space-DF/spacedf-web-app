@@ -34,7 +34,7 @@ const getMqttToken = async () =>
   api.get<{ mqtt_token: string }>('/api/mqtt-token')
 
 class MqttService {
-  private static instance: MqttService
+  private static instance: MqttService | undefined
   public client: MqttClient | null = null
   private readonly brokerUrl: string
   private readonly options: IClientOptions
@@ -71,6 +71,13 @@ class MqttService {
     return MqttService.instance
   }
 
+  public static resetInstance(): void {
+    if (MqttService.instance) {
+      MqttService.instance.disconnect()
+      MqttService.instance = undefined
+    }
+  }
+
   public async initialize(): Promise<void> {
     if (!this.client) {
       await this.connect()
@@ -79,9 +86,20 @@ class MqttService {
 
   public async reconnect(): Promise<void> {
     this.connectRetryCount = 0
-    this.client?.end()
-    this.client = null
+    this.cleanupClient()
     await this.connect()
+  }
+
+  private cleanupClient(): void {
+    if (!this.client) return
+    this.client.removeAllListeners('connect')
+    this.client.removeAllListeners('error')
+    this.client.removeAllListeners('close')
+    this.client.removeAllListeners('offline')
+    this.client.removeAllListeners('message')
+
+    this.client.end()
+    this.client = null
   }
 
   private async connect(): Promise<void> {
@@ -287,11 +305,14 @@ class MqttService {
 
   public disconnect(): void {
     this.manualDisconnect = true
-    if (this.client) {
-      this.client.end()
-      this.client = null
-      this.connectionStatus = 'disconnected'
-    }
+    this.connectionStatus = 'disconnected'
+    this.subscriptions.clear()
+    this.eventCallbacks = {}
+
+    this.cleanupClient()
+    this.connectRetryCount = 0
+    this.subscribeRetryCount = 0
+    this.isReconnecting = false
   }
 }
 

@@ -72,8 +72,16 @@ export function stopMarkerAnimation(marker: mapboxgl.Marker) {
   activeAnimations = activeAnimations.filter((a) => a.marker !== marker)
 }
 
+export function stopAllAnimations() {
+  activeAnimations = []
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
+}
+
 class MarkerInstance {
-  private static instance: MarkerInstance
+  private static instance: MarkerInstance | undefined
   private map: mapboxgl.Map | null = null
   private markers: Record<string, mapboxgl.Marker> = {}
   private visible = true
@@ -220,12 +228,18 @@ class MarkerInstance {
 
   remove() {
     if (!this.map) return
-    Object.values(this.markers).forEach((marker) => marker.remove())
+
+    stopAllAnimations()
+    Object.values(this.markers).forEach((marker) => {
+      stopMarkerAnimation(marker)
+      marker.remove()
+    })
+    this.emitter.clear()
     this.markers = {}
     this.map = null
-    this.markers = {}
     this.visible = false
     this.focusedMarker = null
+    MarkerInstance.instance = undefined
   }
 }
 

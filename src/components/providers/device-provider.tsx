@@ -47,6 +47,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setDevices,
     setModelPreview,
     setDeviceState,
+    clearDeviceModels,
   } = useDeviceStore(
     useShallow((state) => ({
       setDeviceModel: state.setDeviceModel,
@@ -54,6 +55,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setDevices: state.setDevices,
       setModelPreview: state.setModelPreview,
       setDeviceState: state.setDeviceState,
+      clearDeviceModels: state.clearDeviceModels,
     }))
   )
 
@@ -154,6 +156,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     handleMqttConnect()
     return () => {
       mqttServiceRef.current?.disconnect()
+      mqttServiceRef.current = null
+      if (mqttRouterRef.current) {
+        mqttRouterRef.current.cleanup()
+        mqttRouterRef.current = null
+      }
     }
   }, [isAuthorized, spaceSlugName, organization, isDemo])
 
@@ -209,9 +216,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       }))
     } catch (error) {
       console.error({ error })
-    } finally {
     }
   }
+
+  useEffect(() => {
+    return () => {
+      clearDeviceModels()
+    }
+  }, [clearDeviceModels])
 
   return <>{children}</>
 }
