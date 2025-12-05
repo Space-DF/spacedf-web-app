@@ -18,7 +18,6 @@ import SpaceMenuItem from './space-menu-item'
 import { useRouter } from '@/i18n/routing'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 import { cn } from '@/lib/utils'
@@ -33,7 +32,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
+  const setCurrentSpace = useGlobalStore((state) => state.setCurrentSpace)
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
@@ -42,11 +41,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     [spaceList]
   )
 
-  const { openGuideline } = useIdentityStore(
-    useShallow((state) => ({
-      openGuideline: state.openGuideline,
-    }))
-  )
+  const openGuideline = useIdentityStore((state) => state.openGuideline)
 
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
@@ -72,7 +67,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       setCurrentSpace(spaceSelected)
       handleGoToSpace(spaceSelected.slug_name)
     }
-  }, [spaceSelected, setCurrentSpace, handleGoToSpace, token])
+  }, [spaceSelected, handleGoToSpace, token])
 
   useEffect(() => {
     if (

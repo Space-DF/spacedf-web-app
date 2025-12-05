@@ -65,7 +65,6 @@ export const useUpdateSpace = () => {
         toast.success(`Space ${params.slug_name} updated successfully`)
       },
       onError: (error) => {
-        console.log(error)
         toast.error(error.message)
       },
       rollbackOnError: true,

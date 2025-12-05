@@ -4,7 +4,6 @@ import { ArrowLeftIcon, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
-import { useShallow } from 'zustand/react/shallow'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { IdentityStepEnum } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -63,22 +62,17 @@ const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
 }
 
 const Identity = () => {
-  const { openDrawer, setOpenDrawer, organizationDomain, openGuideline } =
-    useIdentityStore(
-      useShallow((state) => ({
-        openDrawer: state.openDrawerIdentity,
-        organizationDomain: state.organizationDomain,
-        openGuideline: state.openGuideline,
-        setOpenDrawer: state.setOpenDrawerIdentity,
-      }))
-    )
+  const openDrawer = useIdentityStore((state) => state.openDrawerIdentity)
+  const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
+  const organizationDomain = useIdentityStore(
+    (state) => state.organizationDomain
+  )
+  const openGuideline = useIdentityStore((state) => state.openGuideline)
   const t = useTranslations('signUp')
   const [isDifferentUser, setIsDifferentUser] = useState(false)
 
-  const { setFormType, formType } = useAuthForm((state) => ({
-    formType: state.formType,
-    setFormType: state.setFormType,
-  }))
+  const setFormType = useAuthForm((state) => state.setFormType)
+  const formType = useAuthForm((state) => state.formType)
 
   const { isOrganization } = useOrganization()
   const searchParams = useSearchParams()

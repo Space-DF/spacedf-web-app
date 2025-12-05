@@ -38,12 +38,8 @@ const singInSchema = z.object({
 })
 
 const SignInForm = () => {
-  const { initialData, setFormType } = useAuthForm(
-    useShallow((state) => ({
-      initialData: state.initialData,
-      setFormType: state.setFormType,
-    }))
-  )
+  const initialData = useAuthForm(useShallow((state) => state.initialData))
+  const setFormType = useAuthForm((state) => state.setFormType)
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
@@ -52,12 +48,7 @@ const SignInForm = () => {
 
   const [isAuthenticating, startAuthentication] = useTransition()
 
-  const { setOpenDrawer } = useIdentityStore(
-    useShallow((state) => ({
-      openDrawer: state.openDrawerIdentity,
-      setOpenDrawer: state.setOpenDrawerIdentity,
-    }))
-  )
+  const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
 
   const { clearAllCache } = useCache()
 

@@ -6,15 +6,12 @@ import { uppercaseFirstLetter } from '@/utils'
 import { PlusIcon } from '@radix-ui/react-icons'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 
 const Users = () => {
   const t = useTranslations('common')
 
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
 
   return (
     <RightSideBarLayout

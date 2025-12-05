@@ -5,13 +5,12 @@ import React, { PropsWithChildren, useEffect } from 'react'
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import LoadingFullScreen from '@/components/ui/loading-fullscreen'
-import { useShallow } from 'zustand/react/shallow'
 import { useGlobalStore } from '@/stores'
 
 const EffectLayout = ({ children }: PropsWithChildren) => {
-  const { duration, resetLoadingState, isGlobalLoading } = useGlobalStore(
-    useShallow((state) => state)
-  )
+  const duration = useGlobalStore((state) => state.duration)
+  const resetLoadingState = useGlobalStore((state) => state.resetLoadingState)
+  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading)
   const { startRender } = usePageTransition({ duration: duration || 1000 })
 
   useEffect(() => {

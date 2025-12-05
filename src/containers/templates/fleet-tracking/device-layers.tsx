@@ -14,23 +14,16 @@ const markerInstance = MarkerInstance.getInstance()
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 const deckglInstance = DeckGLInstance.getInstance()
 export const DeviceLayers = () => {
-  const {
-    devicesFleetTracking,
-    deviceModels,
-    setDeviceSelected,
-    deviceSelected,
-    deviceHistory,
-    devices,
-  } = useDeviceStore(
-    useShallow((state) => ({
-      devicesFleetTracking: state.devicesFleetTracking,
-      deviceModels: state.models,
-      deviceSelected: state.deviceSelected,
-      setDeviceSelected: state.setDeviceSelected,
-      deviceHistory: state.deviceHistory,
-      devices: state.devices,
-    }))
+  const devicesFleetTracking = useDeviceStore(
+    useShallow((state) => state.devicesFleetTracking)
   )
+  const deviceModels = useDeviceStore(useShallow((state) => state.models))
+  const deviceHistory = useDeviceStore(
+    useShallow((state) => state.deviceHistory)
+  )
+  const devices = useDeviceStore(useShallow((state) => state.devices))
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
 
   const { startDrawHistory } = useDeviceHistory()
 

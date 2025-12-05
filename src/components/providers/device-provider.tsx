@@ -59,11 +59,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
   const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
 
-  const { setGlobalLoading } = useGlobalStore(
-    useShallow((state) => ({
-      setGlobalLoading: state.setGlobalLoading,
-    }))
-  )
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
@@ -121,14 +117,12 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           )
         },
         onSubscribed: () => {
-          console.log('✅ MQTT connected')
           toast.success('MQTT connected', {
             position: 'bottom-right',
             id: 'mqtt-connected',
           })
         },
         onDisconnect: () => {
-          console.log('❌ MQTT disconnected')
           toast.error('MQTT disconnected', {
             position: 'bottom-right',
           })

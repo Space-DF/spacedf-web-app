@@ -22,7 +22,7 @@ export function SpaceSettings({
   mutateSpaceDetails,
 }: SpaceSettingsProps) {
   const t = useTranslations()
-  const { step } = useSpaceSettings()
+  const step = useSpaceSettings((state) => state.step)
 
   const steps: Record<Step, { component: React.ReactNode }> = {
     information: {

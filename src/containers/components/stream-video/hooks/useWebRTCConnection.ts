@@ -124,10 +124,8 @@ export const useWebRTCConnection = ({
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
-                    console.log('▶️ Video started playing successfully')
                     scheduleWork(() => {
-                      const stats = optimizer.getPerformanceStats()
-                      console.log('📊 Performance stats:', stats)
+                      // const stats = optimizer.getPerformanceStats()
                     })
                   })
                   .catch((err) => {

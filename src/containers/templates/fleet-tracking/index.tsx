@@ -22,11 +22,7 @@ export default function FleetTracking() {
   const fleetTrackingMapRef = useRef<HTMLDivElement>(null)
   const isFirstHandleZoom = useRef(true)
 
-  const { isGlobalLoading } = useGlobalStore(
-    useShallow((state) => ({
-      isGlobalLoading: state.isGlobalLoading,
-    }))
-  )
+  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading)
 
   const { updateBooleanState, isMapReady } = useFleetTrackingStore(
     useShallow((state) => ({
@@ -36,22 +32,15 @@ export default function FleetTracking() {
   )
 
   //stores
-  const { devices, initializedSuccess } = useDeviceStore(
-    useShallow((state) => ({
-      devices: state.devicesFleetTracking,
-      devicesIds: Object.keys(state.devicesFleetTracking),
-      initializedSuccess: state.initializedSuccess,
-    }))
+  const devices = useDeviceStore(
+    useShallow((state) => state.devicesFleetTracking)
   )
+  const initializedSuccess = useDeviceStore((state) => state.initializedSuccess)
 
   const { zoomToSingleDevice, zoomToFitDevices } = useZoomStrategies()
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
 
-  const { mapType } = useFleetTrackingStore(
-    useShallow((state) => ({
-      mapType: state.mapType,
-    }))
-  )
+  const mapType = useFleetTrackingStore((state) => state.mapType)
 
   const resolvedMapType = useMemo(() => {
     return (

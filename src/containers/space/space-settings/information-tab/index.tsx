@@ -46,8 +46,14 @@ export function InformationTab({
   mutateSpaceDetails,
 }: InformationTabProps) {
   const t = useTranslations('space')
-  const { setStep } = useSpaceSettings()
-  const { setShouldBackToHome, setOpenAlertDialog } = useSpaceSettings()
+
+  const setShouldBackToHome = useSpaceSettings(
+    (state) => state.setShouldBackToHome
+  )
+  const setOpenAlertDialog = useSpaceSettings(
+    (state) => state.setOpenAlertDialog
+  )
+  const setStep = useSpaceSettings((state) => state.setStep)
   const router = useRouter()
   const params = useParams()
   const [previewImage, setPreviewImage] = useState<string>()

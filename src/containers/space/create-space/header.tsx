@@ -4,7 +4,6 @@ import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import React, { useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,9 +19,10 @@ import { useSpaceStore } from '@/stores'
 export default function CreateSpaceHeader() {
   const router = useRouter()
   const t = useTranslations('space')
-  const { shouldBackPreviousPage, setLoading } = useSpaceStore(
-    useShallow((state) => state)
+  const shouldBackPreviousPage = useSpaceStore(
+    (state) => state.shouldBackPreviousPage
   )
+  const setLoading = useSpaceStore((state) => state.setLoading)
   const [open, setOpen] = useState(false)
 
   const handleConfirm = () => {

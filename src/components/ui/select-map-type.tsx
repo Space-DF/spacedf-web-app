@@ -70,13 +70,8 @@ export const getMapStyle = (
 }
 
 export const SelectMapType = () => {
-  const { mapType, setMapType } = useGlobalStore(
-    useShallow((state) => ({
-      mapType: state.mapType,
-      setMapType: state.setMapType,
-      isMapInitialized: state.isMapInitialized,
-    }))
-  )
+  const mapType = useGlobalStore((state) => state.mapType)
+  const setMapType = useGlobalStore((state) => state.setMapType)
 
   useEffect(() => {
     const mapTypeFromLocalStorage = (localStorage.getItem('map_type') ||

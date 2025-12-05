@@ -66,7 +66,10 @@ const Account = () => {
     resolver: zodResolver(profileSchema),
   })
 
-  const { closeDialog, setCurrentSetting } = useGeneralSetting()
+  const closeDialog = useGeneralSetting((state) => state.closeDialog)
+  const setCurrentSetting = useGeneralSetting(
+    (state) => state.setCurrentSetting
+  )
 
   const { trigger: changePassword, isMutating: isChangingPassword } =
     useChangePassword()

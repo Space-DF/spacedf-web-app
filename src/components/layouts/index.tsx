@@ -45,9 +45,9 @@ const DynamicLayout = ({
 }: DynamicLayoutProps) => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
 
-  const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
+  const cookieDirty = useLayout((state) => state.cookieDirty)
 
   useEffect(() => {
     setCollapsed(defaultCollapsed)
@@ -59,7 +59,10 @@ const DynamicLayout = ({
   const rightLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
   const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
 
-  const dynamicLayoutRight = getDynamicLayoutRight(dynamicLayouts)
+  const dynamicLayoutRight = useMemo(
+    () => getDynamicLayoutRight(dynamicLayouts),
+    [dynamicLayouts]
+  )
 
   const isDisplayDynamicLayout = !!dynamicLayoutRight.length
 
