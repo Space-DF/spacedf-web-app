@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
 export const sourceSchema = z.object({
-  devices: z
+  entities: z
     .array(
       z
         .object({
-          device_id: z.string().min(1, 'Device ID is required'),
-          device_name: z.string().optional(),
+          entity_id: z.string().min(1, 'Entity ID is required'),
+          entity_name: z.string().optional(),
         })
         .passthrough()
     )
@@ -58,7 +58,7 @@ export const dataTableSchema = z.object({
   ),
 })
 
-export type Device = z.infer<typeof sourceSchema>['devices'][number]
+export type Device = z.infer<typeof sourceSchema>['entities'][number]
 export type Column = z.infer<typeof dataTableSchema>['columns'][number]
 
 export type dataTablePayload = z.infer<typeof dataTableSchema>
@@ -68,7 +68,7 @@ export const dataTableDefault: dataTablePayload = {
     name: 'New Data Table',
   },
   source: {
-    devices: [],
+    entities: [],
   },
   columns: [],
   conditionals: [],

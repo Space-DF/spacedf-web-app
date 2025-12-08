@@ -135,5 +135,10 @@
   "enter_dashboard_name": "Enter dashboard name",
   "dashboard_updated_successfully": "Dashboard updated successfully",
   "dashboard_update_failed": "Dashboard update failed",
-  "update_dashboard": "Update Dashboard"
+  "update_dashboard": "Update Dashboard",
+  "device_entity": "Device Entity",
+  "select_device_entity": "Select Device Entity",
+  "no_entities_found": "No entities found",
+  "select_entity": "Select Entity",
+  "entity": "Entity"
 }

@@ -2,7 +2,7 @@
 
 import { ChartConfig, ChartContainer } from '@/components/ui/chart'
 import { TimeFormat } from '@/constants'
-import { ChartSources, ChartType, Orientation } from '@/widget-models/chart'
+import { ChartType, Orientation } from '@/widget-models/chart'
 import dayjs from 'dayjs'
 import { ChartPayload } from '@/validator'
 import React from 'react'
@@ -19,7 +19,6 @@ import {
   LabelList,
 } from 'recharts'
 import { brandColors } from '@/configs'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
 
 const chartConfig = {
   desktop: {
@@ -100,7 +99,7 @@ interface PreviewLineChartProps {
 
 const renderChartComponents = (
   chartType: ChartType,
-  source: ChartSources,
+  source: ChartPayload['sources'][number],
   index: number,
   showData?: boolean
 ) => {
@@ -171,7 +170,7 @@ const renderChartComponents = (
   }
 }
 
-const getColor = (source: ChartSources) => {
+const getColor = (source: ChartPayload['sources'][number]) => {
   return source.color === 'default'
     ? brandColors['component-fill-default-chart']
     : `#${source.color}`
@@ -186,8 +185,7 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   showXGrid = false,
   format = TimeFormat.FULL_DATE_MONTH_YEAR,
 }) => {
-  const showDummyData = useShowDummyData()
-  const data = showDummyData ? generateData(format) : []
+  const data = generateData(format)
   return (
     <ChartContainer
       config={chartConfig}

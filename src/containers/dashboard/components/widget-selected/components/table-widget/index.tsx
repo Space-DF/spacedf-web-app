@@ -69,7 +69,7 @@ const TableWidget: React.FC<Props> = ({
   })
 
   const columns = form.watch('columns')
-  const source = form.watch('source.devices')
+  const source = form.watch('source.entities')
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
 

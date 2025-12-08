@@ -13,7 +13,7 @@ import { truncateText } from '@/utils'
 import { OPERATORS } from '../table.const'
 
 interface TablePreviewProps {
-  source: dataTablePayload['source']['devices']
+  source: dataTablePayload['source']['entities']
   columns: dataTablePayload['columns']
   conditionals?: dataTablePayload['conditionals']
 }

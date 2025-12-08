@@ -57,9 +57,9 @@ const Column: React.FC<ColumnProps> = ({
   const { control, setValue } = form
   const [openDialog, setOpenDialog] = useState(false)
 
-  const [devices, column_type] = useWatch({
+  const [entities, column_type] = useWatch({
     control,
-    name: ['source.devices', `columns.${index}.type`],
+    name: ['source.entities', `columns.${index}.type`],
   })
 
   const previousValues = useRef({
@@ -89,14 +89,14 @@ const Column: React.FC<ColumnProps> = ({
       const displayName = FIELD_DISPLAY_NAME[field] || field
       setValue(`columns.${index}.column_name`, displayName)
 
-      const sampleDevice = devices?.find(
-        (device) => device?.[field] !== undefined
+      const sampleEntity = entities?.find(
+        (entity) => entity?.[field] !== undefined
       )
-      const fieldType = sampleDevice ? typeof sampleDevice[field] : 'unknown'
+      const fieldType = sampleEntity ? typeof sampleEntity[field] : 'unknown'
 
       setValue(`columns.${index}.field_type`, fieldType)
     },
-    [index, setValue, devices]
+    [index, setValue, entities]
   )
 
   const handleTypeChange = useCallback(

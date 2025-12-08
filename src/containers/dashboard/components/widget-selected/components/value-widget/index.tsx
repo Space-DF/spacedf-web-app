@@ -66,14 +66,14 @@ const ValueWidget: React.FC<Props> = ({
 
   const formValue = form.getValues()
 
-  const [decimal, unit, widgetName, color, deviceId] = useWatch({
+  const [decimal, unit, widgetName, color, entityId] = useWatch({
     control,
     name: [
       'source.decimal',
       'source.unit',
       'widget_info.name',
       'widget_info.color',
-      'source.device_id',
+      'source.entity_id',
     ],
   })
 
@@ -164,7 +164,7 @@ const ValueWidget: React.FC<Props> = ({
                     </p>
                   </div>
                   <div className="h-3">
-                    {!deviceId && (
+                    {!entityId && (
                       <p className="text-[12px] text-brand-text-gray">
                         {t('no_data')}
                       </p>

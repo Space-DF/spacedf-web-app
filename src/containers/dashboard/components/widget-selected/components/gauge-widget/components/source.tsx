@@ -30,18 +30,7 @@ import { GaugeType } from '@/widget-models/gauge'
 import ColorSelect from '../../color-select'
 import { Button } from '@/components/ui/button'
 import XCircle from '@/components/icons/x-circle'
-import { useGetDevices } from '@/hooks/useDevices'
-
-const mockFieldData = [
-  {
-    id: '1',
-    name: 'water_level',
-  },
-  {
-    id: '2',
-    name: 'temperature',
-  },
-]
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 
 const Source = () => {
   const t = useTranslations('dashboard')
@@ -56,12 +45,12 @@ const Source = () => {
     name: 'source.values',
   })
 
-  const { data: devices = [] } = useGetDevices()
-
   const [min, max] = useWatch({
     control,
     name: ['source.min', 'source.max'],
   })
+
+  const { data: entities } = useDeviceEntity('gauge')
 
   const handleAddValue = () => {
     append(gaugeValue)
@@ -106,19 +95,21 @@ const Source = () => {
     setValue('source.unit', value)
   }
 
+  const entityList = entities?.results || []
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 gap-y-4">
         <FormField
           control={control}
-          name="source.device_id"
+          name="source.entity_id"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-2">
               <FormLabel
                 className="text-xs font-semibold text-brand-component-text-dark"
                 required
               >
-                {t('device')}
+                {t('device_entity')}
               </FormLabel>
               <FormControl>
                 <Select
@@ -132,67 +123,24 @@ const Source = () => {
                     <SelectValue
                       placeholder={
                         <span className="text-brand-component-text-gray">
-                          {t('select_device')}
+                          {t('select_entity')}
                         </span>
                       }
                     />
                   </SelectTrigger>
                   <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                     <SelectGroup>
-                      {devices.length > 0 ? (
-                        devices.map((device) => (
-                          <SelectItem value={device.id} key={device.id}>
-                            {device.name}
+                      {entityList.length > 0 ? (
+                        entityList.map((entity) => (
+                          <SelectItem value={entity.id} key={entity.id}>
+                            {entity.unique_key}.{entity.entity_type.unique_key}
                           </SelectItem>
                         ))
                       ) : (
                         <SelectItem value="no_device" key="no_device" disabled>
-                          {t('no_devices_found')}
+                          {t('no_entities_found')}
                         </SelectItem>
                       )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="source.field"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                className="text-xs font-semibold text-brand-component-text-dark"
-                required
-              >
-                {t('field')}
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                  >
-                    <SelectValue
-                      placeholder={
-                        <span className="text-brand-component-text-gray">
-                          {t('select_field')}
-                        </span>
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                    <SelectGroup>
-                      {mockFieldData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {t(device.name as any)}
-                        </SelectItem>
-                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

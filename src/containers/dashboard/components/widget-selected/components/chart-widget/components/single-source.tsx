@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Accordion,
   AccordionContent,
@@ -43,36 +43,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
 import { ChartPayload } from '@/validator'
-import { useGetDevices } from '@/hooks/useDevices'
-
-export const mockDeviceData = [
-  {
-    id: '1',
-    name: 'Laptop',
-  },
-  {
-    id: '2',
-    name: 'Smartphone',
-  },
-  {
-    id: '3',
-    name: 'Tablet',
-  },
-  {
-    id: '4',
-    name: 'Smartwatch',
-  },
-  {
-    id: '5',
-    name: 'Desktop',
-  },
-]
-
-export const mockFieldData = [
-  { id: '1', name: 'Temperature' },
-  { id: '2', name: 'Humidity' },
-]
-
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 interface Props {
   index: number
   field: FieldArrayWithId<
@@ -86,38 +57,26 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
-  const { data: devices = [] } = useGetDevices()
+  const { data: entities } = useDeviceEntity('chart')
+  const entityList = entities?.results || []
+
   const form = useFormContext<ChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
-  const [isLegendManualChange, setIsLegendManualChange] = useState(false)
   const t = useTranslations('dashboard')
-  const deviceId = form.watch(`sources.${index}.device_id`)
+  const entityId = form.watch(`sources.${index}.entity_id`)
 
-  const selectDevice = useMemo(
-    () =>
-      devices.find((device) => device.id === deviceId)?.name || t('add_device'),
-    [deviceId]
-  )
+  const currentEntity = useMemo(() => {
+    return entityList.find((entity) => entity.id === entityId)
+  }, [entityList, entityId])
 
-  const [colorValue, selectField] = form.watch([
-    `sources.${index}.color`,
-    `sources.${index}.field`,
-  ])
+  const [colorValue] = form.watch([`sources.${index}.color`])
 
   const handleLegendManualChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = event.target.value
-    setIsLegendManualChange(true)
     form.setValue(`sources.${index}.legend`, value)
   }
-
-  useEffect(() => {
-    if (isLegendManualChange) return
-    const field = mockFieldData.find((field) => field.id === selectField)?.name
-    if (!field) return
-    form.setValue(`sources.${index}.legend`, field)
-  }, [selectField])
 
   return (
     <>
@@ -165,7 +124,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
             }
           >
             <div className="mr-2 flex w-full items-center justify-between">
-              <p>{selectDevice}</p>
+              <p>{currentEntity?.name}</p>
               <Trash
                 width={20}
                 height={20}
@@ -181,14 +140,14 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
               <div className="grid grid-cols-2 gap-2">
                 <FormField
                   control={form.control}
-                  name={`sources.${index}.device_id`}
+                  name={`sources.${index}.entity_id`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-2">
                       <FormLabel
                         className="text-sm font-semibold text-brand-component-text-dark"
                         required
                       >
-                        {t('device')}
+                        {t('device_entity')}
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -204,17 +163,17 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             <SelectValue
                               placeholder={
                                 <span className="text-brand-component-text-gray">
-                                  {t('select_device')}
+                                  {t('select_entity')}
                                 </span>
                               }
                             />
                           </SelectTrigger>
                           <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                             <SelectGroup>
-                              {devices.length > 0 ? (
-                                devices.map((device) => (
-                                  <SelectItem value={device.id} key={device.id}>
-                                    {device.name}
+                              {entityList.length > 0 ? (
+                                entityList.map((entity) => (
+                                  <SelectItem value={entity.id} key={entity.id}>
+                                    {`${entity.unique_key}.${entity.entity_type.unique_key}`}
                                   </SelectItem>
                                 ))
                               ) : (
@@ -226,51 +185,6 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                                   {t('no_devices_found')}
                                 </SelectItem>
                               )}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`sources.${index}.field`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel
-                        className="text-sm font-semibold text-brand-component-text-dark"
-                        required
-                      >
-                        {t('field')}
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger
-                            icon={
-                              <ChevronDown className="w-3 text-brand-icon-gray" />
-                            }
-                            className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                          >
-                            <SelectValue
-                              placeholder={
-                                <span className="text-brand-component-text-gray">
-                                  {t('select_field')}
-                                </span>
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                            <SelectGroup>
-                              {mockFieldData.map((field) => (
-                                <SelectItem value={field.id} key={field.id}>
-                                  {field.name}
-                                </SelectItem>
-                              ))}
                             </SelectGroup>
                           </SelectContent>
                         </Select>

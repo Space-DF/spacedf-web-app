@@ -1,6 +1,5 @@
 import { Slider } from '@/components/ui/slider'
 import { brandColors } from '@/configs'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
 import { GaugeValue } from '@/validator'
 import { GaugeType } from '@/widget-models/gauge'
 import { useAnimationFrame } from 'framer-motion'
@@ -301,8 +300,7 @@ const PreviewGauge: React.FC<Props> = ({
   values,
   showValue,
 }) => {
-  const showDummyData = useShowDummyData()
-  const valueData = showDummyData ? 65 : 0
+  const valueData = 65
   const ranges = formatRangesValue(min, values)
   return type === GaugeType.Linear ? (
     <LinearChart

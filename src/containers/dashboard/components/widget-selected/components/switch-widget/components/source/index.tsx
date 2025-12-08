@@ -14,53 +14,47 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useGetDevices } from '@/hooks/useDevices'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
 import { useTranslations } from 'next-intl'
-import { useMemo } from 'react'
-import { SWITCH_DEVICES } from './constant'
 import { SwitchPayload } from '@/validator'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { cn } from '@/lib/utils'
+import { useDeviceEntity } from '../../../../hooks/useDeviceEntity'
+import { useMemo } from 'react'
 
 const SwitchSource = () => {
   const t = useTranslations('dashboard')
   const form = useFormContext<SwitchPayload>()
 
-  const selectedDeviceIds = useWatch({
+  const selectedEntityIds = useWatch({
     control: form.control,
-    name: 'source.device_ids',
+    name: 'source.entity_ids',
   })
 
-  const { data: devices = [] } = useGetDevices()
+  const { data: entities } = useDeviceEntity('switch')
+  const entityList = entities?.results || []
 
-  const showDummyData = useShowDummyData()
-
-  const deviceList = showDummyData ? SWITCH_DEVICES : devices
-
-  const deviceNames = useMemo(() => {
-    return deviceList
-      .filter((device) => selectedDeviceIds.includes(device.id))
-      .map((device) => device.name)
+  const entityNames = useMemo(() => {
+    return entityList
+      .filter((entity) => selectedEntityIds.includes(entity.id))
+      .map((entity) => entity.name)
       .join(', ')
-  }, [deviceList, selectedDeviceIds])
-
-  const handleSelectDevice = (deviceId: string) => {
-    const deviceIds = form.getValues('source.device_ids')
-    const isSelected = deviceIds.includes(deviceId)
-    const updatedDeviceIds = isSelected
-      ? deviceIds.filter((id) => id !== deviceId)
-      : [...deviceIds, deviceId]
-    form.setValue('source.device_ids', updatedDeviceIds)
+  }, [entityList, selectedEntityIds])
+  const handleSelectEntity = (entityId: string) => {
+    const entityIds = form.getValues('source.entity_ids')
+    const isSelected = entityIds.includes(entityId)
+    const updatedEntityIds = isSelected
+      ? entityIds.filter((id) => id !== entityId)
+      : [...entityIds, entityId]
+    form.setValue('source.entity_ids', updatedEntityIds)
   }
 
-  const isError = form.formState.errors.source?.device_ids
+  const isError = form.formState.errors.source?.entity_ids
 
   return (
     <div className="size-full">
       <FormField
         control={form.control}
-        name="source.device_ids"
+        name="source.entity_ids"
         render={() => (
           <FormItem>
             <p className="mb-[6px] text-sm font-semibold">
@@ -68,7 +62,7 @@ const SwitchSource = () => {
                 className="text-sm font-semibold !text-brand-component-text-dark"
                 required
               >
-                {t('select_device')}
+                {t('select_entity')}
               </FormLabel>
             </p>
             <DropdownMenu>
@@ -83,7 +77,7 @@ const SwitchSource = () => {
                 >
                   <div className="flex w-full items-center justify-between text-sm text-brand-component-text-gray">
                     <p className="max-w-[86%] overflow-hidden text-ellipsis whitespace-nowrap">
-                      {deviceNames || t('select_device')}
+                      {entityNames || t('select_entity')}
                     </p>
                     <CaretDown />
                   </div>
@@ -94,22 +88,22 @@ const SwitchSource = () => {
                 align="start"
                 sideOffset={4}
               >
-                {deviceList.length > 0 ? (
-                  deviceList.map((device) => (
+                {entityList.length > 0 ? (
+                  entityList.map((entity) => (
                     <DropdownMenuItem
-                      key={device.id}
+                      key={entity.id}
                       className="cursor-pointer px-3 py-2 hover:bg-brand-component-fill-dark-soft"
                       onSelect={(e) => e.preventDefault()}
-                      onClick={() => handleSelectDevice(device.id)}
+                      onClick={() => handleSelectEntity(entity.id)}
                     >
                       <div className="flex items-center gap-3">
                         <Input
                           type="checkbox"
                           className="size-5 rounded border-brand-component-stroke-dark-soft px-2 peer-checked:bg-brand-component-fill-dark-soft"
-                          checked={selectedDeviceIds.includes(device.id)}
+                          checked={selectedEntityIds.includes(entity.id)}
                         />
                         <Label className="text-sm text-brand-component-text-dark">
-                          {device.name}
+                          {`${entity.unique_key}.${entity.entity_type.unique_key}`}
                         </Label>
                       </div>
                     </DropdownMenuItem>
@@ -119,7 +113,7 @@ const SwitchSource = () => {
                     className="cursor-not-allowed px-3 py-2 hover:bg-brand-component-fill-dark-soft"
                     disabled
                   >
-                    {t('no_devices_found')}
+                    {t('no_entities_found')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
