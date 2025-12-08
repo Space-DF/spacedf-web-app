@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import {
   Select,
@@ -6,11 +6,27 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { FormLabel, FormField } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
 import { mapPayload, mapSource, MapType } from '@/validator'
 import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 import { Entity } from '@/types/entity'
+import { Button } from '@/components/ui/button'
+import { Check, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const mapTypeLabels: Record<MapType, string> = {
   [MapType.RoadMap]: 'Road Map',
@@ -18,8 +34,10 @@ const mapTypeLabels: Record<MapType, string> = {
 }
 
 const MapSource: React.FC = () => {
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
   const { control, setValue } = useFormContext<mapPayload>()
+
+  const [openCombobox, setOpenCombobox] = useState(false)
 
   const sources =
     useWatch({
@@ -65,37 +83,68 @@ const MapSource: React.FC = () => {
       <FormField
         control={control}
         name="sources.0.entity_id"
-        render={() => (
+        render={({ field }) => (
           <div>
             <p className="mb-[6px] text-sm font-semibold">
               <FormLabel
                 required
                 className="text-xs font-semibold text-brand-component-text-dark"
               >
-                {t('dashboard.device_entity')}
+                {t('device_entity')}
               </FormLabel>
             </p>
-            <Select
-              onValueChange={(value) => {
-                const device = entityList.find((e) => e.id === value)
-                if (device) {
-                  handleEntityChange(device)
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                {currentEntity
-                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
-                  : t('dashboard.select_entity')}
-              </SelectTrigger>
-              <SelectContent className="rounded-md border">
-                {entityList.map((entity) => (
-                  <SelectItem key={entity.id} value={entity.id}>
-                    {`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openCombobox}
+                  className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                >
+                  <p className="truncate w-5/6 text-start">
+                    {currentEntity
+                      ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                      : t('select_entity')}
+                  </p>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                  <CommandInput
+                    placeholder={t('search_entity')}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
+                    <CommandGroup>
+                      {entityList.length > 0 &&
+                        entityList.map((entity) => (
+                          <CommandItem
+                            key={entity.id}
+                            value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                            onSelect={() => {
+                              handleEntityChange(entity)
+                              setOpenCombobox(false)
+                            }}
+                            className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                          >
+                            {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                            <Check
+                              className={cn(
+                                'ml-auto size-4',
+                                field.value === entity.id
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       />
@@ -109,13 +158,15 @@ const MapSource: React.FC = () => {
                 className="text-xs font-semibold text-brand-component-text-dark"
                 required
               >
-                {t('dashboard.map_type')}
+                {t('map_type')}
               </FormLabel>
             </p>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger className="w-full">
-                {mapTypeLabels[field.value as MapType] ||
-                  t('dashboard.select_map_type')}
+              <SelectTrigger
+                className="w-full font-normal text-sm justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
+              >
+                {mapTypeLabels[field.value as MapType] || t('select_map_type')}
               </SelectTrigger>
               <SelectContent className="rounded-md border">
                 {mapTypeOptions.map(({ value, label }) => (

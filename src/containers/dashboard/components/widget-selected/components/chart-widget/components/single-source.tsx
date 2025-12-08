@@ -20,8 +20,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { SourceColor } from '@/constants'
 import { Switch } from '@/components/ui/switch'
@@ -62,6 +75,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
 
   const form = useFormContext<ChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
+  const [openCombobox, setOpenCombobox] = useState(false)
   const t = useTranslations('dashboard')
   const entityId = form.watch(`sources.${index}.entity_id`)
 
@@ -150,44 +164,63 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                         {t('device_entity')}
                       </FormLabel>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        <Popover
+                          open={openCombobox}
+                          onOpenChange={setOpenCombobox}
                         >
-                          <SelectTrigger
-                            icon={
-                              <ChevronDown className="w-3 text-brand-icon-gray" />
-                            }
-                            className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                          >
-                            <SelectValue
-                              placeholder={
-                                <span className="text-brand-component-text-gray">
-                                  {t('select_entity')}
-                                </span>
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                            <SelectGroup>
-                              {entityList.length > 0 ? (
-                                entityList.map((entity) => (
-                                  <SelectItem value={entity.id} key={entity.id}>
-                                    {`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem
-                                  value="no_device"
-                                  key="no_device"
-                                  disabled
-                                >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openCombobox}
+                              className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                            >
+                              <p className="truncate w-5/6 text-start">
+                                {currentEntity
+                                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                                  : t('select_entity')}
+                              </p>
+                              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                            <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                              <CommandInput
+                                placeholder={t('search_entity')}
+                                className="h-9"
+                              />
+                              <CommandList>
+                                <CommandEmpty>
                                   {t('no_devices_found')}
-                                </SelectItem>
-                              )}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {entityList.length > 0 &&
+                                    entityList.map((entity) => (
+                                      <CommandItem
+                                        key={entity.id}
+                                        value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                        onSelect={() => {
+                                          field.onChange(entity.id)
+                                          setOpenCombobox(false)
+                                        }}
+                                        className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                                      >
+                                        {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                        <Check
+                                          className={cn(
+                                            'ml-auto h-4 w-4',
+                                            field.value === entity.id
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

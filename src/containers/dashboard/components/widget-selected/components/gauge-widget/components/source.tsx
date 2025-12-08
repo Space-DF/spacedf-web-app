@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useMemo, useState } from 'react'
 import {
   FormControl,
   FormField,
@@ -9,15 +9,21 @@ import {
 } from '@/components/ui/form'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { GaugePayload, gaugeValue } from '@/validator'
+import { Select } from '@/components/ui/select'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { ChevronDown, PlusIcon } from 'lucide-react'
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Check, ChevronDown, PlusIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -31,6 +37,7 @@ import ColorSelect from '../../color-select'
 import { Button } from '@/components/ui/button'
 import XCircle from '@/components/icons/x-circle'
 import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
+import { cn } from '@/lib/utils'
 
 const Source = () => {
   const t = useTranslations('dashboard')
@@ -44,6 +51,10 @@ const Source = () => {
     control,
     name: 'source.values',
   })
+
+  const entityId = form.watch('source.entity_id')
+
+  const [openCombobox, setOpenCombobox] = useState(false)
 
   const [min, max] = useWatch({
     control,
@@ -97,6 +108,10 @@ const Source = () => {
 
   const entityList = entities?.results || []
 
+  const currentEntity = useMemo(() => {
+    return entities?.results.find((entity) => entity.id === entityId)
+  }, [entities, entityId])
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 gap-y-4">
@@ -112,38 +127,58 @@ const Source = () => {
                 {t('device_entity')}
               </FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                  >
-                    <SelectValue
-                      placeholder={
-                        <span className="text-brand-component-text-gray">
-                          {t('select_entity')}
-                        </span>
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                    <SelectGroup>
-                      {entityList.length > 0 ? (
-                        entityList.map((entity) => (
-                          <SelectItem value={entity.id} key={entity.id}>
-                            {entity.unique_key}.{entity.entity_type.unique_key}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no_device" key="no_device" disabled>
-                          {t('no_entities_found')}
-                        </SelectItem>
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCombobox}
+                      className=" w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading font-normal text-sm"
+                    >
+                      <p className="truncate w-5/6 text-start">
+                        {currentEntity
+                          ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                          : t('select_entity')}
+                      </p>
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                    <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                      <CommandInput
+                        placeholder={t('search_entity')}
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
+                        <CommandGroup>
+                          {entityList.length > 0 &&
+                            entityList.map((entity) => (
+                              <CommandItem
+                                key={entity.id}
+                                value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                onSelect={() => {
+                                  field.onChange(entity.id)
+                                  setOpenCombobox(false)
+                                }}
+                                className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                              >
+                                {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                <Check
+                                  className={cn(
+                                    'ml-auto size-4',
+                                    field.value === entity.id
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </FormControl>
               <FormMessage />
             </FormItem>
