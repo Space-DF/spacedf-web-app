@@ -13,7 +13,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
-import { useShallow } from 'zustand/react/shallow'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 const VIETNAM_CENTER: [number, number] = [108.2022, 16.0544]
@@ -25,11 +24,7 @@ export const MapControl = () => {
   //   null
   // )
 
-  const { isMapReady } = useFleetTrackingStore(
-    useShallow((state) => ({
-      isMapReady: state.isMapReady,
-    }))
-  )
+  const isMapReady = useFleetTrackingStore((state) => state.isMapReady)
 
   const [isGeolocateAllowed, setIsGeolocateAllowed] = useState(false)
   // const [isFullscreen, setIsFullscreen] = useState(false)
@@ -126,7 +121,7 @@ export const MapControl = () => {
       if (!geolocateControlRef.current) {
         geolocateControlRef.current = new mapboxgl.GeolocateControl({
           positionOptions: { enableHighAccuracy: true },
-          trackUserLocation: true,
+          trackUserLocation: false,
           showUserHeading: true,
         })
 

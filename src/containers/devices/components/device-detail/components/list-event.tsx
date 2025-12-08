@@ -165,9 +165,6 @@ const ListEvent = () => {
           'flex items-start gap-2 p-2 rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm hover:shadow-md transition-all duration-300',
           isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
         )}
-        style={{
-          transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
-        }}
       >
         <div className="p-[4px] bg-brand-component-fill-light rounded-full border border-brand-component-stroke-dark-soft dark:bg-brand-component-fill-positive-dark">
           {item.status === 'online' ? (

@@ -47,6 +47,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setDevices,
     setModelPreview,
     setDeviceState,
+    clearDeviceModels,
   } = useDeviceStore(
     useShallow((state) => ({
       setDeviceModel: state.setDeviceModel,
@@ -54,16 +55,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setDevices: state.setDevices,
       setModelPreview: state.setModelPreview,
       setDeviceState: state.setDeviceState,
+      clearDeviceModels: state.clearDeviceModels,
     }))
   )
 
   const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
 
-  const { setGlobalLoading } = useGlobalStore(
-    useShallow((state) => ({
-      setGlobalLoading: state.setGlobalLoading,
-    }))
-  )
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
@@ -121,14 +119,12 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           )
         },
         onSubscribed: () => {
-          console.log('✅ MQTT connected')
           toast.success('MQTT connected', {
             position: 'bottom-right',
             id: 'mqtt-connected',
           })
         },
         onDisconnect: () => {
-          console.log('❌ MQTT disconnected')
           toast.error('MQTT disconnected', {
             position: 'bottom-right',
           })
@@ -160,6 +156,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     handleMqttConnect()
     return () => {
       mqttServiceRef.current?.disconnect()
+      mqttServiceRef.current = null
+      if (mqttRouterRef.current) {
+        mqttRouterRef.current.cleanup()
+        mqttRouterRef.current = null
+      }
     }
   }, [isAuthorized, spaceSlugName, organization, isDemo])
 
@@ -215,9 +216,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       }))
     } catch (error) {
       console.error({ error })
-    } finally {
     }
   }
+
+  useEffect(() => {
+    return () => {
+      clearDeviceModels()
+    }
+  }, [clearDeviceModels])
 
   return <>{children}</>
 }

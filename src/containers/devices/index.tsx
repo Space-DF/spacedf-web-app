@@ -84,20 +84,14 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 const Devices = () => {
   const t = useTranslations('common')
 
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
-  const { setDeviceSelected, deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      setDeviceSelected: state.setDeviceSelected,
-      deviceSelected: state.deviceSelected,
-    }))
-  )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
 
   const previousDeviceSelected = usePrevious(deviceSelected)
 
-  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   // const [selected, setSelected] = useState<number>()
 
   const handleCloseSlide = () => {
@@ -106,7 +100,7 @@ const Devices = () => {
 
   useEffect(() => {
     handleDeviceTabVisible()
-  }, [deviceSelected, previousDeviceSelected, JSON.stringify(dynamicLayouts)])
+  }, [deviceSelected, previousDeviceSelected, dynamicLayouts])
 
   useEffect(() => {
     const handle = (e: CustomEvent) => {
@@ -325,7 +319,6 @@ const DeviceSelected = () => {
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       devices: state.devices,
-      setDeviceSelected: state.setDeviceSelected,
     }))
   )
 

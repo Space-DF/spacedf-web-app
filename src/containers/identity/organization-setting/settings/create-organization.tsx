@@ -7,17 +7,13 @@ import { generateOrganizationDomain, uppercaseFirstLetter } from '@/utils'
 import { XCircle } from 'lucide-react'
 import { useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { useShallow } from 'zustand/react/shallow'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import Image from 'next/image'
 
 const CreateOrganization = () => {
-  const { setOrganizationName, organizationName } = useIdentityStore(
-    useShallow((state) => ({
-      organizationName: state.organizationName,
-      setOrganizationName: state.setOrganizationName,
-      setOrganizationDomain: state.setOrganizationDomain,
-    }))
+  const organizationName = useIdentityStore((state) => state.organizationName)
+  const setOrganizationName = useIdentityStore(
+    (state) => state.setOrganizationName
   )
 
   const [errorSlug, setErrorSlug] = useState('')

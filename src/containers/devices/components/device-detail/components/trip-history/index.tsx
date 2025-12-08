@@ -27,22 +27,13 @@ interface ListItem {
 
 const INITIAL_VISIBLE_COUNT = 2
 
-const TripHistoryItemSkeleton = ({
-  index,
-  isExpanded,
-}: {
-  index: number
-  isExpanded: boolean
-}) => {
+const TripHistoryItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
   return (
     <div
       className={cn(
         'border border-brand-component-stroke-dark-soft rounded-md p-2 bg-brand-component-fill-light shadow-sm transition-all duration-200',
         isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
       )}
-      style={{
-        transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
-      }}
     >
       <div className="flex items-start gap-x-2">
         <Skeleton className="w-[73px] h-[73px] rounded-md" />
@@ -120,9 +111,6 @@ const TripHistory = () => {
               : 'opacity-0 -translate-y-4'
           )}
           onClick={() => handleStartDrawHistory(item)}
-          style={{
-            transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
-          }}
         >
           <div className="flex items-start gap-x-2">
             <Image
@@ -185,11 +173,7 @@ const TripHistory = () => {
         {isLoading ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: INITIAL_VISIBLE_COUNT }).map((_, index) => (
-              <TripHistoryItemSkeleton
-                key={index}
-                index={index}
-                isExpanded={true}
-              />
+              <TripHistoryItemSkeleton key={index} isExpanded />
             ))}
           </div>
         ) : (

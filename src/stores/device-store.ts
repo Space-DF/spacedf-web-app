@@ -8,8 +8,9 @@ import {
   TrackiAttributes,
 } from '@/utils/model-objects/devices/gps-tracker/type'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
+import { castDraft } from 'immer'
 import { create } from 'zustand'
-
+import { immer } from 'zustand/middleware/immer'
 export type Device = {
   lorawan_device?: LorawanDevice
   name: string
@@ -48,6 +49,7 @@ type DeviceModelAction = {
   ) => void
 
   setDeviceHistory: (data: Checkpoint[]) => void
+  clearDeviceModels: () => void
 }
 
 const reduceDevices = (data: Device[]) => {
@@ -60,8 +62,8 @@ const reduceDevices = (data: Device[]) => {
   )
 }
 
-export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
-  (set) => ({
+export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
+  immer((set) => ({
     devices: {} as Record<string, Device>,
     devicesFleetTracking: {} as Record<string, Device>,
     models: {} as Record<SupportedModels, GLTFWithBuffers>,
@@ -70,18 +72,15 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
     modelPreview: {} as Record<SupportedModels, string>,
     deviceHistory: [],
     setDeviceModel(key, bufferModel) {
-      return set((state) => ({
-        models: {
-          ...state.models,
-          [key]: bufferModel,
-        },
-      }))
+      return set((state) => {
+        state.models[key] = castDraft(bufferModel)
+      })
     },
 
     setModelPreview(key, preview) {
-      return set((state) => ({
-        modelPreview: { ...state.modelPreview, [key]: preview },
-      }))
+      return set((state) => {
+        state.modelPreview[key] = preview
+      })
     },
 
     setDeviceSelected(id) {
@@ -109,39 +108,29 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
-        const currentDevice = Object.values(state.devices).find(
-          (device) => device.deviceId === deviceId
-        )
+        const currentDevice = state.devices[deviceId]
 
         const previousState: Device = currentDevice || {
           type: 'rak',
           layerProps: DEVICE_LAYER_PROPERTIES['rak'],
           id: deviceId,
+          device_id: deviceId,
           name: 'Unknown-' + deviceId,
           status: 'active',
           histories: [data.latestLocation],
-          deviceId: data.deviceId,
+          deviceId: deviceId,
           lorawan_device: {
             dev_eui: data.device_eui,
           } as LorawanDevice,
         }
 
         const newState = { ...previousState, ...data }
-        const newDevices = currentDevice
-          ? {
-              ...state.devices,
-              [currentDevice.id]: newState,
-            }
-          : { ...state.devices, [deviceId]: newState }
-
-        return {
-          devices: newDevices,
-          devicesFleetTracking: reduceDevices(
-            Object.values(newDevices).filter((device) =>
-              device.latestLocation?.every((loc) => loc)
-            )
-          ),
-        }
+        state.devices[deviceId] = newState
+        state.devicesFleetTracking = reduceDevices(
+          (Object.values(state.devices) as Device[]).filter((device) =>
+            device.latestLocation?.every((loc) => loc)
+          )
+        )
       })
     },
 
@@ -149,5 +138,11 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>(
       set(() => ({
         initializedSuccess: newState,
       })),
-  })
+
+    clearDeviceModels: () =>
+      set(() => ({
+        models: {} as Record<SupportedModels, GLTFWithBuffers>,
+        modelPreview: {} as Record<SupportedModels, string>,
+      })),
+  }))
 )

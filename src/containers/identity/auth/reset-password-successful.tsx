@@ -2,7 +2,6 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { useAuthForm } from './stores/useAuthForm'
-import { useShallow } from 'zustand/react/shallow'
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useIdentityStore } from '@/stores/identity-store'
@@ -10,17 +9,9 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 export const ResetPasswordSuccessful = () => {
   const t = useTranslations('signUp')
-  const { setFormType } = useAuthForm(
-    useShallow((state) => ({
-      setFormType: state.setFormType,
-    }))
-  )
+  const setFormType = useAuthForm((state) => state.setFormType)
 
-  const { setOpenDrawer } = useIdentityStore(
-    useShallow((state) => ({
-      setOpenDrawer: state.setOpenDrawerIdentity,
-    }))
-  )
+  const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
 
   const isAuthenticated = useAuthenticated()
   const router = useRouter()

@@ -92,7 +92,7 @@ export const DashboardDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="text-sm text-brand-component-text-dark">
+      <DialogContent className="text-sm text-brand-component-text-dark p-6">
         <DialogTitle>
           {dashboard ? t('update_dashboard') : t('create_dashboard')}
         </DialogTitle>

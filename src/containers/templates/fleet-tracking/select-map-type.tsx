@@ -1,7 +1,6 @@
 'use client'
 
 import { MapType } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 import DefaultMapType from '/public/images/map-type-thumbnail/default-type.png'
 import SatelliteMapType from '/public/images/map-type-thumbnail/satellite-type.png'
 import StreetMapType from '/public/images/map-type-thumbnail/street-type.png'
@@ -44,13 +43,11 @@ const mapTypes: MapTypeItem[] = [
 
 export const SelectMapType = () => {
   const [isMapReady, setIsMapReady] = useState(false)
-  const { mapType } = useFleetTrackingStore(
-    useShallow((state) => ({
-      mapType:
-        state.mapType ||
-        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-        'default',
-    }))
+  const mapType = useFleetTrackingStore(
+    (state) =>
+      state.mapType ||
+      (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+      'default'
   )
 
   useEffect(() => {
@@ -115,15 +112,13 @@ export const SelectMapType = () => {
 }
 
 const MapTypeSelection = ({ name, id, thumbnail }: MapTypeItem) => {
-  const { mapType, setMapType } = useFleetTrackingStore(
-    useShallow((state) => ({
-      mapType:
-        state.mapType ||
-        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-        'default',
-      setMapType: state.setMapType,
-    }))
+  const mapType = useFleetTrackingStore(
+    (state) =>
+      state.mapType ||
+      (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+      'default'
   )
+  const setMapType = useFleetTrackingStore((state) => state.setMapType)
 
   const isActive = mapType === id
 

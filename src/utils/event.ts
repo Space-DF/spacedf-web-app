@@ -15,6 +15,10 @@ class EventEmitter {
     if (!this.events[event]) return
     this.events[event].forEach((handler) => handler(data))
   }
+
+  clear() {
+    this.events = {}
+  }
 }
 
 export default EventEmitter

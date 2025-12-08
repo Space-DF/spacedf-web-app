@@ -14,10 +14,8 @@ const fleetTrackingMap = FleetTrackingMap.getInstance()
 export const MapCluster = () => {
   const supercluster = useRef<Supercluster | null>(null)
 
-  const { devices } = useDeviceStore(
-    useShallow((state) => ({
-      devices: state.devicesFleetTracking,
-    }))
+  const devices = useDeviceStore(
+    useShallow((state) => state.devicesFleetTracking)
   )
   const { resolvedTheme } = useTheme()
 

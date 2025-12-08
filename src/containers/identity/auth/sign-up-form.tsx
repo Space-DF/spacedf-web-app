@@ -18,7 +18,6 @@ import {
   TypographySecondary,
 } from '@/components/ui/typography'
 import { SignUpFormCredentials } from '.'
-import { useShallow } from 'zustand/react/shallow'
 import useSendOTP from './hooks/useSendOTP'
 import { useAuthForm } from './stores/useAuthForm'
 import { useDecodedToken } from './hooks/useDecodedToken'
@@ -37,11 +36,7 @@ const SignUpForm = () => {
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
 
-  const { setFormType } = useAuthForm(
-    useShallow((state) => ({
-      setFormType: state.setFormType,
-    }))
-  )
+  const setFormType = useAuthForm((state) => state.setFormType)
 
   const onSendOtp = async (value: SignUpFormCredentials) => {
     await triggerSendOtp(value.email)

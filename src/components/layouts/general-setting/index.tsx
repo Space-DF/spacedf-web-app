@@ -49,8 +49,12 @@ const settings = [
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
-  const { isOpen, currentSetting, setIsOpen, setCurrentSetting } =
-    useGeneralSetting()
+  const isOpen = useGeneralSetting((state) => state.isOpen)
+  const currentSetting = useGeneralSetting((state) => state.currentSetting)
+  const setIsOpen = useGeneralSetting((state) => state.setIsOpen)
+  const setCurrentSetting = useGeneralSetting(
+    (state) => state.setCurrentSetting
+  )
 
   const t = useTranslations('common')
 

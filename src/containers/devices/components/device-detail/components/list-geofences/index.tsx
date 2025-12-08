@@ -92,9 +92,6 @@ const ListGeofences = () => {
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 -translate-y-4'
           )}
-          style={{
-            transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
-          }}
         >
           <div className="flex items-center space-x-2">
             <Image

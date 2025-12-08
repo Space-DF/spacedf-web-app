@@ -19,11 +19,9 @@ const Dashboard = () => {
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
 
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const { setEdit, dashboardId } = useDashboardStore()
 

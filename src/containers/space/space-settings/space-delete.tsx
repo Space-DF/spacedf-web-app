@@ -34,7 +34,7 @@ export function SpaceDelete({ space }: { space: Space }) {
   const t = useTranslations('space')
   const deleteSpace = useDeleteSpace()
   const router = useRouter()
-  const { setStep } = useSpaceSettings()
+  const setStep = useSpaceSettings((state) => state.setStep)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })

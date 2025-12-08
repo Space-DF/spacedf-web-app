@@ -42,14 +42,11 @@ type SidebarChildProps = {
 }
 
 const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
-  const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
   const [open, setOpen] = useState(false)
 
-  const setDynamicLayouts = useLayout(
-    useShallow((state) => state.setDynamicLayouts)
-  )
+  const setDynamicLayouts = useLayout((state) => state.setDynamicLayouts)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
+  const cookieDirty = useLayout((state) => state.cookieDirty)
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
@@ -105,8 +102,8 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
 })
 
 const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
 
   const router = useRouter()
   const t = useTranslations('common')
@@ -204,8 +201,8 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
 }
 
 const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
   const { clearAllCache } = useCache()
   const router = useRouter()
 
@@ -325,13 +322,11 @@ const Navigations = () => {
 }
 
 const Navigation = ({ navigation }: { navigation: TNavigation }) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
+  const isCollapsed = useLayout((state) => state.isCollapsed)
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
 
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const isDisplayed = dynamicLayouts.includes(navigation.href)
 
@@ -396,11 +391,11 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 const CollapsedNavigation = () => {
   const t = useTranslations('common')
 
-  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+  const dynamicLayouts = useLayout((state) => state.dynamicLayouts)
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const isAuth = useAuthenticated()
 

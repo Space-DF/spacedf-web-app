@@ -10,7 +10,6 @@ import { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
@@ -36,7 +35,7 @@ const OrganizationSetting = () => {
     resolver: zodResolver(formSchema),
   })
   const router = useRouter()
-  const { setLoadingText } = useGlobalStore(useShallow((state) => state))
+  const setLoadingText = useGlobalStore((state) => state.setLoadingText)
   const t = useTranslations('space')
   const { mutate: getSpaces } = useGetSpaces()
   const { trigger: createSpace, isMutating: isCreating } = useCreateSpace()

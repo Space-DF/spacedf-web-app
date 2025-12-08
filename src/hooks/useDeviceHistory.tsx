@@ -20,22 +20,15 @@ export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
   const rotationRef = useRef<number>(0)
   const animationControlRef = useRef<any>(null)
-
-  const {
-    deviceSelected,
-    deviceHistory,
-    devices,
-    deviceModels,
-    setDeviceHistory,
-  } = useDeviceStore(
-    useShallow((state) => ({
-      deviceSelected: state.deviceSelected,
-      deviceHistory: state.deviceHistory,
-      devices: state.devicesFleetTracking,
-      deviceModels: state.models,
-      setDeviceHistory: state.setDeviceHistory,
-    }))
+  const deviceHistory = useDeviceStore(
+    useShallow((state) => state.deviceHistory)
   )
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+  const devices = useDeviceStore(
+    useShallow((state) => state.devicesFleetTracking)
+  )
+  const deviceModels = useDeviceStore(useShallow((state) => state.models))
+  const setDeviceHistory = useDeviceStore((state) => state.setDeviceHistory)
 
   const { isClusterVisible, modelType, updateBooleanState } =
     useFleetTrackingStore(
@@ -110,13 +103,8 @@ export const useDeviceHistory = () => {
     }
   }, [])
 
-  const { mapType, isMapInitialized } = useGlobalStore(
-    useShallow((state) => ({
-      mapType: state.mapType,
-      setMapType: state.setMapType,
-      isMapInitialized: state.isMapInitialized,
-    }))
-  )
+  const mapType = useGlobalStore((state) => state.mapType)
+  const isMapInitialized = useGlobalStore((state) => state.isMapInitialized)
 
   const previousMapType = usePrevious(mapType)
 

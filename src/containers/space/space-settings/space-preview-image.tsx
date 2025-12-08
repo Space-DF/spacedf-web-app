@@ -24,8 +24,13 @@ export function SpacePreviewImage() {
   const router = useRouter()
   const params = useParams()
   const t = useTranslations('space')
-  const { step, shouldBackToHome, isOpenAlertDialog, setOpenAlertDialog } =
-    useSpaceSettings()
+
+  const step = useSpaceSettings((state) => state.step)
+  const shouldBackToHome = useSpaceSettings((state) => state.shouldBackToHome)
+  const isOpenAlertDialog = useSpaceSettings((state) => state.isOpenAlertDialog)
+  const setOpenAlertDialog = useSpaceSettings(
+    (state) => state.setOpenAlertDialog
+  )
 
   const handleNavigateBack = () => {
     router.push(params.spaceSlug ? `/spaces/${params.spaceSlug}` : '/')

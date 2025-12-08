@@ -61,10 +61,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
 
   const { data: trip, isLoading } = useGetTrip(tripId)
   const { startDrawHistory, removeRoute } = useDeviceHistory()
-  const checkpoints = useMemo(
-    () => [...(trip?.checkpoints || [])].reverse(),
-    [trip?.checkpoints]
-  )
+  const checkpoints = trip?.checkpoints || []
 
   const listLocation = useMemo(() => {
     return checkpoints.map((checkpoint) => ({

@@ -14,9 +14,7 @@ const cluster = new Supercluster({
 
 export const useMapGroupCluster = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
-  const { map } = useFleetTrackingStore(
-    useShallow((state) => ({ map: state.map }))
-  )
+  const map = useFleetTrackingStore(useShallow((state) => state.map))
 
   const [clusteredDeviceIds, setClusteredDeviceIds] = useState<Set<string>>(
     new Set()
