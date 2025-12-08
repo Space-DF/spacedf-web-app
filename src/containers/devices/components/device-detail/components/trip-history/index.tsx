@@ -71,7 +71,7 @@ const TripHistory = () => {
     return currentDeviceSpace?.device.id
   }, [devices, deviceSelected])
 
-  const { data: trips = [], isLoading } = useGetTrips(currentDeviceId)
+  const { data: trips = [], isLoading, mutate } = useGetTrips(currentDeviceId)
 
   const listLocation = useMemo(() => {
     return trips.map((trip) => ({
@@ -157,11 +157,16 @@ const TripHistory = () => {
     [t]
   )
 
+  const handleCloseTripDetail = () => {
+    setSelectedTrip(undefined)
+    mutate()
+  }
+
   return (
     <>
       <TripDetail
         open={!!selectedTrip}
-        onClose={() => setSelectedTrip(undefined)}
+        onClose={handleCloseTripDetail}
         tripId={selectedTrip}
       />
       <div className="flex flex-col gap-4 relative">

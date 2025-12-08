@@ -140,5 +140,6 @@
   "select_device_entity": "Chọn Device Entity",
   "no_entities_found": "Không tìm thấy thiết bị",
   "select_entity": "Chọn thiết bị",
-  "entity": "Thiết bị"
+  "entity": "Thiết bị",
+  "search_entity": "Tìm kiếm thiết bị..."
 }

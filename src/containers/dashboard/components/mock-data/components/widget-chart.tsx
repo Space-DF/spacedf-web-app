@@ -4,9 +4,11 @@ import { PreviewChart } from '../../widget-selected/components/chart-widget/comp
 
 interface Props extends WidgetChart {
   isShowFullChart?: boolean
+  id?: string
 }
 
 export const ChartWidget = ({
+  id,
   sources,
   widget_info,
   orientation,
@@ -29,6 +31,7 @@ export const ChartWidget = ({
         hideAxis={hideAxis}
         showXGrid={showXGrid}
         format={format}
+        widgetId={id}
       />
     </WidgetContainer>
   )

@@ -140,5 +140,6 @@
   "select_device_entity": "Select Device Entity",
   "no_entities_found": "No entities found",
   "select_entity": "Select Entity",
-  "entity": "Entity"
+  "entity": "Entity",
+  "search_entity": "Search entity..."
 }

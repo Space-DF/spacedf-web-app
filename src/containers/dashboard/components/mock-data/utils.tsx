@@ -49,7 +49,11 @@ export const getWidgetByType = (widget: Widget) => {
     case WidgetType.Chart:
       return (
         <div key={widget.id}>
-          <ChartWidget {...(widget as WidgetChart)} isShowFullChart />
+          <ChartWidget
+            {...(widget as WidgetChart)}
+            isShowFullChart
+            id={widget.id}
+          />
         </div>
       )
     case WidgetType.Gauge:
