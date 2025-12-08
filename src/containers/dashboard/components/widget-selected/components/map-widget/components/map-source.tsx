@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/select'
 import { FormLabel, FormField } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
-import { DEVICES } from '../../table-widget/table.const'
-import { mapPayload, mapSource, MapType, Device } from '@/validator'
+import { mapPayload, mapSource, MapType } from '@/validator'
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
+import { Entity } from '@/types/entity'
 
 const mapTypeLabels: Record<MapType, string> = {
   [MapType.RoadMap]: 'Road Map',
@@ -26,17 +27,19 @@ const MapSource: React.FC = () => {
       name: 'sources',
     }) || []
 
+  const { data: entities } = useDeviceEntity('map')
+
+  const entityList = entities?.results || []
+
   const selectedSource = sources[0] || {}
 
-  const handleDeviceChange = useCallback(
-    (device: Device) => {
+  const handleEntityChange = useCallback(
+    (device: Entity) => {
       const updatedSource: mapSource = {
         ...selectedSource,
-        device_id: device.device_id,
+        entity_id: device.id,
         device_name: device.device_name,
-        coordinate: Array.isArray(device.coordinate)
-          ? device.coordinate
-          : [0, 0],
+        coordinate: [0, 0],
         map_type: selectedSource.map_type || MapType.RoadMap,
       }
       setValue('sources', [updatedSource], { shouldValidate: true })
@@ -53,32 +56,42 @@ const MapSource: React.FC = () => {
     []
   )
 
+  const currentEntity = useMemo(() => {
+    return entityList.find((e) => e.id === selectedSource.entity_id)
+  }, [entityList, selectedSource.entity_id])
+
   return (
     <div className="mt-4 size-full px-4">
       <FormField
         control={control}
-        name="sources.0.device_id"
-        render={({ field }) => (
+        name="sources.0.entity_id"
+        render={() => (
           <div>
             <p className="mb-[6px] text-sm font-semibold">
-              <FormLabel required>{t('dashboard.device')}</FormLabel>
+              <FormLabel
+                required
+                className="text-xs font-semibold text-brand-component-text-dark"
+              >
+                {t('dashboard.device_entity')}
+              </FormLabel>
             </p>
             <Select
               onValueChange={(value) => {
-                const device = DEVICES.find((d) => d.device_id === value)
+                const device = entityList.find((e) => e.id === value)
                 if (device) {
-                  handleDeviceChange(device)
+                  handleEntityChange(device)
                 }
               }}
             >
               <SelectTrigger className="w-full">
-                {DEVICES.find((d) => d.device_id === field.value)
-                  ?.device_name || t('dashboard.select_device')}
+                {currentEntity
+                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                  : t('dashboard.select_entity')}
               </SelectTrigger>
               <SelectContent className="rounded-md border">
-                {DEVICES.map((device) => (
-                  <SelectItem key={device.device_id} value={device.device_id}>
-                    {device.device_name}
+                {entityList.map((entity) => (
+                  <SelectItem key={entity.id} value={entity.id}>
+                    {`${entity.unique_key}.${entity.entity_type.unique_key}`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -92,7 +105,12 @@ const MapSource: React.FC = () => {
         render={({ field }) => (
           <div>
             <p className="mt-4 mb-[6px] text-sm font-semibold">
-              <FormLabel required>{t('dashboard.map_type')}</FormLabel>
+              <FormLabel
+                className="text-xs font-semibold text-brand-component-text-dark"
+                required
+              >
+                {t('dashboard.map_type')}
+              </FormLabel>
             </p>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <SelectTrigger className="w-full">

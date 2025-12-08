@@ -18,11 +18,8 @@ import {
 import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
-import { useGetDevices } from '@/hooks/useDevices'
 import { SliderPayload } from '@/validator'
-import { mockFieldData } from '../../../chart-widget/components/single-source'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
-import { SLIDER_DEVICES } from './constants'
+import { useDeviceEntity } from '../../../../hooks/useDeviceEntity'
 
 const handleChangeInputNumber = (value: string) => {
   if (value === '' || isNaN(+value)) {
@@ -35,11 +32,9 @@ const SliderSource = () => {
   const form = useFormContext<SliderPayload>()
   const { control } = form
 
-  const { data: devices = [] } = useGetDevices()
+  const { data: entities } = useDeviceEntity('slider')
 
-  const showDummyData = useShowDummyData()
-
-  const deviceList = showDummyData ? SLIDER_DEVICES : devices
+  const entityList = entities?.results || []
 
   const t = useTranslations('dashboard')
 
@@ -81,14 +76,14 @@ const SliderSource = () => {
       <div className="grid grid-cols-2 gap-2 gap-y-4">
         <FormField
           control={control}
-          name="source.device_id"
+          name="source.entity_id"
           render={({ field, fieldState }) => (
-            <FormItem>
+            <FormItem className="col-span-2">
               <FormLabel
                 className="text-xs font-semibold text-brand-component-text-dark"
                 required
               >
-                {t('device')}
+                {t('device_entity')}
               </FormLabel>
               <FormControl>
                 <Select
@@ -103,68 +98,24 @@ const SliderSource = () => {
                     <SelectValue
                       placeholder={
                         <span className="text-brand-component-text-gray">
-                          {t('select_device')}
+                          {t('select_entity')}
                         </span>
                       }
                     />
                   </SelectTrigger>
                   <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
                     <SelectGroup>
-                      {deviceList.length > 0 ? (
-                        deviceList.map((device) => (
-                          <SelectItem value={device.id} key={device.id}>
-                            {device.name}
+                      {entityList.length > 0 ? (
+                        entityList.map((entity) => (
+                          <SelectItem value={entity.id} key={entity.id}>
+                            {`${entity.unique_key}.${entity.entity_type.unique_key}`}
                           </SelectItem>
                         ))
                       ) : (
                         <SelectItem value="no_device" key="no_device" disabled>
-                          {t('no_devices_found')}
+                          {t('no_entities_found')}
                         </SelectItem>
                       )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="source.field"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel
-                className="text-xs font-semibold text-brand-component-text-dark"
-                required
-              >
-                {t('field')}
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    isError={!!fieldState.error}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                  >
-                    <SelectValue
-                      placeholder={
-                        <span className="text-brand-component-text-gray">
-                          {t('select_field')}
-                        </span>
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                    <SelectGroup>
-                      {mockFieldData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {device.name}
-                        </SelectItem>
-                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

@@ -1,8 +1,7 @@
 import { z } from 'zod'
 
 const sliderSourceSchema = z.object({
-  device_id: z.string().min(1, 'Please select device'),
-  field: z.string().min(1, 'Please select field'),
+  entity_id: z.string().min(1, 'Please select entity'),
   min: z.number({ required_error: 'Please select min' }),
   max: z.number({ required_error: 'Please select max' }),
   step: z
@@ -34,8 +33,7 @@ export type SliderPayload = z.infer<typeof sliderSchema>
 export const defaultSliderValues: SliderPayload = {
   value: 50,
   source: {
-    device_id: '',
-    field: '',
+    entity_id: '',
     min: 0,
     max: 100,
     step: 1,

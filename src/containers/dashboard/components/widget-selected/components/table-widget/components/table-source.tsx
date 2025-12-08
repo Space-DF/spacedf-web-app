@@ -13,32 +13,35 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FormLabel } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
-import { DEVICES } from '../table.const'
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 
-const getDeviceNames = (devices: Device[]) => {
-  return devices.map((device) => device.device_name).join(', ')
+const getEntityNames = (entities: Device[]) => {
+  return entities.map((entity) => entity.entity_name).join(', ')
 }
 
 const Source: React.FC = () => {
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
   const form = useFormContext<dataTablePayload>()
   const { setValue, watch } = form
-  const selectedDevices = watch('source.devices') || []
+  const selectedEntities = watch('source.entities') || []
 
-  const toggleDevice = (device: (typeof DEVICES)[0]) => {
-    const isSelected = selectedDevices.some(
-      (d) => d.device_id === device.device_id
+  const toggleDevice = (entity: Device) => {
+    const isSelected = selectedEntities.some(
+      (e) => e.entity_id === entity.entity_id
     )
-    const updatedDevices = isSelected
-      ? selectedDevices.filter((d) => d.device_id !== device.device_id)
-      : [...selectedDevices, device]
+    const updatedEntities = isSelected
+      ? selectedEntities.filter((e) => e.entity_id !== entity.entity_id)
+      : [...selectedEntities, entity]
 
-    setValue('source.devices', updatedDevices)
+    setValue('source.entities', updatedEntities)
   }
 
-  const deviceNames = useMemo(
-    () => getDeviceNames(selectedDevices),
-    [selectedDevices]
+  const { data: entities } = useDeviceEntity('table')
+  const entityList = entities?.results || []
+
+  const entityNames = useMemo(
+    () => getEntityNames(selectedEntities),
+    [selectedEntities]
   )
 
   return (
@@ -48,7 +51,7 @@ const Source: React.FC = () => {
           className="text-sm font-semibold !text-brand-component-text-dark"
           required
         >
-          {t('dashboard.select_device')}
+          {t('select_entity')}
         </FormLabel>
       </p>
       <DropdownMenu>
@@ -59,7 +62,7 @@ const Source: React.FC = () => {
           >
             <div className="flex w-full items-center justify-between text-sm text-brand-component-text-gray">
               <p className="max-w-[86%] overflow-hidden text-ellipsis whitespace-nowrap">
-                {deviceNames || t('dashboard.select_device')}
+                {entityNames || t('select_entity')}
               </p>
               <CaretDown />
             </div>
@@ -70,9 +73,9 @@ const Source: React.FC = () => {
           align="start"
           sideOffset={4}
         >
-          {DEVICES.map((device) => (
+          {entityList.map((entity) => (
             <DropdownMenuItem
-              key={device.device_id}
+              key={entity.id}
               className="cursor-pointer px-3 py-2 hover:bg-brand-component-fill-dark-soft"
               onSelect={(e) => e.preventDefault()}
             >
@@ -80,14 +83,19 @@ const Source: React.FC = () => {
                 <Input
                   type="checkbox"
                   className="size-5 rounded border-brand-component-stroke-dark-soft px-2 peer-checked:bg-brand-component-fill-dark-soft"
-                  checked={selectedDevices.some(
-                    (d) => d.device_id === device.device_id
+                  checked={selectedEntities.some(
+                    (e) => e.entity_id === entity.id
                   )}
-                  onChange={() => toggleDevice(device)}
-                  isError={!!form.formState.errors.source?.devices}
+                  onChange={() =>
+                    toggleDevice({
+                      entity_id: entity.id,
+                      entity_name: entity.name,
+                    })
+                  }
+                  isError={!!form.formState.errors.source?.entities}
                 />
                 <Label className="text-sm text-brand-component-text-dark">
-                  {device.device_name}
+                  {`${entity.unique_key}.${entity.entity_type.unique_key}`}
                 </Label>
               </div>
             </DropdownMenuItem>

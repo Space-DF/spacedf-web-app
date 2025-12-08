@@ -135,5 +135,10 @@
   "enter_dashboard_name": "Nhập tên Dashboard",
   "dashboard_updated_successfully": "Dashboard đã được cập nhật thành công",
   "dashboard_update_failed": "Dashboard đã được cập nhật thất bại",
-  "update_dashboard": "Cập nhật Dashboard"
+  "update_dashboard": "Cập nhật Dashboard",
+  "device_entity": "Device Entity",
+  "select_device_entity": "Chọn Device Entity",
+  "no_entities_found": "Không tìm thấy thiết bị",
+  "select_entity": "Chọn thiết bị",
+  "entity": "Thiết bị"
 }

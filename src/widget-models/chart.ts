@@ -41,22 +41,19 @@ class Axes {
 }
 
 export class ChartSources extends Sources {
-  field: string
   legend: string
   color: string
   chart_type: ChartType
   show_legend: boolean
   constructor(
-    device_id: string,
-    field: string,
+    entity_id: string,
     legend: string,
     color: string,
     chart_type: ChartType,
     show_legend: boolean,
     device_type?: string
   ) {
-    super(device_id, device_type)
-    this.field = field
+    super(entity_id, device_type)
     this.legend = legend
     this.color = color
     this.chart_type = chart_type

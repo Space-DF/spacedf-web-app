@@ -56,12 +56,12 @@ export class Widget {
 }
 
 export class Sources {
-  device_id: string
-  device_type?: string
+  entity_id: string
+  entity_type?: string
 
-  constructor(device_id: string, device_type?: string) {
-    this.device_id = device_id
-    this.device_type = device_type
+  constructor(entity_id: string, entity_type?: string) {
+    this.entity_id = entity_id
+    this.entity_type = entity_type
   }
 }
 

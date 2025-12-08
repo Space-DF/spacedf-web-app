@@ -24,7 +24,7 @@ export interface WidgetChart {
   showXGrid: boolean
   format: TimeFormat
   sources: {
-    device_id: string
+    entity_id: string
     color: string
     field: string
     legend: string
