@@ -10,12 +10,17 @@ import { useGetSpaceDetails } from '@/app/[locale]/[organization]/(withAuth)/spa
 
 export default function WorkspaceSettings() {
   const params = useParams()
-  const { data: spaces, mutate: mutateSpaceDetails } = useGetSpaceDetails(
-    params.spaceSlug as string
-  )
+  const {
+    data: spaces,
+    mutate: mutateSpaceDetails,
+    isLoading,
+  } = useGetSpaceDetails(params.spaceSlug as string)
   const spaceDetail = spaces?.data.results?.find(
     (space) => space.slug_name === params.spaceSlug
   )
+  if (!isLoading && !spaceDetail) {
+    return (window.location.href = `/${params.locale}/spaces/${params.spaceSlug}`)
+  }
 
   return (
     <EffectLayout>
