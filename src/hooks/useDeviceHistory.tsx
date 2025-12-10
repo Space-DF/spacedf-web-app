@@ -366,6 +366,7 @@ export const useDeviceHistory = () => {
         duration: 5000,
         pitch: 45,
         bearing: 0,
+        maxZoom: 18,
       })
     }
 

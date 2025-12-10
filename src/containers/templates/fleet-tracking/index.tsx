@@ -15,6 +15,7 @@ import { MapCluster } from './map-cluster'
 import { MapControl } from './map-control'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
+import SpacedfLogo from '@/components/common/spacedf-logo'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 export default function FleetTracking() {
@@ -205,6 +206,7 @@ export default function FleetTracking() {
       className="size-full overflow-hidden relative bg-transparent z-[1]"
       ref={fleetTrackingMapRef}
     >
+      <SpacedfLogo />
       <ModelType />
       <SelectMapType />
       <MapControl />

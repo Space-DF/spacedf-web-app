@@ -84,6 +84,7 @@ export const useZoomStrategies = () => {
             padding: 100,
             duration: 5000,
             pitch: resolvedPitch,
+            maxZoom: 18,
           }
         )
       }
