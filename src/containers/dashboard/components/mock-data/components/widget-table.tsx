@@ -5,15 +5,15 @@ export const TableWidget = ({
   source,
   columns,
   widget_info,
-  conditions,
+  conditionals,
 }: any) => {
   return (
     <WidgetContainer>
       <WidgetTitle>{widget_info?.name}</WidgetTitle>
       <TablePreview
-        source={source.devices}
+        source={source.entities}
         columns={columns}
-        conditionals={conditions}
+        conditionals={conditionals}
       />
     </WidgetContainer>
   )

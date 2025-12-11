@@ -164,6 +164,22 @@ const renderChartComponents = (
           {showData && <LabelList dataKey={`source.${index}`} position="top" />}
         </Bar>
       )
+    case ChartType.BarChartDouble:
+      return (
+        <Bar
+          type="monotone"
+          dataKey={`source.${index}`}
+          name={source.legend}
+          stroke={color}
+          fill={color}
+          strokeWidth={2}
+          legendType={
+            !source.show_legend || !source.legend ? 'none' : undefined
+          }
+        >
+          {showData && <LabelList dataKey={`source.${index}`} position="top" />}
+        </Bar>
+      )
   }
 }
 
@@ -235,7 +251,7 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
         <CartesianGrid horizontal={showXGrid} vertical={false} />
         {sources.map((source, index) =>
           renderChartComponents(
-            source.chart_type,
+            source.chart_type as ChartType,
             source,
             index,
             showData,

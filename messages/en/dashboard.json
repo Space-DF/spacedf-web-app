@@ -38,9 +38,9 @@
   "color": "Color",
   "select_color": "Select color",
   "type": "Type",
-  "line_chart": "Line Chart",
-  "area_chart": "Area Chart",
-  "bar_chart": "Bar Chart",
+  "line_chart": "Line",
+  "area_chart": "Area",
+  "bar_chart": "Bar",
   "confirm_delete_source": "Do you really want to delete this source and its configuration?",
   "preview": "Preview",
   "add": "Add",
@@ -141,5 +141,6 @@
   "no_entities_found": "No entities found",
   "select_entity": "Select Entity",
   "entity": "Entity",
-  "search_entity": "Search entity..."
+  "search_entity": "Search entity...",
+  "bar_chart_double": "Bar Double"
 }

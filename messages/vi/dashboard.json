@@ -141,5 +141,6 @@
   "no_entities_found": "Không tìm thấy thiết bị",
   "select_entity": "Chọn thiết bị",
   "entity": "Thiết bị",
-  "search_entity": "Tìm kiếm thiết bị..."
+  "search_entity": "Tìm kiếm thiết bị...",
+  "bar_chart_double": "Cột kép"
 }

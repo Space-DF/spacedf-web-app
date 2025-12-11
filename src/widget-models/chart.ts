@@ -9,6 +9,7 @@ export enum ChartType {
   LineChart = 'line-chart',
   AreaChart = 'area-chart',
   BarChart = 'bar-chart',
+  BarChartDouble = 'bar-chart-double',
 }
 
 export enum Orientation {
