@@ -23,6 +23,7 @@ export type Device = {
   realtimeTrip?: [number, number][]
   origin?: string
   deviceId?: string
+  device_id?: string
 } & GpsTrackerAttributes &
   (TrackiAttributes | RakAttributes)
 
@@ -108,7 +109,9 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
-        const currentDevice = state.devices[deviceId]
+        const currentDevice = Object.values(state.devices)?.find(
+          (d) => d.deviceId === deviceId
+        )
 
         const previousState: Device = currentDevice || {
           type: 'rak',

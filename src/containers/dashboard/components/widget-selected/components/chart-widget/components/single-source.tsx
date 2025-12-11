@@ -395,6 +395,14 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             {t('bar_chart')}
                           </FormLabel>
                         </FormItem>
+                        <FormItem className="flex items-center space-x-2.5 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value={ChartType.BarChartDouble} />
+                          </FormControl>
+                          <FormLabel className="text-sm font-medium text-brand-component-text-dark">
+                            {t('bar_chart_double')}
+                          </FormLabel>
+                        </FormItem>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />

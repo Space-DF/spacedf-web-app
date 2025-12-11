@@ -47,6 +47,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'github.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'd3f53s68dquwpy.cloudfront.net',
+      },
     ],
   },
   async headers() {

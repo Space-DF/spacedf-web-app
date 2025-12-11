@@ -16,11 +16,9 @@ export const chartSchema = z
         legend: z.string(),
         color: z.string(),
         show_legend: z.boolean(),
-        chart_type: z.enum([
-          ChartType.LineChart,
-          ChartType.AreaChart,
-          ChartType.BarChart,
-        ]),
+        chart_type: z.enum(
+          Object.values(ChartType) as [ChartType, ...ChartType[]]
+        ),
       })
     ),
     widget_info: z.object({
