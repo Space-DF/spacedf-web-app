@@ -25,7 +25,7 @@ export class SpaceDFClient {
     this.client = new SpaceDF({
       organization: organization || '',
       APIKey: this.api_key,
-      development: true,
+      development: process.env.NODE_ENV === 'development',
     })
   }
 
