@@ -1,35 +1,9 @@
+import { PaginationResponse } from './../types/global.d'
 import { Device as StoreDevice } from '@/stores/device-store'
-import { TSpace } from '@/types/common'
 import { DeviceSpace } from '@/types/device-space'
 import { Device as ApiDevice } from '@/types/device'
 import { Trip } from '@/types/trip'
-
-export const spaceList: TSpace[] = [
-  {
-    id: '1',
-    title: 'DF Space 1',
-    count_device: 12,
-    thumbnail: '',
-  },
-  {
-    id: '2',
-    title: 'DF Space 2',
-    count_device: 13,
-    thumbnail: '',
-  },
-  {
-    id: '3',
-    title: 'DF Space 3',
-    count_device: 13,
-    thumbnail: '',
-  },
-  {
-    id: '4',
-    title: 'DF Space 4',
-    count_device: 13,
-    thumbnail: '',
-  },
-]
+import { Entity } from '@/types/entity'
 
 export const devices: StoreDevice[] = [
   {
@@ -326,6 +300,8 @@ export const devices: StoreDevice[] = [
 export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
   const apiDevice: ApiDevice = {
     id: d.id,
+    device_id: d.deviceId,
+    device_name: d.name,
     device_connector: 'connector1',
     device_model: d.type ?? 'rak',
     status: d.status,
@@ -343,6 +319,7 @@ export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
         longitude: d.latestLocation[0],
         latitude: d.latestLocation[1],
         timestamp: new Date().toISOString(),
+        accuracy: 0,
       }
     : undefined
 
@@ -363,6 +340,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     latitude: number
     longitude: number
     timestamp: string
+    accuracy: number
   }[] = []
 
   if (source?.histories?.start) {
@@ -370,6 +348,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
       longitude: source.histories.start[0],
       latitude: source.histories.start[1],
       timestamp: now,
+      accuracy: 0,
     })
   }
 
@@ -378,6 +357,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
       longitude: source.histories.end[0],
       latitude: source.histories.end[1],
       timestamp: now,
+      accuracy: 0,
     })
   }
 
@@ -386,5 +366,86 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     space_device: space.id,
     started_at: checkpointsFromHistories[0]?.timestamp ?? now,
     checkpoints: checkpointsFromHistories,
+    space_device_id: space.id,
+    device_id: space.device.id,
+    device_name: space.device.device_name,
+    is_finished: false,
+    last_latitude: checkpointsFromHistories[0]?.latitude ?? 0,
+    last_longitude: checkpointsFromHistories[0]?.longitude ?? 0,
+    last_report: checkpointsFromHistories[0]?.timestamp ?? now,
   }
 })
+
+export const dummyEntities: PaginationResponse<Entity> = {
+  count: 3,
+  next: undefined,
+  previous: undefined,
+  results: [
+    {
+      id: '02e34032-9e35-4560-b6a1-735d65ecc683',
+      device_id: '460c440a-f721-d214-0000-000000000001',
+      device_name: 'rak demo',
+      unique_key: 'rak4630_460c440af721d214_temperature',
+      entity_type: {
+        id: '1aeeaa9b-1111-2222-3333-444444444444',
+        name: 'Device tracker',
+        unique_key: 'device_tracker',
+        image_url: 'https://cdn.app.com/icons/device_tracker.png',
+      },
+      name: 'Temperature for RAK4630',
+      category: 'temperature',
+      unit_of_measurement: '°C',
+      display_type: 'chart',
+      time_start: '2025-11-01T00:00:00Z',
+      time_end: '2025-12-01T00:00:00Z',
+      image_url: 'https://cdn.app.com/icons/temperature.png',
+      is_enabled: true,
+      created_at: '2025-11-01T08:00:00Z',
+      updated_at: '2025-12-05T09:10:00Z',
+    },
+    {
+      id: 'a13f503b-82c2-42e0-a5cc-3e7f38cd6621',
+      device_id: '460c440a-f721-d214-0000-000000000002',
+      device_name: 'rak demo 2',
+      unique_key: 'rak4630_460c440af721d214_humidity',
+      entity_type: {
+        id: '1aeeaa9b-1111-2222-3333-444444444444',
+        name: 'Device tracker',
+        unique_key: 'device_tracker',
+        image_url: 'https://cdn.app.com/icons/device_tracker.png',
+      },
+      name: 'Humidity for RAK4630',
+      category: 'humidity',
+      unit_of_measurement: '%',
+      display_type: 'chart',
+      time_start: '2025-11-01T00:00:00Z',
+      time_end: '2025-12-01T00:00:00Z',
+      image_url: 'https://cdn.app.com/icons/humidity.png',
+      is_enabled: false,
+      created_at: '2025-11-01T08:30:00Z',
+      updated_at: '2025-12-05T09:20:00Z',
+    },
+    {
+      id: 'b3c8cb9e-c590-4a69-b3ef-42d27042d44d',
+      device_id: '460c440a-f721-d214-0000-000000000003',
+      device_name: 'rak demo 3',
+      unique_key: 'rak4630_460c440af721d214_voltage',
+      entity_type: {
+        id: '1aeeaa9b-1111-2222-3333-444444444444',
+        name: 'Device tracker',
+        unique_key: 'device_tracker',
+        image_url: 'https://cdn.app.com/icons/device_tracker.png',
+      },
+      name: 'Voltage for RAK4630',
+      category: 'voltage',
+      unit_of_measurement: 'V',
+      display_type: 'text',
+      time_start: '2025-10-01T00:00:00Z',
+      time_end: '2025-11-01T00:00:00Z',
+      image_url: 'https://cdn.app.com/icons/voltage.png',
+      is_enabled: true,
+      created_at: '2025-10-01T10:00:00Z',
+      updated_at: '2025-12-05T07:40:00Z',
+    },
+  ],
+}

@@ -1,89 +1,102 @@
 import ExpandableList from '@/components/common/expandable-list'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectItem,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { formatDuration } from '@/utils/time'
 
 import { format } from 'date-fns'
-import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import TripDetail from './components/trip-detail'
 import { useDeviceStore } from '@/stores/device-store'
-import { useShallow } from 'zustand/react/shallow'
-import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useGetTrips } from './hooks/useGetTrips'
-import { calculateTotalDistance } from '@/utils/map'
 import { Checkpoint } from '@/types/trip'
-
-const RANGE_VALUES = [
-  {
-    value: 'recently',
-    label: 'Recently',
-  },
-  {
-    value: 'last_week',
-    label: 'Last Week',
-  },
-  {
-    value: 'last_month',
-    label: 'Last Month',
-  },
-  {
-    value: 'last_year',
-    label: 'Last Year',
-  },
-]
+import { useGetDevices } from '@/hooks/useDevices'
+import dayjs from 'dayjs'
+import { useTripAddress } from './hooks/useTripAddress'
 
 interface ListItem {
   id: string
-  name: string
+  name: string | React.ReactNode
   distance: string
   duration: number
-  time: Date
+  time?: Date
   checkpoints: Checkpoint[]
 }
 
 const INITIAL_VISIBLE_COUNT = 2
 
+const TripHistoryItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
+  return (
+    <div
+      className={cn(
+        'border border-brand-component-stroke-dark-soft rounded-md p-2 bg-brand-component-fill-light shadow-sm transition-all duration-200',
+        isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+      )}
+    >
+      <div className="flex items-start gap-x-2">
+        <Skeleton className="w-[73px] h-[73px] rounded-md" />
+        <div className="flex flex-col gap-y-3 flex-1">
+          <div className="flex flex-col gap-y-1">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-40" />
+          </div>
+          <div className="flex gap-x-9">
+            <div className="flex flex-col gap-y-1">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+            <div className="flex flex-col gap-y-1">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const TripHistory = () => {
   const t = useTranslations('common')
-  const [selectedTrip, setSelectedTrip] = useState<ListItem>()
-  const { deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      deviceSelected: state.deviceSelected,
+  const [selectedTrip, setSelectedTrip] = useState<string>()
+  const { data: devices } = useGetDevices()
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+
+  const currentDeviceId = useMemo(() => {
+    const currentDeviceSpace = devices?.find(
+      (device) => device.id === deviceSelected
+    )
+    return currentDeviceSpace?.device.id
+  }, [devices, deviceSelected])
+
+  const { data: trips = [], isLoading, mutate } = useGetTrips(currentDeviceId)
+
+  const listLocation = useMemo(() => {
+    return trips.map((trip) => ({
+      longitude: trip.last_longitude,
+      latitude: trip.last_latitude,
     }))
+  }, [trips])
+
+  const { data: tripAddresses } = useTripAddress(listLocation)
+
+  const tripHistory: ListItem[] = useMemo(
+    () =>
+      trips?.map((trip, index) => ({
+        id: trip.id,
+        name: tripAddresses?.[index] || <Skeleton className="w-20 h-4" />,
+        checkpoints: trip.checkpoints,
+        distance: '0',
+        duration: dayjs(trip.last_report).diff(dayjs(trip.started_at)),
+        time: trip.last_report ? new Date(trip.last_report) : undefined,
+      })) || [],
+    [trips, tripAddresses]
   )
-  const { data: trips } = useGetTrips(deviceSelected)
-
-  const tripHistory: ListItem[] =
-    trips?.map((trip) => ({
-      id: trip.id,
-      name: 'Weekend Trip',
-      checkpoints: trip.checkpoints,
-      distance: calculateTotalDistance(trip.checkpoints),
-      duration: trip.checkpoints.reduce((acc, checkpoint) => {
-        return (
-          acc +
-          (new Date(checkpoint.timestamp).getTime() -
-            new Date(trip.started_at).getTime())
-        )
-      }, 0),
-      time: new Date(trip.started_at),
-    })) || []
-
-  const { startDrawHistory } = useDeviceHistory()
 
   const handleStartDrawHistory = (item: ListItem) => {
-    startDrawHistory(item.checkpoints)
-    setSelectedTrip(item)
+    setSelectedTrip(item.id)
   }
 
   const renderTripHistoryItem = useCallback(
@@ -98,9 +111,6 @@ const TripHistory = () => {
               : 'opacity-0 -translate-y-4'
           )}
           onClick={() => handleStartDrawHistory(item)}
-          style={{
-            transitionDelay: isExpanded ? `${index * 100}ms` : '0ms',
-          }}
         >
           <div className="flex items-start gap-x-2">
             <Image
@@ -112,22 +122,24 @@ const TripHistory = () => {
             />
             <div className="flex flex-col gap-y-3">
               <div className="flex flex-col gap-y-1">
-                <span className="text-brand-component-text-dark text-sm font-semibold">
+                <span className="text-brand-component-text-dark text-sm font-semibold line-clamp-1">
                   {item.name}
                 </span>
                 <span className="text-xs text-brand-component-stroke-gray">
-                  {format(item.time, 'HH:mm dd/MM/yyyy')}
+                  {item.time
+                    ? format(item.time, 'HH:mm dd/MM/yyyy')
+                    : 'Unknown'}
                 </span>
               </div>
               <div className="flex gap-x-9">
-                <div className="flex flex-col gap-y-1">
+                {/* <div className="flex flex-col gap-y-1">
                   <p className="text-[14px] font-semibold text-brand-component-text-dark">
                     {item.distance} km
                   </p>
                   <span className="text-[11px] text-brand-component-stroke-gray">
                     {t('distance')}
                   </span>
-                </div>
+                </div> */}
                 <div className="flex flex-col gap-y-1">
                   <p className="text-[14px] font-semibold text-brand-component-text-dark">
                     {formatDuration(item.duration)}
@@ -142,47 +154,40 @@ const TripHistory = () => {
         </div>
       )
     },
-    []
+    [t]
   )
+
+  const handleCloseTripDetail = () => {
+    setSelectedTrip(undefined)
+    mutate()
+  }
 
   return (
     <>
       <TripDetail
         open={!!selectedTrip}
-        onClose={() => setSelectedTrip(undefined)}
-        checkpoints={selectedTrip?.checkpoints}
+        onClose={handleCloseTripDetail}
+        tripId={selectedTrip}
       />
       <div className="flex flex-col gap-4 relative">
         <div className="flex items-center justify-between">
           <Label className="text-brand-component-text-dark text-sm font-semibold">
             {t('trip_history')}
           </Label>
-          <div className="flex items-center gap-2">
-            <Select defaultValue="recently">
-              <SelectTrigger
-                icon={<ChevronDown className="size-4" />}
-                className="bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light rounded-lg border-none outline-none focus:ring-0 min-w-28 h-6"
-              >
-                <SelectValue
-                  placeholder="Select range time"
-                  className="min-w-30 h-6"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {RANGE_VALUES.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
-        <ExpandableList
-          items={tripHistory}
-          initialCount={INITIAL_VISIBLE_COUNT}
-          renderItem={renderTripHistoryItem}
-        />
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: INITIAL_VISIBLE_COUNT }).map((_, index) => (
+              <TripHistoryItemSkeleton key={index} isExpanded />
+            ))}
+          </div>
+        ) : (
+          <ExpandableList
+            items={tripHistory}
+            initialCount={INITIAL_VISIBLE_COUNT}
+            renderItem={renderTripHistoryItem}
+          />
+        )}
       </div>
     </>
   )

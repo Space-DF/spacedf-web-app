@@ -19,7 +19,6 @@ import {
   ArrowUpRight,
   ChevronsUpDown,
   Grid2x2Plus,
-  Pencil,
   PlusIcon,
 } from 'lucide-react'
 import {
@@ -34,8 +33,6 @@ import {
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { useTranslations } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
-import { useCreateDashboard } from '../../hooks/useCreateDashboard'
-import { useIsDemo } from '@/hooks/useIsDemo'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Widget, WidgetLayout } from '@/types/widget'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
@@ -46,6 +43,8 @@ import { useDeleteDashboard } from '../../hooks/useDeleteDashboard'
 import { useDashboard } from '../../hooks/useDashboard'
 import { useUpdateWidgets } from './hooks/useUpdateWidgets'
 import { toast } from 'sonner'
+import { WidgetAction } from './components/widget-action'
+import { DashboardDialog } from './components/dashboard-dialog'
 
 interface Props {
   onCloseSideBar: () => void
@@ -94,9 +93,6 @@ export const WidgetList: React.FC<Props> = ({
 
   const { data: dashboards = [], mutate } = useDashboard()
 
-  const { trigger: createDashboard, isMutating: isCreatingDashboard } =
-    useCreateDashboard()
-
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)
 
@@ -112,16 +108,7 @@ export const WidgetList: React.FC<Props> = ({
     return widgets
   }, [widgetLayouts])
 
-  const isDemo = useIsDemo()
-
   const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
-
-  const handleCreateNewDashBoard = async () => {
-    if (isDemo) return
-    const dashboard = await createDashboard({ name: 'Unnamed Dashboard' })
-    setOpen(false)
-    setDashboardId(dashboard.id)
-  }
 
   const handleCancelEdit = () => {
     if (currentWidgetLayout.length) {
@@ -162,7 +149,7 @@ export const WidgetList: React.FC<Props> = ({
   }, [currentWidgetLayout])
 
   useEffect(() => {
-    if (dashboards.length > 0) {
+    if (dashboards.length > 0 && !dashboardId) {
       setDashboardId(dashboards[0].id)
       return
     }
@@ -170,7 +157,7 @@ export const WidgetList: React.FC<Props> = ({
       setDashboardId(undefined)
       return
     }
-  }, [JSON.stringify(dashboards), dashboardId])
+  }, [dashboards, dashboardId])
 
   const currentDashboardName = useMemo(() => {
     if (dashboardId) {
@@ -264,14 +251,15 @@ export const WidgetList: React.FC<Props> = ({
                     {t('dashboard.view_all_dashboard')}
                     <ArrowUpRight />
                   </Button>
-                  <Button
-                    className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
-                    onClick={handleCreateNewDashBoard}
-                    loading={isCreatingDashboard}
+                  <DashboardDialog
+                    setDashboardId={setDashboardId}
+                    closePopover={() => setOpen(false)}
                   >
-                    {t('dashboard.create_new_dashboard')}
-                    <PlusIcon size={16} />
-                  </Button>
+                    <Button className="h-8 w-full gap-2 rounded-lg text-sm font-semibold">
+                      {t('dashboard.create_new_dashboard')}
+                      <PlusIcon size={16} />
+                    </Button>
+                  </DashboardDialog>
                 </CommandList>
               </Command>
             </PopoverContent>
@@ -279,38 +267,15 @@ export const WidgetList: React.FC<Props> = ({
         )
       }
       externalButton={
-        !isViewAllDashboard && (
-          <div className="flex gap-2 ">
-            {isEdit ? (
-              <div className="w-full flex flex-1 gap-2">
-                <Button
-                  onClick={handleCancelEdit}
-                  variant="outline"
-                  className="dark:bg-transparent"
-                >
-                  {t('dashboard.cancel')}
-                </Button>
-                <Button
-                  onClick={handleSaveDashboard}
-                  className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
-                  loading={isUpdatingWidgets}
-                >
-                  {t('dashboard.save')}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={() => {
-                  setEdit(true)
-                }}
-                size="icon"
-                className="size-8 gap-2 rounded-lg"
-              >
-                <Pencil size={16} />
-              </Button>
-            )}
-          </div>
-        )
+        <WidgetAction
+          isViewAllDashboard={isViewAllDashboard}
+          isEdit={isEdit}
+          handleCancelEdit={handleCancelEdit}
+          handleSaveDashboard={handleSaveDashboard}
+          isUpdatingWidgets={isUpdatingWidgets}
+          setEdit={setEdit}
+          dashboardId={dashboardId}
+        />
       }
     >
       <div className="mt-4">

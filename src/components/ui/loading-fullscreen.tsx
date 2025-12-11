@@ -1,12 +1,10 @@
 import { cn } from '@/lib/utils'
 import { useGlobalStore } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 import { Logo } from './logo'
 
 const LoadingFullScreen = ({ className }: { className?: string }) => {
-  const { loadingTitle, loadingDescription } = useGlobalStore(
-    useShallow((state) => state)
-  )
+  const loadingTitle = useGlobalStore((state) => state.loadingTitle)
+  const loadingDescription = useGlobalStore((state) => state.loadingDescription)
 
   return (
     <div

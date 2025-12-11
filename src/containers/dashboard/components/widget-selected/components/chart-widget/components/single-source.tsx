@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Accordion,
   AccordionContent,
@@ -20,8 +20,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { SourceColor } from '@/constants'
 import { Switch } from '@/components/ui/switch'
@@ -43,35 +56,7 @@ import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
 import { ChartPayload } from '@/validator'
-
-export const mockDeviceData = [
-  {
-    id: '1',
-    name: 'Laptop',
-  },
-  {
-    id: '2',
-    name: 'Smartphone',
-  },
-  {
-    id: '3',
-    name: 'Tablet',
-  },
-  {
-    id: '4',
-    name: 'Smartwatch',
-  },
-  {
-    id: '5',
-    name: 'Desktop',
-  },
-]
-
-export const mockFieldData = [
-  { id: '1', name: 'Temperature' },
-  { id: '2', name: 'Humidity' },
-]
-
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 interface Props {
   index: number
   field: FieldArrayWithId<
@@ -85,38 +70,27 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
+  const { data: entities } = useDeviceEntity('chart')
+  const entityList = entities?.results || []
+
   const form = useFormContext<ChartPayload>()
   const [openDialog, setOpenDialog] = useState(false)
-  const [isLegendManualChange, setIsLegendManualChange] = useState(false)
+  const [openCombobox, setOpenCombobox] = useState(false)
   const t = useTranslations('dashboard')
-  const deviceId = form.watch(`sources.${index}.device_id`)
+  const entityId = form.watch(`sources.${index}.entity_id`)
 
-  const selectDevice = useMemo(
-    () =>
-      mockDeviceData.find((device) => device.id === deviceId)?.name ||
-      t('add_device'),
-    [deviceId]
-  )
+  const currentEntity = useMemo(() => {
+    return entityList.find((entity) => entity.id === entityId)
+  }, [entityList, entityId])
 
-  const [colorValue, selectField] = form.watch([
-    `sources.${index}.color`,
-    `sources.${index}.field`,
-  ])
+  const [colorValue] = form.watch([`sources.${index}.color`])
 
   const handleLegendManualChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = event.target.value
-    setIsLegendManualChange(true)
     form.setValue(`sources.${index}.legend`, value)
   }
-
-  useEffect(() => {
-    if (isLegendManualChange) return
-    const field = mockFieldData.find((field) => field.id === selectField)?.name
-    if (!field) return
-    form.setValue(`sources.${index}.legend`, field)
-  }, [selectField])
 
   return (
     <>
@@ -164,7 +138,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
             }
           >
             <div className="mr-2 flex w-full items-center justify-between">
-              <p>{selectDevice}</p>
+              <p>{currentEntity?.name}</p>
               <Trash
                 width={20}
                 height={20}
@@ -180,89 +154,73 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
               <div className="grid grid-cols-2 gap-2">
                 <FormField
                   control={form.control}
-                  name={`sources.${index}.device_id`}
+                  name={`sources.${index}.entity_id`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-2">
                       <FormLabel
                         className="text-sm font-semibold text-brand-component-text-dark"
                         required
                       >
-                        {t('device')}
+                        {t('device_entity')}
                       </FormLabel>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                        <Popover
+                          open={openCombobox}
+                          onOpenChange={setOpenCombobox}
                         >
-                          <SelectTrigger
-                            icon={
-                              <ChevronDown className="w-3 text-brand-icon-gray" />
-                            }
-                            className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                          >
-                            <SelectValue
-                              placeholder={
-                                <span className="text-brand-component-text-gray">
-                                  {t('select_device')}
-                                </span>
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                            <SelectGroup>
-                              {mockDeviceData.map((device) => (
-                                <SelectItem value={device.id} key={device.id}>
-                                  {device.name}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`sources.${index}.field`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel
-                        className="text-sm font-semibold text-brand-component-text-dark"
-                        required
-                      >
-                        {t('field')}
-                      </FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger
-                            icon={
-                              <ChevronDown className="w-3 text-brand-icon-gray" />
-                            }
-                            className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                          >
-                            <SelectValue
-                              placeholder={
-                                <span className="text-brand-component-text-gray">
-                                  {t('select_field')}
-                                </span>
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                            <SelectGroup>
-                              {mockFieldData.map((field) => (
-                                <SelectItem value={field.id} key={field.id}>
-                                  {field.name}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={openCombobox}
+                              className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                            >
+                              <p className="truncate w-5/6 text-start">
+                                {currentEntity
+                                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                                  : t('select_entity')}
+                              </p>
+                              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                            <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                              <CommandInput
+                                placeholder={t('search_entity')}
+                                className="h-9"
+                              />
+                              <CommandList>
+                                <CommandEmpty>
+                                  {t('no_devices_found')}
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {entityList.length > 0 &&
+                                    entityList.map((entity) => (
+                                      <CommandItem
+                                        key={entity.id}
+                                        value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                        onSelect={() => {
+                                          field.onChange(entity.id)
+                                          setOpenCombobox(false)
+                                        }}
+                                        className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                                      >
+                                        {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                        <Check
+                                          className={cn(
+                                            'ml-auto h-4 w-4',
+                                            field.value === entity.id
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

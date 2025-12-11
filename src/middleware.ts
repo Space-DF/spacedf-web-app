@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import { locales } from './i18n/request'
 import { Locale } from './types/global'
 import { getValidSubdomain } from './utils/subdomain'
+import { readSession } from './utils/server-actions'
 
 // RegExp for public files
 const PUBLIC_FILE = /\.(.*)$/ // Files
@@ -18,7 +19,6 @@ export default async function middleware(request: NextRequest) {
   const defaultLocale = (cookies().get('NEXT_LOCALE')?.value || 'en') as Locale
 
   let [, locale, ...segments] = request.nextUrl.pathname.split('/')
-
   const host = request.headers.get('host')
 
   const isLocaleValid = locales.includes(locale as Locale)
@@ -42,6 +42,19 @@ export default async function middleware(request: NextRequest) {
     const demoUrl = `${request.nextUrl.protocol}//demo.${request.nextUrl.host}`
 
     return NextResponse.redirect(demoUrl, 308)
+  }
+
+  const userIsAuthenticated = await readSession()
+
+  const publicRoutes = ['', 'invitation']
+
+  const pathAfterSubdomain = segments.join('/')
+  const isPublicRoute = publicRoutes.includes(pathAfterSubdomain)
+  const isApiRoute = segments[0] === 'api'
+
+  if (!userIsAuthenticated && !isPublicRoute && !isApiRoute) {
+    const loginUrl = new URL(`/${locale}`, request.nextUrl.origin)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (subdomain) {

@@ -1,10 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { InputWithIcon } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -23,9 +21,13 @@ import {
   currentPasswordSchema,
   newPasswordSchema,
 } from '@/utils'
+import { useProfile } from './hooks/useProfile'
+import { useChangePassword } from './hooks/useChangePassword'
+import { toast } from 'sonner'
+import { useGeneralSetting } from './store/useGeneralSetting'
 
-const profileSchema = z
-  .object({
+const createProfileSchema = (isSetPassword: boolean) => {
+  const baseSchema = z.object({
     email: z
       .string()
       .email({ message: 'Please enter a valid email address' })
@@ -34,29 +36,67 @@ const profileSchema = z
         message: 'Email must be less than or equal to 50 characters',
       })
       .optional(),
-    current_password: currentPasswordSchema,
+    current_password: isSetPassword
+      ? currentPasswordSchema
+      : z.string().optional(),
     new_password: newPasswordSchema,
     confirm_password: confirmPasswordSchema,
   })
-  .refine((data) => data.new_password === data.confirm_password, {
-    message: 'Confirm new password must match the new password entered above',
-    path: ['confirm_password'],
-  })
+
+  return baseSchema.refine(
+    (data) => data.new_password === data.confirm_password,
+    {
+      message: 'Confirm new password must match the new password entered above',
+      path: ['confirm_password'],
+    }
+  )
+}
 
 const Account = () => {
   const t = useTranslations('generalSettings')
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowNewPassword, setIsShowNewPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
+  const { data: profile } = useProfile()
+
+  const isSetPassword = profile?.is_set_password ?? false
+  const profileSchema = createProfileSchema(isSetPassword)
+
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
   })
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    // Upon click this button:
-    //   If 2.3, 2.4, 2.4 correct → Update Successfully → Redirect to [A.I.6 HOME SCREEN (Organization)]
-    // Other case → Error Message
-    console.log(values)
+  const closeDialog = useGeneralSetting((state) => state.closeDialog)
+  const setCurrentSetting = useGeneralSetting(
+    (state) => state.setCurrentSetting
+  )
+
+  const { trigger: changePassword, isMutating: isChangingPassword } =
+    useChangePassword()
+
+  useEffect(() => {
+    if (!profile) return
+    form.setValue('email', profile.email)
+  }, [profile])
+
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    await changePassword(
+      {
+        password: values.current_password,
+        new_password: values.new_password,
+      },
+      {
+        onSuccess: () => {
+          form.reset()
+          toast.success(t('update_password_success'))
+          closeDialog()
+          setCurrentSetting('profile')
+        },
+        onError: (error) => {
+          toast.error(error.message || t('update_password_error'))
+        },
+      }
+    )
   }
 
   return (
@@ -86,56 +126,41 @@ const Account = () => {
               </FormItem>
             )}
           />
-
-          <div className="flex items-center gap-2">
-            <div className="grid w-full flex-1 items-center gap-1.5">
-              <Label
-                htmlFor="email"
-                className="gap-2 text-xs font-semibold text-brand-heading"
-              >
-                {t('authenticator_app')}
-              </Label>
-              <p className="text-xs font-normal text-brand-text-gray">
-                {t(
-                  'once_you_login_spacedf_we_will_send_you_a_notification_in_email'
-                )}
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
           <Separator className="!my-6" />
-          <FormField
-            control={form.control}
-            name="current_password"
-            render={({ field, fieldState }) => (
-              <FormItem className="flex-1">
-                <FormLabel>{t('current_password')}</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
-                    prefixCpn={<LockKeyhole size={16} />}
-                    type={isShowPassword ? 'text' : 'password'}
-                    suffixCpn={
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => setIsShowPassword(!isShowPassword)}
-                      >
-                        {isShowPassword ? (
-                          <Eye size={16} />
-                        ) : (
-                          <EyeOff size={16} />
-                        )}
-                      </span>
-                    }
-                    placeholder={t('current_password')}
-                    {...field}
-                    isError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {isSetPassword && (
+            <FormField
+              control={form.control}
+              name="current_password"
+              render={({ field, fieldState }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>{t('current_password')}</FormLabel>
+                  <FormControl>
+                    <InputWithIcon
+                      className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                      prefixCpn={<LockKeyhole size={16} />}
+                      type={isShowPassword ? 'text' : 'password'}
+                      suffixCpn={
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => setIsShowPassword(!isShowPassword)}
+                        >
+                          {isShowPassword ? (
+                            <Eye size={16} />
+                          ) : (
+                            <EyeOff size={16} />
+                          )}
+                        </span>
+                      }
+                      placeholder={t('current_password')}
+                      {...field}
+                      isError={!!fieldState.error}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={form.control}
             name="new_password"
@@ -210,7 +235,7 @@ const Account = () => {
           />
 
           <div className="mt-4 flex gap-2">
-            <Button size="lg" className="w-full">
+            <Button size="lg" className="w-full" loading={isChangingPassword}>
               {t('update_password')}
             </Button>
           </div>

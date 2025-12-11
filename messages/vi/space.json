@@ -50,5 +50,7 @@
   "updating_role": "Đang cập nhật vai trò...",
   "member_account": "Tài khoản thành viên",
   "join_space_success": "Bạn đã tham gia không gian",
-  "join_space_error": "Tham gia không gian thất bại"
+  "join_space_error": "Tham gia không gian thất bại",
+  "space_updated_successfully": "Không gian đã được cập nhật thành công",
+  "failed_to_update_space": "Cập nhật không gian thất bại"
 }

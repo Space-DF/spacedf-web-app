@@ -28,6 +28,7 @@ import { useSearchParams } from 'next/navigation'
 import useSignUp from './hooks/useSignUp'
 import { signIn } from 'next-auth/react'
 import { cn } from '@/lib/utils'
+import { useCache } from '@/hooks/useCache'
 
 export const OTPSchema = z.object({
   otp: z.string().min(6, {
@@ -50,6 +51,8 @@ const OTPForm = () => {
       setOpenGuideline: state.setOpenGuideline,
     }))
   )
+
+  const { clearAllCache } = useCache()
 
   const { trigger: triggerSignUp, isMutating: isMutatingSignUp } = useSignUp()
 
@@ -99,6 +102,7 @@ const OTPForm = () => {
       sigUpSuccessfully: true,
       dataUser: JSON.stringify(res),
     })
+    clearAllCache()
     setOpenDrawer(false)
     if (!token) {
       setOpenGuideline(true)
@@ -128,7 +132,7 @@ const OTPForm = () => {
                             key={index}
                             index={index}
                             className={cn(
-                              'h-[70px] w-auto flex-1 rounded-lg border border-transparent bg-brand-fill-dark-soft text-2xl font-bold',
+                              'h-[70px] w-auto flex-1 rounded-lg bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light text-2xl font-bold',
                               isInvalidCode &&
                                 'border-red-600 bg-brand-component-fill-negative-soft'
                             )}

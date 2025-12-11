@@ -16,7 +16,6 @@ import { z } from 'zod'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuthForm } from './stores/useAuthForm'
-import { useShallow } from 'zustand/react/shallow'
 import { useResetPassword } from './hooks/useResetPassword'
 import { useSearchParams } from 'next/navigation'
 
@@ -27,11 +26,7 @@ export const CreateNewPasswordForm = () => {
   const [isShowPassword, setIsShowPassword] = useState(false)
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
 
-  const { setFormType } = useAuthForm(
-    useShallow((state) => ({
-      setFormType: state.setFormType,
-    }))
-  )
+  const setFormType = useAuthForm((state) => state.setFormType)
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')

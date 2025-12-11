@@ -7,10 +7,10 @@ import { useTranslations } from 'next-intl'
 import { PlusIcon } from '@radix-ui/react-icons'
 import { FIELD_DISPLAY_NAME } from '../table.const'
 
-const getFieldTypes = (devices: Record<string, any>[]) => {
-  const allFields = devices.reduce(
-    (fields, device) => {
-      Object.keys(device).forEach((key) => {
+const getFieldTypes = (entities: Record<string, any>[]) => {
+  const allFields = entities.reduce(
+    (fields, entity) => {
+      Object.keys(entity).forEach((key) => {
         fields[key] = (fields[key] || 0) + 1
       })
       return fields
@@ -18,14 +18,14 @@ const getFieldTypes = (devices: Record<string, any>[]) => {
     {} as Record<string, number>
   )
 
-  const totalDevices = devices.length
+  const totalEntities = entities.length
 
   const generalFields = Object.keys(allFields).filter(
-    (field) => allFields[field] === totalDevices
+    (field) => allFields[field] === totalEntities
   )
 
   const specificFields = Object.keys(allFields).filter(
-    (field) => allFields[field] < totalDevices
+    (field) => allFields[field] < totalEntities
   )
 
   return { generalFields, specificFields }
@@ -39,13 +39,13 @@ const Columns: React.FC = () => {
     name: 'columns',
   })
 
-  const devices = useWatch({
+  const entities = useWatch({
     control,
-    name: 'source.devices',
+    name: 'source.entities',
   })
   const { generalFields, specificFields } = useMemo(
-    () => getFieldTypes(devices),
-    [devices]
+    () => getFieldTypes(entities),
+    [entities]
   )
 
   const handleAddColumn = useCallback(() => {

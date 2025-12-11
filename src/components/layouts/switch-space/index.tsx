@@ -18,10 +18,10 @@ import SpaceMenuItem from './space-menu-item'
 import { useRouter } from '@/i18n/routing'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 import { cn } from '@/lib/utils'
+import { useIdentityStore } from '@/stores/identity-store'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -32,7 +32,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { setCurrentSpace } = useGlobalStore(useShallow((state) => state))
+  const setCurrentSpace = useGlobalStore((state) => state.setCurrentSpace)
   const { data: spaces } = useGetSpaces()
   const spaceList = spaces?.data?.results || []
 
@@ -41,6 +41,8 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     [spaceList]
   )
 
+  const openGuideline = useIdentityStore((state) => state.openGuideline)
+
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
     useDecodedToken(token)
@@ -48,7 +50,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
       if (!params.spaceSlug || params.spaceSlug === spaceSlug) return
-      router.replace(`/spaces/${spaceSlug}`)
+      router.push(`/spaces/${spaceSlug}`)
     },
     [router, params.spaceSlug]
   )
@@ -65,7 +67,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       setCurrentSpace(spaceSelected)
       handleGoToSpace(spaceSelected.slug_name)
     }
-  }, [spaceSelected, setCurrentSpace, handleGoToSpace, token])
+  }, [spaceSelected, handleGoToSpace, token])
 
   useEffect(() => {
     if (
@@ -73,9 +75,10 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
       defaultSpace &&
       !decodedToken &&
       !isDecodedTokenLoading &&
-      !token
+      !token &&
+      !openGuideline
     ) {
-      router.replace(`/spaces/${defaultSpace.slug_name}`)
+      router.push(`/spaces/${defaultSpace.slug_name}`)
     }
   }, [
     params.spaceSlug,
@@ -85,6 +88,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
     token,
     router,
     defaultSpace,
+    openGuideline,
   ])
 
   useEffect(() => {
@@ -135,7 +139,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
               key={space.id}
               onClick={() => {
                 handleGoToSpace(space.slug_name)
-                window.location.reload()
+                // window.location.reload()
               }}
               className={cn(
                 'cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost',

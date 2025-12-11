@@ -1,4 +1,4 @@
-import { PropsWithChildren, useMemo, useState } from 'react'
+import { PropsWithChildren, useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -6,18 +6,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
-import { CircleUser, Globe, Trash } from 'lucide-react'
+import { CircleUser, Trash } from 'lucide-react'
 import { Laptop, SettingIcon } from '../../icons'
 import { cn } from '@/lib/utils'
 import Profile from './profile'
 import Account from './account'
 import Appearance from './appearance'
-import Language from './language'
+// import Language from './language'
 import DeleteAccount from './delete-account'
 import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useGeneralSetting } from './store/useGeneralSetting'
 
 const settings = [
   {
@@ -35,11 +36,11 @@ const settings = [
     icon: <Laptop />,
     label: 'Appearance',
   },
-  {
-    key: 'language',
-    icon: <Globe size={16} />,
-    label: 'Language',
-  },
+  // {
+  //   key: 'language',
+  //   icon: <Globe size={16} />,
+  //   label: 'Language',
+  // },
   {
     key: 'delete_account',
     icon: <Trash size={16} />,
@@ -48,10 +49,22 @@ const settings = [
 ]
 
 const GeneralSetting = ({ children }: PropsWithChildren) => {
-  const [currentSetting, setCurrentSetting] = useState('profile')
+  const isOpen = useGeneralSetting((state) => state.isOpen)
+  const currentSetting = useGeneralSetting((state) => state.currentSetting)
+  const setIsOpen = useGeneralSetting((state) => state.setIsOpen)
+  const setCurrentSetting = useGeneralSetting(
+    (state) => state.setCurrentSetting
+  )
+
   const t = useTranslations('common')
 
   const isAuthenticated = useAuthenticated()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setCurrentSetting('profile')
+    }
+  }, [isAuthenticated])
 
   const authSettings = useMemo(() => {
     if (isAuthenticated) {
@@ -73,8 +86,8 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
         return <Account />
       case 'appearance':
         return <Appearance />
-      case 'language':
-        return <Language />
+      // case 'language':
+      //   return <Language />
       case 'delete_account':
         return <DeleteAccount />
       default:
@@ -82,10 +95,17 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
     }
   }, [currentSetting])
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      setCurrentSetting(isAuthenticated ? 'profile' : 'appearance')
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="text-sm text-brand-text-dark sm:max-w-[800px]">
+      <DialogContent className="text-sm text-brand-component-text-dark sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>{t('general_settings')}</DialogTitle>
         </DialogHeader>
@@ -128,7 +148,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                 'bg-brand-fill-surface dark:bg-brand-fill-outermost'
             )}
           >
-            <div className="text-brand-text-dark dark:text-brand-dark-text-gray">
+            <div className="text-brand-component-text-dark dark:text-brand-dark-text-gray">
               {renderSetting}
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader, UploadCloud } from 'lucide-react'
+import { UploadCloud } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -16,28 +16,19 @@ import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import { SpaceFormValues } from '.'
-import { useUploadImage } from '@/components/layouts/general-setting/hooks/useUploadImage'
-import { useIsDemo } from '@/hooks/useIsDemo'
 
 const Settings = ({ isCreating }: { isCreating: boolean }) => {
   const t = useTranslations('space')
   const form = useFormContext<SpaceFormValues>()
   const fileRef = useRef<HTMLInputElement>(null)
   const [previewImage, setPreviewImage] = useState<string>('')
-  const { trigger: uploadImage, isMutating } = useUploadImage()
-  const isDemo = useIsDemo()
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const image = e.target.files?.[0]
     if (!image) return
-    if (isDemo) {
-      const imageUrl = URL.createObjectURL(image)
-      setPreviewImage(imageUrl)
-      return
-    }
-    const response = await uploadImage(image)
-    setPreviewImage(response.presigned_url)
-    form.setValue('logo', response.file_name)
+    const imageUrl = URL.createObjectURL(image)
+    setPreviewImage(imageUrl)
+    form.setValue('logo', image)
   }
 
   return (
@@ -52,22 +43,28 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
       <div className="flex size-full items-center justify-center">
         <div className="flex w-4/5 animate-opacity-display-effect flex-col gap-4">
           <div className="flex flex-col gap-3">
-            <FormLabel className="text-brand-text-dark">
+            <FormLabel className="text-brand-component-text-dark">
               {t('space_image')}
             </FormLabel>
             <div className="flex gap-3">
               <div className="size-24 rounded-lg relative bg-purple-200 dark:bg-purple-600">
-                <ImageWithBlur
-                  src={previewImage || OrganizationThumb}
-                  className={'size-full rounded-lg object-cover'}
-                  alt=""
-                  width={96}
-                  height={96}
-                  isPending={isMutating}
-                />
-                {isMutating && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader className="animate-spin size-6 text-white" />
+                {previewImage ? (
+                  <ImageWithBlur
+                    src={previewImage}
+                    className={'size-full rounded-lg object-cover'}
+                    alt=""
+                    width={96}
+                    height={96}
+                  />
+                ) : (
+                  <div className="p-7 bg-brand-component-fill-secondary-soft rounded-lg ">
+                    <ImageWithBlur
+                      src={OrganizationThumb}
+                      className={'size-full object-cover'}
+                      alt=""
+                      width={40}
+                      height={40}
+                    />
                   </div>
                 )}
               </div>
@@ -75,8 +72,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="gap-2 rounded-lg text-base font-semibold text-brand-text-dark shadow-none"
-                  disabled={isMutating}
+                  className="gap-2 rounded-lg text-base font-semibold text-brand-component-text-dark shadow-none"
                   onClick={() => fileRef.current?.click()}
                 >
                   {t('upload_image')}
@@ -93,7 +89,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
             name="space_name"
             render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel className="text-brand-text-dark">
+                <FormLabel className="text-brand-component-text-dark">
                   {t('space_name')}
                   <span className="text-brand-semantic-accent">*</span>
                 </FormLabel>

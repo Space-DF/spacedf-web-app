@@ -27,5 +27,6 @@
   "no_selected_devices": "Không có thiết bị được chọn",
   "device": "Thiết bị",
   "add_device_successfully": "Thêm thiết bị thành công",
-  "failed_to_add_device": "Thêm thiết bị thất bại"
+  "failed_to_add_device": "Thêm thiết bị thất bại",
+  "failed_to_scan_qr_code": "Quét QR Code thất bại"
 }

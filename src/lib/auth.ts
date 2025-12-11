@@ -1,11 +1,8 @@
-import NextAuth from 'next-auth'
+import NextAuth, { Session } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
 import { NEXTAUTH_SECRET } from '@/shared/env'
 import { SpaceDFClient } from './spacedf'
-
-const MINUTES_EXPIRE = 60
-const TOKEN_EXPIRE_TIME = MINUTES_EXPIRE * 60 * 1000
 
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   secret: NEXTAUTH_SECRET,
@@ -46,15 +43,15 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ],
   session: {
     strategy: 'jwt',
-    maxAge: TOKEN_EXPIRE_TIME,
   },
   callbacks: {
     async session({ session, token }) {
       if (token) {
         session.user.access = token.access
         session.user.refresh = token.refresh
+        session.user.error = token.error
       }
-      return session
+      return {} as Session
     },
     async jwt({ token, user }) {
       if (user) {
@@ -62,9 +59,9 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
           ...token,
           access: user.access,
           refresh: user.refresh,
-          accessTokenExpires: Date.now() + TOKEN_EXPIRE_TIME,
         }
       }
+
       return token
     },
   },

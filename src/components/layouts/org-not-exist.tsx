@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Button } from '../ui/button'
 import Link from 'next/link'
+import { ADMIN_SITE_URL } from '@/shared/env'
 
 export const OrgNotExist = () => {
   const t = useTranslations('common')
@@ -29,10 +30,10 @@ export const OrgNotExist = () => {
               variant="outline"
               className="border-2 border-brand-component-stroke-dark h-12"
             >
-              <Link href="https://spacedf.com">{t('go_to_space_df')}</Link>
+              <Link href={ADMIN_SITE_URL}>{t('go_to_space_df')}</Link>
             </Button>
             <Button className="h-12">
-              <Link href="https://spacedf.com">
+              <Link href={`${ADMIN_SITE_URL}/en/auth/sign-up`}>
                 {t('create_new_organization')}
               </Link>
             </Button>

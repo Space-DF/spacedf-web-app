@@ -9,11 +9,13 @@ import {
   DeviceTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
-import { useParams } from 'next/navigation'
-import { DeviceSpace } from '@/types/device-space'
 import { transformDeviceData } from '@/utils/map'
-// import { useIsDemo } from '@/hooks/useIsDemo'
-// import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useGetDevices } from '@/hooks/useDevices'
+import { useGlobalStore } from '@/stores'
+import { toast } from 'sonner'
+import { useParams } from 'next/navigation'
+import { useIsDemo } from '@/hooks/useIsDemo'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -26,6 +28,18 @@ const PREVIEW_PATH = {
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const mqttServiceRef = useRef<MqttService | null>(null)
   const mqttRouterRef = useRef<MQTTRouter | null>(null)
+  const { organization, spaceSlug } = useParams<{
+    organization: string
+    spaceSlug: string
+  }>()
+  const isDemo = useIsDemo()
+  const isAuthenticated = useAuthenticated()
+
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
+  const spaceSlugName = currentSpace?.slug_name || spaceSlug
+
+  const isAuthorized =
+    organization && spaceSlugName && !isDemo && isAuthenticated
 
   const {
     setDeviceModel,
@@ -33,6 +47,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setDevices,
     setModelPreview,
     setDeviceState,
+    clearDeviceModels,
   } = useDeviceStore(
     useShallow((state) => ({
       setDeviceModel: state.setDeviceModel,
@@ -40,19 +55,18 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setDevices: state.setDevices,
       setModelPreview: state.setModelPreview,
       setDeviceState: state.setDeviceState,
+      clearDeviceModels: state.clearDeviceModels,
     }))
   )
 
-  const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
+
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
 
   const [fetchStatus, setFetchStatus] = useState({
     initializedModels: false,
     initializedDevices: false,
   })
-
-  // const isDemo = useIsDemo()
-
-  // const isAuthenticated = useAuthenticated()
 
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
@@ -63,6 +77,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // - Check for alerts (low battery, geofence violations)
     // - Log device activity
     // - Trigger notifications
+    // TODO: Please remove this console.log after testing
     console.log(
       `📍 Device ${data.deviceId} telemetry updated:`,
       data.deviceUpdate
@@ -70,8 +85,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    // if (isDemo || !isAuthenticated) return
-
+    if (isDemo) return
     // Initialize MQTT router and handlers
     mqttRouterRef.current = new MQTTRouter()
 
@@ -79,59 +93,97 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     const deviceTelemetryHandler = new DeviceTelemetryHandler()
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
 
-    console.log(
-      '📡 MQTT handlers registered:',
-      mqttRouterRef.current.getRegisteredHandlers()
-    )
-
     // Initialize MQTT connection
-    mqttServiceRef.current = MqttService.getInstance()
-    mqttServiceRef.current.initialize()
+    const handleMqttConnect = async () => {
+      mqttServiceRef.current = MqttService.getInstance(organization)
+      await mqttServiceRef.current.initialize()
 
-    mqttServiceRef.current.setEventCallbacks({
-      onConnect: () => {
-        console.log('✅ MQTT connected')
-        // Subscribe to device telemetry (handler parses all devices)
-        mqttServiceRef.current?.subscribe('device/+/telemetry')
-      },
-      onDisconnect: () => {
-        console.log('❌ MQTT disconnected')
-      },
-      onError: (err) => {
-        console.log('❌ MQTT error:', err)
-      },
-      onMessage: (topic: string, payload: Buffer) => {
-        // Route through handler system and get parsed results
-        const results =
-          mqttRouterRef.current?.routeMessage(topic, payload) || []
+      mqttServiceRef.current.setEventCallbacks({
+        onReconnect: () => {
+          toast.info('MQTT reconnecting...', {
+            position: 'bottom-right',
+          })
+        },
+        onConnect: () => {
+          const publicTopic = `tenant/${organization}/device/+/telemetry`
+          const spaceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
 
-        // Handle each parsed result
-        results.forEach((result) => {
-          if (
-            result &&
-            typeof result === 'object' &&
-            'deviceId' in result &&
-            'deviceUpdate' in result
-          ) {
-            handleDeviceTelemetry(result as DeviceTelemetryData)
-          }
-        })
-      },
-    })
-  }, [])
+          const currentSubscriptions =
+            mqttServiceRef.current?.getSubscriptions() || []
+          currentSubscriptions.forEach((topic) => {
+            mqttServiceRef.current?.unsubscribe(topic)
+          })
+
+          mqttServiceRef.current?.subscribe(
+            isAuthorized ? [spaceTopic, publicTopic] : [publicTopic]
+          )
+        },
+        onSubscribed: () => {
+          toast.success('MQTT connected', {
+            position: 'bottom-right',
+            id: 'mqtt-connected',
+          })
+        },
+        onDisconnect: () => {
+          toast.error('MQTT disconnected', {
+            position: 'bottom-right',
+          })
+        },
+        onError: (err) => {
+          toast.error('MQTT error: ' + err.message, {
+            position: 'bottom-right',
+          })
+        },
+        onMessage: (topic: string, payload: Buffer) => {
+          // Route through handler system and get parsed results
+          const results =
+            mqttRouterRef.current?.routeMessage(topic, payload) || []
+
+          // Handle each parsed result
+          results.forEach((result) => {
+            if (
+              result &&
+              typeof result === 'object' &&
+              'deviceId' in result &&
+              'deviceUpdate' in result
+            ) {
+              handleDeviceTelemetry(result as DeviceTelemetryData)
+            }
+          })
+        },
+      })
+    }
+    handleMqttConnect()
+    return () => {
+      mqttServiceRef.current?.disconnect()
+      mqttServiceRef.current = null
+      if (mqttRouterRef.current) {
+        mqttRouterRef.current.cleanup()
+        mqttRouterRef.current = null
+      }
+    }
+  }, [isAuthorized, spaceSlugName, organization, isDemo])
+
+  const getDevices = async () => {
+    try {
+      const devices: Device[] = transformDeviceData(deviceSpaces || [])
+
+      setDevices(devices)
+    } catch {}
+  }
 
   useEffect(() => {
     loadModels()
     getDevices()
-  }, [])
+  }, [deviceSpaces])
 
   useEffect(() => {
-    if (fetchStatus.initializedDevices && fetchStatus.initializedModels) {
-      setTimeout(() => {
-        setInitializedSuccess(true)
-      }, 1000)
+    setGlobalLoading(true)
+    if (!isLoadingDevices && fetchStatus.initializedModels) {
+      setGlobalLoading(false)
+      setInitializedSuccess(true)
     }
-  }, [fetchStatus.initializedDevices, fetchStatus.initializedModels])
+  }, [fetchStatus.initializedModels, isLoadingDevices])
 
   const loadModels = async () => {
     try {
@@ -164,24 +216,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       }))
     } catch (error) {
       console.error({ error })
-    } finally {
     }
   }
 
-  const getDevices = async () => {
-    try {
-      const response = await fetch(
-        `/api/devices${spaceSlug ? `/${spaceSlug}` : ''}`
-      )
-      const data: DeviceSpace[] = await response.json()
-      const devices: Device[] = transformDeviceData(data)
-      setDevices(devices)
-      setFetchStatus((prev) => ({
-        ...prev,
-        initializedDevices: true,
-      }))
-    } catch {}
-  }
+  useEffect(() => {
+    return () => {
+      clearDeviceModels()
+    }
+  }, [clearDeviceModels])
 
   return <>{children}</>
 }

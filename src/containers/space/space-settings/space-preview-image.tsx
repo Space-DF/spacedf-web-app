@@ -24,15 +24,24 @@ export function SpacePreviewImage() {
   const router = useRouter()
   const params = useParams()
   const t = useTranslations('space')
-  const { step, shouldBackToHome, isOpenAlertDialog, setOpenAlertDialog } =
-    useSpaceSettings()
+
+  const step = useSpaceSettings((state) => state.step)
+  const shouldBackToHome = useSpaceSettings((state) => state.shouldBackToHome)
+  const isOpenAlertDialog = useSpaceSettings((state) => state.isOpenAlertDialog)
+  const setOpenAlertDialog = useSpaceSettings(
+    (state) => state.setOpenAlertDialog
+  )
+
+  const handleNavigateBack = () => {
+    router.push(params.spaceSlug ? `/spaces/${params.spaceSlug}` : '/')
+  }
 
   const handleBack = () => {
     if (shouldBackToHome) {
       setOpenAlertDialog(true)
       return
     }
-    router.push(params.spaceSlug ? `/spaces/${params.spaceSlug}` : '/')
+    handleNavigateBack()
   }
 
   return (
@@ -80,7 +89,7 @@ export function SpacePreviewImage() {
             </AlertDialogCancel>
             <AlertDialogAction
               className="h-12 flex-1 items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
-              onClick={() => router.push('/')}
+              onClick={handleNavigateBack}
             >
               {t('confirm')}
             </AlertDialogAction>

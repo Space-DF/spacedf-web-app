@@ -1,4 +1,7 @@
-import { getSession, signOut } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
+import MqttService from './mqtt'
+import { getClientOrganization } from '@/utils'
+import { toast } from 'sonner'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -8,20 +11,27 @@ type RequestConfig = RequestInit & {
 type Interceptor = {
   onRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>
   onResponse?: (response: Response) => Response | Promise<Response>
-  onError?: (error: Error) => Promise<never>
+  onError?: (error: Error) => Promise<unknown>
 }
 
 type RequestError = Error & {
   response?: Response
   config?: RequestConfig
+  endpoint?: string
 }
 
 class FetchInstance {
   private interceptors: Interceptor = {}
   private timeout: number
-  private lastRequest?: { url: string; config: RequestConfig }
-  private refreshTokenPromise: Promise<boolean> | null = null
-  private pendingRequests: Array<() => void> = []
+  public isRefreshing = false
+  public refreshAttempts = 0
+  public maxRefreshAttempts = 3
+  private failedQueue: Array<{
+    resolve: (value: any) => void
+    reject: (error: any) => void
+    endpoint: string
+    config: RequestConfig
+  }> = []
 
   constructor(config: { baseURL: string; timeout?: number }) {
     this.timeout = config.timeout || 30000
@@ -31,41 +41,21 @@ class FetchInstance {
     this.interceptors = interceptors
   }
 
-  private async handleRefreshToken(): Promise<boolean> {
-    if (this.refreshTokenPromise) {
-      return this.refreshTokenPromise
-    }
+  public processQueue(error: any, _token: string | null = null) {
+    this.failedQueue.forEach(({ resolve, reject, endpoint, config }) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(this.request(endpoint, config))
+      }
+    })
 
-    // Tạo promise mới cho refresh token
-    this.refreshTokenPromise = this.performRefreshToken()
-
-    try {
-      const result = await this.refreshTokenPromise
-      return result
-    } finally {
-      this.refreshTokenPromise = null
-      this.pendingRequests.forEach((resolve) => resolve())
-      this.pendingRequests = []
-    }
+    this.failedQueue = []
   }
 
-  private async performRefreshToken(): Promise<boolean> {
-    try {
-      const session = await getSession()
-      const refreshTokenResponse = await fetch('/api/auth/refresh-token', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: session?.user?.refresh }),
-      })
-
-      return refreshTokenResponse.ok
-    } catch {
-      return false
-    }
-  }
-
-  private async waitForRefreshToken(): Promise<void> {
-    return new Promise((resolve) => {
-      this.pendingRequests.push(resolve)
+  public addToQueue(endpoint: string, config: RequestConfig): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.failedQueue.push({ resolve, reject, endpoint, config })
     })
   }
 
@@ -91,32 +81,37 @@ class FetchInstance {
 
   async request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
     try {
-      this.lastRequest = { url: endpoint, config }
       let requestConfig = { ...config }
       if (this.interceptors.onRequest) {
         requestConfig = await this.interceptors.onRequest(requestConfig)
       }
       const response = await this.fetchWithTimeout(endpoint, requestConfig)
 
-      // Apply response interceptor
       let interceptedResponse = response
       if (this.interceptors.onResponse) {
         interceptedResponse = await this.interceptors.onResponse(response)
       }
 
       if (!interceptedResponse.ok) {
+        const errorData = await interceptedResponse.json()
         const error = new Error(
-          `HTTP error! status: ${interceptedResponse.status}`
+          errorData.message || errorData.detail || 'Request failed'
         ) as RequestError
         error.response = interceptedResponse
         error.config = requestConfig
+        Object.assign(error, {
+          status: interceptedResponse.status,
+          statusText: interceptedResponse.statusText,
+          data: errorData,
+          endpoint,
+        })
         throw error
       }
 
       return interceptedResponse.json()
     } catch (error) {
       if (this.interceptors.onError) {
-        return this.interceptors.onError(error as RequestError)
+        return this.interceptors.onError(error as RequestError) as Promise<T>
       }
       throw error
     }
@@ -127,38 +122,47 @@ class FetchInstance {
   }
 
   post<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
       method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 
   put<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
       method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 
   patch<T>(endpoint: string, data?: unknown, config?: RequestConfig) {
+    const isFormData = data instanceof FormData
     return this.request<T>(endpoint, {
       ...config,
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-        ...config?.headers,
-      },
+      method: 'PATCH',
+      body: isFormData ? data : JSON.stringify(data),
+      headers: isFormData
+        ? config?.headers
+        : {
+            'Content-Type': 'application/json',
+            ...config?.headers,
+          },
     })
   }
 
@@ -186,28 +190,65 @@ api.setInterceptors({
       }
     }
 
-    // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
-      if (api['refreshTokenPromise']) {
-        await api['waitForRefreshToken']()
-      } else {
-        const refreshSuccess = await api['handleRefreshToken']()
+      const originalConfig = error.config
+      const originalEndpoint = (error as any).endpoint
 
-        if (!refreshSuccess) {
-          signOut({ redirect: false })
-          throw error
+      if (originalConfig && originalEndpoint) {
+        if (api.refreshAttempts >= api.maxRefreshAttempts) {
+          if (typeof window !== 'undefined') {
+            signOut({ redirect: false })
+            window.location.href = '/'
+          }
+          throw new Error('Max refresh attempts exceeded')
+        }
+
+        if (api.isRefreshing) {
+          return api.addToQueue(originalEndpoint, originalConfig)
+        }
+
+        api.isRefreshing = true
+        api.refreshAttempts++
+
+        try {
+          const refreshResponse = await fetch('/api/auth/refresh-token', {
+            method: 'POST',
+            credentials: 'include',
+          })
+
+          if (refreshResponse.ok) {
+            api.refreshAttempts = 0
+            api.processQueue(null, 'refreshed')
+            MqttService.getInstance(getClientOrganization()).reconnect()
+            return api.request(originalEndpoint, originalConfig)
+          } else {
+            const refreshError = new Error('Token refresh failed')
+            api.processQueue(refreshError, null)
+
+            if (typeof window !== 'undefined') {
+              signOut({ redirect: false })
+              window.location.href = '/'
+            }
+            throw refreshError
+          }
+        } catch (refreshError) {
+          api.processQueue(refreshError, null)
+
+          if (typeof window !== 'undefined') {
+            signOut({ redirect: false })
+            window.location.href = '/'
+          }
+          throw refreshError
+        } finally {
+          api.isRefreshing = false
         }
       }
-      const lastRequest = api['lastRequest']
-      if (lastRequest) {
-        return api.request(lastRequest.url, {
-          ...lastRequest.config,
-          headers: {
-            ...lastRequest.config.headers,
-          },
-        })
-      }
     }
+
+    if (error.response?.status === 403) {
+      toast.error('You are not authorized to access this resource')
+    }
+
     throw error
   },
 })

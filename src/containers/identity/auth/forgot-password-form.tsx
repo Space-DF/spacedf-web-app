@@ -10,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useShallow } from 'zustand/react/shallow'
 import { useAuthForm } from './stores/useAuthForm'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -27,11 +26,7 @@ export const ForgotPasswordForm = () => {
 
   const { trigger: sendEmail, isMutating } = useSendEmail()
 
-  const { setFormType } = useAuthForm(
-    useShallow((state) => ({
-      setFormType: state.setFormType,
-    }))
-  )
+  const setFormType = useAuthForm((state) => state.setFormType)
 
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -75,7 +70,7 @@ export const ForgotPasswordForm = () => {
                 name="email"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="text-brand-component-text-gray text-sm]">
+                    <FormLabel className="text-brand-component-text-gray text-sm">
                       Email
                     </FormLabel>
                     <FormControl>

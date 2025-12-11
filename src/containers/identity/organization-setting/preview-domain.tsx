@@ -3,15 +3,9 @@ import { AppWireFrameDark } from '@/components/ui/app-wire-frame-dark'
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useShallow } from 'zustand/react/shallow'
 
 const PreviewDomain = () => {
-  const { organizationName } = useIdentityStore(
-    useShallow((state) => ({
-      organizationName: state.organizationName,
-      openDrawerIdentity: state.openDrawerIdentity,
-    }))
-  )
+  const organizationName = useIdentityStore((state) => state.organizationName)
 
   const { startRender } = usePageTransition({ duration: 200 })
 

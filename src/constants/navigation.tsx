@@ -4,7 +4,6 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 
 export enum NavigationEnums {
   DASHBOARD = 'dashboard',
@@ -36,7 +35,7 @@ export const NavigationData = (
 ): Navigation[] => {
   const router = useRouter()
   const params = useParams()
-  const { currentSpace } = useGlobalStore(useShallow((state) => state))
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
   return [
     {
       key: 'digital_twin',

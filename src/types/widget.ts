@@ -24,7 +24,7 @@ export interface WidgetChart {
   showXGrid: boolean
   format: TimeFormat
   sources: {
-    device_id: string
+    entity_id: string
     color: string
     field: string
     legend: string
@@ -58,6 +58,7 @@ export interface WidgetSensor {
 export type Widget = {
   id: string
   type: WidgetType
+  enabled?: boolean
 } & Partial<WidgetUnit> &
   Partial<WidgetChart> &
   Partial<mapPayload> &

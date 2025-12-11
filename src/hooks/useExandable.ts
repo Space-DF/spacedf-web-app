@@ -13,7 +13,6 @@ interface UseExpandableReturn<T> {
   contentRef: React.RefObject<HTMLDivElement>
   toggleExpand: () => void
   visibleItems: T[]
-  hiddenItems: T[]
 }
 
 export const useExpandable = <T>({
@@ -26,7 +25,6 @@ export const useExpandable = <T>({
   const contentRef = useRef<HTMLDivElement>(null)
 
   const visibleItems = isExpanded ? items : items.slice(0, initialCount)
-  const hiddenItems = items.slice(initialCount)
 
   const maxHeight = isExpanded
     ? `${contentRef.current?.scrollHeight || 0}px`
@@ -46,6 +44,5 @@ export const useExpandable = <T>({
     contentRef,
     toggleExpand,
     visibleItems,
-    hiddenItems,
   }
 }

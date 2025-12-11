@@ -16,7 +16,6 @@
   "to_confirm_please_enter_your_email_below": "Để xác nhận, hãy nhập email của bạn xuống dưới*",
   "permanently_delete_account": "Xoá tài khoản người dùng",
   "update_user_profile": "Cập nhật hồ sơ người dùng thành công",
-  "once_you_login_spacedf_we_will_send_you_a_notification_in_email": "Sau khi bạn đăng nhập vào SpaceDF, chúng tôi sẽ gửi cho bạn thông báo qua email.",
   "current_password": "Mật khẩu hiện tại",
   "new_password": "Mật khẩu mới",
   "minimum_8_characters": "Tối thiểu 8 ký tự",
@@ -33,5 +32,8 @@
   "to_confirm_enter_email": "Để xác nhận, hãy nhập email xuống dưới",
   "delete_account_success": "Xoá tài khoản người dùng thành công",
   "delete_account_error": "Xoá tài khoản người dùng thất bại",
-  "email_not_match": "Email không khớp"
+  "email_not_match": "Email không khớp",
+  "update_password_success": "Cập nhật mật khẩu thành công",
+  "update_password_error": "Cập nhật mật khẩu thất bại",
+  "update_user_profile_error": "Cập nhật hồ sơ người dùng thất bại"
 }

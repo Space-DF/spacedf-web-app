@@ -10,6 +10,7 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { Widget } from '@/types/widget'
 import { getWidgetByType } from './utils'
+import { useShallow } from 'zustand/react/shallow'
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
@@ -34,10 +35,8 @@ export const MockData: React.FC<Props> = ({
 }) => {
   const { mounted } = useMounted()
   const [currentBreakpoint, setCurrentBreakpoint] = useState<string>('')
-  const { layouts, setLayouts } = useScreenLayoutStore((state) => ({
-    layouts: state.layouts,
-    setLayouts: state.setLayouts,
-  }))
+  const layouts = useScreenLayoutStore(useShallow((state) => state.layouts))
+  const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
 
   const handleLayoutChange = (layout: Layout[], layouts: Layouts) => {
     onChangeWidgets(layout)

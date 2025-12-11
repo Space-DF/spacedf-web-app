@@ -34,7 +34,7 @@ export function SpaceDelete({ space }: { space: Space }) {
   const t = useTranslations('space')
   const deleteSpace = useDeleteSpace()
   const router = useRouter()
-  const { setStep } = useSpaceSettings()
+  const setStep = useSpaceSettings((state) => state.setStep)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
@@ -56,12 +56,11 @@ export function SpaceDelete({ space }: { space: Space }) {
         slug_name: space.slug_name,
         name: space.name,
       })
+      await refreshToken()
     }
-    setStep('information')
     const spaceFirst = spaceList.filter(
       ({ slug_name }) => slug_name !== space.slug_name
     )[0]
-    await refreshToken()
     router.push(spaceFirst?.slug_name ? `/spaces/${spaceFirst.slug_name}` : '/')
   }
 

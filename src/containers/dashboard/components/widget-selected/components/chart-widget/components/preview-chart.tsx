@@ -2,7 +2,7 @@
 
 import { ChartConfig, ChartContainer } from '@/components/ui/chart'
 import { TimeFormat } from '@/constants'
-import { ChartSources, ChartType, Orientation } from '@/widget-models/chart'
+import { ChartType, Orientation } from '@/widget-models/chart'
 import dayjs from 'dayjs'
 import { ChartPayload } from '@/validator'
 import React from 'react'
@@ -95,25 +95,28 @@ interface PreviewLineChartProps {
   hideAxis?: boolean
   showXGrid?: boolean
   format?: TimeFormat
+  widgetId?: string
 }
 
 const renderChartComponents = (
   chartType: ChartType,
-  source: ChartSources,
+  source: ChartPayload['sources'][number],
   index: number,
-  showData?: boolean
+  showData?: boolean,
+  widgetId?: string
 ) => {
   const color =
     source.color === 'default'
       ? brandColors['component-fill-default-chart']
       : `#${source.color}`
+  const gradientId = widgetId ? `color${index}-${widgetId}` : `color${index}`
   switch (chartType) {
     case ChartType.LineChart:
       return (
         <Line
           name={source.legend}
           key={index}
-          type="linear"
+          type="monotone"
           dataKey={`source.${index}`}
           stroke={`${color}`}
           strokeWidth={2}
@@ -123,35 +126,31 @@ const renderChartComponents = (
             !source.show_legend || !source.legend ? 'none' : undefined
           }
         >
-          {showData && (
-            <LabelList dataKey={`source.${index}`} position={'top'} />
-          )}
+          {showData && <LabelList dataKey={`source.${index}`} position="top" />}
         </Line>
       )
     case ChartType.AreaChart:
       return (
         <Area
-          type="linear"
+          type="monotone"
           dataKey={`source.${index}`}
           name={source.legend}
           stroke={color}
           strokeWidth={2}
           fillOpacity={1}
-          fill={`url(#color${index})`}
+          fill={`url(#${gradientId})`}
           stackId={1}
           legendType={
             !source.show_legend || !source.legend ? 'none' : undefined
           }
         >
-          {showData && (
-            <LabelList dataKey={`source.${index}`} position={'top'} />
-          )}
+          {showData && <LabelList dataKey={`source.${index}`} position="top" />}
         </Area>
       )
     case ChartType.BarChart:
       return (
         <Bar
-          type="linear"
+          type="monotone"
           dataKey={`source.${index}`}
           name={source.legend}
           stroke={color}
@@ -162,12 +161,16 @@ const renderChartComponents = (
             !source.show_legend || !source.legend ? 'none' : undefined
           }
         >
-          {showData && (
-            <LabelList dataKey={`source.${index}`} position={'top'} />
-          )}
+          {showData && <LabelList dataKey={`source.${index}`} position="top" />}
         </Bar>
       )
   }
+}
+
+const getColor = (source: ChartPayload['sources'][number]) => {
+  return source.color === 'default'
+    ? brandColors['component-fill-default-chart']
+    : `#${source.color}`
 }
 
 const PreviewChart: React.FC<PreviewLineChartProps> = ({
@@ -178,14 +181,14 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   hideAxis = false,
   showXGrid = false,
   format = TimeFormat.FULL_DATE_MONTH_YEAR,
+  widgetId,
 }) => {
   const data = generateData(format)
   return (
-    // <div className="space-y-1">
     <ChartContainer
       config={chartConfig}
       className="size-full"
-      style={isSingleSource ? { height: 90, width: '100%' } : {}}
+      style={isSingleSource ? { height: 120, width: '100%' } : {}}
     >
       <ComposedChart
         data={data}
@@ -194,21 +197,21 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
       >
         <defs>
           {sources.map((source, index) => {
-            const color =
-              source.color === 'default'
-                ? brandColors['component-fill-default-chart']
-                : `#${source.color}`
+            const stopColor = getColor(source)
+            const gradientId = widgetId
+              ? `color${index}-${widgetId}`
+              : `color${index}`
             return (
               <linearGradient
                 key={index}
-                id={`color${index}`}
+                id={gradientId}
                 x1="0"
                 y1="0"
                 x2="0"
                 y2="1"
               >
-                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-                <stop offset="75%" stopColor={color} stopOpacity={0.05} />
+                <stop offset="0%" stopColor={stopColor} stopOpacity={0.4} />
+                <stop offset="75%" stopColor={stopColor} stopOpacity={0.05} />
               </linearGradient>
             )
           })}
@@ -231,24 +234,38 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
         />
         <CartesianGrid horizontal={showXGrid} vertical={false} />
         {sources.map((source, index) =>
-          renderChartComponents(source.chart_type, source, index, showData)
+          renderChartComponents(
+            source.chart_type,
+            source,
+            index,
+            showData,
+            widgetId
+          )
         )}
         <Tooltip />
         <Legend
           content={
-            <div className="w-full flex justify-center">
-              <div className="flex space-x-2">
-                {sources.map((source, index) => (
-                  <div key={index} className="flex items-center space-x-1">
+            <div className="w-full overflow-x-auto custom-scrollbar scroll-smooth pb-1">
+              <div className="flex space-x-4 justify-center min-w-max">
+                {sources.map((source, index) => {
+                  if (!source.show_legend) {
+                    return <></>
+                  }
+                  return (
                     <div
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: `#${source.color}` }}
-                    />
-                    <p className="text-sm text-brand-component-text-grat">
-                      {source.legend}
-                    </p>
-                  </div>
-                ))}
+                      key={index}
+                      className="flex items-center space-x-1 flex-shrink-0"
+                    >
+                      <div
+                        className="size-2 rounded-full"
+                        style={{ backgroundColor: getColor(source) }}
+                      />
+                      <p className="text-sm text-brand-component-text-gray whitespace-nowrap">
+                        {source.legend}
+                      </p>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           }

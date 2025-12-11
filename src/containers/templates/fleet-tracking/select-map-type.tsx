@@ -1,7 +1,6 @@
 'use client'
 
 import { MapType } from '@/stores'
-import { useShallow } from 'zustand/react/shallow'
 import DefaultMapType from '/public/images/map-type-thumbnail/default-type.png'
 import SatelliteMapType from '/public/images/map-type-thumbnail/satellite-type.png'
 import StreetMapType from '/public/images/map-type-thumbnail/street-type.png'
@@ -11,6 +10,8 @@ import { cn } from '@/lib/utils'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { Layers2 } from 'lucide-react'
 import { StaticImageData } from 'next/image'
+import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
+import { useEffect, useState } from 'react'
 
 // const currentMap: MapType = 'default'
 
@@ -41,61 +42,29 @@ const mapTypes: MapTypeItem[] = [
 // const isMapReady = true
 
 export const SelectMapType = () => {
-  const { mapType, isMapReady } = useFleetTrackingStore(
-    useShallow((state) => ({
-      mapType:
-        state.mapType ||
-        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-        'default',
-      isMapReady: state.isMapReady,
-    }))
+  const [isMapReady, setIsMapReady] = useState(false)
+  const mapType = useFleetTrackingStore(
+    (state) =>
+      state.mapType ||
+      (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+      'default'
   )
 
-  //   useEffect(() => {
-  //     const isMapRendered = checkMapRendered()
-  //     if (!isMapRendered) return
+  useEffect(() => {
+    const fleetTrackingMap = FleetTrackingMap.getInstance()
 
-  //     const map = window.mapInstance?.getMapInstance()
-  //     if (!map) return
+    const handleLoad = () => {
+      setIsMapReady(true)
+    }
 
-  //     const { style, config } = getMapStyle(mapType, currentTheme)
+    fleetTrackingMap.on('load', handleLoad)
+    fleetTrackingMap.on('reattach', handleLoad)
 
-  //     map.setStyle(style, {
-  //       config,
-  //       diff: true,
-  //     } as any)
-
-  //     setDisabled(true)
-
-  //     const handleStyleData = () => {
-  //       setTimeout(() => {
-  //         revertMapSources()
-  //         setDisabled(false)
-  //       }, 500)
-  //     }
-
-  //     map.on('styledata', handleStyleData)
-
-  //     return () => {
-  //       map.off('styledata', handleStyleData)
-  //     }
-  //   }, [currentTheme, mapType])
-
-  //   const revertMapSources = () => {
-  //     const map = window.mapInstance?.getMapInstance()
-  //     if (!map) return
-
-  //     if (mapType === 'default') {
-  //       startDrawBuilding()
-  //     }
-
-  //     if (mapType === 'street') {
-  //       remove3DBuildingLayer()
-  //     }
-
-  //     loadMapGroupCluster()
-  //     updateClusters()
-  //   }
+    return () => {
+      fleetTrackingMap.off('reattach', handleLoad)
+      fleetTrackingMap.off('load', handleLoad)
+    }
+  }, [])
 
   const currentMapType = mapTypes.find((type) => type.id === mapType)
 
@@ -105,7 +74,7 @@ export const SelectMapType = () => {
     )
 
   return (
-    <div className="h-dvh absolute z-50 flex items-end flex-col justify-end left-2">
+    <div className="bottom-2 absolute z-[2] flex items-end flex-col justify-end left-2">
       <div className="group flex items-center gap-3 min-h-20 mb-7">
         <div className="border-[2px] rounded-lg border-white shadow-md ">
           <div className="size-16 overflow-hidden rounded-lg relative">
@@ -143,24 +112,20 @@ export const SelectMapType = () => {
 }
 
 const MapTypeSelection = ({ name, id, thumbnail }: MapTypeItem) => {
-  const { mapType, setMapType, isMapReady } = useFleetTrackingStore(
-    useShallow((state) => ({
-      mapType:
-        state.mapType ||
-        (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-        'default',
-      setMapType: state.setMapType,
-      isMapReady: state.isMapReady,
-    }))
+  const mapType = useFleetTrackingStore(
+    (state) =>
+      state.mapType ||
+      (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
+      'default'
   )
+  const setMapType = useFleetTrackingStore((state) => state.setMapType)
 
   const isActive = mapType === id
 
   return (
     <div
       onClick={() => {
-        if (!isMapReady) return
-
+        if (mapType === id) return
         setMapType(id)
       }}
       className={cn(

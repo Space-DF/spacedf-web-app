@@ -20,8 +20,6 @@ export const useKeyboardShortcut = ({
         typeof matchKeysCallback?.(keys, e) === 'boolean' &&
         !!matchKeysCallback?.(keys, e)
       ) {
-        console.log('press callback')
-
         e.preventDefault()
         onPress?.()
       }

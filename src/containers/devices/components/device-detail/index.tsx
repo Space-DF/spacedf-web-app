@@ -2,11 +2,11 @@ import { RightSideBarLayout } from '@/components/ui'
 import { useTranslations } from 'next-intl'
 import DeviceSelected from './components/device-selected'
 import { ArrowLeft } from 'lucide-react'
-import ListEvent from './components/list-event'
-import ListGeofences from './components/list-geofences'
+// import ListEvent from './components/list-event'
+// import ListGeofences from './components/list-geofences'
 import TripHistory from './components/trip-history'
 import { Slide } from '@/components/ui/slide'
-import { StreamVideo } from '@/containers/components/stream-video'
+// import { StreamVideo } from '@/containers/components/stream-video'
 
 interface DeviceDetailProps {
   onClose: () => void
@@ -38,9 +38,9 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         <div className="h-full mt-4">
           <div className="flex flex-col gap-8 pb-20">
             <DeviceSelected />
-            <StreamVideo />
-            <ListEvent />
-            <ListGeofences />
+            {/* <StreamVideo /> */}
+            {/* <ListEvent /> */}
+            {/* <ListGeofences /> */}
             <TripHistory />
           </div>
         </div>

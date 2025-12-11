@@ -39,7 +39,7 @@ const OnboardingContainer = () => {
             </div>
           </Button>
           <p className="mt-2 text-center text-[13px] text-brand-text-gray">
-            <span className="font-semibold text-brand-text-dark dark:text-brand-stroke-outermost">
+            <span className="font-semibold text-brand-component-text-dark dark:text-brand-stroke-outermost">
               {t('click_to_upload')}
             </span>{' '}
             {commonTranslate('or')} {t('drag_drop')}

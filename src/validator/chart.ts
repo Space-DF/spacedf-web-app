@@ -12,8 +12,7 @@ export const chartSchema = z
   .object({
     sources: z.array(
       z.object({
-        device_id: z.string().min(1, { message: 'Please select device' }),
-        field: z.string().min(1, { message: 'Please select field' }),
+        entity_id: z.string().min(1, { message: 'Please select entity' }),
         legend: z.string(),
         color: z.string(),
         show_legend: z.boolean(),
@@ -46,8 +45,7 @@ export const chartSchema = z
       from: z.date({ required_error: 'Please select date from' }),
       until: z.date({ required_error: 'Please select date until' }),
       resolution: z
-        .string()
-        .regex(/^\d*$/, 'Only numbers are allowed')
+        .number({ invalid_type_error: 'Only numbers are allowed' })
         .optional(),
       type: z.enum(
         [
@@ -100,8 +98,7 @@ export type ChartPayload = z.infer<typeof chartSchema>
 
 export const defaultSourceChartValues: ChartPayload['sources'] = [
   {
-    device_id: '1',
-    field: '1',
+    entity_id: '1',
     legend: 'Temperature',
     color: 'default',
     chart_type: ChartType.LineChart,

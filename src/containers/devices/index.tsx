@@ -1,20 +1,29 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Scanner } from '@yudiel/react-qr-scanner'
+import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
 import {
   ArrowLeft,
   CircleCheck,
   Ellipsis,
+  LoaderCircle,
   Map,
   Pencil,
   Search,
   Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, {
+  memo,
+  useEffect,
+  useState,
+  Dispatch,
+  SetStateAction,
+  useRef,
+} from 'react'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import DeviceIcon from '/public/images/device-icon.webp'
+import DeviceTracki from '/public/images/device-tracki.webp'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
@@ -61,30 +70,28 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
 import DeviceDetail from './components/device-detail'
 import Image from 'next/image'
+import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { toast } from 'sonner'
 import { DeviceSpace } from '@/types/device-space'
 import { KeyedMutator } from 'swr'
 import { usePrevious } from '@/hooks/usePrevious'
+import { useCheckClaimCode } from './hooks/useCheckClaimCode'
+import { countTwoDigitNumbers, formatValueEUI } from './utils'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 const Devices = () => {
   const t = useTranslations('common')
 
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
-  const { setDeviceSelected, deviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      setDeviceSelected: state.setDeviceSelected,
-      deviceSelected: state.deviceSelected,
-    }))
-  )
+  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
 
   const previousDeviceSelected = usePrevious(deviceSelected)
 
-  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
   // const [selected, setSelected] = useState<number>()
 
   const handleCloseSlide = () => {
@@ -93,18 +100,27 @@ const Devices = () => {
 
   useEffect(() => {
     handleDeviceTabVisible()
-  }, [deviceSelected, previousDeviceSelected, JSON.stringify(dynamicLayouts)])
+  }, [deviceSelected, previousDeviceSelected, dynamicLayouts])
+
+  useEffect(() => {
+    const handle = (e: CustomEvent) => {
+      const isChecked = e.detail.checked
+      if (!isChecked) {
+        setDeviceSelected('')
+      }
+    }
+    window.addEventListener('deviceLayoutUpdated', handle as EventListener)
+    return () =>
+      window.removeEventListener('deviceLayoutUpdated', handle as EventListener)
+  }, [])
 
   const handleDeviceTabVisible = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     if (deviceSelected) {
       const isDeviceShow = dynamicLayouts.includes(NavigationEnums.DEVICES)
-
       if (!isDeviceShow) {
         const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
-
         setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-
         toggleDynamicLayout(NavigationEnums.DEVICES)
       }
     }
@@ -128,11 +144,7 @@ const Devices = () => {
         <div>
           <DeviceSelected />
         </div>
-        <DevicesList
-        // selected={selected}
-        // handleSelected={(id: number) => setSelected(id)}
-        />
-        {/*<Nodata content={t('nodata', { module: t('devices') })} />*/}
+        <DevicesList />
       </div>
     </RightSideBarLayout>
   )
@@ -159,7 +171,6 @@ interface Props {
 const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   const t = useTranslations()
   const [step, setStep] = useState<Step>('select_mode')
-  // const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
   const [open, setOpen] = useState(false)
 
@@ -168,10 +179,23 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   )
   const isAuth = useAuthenticated()
 
+  const form = useForm<AddDeviceSchema>({
+    resolver: zodResolver(addDeviceSchema),
+  })
+
+  const handleReset = (value: boolean) => {
+    setStep('select_mode')
+    setMode('auto')
+    form.reset()
+    setOpen(value)
+  }
+
   const handleAddDeviceSuccess = async () => {
     await mutate()
-    setOpen(false)
+    setStep('add_device_success')
   }
+
+  const isAutoMode = mode === 'auto'
 
   const steps: Record<Step, Steps> = {
     select_mode: {
@@ -204,23 +228,35 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     },
     scan_qr: {
       label: t('addNewDevice.scan_qr_code'),
-      component: <AddDeviceScanQR />,
+      component: <AddDeviceScanQR setStep={setStep} />,
     },
     add_device_auto: {
       label: t('addNewDevice.device_informations'),
       component: (
-        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+        <AddDeviceForm
+          mode={mode}
+          onSuccess={handleAddDeviceSuccess}
+          onClose={() => handleReset(false)}
+        />
       ),
     },
     add_device_manual: {
-      label: t('addNewDevice.add_devices_manually'),
+      label: t(
+        isAutoMode
+          ? 'addNewDevice.device_informations'
+          : 'addNewDevice.add_devices_manually'
+      ),
       component: (
-        <AddDeviceForm mode={mode} onSuccess={handleAddDeviceSuccess} />
+        <AddDeviceForm
+          mode={mode}
+          onSuccess={handleAddDeviceSuccess}
+          onClose={() => handleReset(false)}
+        />
       ),
     },
     add_device_success: {
       label: '',
-      component: <AddDeviceSuccess />,
+      component: <AddDeviceSuccess onReset={() => handleReset(false)} />,
     },
   }
 
@@ -249,13 +285,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
         </span>
         <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
       </Button>
-      <Dialog
-        open={open}
-        onOpenChange={(open) => {
-          setOpen(open)
-          setStep('select_mode')
-        }}
-      >
+      <Dialog open={open} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
             <DialogHeader className="border-0">
@@ -274,7 +304,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
           <div
             className={cn('flex gap-4 px-4 pb-4', { 'pt-4': !isShowHeader })}
           >
-            {steps[step].component}
+            <FormProvider {...form}>{steps[step].component}</FormProvider>
           </div>
         </DialogContent>
       </Dialog>
@@ -289,7 +319,6 @@ const DeviceSelected = () => {
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       devices: state.devices,
-      setDeviceSelected: state.setDeviceSelected,
     }))
   )
 
@@ -392,7 +421,7 @@ const DeviceSelected = () => {
             </AlertDialogTrigger>
             <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
                   {t('remove_device')}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
@@ -438,7 +467,13 @@ const DeviceSelected = () => {
 
 const DevicesList = () => {
   const t = useTranslations('addNewDevice')
-  const { data: devices, mutate } = useGetDevices()
+  const {
+    data: devices = [],
+    mutate,
+    isReachingEnd,
+    isLoading,
+    setSize,
+  } = useGetDevices()
 
   const { deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
@@ -447,6 +482,43 @@ const DevicesList = () => {
       setDevices: state.setDevices,
     }))
   )
+
+  const parentRef = useRef<HTMLDivElement>(null)
+  const fetchingRef = useRef(false)
+
+  const rowCount = Math.ceil(devices.length / 2)
+
+  const rowVirtualizer = useVirtualizer({
+    count: isReachingEnd ? rowCount : rowCount + 1,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 106,
+    overscan: 5,
+  })
+
+  const virtualItems = rowVirtualizer.getVirtualItems()
+
+  useEffect(() => {
+    const [lastItem] = [...virtualItems].reverse()
+
+    if (!lastItem) return
+
+    if (
+      lastItem.index >= rowCount - 1 &&
+      !isLoading &&
+      !isReachingEnd &&
+      !fetchingRef.current
+    ) {
+      fetchingRef.current = true
+      setSize((prevSize) => prevSize + 1)
+    }
+  }, [virtualItems.length, rowCount, isLoading, isReachingEnd, setSize])
+
+  // Reset fetching ref when loading completes
+  useEffect(() => {
+    if (!isLoading) {
+      fetchingRef.current = false
+    }
+  }, [isLoading])
 
   return (
     <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
@@ -463,43 +535,87 @@ const DevicesList = () => {
         placeholder={t('device')}
         wrapperClass="w-full"
       />
-      <div className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
-        <div className="px-2.5 flex-1 transition-all duration-300">
-          <div className="-mx-2 grid grid-cols-2 gap-1 pb-6">
-            {devices?.map((item) => (
-              <div
-                key={item.id}
-                className={cn(
-                  'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                  {
-                    'border-brand-component-stroke-dark':
-                      item.id === deviceSelected,
-                  }
-                )}
-                onClick={() => setDeviceSelected(item.id)}
-              >
-                <div className="space-y-2 mb-2">
-                  <div className="flex items-start justify-between">
-                    <div className="size-8">
-                      <ImageWithBlur src={DeviceIcon} alt="DMZ 01 -1511-M01" />
+      <div
+        className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
+        ref={parentRef}
+      >
+        <div className="flex-1 transition-all duration-300">
+          <div
+            className="relative w-full"
+            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+          >
+            {virtualItems.map((virtualRow) => {
+              const startIndex = virtualRow.index * 2
+              const endIndex = Math.min(startIndex + 2, devices.length)
+              const rowDevices = devices.slice(startIndex, endIndex)
+
+              // Show loading indicator for the last row when loading more
+              if (virtualRow.index === rowCount && isLoading) {
+                return (
+                  <div
+                    key={virtualRow.key}
+                    className="absolute top-0 left-0 w-full flex items-center justify-center"
+                    style={{
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
+                    <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
+                  </div>
+                )
+              }
+
+              return (
+                <div
+                  key={virtualRow.key}
+                  className="absolute top-0 left-0 w-full grid grid-cols-2 gap-1"
+                  style={{
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
+                >
+                  {rowDevices.map((device) => (
+                    <div
+                      key={device.id}
+                      className={cn(
+                        'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                        {
+                          'border-brand-component-stroke-dark':
+                            device?.id === deviceSelected,
+                        }
+                      )}
+                      onClick={() => setDeviceSelected(device?.id)}
+                    >
+                      <div className="space-y-2 mb-2">
+                        <div className="flex items-start justify-between">
+                          <div className="size-8">
+                            <ImageWithBlur
+                              src={DeviceIcon}
+                              alt="DMZ 01 -1511-M01"
+                            />
+                          </div>
+                          <Ellipsis
+                            size={16}
+                            className="text-brand-component-text-gray"
+                          />
+                        </div>
+                        <div className="text-xs font-medium">
+                          <span className="leading-[18px] line-clamp-1">
+                            {device.name}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-medium ">
+                        <Map size={16} className="text-brand-text-gray" />
+                        <span className="leading-[18px]">
+                          {device.device.lorawan_device.location || 'Unknown'}
+                        </span>
+                      </div>
                     </div>
-                    <Ellipsis
-                      size={16}
-                      className="text-brand-component-text-gray"
-                    />
-                  </div>
-                  <div className="text-xs font-medium">
-                    <span className="leading-[18px]">{item.name}</span>
-                  </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2 text-xs font-medium ">
-                  <Map size={16} className="text-brand-text-gray" />
-                  <span className="leading-[18px]">
-                    {item.device.lorawan_device.location || 'Unknown'}
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>
@@ -507,41 +623,88 @@ const DevicesList = () => {
   )
 }
 
-const AddDeviceScanQR = () => {
+interface AddDeviceScanQRProps {
+  setStep: Dispatch<SetStateAction<Step>>
+}
+
+const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
+  const { trigger: checkClaimCode, isMutating } = useCheckClaimCode()
+  const t = useTranslations('addNewDevice')
+
+  const form = useFormContext<AddDeviceSchema>()
+
+  const handleScan = async (result: IDetectedBarcode[]) => {
+    const response = await checkClaimCode(result[0].rawValue, {
+      onError: (error) => {
+        toast.error(error.message || t('failed_to_scan_qr_code'))
+      },
+    })
+    form.setValue(
+      'dev_eui',
+      formatValueEUI(response.lorawan_device.dev_eui).toUpperCase()
+    )
+    setStep('add_device_manual')
+  }
+
+  const handleError = () => {
+    toast.error(t('failed_to_scan_qr_code'))
+  }
+
   return (
-    <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray">
+    <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-brand-stroke-gray relative">
       <Scanner
-        onScan={(result) => {
-          console.info(`\x1b[34mFunc: Scanner - PARAMS: result\x1b[0m`, result)
-        }}
-        onError={(err) => {
-          console.info(`\x1b[34mFunc: Scanner - PARAMS: err\x1b[0m`, err)
-        }}
+        allowMultiple
+        onScan={handleScan}
+        onError={handleError}
+        paused={isMutating}
       />
+      {isMutating && (
+        <div className="absolute size-full justify-center flex items-center z-10 bg-black/70 backdrop-blur-sm top-0 left-0">
+          <LoaderCircle className="text-brand-bright-lavender size-10 animate-spin" />
+        </div>
+      )}
     </div>
   )
 }
 
-const AddDeviceSuccess = () => {
+interface AddDeviceSuccessProps {
+  onReset: () => void
+}
+
+const AddDeviceSuccess: React.FC<AddDeviceSuccessProps> = ({ onReset }) => {
   const t = useTranslations('addNewDevice')
+
+  const form = useFormContext<AddDeviceSchema>()
+
+  const deviceName = form.getValues('name')
+
   return (
     <div className="w-full">
-      {/* TODO: add image device */}
+      <div className="flex justify-center w-full">
+        <Image
+          src={DeviceTracki}
+          alt="DMZ 01 -1511-M01"
+          width={208}
+          height={208}
+          className="size-52"
+        />
+      </div>
       <div className="my-4 flex flex-col items-center gap-2">
-        <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-text-dark">
-          <CircleCheck
-            size={36}
-            fill="currentColor"
-            stroke="white"
-            className="text-brand-semantic-success"
+        <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-component-text-dark">
+          <Image
+            src={CircleCheckSvg}
+            width={30}
+            height={30}
+            alt="image"
+            className="size-7"
           />{' '}
           {t('congratulations')}
         </div>
-        <div className="text-sm font-medium text-brand-text-gray">
+        <div className="text-sm font-medium text-brand-component-text-gray">
           {t.rich('you_have_successfully_added_the_gps_tracker_to_the_space', {
-            device: 'GPS Tracker',
+            device: deviceName,
             span: (chunk) => (
-              <span className="font-semibold text-brand-text-dark">
+              <span className="font-semibold text-brand-component-text-dark">
                 {chunk}
               </span>
             ),
@@ -549,7 +712,9 @@ const AddDeviceSuccess = () => {
         </div>
       </div>
       <DialogClose asChild>
-        <Button className="h-12 w-full">{t('done')}</Button>
+        <Button className="h-12 w-full" onClick={onReset}>
+          {t('done')}
+        </Button>
       </DialogClose>
     </div>
   )
@@ -557,9 +722,21 @@ const AddDeviceSuccess = () => {
 
 const addDeviceSchema = z.object({
   name: z.string({ message: 'This field cannot be empty' }),
-  dev_eui: z.string({ message: 'This field cannot be empty' }).min(16, {
-    message: 'Must be at least 16 characters long.',
-  }),
+  dev_eui: z
+    .string({ message: 'This field cannot be empty' })
+    .min(16, {
+      message: 'Must be at least 16 characters long.',
+    })
+    .refine(
+      (str) => {
+        const numbers = str.split(' ')
+        const twoDigitCount = numbers.filter((num) => num.length === 2).length
+        return twoDigitCount === 8
+      },
+      {
+        message: 'Dev EUI must be 8 bytes',
+      }
+    ),
   description: z
     .string()
     .max(500, { message: 'This field must not exceed 500 characters' })
@@ -570,29 +747,29 @@ export type AddDeviceSchema = z.infer<typeof addDeviceSchema>
 
 const AddDeviceForm = ({
   mode,
-  defaultValues,
   onSuccess,
+  onClose,
 }: {
   mode: Mode
-  defaultValues?: AddDeviceSchema
   onSuccess: () => Promise<void>
+  onClose: () => void
 }) => {
   const t = useTranslations('addNewDevice')
-  const form = useForm<AddDeviceSchema>({
-    resolver: zodResolver(addDeviceSchema),
-    defaultValues,
-  })
+  const form = useFormContext<AddDeviceSchema>()
   const { trigger: addDevice, isMutating } = useAddDeviceManually()
 
   async function onSubmit(values: AddDeviceSchema) {
-    await addDevice(values, {
-      onSuccess: async () => {
-        await onSuccess()
-        toast.success(t('add_device_successfully'))
-      },
-      onError: (error) =>
-        toast.error(error.message || t('failed_to_add_device')),
-    })
+    await addDevice(
+      { ...values, dev_eui: values.dev_eui.replace(/\s+/g, '') },
+      {
+        onSuccess: async () => {
+          await onSuccess()
+          toast.success(t('add_device_successfully'))
+        },
+        onError: (error) =>
+          toast.error(error.message || t('failed_to_add_device')),
+      }
+    )
   }
 
   const isModeAuto = mode === 'auto'
@@ -601,7 +778,7 @@ const AddDeviceForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
         {isModeAuto && (
-          <div className="flex items-center gap-1 bg-brand-semantic-success-light p-2 text-xs font-semibold text-brand-semantic-success">
+          <div className="flex items-center gap-1 bg-brand-component-fill-positive-soft p-2 text-xs font-semibold text-brand-semantic-success rounded-sm">
             <CircleCheck size={16} />
             {t('scan_qr_code_successfully')}
           </div>
@@ -620,6 +797,23 @@ const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
+                  value={field.value}
+                  onChange={(e) => {
+                    const rawValue = e.target.value
+                      .replace(/\s/g, '')
+                      .toUpperCase()
+
+                    if (/^[0-9A-Fa-f]*$/.test(rawValue)) {
+                      const binaryValue = formatValueEUI(rawValue)
+
+                      if (
+                        countTwoDigitNumbers(binaryValue) <= 8 &&
+                        binaryValue.split(' ').length <= 8
+                      ) {
+                        field.onChange(binaryValue)
+                      }
+                    }
+                  }}
                   isError={!!fieldState.error}
                 />
               </FormControl>
@@ -638,7 +832,6 @@ const AddDeviceForm = ({
               </FormLabel>
               <FormControl>
                 <Input
-                  disabled={isModeAuto}
                   placeholder="Device 1"
                   {...field}
                   isError={!!fieldState.error}
@@ -658,7 +851,6 @@ const AddDeviceForm = ({
               </FormLabel>
               <FormControl>
                 <Textarea
-                  disabled={isModeAuto}
                   placeholder={t('enter_description')}
                   className="resize-none"
                   {...field}
@@ -670,7 +862,7 @@ const AddDeviceForm = ({
           )}
         />
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" onClick={onClose}>
             {t('cancel')}
           </Button>
           <Button type="submit" loading={isMutating}>

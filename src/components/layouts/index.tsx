@@ -2,14 +2,13 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { COOKIES } from '@/constants'
+import { COOKIES, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
-import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
 import { DynamicLayout as TDynamicLayout, useLayout } from '@/stores'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import {
   checkDisplayedDynamicLayout,
   displayedRightDynamicLayout,
@@ -46,44 +45,13 @@ const DynamicLayout = ({
 }: DynamicLayoutProps) => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
 
-  const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
-  const resizeMapTimeOutId = useRef<NodeJS.Timeout | null>(null)
-  const resizeMapLayoutTimeOutId = useRef<NodeJS.Timeout | null>(null)
-
-  const { map, isMapReady } = useFleetTrackingStore(
-    useShallow((state) => ({ map: state.map, isMapReady: state.isMapReady }))
-  )
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
+  const cookieDirty = useLayout((state) => state.cookieDirty)
 
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
-
-  useEffect(() => {
-    if (isMapReady) {
-      if (resizeMapLayoutTimeOutId.current) {
-        clearTimeout(resizeMapLayoutTimeOutId.current)
-      }
-
-      if (map?.getContainer()?.style) {
-        map.getContainer().style.animationDuration = '0.5s'
-        map.getContainer().style.opacity = '0.5'
-        map.getContainer().style.filter = 'blur(10px)'
-      }
-
-      resizeMapLayoutTimeOutId.current = setTimeout(() => {
-        map?.resize()
-
-        if (map?.getContainer()?.style) {
-          map.getContainer().style.animationDuration = '0.5s'
-          map.getContainer().style.opacity = '1'
-          map.getContainer().style.filter = 'blur(0px)'
-        }
-      }, 500)
-    }
-  }, [JSON.stringify(dynamicLayouts), isMapReady])
 
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
@@ -91,7 +59,10 @@ const DynamicLayout = ({
   const rightLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
   const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
 
-  const dynamicLayoutRight = getDynamicLayoutRight(dynamicLayouts)
+  const dynamicLayoutRight = useMemo(
+    () => getDynamicLayoutRight(dynamicLayouts),
+    [dynamicLayouts]
+  )
 
   const isDisplayDynamicLayout = !!dynamicLayoutRight.length
 
@@ -169,32 +140,8 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    if (isMapReady && map) {
-      if (resizeMapTimeOutId.current) {
-        clearTimeout(resizeMapTimeOutId.current)
-      }
-
-      if (map?.getContainer()?.style) {
-        map.getContainer().style.animationDuration = '0.5s'
-        map.getContainer().style.opacity = '0.5'
-        map.getContainer().style.filter = 'blur(10px)'
-        map.getContainer().style.zIndex = '100'
-      }
-
-      resizeMapTimeOutId.current = setTimeout(() => {
-        map?.resize()
-
-        if (map?.getContainer()?.style) {
-          map.getContainer().style.animationDuration = '0.5s'
-          map.getContainer().style.opacity = '1'
-          map.getContainer().style.filter = 'blur(0px)'
-          map.getContainer().style.zIndex = '0'
-        }
-      }, 500)
-    }
-
     // Use responsive collapse threshold from hook (updates with screen size changes)
-    if (sizes[0] <= collapseThreshold) {
+    if (sizes[0] < collapseThreshold) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
       mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
@@ -203,8 +150,27 @@ const DynamicLayout = ({
       setCookie(COOKIES.MAIN_LAYOUTS, sizes)
       setCollapsed(false)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+      mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
     }
   }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleResize = () => {
+      const screenWidth = window.innerWidth
+      if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
+        setCollapsed(true)
+        setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
+        mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
+        setCookie(COOKIES.MAIN_LAYOUTS, COLLAPSED_LAYOUT)
+      }
+    }
+
+    handleResize()
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
   const getRightMinSize = () => {
@@ -235,7 +201,7 @@ const DynamicLayout = ({
         >
           <ResizablePanel
             minSize={4}
-            maxSize={18}
+            maxSize={30}
             defaultSize={sidebarWidth}
             className="duration-200"
           >

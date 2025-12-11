@@ -18,7 +18,6 @@ import { wrap } from 'popmotion'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useShallow } from 'zustand/react/shallow'
 
 const variants = {
   enter: (direction: number) => {
@@ -50,9 +49,8 @@ const swipePower = (offset: number, velocity: number) => {
 export default function Guideline() {
   const [[page, direction], setPage] = useState([0, 0])
   const t = useTranslations('onboarding')
-  const { openGuideline, setOpenGuideline } = useIdentityStore(
-    useShallow((state) => state)
-  )
+  const openGuideline = useIdentityStore((state) => state.openGuideline)
+  const setOpenGuideline = useIdentityStore((state) => state.setOpenGuideline)
 
   const { theme = 'light' } = useTheme()
 
@@ -94,7 +92,7 @@ export default function Guideline() {
         <DrawerTitle />
       </VisuallyHidden>
       <DrawerContent
-        className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white"
+        className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost dark:text-white"
         aria-describedby={undefined}
       >
         <div className="flex size-full flex-col overflow-auto">

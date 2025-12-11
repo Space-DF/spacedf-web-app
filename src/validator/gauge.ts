@@ -9,10 +9,9 @@ import { z } from 'zod'
 export const gaugeSchema = z.object({
   source: z
     .object({
-      device_id: z.string({
+      entity_id: z.string({
         required_error: 'Please select device',
       }),
-      field: z.string({ required_error: 'Please select field' }),
       min: z.number(),
       max: z.number(),
       decimal: z.coerce
@@ -53,8 +52,7 @@ export const gaugeSchema = z.object({
     from: z.date({ required_error: 'Please select date from' }).optional(),
     until: z.date({ required_error: 'Please select date until' }).optional(),
     resolution: z
-      .string()
-      .regex(/^\d*$/, 'Only numbers are allowed')
+      .number({ invalid_type_error: 'Only numbers are allowed' })
       .optional(),
     type: z.enum(
       [
@@ -102,8 +100,7 @@ export const gaugeValue: GaugeValue = {
 
 export const defaultGaugeValues: GaugePayload = {
   source: {
-    device_id: '1',
-    field: '1',
+    entity_id: '1',
     min: 0,
     max: 100,
     decimal: 0,

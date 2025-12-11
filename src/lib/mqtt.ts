@@ -6,6 +6,8 @@ import {
   MQTT_USERNAME,
 } from '@/shared/env'
 import mqtt, { IClientOptions, MqttClient } from 'mqtt'
+import api from './api'
+import { sleep } from '@/utils'
 
 export type MqttConnectionStatus =
   | 'connecting'
@@ -20,88 +22,137 @@ export interface MqttTopicSubscription {
 }
 
 export interface MqttEventCallbacks {
+  onSubscribed?: () => void
   onConnect?: () => void
   onDisconnect?: () => void
   onError?: (error: Error) => void
   onMessage?: (topic: string, payload: Buffer) => void
+  onReconnect?: () => void
 }
 
+const getMqttToken = async () =>
+  api.get<{ mqtt_token: string }>('/api/mqtt-token')
+
 class MqttService {
-  private static instance: MqttService
+  private static instance: MqttService | undefined
   public client: MqttClient | null = null
   private readonly brokerUrl: string
   private readonly options: IClientOptions
   private subscriptions: Map<string, MqttTopicSubscription> = new Map()
   private eventCallbacks: MqttEventCallbacks = {}
   private connectionStatus: MqttConnectionStatus = 'disconnected'
+  private isReconnecting = false
+  private manualDisconnect = false
+  private connectRetryCount = 0
+  private subscribeRetryCount = 0
+  private readonly maxConnectRetries = 3
 
-  private constructor() {
+  private constructor(organization: string) {
     this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
     this.options = {
       clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      username: MQTT_USERNAME,
-      password: MQTT_PASSWORD,
       clean: false,
       keepalive: 30,
-      reconnectPeriod: 60 * 1000,
+      reconnectPeriod: 0,
       connectTimeout: 30 * 1000,
+      properties: {
+        userProperties: {
+          organization: organization,
+        },
+      },
+      protocolVersion: 5,
     }
   }
 
-  public static getInstance(): MqttService {
+  public static getInstance(organization: string): MqttService {
     if (!MqttService.instance) {
-      MqttService.instance = new MqttService()
+      MqttService.instance = new MqttService(organization)
     }
     return MqttService.instance
   }
 
-  public initialize(): void {
+  public static resetInstance(): void {
+    if (MqttService.instance) {
+      MqttService.instance.disconnect()
+      MqttService.instance = undefined
+    }
+  }
+
+  public async initialize(): Promise<void> {
     if (!this.client) {
-      this.connect()
+      await this.connect()
     }
   }
 
-  public reconnect(): void {
-    if (this.client) {
-      this.client.reconnect()
-    } else {
-      this.connect()
-    }
+  public async reconnect(): Promise<void> {
+    this.connectRetryCount = 0
+    this.cleanupClient()
+    await this.connect()
   }
 
-  private connect(): void {
+  private cleanupClient(): void {
+    if (!this.client) return
+    this.client.removeAllListeners('connect')
+    this.client.removeAllListeners('error')
+    this.client.removeAllListeners('close')
+    this.client.removeAllListeners('offline')
+    this.client.removeAllListeners('message')
+
+    this.client.end()
+    this.client = null
+  }
+
+  private async connect(): Promise<void> {
     if (this.client) return
-
+    const mqttToken = await getMqttToken()
     this.connectionStatus = 'connecting'
-    this.client = mqtt.connect(this.brokerUrl, this.options)
+    const options = {
+      ...this.options,
+      username: MQTT_USERNAME,
+      password: MQTT_PASSWORD,
+    }
+    if (mqttToken?.mqtt_token) {
+      options.username = mqttToken.mqtt_token
+      options.password = ''
+    }
+    this.client = mqtt.connect(this.brokerUrl, options)
 
     this.client.on('connect', () => {
-      console.log('✅ MQTT connected')
+      this.manualDisconnect = false
       this.connectionStatus = 'connected'
+      this.connectRetryCount = 0
       this.eventCallbacks.onConnect?.()
       this.resubscribeToTopics()
     })
 
     this.client.on('error', (err) => {
-      console.error('❌ MQTT Connection Error:', err)
       this.connectionStatus = 'error'
+      this.connectRetryCount++
       this.eventCallbacks.onError?.(err)
     })
 
-    this.client.on('close', () => {
-      console.log('🔌 MQTT Connection Closed')
-      this.connectionStatus = 'disconnected'
-      this.client = null
-      this.eventCallbacks.onDisconnect?.()
-    })
+    this.client.on('close', async () => {
+      if (
+        this.manualDisconnect ||
+        this.subscribeRetryCount < this.maxConnectRetries
+      )
+        return
 
-    this.client.on('reconnect', () => {
-      console.log('🔄 MQTT reconnecting...')
-      this.connectionStatus = 'connecting'
+      this.connectionStatus = 'disconnected'
+      this.client?.end()
+      this.client = null
+
+      if (this.isReconnecting) return
+      this.isReconnecting = true
+      this.subscribeRetryCount++
+      if (this.connectRetryCount < this.maxConnectRetries) {
+        await sleep(1000)
+        await this.connect()
+        this.isReconnecting = false
+      }
     })
 
     this.client.on('offline', () => {
-      console.log('📱 MQTT offline')
       this.connectionStatus = 'disconnected'
     })
 
@@ -167,29 +218,39 @@ class MqttService {
   }
 
   public subscribe(
-    topic: string,
+    topic: string | string[],
     options?: {
       qos?: 0 | 1 | 2
       callback?: (topic: string, payload: Buffer) => void
     }
   ): void {
-    const subscription: MqttTopicSubscription = {
-      topic,
-      qos: options?.qos || 0,
-      callback: options?.callback,
-    }
+    const topics = Array.isArray(topic) ? topic : [topic]
+    const qos = options?.qos || 0
+    let subscribed = true
+    topics.forEach((singleTopic, index) => {
+      const subscription: MqttTopicSubscription = {
+        topic: singleTopic,
+        qos,
+        callback: options?.callback,
+      }
 
-    this.subscriptions.set(topic, subscription)
+      this.subscriptions.set(singleTopic, subscription)
 
-    if (this.client && this.connectionStatus === 'connected') {
-      this.client.subscribe(topic, { qos: subscription.qos || 0 }, (err) => {
-        if (!err) {
-          console.log(`📡 Subscribed to ${topic}`)
-        } else {
-          console.error(`❌ Failed to subscribe to ${topic}:`, err)
-        }
-      })
-    }
+      if (this.client && this.connectionStatus === 'connected') {
+        this.client.subscribe(singleTopic, { qos }, (err) => {
+          if (!err) {
+            console.log(`📡 Subscribed to ${singleTopic}`)
+            if (index === topics.length - 1 && subscribed) {
+              this.eventCallbacks.onSubscribed?.()
+              this.subscribeRetryCount = 0
+            }
+          } else {
+            console.error(`❌ Failed to subscribe to ${singleTopic}:`, err)
+            subscribed = false
+          }
+        })
+      }
+    })
   }
 
   public unsubscribe(topic: string): void {
@@ -243,11 +304,15 @@ class MqttService {
   }
 
   public disconnect(): void {
-    if (this.client) {
-      this.client.end()
-      this.client = null
-      this.connectionStatus = 'disconnected'
-    }
+    this.manualDisconnect = true
+    this.connectionStatus = 'disconnected'
+    this.subscriptions.clear()
+    this.eventCallbacks = {}
+
+    this.cleanupClient()
+    this.connectRetryCount = 0
+    this.subscribeRetryCount = 0
+    this.isReconnecting = false
   }
 }
 

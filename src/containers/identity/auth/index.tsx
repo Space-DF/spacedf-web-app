@@ -13,7 +13,6 @@ import { singUpSchema } from './validator/signUpSchema'
 import { z } from 'zod'
 import OTPForm from './otp-form'
 import { useAuthForm } from './stores/useAuthForm'
-import { useShallow } from 'zustand/react/shallow'
 import { ForgotPasswordForm } from './forgot-password-form'
 import { CreateNewPasswordForm } from './create-new-password-form'
 import { ResetPasswordSuccessful } from './reset-password-successful'
@@ -21,11 +20,7 @@ import { ResetPasswordSuccessful } from './reset-password-successful'
 export type SignUpFormCredentials = z.infer<typeof singUpSchema>
 
 const SignForm = () => {
-  const { formType } = useAuthForm(
-    useShallow((state) => ({
-      formType: state.formType,
-    }))
-  )
+  const formType = useAuthForm((state) => state.formType)
   const signUpForm = useForm<SignUpFormCredentials>({
     resolver: zodResolver(singUpSchema),
   })
@@ -59,9 +54,7 @@ const SignForm = () => {
 }
 
 const AuthForm = () => {
-  const { formType } = useAuthForm((state) => ({
-    formType: state.formType,
-  }))
+  const formType = useAuthForm((state) => state.formType)
 
   switch (formType) {
     case 'signUp':
@@ -78,9 +71,7 @@ const AuthForm = () => {
 }
 
 const Authentication = () => {
-  const { formType } = useAuthForm((state) => ({
-    formType: state.formType,
-  }))
+  const formType = useAuthForm((state) => state.formType)
   return (
     <div className="my-10 flex size-full flex-col items-center justify-center md:max-w-md">
       {formType === 'resetPasswordSuccessful' ? (

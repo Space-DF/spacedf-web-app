@@ -14,9 +14,7 @@ const cluster = new Supercluster({
 
 export const useMapGroupCluster = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
-  const { map } = useFleetTrackingStore(
-    useShallow((state) => ({ map: state.map }))
-  )
+  const map = useFleetTrackingStore(useShallow((state) => state.map))
 
   const [clusteredDeviceIds, setClusteredDeviceIds] = useState<Set<string>>(
     new Set()
@@ -48,7 +46,6 @@ export const useMapGroupCluster = () => {
           const clusterId = feature.properties.cluster_id
           const leaves = cluster.getLeaves(clusterId, Infinity)
           leaves.forEach((leaf) => {
-            // console.log({ leaves })
             if (leaf.properties?.id) {
               newClusteredDeviceIds.add(leaf.properties.id)
             }
@@ -60,7 +57,6 @@ export const useMapGroupCluster = () => {
 
       const source = map.getSource('clusters-source') as mapboxgl.GeoJSONSource
 
-      // console.log({ source })
       if (source) {
         source.setData({
           type: 'FeatureCollection',

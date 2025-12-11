@@ -1,9 +1,8 @@
-import { auth } from '@/lib/auth'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { Dashboard } from '@/types/dashboard'
 import { handleError } from '@/utils/error'
-import { isDemoSubdomain } from '@/utils/server-actions'
+import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 const DEMO_DASHBOARDS: Dashboard[] = [
@@ -27,17 +26,15 @@ export const GET = async (
 ) => {
   try {
     const isDemo = await isDemoSubdomain(request)
-    const session = await auth()
-    if (
-      isDemo ||
-      !session ||
-      !params.spaceSlug ||
-      params.spaceSlug === 'undefined'
-    ) {
+    const session = await readSession()
+    if (isDemo) {
       return NextResponse.json(DEMO_DASHBOARDS)
     }
+    if (!params.spaceSlug || params.spaceSlug === 'undefined' || !session) {
+      return NextResponse.json([])
+    }
     const spacedfClient = await spaceClient()
-    spacedfClient.setAccessToken(session.user.access)
+    spacedfClient.setAccessToken(session?.user?.access as string)
     const dashboardPagination = await spacedfClient.dashboards.list(
       {},
       {

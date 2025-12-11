@@ -49,5 +49,7 @@
   "updating_role": "Updating role...",
   "member_account": "Member Account",
   "join_space_success": "You have joined the space",
-  "join_space_error": "Failed to join the space"
+  "join_space_error": "Failed to join the space",
+  "space_updated_successfully": "Space updated successfully",
+  "failed_to_update_space": "Failed to update space"
 }

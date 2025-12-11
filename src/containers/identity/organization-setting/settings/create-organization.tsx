@@ -1,6 +1,5 @@
 import CameraFilled from '@/components/icons/camera-filled'
 import { Button } from '@/components/ui/button'
-import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
 import { TypographyPrimary } from '@/components/ui/typography'
 import { useIdentityStore } from '@/stores/identity-store'
@@ -8,16 +7,13 @@ import { generateOrganizationDomain, uppercaseFirstLetter } from '@/utils'
 import { XCircle } from 'lucide-react'
 import { useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { useShallow } from 'zustand/react/shallow'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
+import Image from 'next/image'
 
 const CreateOrganization = () => {
-  const { setOrganizationName, organizationName } = useIdentityStore(
-    useShallow((state) => ({
-      organizationName: state.organizationName,
-      setOrganizationName: state.setOrganizationName,
-      setOrganizationDomain: state.setOrganizationDomain,
-    }))
+  const organizationName = useIdentityStore((state) => state.organizationName)
+  const setOrganizationName = useIdentityStore(
+    (state) => state.setOrganizationName
   )
 
   const [errorSlug, setErrorSlug] = useState('')
@@ -36,11 +32,15 @@ const CreateOrganization = () => {
       <div className="mb-8 flex flex-col gap-3">
         <div className="relative h-[76px] w-[88px]">
           <div className="absolute h-[76px] w-[76px] overflow-hidden rounded-lg">
-            <ImageWithBlur
-              src={OrganizationThumb}
-              className="h-full w-full object-cover"
-              alt=""
-            />
+            <div className="bg-brand-component-fill-secondary-soft rounded-lg w-full h-full flex justify-center items-center">
+              <Image
+                src={OrganizationThumb}
+                className="size-10 object-cover m-auto"
+                width={40}
+                height={40}
+                alt=""
+              />
+            </div>
           </div>
 
           <div className="absolute bottom-0 right-0 translate-y-1 rounded-full bg-white p-1 dark:bg-brand-fill-outermost">

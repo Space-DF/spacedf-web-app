@@ -7,10 +7,9 @@ export enum ValueTimeFrameType {
 
 export const valueSchema = z.object({
   source: z.object({
-    device_id: z.string({
-      required_error: 'Please select device',
+    entity_id: z.string({
+      required_error: 'Please select entity',
     }),
-    field: z.string({ required_error: 'Please select field' }),
     unit: z.string().optional(),
     decimal: z.coerce
       .number({
@@ -45,8 +44,7 @@ export type ValuePayload = z.infer<typeof valueSchema>
 
 export const defaultValueWidgetValues: ValuePayload = {
   source: {
-    device_id: '1',
-    field: '1',
+    entity_id: '1',
     decimal: 0,
   },
   widget_info: {

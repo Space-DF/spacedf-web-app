@@ -17,7 +17,8 @@ import { WidgetUnit } from './components/widget-unit'
 import { WidgetSwitch } from './components/widget-switch'
 import { ProgressWidget } from './components/widget-progress'
 import { WidgetSensor } from './components/widget-sensor'
-import { mapPayload } from '@/validator'
+import { mapPayload, SliderSource } from '@/validator'
+import WidgetSlider from './components/widget-slider'
 
 export const getWidgetByType = (widget: Widget) => {
   switch (widget.type) {
@@ -48,7 +49,11 @@ export const getWidgetByType = (widget: Widget) => {
     case WidgetType.Chart:
       return (
         <div key={widget.id}>
-          <ChartWidget {...(widget as WidgetChart)} isShowFullChart />
+          <ChartWidget
+            {...(widget as WidgetChart)}
+            isShowFullChart
+            id={widget.id}
+          />
         </div>
       )
     case WidgetType.Gauge:
@@ -81,6 +86,7 @@ export const getWidgetByType = (widget: Widget) => {
           <WidgetSwitch
             widget_info={widget.widget_info!}
             color={widget.color!}
+            checked={widget.enabled}
           />
         </div>
       )
@@ -92,6 +98,16 @@ export const getWidgetByType = (widget: Widget) => {
             value={widget.value!}
             sensorType={widget.sensor_type}
             color={widget.color}
+          />
+        </div>
+      )
+    case WidgetType.Slider:
+      return (
+        <div key={widget.id}>
+          <WidgetSlider
+            widget_info={widget.widget_info!}
+            source={widget.source as unknown as MakeRequired<SliderSource>}
+            value={widget.value!}
           />
         </div>
       )

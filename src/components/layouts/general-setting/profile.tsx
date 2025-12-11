@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { InputWithIcon } from '@/components/ui/input'
-import { CloudUpload, Loader, MapPin, UserRound } from 'lucide-react'
+import { CloudUpload, MapPin, UserRound } from 'lucide-react'
 import React, {
   ChangeEvent,
   Suspense,
@@ -26,17 +26,15 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { firstNameSchema, lastNameSchema } from '@/utils'
-import { useUploadImage } from './hooks/useUploadImage'
 import { useUpdateProfile } from './hooks/useUpdateProfile'
 import { useProfile } from './hooks/useProfile'
 import { DialogClose } from '@/components/ui/dialog'
-import { useIsDemo } from '@/hooks/useIsDemo'
 
 const profileSchema = z.object({
   first_name: firstNameSchema,
   last_name: lastNameSchema,
   location: z.string().optional(),
-  avatar: z.string().optional(),
+  avatar: z.any().optional(),
   company_name: z
     .string()
     .max(100, {
@@ -60,9 +58,6 @@ const Profile = () => {
     resolver: zodResolver(profileSchema),
   })
 
-  const isDemo = useIsDemo()
-
-  const { trigger: uploadImage, isMutating } = useUploadImage()
   const { trigger: updateProfile, isMutating: isUpdatingProfile } =
     useUpdateProfile()
   const {
@@ -73,9 +68,18 @@ const Profile = () => {
 
   const { data: profile, isLoading, mutate } = useProfile()
   async function onSubmit(values: z.infer<typeof profileSchema>) {
-    await updateProfile(values)
-    toast.success(t('update_user_profile'))
-    mutate()
+    await updateProfile(
+      { ...values, avatar: values.avatar as File },
+      {
+        onSuccess: () => {
+          toast.success(t('update_user_profile'))
+          mutate()
+        },
+        onError: (error) => {
+          toast.error(error.message || t('update_user_profile_error'))
+        },
+      }
+    )
   }
 
   useEffect(() => {
@@ -87,16 +91,11 @@ const Profile = () => {
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const image = e.target.files?.[0]
     if (!image) return
-    if (isDemo) {
-      const imageUrl = URL.createObjectURL(image)
-      setPreviewImage(imageUrl)
-      return
-    }
-    const response = await uploadImage(image)
-    setValue('avatar', response.file_name, {
+    const imageUrl = URL.createObjectURL(image)
+    setPreviewImage(imageUrl)
+    setValue('avatar', image, {
       shouldDirty: true,
     })
-    setPreviewImage(response.presigned_url)
   }
 
   const handleSelectImage = () => {
@@ -120,7 +119,7 @@ const Profile = () => {
       >
         <p className="mb-3 font-semibold">{t('avatar')}</p>
         <div className="mb-4 flex gap-3">
-          <Avatar className="flex h-24 w-24 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-600">
+          <Avatar className="flex h-24 w-24 items-center justify-center bg-purple-200 dark:bg-purple-600">
             <Suspense fallback={<AvatarFallback>{t('avatar')}</AvatarFallback>}>
               <div className="relative">
                 <ImageWithBlur
@@ -128,14 +127,8 @@ const Profile = () => {
                   width={previewImageSize}
                   height={previewImageSize}
                   alt="space-df"
-                  className="size-full rounded-full object-cover"
-                  isPending={isMutating}
+                  className="size-full object-cover"
                 />
-                {isMutating && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader className="animate-spin size-6 text-white" />
-                  </div>
-                )}
               </div>
             </Suspense>
           </Avatar>
@@ -145,7 +138,7 @@ const Profile = () => {
               className="w-max items-center gap-2 rounded-lg dark:text-white"
               size="lg"
               type="button"
-              disabled={isMutating || isLoading}
+              disabled={isLoading}
               onClick={handleSelectImage}
             >
               {t('upload_new_image')} <CloudUpload size={16} />

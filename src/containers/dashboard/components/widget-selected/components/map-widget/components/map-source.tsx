@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import {
   Select,
@@ -6,10 +6,27 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { FormLabel, FormField } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
-import { DEVICES } from '../../table-widget/table.const'
-import { mapPayload, mapSource, MapType, Device } from '@/validator'
+import { mapPayload, mapSource, MapType } from '@/validator'
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
+import { Entity } from '@/types/entity'
+import { Button } from '@/components/ui/button'
+import { Check, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const mapTypeLabels: Record<MapType, string> = {
   [MapType.RoadMap]: 'Road Map',
@@ -17,8 +34,10 @@ const mapTypeLabels: Record<MapType, string> = {
 }
 
 const MapSource: React.FC = () => {
-  const t = useTranslations()
+  const t = useTranslations('dashboard')
   const { control, setValue } = useFormContext<mapPayload>()
+
+  const [openCombobox, setOpenCombobox] = useState(false)
 
   const sources =
     useWatch({
@@ -26,17 +45,19 @@ const MapSource: React.FC = () => {
       name: 'sources',
     }) || []
 
+  const { data: entities } = useDeviceEntity('map')
+
+  const entityList = entities?.results || []
+
   const selectedSource = sources[0] || {}
 
-  const handleDeviceChange = useCallback(
-    (device: Device) => {
+  const handleEntityChange = useCallback(
+    (device: Entity) => {
       const updatedSource: mapSource = {
         ...selectedSource,
-        device_id: device.device_id,
+        entity_id: device.id,
         device_name: device.device_name,
-        coordinate: Array.isArray(device.coordinate)
-          ? device.coordinate
-          : [0, 0],
+        coordinate: [0, 0],
         map_type: selectedSource.map_type || MapType.RoadMap,
       }
       setValue('sources', [updatedSource], { shouldValidate: true })
@@ -53,36 +74,77 @@ const MapSource: React.FC = () => {
     []
   )
 
+  const currentEntity = useMemo(() => {
+    return entityList.find((e) => e.id === selectedSource.entity_id)
+  }, [entityList, selectedSource.entity_id])
+
   return (
     <div className="mt-4 size-full px-4">
       <FormField
         control={control}
-        name="sources.0.device_id"
+        name="sources.0.entity_id"
         render={({ field }) => (
           <div>
             <p className="mb-[6px] text-sm font-semibold">
-              <FormLabel required>{t('dashboard.device')}</FormLabel>
+              <FormLabel
+                required
+                className="text-xs font-semibold text-brand-component-text-dark"
+              >
+                {t('device_entity')}
+              </FormLabel>
             </p>
-            <Select
-              onValueChange={(value) => {
-                const device = DEVICES.find((d) => d.device_id === value)
-                if (device) {
-                  handleDeviceChange(device)
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                {DEVICES.find((d) => d.device_id === field.value)
-                  ?.device_name || t('dashboard.select_device')}
-              </SelectTrigger>
-              <SelectContent className="rounded-md border">
-                {DEVICES.map((device) => (
-                  <SelectItem key={device.device_id} value={device.device_id}>
-                    {device.device_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openCombobox}
+                  className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                >
+                  <p className="truncate w-5/6 text-start">
+                    {currentEntity
+                      ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                      : t('select_entity')}
+                  </p>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                  <CommandInput
+                    placeholder={t('search_entity')}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
+                    <CommandGroup>
+                      {entityList.length > 0 &&
+                        entityList.map((entity) => (
+                          <CommandItem
+                            key={entity.id}
+                            value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                            onSelect={() => {
+                              handleEntityChange(entity)
+                              setOpenCombobox(false)
+                            }}
+                            className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                          >
+                            {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                            <Check
+                              className={cn(
+                                'ml-auto size-4',
+                                field.value === entity.id
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       />
@@ -92,12 +154,19 @@ const MapSource: React.FC = () => {
         render={({ field }) => (
           <div>
             <p className="mt-4 mb-[6px] text-sm font-semibold">
-              <FormLabel required>{t('dashboard.map_type')}</FormLabel>
+              <FormLabel
+                className="text-xs font-semibold text-brand-component-text-dark"
+                required
+              >
+                {t('map_type')}
+              </FormLabel>
             </p>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger className="w-full">
-                {mapTypeLabels[field.value as MapType] ||
-                  t('dashboard.select_map_type')}
+              <SelectTrigger
+                className="w-full font-normal text-sm justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
+              >
+                {mapTypeLabels[field.value as MapType] || t('select_map_type')}
               </SelectTrigger>
               <SelectContent className="rounded-md border">
                 {mapTypeOptions.map(({ value, label }) => (

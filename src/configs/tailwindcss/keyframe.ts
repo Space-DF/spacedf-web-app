@@ -13,7 +13,7 @@ export const keyframes = {
     '100%': { opacity: '0', transform: 'translateY(-100%)', display: 'none' },
   },
   'display-effect': {
-    '0%': { opacity: '0', transform: 'translateY(30px)', display: 'none' },
+    '0%': { opacity: '0', display: 'none' },
 
     '100%': { opacity: '1', transform: 'translateY(0px)' },
   },

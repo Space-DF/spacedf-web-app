@@ -7,14 +7,11 @@ import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import { memo, useEffect } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 
 const InitializingOrganization = () => {
   const { startRender } = usePageTransition({ duration: 4000 })
-  const { organizationDomain } = useIdentityStore(
-    useShallow((state) => ({
-      organizationDomain: state.organizationDomain,
-    }))
+  const organizationDomain = useIdentityStore(
+    (state) => state.organizationDomain
   )
 
   useEffect(() => {

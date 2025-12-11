@@ -124,10 +124,8 @@ export const useWebRTCConnection = ({
               if (playPromise !== undefined) {
                 playPromise
                   .then(() => {
-                    console.log('▶️ Video started playing successfully')
                     scheduleWork(() => {
-                      const stats = optimizer.getPerformanceStats()
-                      console.log('📊 Performance stats:', stats)
+                      // const stats = optimizer.getPerformanceStats()
                     })
                   })
                   .catch((err) => {
@@ -186,7 +184,7 @@ export const useWebRTCConnection = ({
 
   const debouncedRetry = optimizer.debounceRetry(() => {
     cleanup(false)
-    initializeWebRTC()
+    // initializeWebRTC()
     isRetryingRef.current = false
   })
 
@@ -225,7 +223,7 @@ export const useWebRTCConnection = ({
 
   // Initialize WebRTC on mount
   useEffect(() => {
-    initializeWebRTC()
+    // initializeWebRTC()
     return () => {
       cleanup(true)
     }

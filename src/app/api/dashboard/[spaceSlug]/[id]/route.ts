@@ -21,3 +21,20 @@ export const DELETE = withAuthApiRequired(
     }
   }
 )
+
+export const PATCH = withAuthApiRequired(
+  async (req, { params }: { params: { spaceSlug: string; id: number } }) => {
+    try {
+      const body = await req.json()
+      const spacedfClient = await spaceClient()
+      const dashboard = await spacedfClient.dashboards.update(params.id, body, {
+        headers: {
+          'X-Space': params.spaceSlug,
+        },
+      })
+      return NextResponse.json(dashboard)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)

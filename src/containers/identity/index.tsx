@@ -4,7 +4,6 @@ import { ArrowLeftIcon, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
-import { useShallow } from 'zustand/react/shallow'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
 import { IdentityStepEnum } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -63,22 +62,17 @@ const getDrawerData = (currentStep: `${IdentityStepEnum}`) => {
 }
 
 const Identity = () => {
-  const { openDrawer, setOpenDrawer, organizationDomain, openGuideline } =
-    useIdentityStore(
-      useShallow((state) => ({
-        openDrawer: state.openDrawerIdentity,
-        organizationDomain: state.organizationDomain,
-        openGuideline: state.openGuideline,
-        setOpenDrawer: state.setOpenDrawerIdentity,
-      }))
-    )
+  const openDrawer = useIdentityStore((state) => state.openDrawerIdentity)
+  const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
+  const organizationDomain = useIdentityStore(
+    (state) => state.organizationDomain
+  )
+  const openGuideline = useIdentityStore((state) => state.openGuideline)
   const t = useTranslations('signUp')
   const [isDifferentUser, setIsDifferentUser] = useState(false)
 
-  const { setFormType, formType } = useAuthForm((state) => ({
-    formType: state.formType,
-    setFormType: state.setFormType,
-  }))
+  const setFormType = useAuthForm((state) => state.setFormType)
+  const formType = useAuthForm((state) => state.formType)
 
   const { isOrganization } = useOrganization()
   const searchParams = useSearchParams()
@@ -169,7 +163,7 @@ const Identity = () => {
   return (
     <>
       <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
-        <DrawerContent className="h-[95vh] text-brand-text-dark dark:bg-brand-fill-outermost dark:text-white">
+        <DrawerContent className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost">
           <div className="flex size-full flex-col overflow-auto">
             <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
               <p className="text-base font-semibold">
@@ -186,7 +180,7 @@ const Identity = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent className="sm:max-w-md">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                        <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
                           {t('cancel')}
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-center">
@@ -247,7 +241,7 @@ const Identity = () => {
               />
             </div>
             <div className="flex flex-col space-y-2">
-              <p className="text-center text-2xl font-bold text-brand-text-dark">
+              <p className="text-center text-2xl font-bold text-brand-component-text-dark">
                 {t('you_are_logged_into_a_different_account')}
               </p>
               <p className="text-center text-sm text-brand-text-gray">

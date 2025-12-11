@@ -8,12 +8,13 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-  AlertDialogAction,
 } from '@/components/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
+import { useRemoveDevice } from '../hooks/useRemoveDevice'
+import { useState } from 'react'
 
 const InformationItem = (props: { label: string; content: string }) => {
   return (
@@ -29,11 +30,25 @@ const InformationItem = (props: { label: string; content: string }) => {
 const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
 
-  const { deviceDataSelected } = useDeviceStore(
+  const { deviceDataSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
       deviceDataSelected: state.devices[state.deviceSelected] || {},
+      setDeviceSelected: state.setDeviceSelected,
     }))
   )
+
+  const [openDialog, setOpenDialog] = useState(false)
+
+  const { trigger: deleteDevice, isMutating } = useRemoveDevice(
+    deviceDataSelected?.id
+  )
+
+  const handleDeleteDevice = async () => {
+    await deleteDevice()
+    setOpenDialog(false)
+    setDeviceSelected('')
+  }
+
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
@@ -47,7 +62,7 @@ const DeviceSelected = () => {
           <Button size="icon" className="size-8">
             <Pencil size={16} />
           </Button>
-          <AlertDialog>
+          <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
             <AlertDialogTrigger asChild>
               <Button
                 size="icon"
@@ -59,7 +74,7 @@ const DeviceSelected = () => {
             </AlertDialogTrigger>
             <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-center font-bold text-brand-text-dark">
+                <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
                   {t('remove_device')}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
@@ -70,9 +85,13 @@ const DeviceSelected = () => {
                 <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
                   {t('cancel')}
                 </AlertDialogCancel>
-                <AlertDialogAction className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <Button
+                  className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={handleDeleteDevice}
+                  loading={isMutating}
+                >
                   {t('delete')}
-                </AlertDialogAction>
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -82,7 +101,7 @@ const DeviceSelected = () => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceDataSelected?.id || ''}
+            content={deviceDataSelected?.deviceId || ''}
           />
           <InformationItem
             label={`${t('device_name')}:`}

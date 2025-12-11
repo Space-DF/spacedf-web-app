@@ -36,6 +36,7 @@ export const NextAuthSessionProvider = ({
   if (isLoading) {
     return <LoadingFullScreen className="h-screen" />
   }
+
   return (
     <SessionProvider session={session}>
       {children}

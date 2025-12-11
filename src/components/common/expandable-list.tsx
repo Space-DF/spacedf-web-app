@@ -2,6 +2,7 @@ import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useExpandable } from '@/hooks/useExandable'
+import { Nodata } from '../ui'
 
 interface ExpandableListProps<T> {
   items: T[]
@@ -16,43 +17,29 @@ const ExpandableList = <T,>({
   renderItem,
   className,
 }: ExpandableListProps<T>) => {
-  const {
-    isExpanded,
-    maxHeight,
-    contentRef,
-    toggleExpand,
-    visibleItems,
-    hiddenItems,
-  } = useExpandable<T>({
+  const { isExpanded, toggleExpand, visibleItems } = useExpandable<T>({
     items,
     initialCount,
   })
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
+      {!items.length && <Nodata />}
       {visibleItems.map((item, index) => renderItem(item, index, true))}
-      <div
-        className="overflow-hidden transition-all duration-700 ease-in-out"
-        style={{ maxHeight }}
-      >
-        <div ref={contentRef} className="gap-y-1 flex flex-col">
-          {hiddenItems.map((item, index) =>
-            renderItem(item, index, isExpanded)
-          )}
-        </div>
-      </div>
-      <button
-        className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
-        onClick={toggleExpand}
-      >
-        <p>{isExpanded ? 'Less' : 'More'}</p>{' '}
-        <ChevronDown
-          className={cn(
-            'size-5 transition-transform duration-300',
-            isExpanded ? 'rotate-180' : ''
-          )}
-        />
-      </button>
+      {items.length > initialCount && (
+        <button
+          className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
+          onClick={toggleExpand}
+        >
+          <p>{isExpanded ? 'Less' : 'More'}</p>{' '}
+          <ChevronDown
+            className={cn(
+              'size-5 transition-transform duration-300',
+              isExpanded ? 'rotate-180' : ''
+            )}
+          />
+        </button>
+      )}
     </div>
   )
 }

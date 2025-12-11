@@ -2,14 +2,16 @@
 
 import { COOKIES, NavigationData, Navigation as TNavigation } from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
+import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useIsDemo } from '@/hooks/useIsDemo'
 import { cn } from '@/lib/utils'
 import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
-import { CommonModalProps } from '@/types/common'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { forwardRef, useEffect, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
@@ -34,24 +36,17 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
-import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
-import { useRouter } from 'next/navigation'
-import { useIsDemo } from '@/hooks/useIsDemo'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useCache } from '@/hooks/useCache'
 type SidebarChildProps = {
-  setOpen: CommonModalProps['setOpen']
   onCollapseChanges?: () => void
 }
 
 const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
-  const cookieDirty = useLayout(useShallow((state) => state.cookieDirty))
   const [open, setOpen] = useState(false)
 
-  const setDynamicLayouts = useLayout(
-    useShallow((state) => state.setDynamicLayouts)
-  )
+  const setDynamicLayouts = useLayout((state) => state.setDynamicLayouts)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
+  const cookieDirty = useLayout((state) => state.cookieDirty)
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
@@ -90,16 +85,14 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
+          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
         )}
         id="sidebar-id"
       >
         <ExpandedSidebar
-          setOpen={setOpen}
           onCollapseChanges={() => handleCollapseChanges(true)}
         />
         <CollapsedSidebar
-          setOpen={setOpen}
           onCollapseChanges={() => handleCollapseChanges(false)}
         />
       </div>
@@ -108,9 +101,9 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   )
 })
 
-const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
+const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
 
   const router = useRouter()
   const t = useTranslations('common')
@@ -119,16 +112,20 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   const isAuth = useAuthenticated()
   const isDemo = useIsDemo()
 
+  const { clearAllCache } = useCache()
+
   const handleCollapsedChange = () => {
     setCollapsed(true)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
     onCollapseChanges?.()
   }
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (isDemo) return
-    signOut({ redirect: false })
-    router.replace('/')
+    await signOut({ redirect: false })
+    window.history.replaceState({}, '', window.location.pathname)
+    router.push('/', { scroll: false })
+    clearAllCache()
   }
 
   return (
@@ -152,23 +149,8 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
             onClick={handleCollapsedChange}
           />
         </div>
-        <Button
-          onClick={() => setOpen?.(true)}
-          className={cn(
-            'my-3 h-10 w-full justify-between rounded-lg bg-brand-fill-dark-soft duration-200 dark:bg-brand-heading'
-          )}
-          variant="ghost"
-        >
-          <div className="flex items-center gap-2 text-brand-text-gray">
-            <MagnifyingGlassIcon className="size-5" />
-            {t('search')}
-          </div>
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center bg-transparent text-sm font-medium text-muted-foreground opacity-100">
-            <span className="text-lg">⌘</span>K
-          </kbd>
-        </Button>
 
-        <Separator orientation="horizontal" />
+        <Separator orientation="horizontal" className="mt-3" />
         <Navigations />
       </div>
 
@@ -218,13 +200,10 @@ const ExpandedSidebar = ({ setOpen, onCollapseChanges }: SidebarChildProps) => {
   )
 }
 
-const CollapsedSidebar = ({
-  setOpen,
-  onCollapseChanges,
-}: SidebarChildProps) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
-  const setCollapsed = useLayout(useShallow((state) => state.setCollapsed))
-
+const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
+  const isCollapsed = useLayout((state) => state.isCollapsed)
+  const setCollapsed = useLayout((state) => state.setCollapsed)
+  const { clearAllCache } = useCache()
   const router = useRouter()
 
   const { mounted } = useMounted()
@@ -238,9 +217,11 @@ const CollapsedSidebar = ({
     onCollapseChanges?.()
   }
 
-  const handleSignOut = () => {
-    signOut({ redirect: false })
-    router.replace('/')
+  const handleSignOut = async () => {
+    await signOut({ redirect: false })
+    window.history.replaceState({}, '', window.location.pathname)
+    clearAllCache()
+    router.push('/')
   }
 
   return (
@@ -267,14 +248,6 @@ const CollapsedSidebar = ({
             </div>
             {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
             {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="!rounded-lg text-brand-text-gray"
-              onClick={() => setOpen?.(true)}
-            >
-              <MagnifyingGlassIcon className="size-5" />
-            </Button>
           </div>
 
           <Separator orientation="horizontal" />
@@ -349,18 +322,15 @@ const Navigations = () => {
 }
 
 const Navigation = ({ navigation }: { navigation: TNavigation }) => {
-  const isCollapsed = useLayout(useShallow((state) => state.isCollapsed))
+  const isCollapsed = useLayout((state) => state.isCollapsed)
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
-  const toggleDynamicLayout = useLayout(
-    useShallow((state) => state.toggleDynamicLayout)
-  )
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
+
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const isDisplayed = dynamicLayouts.includes(navigation.href)
 
   const handleCheckedChange = () => {
-    // window.mapInstance.resize()
-
     const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
 
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
@@ -379,7 +349,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
         className={cn(
           'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
           isDisplayed
-            ? 'text-brand-text-dark dark:text-white'
+            ? 'text-brand-component-text-dark dark:text-white'
             : 'text-brand-text-gray dark:text-brand-dark-text-gray'
         )}
         htmlFor={navigation.href}
@@ -399,6 +369,16 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           checked={navigation.isAlwayEnabled}
           onCheckedChange={() => {
             if (!navigation.isAlwayEnabled) {
+              if (navigation.href === 'devices') {
+                window.dispatchEvent(
+                  new CustomEvent('deviceLayoutUpdated', {
+                    detail: {
+                      checked: !dynamicLayouts.includes('devices'),
+                    },
+                  })
+                )
+              }
+
               handleCheckedChange()
             }
           }}
@@ -411,11 +391,11 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 const CollapsedNavigation = () => {
   const t = useTranslations('common')
 
-  const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
+  const dynamicLayouts = useLayout((state) => state.dynamicLayouts)
   const toggleDynamicLayout = useLayout(
     useShallow((state) => state.toggleDynamicLayout)
   )
-  const setCookieDirty = useLayout(useShallow((state) => state.setCookieDirty))
+  const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const isAuth = useAuthenticated()
 

@@ -8,6 +8,7 @@ import {
   ValueWidgetIcon,
   TableWidgetIcon,
   MapWidgetIcon,
+  SwitchWidgetIcon,
 } from '@/components/icons'
 import { useDebounce } from '@/hooks'
 import { WidgetType } from '@/widget-models/widget'
@@ -17,6 +18,7 @@ import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import { useMounted } from '@/hooks'
+import SliderWidgetIcon from '@/components/icons/slider-widget'
 
 type Widget = {
   icon: React.ReactNode
@@ -30,6 +32,8 @@ const WIDGET_LIST: Widget[] = [
   { icon: <ValueWidgetIcon />, title: 'Value', value: WidgetType.Value },
   { icon: <TableWidgetIcon />, title: 'Table', value: WidgetType.Table },
   { icon: <MapWidgetIcon />, title: 'Map', value: WidgetType.Map },
+  { icon: <SwitchWidgetIcon />, title: 'Switch', value: WidgetType.Switch },
+  { icon: <SliderWidgetIcon />, title: 'Slider', value: WidgetType.Slider },
 ]
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
@@ -40,6 +44,8 @@ const screenXXSLayout: Layout[] = [
   { i: '3', x: 2, y: 1, w: 2, h: 1 },
   { i: '4', x: 3, y: 1, w: 2, h: 1 },
   { i: '5', x: 4, y: 2, w: 2, h: 1 },
+  { i: '6', x: 0, y: 3, w: 2, h: 1 },
+  { i: '7', x: 0, y: 4, w: 2, h: 1 },
 ]
 
 const screenXSLayout: Layout[] = [
@@ -48,6 +54,8 @@ const screenXSLayout: Layout[] = [
   { i: '3', x: 0, y: 1, w: 2, h: 1 },
   { i: '4', x: 3, y: 1, w: 2, h: 1 },
   { i: '5', x: 0, y: 2, w: 2, h: 1 },
+  { i: '6', x: 3, y: 2, w: 2, h: 1 },
+  { i: '7', x: 0, y: 3, w: 2, h: 1 },
 ]
 
 const screenSMLayout: Layout[] = [
@@ -56,6 +64,8 @@ const screenSMLayout: Layout[] = [
   { i: '3', x: 6, y: 0, w: 2, h: 1 },
   { i: '4', x: 0, y: 1, w: 2, h: 1 },
   { i: '5', x: 3, y: 1, w: 2, h: 1 },
+  { i: '6', x: 6, y: 1, w: 2, h: 1 },
+  { i: '7', x: 0, y: 2, w: 2, h: 1 },
 ]
 
 const screenMDLayout: Layout[] = [
@@ -64,6 +74,8 @@ const screenMDLayout: Layout[] = [
   { i: '3', x: 5, y: 0, w: 2, h: 1 },
   { i: '4', x: 7, y: 0, w: 2, h: 1 },
   { i: '5', x: 0, y: 1, w: 2, h: 1 },
+  { i: '6', x: 3, y: 1, w: 2, h: 1 },
+  { i: '7', x: 6, y: 1, w: 2, h: 1 },
 ]
 
 const screenLayout: Layouts = {
@@ -86,7 +98,7 @@ const WidgetSelection = ({
   const [layouts, setLayouts] = useState<Layouts>(screenLayout)
 
   const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
-    setLayouts({ ...layouts })
+    setLayouts(layouts)
   }
 
   const filteredWidgets: Widget[] = useMemo(() => {
@@ -107,7 +119,7 @@ const WidgetSelection = ({
           placeholder={t('dashboard.search_for_widget')}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <div className="w-full flex-1 overflow-y-scroll scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
+        <div className="w-full flex-1 overflow-y-scroll mb-6 scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]">
           <ResponsiveReactGridLayout
             layouts={layouts}
             breakpoints={{ lg: 1200, md: 728, sm: 412, xs: 360, xxs: 0 }}
@@ -119,7 +131,7 @@ const WidgetSelection = ({
             useCSSTransforms={mounted}
             compactType="horizontal"
             preventCollision={false}
-            className="w-full mb-6"
+            className="w-full"
             isDraggable={false}
             isResizable={false}
           >

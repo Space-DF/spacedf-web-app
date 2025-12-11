@@ -4,6 +4,7 @@ import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
 export function formatDuration(ms: number) {
+  if (ms === 0) return '0 min'
   const dur = dayjs.duration(ms)
   const parts = []
 

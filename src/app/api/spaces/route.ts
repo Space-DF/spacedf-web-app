@@ -34,30 +34,87 @@ const POST = withAuthApiRequired(async (req) => {
     if (isDemo) {
       return NextResponse.json({})
     }
-    const body = await req.json()
+    const formData = await req.formData()
+    let logo: string | undefined = undefined
+    const file = formData.get('logo') as File
+    if (!file || typeof file === 'string') {
+      return NextResponse.json(
+        {
+          message: 'Logo is required',
+        },
+        {
+          status: 400,
+        }
+      )
+    }
     const spacedfClient = await spaceClient()
-    const createSpaceResponse = await spacedfClient.spaces.create(body)
-
-    return NextResponse.json({
-      data: createSpaceResponse,
-      status: 200,
+    const data = await spacedfClient.presignedUrl.get()
+    const presignedUrl = data.presigned_url
+    const fileBuffer = await file.arrayBuffer()
+    const responseImage = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: fileBuffer,
     })
+    if (!responseImage.ok) {
+      return NextResponse.json({
+        message: 'Presigned url is not valid',
+        status: 400,
+      })
+    }
+    logo = data.file_name
+    const name = formData.get('name') as string
+    const slug_name = formData.get('slug_name') as string
+    const createSpaceResponse = await spacedfClient.spaces.create({
+      logo: logo as string,
+      name,
+      slug_name,
+    })
+
+    return NextResponse.json(createSpaceResponse)
   } catch (errors) {
     return handleError(errors)
   }
 })
 
 const PATCH = withAuthApiRequired(async (req) => {
-  const body = await req.json()
+  const formData = await req.formData()
+  const logo = formData.get('logo') as File
+  const name = formData.get('name')
+  const description = formData.get('description')
+
+  let logoUrl = undefined
+
   const spacedfClient = await spaceClient()
+  if (logo && typeof logo !== 'string') {
+    const data = await spacedfClient.presignedUrl.get()
+    const presignedUrl = data.presigned_url
+    const fileBuffer = await logo.arrayBuffer()
+    const responseImage = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: fileBuffer,
+    })
+    if (!responseImage.ok) {
+      return NextResponse.json({
+        message: 'Presigned url is not valid',
+        status: 400,
+      })
+    }
+
+    logoUrl = data.file_name
+  }
 
   const { searchParams } = new URL(req.url)
 
-  const space_slug = searchParams.get('slug_name')
-
+  const space_slug = searchParams.get('slug_name') as string
   try {
-    const updatedSpaceResponse = await spacedfClient.spaces.update({
-      ...body,
+    const space = {
+      name: name as string,
+      description: description as string,
+      logo: logoUrl as string,
+    }
+
+    const updatedSpaceResponse = await spacedfClient.spaces.partialUpdate({
+      ...space,
       'X-Space': space_slug,
     })
 

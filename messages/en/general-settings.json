@@ -10,7 +10,6 @@
   "cancel": "Cancel",
   "save_changes": "Save Changes",
   "authenticator_app": "Authenticator App",
-  "once_you_login_spacedf_we_will_send_you_a_notification_in_email": "Once you login SpaceDF, we will send you a notification in email.",
   "current_password": "Current password",
   "new_password": "New password",
   "confirm_new_password": "Confirm new password",
@@ -31,5 +30,8 @@
   "set_time_zone": "Set time zone automatically",
   "delete_account_success": "Delete account success",
   "delete_account_error": "Delete account error",
-  "email_not_match": "Email not match"
+  "email_not_match": "Email not match",
+  "update_password_success": "Update password success",
+  "update_password_error": "Update password error",
+  "update_user_profile_error": "Update user profile error"
 }

@@ -8,7 +8,7 @@ export enum MapType {
 export const mapSchema = z.object({
   sources: z.array(
     z.object({
-      device_id: z.string().min(1, { message: 'Please select device' }),
+      entity_id: z.string().min(1, { message: 'Please select entity' }),
       device_name: z.string().optional(),
       coordinate: z.array(number()),
       map_type: z.enum([MapType.RoadMap, MapType.SatelLite]),
@@ -30,9 +30,9 @@ export type mapSource = z.infer<typeof mapSchema>['sources'][number]
 
 export const defaultSourceMapValues: mapPayload['sources'] = [
   {
-    device_id: '',
-    coordinate: [0, 0],
-    map_type: MapType.SatelLite,
+    entity_id: '',
+    coordinate: [16.05204105833857, 108.2168072245793],
+    map_type: MapType.RoadMap,
   },
 ]
 

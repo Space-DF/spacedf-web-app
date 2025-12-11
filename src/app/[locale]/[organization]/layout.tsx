@@ -1,9 +1,11 @@
 import { OrgNotExist } from '@/components/layouts/org-not-exist'
 import { getValidSubdomain } from '@/utils/subdomain'
+import {
+  checkSlugName,
+  validateOrganizationFallback,
+} from '@/lib/organizations'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-
-const AVAILABLE_ORGS = ['demo', 'develop', 'digitalfortress', 'danang']
 
 export default async function Layout({
   children,
@@ -21,8 +23,16 @@ export default async function Layout({
     redirect('/')
   }
 
-  if (!AVAILABLE_ORGS.includes(org)) {
-    return <OrgNotExist />
+  // Try to validate organization using SpaceDF SDK
+  const isValidOrganization = await checkSlugName(org)
+
+  if (!isValidOrganization) {
+    // Fallback to hardcoded validation for backwards compatibility
+    const isValidFallback = await validateOrganizationFallback(org)
+
+    if (!isValidFallback) {
+      return <OrgNotExist />
+    }
   }
 
   return <section>{children}</section>

@@ -27,7 +27,7 @@ export const RightSideBarLayout = ({
       <div className="flex w-full">
         <div className="flex flex-1 items-center gap-2 pl-4 pr-2 pt-4">
           <div className="flex flex-1 flex-wrap items-center justify-between gap-2 duration-300">
-            <div className="text-base font-semibold text-brand-text-dark dark:text-white">
+            <div className="text-base font-semibold text-brand-component-text-dark dark:text-white">
               {title}
             </div>
             {headerButton}

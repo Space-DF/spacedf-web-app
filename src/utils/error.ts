@@ -4,7 +4,13 @@ import { NextResponse } from 'next/server'
 export const handleError = (err: any) => {
   const { error, status } = (err as ApiResponse) || {}
   return NextResponse.json(
-    { message: error?.detail || 'Something went wrong' },
+    {
+      message:
+        error?.detail ||
+        error?.result ||
+        error?.error ||
+        'Something went wrong',
+    },
     { status: status || 500 }
   )
 }

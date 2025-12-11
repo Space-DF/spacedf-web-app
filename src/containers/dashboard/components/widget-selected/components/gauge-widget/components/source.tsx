@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useMemo, useState } from 'react'
 import {
   FormControl,
   FormField,
@@ -9,16 +9,21 @@ import {
 } from '@/components/ui/form'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { GaugePayload, gaugeValue } from '@/validator'
+import { Select } from '@/components/ui/select'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { ChevronDown, PlusIcon } from 'lucide-react'
-import { mockDeviceData } from '../../chart-widget/components/single-source'
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Check, ChevronDown, PlusIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -31,17 +36,8 @@ import { GaugeType } from '@/widget-models/gauge'
 import ColorSelect from '../../color-select'
 import { Button } from '@/components/ui/button'
 import XCircle from '@/components/icons/x-circle'
-
-const mockFieldData = [
-  {
-    id: '1',
-    name: 'water_level',
-  },
-  {
-    id: '2',
-    name: 'temperature',
-  },
-]
+import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
+import { cn } from '@/lib/utils'
 
 const Source = () => {
   const t = useTranslations('dashboard')
@@ -56,10 +52,16 @@ const Source = () => {
     name: 'source.values',
   })
 
+  const entityId = form.watch('source.entity_id')
+
+  const [openCombobox, setOpenCombobox] = useState(false)
+
   const [min, max] = useWatch({
     control,
     name: ['source.min', 'source.max'],
   })
+
+  const { data: entities } = useDeviceEntity('gauge')
 
   const handleAddValue = () => {
     append(gaugeValue)
@@ -73,15 +75,29 @@ const Source = () => {
     e: ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    const value = Number(e.target.value)
-    if (value > max || value < min) return
-    setValue(`source.values.${index}.value`, +value)
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (inputValue === '') {
+      setValue(`source.values.${index}.value`, 0)
+      return
+    }
+    if (isNaN(numericValue)) return
+    if (numericValue > max) return setValue(`source.values.${index}.value`, max)
+    if (numericValue < min) return setValue(`source.values.${index}.value`, min)
+    setValue(`source.values.${index}.value`, numericValue)
   }
 
   const handleDecimalChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value)
-    if (value > 10 || value < 0) return
-    setValue('source.decimal', value)
+    const inputValue = e.target.value
+    const numericValue = Number(inputValue)
+    if (inputValue === '') {
+      setValue('source.decimal', 0)
+      return
+    }
+    if (isNaN(numericValue)) return
+    if (numericValue > 10) return setValue('source.decimal', 10)
+    if (numericValue < 0) return setValue('source.decimal', 0)
+    setValue('source.decimal', numericValue)
   }
 
   const handleUnitChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -90,90 +106,79 @@ const Source = () => {
     setValue('source.unit', value)
   }
 
+  const entityList = entities?.results || []
+
+  const currentEntity = useMemo(() => {
+    return entities?.results.find((entity) => entity.id === entityId)
+  }, [entities, entityId])
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2 gap-y-4">
         <FormField
           control={control}
-          name="source.device_id"
+          name="source.entity_id"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-2">
               <FormLabel
                 className="text-xs font-semibold text-brand-component-text-dark"
                 required
               >
-                {t('device')}
+                {t('device_entity')}
               </FormLabel>
               <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                  >
-                    <SelectValue
-                      placeholder={
-                        <span className="text-brand-component-text-gray">
-                          {t('select_device')}
-                        </span>
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                    <SelectGroup>
-                      {mockDeviceData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {device.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="source.field"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                className="text-xs font-semibold text-brand-component-text-dark"
-                required
-              >
-                {t('field')}
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
-                  >
-                    <SelectValue
-                      placeholder={
-                        <span className="text-brand-component-text-gray">
-                          {t('select_field')}
-                        </span>
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                    <SelectGroup>
-                      {mockFieldData.map((device) => (
-                        <SelectItem value={device.id} key={device.id}>
-                          {t(device.name as any)}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCombobox}
+                      className=" w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading font-normal text-sm"
+                    >
+                      <p className="truncate w-5/6 text-start">
+                        {currentEntity
+                          ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                          : t('select_entity')}
+                      </p>
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                    <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                      <CommandInput
+                        placeholder={t('search_entity')}
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
+                        <CommandGroup>
+                          {entityList.length > 0 &&
+                            entityList.map((entity) => (
+                              <CommandItem
+                                key={entity.id}
+                                value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                onSelect={() => {
+                                  field.onChange(entity.id)
+                                  setOpenCombobox(false)
+                                }}
+                                className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                              >
+                                {`${entity.unique_key}.${entity.entity_type.unique_key}`}
+                                <Check
+                                  className={cn(
+                                    'ml-auto size-4',
+                                    field.value === entity.id
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -229,9 +234,6 @@ const Source = () => {
               </FormLabel>
               <FormControl>
                 <Input
-                  min={0}
-                  max={10}
-                  type="number"
                   {...field}
                   onChange={handleDecimalChange}
                   isError={!!fieldState.error}
@@ -329,9 +331,6 @@ const Source = () => {
                       <FormControl>
                         <Input
                           {...field}
-                          type="number"
-                          min={min}
-                          max={max}
                           onChange={(e) => handleValueChange(e, index)}
                           isError={!!fieldState.error}
                         />

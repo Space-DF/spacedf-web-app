@@ -24,6 +24,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
 import { useAuthForm } from './stores/useAuthForm'
+import { useCache } from '@/hooks/useCache'
 
 const singInSchema = z.object({
   email: z
@@ -37,12 +38,8 @@ const singInSchema = z.object({
 })
 
 const SignInForm = () => {
-  const { initialData, setFormType } = useAuthForm(
-    useShallow((state) => ({
-      initialData: state.initialData,
-      setFormType: state.setFormType,
-    }))
-  )
+  const initialData = useAuthForm(useShallow((state) => state.initialData))
+  const setFormType = useAuthForm((state) => state.setFormType)
   const t = useTranslations('signUp')
   const form = useForm<z.infer<typeof singInSchema>>({
     resolver: zodResolver(singInSchema),
@@ -51,12 +48,9 @@ const SignInForm = () => {
 
   const [isAuthenticating, startAuthentication] = useTransition()
 
-  const { setOpenDrawer } = useIdentityStore(
-    useShallow((state) => ({
-      openDrawer: state.openDrawerIdentity,
-      setOpenDrawer: state.setOpenDrawerIdentity,
-    }))
-  )
+  const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
+
+  const { clearAllCache } = useCache()
 
   const onSubmit = (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
@@ -66,6 +60,7 @@ const SignInForm = () => {
           toast.error(t('sign_in_failed_please_try_again'))
         } else {
           setOpenDrawer(false)
+          clearAllCache()
         }
       } catch (error) {
         console.error({ error })

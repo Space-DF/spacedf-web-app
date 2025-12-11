@@ -14,7 +14,6 @@ const AuthenticateWithApple = () => {
       <Button
         className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
         onClick={() => {
-          console.log('clicked')
           toast.success('Scheduled: Catch up')
         }}
       >

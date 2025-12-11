@@ -10,12 +10,12 @@ import { memo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { useShallow } from 'zustand/react/shallow'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
 import { useGetSpaces } from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useRefreshToken } from '../space-settings/hooks/useRefreshToken'
+import { useCreateSpace } from './hooks/useCreateSpace'
 
 const formSchema = z.object({
   space_name: z
@@ -25,7 +25,7 @@ const formSchema = z.object({
     .max(50, {
       message: 'This field must be less than or equal to 50 characters',
     }),
-  logo: z.string().optional(),
+  logo: z.instanceof(File).optional(),
 })
 
 export type SpaceFormValues = z.infer<typeof formSchema>
@@ -35,59 +35,47 @@ const OrganizationSetting = () => {
     resolver: zodResolver(formSchema),
   })
   const router = useRouter()
-  const { setLoadingText } = useGlobalStore(useShallow((state) => state))
+  const setLoadingText = useGlobalStore((state) => state.setLoadingText)
   const t = useTranslations('space')
-  const [isCreating, setIsCreating] = useState(false)
   const { mutate: getSpaces } = useGetSpaces()
-
+  const { trigger: createSpace, isMutating: isCreating } = useCreateSpace()
+  const [isLoading, setIsLoading] = useState(false)
   const isDemo = useIsDemo()
   const { trigger: refreshToken } = useRefreshToken()
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const fetchPromise = await fetch('/api/spaces', {
-        method: 'POST',
-        body: JSON.stringify({
-          // TODO: handle upload logo
-          logo:
-            values.logo ||
-            'https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg',
-          name: values.space_name,
-          slug_name: toSlug(values.space_name),
-          is_active: true,
-        }),
-      })
-        .then(async (response) => {
-          const result = await response.json()
-          if (!response.ok) {
-            const [errorData] = result.slug_name
-
-            throw new Error(errorData || 'Something went wrong')
+    setIsLoading(true)
+    await createSpace(
+      {
+        logo: values.logo,
+        name: values.space_name,
+        slug_name: toSlug(values.space_name),
+        is_active: true,
+      },
+      {
+        onSuccess: async (data) => {
+          setLoadingText({
+            duration: 3000,
+            loadingTitle: t('congratulations'),
+            loadingDescription: t(
+              'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings'
+            ),
+          })
+          if (isDemo) {
+            return router.push(`/`)
           }
-          return result
-        })
-        .finally(async () => {
-          await refreshToken()
-          setIsCreating(false)
-        })
-      setLoadingText({
-        duration: 3000,
-        loadingTitle: t('congratulations'),
-        loadingDescription: t(
-          'youve_created_your_new_space_you_can_add_your_member_in_the_space_settings'
-        ),
-      })
-      if (isDemo) {
-        return router.push(`/`)
+          if (data) {
+            await refreshToken()
+            await getSpaces()
+            router.push(`/spaces/${data.slug_name}`)
+          }
+        },
+        onError: (error) => {
+          toast.error(error.message)
+          setIsLoading(false)
+        },
       }
-      if (fetchPromise.data) {
-        await getSpaces()
-        router.push(`/spaces/${fetchPromise.data.slug_name}`)
-      }
-    } catch (err) {
-      const { message } = err as Error
-      toast.error(message)
-    }
+    )
   }
 
   return (
@@ -95,14 +83,13 @@ const OrganizationSetting = () => {
       <Form {...form}>
         <form className="flex w-full" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="w-1/2">
-            <CreateSpace isCreating={isCreating} />
+            <CreateSpace isCreating={isCreating || isLoading} />
           </div>
           <div className="w-1/2">
             <PreviewSpaceName />
           </div>
         </form>
       </Form>
-      {/*{isCreating && <CreateLoading />}*/}
     </div>
   )
 }

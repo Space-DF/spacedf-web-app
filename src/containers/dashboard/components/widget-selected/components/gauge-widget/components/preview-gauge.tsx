@@ -300,12 +300,13 @@ const PreviewGauge: React.FC<Props> = ({
   values,
   showValue,
 }) => {
+  const valueData = 65
   const ranges = formatRangesValue(min, values)
   return type === GaugeType.Linear ? (
     <LinearChart
       ranges={ranges}
       height={20}
-      value={65}
+      value={valueData}
       min={min}
       max={max}
       unit={unit}
@@ -315,7 +316,7 @@ const PreviewGauge: React.FC<Props> = ({
     />
   ) : (
     <CircularChart
-      value={65}
+      value={valueData}
       unit={unit}
       decimal={decimal}
       min={min}

@@ -12,6 +12,7 @@ declare module '@auth/core/types' {
   interface User {
     access: string
     refresh: string
+    error?: string
   }
 
   interface Account {
@@ -24,5 +25,7 @@ declare module '@auth/core/jwt' {
   interface JWT {
     access: string
     refresh: string
+    accessTokenExpires?: number
+    error?: string
   }
 }
