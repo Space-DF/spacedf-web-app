@@ -1,9 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -13,7 +8,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { dashboardSchema } from './schema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,26 +16,25 @@ import { z } from 'zod'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useIsDemo } from '@/hooks/useIsDemo'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useIdentityStore } from '@/stores/identity-store'
 import { useCreateDashboard } from '@/containers/dashboard/hooks/useCreateDashboard'
 import { Dashboard } from '@/types/dashboard'
 import { useUpdateDashboard } from './hooks/useUpdateDashboard'
 
 interface DashboardDialogProps {
-  children: React.ReactNode
   setDashboardId?: (id: string) => void
   closePopover?: () => void
   dashboard?: Dashboard
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
 }
 
 export const DashboardDialog = ({
-  children,
   setDashboardId,
   closePopover,
   dashboard,
+  isOpen,
+  setIsOpen,
 }: DashboardDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false)
   const t = useTranslations('dashboard')
   const form = useForm<z.infer<typeof dashboardSchema>>({
     resolver: zodResolver(dashboardSchema),
@@ -56,29 +50,26 @@ export const DashboardDialog = ({
   }, [dashboard])
 
   const isDemo = useIsDemo()
-  const isAuthenticated = useAuthenticated()
-  const setOpenDrawerIdentity = useIdentityStore(
-    (state) => state.setOpenDrawerIdentity
-  )
   const { trigger: createDashboard, isMutating: isCreatingDashboard } =
     useCreateDashboard()
 
   const { trigger: updateDashboard, isMutating: isUpdatingDashboard } =
     useUpdateDashboard()
 
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open)
+  const handleClose = async () => {
+    await closePopover?.()
+    form.reset()
   }
 
-  const handleClose = () => {
-    setIsOpen(false)
-    closePopover?.()
-    form.reset()
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      handleClose()
+    }
   }
 
   const onSubmit = async (data: z.infer<typeof dashboardSchema>) => {
     if (isDemo) return handleClose()
-    if (!isAuthenticated) return setOpenDrawerIdentity(true)
     if (dashboard) {
       await updateDashboard({ name: data.name, id: dashboard.id })
       handleClose()
@@ -91,7 +82,6 @@ export const DashboardDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="text-sm text-brand-component-text-dark p-6">
         <DialogTitle>
           {dashboard ? t('update_dashboard') : t('create_dashboard')}
