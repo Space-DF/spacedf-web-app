@@ -127,6 +127,7 @@ export const transformDeviceData = (
       status: device.device.status as 'active' | 'inactive',
       id: device.id,
       deviceId: device.device.id,
+      description: device.description || '',
       latestLocation: checkpoint,
       lorawan_device: device.device.lorawan_device,
       deviceInformation: device.device,
@@ -144,7 +145,6 @@ export const transformDeviceData = (
         (DEVICE_LAYER_PROPERTIES[deviceType] as LayerProperties) ||
         ({} as LayerProperties),
       origin: 'Vietnam',
-      description: device.description,
     }
   })
 }

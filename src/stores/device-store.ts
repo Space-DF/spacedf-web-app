@@ -14,6 +14,7 @@ import { immer } from 'zustand/middleware/immer'
 export type Device<T = {}> = {
   lorawan_device?: LorawanDevice
   name: string
+  description?: string
   id: string
   status: 'active' | 'inactive'
   type: SupportedModels

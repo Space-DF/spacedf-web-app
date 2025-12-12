@@ -110,7 +110,7 @@ const DeviceSelected = () => {
           <InformationItem
             label={`${t('deveui')}:`}
             content={
-              deviceDataSelected?.lorawan_device?.dev_eui.toUpperCase() || ''
+              deviceDataSelected?.lorawan_device?.dev_eui?.toUpperCase() || ''
             }
           />
           <InformationItem

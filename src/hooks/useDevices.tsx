@@ -1,6 +1,5 @@
 import api from '@/lib/api'
 import { DeviceDataOriginal } from '@/types/device'
-import { DeviceSpace } from '@/types/device-space'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
 
@@ -17,7 +16,7 @@ const PAGE_SIZE = 10
 
 const getKey = (
   pageIndex: number,
-  previousPageData: DeviceSpace[],
+  previousPageData: DeviceDataOriginal[],
   spaceSlug: string
 ) => {
   // Stop fetching if there is no more data
