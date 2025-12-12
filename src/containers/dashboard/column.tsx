@@ -5,15 +5,15 @@ import { useTranslations } from 'next-intl'
 import { Dashboard } from '@/types/dashboard'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash } from 'lucide-react'
-import { DashboardDialog } from './components/widget-list/components/dashboard-dialog'
 
 interface ColumnProps {
   handleDeleteSpace: (id: string) => void
   t: ReturnType<typeof useTranslations>
+  handleSelectDashboard: (dashboard: Dashboard) => void
 }
 
 export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
-  const { handleDeleteSpace, t } = props
+  const { handleDeleteSpace, t, handleSelectDashboard } = props
 
   return [
     {
@@ -30,15 +30,14 @@ export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
       ),
       cell: ({ row: { original } }) => (
         <div className="flex justify-center gap-1">
-          <DashboardDialog dashboard={original}>
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-8 border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
-            >
-              <Pencil size={16} />
-            </Button>
-          </DashboardDialog>
+          <Button
+            size="icon"
+            variant="outline"
+            className="size-8 border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
+            onClick={() => handleSelectDashboard(original)}
+          >
+            <Pencil size={16} />
+          </Button>
 
           <Button
             size="icon"

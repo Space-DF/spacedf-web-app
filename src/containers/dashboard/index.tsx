@@ -55,6 +55,7 @@ const Dashboard = () => {
           onCloseSideBar={onCloseSideBar}
           setIsAddWidgetOpen={setIsAddWidgetOpen}
           widgetLayouts={widgetLayout || []}
+          mutateWidgets={mutateWidgets}
         />
       ) : selectedWidget ? (
         <WidgetSelected
