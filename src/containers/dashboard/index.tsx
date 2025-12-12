@@ -67,7 +67,7 @@ const Dashboard = () => {
       ) : (
         <RightSideBarLayout
           onClose={onCloseSideBar}
-          contentClassName="overflow-hidden"
+          contentClassName="overflow-hidden px-2"
           title={
             <div className="flex size-full items-center gap-2">
               <ArrowLeft
@@ -84,7 +84,7 @@ const Dashboard = () => {
             </div>
           }
         >
-          <div className="mt-6 size-full px-4">
+          <div className="mt-6 size-full">
             <WidgetSelection onSelectWidget={onSelectWidget} />
           </div>
         </RightSideBarLayout>
