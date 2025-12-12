@@ -63,5 +63,8 @@
   "go_to_space_df": "Vào SpaceDF",
   "create_new_organization": "Tạo tổ chức mới",
   "powered_by": "Phát triển bởi",
-  "session_expired": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại"
+  "session_expired": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  "alerts": "Cảnh báo",
+  "all_alerts": "Tất cả cảnh báo",
+  "less_alerts": "Ít cảnh báo hơn"
 }
