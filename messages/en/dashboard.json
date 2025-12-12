@@ -142,5 +142,6 @@
   "select_entity": "Select Entity",
   "entity": "Entity",
   "search_entity": "Search entity...",
-  "bar_chart_double": "Bar Double"
+  "bar_chart_double": "Bar Double",
+  "add_histogram_widget": "Add Histogram Widget"
 }

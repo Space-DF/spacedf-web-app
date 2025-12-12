@@ -9,6 +9,7 @@ import {
   TableWidgetIcon,
   MapWidgetIcon,
   SwitchWidgetIcon,
+  HistogramIcon,
 } from '@/components/icons'
 import { useDebounce } from '@/hooks'
 import { WidgetType } from '@/widget-models/widget'
@@ -34,6 +35,7 @@ const WIDGET_LIST: Widget[] = [
   { icon: <MapWidgetIcon />, title: 'Map', value: WidgetType.Map },
   { icon: <SwitchWidgetIcon />, title: 'Switch', value: WidgetType.Switch },
   { icon: <SliderWidgetIcon />, title: 'Slider', value: WidgetType.Slider },
+  { icon: <HistogramIcon />, title: 'Histogram', value: WidgetType.Histogram },
 ]
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
@@ -46,6 +48,7 @@ const screenXXSLayout: Layout[] = [
   { i: '5', x: 4, y: 2, w: 2, h: 1 },
   { i: '6', x: 0, y: 3, w: 2, h: 1 },
   { i: '7', x: 0, y: 4, w: 2, h: 1 },
+  { i: '8', x: 0, y: 5, w: 2, h: 1 },
 ]
 
 const screenXSLayout: Layout[] = [
@@ -56,6 +59,7 @@ const screenXSLayout: Layout[] = [
   { i: '5', x: 0, y: 2, w: 2, h: 1 },
   { i: '6', x: 3, y: 2, w: 2, h: 1 },
   { i: '7', x: 0, y: 3, w: 2, h: 1 },
+  { i: '8', x: 3, y: 3, w: 2, h: 1 },
 ]
 
 const screenSMLayout: Layout[] = [
@@ -66,6 +70,7 @@ const screenSMLayout: Layout[] = [
   { i: '5', x: 3, y: 1, w: 2, h: 1 },
   { i: '6', x: 6, y: 1, w: 2, h: 1 },
   { i: '7', x: 0, y: 2, w: 2, h: 1 },
+  { i: '8', x: 3, y: 2, w: 2, h: 1 },
 ]
 
 const screenMDLayout: Layout[] = [
@@ -76,6 +81,7 @@ const screenMDLayout: Layout[] = [
   { i: '5', x: 0, y: 1, w: 2, h: 1 },
   { i: '6', x: 3, y: 1, w: 2, h: 1 },
   { i: '7', x: 6, y: 1, w: 2, h: 1 },
+  { i: '8', x: 3, y: 1, w: 2, h: 1 },
 ]
 
 const screenLayout: Layouts = {
