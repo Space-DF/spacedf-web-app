@@ -8,7 +8,11 @@ import TabWidget, { TabKey } from '../tab-widget'
 
 import { TabsContent } from '@/components/ui/tabs'
 import { TimeFormat } from '@/constants'
-import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
+import {
+  ChartPayload,
+  defaultHistogramValues,
+  histogramSchema,
+} from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
@@ -65,8 +69,8 @@ const HistogramWidget: React.FC<Props> = ({
 }) => {
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
-    resolver: zodResolver(chartSchema),
-    defaultValues: defaultChartValues,
+    resolver: zodResolver(histogramSchema),
+    defaultValues: defaultHistogramValues,
     mode: 'onChange',
   })
 
