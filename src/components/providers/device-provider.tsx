@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { useParams } from 'next/navigation'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { DEVICE_MODEL } from '@/constants/device-property'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -168,6 +169,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     try {
       const devices: Device[] = transformDeviceData(deviceSpaces || [])
 
+      console.log({ deviceSpaces, devices })
+
       setDevices(devices)
     } catch {}
   }
@@ -204,11 +207,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           Promise.all(buffers.map((buffer) => load(buffer, GLTFLoader)))
         )
 
-      setDeviceModel('rak', rakModel)
-      setDeviceModel('tracki', trackiModel)
+      setDeviceModel(DEVICE_MODEL.RAK, rakModel)
+      setDeviceModel(DEVICE_MODEL.TRACKI, trackiModel)
 
-      setModelPreview('rak', PREVIEW_PATH.rak)
-      setModelPreview('tracki', PREVIEW_PATH.tracki)
+      setModelPreview(DEVICE_MODEL.RAK, PREVIEW_PATH.rak)
+      setModelPreview(DEVICE_MODEL.TRACKI, PREVIEW_PATH.tracki)
 
       setFetchStatus((prev) => ({
         ...prev,

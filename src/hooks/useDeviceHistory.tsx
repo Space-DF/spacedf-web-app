@@ -7,15 +7,15 @@ import { useGlobalStore } from '@/stores'
 import { usePrevious } from './usePrevious'
 import { Checkpoint } from '@/types/trip'
 import { LngLatBoundsLike, Popup } from 'mapbox-gl'
-import { MarkerInstance } from '@/utils/fleet-tracking-map/marker-instance'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { DeckGLInstance } from '@/utils/fleet-tracking-map/deckgl-instance'
+import { MultiTrackerLayerInstance } from '@/utils/fleet-tracking-map/layer-instance/multi-tracker-instance'
 import { animate, linear } from 'popmotion'
+import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
 
 const markerInstance = MarkerInstance.getInstance()
 const fleetTrackingMap = FleetTrackingMap.getInstance()
-const deckglInstance = DeckGLInstance.getInstance()
+const multiTrackerLayerInstance = MultiTrackerLayerInstance.getInstance()
 export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
   const rotationRef = useRef<number>(0)
@@ -191,8 +191,8 @@ export const useDeviceHistory = () => {
     if (!map) return
 
     markerInstance.hideAllMarkers()
-    if (deckglInstance.checkLayerAvailable() && is3DModel) {
-      deckglInstance.syncLayers(devices, 'hidden')
+    if (multiTrackerLayerInstance.checkLayerAvailable() && is3DModel) {
+      multiTrackerLayerInstance.syncLayers(devices, 'hidden')
     }
 
     // Hide cluster layer if exists
@@ -414,8 +414,8 @@ export const useDeviceHistory = () => {
       markerInstance.displayAllMarkers()
     }
     // Show 3D models (DeckGL layers) based on model type
-    if (is3DModel && deckglInstance.checkLayerAvailable()) {
-      deckglInstance.syncLayers(devices, 'visible')
+    if (is3DModel && multiTrackerLayerInstance.checkLayerAvailable()) {
+      multiTrackerLayerInstance.syncLayers(devices, 'visible')
     }
 
     // Restore cluster visibility if it was enabled

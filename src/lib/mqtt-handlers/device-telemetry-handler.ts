@@ -70,10 +70,13 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
 
     // Handle location updates
     if (payload.location?.latitude && payload.location?.longitude) {
-      deviceUpdate.latestLocation = [
-        payload.location.longitude,
-        payload.location.latitude,
-      ]
+      deviceUpdate.deviceProperties = {
+        ...deviceUpdate.deviceProperties,
+        latest_checkpoint_arr: [
+          payload.location.longitude,
+          payload.location.latitude,
+        ],
+      }
     }
 
     return deviceUpdate

@@ -1,8 +1,6 @@
 import { LngLatLike } from 'mapbox-gl'
 import { DeviceAttributes } from '../device-model'
 
-type SupportedModels = 'tracki' | 'rak'
-
 type GpsTrackerAttributes = {
   location?: LngLatLike
   description?: string
@@ -20,6 +18,10 @@ type RakAttributes = {
 type TrackiAttributes = {
   battery?: number
 }
+
+type WaterLevelAttributes = {
+  waterLevel?: number
+}
 //#endregion define type for sepcific attributes
 
 export type {
@@ -27,5 +29,5 @@ export type {
   RakAttributes,
   SepcificModel,
   GpsTrackerAttributes,
-  SupportedModels,
+  WaterLevelAttributes,
 }

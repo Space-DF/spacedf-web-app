@@ -1,21 +1,22 @@
 'use client'
 
+import SpacedfLogo from '@/components/common/spacedf-logo'
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { useMapBuilding } from '@/hooks/templates/useMapBuilding'
 import { useZoomStrategies } from '@/hooks/templates/useZoomStrategies'
 import { useGlobalStore } from '@/stores'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
-import { getMapStyle, MapType } from '@/utils/map'
+import { getMapStyle, groupDeviceByFeature, MapType } from '@/utils/map'
 import { useTheme } from 'next-themes'
 import { useEffect, useMemo, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { DeviceLayers } from './device-layers'
+import { MultiTrackerLayer, WaterLevelLayer } from './device-layer'
 import { MapCluster } from './map-cluster'
 import { MapControl } from './map-control'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
-import SpacedfLogo from '@/components/common/spacedf-logo'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 export default function FleetTracking() {
@@ -201,6 +202,15 @@ export default function FleetTracking() {
     }
   }, [devices, isMapReady])
 
+  const groupedDevices = useMemo(() => {
+    return groupDeviceByFeature(Object.values(devices))
+  }, [devices])
+
+  const hasTrackerDevices =
+    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.MULTI_SENSOR_TRACKER]?.length
+  const hasWaterLevelDevices =
+    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.WATER_LEVEL_SENSOR]?.length
+
   return (
     <div
       className="size-full overflow-hidden relative bg-transparent z-[1]"
@@ -211,8 +221,9 @@ export default function FleetTracking() {
       <SelectMapType />
       <MapControl />
       <MapCluster />
-      <DeviceLayers />
-      {/* <TestDevice /> */}
+
+      {hasTrackerDevices && <MultiTrackerLayer />}
+      {hasWaterLevelDevices && <WaterLevelLayer />}
     </div>
   )
 }

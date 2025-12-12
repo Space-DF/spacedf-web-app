@@ -24,7 +24,7 @@ const TablePreview: React.FC<TablePreviewProps> = ({
   conditionals = [],
 }) => {
   const t = useTranslations('dashboard')
-  const isEmptyData = !source.length || !columns.some((col) => col.field)
+  const isEmptyData = !source?.length || !columns?.some((col) => col?.field)
 
   if (isEmptyData) {
     return (

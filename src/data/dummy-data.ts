@@ -1,339 +1,500 @@
-import { PaginationResponse } from './../types/global.d'
-import { Device as StoreDevice } from '@/stores/device-store'
-import { DeviceSpace } from '@/types/device-space'
-import { Device as ApiDevice } from '@/types/device'
-import { Trip } from '@/types/trip'
+import { DeviceDataOriginal } from '@/types/device'
 import { Entity } from '@/types/entity'
+import { Trip } from '@/types/trip'
+import { v4 as uuidv4 } from 'uuid'
+import { PaginationResponse } from './../types/global.d'
 
-export const devices: StoreDevice[] = [
+export const deviceSpaces: DeviceDataOriginal[] = [
   {
-    name: 'Rak 4630-RS3-C1F4',
     id: 'rak4630-rs3-C1F4',
-    status: 'active',
-    template: '123',
-    type: 'rak',
-    location: [108.22003, 16.05486],
-    layerProps: {
-      sizeScale: 200,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    name: 'Rak 4630-RS3-C1F4',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05486,
+        longitude: 108.22003,
       },
     },
-    histories: {
-      end: [108.22003, 16.05486],
-      start: [108.2265, 16.0578],
-    },
-    latestLocation: [108.22003, 16.05486],
-    realtimeTrip: [[108.22003, 16.05486]],
-    origin: 'Vietnam',
   },
-
   {
-    name: 'RAK Sticker_50E5',
-    id: 'RAK_Sticker_50E5',
-    status: 'active',
-    template: '456',
-    type: 'rak',
-    location: [108.222, 16.05487],
-    layerProps: {
-      sizeScale: 200,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    id: 'RAK Sticker_50E5',
+    name: 'RAK_Sticker_50E5',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05487,
+        longitude: 108.222,
       },
     },
-    histories: {
-      end: [108.222, 16.05487],
-      start: [108.2142447, 16.0604518],
-    },
-    latestLocation: [108.222, 16.05487],
-    realtimeTrip: [[108.222, 16.05487]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 01 -1511-M03',
     id: '3',
-    status: 'active',
-    battery: 90,
-    type: 'tracki',
-    location: [108.221, 16.05485],
-    layerProps: {
-      sizeScale: 700,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    name: 'DMZ 01 -1511-M03',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'TRACKI2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05485,
+        longitude: 108.221,
       },
     },
-    histories: {
-      end: [108.221, 16.05485],
-      start: [108.2247397, 16.0485692],
-    },
-    latestLocation: [108.221, 16.05485],
-    realtimeTrip: [[108.221, 16.05485]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 02 -1512-M01',
     id: '4',
-    status: 'inactive',
-    battery: 45,
-    type: 'tracki',
-    location: [108.215, 16.062],
-    layerProps: {
-      sizeScale: 500,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    name: 'DMZ 02 -1512-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'TRACKI2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.062,
+        longitude: 108.215,
       },
     },
-    histories: {
-      end: [108.215, 16.062],
-      start: [108.217, 16.064],
-    },
-    latestLocation: [108.215, 16.062],
-    realtimeTrip: [[108.215, 16.062]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 03 -1513-M01',
     id: '5',
-    status: 'active',
-    template: '789',
-    type: 'rak',
-    location: [108.228, 16.048],
-    layerProps: {
-      sizeScale: 300,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    name: 'DMZ 03 -1513-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.048,
+        longitude: 108.228,
       },
     },
-    histories: {
-      end: [108.228, 16.048],
-      start: [108.23, 16.05],
-    },
-    latestLocation: [108.228, 16.048],
-    realtimeTrip: [[108.228, 16.048]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 04 -1514-M01',
     id: '6',
-    status: 'active',
-    battery: 75,
-    type: 'tracki',
-    location: [108.235, 16.058],
-    layerProps: {
-      sizeScale: 600,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    name: 'DMZ 04 -1514-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.058,
+        longitude: 108.235,
       },
     },
-    histories: {
-      end: [108.235, 16.058],
-      start: [108.237, 16.06],
-    },
-    latestLocation: [108.235, 16.058],
-    realtimeTrip: [[108.235, 16.058]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 05 -1515-M01',
     id: '7',
-    status: 'inactive',
-    template: '101',
-    type: 'rak',
-    location: [108.212, 16.052],
-    layerProps: {
-      sizeScale: 400,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    name: 'DMZ 05 -1515-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.052,
+        longitude: 108.212,
       },
     },
-    histories: {
-      end: [108.212, 16.052],
-      start: [108.214, 16.054],
-    },
-    latestLocation: [108.212, 16.052],
-    realtimeTrip: [[108.212, 16.052]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 06 -1516-M01',
     id: '8',
-    status: 'active',
-    battery: 85,
-    type: 'tracki',
-    location: [108.242, 16.065],
-    layerProps: {
-      sizeScale: 550,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    name: 'DMZ 06 -1516-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'TRACKI2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.065,
+        longitude: 108.242,
       },
     },
-    histories: {
-      end: [108.242, 16.065],
-      start: [108.244, 16.067],
-    },
-    latestLocation: [108.242, 16.065],
-    realtimeTrip: [[108.242, 16.065]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 07 -1517-M01',
     id: '9',
-    status: 'active',
-    template: '202',
-    type: 'rak',
-    location: [108.205, 16.045],
-    layerProps: {
-      sizeScale: 350,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    name: 'DMZ 07 -1517-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.045,
+        longitude: 108.205,
       },
     },
-    histories: {
-      end: [108.205, 16.045],
-      start: [108.207, 16.047],
-    },
-    latestLocation: [108.205, 16.045],
-    realtimeTrip: [[108.205, 16.045]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 08 -1518-M01',
     id: '10',
-    status: 'inactive',
-    battery: 30,
-    type: 'tracki',
-    location: [108.238, 16.042],
-    layerProps: {
-      sizeScale: 650,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    name: 'DMZ 08 -1518-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'TRACKI2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.042,
+        longitude: 108.238,
       },
     },
-    histories: {
-      end: [108.238, 16.042],
-      start: [108.24, 16.044],
-    },
-    latestLocation: [108.238, 16.042],
-    realtimeTrip: [[108.238, 16.042]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 09 -1519-M01',
     id: '11',
-    status: 'active',
-    template: '303',
-    type: 'rak',
-    location: [108.208, 16.068],
-    layerProps: {
-      sizeScale: 450,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 90,
-        roll: 90,
+    name: 'DMZ 09 -1519-M01',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'RAKwireless',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'RAK2270',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'multi_sensor_tracker',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.068,
+        longitude: 108.208,
       },
     },
-    histories: {
-      end: [108.208, 16.068],
-      start: [108.21, 16.07],
-    },
-    latestLocation: [108.208, 16.068],
-    realtimeTrip: [[108.208, 16.068]],
-    origin: 'Vietnam',
   },
   {
-    name: 'DMZ 10 -1520-M01',
-    id: '12',
-    status: 'active',
-    battery: 95,
-    type: 'tracki',
-    location: [108.232, 16.072],
-    layerProps: {
-      sizeScale: 500,
-      rotation: 'yaw',
-      orientation: {
-        pitch: 0,
-        yaw: 360,
-        roll: 180,
+    id: 'wlb-v1-123',
+    name: 'Water Level Board V1',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'Water Level Board',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'WLBV1',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'water_level_sensor',
       },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
     },
-    histories: {
-      end: [108.232, 16.072],
-      start: [108.234, 16.074],
+
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05598,
+        longitude: 108.22038,
+      },
+      water_level: 200,
     },
-    latestLocation: [108.232, 16.072],
-    realtimeTrip: [[108.232, 16.072]],
-    origin: 'Vietnam',
+  },
+  {
+    id: 'wlb-v2-123',
+    name: 'Water Level Board V2',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'Water Level Board',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'WLBV1',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'water_level_sensor',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05698,
+        longitude: 108.22138,
+      },
+      water_level: 500,
+    },
+  },
+  {
+    id: 'wlb-v3-123',
+    name: 'Water Level Board V3',
+    description: '',
+    device: {
+      id: uuidv4(),
+      network_server: uuidv4(),
+      device_model: {
+        id: uuidv4(),
+        manufacture: 'Water Level Board',
+        created_at: '2025-12-12T04:31:51.019Z',
+        updated_at: '2025-12-12T04:31:51.019Z',
+        name: 'WLBV1',
+        image_url: '',
+        device_type: 'lorawan',
+        default_config: {},
+        key_feature: 'water_level_sensor',
+      },
+      status: 'active',
+      lorawan_device: {
+        join_eui: uuidv4(),
+        dev_eui: uuidv4(),
+        app_key: uuidv4(),
+        claim_code: uuidv4(),
+      },
+      is_published: false,
+    },
+
+    device_properties: {
+      latest_checkpoint: {
+        latitude: 16.05698,
+        longitude: 108.22238,
+      },
+      water_level: 120,
+    },
   },
 ]
 
-export const deviceSpaces: DeviceSpace[] = devices.map((d) => {
-  const apiDevice: ApiDevice = {
-    id: d.id,
-    device_id: d.deviceId,
-    device_name: d.name,
-    device_connector: 'connector1',
-    device_model: d.type ?? 'rak',
-    status: d.status,
-    lorawan_device: {
-      name: d.name,
-      dev_eui: d.id,
-      location: d.origin ?? 'Unknown',
-      tags: [],
-    },
-    type: d.type,
-  }
-
-  const latest_checkpoint = d.latestLocation
-    ? {
-        longitude: d.latestLocation[0],
-        latitude: d.latestLocation[1],
-        timestamp: new Date().toISOString(),
-        accuracy: 0,
-      }
-    : undefined
-
-  return {
-    id: d.id,
-    name: d.name,
-    description: d.name,
-    device: apiDevice,
-    latest_checkpoint,
-  }
-})
+const histories = {
+  end: [108.221, 16.05485],
+  start: [108.2247397, 16.0485692],
+}
 
 export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
-  const source = devices[index]
   const now = new Date().toISOString()
 
   const checkpointsFromHistories: {
@@ -343,19 +504,19 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     accuracy: number
   }[] = []
 
-  if (source?.histories?.start) {
+  if (histories.start) {
     checkpointsFromHistories.push({
-      longitude: source.histories.start[0],
-      latitude: source.histories.start[1],
+      longitude: histories.start[0],
+      latitude: histories.start[1],
       timestamp: now,
       accuracy: 0,
     })
   }
 
-  if (source?.histories?.start) {
+  if (histories.start) {
     checkpointsFromHistories.push({
-      longitude: source.histories.end[0],
-      latitude: source.histories.end[1],
+      longitude: histories.end[0],
+      latitude: histories.end[1],
       timestamp: now,
       accuracy: 0,
     })
@@ -368,7 +529,7 @@ export const dummyTrips: Trip[] = deviceSpaces.map((space, index) => {
     checkpoints: checkpointsFromHistories,
     space_device_id: space.id,
     device_id: space.device.id,
-    device_name: space.device.device_name,
+    device_name: space.name,
     is_finished: false,
     last_latitude: checkpointsFromHistories[0]?.latitude ?? 0,
     last_longitude: checkpointsFromHistories[0]?.longitude ?? 0,

@@ -7,4 +7,5 @@ export interface DeviceSpace {
   description: string
   device: Device
   latest_checkpoint?: Checkpoint
+  water_level?: number
 }

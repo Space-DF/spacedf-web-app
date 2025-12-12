@@ -1,6 +1,6 @@
 import mapboxgl from 'mapbox-gl'
 import { Device } from '@/stores/device-store'
-import EventEmitter from '../event'
+import EventEmitter from '../../event'
 
 type MarkerAnim = {
   marker: mapboxgl.Marker
@@ -121,7 +121,10 @@ class MarkerInstance {
     }
 
     Object.values(devices).forEach((device) => {
-      const [lng, lat] = device.latestLocation ?? [null, null]
+      const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr ?? [
+        null,
+        null,
+      ]
       if (lng == null || lat == null) return
 
       const existing = this.markers[device.id]
