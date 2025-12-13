@@ -281,7 +281,7 @@ class WaterLevelInstance {
         opacity: { duration: 200, easing: easeOut },
         ...(this.animateState === 'idle' && {
           getElevation: {
-            duration: 2000,
+            duration: 1000,
             easing: linear,
             enter: () => 0,
           },

@@ -31,7 +31,7 @@ export type Device<T = {}> = {
   latestLocation?: [number, number]
   realtimeTrip?: [number, number][]
   origin?: string
-  deviceId?: string
+  deviceId: string
 } & T
 
 type DeviceModelState = {
@@ -103,7 +103,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceProperties: (deviceId, data) => {
       return set((state) => {
-        state.devices[deviceId] = {
+        state.devicesFleetTracking[deviceId] = {
           ...state.devices[deviceId],
           deviceProperties: {
             ...state.devices[deviceId].deviceProperties,
@@ -159,8 +159,17 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
           } as LorawanDevice,
         }
 
+        const newDeviceProperties = {
+          ...previousState.deviceProperties,
+          ...data.deviceProperties,
+        } as Device['deviceProperties']
+
         const newState = { ...previousState, ...data }
-        state.devices[deviceId] = newState
+        state.devices[deviceId] = {
+          ...newState,
+          deviceProperties: newDeviceProperties,
+        }
+
         state.devicesFleetTracking = reduceDevices(
           (Object.values(state.devices) as Device[]).filter((device) =>
             device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
