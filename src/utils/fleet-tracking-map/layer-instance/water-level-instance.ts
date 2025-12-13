@@ -197,8 +197,8 @@ class WaterLevelInstance {
 
       return {
         location: device.deviceProperties?.latest_checkpoint_arr || [0, 0],
-        waterLevel: device.deviceProperties?.water_level
-          ? device.deviceProperties?.water_level
+        waterLevel: device.deviceProperties?.water_depth
+          ? device.deviceProperties?.water_depth
           : 0,
         color: isSelected
           ? [color[0], color[1], color[2], 50]
@@ -243,8 +243,8 @@ class WaterLevelInstance {
     if (!this.globalOverlay) return
 
     const dataLayers = devices.map((device) => {
-      const waterLevel = device.deviceProperties?.water_level
-        ? device.deviceProperties?.water_level
+      const waterLevel = device.deviceProperties?.water_depth
+        ? device.deviceProperties?.water_depth
         : 0
 
       return {
@@ -350,7 +350,7 @@ class WaterLevelInstance {
           deviceProperties: {
             ...device.deviceProperties,
             water_level_name: this._getWaterLevelName(
-              device.deviceProperties?.water_level || 0
+              device.deviceProperties?.water_depth || 0
             ),
           },
         } as Device,

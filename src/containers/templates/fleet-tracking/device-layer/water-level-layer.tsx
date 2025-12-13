@@ -32,6 +32,7 @@ export const WaterLevelLayer = () => {
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
+      setDevices: state.setDevices,
     }))
   )
 
@@ -99,6 +100,10 @@ export const WaterLevelLayer = () => {
     waterLevelInstance.handleWaterLevelSelected(deviceSelected)
   }, [deviceSelected])
 
+  // const handleUpdateWaterDepth = () => {
+  //   console.log('update water depth')
+  // }
+
   return (
     <>
       <div
@@ -113,17 +118,21 @@ export const WaterLevelLayer = () => {
         <div className="px-1 space-y-2">
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#01D195] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0-1 m</span>
+            <span>0-0.25 m</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#D49D4C] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>2-4 m</span>
+            <span>0.25-1 m</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#BB0003] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span> &gt;5m (danger)</span>
+            <span> &gt;1m (danger)</span>
           </div>
         </div>
+
+        {/* <Button className="mt-3" onClick={handleUpdateWaterDepth}>
+          Update
+        </Button> */}
       </div>
     </>
   )

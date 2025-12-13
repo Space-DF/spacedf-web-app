@@ -425,7 +425,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05598,
         longitude: 108.22038,
       },
-      water_level: 50,
+      water_depth: 50,
     },
   },
   {
@@ -462,7 +462,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05698,
         longitude: 108.22138,
       },
-      water_level: 150,
+      water_depth: 150,
     },
   },
   {
@@ -499,7 +499,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05698,
         longitude: 108.22238,
       },
-      water_level: 20,
+      water_depth: 20,
     },
   },
 ]

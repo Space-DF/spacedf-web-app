@@ -41,7 +41,7 @@ type DeviceData = {
 }
 
 type DeviceProperties = {
-  water_level?: number
+  water_depth?: number
   latest_checkpoint?: Checkpoint
 }
 

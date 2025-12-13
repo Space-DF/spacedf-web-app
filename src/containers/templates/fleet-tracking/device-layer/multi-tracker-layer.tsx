@@ -144,7 +144,6 @@ export const MultiTrackerLayer = () => {
     }
 
     if (!deviceSelected || !devicesFleetTracking?.[deviceSelected]) {
-      console.log('stop device rotation')
       multiTrackerLayerInstance.stopDeviceRotationAnimation()
       markerInstance.clearFocusMarker()
     }
@@ -152,7 +151,6 @@ export const MultiTrackerLayer = () => {
 
   useEffect(() => {
     if (!isAlreadyShowTripRoute && modelType !== prevModelType) {
-      console.log('run')
       setDeviceSelected('')
     }
   }, [modelType, prevIsClusterVisible, prevModelType, isAlreadyShowTripRoute])
