@@ -25,6 +25,7 @@ export type Device<T = {}> = {
   }
   deviceProperties?: DeviceDataOriginal['device_properties'] & {
     latest_checkpoint_arr: [number, number]
+    water_level_name?: 'safe' | 'warning' | 'danger'
   }
   deviceInformation?: DeviceDataOriginal['device']
   latestLocation?: [number, number]

@@ -109,10 +109,7 @@ export const MultiTrackerLayer = () => {
   useEffect(() => {
     if (deviceSelected === prevDeviceSelected) return
 
-    if (!deviceSelected) {
-      multiTrackerLayerInstance.stopDeviceRotationAnimation()
-      markerInstance.clearFocusMarker()
-    } else {
+    if (deviceSelected && !!devicesFleetTracking?.[deviceSelected]) {
       const map = fleetTrackingMap.getMap()
 
       if (map) {
@@ -142,23 +139,36 @@ export const MultiTrackerLayer = () => {
       } else {
         markerInstance.focusMarker(deviceSelected)
       }
+
+      return
+    }
+
+    if (!deviceSelected || !devicesFleetTracking?.[deviceSelected]) {
+      console.log('stop device rotation')
+      multiTrackerLayerInstance.stopDeviceRotationAnimation()
+      markerInstance.clearFocusMarker()
     }
   }, [deviceSelected, prevDeviceSelected, devicesFleetTracking, modelType])
 
   useEffect(() => {
-    if (
-      !isAlreadyShowTripRoute &&
-      (modelType !== prevModelType || isClusterVisible !== prevIsClusterVisible)
-    ) {
+    if (!isAlreadyShowTripRoute && modelType !== prevModelType) {
+      console.log('run')
       setDeviceSelected('')
     }
-  }, [
-    modelType,
-    isClusterVisible,
-    prevIsClusterVisible,
-    prevModelType,
-    isAlreadyShowTripRoute,
-  ])
+  }, [modelType, prevIsClusterVisible, prevModelType, isAlreadyShowTripRoute])
+
+  useEffect(() => {
+    const handleZoomEnd = () => {
+      if (isClusterVisible) {
+        setDeviceSelected('')
+      }
+    }
+
+    fleetTrackingMap.on('zoomend', handleZoomEnd)
+    return () => {
+      fleetTrackingMap.off('zoomend', handleZoomEnd)
+    }
+  }, [isClusterVisible])
 
   useEffect(() => {
     if (deviceSelected && !devices[deviceSelected]) {

@@ -8,6 +8,8 @@ import {
   LAYER_IDS,
   removeLayersFromGlobalOverlay,
 } from './global-overlay-instance'
+import EventEmitter from '@/utils/event'
+import { RainSpecification } from 'mapbox-gl'
 
 const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds
 
@@ -15,6 +17,7 @@ type WaterLevelDataType = {
   location: [number, number]
   waterLevel: number
   color: [number, number, number]
+  deviceId: string
 }
 
 class WaterLevelInstance {
@@ -26,8 +29,10 @@ class WaterLevelInstance {
   private type: 'visible' | 'hidden' = 'visible'
   private destroyTimer: NodeJS.Timeout | null = null
   private isHasVisibleBefore = false
+  private rainLayer: RainSpecification | null = null
 
   private globalOverlay: MapboxOverlay | null = null
+  private emitter = new EventEmitter()
 
   private constructor() {}
 
@@ -38,25 +43,39 @@ class WaterLevelInstance {
     return WaterLevelInstance.instance
   }
 
-  private _getLevelColor = (waterLevel: number) => {
+  on(event: string, handler: (...args: any[]) => void) {
+    this.emitter.on(event, handler)
+  }
+
+  off(event: string, handler: (...args: any[]) => void) {
+    this.emitter.off(event, handler)
+  }
+
+  private _getWaterLevelName = (waterLevel: number) => {
     const waterLevelMeter = waterLevel / 100
 
-    if (waterLevelMeter > 0 && waterLevelMeter < 2)
-      return {
-        polygon: [1, 202, 148, 80],
-        column: [1, 202, 148, 220],
-      }
+    if (waterLevelMeter > 0 && waterLevelMeter < 2) return 'safe'
 
-    if (waterLevelMeter >= 2 && waterLevelMeter < 5)
-      return {
-        polygon: [227, 191, 139, 80],
-        column: [227, 191, 13, 220],
-      }
+    if (waterLevelMeter >= 2 && waterLevelMeter < 5) return 'warning'
 
-    return {
-      polygon: [246, 79, 82, 50],
-      column: [246, 79, 82, 220],
-    }
+    return 'danger'
+  }
+
+  private _getRainLevel = (
+    waterLevelName: 'safe' | 'warning' | 'danger'
+  ): [number, number] => {
+    if (waterLevelName === 'safe') return [1, 3]
+    if (waterLevelName === 'warning') return [3, 5]
+    return [2, 18]
+  }
+
+  private _getLevelColor = (waterLevelName: 'safe' | 'warning' | 'danger') => {
+    if (waterLevelName === 'safe')
+      return { polygon: [1, 202, 148, 80], column: [1, 202, 148, 220] }
+    if (waterLevelName === 'warning')
+      return { polygon: [227, 191, 139, 80], column: [227, 191, 13, 220] }
+
+    return { polygon: [246, 79, 82, 50], column: [246, 79, 82, 220] }
   }
 
   //draw or remove polygon based on devices
@@ -76,8 +95,9 @@ class WaterLevelInstance {
             units: 'kilometers',
           }
         ),
-        color: this._getLevelColor(device.deviceProperties?.water_level || 0)
-          .polygon,
+        color: this._getLevelColor(
+          device.deviceProperties?.water_level_name || 'safe'
+        ).polygon,
       }
     })
 
@@ -116,14 +136,17 @@ class WaterLevelInstance {
     type: 'visible' | 'hidden' = 'visible'
   ) {
     if (!this.globalOverlay) return
+
     const dataLayers = devices.map((device) => {
       return {
         location: device.deviceProperties?.latest_checkpoint_arr || [0, 0],
         waterLevel: device.deviceProperties?.water_level
           ? device.deviceProperties?.water_level
           : 0,
-        color: this._getLevelColor(device.deviceProperties?.water_level || 0)
-          .column,
+        color: this._getLevelColor(
+          device.deviceProperties?.water_level_name || 'safe'
+        ).column,
+        deviceId: device.id,
       }
     })
 
@@ -139,6 +162,9 @@ class WaterLevelInstance {
       getFillColor: (d: WaterLevelDataType) => d.color,
       pickable: true,
       opacity: type === 'visible' ? 1 : 0,
+      onClick: ({ object }) => {
+        this.emitter.emit('water-level-selected', object.deviceId)
+      },
       transitions: {
         opacity: { duration: 200, easing: easeOut },
       },
@@ -173,8 +199,6 @@ class WaterLevelInstance {
           this.globalOverlay
         )
 
-        console.log({ newLayers })
-
         this.globalOverlay.setProps({
           layers: newLayers,
         })
@@ -196,7 +220,20 @@ class WaterLevelInstance {
     type: 'visible' | 'hidden' = 'visible'
   ) {
     if (!this.isInitialized) return
-    this.devices = devices
+    this.devices = Object.fromEntries(
+      Object.entries(devices).map(([key, device]) => [
+        key,
+        {
+          ...device,
+          deviceProperties: {
+            ...device.deviceProperties,
+            water_level_name: this._getWaterLevelName(
+              device.deviceProperties?.water_level || 0
+            ),
+          },
+        } as Device,
+      ])
+    )
 
     if (type === 'visible') {
       this.isHasVisibleBefore = true
@@ -218,6 +255,50 @@ class WaterLevelInstance {
 
     this._handlePolygon(Object.values(this.devices), type)
     this._buildWaterLevelLayer(Object.values(this.devices), type)
+  }
+
+  handleWaterLevelSelected(selectedId: string, isStyleLoad: boolean = false) {
+    if (!this.map) return
+    const zoomBasedReveal = (value: number) => {
+      return ['interpolate', ['linear'], ['zoom'], 11, 0.0, 13, value]
+    }
+
+    const deviceData = this.devices?.[selectedId]
+
+    if (!deviceData) {
+      if (this.rainLayer) {
+        this.map?.setRain(null)
+        this.rainLayer = null
+      }
+    } else {
+      if (!isStyleLoad) {
+        this.map.flyTo({
+          center: deviceData.deviceProperties?.latest_checkpoint_arr as [
+            number,
+            number,
+          ],
+          zoom: 18,
+          duration: 500,
+          essential: true,
+          pitch: 70,
+        })
+      }
+      this.rainLayer = {
+        density: zoomBasedReveal(0.5) as any,
+        intensity: 1.0,
+        color: '#a8adbc',
+        opacity: 0.7,
+        vignette: zoomBasedReveal(1.0) as any,
+        'vignette-color': '#464646',
+        direction: [0, 80],
+        'droplet-size': this._getRainLevel(
+          deviceData.deviceProperties?.water_level_name || 'safe'
+        ),
+        'distortion-strength': 0.7,
+        'center-thinning': 0, // Rain to be displayed on the whole screen area
+      }
+      this.map?.setRain(this.rainLayer)
+    }
   }
 }
 
