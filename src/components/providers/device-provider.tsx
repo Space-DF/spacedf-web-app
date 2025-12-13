@@ -219,8 +219,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const getDevices = async () => {
     const devices: Device[] = transformDeviceData(deviceSpaces || [])
 
-    console.log({ devices })
-
     setDevices(devices)
   }
 

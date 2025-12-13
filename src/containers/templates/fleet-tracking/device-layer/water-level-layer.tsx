@@ -52,7 +52,6 @@ export const WaterLevelLayer = () => {
 
   useEffect(() => {
     if (isClusterVisible) {
-      console.log({ devices })
       waterLevelInstance.syncDevices(devices, 'hidden')
     } else {
       waterLevelInstance.syncDevices(devices, 'visible')
