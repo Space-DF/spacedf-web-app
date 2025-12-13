@@ -7,6 +7,8 @@ import {
   MQTTRouter,
   DeviceTelemetryHandler,
   DeviceTelemetryData,
+  EntityTelemetryHandler,
+  EntityTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
 import { transformDeviceData } from '@/utils/map'
@@ -85,6 +87,15 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     )
   }
 
+  // Handler for processed entity telemetry data
+  const handleEntityTelemetry = (data: EntityTelemetryData) => {
+    // TODO: Update entity store when created
+    console.log(
+      `🌊 Entity ${data.entityId} (${data.entityType}) telemetry updated:`,
+      data.entityUpdate
+    )
+  }
+
   useEffect(() => {
     if (isDemo) return
     // Initialize MQTT router and handlers
@@ -93,6 +104,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // Register device telemetry handler (no store dependency)
     const deviceTelemetryHandler = new DeviceTelemetryHandler()
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
+
+    // Register entity telemetry handler
+    const entityTelemetryHandler = new EntityTelemetryHandler()
+    mqttRouterRef.current.registerHandler(entityTelemetryHandler)
 
     // Initialize MQTT connection
     const handleMqttConnect = async () => {
@@ -106,8 +121,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
         },
         onConnect: () => {
-          const publicTopic = `tenant/${organization}/device/+/telemetry`
-          const spaceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+          const publicDeviceTopic = `tenant/${organization}/device/+/telemetry`
+          const spaceDeviceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+          const publicEntityTopic = `tenant/${organization}/entity/+/telemetry`
+          const spaceEntityTopic = `tenant/${organization}/space/${spaceSlugName}/entity/+/telemetry`
 
           const currentSubscriptions =
             mqttServiceRef.current?.getSubscriptions() || []
@@ -116,7 +133,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
 
           mqttServiceRef.current?.subscribe(
-            isAuthorized ? [spaceTopic, publicTopic] : [publicTopic]
+            isAuthorized
+              ? [
+                  spaceDeviceTopic,
+                  publicDeviceTopic,
+                  spaceEntityTopic,
+                  publicEntityTopic,
+                ]
+              : [publicDeviceTopic, publicEntityTopic]
           )
         },
         onSubscribed: () => {
@@ -149,6 +173,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
               'deviceUpdate' in result
             ) {
               handleDeviceTelemetry(result as DeviceTelemetryData)
+            } else if (
+              result &&
+              typeof result === 'object' &&
+              'entityId' in result &&
+              'entityUpdate' in result
+            ) {
+              handleEntityTelemetry(result as EntityTelemetryData)
             }
           })
         },
