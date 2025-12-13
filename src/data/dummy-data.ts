@@ -3,6 +3,7 @@ import { Entity } from '@/types/entity'
 import { Trip } from '@/types/trip'
 import { v4 as uuidv4 } from 'uuid'
 import { PaginationResponse } from './../types/global.d'
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 
 export const deviceSpaces: DeviceDataOriginal[] = [
   {
@@ -12,7 +13,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -21,7 +23,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -46,7 +48,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -55,7 +58,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -80,7 +83,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -89,7 +93,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -114,7 +118,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -123,7 +128,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -148,7 +153,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -157,7 +163,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -182,7 +188,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -191,7 +198,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -216,7 +223,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -225,7 +233,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -250,7 +258,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -259,7 +268,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -284,7 +293,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -293,7 +303,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -318,7 +328,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -327,7 +338,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -352,7 +363,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'RAKwireless',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -361,7 +373,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'multi_sensor_tracker',
+        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
       },
       status: 'active',
       lorawan_device: {
@@ -386,7 +398,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'Water Level Board',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -395,7 +408,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'water_level_sensor',
+        key_feature: DEVICE_FEATURE_SUPPORTED.WATER_DEPTH,
       },
       status: 'active',
       lorawan_device: {
@@ -412,7 +425,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05598,
         longitude: 108.22038,
       },
-      water_level: 200,
+      water_depth: 50,
     },
   },
   {
@@ -422,7 +435,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'Water Level Board',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -431,7 +445,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'water_level_sensor',
+        key_feature: DEVICE_FEATURE_SUPPORTED.WATER_DEPTH,
       },
       status: 'active',
       lorawan_device: {
@@ -448,7 +462,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05698,
         longitude: 108.22138,
       },
-      water_level: 500,
+      water_depth: 150,
     },
   },
   {
@@ -458,7 +472,8 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     device: {
       id: uuidv4(),
       network_server: uuidv4(),
-      device_model: {
+      device_model: uuidv4(),
+      device_profile: {
         id: uuidv4(),
         manufacture: 'Water Level Board',
         created_at: '2025-12-12T04:31:51.019Z',
@@ -467,7 +482,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: 'water_level_sensor',
+        key_feature: DEVICE_FEATURE_SUPPORTED.WATER_DEPTH,
       },
       status: 'active',
       lorawan_device: {
@@ -484,7 +499,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05698,
         longitude: 108.22238,
       },
-      water_level: 120,
+      water_depth: 20,
     },
   },
 ]

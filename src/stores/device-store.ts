@@ -19,12 +19,12 @@ export type Device<T = {}> = {
   status: 'active' | 'inactive'
   type: SupportedModels
   layerProps?: LayerProperties
-  histories: {
+  histories?: {
     end: [number, number]
     start: [number, number]
   }
   deviceProperties?: DeviceDataOriginal['device_properties'] & {
-    latest_checkpoint_arr: [number, number]
+    latest_checkpoint_arr?: [number, number]
     water_level_name?: 'safe' | 'warning' | 'danger'
   }
   deviceInformation?: DeviceDataOriginal['device']
@@ -50,6 +50,10 @@ type DeviceModelAction = {
   setModelPreview: (key: SupportedModels, preview: string) => void
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
+  setDeviceProperties: (
+    deviceId: string,
+    data: Partial<Device['deviceProperties']>
+  ) => void
 
   setDeviceState: (
     deviceId: string,
@@ -97,6 +101,18 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
       }))
     },
 
+    setDeviceProperties: (deviceId, data) => {
+      return set((state) => {
+        state.devices[deviceId] = {
+          ...state.devices[deviceId],
+          deviceProperties: {
+            ...state.devices[deviceId].deviceProperties,
+            ...data,
+          } as Device['deviceProperties'],
+        }
+      })
+    },
+
     setDevices: (data) => {
       const validDevices = data.filter((device) =>
         device.latestLocation?.every((loc) => loc)
@@ -131,6 +147,11 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
           histories: {
             start: [0, 0],
             end: [0, 0],
+          },
+          deviceProperties: {
+            water_depth: 0,
+            water_level_name: 'safe',
+            latest_checkpoint_arr: [0, 0],
           },
           deviceId: deviceId,
           lorawan_device: {

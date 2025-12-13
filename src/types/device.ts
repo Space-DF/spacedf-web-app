@@ -18,7 +18,7 @@ type Checkpoint = {
   longitude: number
 }
 
-type DeviceModelData = {
+type DeviceProfile = {
   id: string
   manufacture: string
   created_at: string
@@ -33,14 +33,15 @@ type DeviceModelData = {
 type DeviceData = {
   id: string
   network_server: string
-  device_model: DeviceModelData
+  device_model: string
+  device_profile: DeviceProfile | null
   status: string
   lorawan_device: LorawanDevice
   is_published: boolean
 }
 
 type DeviceProperties = {
-  water_level?: number
+  water_depth?: number
   latest_checkpoint?: Checkpoint
 }
 
@@ -59,7 +60,7 @@ type DeviceModel = (typeof DEVICE_MODEL)[keyof typeof DEVICE_MODEL]
 
 export type {
   LorawanDevice,
-  DeviceModelData,
+  DeviceProfile,
   DeviceData,
   DeviceDataOriginal,
   DeviceModel,

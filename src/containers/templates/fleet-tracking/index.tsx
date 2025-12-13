@@ -207,9 +207,9 @@ export default function FleetTracking() {
   }, [devices])
 
   const hasTrackerDevices =
-    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.MULTI_SENSOR_TRACKER]?.length
+    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.LOCATION]?.length
   const hasWaterLevelDevices =
-    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.WATER_LEVEL_SENSOR]?.length
+    !!groupedDevices[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH]?.length
 
   return (
     <div

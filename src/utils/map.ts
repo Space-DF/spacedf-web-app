@@ -103,7 +103,7 @@ const formatCheckpoint = (
 }
 
 const detectDeviceType = (deviceModelName: string): SupportedModels => {
-  const lowerCaseDeviceModelName = deviceModelName.toLowerCase()
+  const lowerCaseDeviceModelName = deviceModelName?.toLowerCase() || ''
   if (lowerCaseDeviceModelName.startsWith('rak')) return 'rak'
 
   if (lowerCaseDeviceModelName.startsWith('tracki')) return 'tracki'
@@ -120,7 +120,9 @@ export const transformDeviceData = (
     const checkpoint = formatCheckpoint(
       device.device_properties?.latest_checkpoint || device.latest_checkpoint
     )
-    const deviceType = detectDeviceType(device.device.device_model.name)
+    const deviceType = detectDeviceType(
+      device.device.device_profile?.name || ''
+    )
 
     return {
       name: device.name,
@@ -152,7 +154,7 @@ export const transformDeviceData = (
 const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
   return devices.reduce(
     (acc, device) => {
-      const feature = device.deviceInformation?.device_model.key_feature
+      const feature = device.deviceInformation?.device_profile?.key_feature
       if (feature) {
         acc[feature] = acc[feature] || []
         acc[feature].push(device)
