@@ -166,13 +166,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }, [isAuthorized, spaceSlugName, organization, isDemo])
 
   const getDevices = async () => {
-    try {
-      const devices: Device[] = transformDeviceData(deviceSpaces || [])
+    const devices: Device[] = transformDeviceData(deviceSpaces || [])
 
-      console.log({ deviceSpaces, devices })
+    console.log({ devices })
 
-      setDevices(devices)
-    } catch {}
+    setDevices(devices)
   }
 
   useEffect(() => {

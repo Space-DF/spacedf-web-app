@@ -24,8 +24,8 @@ export const MultiTrackerLayer = () => {
       const multiTrackerDevices = Object.fromEntries(
         Object.entries(state.devicesFleetTracking).filter(
           ([, device]) =>
-            device.deviceInformation?.device_model.key_feature ===
-            DEVICE_FEATURE_SUPPORTED.MULTI_SENSOR_TRACKER
+            device.deviceInformation?.device_profile?.key_feature ===
+            DEVICE_FEATURE_SUPPORTED.LOCATION
         )
       )
 

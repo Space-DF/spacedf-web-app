@@ -5,6 +5,7 @@ const LAYER_IDS = {
   DEVICE_LAYER: 'device-layer',
   DEVICE_WATER_LEVEL_LAYER: 'device-water-level-layer',
   DEVICE_POLYGON_LAYER: 'device-polygon-layer',
+  DEVICE_WATER_LEVEL_WRAPPER_LAYER: 'device-water-level-wrapper-layer',
 }
 
 class GlobalOverlayInstance {
@@ -33,7 +34,8 @@ class GlobalOverlayInstance {
       interleaved: true,
       layers: [],
       getTooltip: ({ object, layer }: PickingInfo<any>): any => {
-        const isWaterLevelLayer = layer?.id === 'device-water-level-layer'
+        const isWaterLevelLayer =
+          layer?.id === LAYER_IDS.DEVICE_WATER_LEVEL_WRAPPER_LAYER
         if (isWaterLevelLayer && object) {
           return `Water Level: ${object.waterLevel / 100}m`
         }

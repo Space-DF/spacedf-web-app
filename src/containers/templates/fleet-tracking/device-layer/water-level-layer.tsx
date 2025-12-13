@@ -20,8 +20,8 @@ export const WaterLevelLayer = () => {
       const waterLevelDevices = Object.fromEntries(
         Object.entries(state.devicesFleetTracking).filter(
           ([_, device]) =>
-            device.deviceInformation?.device_model.key_feature ===
-            DEVICE_FEATURE_SUPPORTED.WATER_LEVEL_SENSOR
+            device.deviceInformation?.device_profile?.key_feature ===
+            DEVICE_FEATURE_SUPPORTED.WATER_DEPTH
         )
       )
       return waterLevelDevices
@@ -86,14 +86,14 @@ export const WaterLevelLayer = () => {
 
   useEffect(() => {
     fleetTrackingMap.on('style.load', () => {
-      waterLevelInstance.handleWaterLevelSelected(deviceSelected, true)
+      waterLevelInstance.handleRain()
     })
     return () => {
       fleetTrackingMap.off('style.load', () => {
-        waterLevelInstance.handleWaterLevelSelected(deviceSelected, true)
+        waterLevelInstance.handleRain()
       })
     }
-  }, [deviceSelected, modelType, mapType])
+  }, [modelType, mapType])
 
   useEffect(() => {
     waterLevelInstance.handleWaterLevelSelected(deviceSelected)

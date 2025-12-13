@@ -19,8 +19,8 @@ const DEVICE_MODEL = {
 } as const
 
 const DEVICE_FEATURE_SUPPORTED = {
-  WATER_LEVEL_SENSOR: 'water_level_sensor',
-  MULTI_SENSOR_TRACKER: 'multi_sensor_tracker',
+  WATER_DEPTH: 'water_depth',
+  LOCATION: 'location',
 } as const
 
 const DEVICE_LAYER_PROPERTIES: Record<string, Record<string, any>> = {

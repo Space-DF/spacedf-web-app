@@ -35,6 +35,7 @@ const GET = async (
         },
       }
     )
+
     return NextResponse.json(devices.results, {
       status: 200,
     })
