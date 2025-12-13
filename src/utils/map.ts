@@ -127,7 +127,7 @@ export const transformDeviceData = (
     return {
       name: device.name,
       status: device.device.status as 'active' | 'inactive',
-      id: device.id,
+      id: device.device.id,
       deviceId: device.device.id,
       description: device.description || '',
       latestLocation: checkpoint,

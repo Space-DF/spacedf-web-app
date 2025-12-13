@@ -51,6 +51,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setModelPreview,
     setDeviceState,
     clearDeviceModels,
+    setDeviceProperties,
+    devicesFleetTracking,
   } = useDeviceStore(
     useShallow((state) => ({
       setDeviceModel: state.setDeviceModel,
@@ -59,6 +61,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setModelPreview: state.setModelPreview,
       setDeviceState: state.setDeviceState,
       clearDeviceModels: state.clearDeviceModels,
+      setDeviceProperties: state.setDeviceProperties,
+      devicesFleetTracking: state.devicesFleetTracking,
     }))
   )
 
@@ -91,9 +95,25 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const handleEntityTelemetry = (data: EntityTelemetryData) => {
     // TODO: Update entity store when created
     console.log(
-      `🌊 Entity ${data.entityId} (${data.entityType}) telemetry updated:`,
+      `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
       data.entityUpdate
     )
+
+    //*TODO: Update for another entity
+    if (data.entityType === 'water_depth') {
+      const previousDevice =
+        devicesFleetTracking[data.entityUpdate?.device_id || '']
+
+      if (previousDevice) {
+        setDeviceProperties(previousDevice.deviceId, {
+          ...previousDevice.deviceProperties,
+          water_depth:
+            data.entityUpdate?.state ||
+            previousDevice.deviceProperties?.water_depth ||
+            0,
+        })
+      }
+    }
   }
 
   useEffect(() => {
@@ -194,12 +214,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         mqttRouterRef.current = null
       }
     }
-  }, [isAuthorized, spaceSlugName, organization, isDemo])
+  }, [isAuthorized, spaceSlugName, organization, isDemo, devicesFleetTracking])
 
   const getDevices = async () => {
     const devices: Device[] = transformDeviceData(deviceSpaces || [])
-
-    console.log({ devices })
 
     setDevices(devices)
   }
