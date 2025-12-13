@@ -28,6 +28,20 @@ export const WaterLevelLayer = () => {
     })
   )
 
+  const { setDeviceSelected, deviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+      setDeviceSelected: state.setDeviceSelected,
+    }))
+  )
+
+  const { modelType, mapType } = useFleetTrackingStore(
+    useShallow((state) => ({
+      modelType: state.modelType,
+      mapType: state.mapType,
+    }))
+  )
+
   const { isClusterVisible } = useFleetTrackingStore(
     useShallow((state) => ({
       isClusterVisible: state.isClusterVisible,
@@ -57,6 +71,33 @@ export const WaterLevelLayer = () => {
       fleetTrackingMap.off('style.load', handleMapLoaded)
     }
   }, [])
+
+  useEffect(() => {
+    waterLevelInstance.on('water-level-selected', (deviceId: string) => {
+      setDeviceSelected(deviceId)
+    })
+
+    return () => {
+      waterLevelInstance.off('water-level-selected', () => {
+        setDeviceSelected('')
+      })
+    }
+  }, [setDeviceSelected])
+
+  useEffect(() => {
+    fleetTrackingMap.on('style.load', () => {
+      waterLevelInstance.handleWaterLevelSelected(deviceSelected, true)
+    })
+    return () => {
+      fleetTrackingMap.off('style.load', () => {
+        waterLevelInstance.handleWaterLevelSelected(deviceSelected, true)
+      })
+    }
+  }, [deviceSelected, modelType, mapType])
+
+  useEffect(() => {
+    waterLevelInstance.handleWaterLevelSelected(deviceSelected)
+  }, [deviceSelected])
 
   return (
     <>
