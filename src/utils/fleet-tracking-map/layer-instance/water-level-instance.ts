@@ -73,15 +73,15 @@ class WaterLevelInstance {
   }
 
   private _getLevelColor = (
-    waterLevelName: 'safe' | 'warning' | 'floating' | 'critical'
+    waterLevelName: 'safe' | 'caution' | 'warning' | 'critical'
   ) => {
     if (waterLevelName === 'safe')
       return { polygon: [1, 202, 148, 80], column: [1, 202, 148, 220] }
 
-    if (waterLevelName === 'warning')
+    if (waterLevelName === 'caution')
       return { polygon: [227, 191, 139, 80], column: [227, 191, 13, 220] }
 
-    if (waterLevelName === 'floating')
+    if (waterLevelName === 'warning')
       return { polygon: [231, 137, 48, 50], column: [231, 137, 48, 220] }
 
     return { polygon: [246, 79, 82, 50], column: [246, 79, 82, 220] }
@@ -176,7 +176,7 @@ class WaterLevelInstance {
     }
   }
 
-  private _buildWrapperLayer(devices: Device[]) {
+  private _buildWrapperLayer(devices: Device[], type?: 'visible' | 'hidden') {
     if (!this.globalOverlay) return
 
     const dataLayers = devices.map((device) => {
@@ -211,7 +211,7 @@ class WaterLevelInstance {
         this.emitter.emit('water-level-selected', object.deviceId)
       },
       pickable: true,
-      opacity: this.type === 'visible' ? 1 : 0,
+      opacity: (type || this.type) === 'visible' ? 1 : 0,
       transitions: {
         opacity: { duration: 200, easing: easeOut },
       },
@@ -229,7 +229,10 @@ class WaterLevelInstance {
     }
   }
 
-  private _buildWaterLevelLayer(devices: Device[]) {
+  private _buildWaterLevelLayer(
+    devices: Device[],
+    type?: 'visible' | 'hidden'
+  ) {
     if (!this.globalOverlay) return
 
     const dataLayers = devices.map((device) => {
@@ -263,7 +266,7 @@ class WaterLevelInstance {
       },
       getPosition: (d: WaterLevelDataType) => d.location,
       getFillColor: (d: WaterLevelDataType) => d.color,
-      opacity: this.type === 'visible' ? 1 : 0,
+      opacity: (type || this.type) === 'visible' ? 1 : 0,
       transitions: {
         opacity: { duration: 200, easing: easeOut },
         getElevation: {
@@ -285,9 +288,9 @@ class WaterLevelInstance {
     })
 
     if (this.globalOverlay) {
-      const prevLayers = (this.globalOverlay as any)._props.layers
+      const prevLayers = (this.globalOverlay as any)._props.layers || []
       const baseLayers = prevLayers.filter(
-        (l: any) => l.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
+        (l: any) => l?.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
       )
 
       const mergedLayers = [this.waterDepthLayer, ...baseLayers]
@@ -324,7 +327,6 @@ class WaterLevelInstance {
     this.map = map
 
     this.globalOverlay = globalOverlay
-
     this.isInitialized = true
   }
 
@@ -332,7 +334,6 @@ class WaterLevelInstance {
     devices: Record<string, Device>,
     type: 'visible' | 'hidden' = 'visible'
   ) {
-    if (!this.isInitialized) return
     this.devices = Object.fromEntries(
       Object.entries(devices).map(([key, device]) => [
         key,
@@ -347,7 +348,6 @@ class WaterLevelInstance {
         } as Device,
       ])
     )
-
     if (type === 'visible') {
       this.isHasVisibleBefore = true
     }
@@ -367,8 +367,8 @@ class WaterLevelInstance {
     }
 
     this._handlePolygon(Object.values(this.devices), type)
-    this._buildWaterLevelLayer(Object.values(this.devices))
-    this._buildWrapperLayer(Object.values(this.devices))
+    this._buildWaterLevelLayer(Object.values(this.devices), type)
+    this._buildWrapperLayer(Object.values(this.devices), type)
   }
 
   handleWaterLevelSelected(selectedId: string) {
@@ -377,28 +377,17 @@ class WaterLevelInstance {
     const deviceData = this.devices?.[selectedId]
 
     if (deviceData) {
-      this.map.flyTo({
-        center: deviceData.deviceProperties?.latest_checkpoint_arr as [
-          number,
-          number,
-        ],
-        zoom: 18,
-        duration: 500,
-        essential: true,
-        pitch: 70,
-      })
-
       this._stopAnimation()
 
       this.selectedWaterDeviceId = selectedId
 
-      this._buildWrapperLayer(Object.values(this.devices))
+      this._buildWrapperLayer(Object.values(this.devices), 'visible')
 
       this.animateState = 'animating'
 
-      const prevLayers = (this.globalOverlay as any)._props.layers
+      const prevLayers = (this.globalOverlay as any)._props.layers || []
       const baseLayers = prevLayers.filter(
-        (l: any) => l.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
+        (l: any) => l?.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
       )
 
       this.selectedWaterDeviceAnimation = animate({
