@@ -105,6 +105,12 @@ const TableWidget: React.FC<Props> = ({
     const isValid = await form.trigger()
     if (!isValid) return
     const newWidgetData = {
+      display_type: 'table',
+      entity_id: tableValue.source?.entities[0].entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...tableValue,
         id: uuidv4(),

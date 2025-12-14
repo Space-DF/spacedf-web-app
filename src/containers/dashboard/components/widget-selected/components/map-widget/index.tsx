@@ -89,6 +89,12 @@ const TableWidget: React.FC<Props> = ({
   const handleAddMapWidget = async () => {
     await trigger()
     const newWidgetData = {
+      display_type: 'map',
+      entity_id: source?.entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         id: uuidv4(),
         ...mapValue,

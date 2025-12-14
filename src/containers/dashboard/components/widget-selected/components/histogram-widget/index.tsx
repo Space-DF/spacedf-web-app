@@ -138,6 +138,12 @@ const HistogramWidget: React.FC<Props> = ({
     const isValid = await form.trigger()
     if (!isValid) return
     const newWidgetData = {
+      display_type: 'histogram',
+      entity_id: sourcesData[0].entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...chartValue,
         id: uuidv4(),

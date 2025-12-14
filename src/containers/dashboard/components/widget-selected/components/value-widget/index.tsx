@@ -120,6 +120,12 @@ const ValueWidget: React.FC<Props> = ({
   const handleSaveValueWidget = async () => {
     await trigger()
     const newWidgetData = {
+      display_type: 'value',
+      entity_id: formValue.source?.entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...formValue,
         id: uuidv4(),

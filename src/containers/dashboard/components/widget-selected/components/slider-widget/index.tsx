@@ -75,6 +75,12 @@ const SliderWidget: React.FC<Props> = ({
     if (!isValid) return
     const sliderValue = form.getValues()
     const newWidgetData = {
+      display_type: 'slider',
+      entity_id: sliderValue.source?.entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...sliderValue,
         id: uuidv4(),

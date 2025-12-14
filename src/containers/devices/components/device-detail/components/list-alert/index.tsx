@@ -17,8 +17,9 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useGetAlert } from './hooks/useGetAlert'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
-import { ChevronDown, Clock, Droplet, MapPin } from 'lucide-react'
+import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { WaterDepthLevelName } from '@/utils/water-depth'
 
 dayjs.extend(relativeTime)
 
@@ -48,7 +49,7 @@ const DATE_VALUES = [
 interface ListItem {
   id: string
   title: string
-  severity: 'critical' | 'warning'
+  severity: WaterDepthLevelName
   waterLevel: string
   location: string | React.ReactNode
   time: string
@@ -109,6 +110,13 @@ const getDateByDateType = (dateType: string) => {
   )
 }
 
+const getWaterLevel = (value: number, unit: string) => {
+  if (unit === 'cm') {
+    return value / 100
+  }
+  return value
+}
+
 export default function ListAlert() {
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
   const [selectedDate, setSelectedDate] = useState<string>('today')
@@ -138,7 +146,7 @@ export default function ListAlert() {
           id: alert.id,
           title: alert.message,
           severity: alert.level,
-          waterLevel: `${alert.water_depth} ${alert.unit}`,
+          waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
           location: alertAddresses?.[index] || (
             <Skeleton className="w-20 h-4" />
           ),
@@ -147,7 +155,7 @@ export default function ListAlert() {
           relativeTime: relativeTimeStr,
         }
       }) || [],
-    [alerts]
+    [alerts, alertAddresses]
   )
 
   const renderAlertItem = useCallback(
@@ -210,7 +218,14 @@ export default function ListAlert() {
               <div className="flex flex-col gap-y-2">
                 {/* Water Level */}
                 <div className="flex items-center gap-x-2">
-                  <Droplet className="w-4 h-4 text-brand-component-text-gray flex-shrink-0" />
+                  <Image
+                    src="/images/flood-level.svg"
+                    alt="water level"
+                    width={16}
+                    height={10}
+                    quality={100}
+                    className="w-3 text-brand-component-text-gray flex-shrink-0"
+                  />
                   <span className="text-xs text-brand-component-text-gray">
                     {item.waterLevel}
                   </span>
