@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
-
 import { TabsContent } from '@/components/ui/tabs'
 import { TimeFormat } from '@/constants'
 import {
@@ -16,7 +15,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
-import { PreviewChart, dailyOrders } from './components/preview-chart'
+import { PreviewChart } from './components/preview-chart'
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
@@ -24,6 +23,10 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-a
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
+import {
+  dailyOrders,
+  generateData,
+} from '../chart-widget/components/preview-chart'
 
 interface Props {
   selectedWidget: WidgetType
@@ -152,6 +155,10 @@ const HistogramWidget: React.FC<Props> = ({
 
   const lastOrderValue = showDummyData ? dailyOrders.at(-1)?.['source.0'] : 0
 
+  const data = generateData(
+    (format as TimeFormat) || TimeFormat.FULL_DATE_MONTH_YEAR
+  )
+
   return (
     <RightSideBarLayout
       title={
@@ -193,6 +200,7 @@ const HistogramWidget: React.FC<Props> = ({
                     hideAxis={hideAxis}
                     showXGrid={showXGrid}
                     format={format as TimeFormat}
+                    data={data}
                   />
                 </div>
               </div>

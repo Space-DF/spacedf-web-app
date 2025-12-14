@@ -12,7 +12,11 @@ import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
-import { PreviewChart, dailyOrders } from './components/preview-chart'
+import {
+  PreviewChart,
+  dailyOrders,
+  generateData,
+} from './components/preview-chart'
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
@@ -123,6 +127,10 @@ const ChartWidget: React.FC<Props> = ({
     ],
   })
 
+  const data = generateData(
+    (format as TimeFormat) || TimeFormat.FULL_DATE_MONTH_YEAR
+  )
+
   const isSingleSource = sourcesData.length === 1
 
   const showDummyData = useShowDummyData()
@@ -147,7 +155,6 @@ const ChartWidget: React.FC<Props> = ({
   }
 
   const lastOrderValue = showDummyData ? dailyOrders.at(-1)?.['source.0'] : 0
-
   return (
     <RightSideBarLayout
       title={
@@ -189,6 +196,7 @@ const ChartWidget: React.FC<Props> = ({
                     hideAxis={hideAxis}
                     showXGrid={showXGrid}
                     format={format as TimeFormat}
+                    data={data}
                   />
                 </div>
               </div>

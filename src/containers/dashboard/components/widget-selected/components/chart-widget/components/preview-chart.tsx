@@ -81,7 +81,7 @@ export const dailyOrders = [
 
 const today = dayjs()
 
-const generateData = (format: TimeFormat) =>
+export const generateData = (format: TimeFormat) =>
   dailyOrders.map((order, index) => {
     const date = today.add(index * 2, 'minutes').format(format)
     return { ...order, day: date }
@@ -96,6 +96,7 @@ interface PreviewLineChartProps {
   showXGrid?: boolean
   format?: TimeFormat
   widgetId?: string
+  data: any
 }
 
 const renderChartComponents = (
@@ -196,10 +197,9 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   orientation = Orientation.Left,
   hideAxis = false,
   showXGrid = false,
-  format = TimeFormat.FULL_DATE_MONTH_YEAR,
   widgetId,
+  data,
 }) => {
-  const data = generateData(format)
   return (
     <ChartContainer
       config={chartConfig}

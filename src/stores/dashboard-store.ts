@@ -4,6 +4,7 @@ type IdentityState = {
   isEdit: boolean
   deleteId?: string
   dashboardId?: string
+  widgets: any[]
 }
 
 type IdentityAction = {
@@ -11,6 +12,7 @@ type IdentityAction = {
   setEdit: (edit?: boolean) => void
   setDeleteId: (id?: string) => void
   setDashboardId: (id?: string) => void
+  setWidgets: (widgets: any[]) => void
 }
 
 export const useDashboardStore = create<IdentityState & IdentityAction>(
@@ -19,9 +21,11 @@ export const useDashboardStore = create<IdentityState & IdentityAction>(
     deleteId: undefined,
     isEdit: false,
     dashboardId: undefined,
+    widgets: [],
     setDeleteId: (id) => set(() => ({ deleteId: id })),
     setViewAllDashboard: (open) => set(() => ({ isViewAllDashboard: open })),
     setEdit: (edit) => set(() => ({ isEdit: edit })),
     setDashboardId: (id) => set(() => ({ dashboardId: id })),
+    setWidgets: (widgets) => set(() => ({ widgets })),
   })
 )

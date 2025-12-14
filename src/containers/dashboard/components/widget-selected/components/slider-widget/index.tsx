@@ -90,6 +90,8 @@ const SliderWidget: React.FC<Props> = ({
     createWidget(newWidgetData)
   }
 
+  const data = 65
+
   return (
     <RightSideBarLayout
       title={
@@ -124,7 +126,7 @@ const SliderWidget: React.FC<Props> = ({
                         {unit}
                       </p>
                     </div>
-                    <SliderPreview />
+                    <SliderPreview data={data} />
                   </div>
                 </div>
               </div>

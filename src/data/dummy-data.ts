@@ -1,6 +1,5 @@
 import { DeviceDataOriginal } from '@/types/device'
 import { Entity } from '@/types/entity'
-import { Alert } from '@/types/alert'
 import { Trip } from '@/types/trip'
 import { v4 as uuidv4 } from 'uuid'
 import { PaginationResponse } from './../types/global.d'
@@ -626,86 +625,3 @@ export const dummyEntities: PaginationResponse<Entity> = {
     },
   ],
 }
-
-export const dummyAlerts: Alert[] = [
-  {
-    id: 'alert-1',
-    longitude: 108.22003,
-    latitude: 16.05486,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    name: 'High Water Level Alert',
-    water_level: 85.5,
-  },
-  {
-    id: 'alert-2',
-    longitude: 108.222,
-    latitude: 16.05487,
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-    name: 'Critical Water Level',
-    water_level: 92.3,
-  },
-  {
-    id: 'alert-3',
-    longitude: 108.221,
-    latitude: 16.05485,
-    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
-    name: 'Water Level Warning',
-    water_level: 78.2,
-  },
-  {
-    id: 'alert-4',
-    longitude: 108.215,
-    latitude: 16.062,
-    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
-    name: 'Elevated Water Level',
-    water_level: 81.7,
-  },
-  {
-    id: 'alert-5',
-    longitude: 108.228,
-    latitude: 16.048,
-    timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-    name: 'High Water Level Alert',
-    water_level: 88.9,
-  },
-  {
-    id: 'alert-6',
-    longitude: 108.235,
-    latitude: 16.058,
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-    name: 'Critical Water Level',
-    water_level: 95.1,
-  },
-  {
-    id: 'alert-7',
-    longitude: 108.212,
-    latitude: 16.052,
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-    name: 'Water Level Warning',
-    water_level: 76.4,
-  },
-  {
-    id: 'alert-8',
-    longitude: 108.242,
-    latitude: 16.065,
-    timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
-    name: 'High Water Level Alert',
-    water_level: 83.6,
-  },
-  {
-    id: 'alert-9',
-    longitude: 108.205,
-    latitude: 16.045,
-    timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(), // 7 hours ago
-    name: 'Elevated Water Level',
-    water_level: 79.8,
-  },
-  {
-    id: 'alert-10',
-    longitude: 108.208,
-    latitude: 16.068,
-    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
-    name: 'Critical Water Level',
-    water_level: 91.2,
-  },
-]

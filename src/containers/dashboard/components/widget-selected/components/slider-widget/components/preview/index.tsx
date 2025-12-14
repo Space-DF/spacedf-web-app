@@ -3,7 +3,11 @@ import { Slider } from '@/components/ui/slider'
 import { SliderPayload } from '@/validator'
 import { useFormContext } from 'react-hook-form'
 
-const SliderPreview = () => {
+interface Props {
+  data: number
+}
+
+const SliderPreview = ({ data }: Props) => {
   const form = useFormContext<SliderPayload>()
   const [max, min, step] = form.watch([
     'source.max',
@@ -13,7 +17,7 @@ const SliderPreview = () => {
   return (
     <>
       <Slider
-        defaultValue={[50]}
+        defaultValue={[data]}
         max={max}
         min={min}
         step={step}

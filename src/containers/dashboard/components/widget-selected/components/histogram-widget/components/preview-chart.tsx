@@ -3,7 +3,6 @@
 import { ChartConfig, ChartContainer } from '@/components/ui/chart'
 import { TimeFormat } from '@/constants'
 import { Orientation } from '@/widget-models/chart'
-import dayjs from 'dayjs'
 import { HistogramPayload } from '@/validator'
 import React from 'react'
 import {
@@ -25,66 +24,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export const dailyOrders = [
-  {
-    'source.0': 42,
-    'source.1': 48,
-    'source.2': 35,
-    'source.3': 58,
-    'source.4': 45,
-  },
-  {
-    'source.0': 55,
-    'source.1': 41,
-    'source.2': 62,
-    'source.3': 47,
-    'source.4': 39,
-  },
-  {
-    'source.0': 38,
-    'source.1': 56,
-    'source.2': 44,
-    'source.3': 32,
-    'source.4': 61,
-  },
-  {
-    'source.0': 61,
-    'source.1': 43,
-    'source.2': 51,
-    'source.3': 57,
-    'source.4': 36,
-  },
-  {
-    'source.0': 46,
-    'source.1': 59,
-    'source.2': 33,
-    'source.3': 52,
-    'source.4': 48,
-  },
-  {
-    'source.0': 53,
-    'source.1': 37,
-    'source.2': 59,
-    'source.3': 41,
-    'source.4': 54,
-  },
-  {
-    'source.0': 40,
-    'source.1': 62,
-    'source.2': 45,
-    'source.3': 49,
-    'source.4': 34,
-  },
-]
-
-const today = dayjs()
-
-const generateData = (format: TimeFormat) =>
-  dailyOrders.map((order, index) => {
-    const date = today.add(index * 2, 'minutes').format(format)
-    return { ...order, day: date }
-  })
-
 interface PreviewLineChartProps {
   sources: HistogramPayload['sources']
   isSingleSource?: boolean
@@ -94,6 +33,7 @@ interface PreviewLineChartProps {
   showXGrid?: boolean
   format?: TimeFormat
   widgetId?: string
+  data: any
 }
 
 const getColor = (source: HistogramPayload['sources'][number]) => {
@@ -109,10 +49,9 @@ const PreviewChart: React.FC<PreviewLineChartProps> = ({
   orientation = Orientation.Left,
   hideAxis = false,
   showXGrid = false,
-  format = TimeFormat.FULL_DATE_MONTH_YEAR,
   widgetId,
+  data,
 }) => {
-  const data = generateData(format)
   return (
     <ChartContainer
       config={chartConfig}

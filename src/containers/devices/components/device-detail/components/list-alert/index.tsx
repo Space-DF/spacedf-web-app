@@ -9,17 +9,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
+import { format, subDays } from 'date-fns'
 import Image from 'next/image'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
-import { useGetDevices } from '@/hooks/useDevices'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useGetAlert } from './hooks/useGetAlert'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { ChevronDown, Clock, Droplet, MapPin } from 'lucide-react'
-import { Alert } from '@/types/alert'
 import { useTranslations } from 'next-intl'
 
 dayjs.extend(relativeTime)
@@ -60,27 +58,6 @@ interface ListItem {
 
 const INITIAL_VISIBLE_COUNT = 2
 
-const getSeverity = (alert: Alert): 'critical' | 'warning' => {
-  const name = alert.name.toLowerCase()
-  if (name.includes('critical') || alert.water_level >= 90) {
-    return 'critical'
-  }
-  return 'warning'
-}
-
-const getWaterLevelRange = (waterLevel: number): string => {
-  // Determine water level range based on the value
-  if (waterLevel >= 90) {
-    return '2m - 3m'
-  } else if (waterLevel >= 80) {
-    return '1.5m - 2m'
-  } else if (waterLevel >= 70) {
-    return '1m - 1.5m'
-  } else {
-    return '0.5m - 1m'
-  }
-}
-
 const AlertItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
   return (
     <div
@@ -117,40 +94,51 @@ const AlertItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
   )
 }
 
+const getDateByDateType = (dateType: string) => {
+  const now = new Date()
+  const dateTypeObj = {
+    today: format(now, 'yyyy-MM-dd'),
+    yesterday: format(subDays(now, 1), 'yyyy-MM-dd'),
+    last_7_days: format(subDays(now, 7), 'yyyy-MM-dd'),
+    last_30_days: format(subDays(now, 30), 'yyyy-MM-dd'),
+    last_90_days: format(subDays(now, 90), 'yyyy-MM-dd'),
+  }
+  return (
+    dateTypeObj[dateType as keyof typeof dateTypeObj] ||
+    format(now, 'yyyy-MM-dd')
+  )
+}
+
 export default function ListAlert() {
-  const { data: devices } = useGetDevices()
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
-
-  const currentDeviceId = useMemo(() => {
-    const currentDeviceSpace = devices?.find(
-      (device) => device.id === deviceSelected
-    )
-    return currentDeviceSpace?.device.id
-  }, [devices, deviceSelected])
-
-  const { data: alerts = [], isLoading } = useGetAlert(currentDeviceId)
+  const [selectedDate, setSelectedDate] = useState<string>('today')
+  const { data: alerts, isLoading } = useGetAlert(
+    deviceSelected,
+    getDateByDateType(selectedDate)
+  )
   const t = useTranslations('common')
   const listLocation = useMemo(() => {
-    return alerts.map((alert) => ({
-      longitude: alert.longitude,
-      latitude: alert.latitude,
-    }))
+    return (
+      alerts?.results?.map((alert) => ({
+        longitude: alert.location.longitude,
+        latitude: alert.location.latitude,
+      })) || []
+    )
   }, [alerts])
 
   const { data: alertAddresses } = useTripAddress(listLocation)
 
   const alertList: ListItem[] = useMemo(
     () =>
-      alerts?.map((alert, index) => {
-        const severity = getSeverity(alert)
-        const timestamp = new Date(alert.timestamp)
+      alerts?.results?.map((alert, index) => {
+        const timestamp = new Date(alert.reported_at)
         const relativeTimeStr = dayjs(timestamp).fromNow(true)
 
         return {
           id: alert.id,
-          title: alert.name,
-          severity,
-          waterLevel: getWaterLevelRange(alert.water_level),
+          title: alert.message,
+          severity: alert.level,
+          waterLevel: `${alert.water_depth} ${alert.unit}`,
           location: alertAddresses?.[index] || (
             <Skeleton className="w-20 h-4" />
           ),
@@ -159,11 +147,11 @@ export default function ListAlert() {
           relativeTime: relativeTimeStr,
         }
       }) || [],
-    [alerts, alertAddresses]
+    [alerts]
   )
 
   const renderAlertItem = useCallback(
-    (item: ListItem, index: number, isExpanded: boolean) => {
+    (item: ListItem, _: number, isExpanded: boolean) => {
       const isCritical = item.severity === 'critical'
 
       return (
@@ -270,7 +258,7 @@ export default function ListAlert() {
           {t('alerts')}
         </Label>
         <div className="flex items-center gap-2">
-          <Select defaultValue="today">
+          <Select defaultValue="today" onValueChange={setSelectedDate}>
             <SelectTrigger
               icon={<ChevronDown className="size-4" />}
               className="bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light rounded-lg border-none outline-none focus:ring-0 min-w-28 h-6"

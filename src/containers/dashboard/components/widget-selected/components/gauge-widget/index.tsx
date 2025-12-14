@@ -121,6 +121,8 @@ const GaugeWidget: React.FC<Props> = ({
     createWidget(newWidgetData)
   }
 
+  const data = 65
+
   return (
     <RightSideBarLayout
       title={
@@ -157,6 +159,7 @@ const GaugeWidget: React.FC<Props> = ({
                     max={max}
                     values={values}
                     showValue={showValue}
+                    data={data}
                   />
                 </div>
               </div>

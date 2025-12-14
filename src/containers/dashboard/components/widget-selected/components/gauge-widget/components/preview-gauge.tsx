@@ -259,6 +259,7 @@ interface Props {
   max: number
   values: GaugeValue[]
   showValue?: boolean
+  data: number
 }
 
 const formatRangesValue = (min: number, values: GaugeValue[]) => {
@@ -299,14 +300,14 @@ const PreviewGauge: React.FC<Props> = ({
   max,
   values,
   showValue,
+  data,
 }) => {
-  const valueData = 65
   const ranges = formatRangesValue(min, values)
   return type === GaugeType.Linear ? (
     <LinearChart
       ranges={ranges}
       height={20}
-      value={valueData}
+      value={data}
       min={min}
       max={max}
       unit={unit}
@@ -316,7 +317,7 @@ const PreviewGauge: React.FC<Props> = ({
     />
   ) : (
     <CircularChart
-      value={valueData}
+      value={data}
       unit={unit}
       decimal={decimal}
       min={min}

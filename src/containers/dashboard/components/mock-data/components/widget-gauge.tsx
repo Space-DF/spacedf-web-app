@@ -4,6 +4,8 @@ import PreviewGauge from '../../widget-selected/components/gauge-widget/componen
 export const GaugeWidget = ({ widget }: any) => {
   const { source, widget_info } = widget
 
+  const data = 65
+
   return (
     <WidgetContainer className="flex flex-col">
       <WidgetTitle>{widget_info?.name}</WidgetTitle>
@@ -15,6 +17,7 @@ export const GaugeWidget = ({ widget }: any) => {
           max={source?.max}
           values={source?.values}
           showValue={widget_info?.appearance?.show_value}
+          data={data}
         />
       </div>
     </WidgetContainer>
