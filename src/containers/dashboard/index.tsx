@@ -1,7 +1,7 @@
 'use client'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { RightSideBarLayout } from '@/components/ui'
 import { getNewLayouts, useLayout } from '@/stores'
@@ -23,10 +23,16 @@ const Dashboard = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
-  const { setEdit, dashboardId } = useDashboardStore()
+  const { setEdit, dashboardId, setWidgetList } = useDashboardStore()
 
   const { data: widgetLayout, mutate: mutateWidgets } =
     useGetWidgets(dashboardId)
+
+  useEffect(() => {
+    if (widgetLayout) {
+      setWidgetList(widgetLayout)
+    }
+  }, [widgetLayout])
 
   const onSelectWidget = (widgetTitle: WidgetType) => {
     setSelectedWidget(widgetTitle)
@@ -54,7 +60,6 @@ const Dashboard = () => {
         <WidgetList
           onCloseSideBar={onCloseSideBar}
           setIsAddWidgetOpen={setIsAddWidgetOpen}
-          widgetLayouts={widgetLayout || []}
           mutateWidgets={mutateWidgets}
         />
       ) : selectedWidget ? (

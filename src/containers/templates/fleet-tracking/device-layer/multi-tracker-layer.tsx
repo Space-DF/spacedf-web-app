@@ -42,6 +42,8 @@ export const MultiTrackerLayer = () => {
 
   const { startDrawHistory } = useDeviceHistory()
 
+  console.log('render multi tracker layer')
+
   const { isClusterVisible, modelType, isAlreadyShowTripRoute } =
     useFleetTrackingStore(
       useShallow((state) => ({

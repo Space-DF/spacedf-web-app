@@ -46,6 +46,7 @@ class WaterLevelInstance {
   private selectedWaterDeviceAnimation: any = null
 
   private globalOverlay: MapboxOverlay | null = null
+  private waterDepthLayer: ColumnLayer<WaterLevelDataType> | null = null
   private emitter = new EventEmitter()
 
   private constructor() {}
@@ -68,7 +69,7 @@ class WaterLevelInstance {
   private _getWaterLevelName = (waterLevel: number) => {
     const waterLevelMeter = waterLevel / 100
 
-    if (waterLevelMeter > 0 && waterLevelMeter < WATER_LEVEL_THRESHOLDS.safe)
+    if (waterLevelMeter >= 0 && waterLevelMeter < WATER_LEVEL_THRESHOLDS.safe)
       return 'safe'
 
     if (
@@ -210,7 +211,7 @@ class WaterLevelInstance {
     const wrapperLayer = new ColumnLayer<WaterLevelDataType>({
       id: LAYER_IDS.DEVICE_WATER_LEVEL_WRAPPER_LAYER,
       data: dataLayers,
-      diskResolution: 300,
+      diskResolution: 8,
       extruded: true,
       radius: 12,
       elevationScale: 0.1,
@@ -257,10 +258,10 @@ class WaterLevelInstance {
       }
     })
 
-    const layer = new ColumnLayer<WaterLevelDataType>({
+    this.waterDepthLayer = new ColumnLayer<WaterLevelDataType>({
       id: LAYER_IDS.DEVICE_WATER_LEVEL_LAYER,
       data: dataLayers,
-      diskResolution: 300,
+      diskResolution: 8,
       extruded: true,
       radius: 8,
       elevationScale: 0.1,
@@ -268,24 +269,25 @@ class WaterLevelInstance {
         if (d.deviceId === this.selectedWaterDeviceId) {
           return d.waterLevel * this.selectedWaterDeviceProgress
         }
+
         return d.waterLevel
       },
       getPosition: (d: WaterLevelDataType) => d.location,
       getFillColor: (d: WaterLevelDataType) => d.color,
-      pickable: true,
       opacity: this.type === 'visible' ? 1 : 0,
-      onClick: ({ object }) => {
-        this.emitter.emit('water-level-selected', object.deviceId)
-      },
       transitions: {
         opacity: { duration: 200, easing: easeOut },
-        ...(this.animateState === 'idle' && {
-          getElevation: {
-            duration: 1000,
-            easing: linear,
-            enter: () => 0,
-          },
-        }),
+        getElevation: {
+          duration: 1000,
+          easing: linear,
+          enter: () => 0,
+        },
+      },
+      updateTriggers: {
+        getElevation: [
+          this.selectedWaterDeviceId,
+          this.selectedWaterDeviceProgress,
+        ],
       },
 
       parameters: {
@@ -299,7 +301,7 @@ class WaterLevelInstance {
         (l: any) => l.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
       )
 
-      const mergedLayers = [layer, ...baseLayers]
+      const mergedLayers = [this.waterDepthLayer, ...baseLayers]
       this.globalOverlay.setProps({ layers: mergedLayers })
     }
   }
@@ -405,14 +407,35 @@ class WaterLevelInstance {
 
       this.animateState = 'animating'
 
+      const prevLayers = (this.globalOverlay as any)._props.layers
+      const baseLayers = prevLayers.filter(
+        (l: any) => l.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
+      )
+
       this.selectedWaterDeviceAnimation = animate({
         from: 0,
         to: 1,
-        duration: 2000,
+        duration: 1000,
         ease: linear,
         onUpdate: (latest: number) => {
           this.selectedWaterDeviceProgress = latest
-          this._buildWaterLevelLayer(Object.values(this.devices))
+          this.waterDepthLayer = this.waterDepthLayer?.clone({
+            updateTriggers: {
+              getElevation: [
+                this.selectedWaterDeviceId,
+                this.selectedWaterDeviceProgress,
+              ],
+            },
+            transitions: {
+              getElevation: {
+                duration: 0,
+              },
+            },
+          })
+
+          this.globalOverlay?.setProps({
+            layers: [this.waterDepthLayer, ...baseLayers],
+          })
         },
         onComplete: () => {
           this.animateState = 'idle'
