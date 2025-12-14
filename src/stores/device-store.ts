@@ -69,6 +69,11 @@ type DeviceModelAction = {
 
   setDeviceHistory: (data: Checkpoint[]) => void
   clearDeviceModels: () => void
+  setDeviceAlertDevice: (
+    deviceId: string,
+    type: 'water_depth',
+    data: Alert[]
+  ) => void
 }
 
 const reduceDevices = (data: Device[]) => {
@@ -113,6 +118,12 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
           data as Alert,
           ...(state.deviceAlerts[type][deviceId] || []),
         ]
+      })
+    },
+
+    setDeviceAlertDevice: (deviceId, type, data) => {
+      return set((state) => {
+        state.deviceAlerts[type][deviceId] = data
       })
     },
 

@@ -32,7 +32,7 @@ export const getWaterDepthLevelName = (
 
 export const ALERT_MESSAGES = {
   safe: 'Water level is safe',
-  caution: 'Water level is caution',
-  warning: 'Water level is warning',
-  critical: 'Water level is critical',
+  caution: 'Water is rising quickly',
+  warning: 'Flooding',
+  critical: 'Flood risk',
 }
