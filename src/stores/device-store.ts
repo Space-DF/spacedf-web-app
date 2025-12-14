@@ -26,6 +26,7 @@ export type Device<T = {}> = {
   deviceProperties?: DeviceDataOriginal['device_properties'] & {
     latest_checkpoint_arr?: [number, number]
     water_level_name?: 'safe' | 'warning' | 'danger'
+    battery?: number
   }
   deviceInformation?: DeviceDataOriginal['device']
   latestLocation?: [number, number]
@@ -55,10 +56,7 @@ type DeviceModelAction = {
     data: Partial<Device['deviceProperties']>
   ) => void
 
-  setDeviceState: (
-    deviceId: string,
-    data: Partial<Device & { device_eui: string }>
-  ) => void
+  setDeviceState: (deviceId: string, data: any) => void
 
   setDeviceHistory: (data: Checkpoint[]) => void
   clearDeviceModels: () => void
@@ -72,6 +70,20 @@ const reduceDevices = (data: Device[]) => {
     }),
     {} as Record<string, Device>
   )
+}
+
+const reduceDeviceFleetTracking = (data: Device[]) => {
+  return data
+    .filter((device) =>
+      device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
+    )
+    .reduce(
+      (acc, device) => ({
+        ...acc,
+        [device.id]: device,
+      }),
+      {} as Record<string, Device>
+    )
 }
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
@@ -103,23 +115,27 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceProperties: (deviceId, data) => {
       return set((state) => {
-        state.devicesFleetTracking[deviceId] = {
-          ...state.devices[deviceId],
-          deviceProperties: {
-            ...state.devices[deviceId].deviceProperties,
-            ...data,
-          } as Device['deviceProperties'],
-        }
+        const newDevices = Object.values(state.devices).map((device) => {
+          if (device.deviceId === deviceId) {
+            return {
+              ...device,
+              deviceProperties: {
+                ...device.deviceProperties,
+                ...data,
+              } as Device['deviceProperties'],
+            }
+          }
+          return device
+        })
+
+        state.devices = reduceDevices(newDevices)
+        state.devicesFleetTracking = reduceDeviceFleetTracking(newDevices)
       })
     },
 
     setDevices: (data) => {
-      const validDevices = data.filter((device) =>
-        device.latestLocation?.every((loc) => loc)
-      )
-
       return set(() => ({
-        devicesFleetTracking: reduceDevices(validDevices),
+        devicesFleetTracking: reduceDeviceFleetTracking(data),
         devices: reduceDevices(data),
       }))
     },
@@ -132,49 +148,67 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
+        if (data?.organization === 'dut-udn') return
+
         const currentDevice = Object.values(state.devices)?.find(
           (d) => d.deviceId === deviceId
         )
+        const newLat = data.deviceProperties?.latest_checkpoint_arr?.[1]
+        const newLng = data.deviceProperties?.latest_checkpoint_arr?.[0]
 
-        const previousState: Device = currentDevice || {
-          type: DEVICE_MODEL.RAK,
-          layerProps: DEVICE_LAYER_PROPERTIES[
-            DEVICE_MODEL.RAK
-          ] as LayerProperties,
-          id: deviceId,
-          name: 'Unknown-' + deviceId,
-          status: 'active',
-          histories: {
-            start: [0, 0],
-            end: [0, 0],
-          },
-          deviceProperties: {
-            water_depth: 0,
-            water_level_name: 'safe',
-            latest_checkpoint_arr: [0, 0],
-          },
-          deviceId: deviceId,
-          lorawan_device: {
-            dev_eui: data.device_eui,
-          } as LorawanDevice,
+        if (!newLat || !newLng) return
+
+        if (currentDevice) {
+          const newDeviceProperties = {
+            ...currentDevice?.deviceProperties,
+            latest_checkpoint_arr: [newLng, newLat],
+            latest_checkpoint: {
+              latitude: newLat,
+              longitude: newLng,
+            },
+          } as Device['deviceProperties']
+          state.devices[deviceId].deviceProperties = newDeviceProperties
+
+          if (state.devicesFleetTracking[deviceId]) {
+            state.devicesFleetTracking[deviceId].deviceProperties =
+              newDeviceProperties
+          }
+        } else {
+          const newDevice: Device = {
+            type: DEVICE_MODEL.RAK,
+            layerProps: DEVICE_LAYER_PROPERTIES[
+              DEVICE_MODEL.RAK
+            ] as LayerProperties,
+            id: deviceId,
+            name: 'Unknown-' + deviceId,
+            status: 'active',
+            histories: {
+              start: [0, 0],
+              end: [0, 0],
+            },
+            deviceProperties: {
+              latest_checkpoint_arr: [newLng, newLat],
+              latest_checkpoint: {
+                latitude: newLat,
+                longitude: newLng,
+              },
+            },
+            deviceId: deviceId,
+            lorawan_device: {
+              dev_eui: data.device_eui,
+            } as LorawanDevice,
+          }
+
+          state.devices = {
+            ...state.devices,
+            [deviceId]: newDevice,
+          }
+
+          state.devicesFleetTracking = {
+            ...state.devicesFleetTracking,
+            [deviceId]: newDevice,
+          }
         }
-
-        const newDeviceProperties = {
-          ...previousState.deviceProperties,
-          ...data.deviceProperties,
-        } as Device['deviceProperties']
-
-        const newState = { ...previousState, ...data }
-        state.devices[deviceId] = {
-          ...newState,
-          deviceProperties: newDeviceProperties,
-        }
-
-        state.devicesFleetTracking = reduceDevices(
-          (Object.values(state.devices) as Device[]).filter((device) =>
-            device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
-          )
-        )
       })
     },
 
