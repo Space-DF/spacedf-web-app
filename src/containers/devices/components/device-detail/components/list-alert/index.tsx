@@ -11,7 +11,7 @@ import {
 import { cn } from '@/lib/utils'
 import { format, subDays } from 'date-fns'
 import Image from 'next/image'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -20,6 +20,7 @@ import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { WaterDepthLevelName } from '@/utils/water-depth'
+import { useShallow } from 'zustand/react/shallow'
 
 dayjs.extend(relativeTime)
 
@@ -120,11 +121,30 @@ const getWaterLevel = (value: number, unit: string) => {
 export default function ListAlert() {
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
   const [selectedDate, setSelectedDate] = useState<string>('today')
-  const { data: alerts, isLoading } = useGetAlert(
-    deviceSelected,
-    getDateByDateType(selectedDate)
-  )
+  const {
+    data: alerts,
+    isLoading,
+    isValidating,
+  } = useGetAlert(deviceSelected, getDateByDateType(selectedDate))
   const t = useTranslations('common')
+  const deviceAlerts = useDeviceStore(
+    useShallow((state) => state.deviceAlerts.water_depth[state.deviceSelected])
+  )
+  const setDeviceAlertDevice = useDeviceStore(
+    useShallow((state) => state.setDeviceAlertDevice)
+  )
+
+  useEffect(() => {
+    if (isValidating) return
+    const newDeviceAlerts =
+      deviceAlerts?.filter(
+        (alert) =>
+          format(alert.reported_at, 'yyyy-MM-dd') !==
+          getDateByDateType(selectedDate)
+      ) || []
+    setDeviceAlertDevice(deviceSelected, 'water_depth', newDeviceAlerts)
+  }, [isValidating])
+
   const listLocation = useMemo(() => {
     return (
       alerts?.results?.map((alert) => ({
@@ -136,31 +156,44 @@ export default function ListAlert() {
 
   const { data: alertAddresses } = useTripAddress(listLocation)
 
+  const alertAvailableList = useMemo(() => {
+    return (
+      deviceAlerts?.filter(
+        (alert) =>
+          format(alert.reported_at, 'yyyy-MM-dd') ===
+            getDateByDateType(selectedDate) && alert.level !== 'safe'
+      ) || []
+    )
+  }, [deviceAlerts, selectedDate])
+
   const alertList: ListItem[] = useMemo(
     () =>
-      alerts?.results?.map((alert, index) => {
-        const timestamp = new Date(alert.reported_at)
-        const relativeTimeStr = dayjs(timestamp).fromNow(true)
+      [...alertAvailableList, ...(alerts?.results || [])].map(
+        (alert, index) => {
+          const timestamp = new Date(alert.reported_at)
+          const relativeTimeStr = dayjs(timestamp).fromNow(true)
 
-        return {
-          id: alert.id,
-          title: alert.message,
-          severity: alert.level,
-          waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
-          location: alertAddresses?.[index] || (
-            <Skeleton className="w-20 h-4" />
-          ),
-          time: format(timestamp, 'hh:mm a'),
-          timestamp,
-          relativeTime: relativeTimeStr,
+          return {
+            id: alert.reported_at,
+            title: alert.message,
+            severity: alert.level,
+            waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
+            location: alertAddresses?.[index] || (
+              <Skeleton className="w-20 h-4" />
+            ),
+            time: format(timestamp, 'hh:mm a'),
+            timestamp,
+            relativeTime: relativeTimeStr,
+          }
         }
-      }) || [],
-    [alerts, alertAddresses]
+      ) || [],
+    [alerts, alertAddresses, alertAvailableList]
   )
 
   const renderAlertItem = useCallback(
     (item: ListItem, _: number, isExpanded: boolean) => {
       const isCritical = item.severity === 'critical'
+      const isCaution = item.severity === 'caution'
 
       return (
         <div
@@ -207,10 +240,12 @@ export default function ListAlert() {
                     'text-xs font-medium px-2 py-0.5 rounded w-fit',
                     isCritical
                       ? 'text-brand-component-text-negative bg-brand-component-fill-negative-soft border border-brand-component-stroke-negative'
-                      : 'text-brand-component-text-warning border border-brand-component-stroke-warning bg-brand-component-fill-warning-soft'
+                      : isCaution
+                        ? 'text-yellow-500 bg-yellow-50 border border-yellow-500'
+                        : 'text-brand-component-text-warning border border-brand-component-stroke-warning bg-brand-component-fill-warning-soft'
                   )}
                 >
-                  {isCritical ? 'Critical' : 'Warning'}
+                  {isCritical ? 'Critical' : isCaution ? 'Caution' : 'Warning'}
                 </span>
               </div>
 
