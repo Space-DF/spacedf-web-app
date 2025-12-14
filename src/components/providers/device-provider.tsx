@@ -26,6 +26,9 @@ import { useIsDemo } from '@/hooks/useIsDemo'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { DEVICE_MODEL } from '@/constants/device-property'
 import { useDashboardStore } from '@/stores/dashboard-store'
+import { v4 as uuidv4 } from 'uuid'
+import { Alert } from '@/types/alert'
+import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -46,6 +49,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const isAuthenticated = useAuthenticated()
 
   const dataUpdatesRef = useRef<Record<string, Device['deviceProperties']>>({})
+  const entityKeyRef = useRef<Set<string>>(new Set())
+
   const flushTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const currentSpace = useGlobalStore((state) => state.currentSpace)
@@ -62,6 +67,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setDeviceState,
     clearDeviceModels,
     setDeviceProperties,
+    setDeviceAlerts,
     devicesFleetTracking,
   } = useDeviceStore(
     useShallow((state) => ({
@@ -73,6 +79,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       clearDeviceModels: state.clearDeviceModels,
       setDeviceProperties: state.setDeviceProperties,
       devicesFleetTracking: state.devicesFleetTracking,
+      setDeviceAlerts: state.setDeviceAlerts,
     }))
   )
 
@@ -130,6 +137,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       if (data.entityUpdate.device_id) {
         switch (data.entityType) {
           case 'water_depth':
+            entityKeyRef.current.add('water_depth')
             const newWaterDepth =
               typeof data.entityUpdate.state === 'number'
                 ? data.entityUpdate.state
@@ -142,6 +150,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
             }
 
           case 'location':
+            entityKeyRef.current.add('location')
             const newLat = (data.entityUpdate as any)?.entity?.attributes
               ?.latitude
             const newLng = (data.entityUpdate as any)?.entity?.attributes
@@ -190,9 +199,47 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       const deviceIds = Object.keys(dataUpdatesRef.current)
       deviceIds.forEach((deviceId) => {
         setDeviceProperties(deviceId, dataUpdatesRef.current[deviceId])
+
+        if (entityKeyRef.current.has('water_depth')) {
+          handleUpdateAlertStore(deviceId, dataUpdatesRef.current[deviceId])
+        }
       })
       dataUpdatesRef.current = {}
+      entityKeyRef.current.clear()
     }, 300)
+  }
+
+  const handleUpdateAlertStore = (
+    deviceId: string,
+    data: Device['deviceProperties']
+  ) => {
+    if (typeof data?.water_depth !== 'number') return
+
+    const waterDepthLevel = getWaterDepthLevelName(data.water_depth)
+    const entityId = uuidv4()
+    const reportedAt = new Date().toISOString()
+
+    const newAlert: Alert = {
+      id: entityId,
+      device_id: deviceId,
+      entity_id: entityId,
+      entity_name: 'Water Depth',
+      level: waterDepthLevel,
+      location: data.latest_checkpoint || { latitude: 0, longitude: 0 },
+      message: ALERT_MESSAGES[waterDepthLevel],
+      reported_at: reportedAt,
+      space_slug: '',
+      threshold: {
+        warning: 0,
+        critical: 0,
+      },
+      type: waterDepthLevel,
+      unit: 'cm',
+      water_depth: data.water_depth,
+      water_level: data.water_depth,
+    }
+
+    setDeviceAlerts(deviceId, 'water_depth', newAlert)
   }
 
   useEffect(() => {

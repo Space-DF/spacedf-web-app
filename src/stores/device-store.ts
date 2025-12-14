@@ -4,8 +4,10 @@ import {
   LayerProperties,
   SupportedModels,
 } from '@/constants/device-property'
+import { Alert } from '@/types/alert'
 import { DeviceDataOriginal, LorawanDevice } from '@/types/device'
 import { Checkpoint } from '@/types/trip'
+import { WaterDepthLevelName } from '@/utils/water-depth'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import { castDraft } from 'immer'
 import { create } from 'zustand'
@@ -25,7 +27,7 @@ export type Device<T = {}> = {
   }
   deviceProperties?: DeviceDataOriginal['device_properties'] & {
     latest_checkpoint_arr?: [number, number]
-    water_level_name?: 'safe' | 'warning' | 'danger'
+    water_level_name?: WaterDepthLevelName
     battery?: number
   }
   deviceInformation?: DeviceDataOriginal['device']
@@ -44,6 +46,13 @@ type DeviceModelState = {
   initializedSuccess: boolean
   setInitializedSuccess: (newState: boolean) => void
   deviceHistory: Checkpoint[]
+  deviceAlerts: Record<'water_depth', Record<string, Alert[]>>
+
+  setDeviceAlerts: (
+    deviceId: string,
+    type: 'water_depth',
+    data: Partial<Alert>
+  ) => void
 }
 
 type DeviceModelAction = {
@@ -95,6 +104,18 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
     initializedSuccess: false,
     modelPreview: {} as Record<SupportedModels, string>,
     deviceHistory: [],
+    deviceAlerts: {
+      water_depth: {},
+    },
+    setDeviceAlerts: (deviceId, type, data) => {
+      return set((state) => {
+        state.deviceAlerts[type][deviceId] = [
+          data as Alert,
+          ...(state.deviceAlerts[type][deviceId] || []),
+        ]
+      })
+    },
+
     setDeviceModel(key, bufferModel) {
       return set((state) => {
         state.models[key] = castDraft(bufferModel)
