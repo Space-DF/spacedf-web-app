@@ -5,7 +5,7 @@ const WATER_LEVEL_THRESHOLDS = {
   critical: 0.6,
 }
 
-export type WaterDepthLevelName = 'safe' | 'warning' | 'floating' | 'critical'
+export type WaterDepthLevelName = 'safe' | 'caution' | 'warning' | 'critical'
 
 export const getWaterDepthLevelName = (
   waterLevel: number
@@ -19,20 +19,20 @@ export const getWaterDepthLevelName = (
     waterLevelMeter >= WATER_LEVEL_THRESHOLDS.safe &&
     waterLevelMeter < WATER_LEVEL_THRESHOLDS.warning
   )
-    return 'warning'
+    return 'caution'
 
   if (
     waterLevelMeter >= WATER_LEVEL_THRESHOLDS.warning &&
     waterLevelMeter <= WATER_LEVEL_THRESHOLDS.floating
   )
-    return 'floating'
+    return 'warning'
 
   return 'critical'
 }
 
 export const ALERT_MESSAGES = {
   safe: 'Water level is safe',
+  caution: 'Water level is caution',
   warning: 'Water level is warning',
-  floating: 'Water level is floating',
   critical: 'Water level is critical',
 }

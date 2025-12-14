@@ -51,6 +51,19 @@ export const WaterLevelLayer = () => {
   )
 
   useEffect(() => {
+    const handleZoomEnd = () => {
+      if (isClusterVisible) {
+        setDeviceSelected('')
+      }
+    }
+
+    fleetTrackingMap.on('zoomend', handleZoomEnd)
+    return () => {
+      fleetTrackingMap.off('zoomend', handleZoomEnd)
+    }
+  }, [isClusterVisible])
+
+  useEffect(() => {
     if (isClusterVisible) {
       waterLevelInstance.syncDevices(devices, 'hidden')
     } else {
@@ -97,13 +110,30 @@ export const WaterLevelLayer = () => {
   }, [modelType, mapType])
 
   useEffect(() => {
+    const map = fleetTrackingMap.getMap()
+
     waterLevelInstance.handleWaterLevelSelected(deviceSelected)
-  }, [deviceSelected])
+
+    const device = devices?.[deviceSelected]
+
+    if (map && device) {
+      map.flyTo({
+        center: device.deviceProperties?.latest_checkpoint_arr as [
+          number,
+          number,
+        ],
+        zoom: 18,
+        duration: 500,
+        essential: true,
+        pitch: 70,
+      })
+    }
+  }, [deviceSelected, devices])
 
   return (
     <>
       <div
-        className="absolute bottom-8 right-2 w-[145px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
+        className="absolute bottom-8 right-2 w-[155px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
       dark:bg-[#171A28CC] dark:text-white"
       >
         <div className="flex items-center gap-2 mb-3">
@@ -114,15 +144,15 @@ export const WaterLevelLayer = () => {
         <div className="px-1 space-y-2">
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#01D195] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0 - &lt;0.1 m</span>
+            <span>0 &#8594; &lt;0.1m</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#D49D4C] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0.1 - &le;0.3m</span>
+            <span>0.1 &#8594; &lt;0.3m</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-5 bg-orange-500 rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0.3 - &le;0.6m</span>
+            <span>0.3 &#8594; &le;0.6m</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="size-5 bg-[#BB0003] rounded-full border-2 border-gray-200 dark:border-white/90" />
