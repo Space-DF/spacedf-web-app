@@ -34,7 +34,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { useTranslations } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Widget, WidgetLayout } from '@/types/widget'
+import { Widget } from '@/types/widget'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { DataTable } from '@/components/ui/data-table'
 import { MockData } from '../mock-data/mock-data'
@@ -49,11 +49,11 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
 import { Dashboard } from '@/types/dashboard'
 import { sleep } from '@/utils'
+import { useShallow } from 'zustand/react/shallow'
 
 interface Props {
   onCloseSideBar: () => void
   setIsAddWidgetOpen: (open: boolean) => void
-  widgetLayouts: WidgetLayout[]
   mutateWidgets: () => void
 }
 
@@ -71,7 +71,6 @@ const getLayouts = (widgets: Widget[]) => {
 export const WidgetList: React.FC<Props> = ({
   onCloseSideBar,
   setIsAddWidgetOpen,
-  widgetLayouts,
   mutateWidgets,
 }) => {
   const {
@@ -99,6 +98,8 @@ export const WidgetList: React.FC<Props> = ({
     setWidgets(widgets)
   }, [])
 
+  const widgetList = useDashboardStore(useShallow((state) => state.widgetList))
+
   const { data: dashboards = [], mutate } = useDashboard()
 
   const { trigger: deleteDashboard, isMutating: isDeleting } =
@@ -111,10 +112,10 @@ export const WidgetList: React.FC<Props> = ({
   }
 
   const currentWidgetLayout = useMemo(() => {
-    const widgets = widgetLayouts.map((widget) => widget.configuration) || []
+    const widgets = widgetList.map((widget) => widget.configuration) || []
     setWidgets(widgets)
     return widgets
-  }, [widgetLayouts])
+  }, [widgetList])
 
   const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
 
@@ -126,7 +127,7 @@ export const WidgetList: React.FC<Props> = ({
   }
 
   const handleSaveDashboard = async () => {
-    const currentWidgetPayload = widgetLayouts.map((widgetLayout, index) => ({
+    const currentWidgetPayload = widgetList.map((widgetLayout, index) => ({
       id: widgetLayout.id,
       configuration: { ...widgetLayout.configuration, ...widgets[index] },
     }))
@@ -335,9 +336,7 @@ export const WidgetList: React.FC<Props> = ({
                   </Button>
                 </div>
               )}
-              {!widgetLayouts.length && (
-                <Nodata content={t('common.no_widget')} />
-              )}
+              {!widgetList.length && <Nodata content={t('common.no_widget')} />}
               <MockData
                 isEdit={isEdit}
                 widgets={currentWidgetLayout}
