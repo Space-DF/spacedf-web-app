@@ -4,7 +4,7 @@ import { BaseMQTTHandler, MQTTMessagePayload } from './base-handler'
 export interface EntityTelemetryData {
   entityId: string
   entityType: string
-  entityUpdate: Partial<Entity> & { state?: any }
+  entityUpdate: Partial<Entity> & { state?: any; entity?: { attribute?: any } }
 }
 
 export class EntityTelemetryHandler extends BaseMQTTHandler {

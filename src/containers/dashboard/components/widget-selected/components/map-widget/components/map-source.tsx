@@ -27,6 +27,8 @@ import { Entity } from '@/types/entity'
 import { Button } from '@/components/ui/button'
 import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useDebounce } from '@/hooks'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const mapTypeLabels: Record<MapType, string> = {
   [MapType.RoadMap]: 'Road Map',
@@ -34,6 +36,8 @@ const mapTypeLabels: Record<MapType, string> = {
 }
 
 const MapSource: React.FC = () => {
+  const [entityName, setEntityName] = useState('')
+  const entityNameDebounce = useDebounce(entityName)
   const t = useTranslations('dashboard')
   const { control, setValue } = useFormContext<mapPayload>()
 
@@ -45,7 +49,10 @@ const MapSource: React.FC = () => {
       name: 'sources',
     }) || []
 
-  const { data: entities } = useDeviceEntity('map')
+  const { data: entities, isLoading } = useDeviceEntity(
+    'map',
+    entityNameDebounce
+  )
 
   const entityList = entities?.results || []
 
@@ -103,44 +110,61 @@ const MapSource: React.FC = () => {
                 >
                   <p className="truncate w-5/6 text-start">
                     {currentEntity
-                      ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                      ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key} - ${currentEntity.device_name}`
                       : t('select_entity')}
                   </p>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
-                <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                <Command
+                  className="bg-brand-component-fill-light-fixed dark:bg-brand-heading"
+                  shouldFilter={false}
+                >
                   <CommandInput
                     placeholder={t('search_entity')}
                     className="h-9"
+                    onValueChange={(value) => setEntityName(value)}
                   />
                   <CommandList>
-                    <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
-                    <CommandGroup>
-                      {entityList.length > 0 &&
-                        entityList.map((entity) => (
-                          <CommandItem
-                            key={entity.id}
-                            value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                            onSelect={() => {
-                              handleEntityChange(entity)
-                              setOpenCombobox(false)
-                            }}
-                            className="data-[selected=true]:bg-brand-component-fill-gray-soft"
-                          >
-                            {`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                            <Check
-                              className={cn(
-                                'ml-auto size-4',
-                                field.value === entity.id
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                          </CommandItem>
+                    {isLoading ? (
+                      <div className="p-2 space-y-2">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <Skeleton
+                            key={idx}
+                            className="h-4 w-full bg-brand-component-fill-gray-soft"
+                          />
                         ))}
-                    </CommandGroup>
+                      </div>
+                    ) : (
+                      <>
+                        <CommandEmpty>{t('no_devices_found')}</CommandEmpty>
+                        <CommandGroup>
+                          {entityList.length > 0 &&
+                            entityList.map((entity) => (
+                              <CommandItem
+                                key={entity.id}
+                                value={entity.id}
+                                onSelect={() => {
+                                  handleEntityChange(entity)
+                                  setOpenCombobox(false)
+                                }}
+                                className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                              >
+                                {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                <Check
+                                  className={cn(
+                                    'ml-auto size-4',
+                                    field.value === entity.id
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </>
+                    )}
                   </CommandList>
                 </Command>
               </PopoverContent>

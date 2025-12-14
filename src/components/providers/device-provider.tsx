@@ -19,6 +19,7 @@ import { useParams } from 'next/navigation'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { DEVICE_MODEL } from '@/constants/device-property'
+import { useDashboardStore } from '@/stores/dashboard-store'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -66,6 +67,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     }))
   )
 
+  const { setWidgetList, widgetList } = useDashboardStore(
+    useShallow((state) => ({
+      widgetList: state.widgetList,
+      setWidgetList: state.setWidgetList,
+    }))
+  )
+
   const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
 
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
@@ -98,6 +106,16 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
       data.entityUpdate
     )
+    const newWidgetList = widgetList.map((widget) => {
+      if (widget.id === data.entityId) {
+        return {
+          ...widget,
+          data: data.entityUpdate.entity?.attribute,
+        }
+      }
+      return widget
+    })
+    setWidgetList(newWidgetList)
 
     //*TODO: Update for another entity
     if (data.entityType === 'water_depth') {
