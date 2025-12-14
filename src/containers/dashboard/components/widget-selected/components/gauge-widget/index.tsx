@@ -106,6 +106,12 @@ const GaugeWidget: React.FC<Props> = ({
     const isValid = await form.trigger()
     if (!isValid) return
     const newWidgetData = {
+      display_type: 'gauge',
+      entity_id: gaugeValue.source?.entity_id,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...gaugeValue,
         id: uuidv4(),

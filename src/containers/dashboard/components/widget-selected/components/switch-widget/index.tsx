@@ -78,6 +78,12 @@ const SwitchWidget: React.FC<Props> = ({
     if (!isValid) return
     const switchValue = form.getValues()
     const newWidgetData = {
+      display_type: 'switch',
+      entity_id: switchValue.source?.entity_ids[0],
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
       configuration: {
         ...switchValue,
         id: uuidv4(),
