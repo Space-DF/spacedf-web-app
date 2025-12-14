@@ -8,7 +8,11 @@ import TabWidget, { TabKey } from '../tab-widget'
 
 import { TabsContent } from '@/components/ui/tabs'
 import { TimeFormat } from '@/constants'
-import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
+import {
+  ChartPayload,
+  defaultHistogramValues,
+  histogramSchema,
+} from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
@@ -57,7 +61,7 @@ const TabContents = () => {
   )
 }
 
-const ChartWidget: React.FC<Props> = ({
+const HistogramWidget: React.FC<Props> = ({
   selectedWidget,
   onSaveWidget,
   onClose,
@@ -65,8 +69,8 @@ const ChartWidget: React.FC<Props> = ({
 }) => {
   const t = useTranslations('dashboard')
   const form = useForm<ChartPayload>({
-    resolver: zodResolver(chartSchema),
-    defaultValues: defaultChartValues,
+    resolver: zodResolver(histogramSchema),
+    defaultValues: defaultHistogramValues,
     mode: 'onChange',
   })
 
@@ -153,7 +157,7 @@ const ChartWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_chart_widget`)}</div>
+          <div>{t(`add_histogram_widget`)}</div>
         </div>
       }
       externalButton={
@@ -203,4 +207,4 @@ const ChartWidget: React.FC<Props> = ({
   )
 }
 
-export default memo(ChartWidget)
+export default memo(HistogramWidget)

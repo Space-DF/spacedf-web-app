@@ -1,9 +1,11 @@
-import { DEVICE_LAYER_PROPERTIES } from '@/constants/device-property'
+import {
+  DEVICE_LAYER_PROPERTIES,
+  LayerProperties,
+  SupportedModels,
+} from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
-import { DeviceSpace } from '@/types/device-space'
-import { Checkpoint } from '@/types/trip'
+import { DeviceDataOriginal } from '@/types/device'
 import { ConfigSpecification } from 'mapbox-gl'
-import { getClientOrganization } from './common'
 
 type MapType = 'default' | '3D_map' | 'street'
 const getMapStyle = (
@@ -90,25 +92,9 @@ export function calculateTotalDistance(
   return totalDistance.toFixed(2) // km
 }
 
-const dummyTestingLocations = [
-  [108.22135225454248, 16.059130598128093],
-  [108.22135225454248, 16.059130598128093],
-  [126.9970831, 37.550263],
-  [108.6690844, 15.5036719],
-]
-
 const formatCheckpoint = (
-  latestCheckpoint?: Checkpoint,
-  dataIndex?: number
+  latestCheckpoint?: DeviceDataOriginal['latest_checkpoint']
 ): [number, number] => {
-  //#region: TODO: Handle data for testing. Remove this later.
-  if (dataIndex !== undefined && !latestCheckpoint) {
-    if (dummyTestingLocations[dataIndex])
-      return dummyTestingLocations[dataIndex] as [number, number]
-    return [0, 0]
-  }
-  //#endregion
-
   if (!latestCheckpoint) {
     return [0, 0]
   }
@@ -116,37 +102,69 @@ const formatCheckpoint = (
   return [latestCheckpoint.longitude, latestCheckpoint.latitude]
 }
 
-export const transformDeviceData = (deviceSpace: DeviceSpace[]): Device[] => {
-  const currentOrg = getClientOrganization()
+const detectDeviceType = (deviceModelName: string): SupportedModels => {
+  const lowerCaseDeviceModelName = deviceModelName?.toLowerCase() || ''
+  if (lowerCaseDeviceModelName.startsWith('rak')) return 'rak'
 
-  const orgTestingEnv = process.env.NEXT_PUBLIC_ORG_TESTING_ENV
+  if (lowerCaseDeviceModelName.startsWith('tracki')) return 'tracki'
 
-  const isDataTesting = currentOrg === orgTestingEnv
+  if (lowerCaseDeviceModelName.startsWith('wlb')) return 'wlb'
 
-  return deviceSpace.map((device, index) => {
+  return 'rak'
+}
+
+export const transformDeviceData = (
+  deviceSpace: DeviceDataOriginal[]
+): Device[] => {
+  return deviceSpace.map((device) => {
     const checkpoint = formatCheckpoint(
-      device.latest_checkpoint,
-      isDataTesting ? index : undefined
+      device.device_properties?.latest_checkpoint || device.latest_checkpoint
+    )
+    const deviceType = detectDeviceType(
+      device.device.device_profile?.name || ''
     )
 
     return {
-      ...device.device,
       name: device.name,
       status: device.device.status as 'active' | 'inactive',
-      id: device.id,
+      id: device.device.id,
       deviceId: device.device.id,
-      layerProps: DEVICE_LAYER_PROPERTIES[device.device.type || 'rak'],
-      type: device.device.type || 'rak',
+      description: device.description || '',
+      latestLocation: checkpoint,
+      lorawan_device: device.device.lorawan_device,
+      deviceInformation: device.device,
+      type: deviceType,
       histories: {
         end: checkpoint,
+        start: checkpoint,
       },
-      latestLocation: checkpoint,
-      realtimeTrip: checkpoint ? [checkpoint] : [],
+      deviceProperties: {
+        latest_checkpoint_arr: checkpoint,
+        ...device.device_properties,
+      },
+
+      layerProps:
+        (DEVICE_LAYER_PROPERTIES[deviceType] as LayerProperties) ||
+        ({} as LayerProperties),
       origin: 'Vietnam',
-      description: device.description,
     }
   })
 }
 
-export { getMapStyle }
+const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
+  return devices.reduce(
+    (acc, device) => {
+      const feature = device.deviceInformation?.device_profile?.key_feature
+      if (feature) {
+        acc[feature] = acc[feature] || []
+        acc[feature].push(device)
+      }
+
+      return acc
+    },
+    {} as Record<string, Device[]>
+  )
+}
+
+export { getMapStyle, groupDeviceByFeature }
 export type { MapType }

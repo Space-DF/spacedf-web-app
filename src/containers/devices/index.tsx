@@ -74,12 +74,12 @@ import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { toast } from 'sonner'
-import { DeviceSpace } from '@/types/device-space'
 import { KeyedMutator } from 'swr'
 import { usePrevious } from '@/hooks/usePrevious'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import { DeviceDataOriginal } from '@/types/device'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -165,7 +165,7 @@ interface Steps {
 }
 
 interface Props {
-  mutate: KeyedMutator<DeviceSpace[]>
+  mutate: KeyedMutator<DeviceDataOriginal[]>
 }
 
 const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
@@ -641,7 +641,7 @@ const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({ setStep }) => {
     })
     form.setValue(
       'dev_eui',
-      formatValueEUI(response.lorawan_device.dev_eui).toUpperCase()
+      formatValueEUI(response.lorawan_device?.dev_eui || '').toUpperCase()
     )
     setStep('add_device_manual')
   }

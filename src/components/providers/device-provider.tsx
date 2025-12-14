@@ -7,6 +7,8 @@ import {
   MQTTRouter,
   DeviceTelemetryHandler,
   DeviceTelemetryData,
+  EntityTelemetryHandler,
+  EntityTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
 import { transformDeviceData } from '@/utils/map'
@@ -16,6 +18,7 @@ import { toast } from 'sonner'
 import { useParams } from 'next/navigation'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { DEVICE_MODEL } from '@/constants/device-property'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -48,6 +51,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     setModelPreview,
     setDeviceState,
     clearDeviceModels,
+    setDeviceProperties,
+    devicesFleetTracking,
   } = useDeviceStore(
     useShallow((state) => ({
       setDeviceModel: state.setDeviceModel,
@@ -56,6 +61,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       setModelPreview: state.setModelPreview,
       setDeviceState: state.setDeviceState,
       clearDeviceModels: state.clearDeviceModels,
+      setDeviceProperties: state.setDeviceProperties,
+      devicesFleetTracking: state.devicesFleetTracking,
     }))
   )
 
@@ -84,6 +91,31 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     )
   }
 
+  // Handler for processed entity telemetry data
+  const handleEntityTelemetry = (data: EntityTelemetryData) => {
+    // TODO: Update entity store when created
+    console.log(
+      `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
+      data.entityUpdate
+    )
+
+    //*TODO: Update for another entity
+    if (data.entityType === 'water_depth') {
+      const previousDevice =
+        devicesFleetTracking[data.entityUpdate?.device_id || '']
+
+      if (previousDevice) {
+        setDeviceProperties(previousDevice.deviceId, {
+          ...previousDevice.deviceProperties,
+          water_depth:
+            data.entityUpdate?.state ||
+            previousDevice.deviceProperties?.water_depth ||
+            0,
+        })
+      }
+    }
+  }
+
   useEffect(() => {
     if (isDemo) return
     // Initialize MQTT router and handlers
@@ -92,6 +124,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     // Register device telemetry handler (no store dependency)
     const deviceTelemetryHandler = new DeviceTelemetryHandler()
     mqttRouterRef.current.registerHandler(deviceTelemetryHandler)
+
+    // Register entity telemetry handler
+    const entityTelemetryHandler = new EntityTelemetryHandler()
+    mqttRouterRef.current.registerHandler(entityTelemetryHandler)
 
     // Initialize MQTT connection
     const handleMqttConnect = async () => {
@@ -105,8 +141,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
         },
         onConnect: () => {
-          const publicTopic = `tenant/${organization}/device/+/telemetry`
-          const spaceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+          const publicDeviceTopic = `tenant/${organization}/device/+/telemetry`
+          const spaceDeviceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
+          const publicEntityTopic = `tenant/${organization}/entity/+/telemetry`
+          const spaceEntityTopic = `tenant/${organization}/space/${spaceSlugName}/entity/+/telemetry`
 
           const currentSubscriptions =
             mqttServiceRef.current?.getSubscriptions() || []
@@ -115,7 +153,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           })
 
           mqttServiceRef.current?.subscribe(
-            isAuthorized ? [spaceTopic, publicTopic] : [publicTopic]
+            isAuthorized
+              ? [
+                  spaceDeviceTopic,
+                  publicDeviceTopic,
+                  spaceEntityTopic,
+                  publicEntityTopic,
+                ]
+              : [publicDeviceTopic, publicEntityTopic]
           )
         },
         onSubscribed: () => {
@@ -148,6 +193,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
               'deviceUpdate' in result
             ) {
               handleDeviceTelemetry(result as DeviceTelemetryData)
+            } else if (
+              result &&
+              typeof result === 'object' &&
+              'entityId' in result &&
+              'entityUpdate' in result
+            ) {
+              handleEntityTelemetry(result as EntityTelemetryData)
             }
           })
         },
@@ -162,14 +214,12 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         mqttRouterRef.current = null
       }
     }
-  }, [isAuthorized, spaceSlugName, organization, isDemo])
+  }, [isAuthorized, spaceSlugName, organization, isDemo, devicesFleetTracking])
 
   const getDevices = async () => {
-    try {
-      const devices: Device[] = transformDeviceData(deviceSpaces || [])
+    const devices: Device[] = transformDeviceData(deviceSpaces || [])
 
-      setDevices(devices)
-    } catch {}
+    setDevices(devices)
   }
 
   useEffect(() => {
@@ -204,11 +254,11 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
           Promise.all(buffers.map((buffer) => load(buffer, GLTFLoader)))
         )
 
-      setDeviceModel('rak', rakModel)
-      setDeviceModel('tracki', trackiModel)
+      setDeviceModel(DEVICE_MODEL.RAK, rakModel)
+      setDeviceModel(DEVICE_MODEL.TRACKI, trackiModel)
 
-      setModelPreview('rak', PREVIEW_PATH.rak)
-      setModelPreview('tracki', PREVIEW_PATH.tracki)
+      setModelPreview(DEVICE_MODEL.RAK, PREVIEW_PATH.rak)
+      setModelPreview(DEVICE_MODEL.TRACKI, PREVIEW_PATH.tracki)
 
       setFetchStatus((prev) => ({
         ...prev,

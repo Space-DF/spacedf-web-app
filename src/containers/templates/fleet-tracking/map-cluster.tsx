@@ -159,8 +159,8 @@ export const MapCluster = () => {
       geometry: {
         type: 'Point',
         coordinates: [
-          device.latestLocation?.[0] ?? 0,
-          device.latestLocation?.[1] ?? 0,
+          device.deviceProperties?.latest_checkpoint_arr?.[0] ?? 0,
+          device.deviceProperties?.latest_checkpoint_arr?.[1] ?? 0,
         ],
       },
     }))

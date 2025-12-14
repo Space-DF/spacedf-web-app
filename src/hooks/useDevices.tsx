@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import { DeviceSpace } from '@/types/device-space'
+import { DeviceDataOriginal } from '@/types/device'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
 
@@ -16,7 +16,7 @@ const PAGE_SIZE = 10
 
 const getKey = (
   pageIndex: number,
-  previousPageData: DeviceSpace[],
+  previousPageData: DeviceDataOriginal[],
   spaceSlug: string
 ) => {
   // Stop fetching if there is no more data
@@ -30,10 +30,23 @@ export function useGetDevices(configs: SWRConfiguration = {}) {
   const { data, isLoading, ...rest } = useSWRInfinite(
     (pageIndex, previousPageData) =>
       getKey(pageIndex, previousPageData, spaceSlug),
-    getDevices<DeviceSpace[]>,
+    getDevices<DeviceDataOriginal[]>,
     configs
   )
-  const flatData = useMemo(() => data?.flat(), [data])
+
+  const flatData = useMemo(() => {
+    if (!data) return []
+
+    const merged = data.flat()
+
+    const map = new Map<string, DeviceDataOriginal>()
+    for (const device of merged) {
+      map.set(device.id, device)
+    }
+
+    return Array.from(map.values())
+  }, [data])
+
   const isReachingEnd = data ? data[data.length - 1]?.length < PAGE_SIZE : false
   return { data: flatData, isReachingEnd, isLoading, ...rest }
 }

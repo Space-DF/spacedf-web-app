@@ -104,6 +104,7 @@ const SliderWidget: React.FC<Props> = ({
         </Button>
       }
       onClose={onClose}
+      contentClassName="px-0"
     >
       <FormProvider {...form}>
         <div className="flex size-full flex-col">

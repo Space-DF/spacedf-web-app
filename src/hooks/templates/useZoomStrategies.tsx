@@ -36,7 +36,9 @@ export const useZoomStrategies = () => {
 
   const zoomToSingleDevice = useCallback(
     (device: Device, map: mapboxgl.Map) => {
-      const [lng, lat] = device.latestLocation || [0, 0]
+      const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [
+        0, 0,
+      ]
 
       if (!lng || !lat) return
 
@@ -55,7 +57,7 @@ export const useZoomStrategies = () => {
       const listDevice = Object.values(devices)
 
       const coordinates = listDevice
-        .map((d) => d?.latestLocation)
+        .map((d) => d.deviceProperties?.latest_checkpoint_arr)
         .filter(
           (loc): loc is [number, number] =>
             Array.isArray(loc) && loc.length === 2

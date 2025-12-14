@@ -19,6 +19,7 @@ import { ProgressWidget } from './components/widget-progress'
 import { WidgetSensor } from './components/widget-sensor'
 import { mapPayload, SliderSource } from '@/validator'
 import WidgetSlider from './components/widget-slider'
+import { WidgetHistogram } from './components/widget-histogram'
 
 export const getWidgetByType = (widget: Widget) => {
   switch (widget.type) {
@@ -109,6 +110,12 @@ export const getWidgetByType = (widget: Widget) => {
             source={widget.source as unknown as MakeRequired<SliderSource>}
             value={widget.value!}
           />
+        </div>
+      )
+    case WidgetType.Histogram:
+      return (
+        <div key={widget.id}>
+          <WidgetHistogram {...(widget as WidgetChart)} id={widget.id} />
         </div>
       )
     default:

@@ -1,4 +1,4 @@
-import { Device } from '@/types/device'
+import { Device } from '@/stores/device-store'
 import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 

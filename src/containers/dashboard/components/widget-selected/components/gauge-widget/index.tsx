@@ -124,15 +124,16 @@ const GaugeWidget: React.FC<Props> = ({
   return (
     <RightSideBarLayout
       title={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_gauge_widget`)}</div>
+          <div>{t('add_gauge_widget')}</div>
         </div>
       }
       externalButton={
         <Button onClick={handleAddGaugeWidget}>{t('save')}</Button>
       }
       onClose={onClose}
+      contentClassName="px-0"
     >
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">

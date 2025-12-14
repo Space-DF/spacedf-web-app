@@ -3,17 +3,21 @@ import { MapboxOverlay } from '@deck.gl/mapbox'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import { ScenegraphLayer } from 'deck.gl'
 import { animate, easeOut, linear } from 'popmotion'
-import { SupportedModels } from '../model-objects/devices/gps-tracker/type'
-import EventEmitter from '../event'
+import EventEmitter from '../../event'
 import { IControl } from 'mapbox-gl'
+import {
+  appendLayerForGlobalOverlay,
+  LAYER_IDS,
+  removeLayersFromGlobalOverlay,
+} from './global-overlay-instance'
+import { SupportedModels } from '@/constants/device-property'
 
-const DESTROY_LAYERS_INTERVAL = 30000 // 60 seconds
+const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds
 
-class DeckGLInstance {
-  private static instance: DeckGLInstance | undefined
+class MultiTrackerLayerInstance {
+  private static instance: MultiTrackerLayerInstance | undefined
   private emitter = new EventEmitter()
   private map: mapboxgl.Map | null = null
-  private deck: MapboxOverlay | null = null
   private layers: ScenegraphLayer[] = []
   private deviceModels: Record<string, GLTFWithBuffers> = {}
   private isInitialized = false
@@ -23,17 +27,20 @@ class DeckGLInstance {
   private isVisible = false
   private devices: Record<string, Device> = {}
   private focusedDevice: string | null = null
+  private deviceTypes: Set<string> = new Set()
+
   private rotationRef: {
     stop: () => void
   } | null = null
 
+  private globalOverlay: MapboxOverlay | null = null
   private constructor() {}
 
   static getInstance() {
-    if (!DeckGLInstance.instance) {
-      DeckGLInstance.instance = new DeckGLInstance()
+    if (!MultiTrackerLayerInstance.instance) {
+      MultiTrackerLayerInstance.instance = new MultiTrackerLayerInstance()
     }
-    return DeckGLInstance.instance
+    return MultiTrackerLayerInstance.instance
   }
 
   on(event: string, handler: Function) {
@@ -59,12 +66,16 @@ class DeckGLInstance {
 
   resetLayersState() {
     if (!this.isInitialized) return
-
     const freshLayers = this.buildLayers(this.devices, 'visible')
 
-    if (freshLayers?.length) {
-      this.deck?.setProps({
-        layers: freshLayers,
+    if (this.globalOverlay && freshLayers?.length) {
+      const newLayers = appendLayerForGlobalOverlay(
+        freshLayers || [],
+        this.globalOverlay
+      )
+
+      this.globalOverlay.setProps({
+        layers: newLayers,
       })
     }
   }
@@ -79,8 +90,8 @@ class DeckGLInstance {
 
     this.stopDeviceRotationAnimation()
 
-    const initialLocation = deviceData.latestLocation
-      ? [...deviceData.latestLocation]
+    const initialLocation = deviceData.deviceProperties?.latest_checkpoint_arr
+      ? [...deviceData.deviceProperties?.latest_checkpoint_arr]
       : null
 
     this.rotationRef = animate({
@@ -95,7 +106,8 @@ class DeckGLInstance {
       onUpdate: (rotation) => {
         const newDevices = Object.entries(this.devices).map(([key, device]) => {
           if (device.id === deviceId) {
-            const latest = this.devices[deviceId]?.latestLocation
+            const latest =
+              this.devices[deviceId]?.deviceProperties?.latest_checkpoint_arr
 
             if (
               latest &&
@@ -131,10 +143,15 @@ class DeckGLInstance {
 
         const newDevicesData = Object.fromEntries(newDevices)
 
-        const newLayers = this.buildLayers(newDevicesData, 'visible')
+        const newLayersToAppend = this.buildLayers(newDevicesData, 'visible')
 
-        if (newLayers?.length) {
-          this.deck?.setProps({
+        if (this.globalOverlay && newLayersToAppend?.length) {
+          const newLayers = appendLayerForGlobalOverlay(
+            newLayersToAppend || [],
+            this.globalOverlay
+          )
+
+          this.globalOverlay.setProps({
             layers: newLayers,
           })
         }
@@ -146,10 +163,12 @@ class DeckGLInstance {
     devices: Record<string, Device>,
     type: 'visible' | 'hidden' = 'visible'
   ) {
-    if (!this.map || !this.isInitialized) return
+    if (!this.map || !this.isInitialized || !this.globalOverlay) return
 
     const visibleDevices = Object.values(devices).filter(
-      (d) => Array.isArray(d.latestLocation) && d.latestLocation.length === 2
+      (d) =>
+        Array.isArray(d.deviceProperties?.latest_checkpoint_arr) &&
+        d.deviceProperties?.latest_checkpoint_arr.length === 2
     )
 
     if (!visibleDevices.length) return []
@@ -166,14 +185,16 @@ class DeckGLInstance {
     const layers: ScenegraphLayer[] = []
 
     Object.entries(grouped).forEach(([typeKey, group]) => {
+      this.deviceTypes.add(typeKey)
+
       const layer = new ScenegraphLayer({
-        id: `layer-${typeKey}`,
+        id: `${LAYER_IDS.DEVICE_LAYER}-${typeKey}`,
         data: group.map((d) => {
           const pitch = d.layerProps?.orientation?.pitch || 0
           const yaw = d.layerProps?.orientation?.yaw || 0
           const roll = d.layerProps?.orientation?.roll || 0
 
-          const [lng, lat] = d.latestLocation || [0, 0]
+          const [lng, lat] = d.deviceProperties?.latest_checkpoint_arr || [0, 0]
 
           return {
             id: d.id,
@@ -212,6 +233,10 @@ class DeckGLInstance {
           this.emitter.emit('layer-click', object)
         },
 
+        parameters: {
+          depthTest: true,
+        },
+
         _lighting: 'pbr',
       })
 
@@ -221,16 +246,15 @@ class DeckGLInstance {
     return layers
   }
 
-  init(map: mapboxgl.Map, deviceModels: Record<string, GLTFWithBuffers>) {
+  init(
+    map: mapboxgl.Map,
+    deviceModels: Record<string, GLTFWithBuffers>,
+    globalOverlay: MapboxOverlay
+  ) {
     this.map = map
     this.deviceModels = deviceModels
 
-    this.deck = new MapboxOverlay({
-      interleaved: true,
-      layers: this.layers,
-    })
-
-    map.addControl(this.deck)
+    this.globalOverlay = globalOverlay
 
     this.isInitialized = true
   }
@@ -241,9 +265,20 @@ class DeckGLInstance {
     }
 
     this.destroyTimer = setTimeout(() => {
-      this.deck?.setProps({
-        layers: [],
-      })
+      const layerIdsToRemove = Array.from(this.deviceTypes).map(
+        (type) => `${LAYER_IDS.DEVICE_LAYER}-${type}`
+      )
+
+      if (this.globalOverlay) {
+        const newLayers = removeLayersFromGlobalOverlay(
+          layerIdsToRemove,
+          this.globalOverlay
+        )
+
+        this.globalOverlay?.setProps({
+          layers: newLayers,
+        })
+      }
       this.layers = []
     }, DESTROY_LAYERS_INTERVAL)
   }
@@ -285,9 +320,16 @@ class DeckGLInstance {
     const layers = this.buildLayers(devices, type)
     this.layers = layers || []
 
-    this.deck?.setProps({
-      layers: layers,
-    })
+    if (this.globalOverlay) {
+      const newLayers = appendLayerForGlobalOverlay(
+        layers || [],
+        this.globalOverlay
+      )
+
+      this.globalOverlay.setProps({
+        layers: newLayers,
+      })
+    }
 
     this.isLayersAvailable = true
   }
@@ -318,9 +360,9 @@ class DeckGLInstance {
     }
 
     this.emitter.clear()
-    if (this.deck) {
-      this.map.removeControl(this.deck as unknown as IControl)
-      this.deck = null
+    if (this.globalOverlay) {
+      this.map.removeControl(this.globalOverlay as unknown as IControl)
+      this.globalOverlay = null
     }
 
     this.layers = []
@@ -332,8 +374,8 @@ class DeckGLInstance {
     this.isLayersAvailable = false
     this.isVisible = false
     this.map = null
-    DeckGLInstance.instance = undefined
+    MultiTrackerLayerInstance.instance = undefined
   }
 }
 
-export { DeckGLInstance }
+export { MultiTrackerLayerInstance }

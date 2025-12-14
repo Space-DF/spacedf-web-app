@@ -12,6 +12,7 @@ export enum WidgetType {
   Text = 'text',
   Distance = 'distance',
   Slider = 'slider',
+  Histogram = 'histogram',
 }
 
 export enum AggregationFunction {

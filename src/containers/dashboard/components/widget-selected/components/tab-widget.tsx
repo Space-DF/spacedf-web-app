@@ -36,7 +36,7 @@ const TabWidget: React.FC<Props> = ({ tabKeys, tabContents }) => {
       defaultValue="sources"
       className="size-full overflow-y-auto scroll-smooth px-0 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
     >
-      <TabsList className="flex w-full items-end rounded-none border-b border-brand-stroke-dark-soft bg-transparent p-0 px-2">
+      <TabsList className="flex w-full items-end rounded-none border-b border-brand-stroke-dark-soft bg-transparent p-0">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.value}

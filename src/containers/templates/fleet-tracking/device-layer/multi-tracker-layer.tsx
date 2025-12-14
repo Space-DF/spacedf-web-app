@@ -1,21 +1,36 @@
 'use client'
 
-import { usePrevious } from '@/hooks/usePrevious'
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
+import { usePrevious } from '@/hooks/usePrevious'
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { DeckGLInstance } from '@/utils/fleet-tracking-map/deckgl-instance'
+import { GlobalOverlayInstance } from '@/utils/fleet-tracking-map/layer-instance/global-overlay-instance'
+import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
+import { MultiTrackerLayerInstance } from '@/utils/fleet-tracking-map/layer-instance/multi-tracker-instance'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
-import { MarkerInstance } from '@/utils/fleet-tracking-map/marker-instance'
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 const markerInstance = MarkerInstance.getInstance()
 const fleetTrackingMap = FleetTrackingMap.getInstance()
-const deckglInstance = DeckGLInstance.getInstance()
-export const DeviceLayers = () => {
+const multiTrackerLayerInstance = MultiTrackerLayerInstance.getInstance()
+const globalOverlayInstance = GlobalOverlayInstance.getInstance()
+
+export const MultiTrackerLayer = () => {
   const devicesFleetTracking = useDeviceStore(
-    useShallow((state) => state.devicesFleetTracking)
+    useShallow((state) => {
+      //handle normal devices
+      const multiTrackerDevices = Object.fromEntries(
+        Object.entries(state.devicesFleetTracking).filter(
+          ([, device]) =>
+            device.deviceInformation?.device_profile?.key_feature ===
+            DEVICE_FEATURE_SUPPORTED.LOCATION
+        )
+      )
+
+      return multiTrackerDevices
+    })
   )
   const deviceModels = useDeviceStore(useShallow((state) => state.models))
   const deviceHistory = useDeviceStore(
@@ -45,8 +60,11 @@ export const DeviceLayers = () => {
 
   useEffect(() => {
     const handleMapLoaded = (map: mapboxgl.Map) => {
+      const globalOverlay = globalOverlayInstance.init(map)
       markerInstance.init(map)
-      deckglInstance.init(map, deviceModels)
+      if (globalOverlay) {
+        multiTrackerLayerInstance.init(map, deviceModels, globalOverlay)
+      }
     }
 
     fleetTrackingMap.on('style.load', handleMapLoaded)
@@ -79,11 +97,11 @@ export const DeviceLayers = () => {
       setDeviceSelected(deviceId)
     }
 
-    deckglInstance.on('layer-click', handleDeviceSelected)
+    multiTrackerLayerInstance.on('layer-click', handleDeviceSelected)
     markerInstance.on('marker-click', handleDeviceSelected)
 
     return () => {
-      deckglInstance.off('layer-click', handleDeviceSelected)
+      multiTrackerLayerInstance.off('layer-click', handleDeviceSelected)
       markerInstance.off('marker-click', handleDeviceSelected)
     }
   }, [])
@@ -91,10 +109,7 @@ export const DeviceLayers = () => {
   useEffect(() => {
     if (deviceSelected === prevDeviceSelected) return
 
-    if (!deviceSelected) {
-      deckglInstance.stopDeviceRotationAnimation()
-      markerInstance.clearFocusMarker()
-    } else {
+    if (deviceSelected && !!devicesFleetTracking?.[deviceSelected]) {
       const map = fleetTrackingMap.getMap()
 
       if (map) {
@@ -102,10 +117,16 @@ export const DeviceLayers = () => {
 
         if (!device) return
 
-        if (!device.latestLocation?.every((loc) => loc)) return
+        if (
+          !device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
+        )
+          return
 
         map.flyTo({
-          center: device.latestLocation as [number, number],
+          center: device.deviceProperties?.latest_checkpoint_arr as [
+            number,
+            number,
+          ],
           zoom: 18,
           duration: 500,
           essential: true,
@@ -118,23 +139,34 @@ export const DeviceLayers = () => {
       } else {
         markerInstance.focusMarker(deviceSelected)
       }
+
+      return
+    }
+
+    if (!deviceSelected || !devicesFleetTracking?.[deviceSelected]) {
+      multiTrackerLayerInstance.stopDeviceRotationAnimation()
+      markerInstance.clearFocusMarker()
     }
   }, [deviceSelected, prevDeviceSelected, devicesFleetTracking, modelType])
 
   useEffect(() => {
-    if (
-      !isAlreadyShowTripRoute &&
-      (modelType !== prevModelType || isClusterVisible !== prevIsClusterVisible)
-    ) {
+    if (!isAlreadyShowTripRoute && modelType !== prevModelType) {
       setDeviceSelected('')
     }
-  }, [
-    modelType,
-    isClusterVisible,
-    prevIsClusterVisible,
-    prevModelType,
-    isAlreadyShowTripRoute,
-  ])
+  }, [modelType, prevIsClusterVisible, prevModelType, isAlreadyShowTripRoute])
+
+  useEffect(() => {
+    const handleZoomEnd = () => {
+      if (isClusterVisible) {
+        setDeviceSelected('')
+      }
+    }
+
+    fleetTrackingMap.on('zoomend', handleZoomEnd)
+    return () => {
+      fleetTrackingMap.off('zoomend', handleZoomEnd)
+    }
+  }, [isClusterVisible])
 
   useEffect(() => {
     if (deviceSelected && !devices[deviceSelected]) {
@@ -162,14 +194,14 @@ export const DeviceLayers = () => {
 
   const handleDeviceRotation = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
-    deckglInstance.deviceRotationAnimation(deviceSelected)
+    multiTrackerLayerInstance.deviceRotationAnimation(deviceSelected)
   }
 
   const handleLayerType = () => {
     switch (modelType) {
       case '2d':
-        if (deckglInstance.checkLayerAvailable()) {
-          deckglInstance.syncLayers(devicesFleetTracking, 'hidden')
+        if (multiTrackerLayerInstance.checkLayerAvailable()) {
+          multiTrackerLayerInstance.syncLayers(devicesFleetTracking, 'hidden')
         }
 
         if (isClusterVisible) {
@@ -183,9 +215,9 @@ export const DeviceLayers = () => {
       case '3d':
         markerInstance.hideAllMarkers()
         if (isClusterVisible) {
-          deckglInstance.syncLayers(devicesFleetTracking, 'hidden')
+          multiTrackerLayerInstance.syncLayers(devicesFleetTracking, 'hidden')
         } else {
-          deckglInstance.syncLayers(devicesFleetTracking, 'visible')
+          multiTrackerLayerInstance.syncLayers(devicesFleetTracking, 'visible')
         }
         break
     }

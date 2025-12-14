@@ -1,31 +1,38 @@
-import { DEVICE_LAYER_PROPERTIES } from '@/constants/device-property'
-import { LorawanDevice } from '@/types/device'
-import { Checkpoint } from '@/types/trip'
 import {
-  GpsTrackerAttributes,
-  RakAttributes,
+  DEVICE_LAYER_PROPERTIES,
+  DEVICE_MODEL,
+  LayerProperties,
   SupportedModels,
-  TrackiAttributes,
-} from '@/utils/model-objects/devices/gps-tracker/type'
+} from '@/constants/device-property'
+import { DeviceDataOriginal, LorawanDevice } from '@/types/device'
+import { Checkpoint } from '@/types/trip'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
 import { castDraft } from 'immer'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-export type Device = {
+
+export type Device<T = {}> = {
   lorawan_device?: LorawanDevice
   name: string
+  description?: string
   id: string
   status: 'active' | 'inactive'
   type: SupportedModels
-  layerProps?: Record<string, any>
-  histories: any
+  layerProps?: LayerProperties
+  histories?: {
+    end: [number, number]
+    start: [number, number]
+  }
+  deviceProperties?: DeviceDataOriginal['device_properties'] & {
+    latest_checkpoint_arr?: [number, number]
+    water_level_name?: 'safe' | 'warning' | 'danger'
+  }
+  deviceInformation?: DeviceDataOriginal['device']
   latestLocation?: [number, number]
   realtimeTrip?: [number, number][]
   origin?: string
-  deviceId?: string
-  device_id?: string
-} & GpsTrackerAttributes &
-  (TrackiAttributes | RakAttributes)
+  deviceId: string
+} & T
 
 type DeviceModelState = {
   models: Record<SupportedModels, GLTFWithBuffers>
@@ -43,6 +50,10 @@ type DeviceModelAction = {
   setModelPreview: (key: SupportedModels, preview: string) => void
   setDevices: (data: Device[]) => void
   setDeviceSelected: (id: string) => void
+  setDeviceProperties: (
+    deviceId: string,
+    data: Partial<Device['deviceProperties']>
+  ) => void
 
   setDeviceState: (
     deviceId: string,
@@ -90,6 +101,18 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
       }))
     },
 
+    setDeviceProperties: (deviceId, data) => {
+      return set((state) => {
+        state.devicesFleetTracking[deviceId] = {
+          ...state.devices[deviceId],
+          deviceProperties: {
+            ...state.devices[deviceId].deviceProperties,
+            ...data,
+          } as Device['deviceProperties'],
+        }
+      })
+    },
+
     setDevices: (data) => {
       const validDevices = data.filter((device) =>
         device.latestLocation?.every((loc) => loc)
@@ -114,24 +137,42 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
         )
 
         const previousState: Device = currentDevice || {
-          type: 'rak',
-          layerProps: DEVICE_LAYER_PROPERTIES['rak'],
+          type: DEVICE_MODEL.RAK,
+          layerProps: DEVICE_LAYER_PROPERTIES[
+            DEVICE_MODEL.RAK
+          ] as LayerProperties,
           id: deviceId,
-          device_id: deviceId,
           name: 'Unknown-' + deviceId,
           status: 'active',
-          histories: [data.latestLocation],
+          histories: {
+            start: [0, 0],
+            end: [0, 0],
+          },
+          deviceProperties: {
+            water_depth: 0,
+            water_level_name: 'safe',
+            latest_checkpoint_arr: [0, 0],
+          },
           deviceId: deviceId,
           lorawan_device: {
             dev_eui: data.device_eui,
           } as LorawanDevice,
         }
 
+        const newDeviceProperties = {
+          ...previousState.deviceProperties,
+          ...data.deviceProperties,
+        } as Device['deviceProperties']
+
         const newState = { ...previousState, ...data }
-        state.devices[deviceId] = newState
+        state.devices[deviceId] = {
+          ...newState,
+          deviceProperties: newDeviceProperties,
+        }
+
         state.devicesFleetTracking = reduceDevices(
           (Object.values(state.devices) as Device[]).filter((device) =>
-            device.latestLocation?.every((loc) => loc)
+            device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
           )
         )
       })

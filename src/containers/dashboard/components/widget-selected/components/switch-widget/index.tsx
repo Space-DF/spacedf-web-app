@@ -107,6 +107,7 @@ const SwitchWidget: React.FC<Props> = ({
         </Button>
       }
       onClose={onClose}
+      contentClassName="px-0"
     >
       <div className="flex size-full flex-col">
         <div className="h-fit p-4">
