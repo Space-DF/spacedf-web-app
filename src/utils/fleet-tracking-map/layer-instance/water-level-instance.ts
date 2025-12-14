@@ -68,7 +68,7 @@ class WaterLevelInstance {
   private _getWaterLevelName = (waterLevel: number) => {
     const waterLevelMeter = waterLevel / 100
 
-    if (waterLevelMeter > 0 && waterLevelMeter < WATER_LEVEL_THRESHOLDS.safe)
+    if (waterLevelMeter >= 0 && waterLevelMeter < WATER_LEVEL_THRESHOLDS.safe)
       return 'safe'
 
     if (

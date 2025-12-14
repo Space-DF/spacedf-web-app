@@ -108,9 +108,9 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         setDeviceProperties(previousDevice.deviceId, {
           ...previousDevice.deviceProperties,
           water_depth:
-            data.entityUpdate?.state ||
-            previousDevice.deviceProperties?.water_depth ||
-            0,
+            typeof data.entityUpdate?.state === 'number'
+              ? data.entityUpdate?.state
+              : previousDevice.deviceProperties?.water_depth || 0,
         })
       }
     }
