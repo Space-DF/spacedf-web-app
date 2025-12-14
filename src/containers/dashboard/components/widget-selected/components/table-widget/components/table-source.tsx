@@ -21,6 +21,8 @@ import { useTranslations } from 'next-intl'
 import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 import { cn } from '@/lib/utils'
 import { Check, ChevronDown } from 'lucide-react'
+import { useDebounce } from '@/hooks'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const getEntityNames = (entities: Device[]) => {
   return entities.map((entity) => entity.entity_name).join(', ')
@@ -44,8 +46,9 @@ const Source: React.FC = () => {
 
     setValue('source.entities', updatedEntities)
   }
-
-  const { data: entities } = useDeviceEntity('table')
+  const [entityName, setEntityName] = useState('')
+  const debouncesName = useDebounce(entityName)
+  const { data: entities, isLoading } = useDeviceEntity('table', debouncesName)
   const entityList = entities?.results || []
 
   const entityNames = useMemo(
@@ -90,44 +93,64 @@ const Source: React.FC = () => {
           align="start"
           sideOffset={4}
         >
-          <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
-            <CommandInput placeholder={t('search_entity')} className="h-9" />
+          <Command
+            className="bg-brand-component-fill-light-fixed dark:bg-brand-heading"
+            shouldFilter={false}
+          >
+            <CommandInput
+              placeholder={t('search_entity')}
+              className="h-9"
+              onValueChange={(value) => setEntityName(value)}
+            />
             <CommandList>
-              <CommandEmpty>{t('no_entities_found')}</CommandEmpty>
-              <CommandGroup>
-                {entityList.length > 0 &&
-                  entityList.map((entity) => (
-                    <CommandItem
-                      key={entity.id}
-                      value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                      onSelect={() =>
-                        handleSelectEntity({
-                          entity_id: entity.id,
-                          entity_name: entity.name,
-                        })
-                      }
-                      className="cursor-pointer px-3 py-2 data-[selected=true]:bg-brand-component-fill-dark-soft"
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <div
-                          className={cn(
-                            'flex h-5 w-5 items-center justify-center rounded border border-brand-component-stroke-dark-soft',
-                            selectedEntityIds.includes(entity.id)
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-transparent'
-                          )}
-                        >
-                          {selectedEntityIds.includes(entity.id) && (
-                            <Check className="size-4" />
-                          )}
-                        </div>
-                        <Label className="text-sm text-brand-component-text-dark cursor-pointer">
-                          {`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                        </Label>
-                      </div>
-                    </CommandItem>
+              {isLoading ? (
+                <div className="p-2 space-y-2">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <Skeleton
+                      key={idx}
+                      className="h-4 w-full bg-brand-component-fill-gray-soft"
+                    />
                   ))}
-              </CommandGroup>
+                </div>
+              ) : (
+                <>
+                  <CommandEmpty>{t('no_entities_found')}</CommandEmpty>
+                  <CommandGroup>
+                    {entityList.length > 0 &&
+                      entityList.map((entity) => (
+                        <CommandItem
+                          key={entity.id}
+                          value={entity.id}
+                          onSelect={() =>
+                            handleSelectEntity({
+                              entity_id: entity.id,
+                              entity_name: entity.name,
+                            })
+                          }
+                          className="cursor-pointer px-3 py-2 data-[selected=true]:bg-brand-component-fill-dark-soft"
+                        >
+                          <div className="flex items-center gap-3 w-full">
+                            <div
+                              className={cn(
+                                'flex h-5 w-5 items-center justify-center rounded border border-brand-component-stroke-dark-soft',
+                                selectedEntityIds.includes(entity.id)
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-transparent'
+                              )}
+                            >
+                              {selectedEntityIds.includes(entity.id) && (
+                                <Check className="size-4" />
+                              )}
+                            </div>
+                            <Label className="text-sm text-brand-component-text-dark cursor-pointer">
+                              {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                            </Label>
+                          </div>
+                        </CommandItem>
+                      ))}
+                  </CommandGroup>
+                </>
+              )}
             </CommandList>
           </Command>
         </PopoverContent>
