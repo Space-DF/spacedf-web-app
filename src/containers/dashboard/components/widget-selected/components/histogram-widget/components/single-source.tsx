@@ -55,6 +55,8 @@ import { useTranslations } from 'next-intl'
 import DefaultColor from '@/components/icons/default-color'
 import { HistogramPayload } from '@/validator'
 import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
+import { useDebounce } from '@/hooks'
+import { Skeleton } from '@/components/ui/skeleton'
 interface Props {
   index: number
   field: FieldArrayWithId<
@@ -68,7 +70,12 @@ interface Props {
 }
 
 const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
-  const { data: entities } = useDeviceEntity('histogram')
+  const [entityName, setEntityName] = useState('')
+  const entityNameDebounce = useDebounce(entityName)
+  const { data: entities, isLoading } = useDeviceEntity(
+    'histogram',
+    entityNameDebounce
+  )
   const entityList = entities?.results || []
 
   const form = useFormContext<HistogramPayload>()
@@ -175,46 +182,63 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             >
                               <p className="truncate w-5/6 text-start">
                                 {currentEntity
-                                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key} - ${currentEntity.device_name}`
                                   : t('select_entity')}
                               </p>
                               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0 bg-brand-component-fill-light-fixed dark:bg-brand-heading">
-                            <Command className="bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                            <Command
+                              className="bg-brand-component-fill-light-fixed dark:bg-brand-heading"
+                              shouldFilter={false}
+                            >
                               <CommandInput
                                 placeholder={t('search_entity')}
                                 className="h-9"
+                                onValueChange={(value) => setEntityName(value)}
                               />
                               <CommandList>
-                                <CommandEmpty>
-                                  {t('no_devices_found')}
-                                </CommandEmpty>
-                                <CommandGroup>
-                                  {entityList.length > 0 &&
-                                    entityList.map((entity) => (
-                                      <CommandItem
-                                        key={entity.id}
-                                        value={`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                                        onSelect={() => {
-                                          field.onChange(entity.id)
-                                          setOpenCombobox(false)
-                                        }}
-                                        className="data-[selected=true]:bg-brand-component-fill-gray-soft"
-                                      >
-                                        {`${entity.unique_key}.${entity.entity_type.unique_key}`}
-                                        <Check
-                                          className={cn(
-                                            'ml-auto h-4 w-4',
-                                            field.value === entity.id
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
-                                          )}
-                                        />
-                                      </CommandItem>
+                                {isLoading ? (
+                                  <div className="p-2 space-y-2">
+                                    {Array.from({ length: 5 }).map((_, idx) => (
+                                      <Skeleton
+                                        key={idx}
+                                        className="h-4 w-full bg-brand-component-fill-gray-soft"
+                                      />
                                     ))}
-                                </CommandGroup>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <CommandEmpty>
+                                      {t('no_devices_found')}
+                                    </CommandEmpty>
+                                    <CommandGroup>
+                                      {entityList.length > 0 &&
+                                        entityList.map((entity) => (
+                                          <CommandItem
+                                            key={entity.id}
+                                            value={entity.id}
+                                            onSelect={() => {
+                                              field.onChange(entity.id)
+                                              setOpenCombobox(false)
+                                            }}
+                                            className="data-[selected=true]:bg-brand-component-fill-gray-soft"
+                                          >
+                                            {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                            <Check
+                                              className={cn(
+                                                'ml-auto h-4 w-4',
+                                                field.value === entity.id
+                                                  ? 'opacity-100'
+                                                  : 'opacity-0'
+                                              )}
+                                            />
+                                          </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                  </>
+                                )}
                               </CommandList>
                             </Command>
                           </PopoverContent>
