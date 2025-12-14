@@ -147,15 +147,15 @@ export const WaterLevelLayer = () => {
             <span>0 &#8594; &lt;0.1m</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#D49D4C] rounded-full border-2 border-gray-200 dark:border-white/90" />
+            <div className="size-5 bg-[#e0cb2f] rounded-full border-2 border-gray-200 dark:border-white/90" />
             <span>0.1 &#8594; &lt;0.3m</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-orange-500 rounded-full border-2 border-gray-200 dark:border-white/90" />
+            <div className="size-5 bg-[#e78930cc] rounded-full border-2 border-gray-200 dark:border-white/90" />
             <span>0.3 &#8594; &le;0.6m</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#BB0003] rounded-full border-2 border-gray-200 dark:border-white/90" />
+            <div className="size-5 bg-[#FB8588] rounded-full border-2 border-gray-200 dark:border-white/90" />
             <span> &gt;0.6m (danger)</span>
           </div>
         </div>
