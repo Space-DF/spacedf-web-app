@@ -64,9 +64,9 @@ const appendLayerForGlobalOverlay = (
   if (!overlay) return []
 
   const prevLayers = (overlay as any)._props.layers
-  const layersIds = layers.map((layer: any) => layer.id)
+  const layersIds = layers.map((layer: any) => layer?.id || '')
   const prevLayersToKeep = prevLayers?.filter(
-    (layer: any) => !layersIds.includes(layer.id)
+    (layer: any) => !layersIds.includes(layer?.id || '')
   )
 
   return [...(prevLayersToKeep || []), ...layers]
@@ -81,7 +81,7 @@ const removeLayersFromGlobalOverlay = (
   const prevLayers = (overlay as any)._props.layers
 
   const prevLayersToKeep = prevLayers?.filter(
-    (layer: any) => !layerIds.includes(layer.id)
+    (layer: any) => !layerIds.includes(layer?.id || '')
   )
 
   return [...(prevLayersToKeep || [])]

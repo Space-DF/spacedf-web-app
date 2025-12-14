@@ -10,6 +10,10 @@ import {
 } from './global-overlay-instance'
 import EventEmitter from '@/utils/event'
 import { RainSpecification } from 'mapbox-gl'
+import {
+  getWaterDepthLevelName,
+  WaterDepthLevelName,
+} from '@/utils/water-depth'
 
 const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds
 
@@ -19,12 +23,6 @@ type WaterLevelDataType = {
   color: [number, number, number]
   deviceId: string
   elevationForDraw: number
-}
-
-const WATER_LEVEL_THRESHOLDS = {
-  safe: 0.25,
-  warning: 1,
-  danger: 1.5,
 }
 
 const WATER_DISPLAY_MULTIPLIER = 3
@@ -66,21 +64,6 @@ class WaterLevelInstance {
     this.emitter.off(event, handler)
   }
 
-  private _getWaterLevelName = (waterLevel: number) => {
-    const waterLevelMeter = waterLevel / 100
-
-    if (waterLevelMeter >= 0 && waterLevelMeter < WATER_LEVEL_THRESHOLDS.safe)
-      return 'safe'
-
-    if (
-      waterLevelMeter >= WATER_LEVEL_THRESHOLDS.safe &&
-      waterLevelMeter <= WATER_LEVEL_THRESHOLDS.warning
-    )
-      return 'warning'
-
-    return 'danger'
-  }
-
   private _getRainLevel = (
     waterLevelName: 'safe' | 'warning' | 'danger'
   ): [number, number] => {
@@ -89,11 +72,17 @@ class WaterLevelInstance {
     return [2, 18]
   }
 
-  private _getLevelColor = (waterLevelName: 'safe' | 'warning' | 'danger') => {
+  private _getLevelColor = (
+    waterLevelName: 'safe' | 'warning' | 'floating' | 'critical'
+  ) => {
     if (waterLevelName === 'safe')
       return { polygon: [1, 202, 148, 80], column: [1, 202, 148, 220] }
+
     if (waterLevelName === 'warning')
       return { polygon: [227, 191, 139, 80], column: [227, 191, 13, 220] }
+
+    if (waterLevelName === 'floating')
+      return { polygon: [231, 137, 48, 50], column: [231, 137, 48, 220] }
 
     return { polygon: [246, 79, 82, 50], column: [246, 79, 82, 220] }
   }
@@ -149,7 +138,7 @@ class WaterLevelInstance {
           }
         ),
         color: this._getLevelColor(
-          device.deviceProperties?.water_level_name || 'safe'
+          device.deviceProperties?.water_level_name as WaterDepthLevelName
         ).polygon,
         deviceId: device.id,
       }
@@ -215,7 +204,7 @@ class WaterLevelInstance {
       extruded: true,
       radius: 12,
       elevationScale: 0.1,
-      getElevation: () => 1500,
+      getElevation: () => 600,
       getPosition: (d: WaterLevelDataType) => d.location,
       getFillColor: (d: WaterLevelDataType) => d.color,
       onClick: ({ object }) => {
@@ -351,7 +340,7 @@ class WaterLevelInstance {
           ...device,
           deviceProperties: {
             ...device.deviceProperties,
-            water_level_name: this._getWaterLevelName(
+            water_level_name: getWaterDepthLevelName(
               device.deviceProperties?.water_depth || 0
             ),
           },

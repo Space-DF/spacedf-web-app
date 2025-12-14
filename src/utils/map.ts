@@ -6,6 +6,7 @@ import {
 import { Device } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { ConfigSpecification } from 'mapbox-gl'
+import { getWaterDepthLevelName } from './water-depth'
 
 type MapType = 'default' | '3D_map' | 'street'
 const getMapStyle = (
@@ -140,6 +141,9 @@ export const transformDeviceData = (
       },
       deviceProperties: {
         latest_checkpoint_arr: checkpoint,
+        water_level_name: getWaterDepthLevelName(
+          device.device_properties?.water_depth || 0
+        ),
         ...device.device_properties,
       },
 
