@@ -9,6 +9,8 @@ interface ExpandableListProps<T> {
   initialCount?: number
   renderItem: (item: T, index: number, isExpanded: boolean) => React.ReactNode
   className?: string
+  expandMessage?: string
+  collapseMessage?: string
 }
 
 const ExpandableList = <T,>({
@@ -16,6 +18,8 @@ const ExpandableList = <T,>({
   initialCount = 2,
   renderItem,
   className,
+  expandMessage = 'More',
+  collapseMessage = 'Less',
 }: ExpandableListProps<T>) => {
   const { isExpanded, toggleExpand, visibleItems } = useExpandable<T>({
     items,
@@ -31,7 +35,7 @@ const ExpandableList = <T,>({
           className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
           onClick={toggleExpand}
         >
-          <p>{isExpanded ? 'Less' : 'More'}</p>{' '}
+          <p>{isExpanded ? collapseMessage : expandMessage}</p>{' '}
           <ChevronDown
             className={cn(
               'size-5 transition-transform duration-300',

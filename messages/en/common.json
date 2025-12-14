@@ -70,5 +70,8 @@
   "go_to_space_df": "Go to SpaceDF",
   "create_new_organization": "Create a new organization",
   "powered_by": "Powered by",
-  "session_expired": "Session expired, please login again"
+  "session_expired": "Session expired, please login again",
+  "alerts": "Alerts",
+  "all_alerts": "All Alerts",
+  "less_alerts": "Less Alerts"
 }

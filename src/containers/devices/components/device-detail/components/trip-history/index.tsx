@@ -12,7 +12,6 @@ import TripDetail from './components/trip-detail'
 import { useDeviceStore } from '@/stores/device-store'
 import { useGetTrips } from './hooks/useGetTrips'
 import { Checkpoint } from '@/types/trip'
-import { useGetDevices } from '@/hooks/useDevices'
 import dayjs from 'dayjs'
 import { useTripAddress } from './hooks/useTripAddress'
 
@@ -61,17 +60,9 @@ const TripHistoryItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
 const TripHistory = () => {
   const t = useTranslations('common')
   const [selectedTrip, setSelectedTrip] = useState<string>()
-  const { data: devices } = useGetDevices()
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
 
-  const currentDeviceId = useMemo(() => {
-    const currentDeviceSpace = devices?.find(
-      (device) => device.id === deviceSelected
-    )
-    return currentDeviceSpace?.device.id
-  }, [devices, deviceSelected])
-
-  const { data: trips = [], isLoading, mutate } = useGetTrips(currentDeviceId)
+  const { data: trips = [], isLoading, mutate } = useGetTrips(deviceSelected)
 
   const listLocation = useMemo(() => {
     return trips.map((trip) => ({

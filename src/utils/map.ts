@@ -121,7 +121,7 @@ export const transformDeviceData = (
       device.device_properties?.latest_checkpoint || device.latest_checkpoint
     )
     const deviceType = detectDeviceType(
-      device.device.device_profile?.name || ''
+      device.device.device_profile?.device_type.toLowerCase() || ''
     )
 
     return {

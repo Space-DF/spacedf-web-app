@@ -32,7 +32,10 @@ export const getWidgetByType = (widget: Widget) => {
     case WidgetType.Map:
       return (
         <div key={widget.id}>
-          <MapWidget {...(widget as mapPayload)} />
+          <MapWidget
+            {...(widget as mapPayload)}
+            data={[16.05204105833857, 108.2168072245793]}
+          />
         </div>
       )
     case WidgetType.Value:

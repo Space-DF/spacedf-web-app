@@ -581,10 +581,10 @@ const DevicesList = () => {
                         'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
                         {
                           'border-brand-component-stroke-dark':
-                            device?.id === deviceSelected,
+                            device?.device.id === deviceSelected,
                         }
                       )}
-                      onClick={() => setDeviceSelected(device?.id)}
+                      onClick={() => setDeviceSelected(device?.device.id)}
                     >
                       <div className="space-y-2 mb-2">
                         <div className="flex items-start justify-between">

@@ -6,6 +6,8 @@ import { ArrowLeft } from 'lucide-react'
 // import ListGeofences from './components/list-geofences'
 import TripHistory from './components/trip-history'
 import { Slide } from '@/components/ui/slide'
+import ListAlert from './components/list-alert'
+import { useDeviceStore } from '@/stores/device-store'
 // import { StreamVideo } from '@/containers/components/stream-video'
 
 interface DeviceDetailProps {
@@ -15,6 +17,12 @@ interface DeviceDetailProps {
 
 const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
   const t = useTranslations('common')
+  const deviceDataSelected = useDeviceStore(
+    (state) => state.devices[state.deviceSelected]
+  )
+
+  const isWlb = deviceDataSelected?.type === 'wlb'
+
   return (
     <Slide
       className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0 overflow-y-auto"
@@ -25,26 +33,33 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
       contentClassName="p-0"
       onClose={onClose}
     >
-      <RightSideBarLayout
-        onClose={onClose}
-        className="h-full relative"
-        title={
-          <div className="flex size-full items-center gap-2">
-            <ArrowLeft size={20} className="cursor-pointer" onClick={onClose} />
-            <div>{t('device_detail')}</div>
+      {deviceDataSelected && (
+        <RightSideBarLayout
+          onClose={onClose}
+          className="h-full relative"
+          title={
+            <div className="flex size-full items-center gap-2">
+              <ArrowLeft
+                size={20}
+                className="cursor-pointer"
+                onClick={onClose}
+              />
+              <div>{t('device_detail')}</div>
+            </div>
+          }
+        >
+          <div className="h-full mt-4">
+            <div className="flex flex-col gap-8 pb-20">
+              <DeviceSelected />
+              {/* <StreamVideo /> */}
+              {/* <ListEvent /> */}
+              {/* <ListGeofences /> */}
+
+              {isWlb ? <ListAlert /> : <TripHistory />}
+            </div>
           </div>
-        }
-      >
-        <div className="h-full mt-4">
-          <div className="flex flex-col gap-8 pb-20">
-            <DeviceSelected />
-            {/* <StreamVideo /> */}
-            {/* <ListEvent /> */}
-            {/* <ListGeofences /> */}
-            <TripHistory />
-          </div>
-        </div>
-      </RightSideBarLayout>
+        </RightSideBarLayout>
+      )}
     </Slide>
   )
 }
