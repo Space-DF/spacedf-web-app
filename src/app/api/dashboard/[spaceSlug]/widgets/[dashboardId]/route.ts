@@ -40,41 +40,67 @@ export const POST = withAuthApiRequired(
   }
 )
 
-export const GET = async (
-  request: NextRequest,
-  { params }: { params: { dashboardId: string; spaceSlug: string } }
-) => {
-  const dashboardId = params.dashboardId
-  if (!dashboardId) {
-    return NextResponse.json(
-      { error: 'Dashboard ID is required' },
-      { status: 400 }
-    )
-  }
-
-  try {
-    const isDemo = await isDemoSubdomain(request)
-    const session = await readSession()
-    if (isDemo || !session?.user) {
-      const currentWidgets = DEMO_WIDGET_DASHBOARD.filter(
-        (dashboard) => dashboard.dashboard === dashboardId
+export const GET = withAuthApiRequired(
+  async (
+    request: NextRequest,
+    { params }: { params: { dashboardId: string; spaceSlug: string } }
+  ) => {
+    const dashboardId = params.dashboardId
+    if (!dashboardId) {
+      return NextResponse.json(
+        { error: 'Dashboard ID is required' },
+        { status: 400 }
       )
-
-      return NextResponse.json(currentWidgets)
     }
-    const spacedfClient = await spaceClient()
-    spacedfClient.setAccessToken(session?.user?.access as string)
-    const widgets = await spacedfClient.dashboards.listWidgets(
-      dashboardId,
-      {},
-      {
-        headers: {
-          'X-Space': params.spaceSlug,
-        },
+
+    try {
+      const isDemo = await isDemoSubdomain(request)
+      const session = await readSession()
+      if (isDemo || !session?.user) {
+        const currentWidgets = DEMO_WIDGET_DASHBOARD.filter(
+          (dashboard) => dashboard.dashboard === dashboardId
+        )
+
+        return NextResponse.json(currentWidgets)
       }
-    )
-    return NextResponse.json(widgets)
-  } catch (errors) {
-    return handleError(errors)
+      const spacedfClient = await spaceClient()
+      spacedfClient.setAccessToken(session?.user?.access as string)
+      const widgets = await spacedfClient.dashboards.listWidgets(
+        dashboardId,
+        {},
+        {
+          headers: {
+            'X-Space': params.spaceSlug,
+          },
+        }
+      )
+      return NextResponse.json(widgets)
+    } catch (errors) {
+      return handleError(errors)
+    }
   }
-}
+)
+
+export const PUT = withAuthApiRequired(
+  async (
+    req,
+    { params }: { params: { dashboardId: string; spaceSlug: string } }
+  ) => {
+    try {
+      const body = await req.json()
+      const spacedfClient = await spaceClient()
+      const response = await spacedfClient.widgets.updateWidgets(
+        params.dashboardId,
+        body,
+        {
+          headers: {
+            'X-Space': params.spaceSlug,
+          },
+        }
+      )
+      return NextResponse.json(response)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)
