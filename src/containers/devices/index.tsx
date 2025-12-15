@@ -12,12 +12,13 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, {
-  memo,
-  useEffect,
-  useState,
   Dispatch,
+  memo,
   SetStateAction,
+  useEffect,
+  useMemo,
   useRef,
+  useState,
 } from 'react'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
@@ -59,27 +60,29 @@ import {
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Input, InputWithIcon } from '@/components/ui/input'
 import { Nodata } from '@/components/ui/no-data'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { COOKIES, NavigationEnums } from '@/constants'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useGetDevices } from '@/hooks/useDevices'
+import { usePrevious } from '@/hooks/usePrevious'
 import { cn } from '@/lib/utils'
 import { getNewLayouts, useLayout } from '@/stores'
 import { useDeviceStore } from '@/stores/device-store'
 import { useIdentityStore } from '@/stores/identity-store'
+import { DeviceDataOriginal } from '@/types/device'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
-import DeviceDetail from './components/device-detail'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import Image from 'next/image'
-import CircleCheckSvg from '/public/images/circle-check.svg'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { toast } from 'sonner'
 import { KeyedMutator } from 'swr'
-import { usePrevious } from '@/hooks/usePrevious'
+import DeviceDetail from './components/device-detail'
+import { useTripAddress } from './components/device-detail/components/trip-history/hooks/useTripAddress'
+import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { DeviceDataOriginal } from '@/types/device'
+import CircleCheckSvg from '/public/images/circle-check.svg'
 
 const Devices = () => {
   const t = useTranslations('common')
@@ -475,6 +478,33 @@ const DevicesList = () => {
     setSize,
   } = useGetDevices()
 
+  const { locations, deviceHasLocation } = useMemo(() => {
+    const locations = [] as { latitude: number; longitude: number }[]
+    const deviceHasLocation = [] as DeviceDataOriginal[]
+
+    devices.forEach((device) => {
+      if (
+        device?.device_properties?.latest_checkpoint?.latitude &&
+        device?.device_properties?.latest_checkpoint?.longitude
+      ) {
+        locations.push({
+          latitude: device?.device_properties?.latest_checkpoint?.latitude,
+          longitude: device?.device_properties?.latest_checkpoint?.longitude,
+        })
+        deviceHasLocation.push(device)
+      }
+    })
+
+    return { locations, deviceHasLocation }
+  }, [devices])
+
+  const { data: listLocationName = [], isLoading: isLoadingLocation } =
+    useTripAddress(locations)
+
+  const deviceIdsHasLocation = useMemo(() => {
+    return deviceHasLocation.map((device) => device.id)
+  }, [deviceHasLocation])
+
   const { deviceSelected, setDeviceSelected } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
@@ -574,45 +604,68 @@ const DevicesList = () => {
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
                 >
-                  {rowDevices.map((device) => (
-                    <div
-                      key={device.id}
-                      className={cn(
-                        'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                        {
-                          'border-brand-component-stroke-dark':
-                            device?.device.id === deviceSelected,
-                        }
-                      )}
-                      onClick={() => setDeviceSelected(device?.device.id)}
-                    >
-                      <div className="space-y-2 mb-2">
-                        <div className="flex items-start justify-between">
-                          <div className="size-8">
-                            <ImageWithBlur
-                              src={DeviceIcon}
-                              alt="DMZ 01 -1511-M01"
+                  {rowDevices.map((device) => {
+                    const isHasLocation = deviceIdsHasLocation.includes(
+                      device.id
+                    )
+                    const locationName = isHasLocation
+                      ? listLocationName[
+                          deviceIdsHasLocation.indexOf(device.id)
+                        ]
+                      : 'Unknown'
+
+                    return (
+                      <div
+                        key={device.id}
+                        className={cn(
+                          'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                          {
+                            'border-brand-component-stroke-dark':
+                              device?.device.id === deviceSelected,
+                          }
+                        )}
+                        onClick={() => setDeviceSelected(device?.device.id)}
+                      >
+                        <div className="space-y-2 mb-2">
+                          <div className="flex items-start justify-between">
+                            <div className="size-8">
+                              <ImageWithBlur
+                                src={DeviceIcon}
+                                alt="DMZ 01 -1511-M01"
+                              />
+                            </div>
+                            <Ellipsis
+                              size={16}
+                              className="text-brand-component-text-gray"
                             />
                           </div>
-                          <Ellipsis
-                            size={16}
-                            className="text-brand-component-text-gray"
-                          />
+                          <div className="text-xs font-medium">
+                            <span className="leading-[18px] line-clamp-1">
+                              {device.name}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-xs font-medium">
-                          <span className="leading-[18px] line-clamp-1">
-                            {device.name}
+                        <div className="flex items-center gap-2 text-xs font-medium ">
+                          <Map
+                            size={16}
+                            className="text-brand-text-gray w-max"
+                          />
+                          <span
+                            className="leading-[18px] line-clamp-1 flex-1 truncate"
+                            title={locationName}
+                          >
+                            {isLoadingLocation ? (
+                              <Skeleton className="w-full h-4" />
+                            ) : isHasLocation ? (
+                              locationName
+                            ) : (
+                              'Unknown'
+                            )}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs font-medium ">
-                        <Map size={16} className="text-brand-text-gray" />
-                        <span className="leading-[18px]">
-                          {device.device.lorawan_device.location || 'Unknown'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )
             })}
