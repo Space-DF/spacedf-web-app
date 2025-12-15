@@ -1,6 +1,6 @@
 import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
-import { WidgetType } from '@/widget-models/widget'
+import { TimeFrameTab, WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
@@ -24,6 +24,7 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-a
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
+import { format as formatDate } from 'date-fns'
 
 interface Props {
   selectedWidget: WidgetType
@@ -148,6 +149,14 @@ const ChartWidget: React.FC<Props> = ({
       configuration: {
         ...chartValue,
         id: uuidv4(),
+        ...(chartValue.timeframe.type !== TimeFrameTab.Custom
+          ? {
+              period: chartValue.timeframe.type,
+            }
+          : {
+              start_time: formatDate(chartValue.timeframe.from, 'yyyy-MM-dd'),
+              end_time: formatDate(chartValue.timeframe.until, 'yyyy-MM-dd'),
+            }),
         type: selectedWidget,
         x: 0,
         y: 0,

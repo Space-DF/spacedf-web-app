@@ -62,7 +62,7 @@ const MapSource: React.FC = () => {
     (device: Entity) => {
       const updatedSource: mapSource = {
         ...selectedSource,
-        entity_id: device.id,
+        entity_id: device.unique_key,
         device_name: device.device_name,
         coordinate: [0, 0],
         map_type: selectedSource.map_type || MapType.RoadMap,
@@ -110,7 +110,7 @@ const MapSource: React.FC = () => {
                 >
                   <p className="truncate w-5/6 text-start">
                     {currentEntity
-                      ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key} - ${currentEntity.device_name}`
+                      ? `${currentEntity?.unique_key} - ${currentEntity.device_name}`
                       : t('select_entity')}
                   </p>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -144,18 +144,18 @@ const MapSource: React.FC = () => {
                             entityList.map((entity) => (
                               <CommandItem
                                 key={entity.id}
-                                value={entity.id}
+                                value={entity.unique_key}
                                 onSelect={() => {
                                   handleEntityChange(entity)
                                   setOpenCombobox(false)
                                 }}
                                 className="data-[selected=true]:bg-brand-component-fill-gray-soft"
                               >
-                                {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                {`${entity.unique_key} - ${entity.device_name}`}
                                 <Check
                                   className={cn(
                                     'ml-auto size-4',
-                                    field.value === entity.id
+                                    field.value === entity.unique_key
                                       ? 'opacity-100'
                                       : 'opacity-0'
                                   )}

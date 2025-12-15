@@ -87,6 +87,7 @@ const TableWidget: React.FC<Props> = ({
   })
 
   const handleAddMapWidget = async () => {
+    console.log({ mapValue })
     await trigger()
     const newWidgetData = {
       display_type: 'map',

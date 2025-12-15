@@ -59,6 +59,7 @@ export type Widget = {
   id: string
   type: WidgetType
   enabled?: boolean
+  data: any
 } & Partial<WidgetUnit> &
   Partial<WidgetChart> &
   Partial<mapPayload> &

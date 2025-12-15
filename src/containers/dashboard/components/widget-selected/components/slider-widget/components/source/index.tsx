@@ -53,8 +53,8 @@ const SliderSource = () => {
   const entityList = entities?.results || []
 
   const currentEntity = useMemo(() => {
-    return entities?.results.find((entity) => entity.id === entityId)
-  }, [entities, entityId])
+    return entityList.find((entity) => entity.id === entityId)
+  }, [entityList, entityId])
 
   const t = useTranslations('dashboard')
 
@@ -116,7 +116,7 @@ const SliderSource = () => {
                     >
                       <p className="truncate w-5/6 text-start">
                         {currentEntity
-                          ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key} - ${currentEntity.device_name}`
+                          ? `${currentEntity?.unique_key} - ${currentEntity.device_name}`
                           : t('select_entity')}
                       </p>
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -150,18 +150,18 @@ const SliderSource = () => {
                                 entityList.map((entity) => (
                                   <CommandItem
                                     key={entity.id}
-                                    value={entity.id}
+                                    value={entity.unique_key}
                                     onSelect={() => {
-                                      field.onChange(entity.id)
+                                      field.onChange(entity.unique_key)
                                       setOpenCombobox(false)
                                     }}
                                     className="data-[selected=true]:bg-brand-component-fill-gray-soft"
                                   >
-                                    {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                    {`${entity.unique_key} - ${entity.device_name}`}
                                     <Check
                                       className={cn(
                                         'ml-auto size-4',
-                                        field.value === entity.id
+                                        field.value === entity.unique_key
                                           ? 'opacity-100'
                                           : 'opacity-0'
                                       )}
