@@ -52,6 +52,14 @@ class GlobalOverlayInstance {
     return globalOverlay
   }
 
+  destroy() {
+    if (!this.overlay) return
+    this.overlay.setProps({
+      layers: [],
+    })
+    this.layers = []
+  }
+
   getOverlay() {
     return this.overlay
   }

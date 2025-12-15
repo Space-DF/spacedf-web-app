@@ -33,7 +33,7 @@ class WaterLevelInstance {
   private devices: Record<string, Device> = {}
   private map: mapboxgl.Map | null = null
 
-  private type: 'visible' | 'hidden' = 'visible'
+  private type: 'visible' | 'hidden' = 'hidden'
   private destroyTimer: NodeJS.Timeout | null = null
   private isHasVisibleBefore = false
   private rainLayer: RainSpecification | null = null
@@ -330,10 +330,7 @@ class WaterLevelInstance {
     this.isInitialized = true
   }
 
-  syncDevices(
-    devices: Record<string, Device>,
-    type: 'visible' | 'hidden' = 'visible'
-  ) {
+  syncDevices(devices: Record<string, Device>) {
     this.devices = Object.fromEntries(
       Object.entries(devices).map(([key, device]) => [
         key,
@@ -348,14 +345,13 @@ class WaterLevelInstance {
         } as Device,
       ])
     )
+  }
+
+  buildLayers(type: 'visible' | 'hidden' = 'visible') {
     if (type === 'visible') {
       this.isHasVisibleBefore = true
     }
 
-    this.buildLayers(type)
-  }
-
-  buildLayers(type: 'visible' | 'hidden' = 'visible') {
     if (!this.isHasVisibleBefore) return
 
     this.type = type
@@ -381,6 +377,7 @@ class WaterLevelInstance {
 
       this.selectedWaterDeviceId = selectedId
 
+      this._handlePolygon(Object.values(this.devices), 'visible')
       this._buildWrapperLayer(Object.values(this.devices), 'visible')
 
       this.animateState = 'animating'
@@ -425,8 +422,7 @@ class WaterLevelInstance {
       this.selectedWaterDeviceId = null
 
       this._stopAnimation()
-      this._buildWaterLevelLayer(Object.values(this.devices))
-      this._buildWrapperLayer(Object.values(this.devices))
+      this.buildLayers(this.type)
     }
   }
 }
