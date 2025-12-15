@@ -1900,10 +1900,10 @@
   resolved "https://registry.npmjs.org/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@^0.0.1-dev.33":
-  version "0.0.1-dev.33"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.33.tgz#acfcf31004053d3eb7c0ea880b35cf3d60289734"
-  integrity sha512-cdQyzZ44tOfERIi3p2TDRRaMJC15ie7iVjXTpMys7kQ7lRdAXNy1SrweUALVTjBpFomsTrNRSZgDKnBhVNiAjQ==
+"@space-df/sdk@^0.0.1-dev.34":
+  version "0.0.1-dev.34"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.34.tgz#59b11b7e9d35f73915fa07fae21565d7bc925fa3"
+  integrity sha512-btqAvLOWUGW/E0zj3j45xRyDOIx7/9UETgDySsrHvIuy2PIuIyPMYAr4vlt66RbWzhhQyCYk+T/arGrhcqHcXw==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
