@@ -65,9 +65,28 @@ export const WaterLevelLayer = () => {
 
   useEffect(() => {
     if (isClusterVisible) {
-      waterLevelInstance.syncDevices(devices, 'hidden')
+      waterLevelInstance.syncDevices(devices)
+      waterLevelInstance.buildLayers('hidden')
     } else {
-      waterLevelInstance.syncDevices(devices, 'visible')
+      waterLevelInstance.syncDevices(devices)
+      waterLevelInstance.buildLayers('visible')
+    }
+
+    fleetTrackingMap.on('reattach', (map: mapboxgl.Map) => {
+      const globalOverlay = globalOverlayInstance.init(map)
+      if (globalOverlay) {
+        waterLevelInstance.init(map, globalOverlay)
+      }
+
+      waterLevelInstance.syncDevices(devices)
+      waterLevelInstance.buildLayers('hidden')
+    })
+
+    return () => {
+      fleetTrackingMap.off('reattach', () => {
+        waterLevelInstance.syncDevices(devices)
+        waterLevelInstance.buildLayers('hidden')
+      })
     }
   }, [devices, isClusterVisible])
 
@@ -111,6 +130,7 @@ export const WaterLevelLayer = () => {
 
   useEffect(() => {
     const map = fleetTrackingMap.getMap()
+    waterLevelInstance.syncDevices(devices)
 
     waterLevelInstance.handleWaterLevelSelected(deviceSelected)
 

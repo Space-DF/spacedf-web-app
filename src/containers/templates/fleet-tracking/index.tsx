@@ -17,8 +17,12 @@ import { MapCluster } from './map-cluster'
 import { MapControl } from './map-control'
 import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
+import { GlobalOverlayInstance } from '@/utils/fleet-tracking-map/layer-instance/global-overlay-instance'
+import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
+const globalOverlayInstance = GlobalOverlayInstance.getInstance()
+const markerInstance = MarkerInstance.getInstance()
 export default function FleetTracking() {
   const { resolvedTheme } = useTheme()
   const fleetTrackingMapRef = useRef<HTMLDivElement>(null)
@@ -184,6 +188,8 @@ export default function FleetTracking() {
 
     fleetTrackingMap.on('reattach', (map: mapboxgl.Map) => {
       isFirstHandleZoom.current = true
+      globalOverlayInstance.destroy()
+      markerInstance.remove()
       const devices = fleetTrackingMap.getDevices()
       handleStrategyZoom(map, devices)
     })
