@@ -49,7 +49,7 @@ const SwitchSource = () => {
 
   const entityNames = useMemo(() => {
     return entityList
-      .filter((entity) => selectedEntityIds.includes(entity.id))
+      .filter((entity) => selectedEntityIds.includes(entity.unique_key))
       .map((entity) => entity.name)
       .join(', ')
   }, [entityList, selectedEntityIds])
@@ -129,25 +129,29 @@ const SwitchSource = () => {
                             entityList.map((entity) => (
                               <CommandItem
                                 key={entity.id}
-                                value={entity.id}
-                                onSelect={() => handleSelectEntity(entity.id)}
+                                value={entity.unique_key}
+                                onSelect={() =>
+                                  handleSelectEntity(entity.unique_key)
+                                }
                                 className="cursor-pointer px-3 py-2 data-[selected=true]:bg-brand-component-fill-dark-soft"
                               >
                                 <div className="flex items-center gap-3 w-full">
                                   <div
                                     className={cn(
                                       'flex h-5 w-5 items-center justify-center rounded border border-brand-component-stroke-dark-soft',
-                                      selectedEntityIds.includes(entity.id)
+                                      selectedEntityIds.includes(
+                                        entity.unique_key
+                                      )
                                         ? 'bg-primary text-primary-foreground'
                                         : 'bg-transparent'
                                     )}
                                   >
-                                    {selectedEntityIds.includes(entity.id) && (
-                                      <Check className="h-4 w-4" />
-                                    )}
+                                    {selectedEntityIds.includes(
+                                      entity.unique_key
+                                    ) && <Check className="h-4 w-4" />}
                                   </div>
                                   <Label className="text-sm text-brand-component-text-dark cursor-pointer">
-                                    {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                    {`${entity.unique_key} - ${entity.device_name}`}
                                   </Label>
                                 </div>
                               </CommandItem>

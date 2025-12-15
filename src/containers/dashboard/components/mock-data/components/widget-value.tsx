@@ -4,15 +4,14 @@ import { WidgetContainer } from '.'
 
 interface Props {
   widget: any
+  data: { value: number; unit_of_measurement: string }
 }
 
-export const ValueWidget = ({ widget }: Props) => {
+export const ValueWidget = ({ widget, data }: Props) => {
   const t = useTranslations('dashboard')
   const { source, widget_info } = widget
   const { decimal, unit } = source
-
-  const value = 0
-
+  const { value, unit_of_measurement } = data || {}
   const currentValue = useMemo(() => {
     if (!decimal || decimal < 0) return value.toFixed(0)
     if (decimal > 10) return value.toFixed(10)
@@ -37,7 +36,7 @@ export const ValueWidget = ({ widget }: Props) => {
               className="text-brand-component-text-dark text-2xl font-semibold truncate"
               style={{ color: `#${widget_info?.color}` }}
             >
-              {`${currentValue} ${unit ?? ''}`}
+              {`${currentValue} ${unit || unit_of_measurement}`}
             </span>
           </div>
         </div>

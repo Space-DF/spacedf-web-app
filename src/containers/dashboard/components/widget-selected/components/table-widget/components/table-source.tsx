@@ -38,7 +38,7 @@ const Source: React.FC = () => {
 
   const handleSelectEntity = (entity: Device) => {
     const isSelected = selectedEntities.some(
-      (e) => e.entity_id === entity.entity_id
+      (e) => e.unique_key === entity.unique_key
     )
     const updatedEntities = isSelected
       ? selectedEntities.filter((e) => e.entity_id !== entity.entity_id)
@@ -120,10 +120,10 @@ const Source: React.FC = () => {
                       entityList.map((entity) => (
                         <CommandItem
                           key={entity.id}
-                          value={entity.id}
+                          value={entity.unique_key}
                           onSelect={() =>
                             handleSelectEntity({
-                              entity_id: entity.id,
+                              entity_id: entity.unique_key,
                               entity_name: entity.name,
                             })
                           }
@@ -133,17 +133,17 @@ const Source: React.FC = () => {
                             <div
                               className={cn(
                                 'flex h-5 w-5 items-center justify-center rounded border border-brand-component-stroke-dark-soft',
-                                selectedEntityIds.includes(entity.id)
+                                selectedEntityIds.includes(entity.unique_key)
                                   ? 'bg-primary text-primary-foreground'
                                   : 'bg-transparent'
                               )}
                             >
-                              {selectedEntityIds.includes(entity.id) && (
-                                <Check className="size-4" />
-                              )}
+                              {selectedEntityIds.includes(
+                                entity.unique_key
+                              ) && <Check className="size-4" />}
                             </div>
                             <Label className="text-sm text-brand-component-text-dark cursor-pointer">
-                              {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                              {`${entity.unique_key} - ${entity.device_name}`}
                             </Label>
                           </div>
                         </CommandItem>

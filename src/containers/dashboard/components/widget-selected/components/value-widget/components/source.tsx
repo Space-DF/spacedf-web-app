@@ -28,15 +28,20 @@ import { Button } from '@/components/ui/button'
 import { useDeviceEntity } from '../../../hooks/useDeviceEntity'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useDebounce } from '@/hooks'
 
 const Source = () => {
   const form = useFormContext<ValuePayload>()
   const { control } = form
   const entityId = form.watch('source.entity_id')
-
+  const [entityName, setEntityName] = useState('')
+  const entityNameDebounce = useDebounce(entityName)
   const [openCombobox, setOpenCombobox] = useState(false)
 
-  const { data: entities, isLoading } = useDeviceEntity('value')
+  const { data: entities, isLoading } = useDeviceEntity(
+    'value',
+    entityNameDebounce
+  )
   const entityList = entities?.results || []
   const t = useTranslations('dashboard')
 
@@ -54,8 +59,8 @@ const Source = () => {
   }
 
   const currentEntity = useMemo(() => {
-    return entities?.results.find((entity) => entity.id === entityId)
-  }, [entities, entityId])
+    return entityList.find((entity) => entity.unique_key === entityId)
+  }, [entityList, entityId])
 
   return (
     <div className="space-y-4 mb-2">
@@ -82,7 +87,7 @@ const Source = () => {
                     >
                       <p className="truncate w-5/6 text-start">
                         {currentEntity
-                          ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key}`
+                          ? `${currentEntity?.unique_key} - ${currentEntity.device_name}`
                           : t('select_entity')}
                       </p>
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -96,6 +101,7 @@ const Source = () => {
                       <CommandInput
                         placeholder={t('search_entity')}
                         className="h-9"
+                        onValueChange={(value) => setEntityName(value)}
                       />
                       <CommandList>
                         {isLoading ? (
@@ -115,18 +121,18 @@ const Source = () => {
                                 entityList.map((entity) => (
                                   <CommandItem
                                     key={entity.id}
-                                    value={entity.id}
+                                    value={entity.unique_key}
                                     onSelect={() => {
-                                      field.onChange(entity.id)
+                                      field.onChange(entity.unique_key)
                                       setOpenCombobox(false)
                                     }}
                                     className="data-[selected=true]:bg-brand-component-fill-gray-soft"
                                   >
-                                    {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                    {`${entity.unique_key} - ${entity.device_name}`}
                                     <Check
                                       className={cn(
                                         'ml-auto size-4',
-                                        field.value === entity.id
+                                        field.value === entity.unique_key
                                           ? 'opacity-100'
                                           : 'opacity-0'
                                       )}

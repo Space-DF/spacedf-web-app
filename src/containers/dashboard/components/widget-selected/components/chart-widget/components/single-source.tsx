@@ -87,7 +87,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
   const entityId = form.watch(`sources.${index}.entity_id`)
 
   const currentEntity = useMemo(() => {
-    return entityList.find((entity) => entity.id === entityId)
+    return entityList.find((entity) => entity.unique_key === entityId)
   }, [entityList, entityId])
 
   const [colorValue] = form.watch([`sources.${index}.color`])
@@ -184,7 +184,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             >
                               <p className="truncate w-5/6 text-start">
                                 {currentEntity
-                                  ? `${currentEntity?.unique_key}.${currentEntity?.entity_type.unique_key} - ${currentEntity.device_name}`
+                                  ? `${currentEntity?.unique_key} - ${currentEntity.device_name}`
                                   : t('select_entity')}
                               </p>
                               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -220,18 +220,19 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                                         entityList.map((entity) => (
                                           <CommandItem
                                             key={entity.id}
-                                            value={entity.id}
+                                            value={entity.unique_key}
                                             onSelect={() => {
-                                              field.onChange(entity.id)
+                                              field.onChange(entity.unique_key)
                                               setOpenCombobox(false)
                                             }}
                                             className="data-[selected=true]:bg-brand-component-fill-gray-soft"
                                           >
-                                            {`${entity.unique_key}.${entity.entity_type.unique_key} - ${entity.device_name}`}
+                                            {`${entity.unique_key} - ${entity.device_name}`}
                                             <Check
                                               className={cn(
                                                 'ml-auto h-4 w-4',
-                                                field.value === entity.id
+                                                field.value ===
+                                                  entity.unique_key
                                                   ? 'opacity-100'
                                                   : 'opacity-0'
                                               )}

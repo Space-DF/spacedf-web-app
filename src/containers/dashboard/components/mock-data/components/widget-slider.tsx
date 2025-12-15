@@ -7,12 +7,17 @@ import { Badge } from '@/components/ui/badge'
 interface WidgetSliderProps {
   widget_info: WidgetInfo
   source: SliderSource
-  value: number
+  data: {
+    value: number
+    unit_of_measurement: string
+  }
 }
 
-const WidgetSlider = ({ widget_info, source, value }: WidgetSliderProps) => {
+const WidgetSlider = ({ widget_info, source, data }: WidgetSliderProps) => {
   const { max, min, step, unit } = source
   const { name } = widget_info
+  const { value, unit_of_measurement } = data || {}
+
   return (
     <WidgetContainer className="flex flex-col gap-1">
       <WidgetTitle className="flex justify-between">
@@ -20,10 +25,11 @@ const WidgetSlider = ({ widget_info, source, value }: WidgetSliderProps) => {
           {name}
         </p>
         <p className="truncate font-semibold text-brand-component-text-dark">
-          {unit}
+          {unit || unit_of_measurement}
         </p>
       </WidgetTitle>
       <Slider
+        disabled
         defaultValue={[value]}
         max={max}
         min={min}

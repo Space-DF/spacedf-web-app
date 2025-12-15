@@ -11,6 +11,7 @@ import 'react-resizable/css/styles.css'
 import { Widget } from '@/types/widget'
 import { getWidgetByType } from './utils'
 import { useShallow } from 'zustand/react/shallow'
+import { useDashboardStore } from '@/stores/dashboard-store'
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
@@ -42,6 +43,8 @@ export const MockData: React.FC<Props> = ({
     onChangeWidgets(layout)
     setLayouts(layouts)
   }
+  const widgetList = useDashboardStore(useShallow((state) => state.widgetList))
+
   const handleBreakpointChange = (newBreakpoint: string) => {
     setCurrentBreakpoint(newBreakpoint)
   }
@@ -74,8 +77,8 @@ export const MockData: React.FC<Props> = ({
         isDraggable={isEdit}
         isResizable={isEdit}
       >
-        {widgets.map((widget) => {
-          return getWidgetByType(widget)
+        {widgets.map((widget, index) => {
+          return getWidgetByType(widget, widgetList[index])
         })}
       </ResponsiveReactGridLayout>
     </div>

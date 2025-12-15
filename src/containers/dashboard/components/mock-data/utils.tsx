@@ -21,7 +21,7 @@ import { mapPayload, SliderSource } from '@/validator'
 import WidgetSlider from './components/widget-slider'
 import { WidgetHistogram } from './components/widget-histogram'
 
-export const getWidgetByType = (widget: Widget) => {
+export const getWidgetByType = (widget: Widget, data: any) => {
   switch (widget.type) {
     case WidgetType.Text:
       return (
@@ -32,16 +32,13 @@ export const getWidgetByType = (widget: Widget) => {
     case WidgetType.Map:
       return (
         <div key={widget.id}>
-          <MapWidget
-            {...(widget as mapPayload)}
-            data={[16.05204105833857, 108.2168072245793]}
-          />
+          <MapWidget {...(widget as mapPayload)} data={data.data} />
         </div>
       )
     case WidgetType.Value:
       return (
         <div key={widget.id}>
-          <ValueWidget widget={widget} />
+          <ValueWidget widget={widget} data={data.data} />
         </div>
       )
     case WidgetType.Table:
@@ -57,13 +54,14 @@ export const getWidgetByType = (widget: Widget) => {
             {...(widget as WidgetChart)}
             isShowFullChart
             id={widget.id}
+            data={data.data}
           />
         </div>
       )
     case WidgetType.Gauge:
       return (
         <div key={widget.id}>
-          <GaugeWidget widget={widget} />
+          <GaugeWidget widget={widget} data={data.data} s />
         </div>
       )
     case WidgetType.Camera:
@@ -111,7 +109,7 @@ export const getWidgetByType = (widget: Widget) => {
           <WidgetSlider
             widget_info={widget.widget_info!}
             source={widget.source as unknown as MakeRequired<SliderSource>}
-            value={widget.value!}
+            data={data.data}
           />
         </div>
       )
