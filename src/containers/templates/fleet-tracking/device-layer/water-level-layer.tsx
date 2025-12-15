@@ -1,5 +1,6 @@
 'use client'
 
+import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
 import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
@@ -153,7 +154,7 @@ export const WaterLevelLayer = () => {
   return (
     <>
       <div
-        className="absolute bottom-8 right-2 w-[155px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
+        className="absolute bottom-8 right-2 w-[200px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
       dark:bg-[#171A28CC] dark:text-white"
       >
         <div className="flex items-center gap-2 mb-3">
@@ -163,20 +164,38 @@ export const WaterLevelLayer = () => {
 
         <div className="px-1 space-y-2">
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#01D195] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0 &#8594; &lt;0.1m</span>
+            <div
+              className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
+              style={{ backgroundColor: WATER_DEPTH_LEVEL_COLOR.safe.primary }}
+            />
+            <span>0 &#8594; &lt;0.1m (Safe)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#e0cb2f] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0.1 &#8594; &lt;0.3m</span>
+            <div
+              className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
+              style={{
+                backgroundColor: WATER_DEPTH_LEVEL_COLOR.caution.primary,
+              }}
+            />
+            <span>0.1 &#8594; &lt;0.3m (Caution)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#e78930cc] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span>0.3 &#8594; &le;0.6m</span>
+            <div
+              className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
+              style={{
+                backgroundColor: WATER_DEPTH_LEVEL_COLOR.warning.primary,
+              }}
+            />
+            <span>0.3 &#8594; &le;0.6m (Warning)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-5 bg-[#FB8588] rounded-full border-2 border-gray-200 dark:border-white/90" />
-            <span> &gt;0.6m (danger)</span>
+            <div
+              className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
+              style={{
+                backgroundColor: WATER_DEPTH_LEVEL_COLOR.critical.primary,
+              }}
+            />
+            <span> &gt;0.6m (Danger)</span>
           </div>
         </div>
       </div>
