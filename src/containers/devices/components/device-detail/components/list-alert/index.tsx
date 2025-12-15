@@ -21,6 +21,14 @@ import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { WaterDepthLevelName } from '@/utils/water-depth'
 import { useShallow } from 'zustand/react/shallow'
+import {
+  CautionIcon,
+  CriticalIcon,
+  PeopleIllustration,
+  WarningIcon,
+  WaterLevelIllustration,
+} from '@/components/icons/flood-level-illustration'
+import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
 
 dayjs.extend(relativeTime)
 
@@ -118,6 +126,12 @@ const getWaterLevel = (value: number, unit: string) => {
   return value
 }
 
+const waterLevelIcon = {
+  critical: <CriticalIcon />,
+  warning: <WarningIcon />,
+  caution: <CautionIcon />,
+}
+
 export default function ListAlert() {
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
   const [selectedDate, setSelectedDate] = useState<string>('today')
@@ -192,9 +206,6 @@ export default function ListAlert() {
 
   const renderAlertItem = useCallback(
     (item: ListItem, _: number, isExpanded: boolean) => {
-      const isCritical = item.severity === 'critical'
-      const isCaution = item.severity === 'caution'
-
       return (
         <div
           key={item.id}
@@ -207,27 +218,16 @@ export default function ListAlert() {
         >
           <div className="flex items-start gap-x-2">
             <div className="flex-shrink-0 mt-1">
-              {isCritical ? (
-                <div className="p-1 rounded-full bg-brand-component-fill-negative-soft flex items-center justify-center">
-                  <Image
-                    src="/images/warning-octagon.svg"
-                    alt="warning octagon"
-                    width={20}
-                    height={20}
-                    className="size-5"
-                  />
-                </div>
-              ) : (
-                <div className="p-1 rounded-full bg-brand-component-fill-warning-soft flex items-center justify-center">
-                  <Image
-                    src="/images/warning.svg"
-                    alt="warning octagon"
-                    width={20}
-                    height={20}
-                    className="size-5"
-                  />
-                </div>
-              )}
+              <div
+                className="p-1 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor:
+                    WATER_DEPTH_LEVEL_COLOR[item.severity].secondary,
+                }}
+                key={item.severity}
+              >
+                {waterLevelIcon[item.severity as keyof typeof waterLevelIcon]}
+              </div>
             </div>
 
             <div className="flex flex-col gap-y-3 flex-1 min-w-0">
@@ -237,15 +237,17 @@ export default function ListAlert() {
                 </span>
                 <span
                   className={cn(
-                    'text-xs font-medium px-2 py-0.5 rounded w-fit',
-                    isCritical
-                      ? 'text-brand-component-text-negative bg-brand-component-fill-negative-soft border border-brand-component-stroke-negative'
-                      : isCaution
-                        ? 'text-yellow-500 bg-yellow-50 border border-yellow-500'
-                        : 'text-brand-component-text-warning border border-brand-component-stroke-warning bg-brand-component-fill-warning-soft'
+                    'text-xs font-medium px-2 py-0.5 rounded w-fit capitalize'
                   )}
+                  style={{
+                    backgroundColor:
+                      WATER_DEPTH_LEVEL_COLOR[item.severity].secondary,
+                    color: WATER_DEPTH_LEVEL_COLOR[item.severity].primary,
+                    borderColor: WATER_DEPTH_LEVEL_COLOR[item.severity].primary,
+                    borderWidth: '1px',
+                  }}
                 >
-                  {isCritical ? 'Critical' : isCaution ? 'Caution' : 'Warning'}
+                  {item.severity}
                 </span>
               </div>
 
@@ -281,18 +283,16 @@ export default function ListAlert() {
                 </div>
               </div>
             </div>
-            <div className="flex-shrink-0">
-              <Image
-                src={
-                  isCritical
-                    ? '/images/flood-critical.png'
-                    : '/images/flood-warning.png'
-                }
-                alt="flood illustration"
-                width={56}
-                height={50}
-                quality={100}
+            <div className="flex-shrink-0 relative flex">
+              <span className="text-[8px] text-brand-text-gray translate-y-1">
+                2m
+              </span>
+              <WaterLevelIllustration
+                level={item.severity}
+                className="relative z-[9]"
               />
+
+              <PeopleIllustration className="absolute bottom-0 right-4 z-0" />
             </div>
           </div>
         </div>
