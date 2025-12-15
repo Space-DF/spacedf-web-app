@@ -652,14 +652,14 @@ const DevicesList = () => {
                           />
                           <span
                             className="leading-[18px] line-clamp-1 flex-1 truncate"
-                            title={locationName}
+                            title={(isHasLocation && locationName) || undefined}
                           >
                             {isLoadingLocation ? (
                               <Skeleton className="w-full h-4" />
                             ) : isHasLocation ? (
                               locationName
                             ) : (
-                              'Unknown'
+                              'N/A'
                             )}
                           </span>
                         </div>
