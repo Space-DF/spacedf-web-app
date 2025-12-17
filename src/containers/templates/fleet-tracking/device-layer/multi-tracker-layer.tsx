@@ -42,8 +42,6 @@ export const MultiTrackerLayer = () => {
 
   const { startDrawHistory } = useDeviceHistory()
 
-  console.log('render multi tracker layer')
-
   const { isClusterVisible, modelType, isAlreadyShowTripRoute } =
     useFleetTrackingStore(
       useShallow((state) => ({
@@ -193,6 +191,18 @@ export const MultiTrackerLayer = () => {
       }
     }
   }, [modelType, deviceHistory])
+
+  useEffect(() => {
+    fleetTrackingMap.on('reattach', () => {
+      markerInstance.syncDevices(devicesFleetTracking)
+    })
+
+    return () => {
+      fleetTrackingMap.off('reattach', () => {
+        markerInstance.syncDevices(devicesFleetTracking)
+      })
+    }
+  }, [devicesFleetTracking])
 
   const handleDeviceRotation = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500))

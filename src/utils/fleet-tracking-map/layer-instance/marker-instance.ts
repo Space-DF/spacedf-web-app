@@ -237,12 +237,8 @@ class MarkerInstance {
       stopMarkerAnimation(marker)
       marker.remove()
     })
-    this.emitter.clear()
+
     this.markers = {}
-    this.map = null
-    this.visible = false
-    this.focusedMarker = null
-    MarkerInstance.instance = undefined
   }
 }
 
