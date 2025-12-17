@@ -3,6 +3,7 @@ import { WidgetContainer, WidgetTitle } from '.'
 import { PreviewChart } from '../../widget-selected/components/chart-widget/components/preview-chart'
 import { TimeFormat } from '@/constants'
 import dayjs from 'dayjs'
+import { useMemo } from 'react'
 
 interface Props extends WidgetChart {
   isShowFullChart?: boolean
@@ -53,10 +54,13 @@ export const ChartWidget = ({
   const newData = data.data || []
   const timeFormat = (format as TimeFormat) || TimeFormat.FULL_DATE_MONTH_YEAR
 
-  const chartData =
-    Array.isArray(newData) && newData.length > 0
-      ? convertDataToRechartsFormat(newData as DataPoint[], timeFormat, 0)
-      : []
+  const chartData = useMemo(
+    () =>
+      Array.isArray(newData) && newData.length > 0
+        ? convertDataToRechartsFormat(newData as DataPoint[], timeFormat, 0)
+        : [],
+    [newData, timeFormat]
+  )
 
   return (
     <WidgetContainer className="flex flex-col justify-center">

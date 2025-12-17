@@ -4,7 +4,12 @@ import { BaseMQTTHandler, MQTTMessagePayload } from './base-handler'
 export interface EntityTelemetryData {
   entityId: string
   entityType: string
-  entityUpdate: Partial<Entity> & { state?: any; entity?: { attribute?: any } }
+  entityUpdate: Partial<Entity> & {
+    state?: any
+    timestamp?: string
+    entity?: { attribute?: any; unique_id?: string }
+    attributes?: { latitude?: number; longitude?: number }
+  }
 }
 
 export class EntityTelemetryHandler extends BaseMQTTHandler {
@@ -74,10 +79,10 @@ export class EntityTelemetryHandler extends BaseMQTTHandler {
     switch (entityType) {
       case 'water_depth':
         return this.normalizeWaterDepthData(payload)
-      // case 'location':
-      //   return this.normalizeLocationData(payload)
-      // case 'battery':
-      //   return this.normalizeBatteryData(payload)
+      case 'location':
+        return this.normalizeLocationData(payload)
+      case 'battery':
+        return this.normalizeBatteryData(payload)
       default:
         return { ...payload }
     }
@@ -95,6 +100,38 @@ export class EntityTelemetryHandler extends BaseMQTTHandler {
       updated_at:
         entity.timestamp || payload.timestamp || new Date().toISOString(),
       state: entity.state,
+      ...entity,
+    }
+  }
+
+  private normalizeBatteryData(
+    payload: MQTTMessagePayload
+  ): Partial<Entity> & { state?: any } {
+    const entity = payload.entity || {}
+
+    return {
+      device_id: payload.device_id,
+      name: entity.name,
+      unit_of_measurement: entity.unit_of_measurement,
+      updated_at:
+        entity.timestamp || payload.timestamp || new Date().toISOString(),
+      state: entity.state,
+      ...entity,
+    }
+  }
+
+  private normalizeLocationData(
+    payload: MQTTMessagePayload
+  ): Partial<Entity> & { state?: any } {
+    const entity = payload.entity || {}
+
+    return {
+      device_id: payload.device_id,
+      name: entity.name,
+      updated_at:
+        entity.timestamp || payload.timestamp || new Date().toISOString(),
+      state: entity.state,
+      ...entity.attributes,
       ...entity,
     }
   }
