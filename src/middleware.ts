@@ -6,6 +6,9 @@ import { locales } from './i18n/request'
 import { Locale } from './types/global'
 import { getValidSubdomain } from './utils/subdomain'
 import { readSession } from './utils/server-actions'
+import { jwtDecrypt } from 'jose'
+import { SPACEDF_DEV_SECRET } from './shared/env'
+import * as jose from 'jose'
 
 // RegExp for public files
 const PUBLIC_FILE = /\.(.*)$/ // Files
@@ -27,6 +30,41 @@ export default async function middleware(request: NextRequest) {
   if (!isLocaleValid) {
     locale = defaultLocale
     segments = url.pathname.split('/').filter(Boolean) // Reset segments without locale
+  }
+
+  const isDev = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+  if (isDev) {
+    const devToken = request.cookies.get('dev-token')
+    let decodedDevToken: jose.JWTPayload | null = null
+    if (devToken?.value && SPACEDF_DEV_SECRET) {
+      try {
+        const secret = jose.base64url.decode(SPACEDF_DEV_SECRET)
+        const { payload } = await jwtDecrypt(devToken.value, secret)
+        decodedDevToken = payload
+      } catch {
+        decodedDevToken = null
+      }
+    }
+
+    const isProtectedRoute = request.nextUrl.pathname === `/${locale}/protected`
+    const hasValidToken =
+      decodedDevToken?.hasAccessDev &&
+      (!decodedDevToken?.exp || decodedDevToken.exp >= Date.now() / 1000)
+
+    if (!hasValidToken && !isProtectedRoute) {
+      return NextResponse.redirect(
+        new URL(`/${locale}/protected`, request.nextUrl.origin)
+      )
+    }
+
+    if (hasValidToken && isProtectedRoute) {
+      return NextResponse.redirect(
+        new URL(`/${locale}`, request.nextUrl.origin)
+      )
+    }
+  }
+  if (!isDev && request.nextUrl.pathname === `/${locale}/protected`) {
+    return NextResponse.redirect(new URL(`/${locale}`, request.nextUrl.origin))
   }
 
   // Step 2: Create and call the next-intl middleware (example)
