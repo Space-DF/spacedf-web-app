@@ -61,7 +61,7 @@ export const getWidgetByType = (widget: Widget, data: any) => {
     case WidgetType.Gauge:
       return (
         <div key={widget.id}>
-          <GaugeWidget widget={widget} data={data.data} s />
+          <GaugeWidget widget={widget} data={data.data} />
         </div>
       )
     case WidgetType.Camera:
