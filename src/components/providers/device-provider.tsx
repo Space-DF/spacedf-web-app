@@ -17,7 +17,7 @@ import {
   EntityTelemetryData,
 } from '@/lib/mqtt-handlers'
 import MqttService from '@/lib/mqtt'
-import { transformDeviceData } from '@/utils/map'
+import { MapType, transformDeviceData } from '@/utils/map'
 import { useGetDevices } from '@/hooks/useDevices'
 import { useGlobalStore } from '@/stores'
 import { toast } from 'sonner'
@@ -30,6 +30,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Alert } from '@/types/alert'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
 import { useDevAuthentication } from '@/hooks/useDevAuthentication'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -37,6 +38,62 @@ const Tracki3DModel = '/3d-model/airtag.glb'
 const PREVIEW_PATH = {
   rak: '/images/3d-preview/rak.png',
   tracki: '/images/3d-preview/airtag.png',
+}
+
+const handleWidgetRealtime = (widget: any, data: EntityTelemetryData) => {
+  if (
+    ['gauge', 'value', 'slider'].some((type) =>
+      Array.isArray(widget.display_type)
+        ? widget.display_type.includes(type)
+        : widget.display_type === type
+    )
+  ) {
+    return {
+      ...widget,
+      data: {
+        value: data.entityUpdate.state,
+        unit_of_measurement: data.entityUpdate.unit_of_measurement,
+      },
+    }
+  }
+  if (
+    ['chart'].some((type) =>
+      Array.isArray(widget.display_type)
+        ? widget.display_type.includes(type)
+        : widget.display_type === type
+    )
+  ) {
+    return {
+      ...widget,
+      data: {
+        data: [
+          ...widget.data.data,
+          {
+            value: data.entityUpdate.state,
+            timestamp: data.entityUpdate.timestamp,
+          },
+        ],
+      },
+    }
+  }
+  if (
+    ['map'].some((type) =>
+      Array.isArray(widget.display_type)
+        ? widget.display_type.includes(type)
+        : widget.display_type === type
+    )
+  ) {
+    return {
+      ...widget,
+      data: {
+        coordinate: {
+          latitude: data.entityUpdate.attributes?.latitude,
+          longitude: data.entityUpdate.attributes?.longitude,
+        },
+      },
+    }
+  }
+  return widget
 }
 
 export const DeviceProvider = ({ children }: PropsWithChildren) => {
@@ -127,11 +184,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         data.entityUpdate
       )
       const newWidgetList = widgetList.map((widget) => {
-        if (widget.id === data.entityId) {
-          return {
-            ...widget,
-            data: data.entityUpdate.entity?.attribute,
-          }
+        if (widget.entity_id === data.entityId) {
+          return handleWidgetRealtime(widget, data)
         }
         return widget
       })
@@ -189,7 +243,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         handleEntityTelemetryFlush()
       }
     },
-    [devicesFleetTracking]
+    [devicesFleetTracking, widgetList]
   )
 
   const handleEntityTelemetryFlush = () => {
@@ -353,7 +407,13 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         })
       },
     })
-  }, [devicesFleetTracking, isDemo, isDevLoading, isDevVerified])
+  }, [
+    devicesFleetTracking,
+    isDemo,
+    isDevLoading,
+    isDevVerified,
+    handleEntityTelemetry,
+  ])
 
   const getDevices = async () => {
     const devices: Device[] = transformDeviceData(deviceSpaces || [])
@@ -413,6 +473,14 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       clearDeviceModels()
     }
   }, [clearDeviceModels])
+
+  useEffect(() => {
+    const mapType =
+      (localStorage.getItem('fleet-tracking:mapType') as MapType) || 'default'
+    useFleetTrackingStore.setState({
+      mapType,
+    })
+  }, [])
 
   return <>{children}</>
 }

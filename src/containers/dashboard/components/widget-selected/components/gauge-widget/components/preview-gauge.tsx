@@ -154,12 +154,29 @@ const LinearChart: React.FC<LinearChartProps> = ({
 }) => {
   const [currentPercent, setCurrentPercent] = useState(0)
 
-  const percent = useMemo(() => (value / max) * 100, [value, max])
+  const percent = useMemo(() => {
+    if (!Number.isFinite(max) || max === 0) return 0
+
+    const raw = (value / max) * 100
+    if (!Number.isFinite(raw)) return 0
+
+    return Math.min(100, Math.max(0, raw))
+  }, [value, max])
 
   useAnimationFrame((_, delta) => {
     setCurrentPercent((prev) => {
-      const nextValue = prev + delta * 0.1
-      return nextValue > percent ? percent : nextValue
+      const target = percent
+      if (!Number.isFinite(target)) return prev
+
+      const speed = 0.2 // adjust this to tweak smoothness
+      const step = delta * speed
+      const diff = target - prev
+
+      if (Math.abs(diff) <= step) {
+        return target
+      }
+
+      return prev + Math.sign(diff) * step
     })
   })
 

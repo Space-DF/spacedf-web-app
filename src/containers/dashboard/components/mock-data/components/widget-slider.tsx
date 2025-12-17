@@ -3,6 +3,7 @@ import { WidgetContainer, WidgetTitle } from '.'
 import { WidgetInfo } from '@/widget-models/widget'
 import { SliderSource } from '@/validator'
 import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
 
 interface WidgetSliderProps {
   widget_info: WidgetInfo
@@ -13,11 +14,28 @@ interface WidgetSliderProps {
   }
 }
 
+function smoothValue(from: number, to: number, cb: (v: number) => void) {
+  let start: number | null = null
+
+  function animate(ts: number) {
+    if (!start) start = ts
+    const progress = Math.min((ts - start) / 200, 1)
+    const value = from + (to - from) * progress
+    cb(value)
+    if (progress < 1) requestAnimationFrame(animate)
+  }
+
+  requestAnimationFrame(animate)
+}
+
 const WidgetSlider = ({ widget_info, source, data }: WidgetSliderProps) => {
   const { max, min, step, unit } = source
   const { name } = widget_info
   const { value, unit_of_measurement } = data || {}
-
+  const [sliderValue, setSliderValue] = useState([value])
+  useEffect(() => {
+    smoothValue(sliderValue[0], value, (v) => setSliderValue([v]))
+  }, [value])
   return (
     <WidgetContainer className="flex flex-col gap-1">
       <WidgetTitle className="flex justify-between">
@@ -30,7 +48,7 @@ const WidgetSlider = ({ widget_info, source, data }: WidgetSliderProps) => {
       </WidgetTitle>
       <Slider
         disabled
-        defaultValue={[value]}
+        value={sliderValue}
         max={max}
         min={min}
         step={step}

@@ -82,7 +82,7 @@ const MapSource: React.FC = () => {
   )
 
   const currentEntity = useMemo(() => {
-    return entityList.find((e) => e.id === selectedSource.entity_id)
+    return entityList.find((e) => e.unique_key === selectedSource.entity_id)
   }, [entityList, selectedSource.entity_id])
 
   return (
