@@ -11,7 +11,7 @@ import { setCookie } from '@/utils'
 import WidgetSelection from './components/widget-selection'
 import WidgetSelected from './components/widget-selected'
 import { WidgetType } from '@/widget-models/widget'
-import { useGetWidgets } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useGetWidget'
+import { useGetWidgets } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useGetWidget'
 import { WidgetList } from './components/widget-list'
 
 const Dashboard = () => {

@@ -26,7 +26,10 @@ type FleetTrackingStore = {
 export const useFleetTrackingStore = create<FleetTrackingStore>((set) => ({
   map: null as mapboxgl.Map | null,
   isMapReady: false,
-  mapType: null,
+  mapType:
+    (typeof window !== 'undefined' &&
+      (localStorage.getItem('fleet-tracking:mapType') as MapType)) ||
+    'default',
   modelType: null,
   isClusterVisible: true,
   isAlreadyShowTripRoute: false,

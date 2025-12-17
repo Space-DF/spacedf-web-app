@@ -20,7 +20,7 @@ import {
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
-import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'

@@ -43,12 +43,7 @@ const mapTypes: MapTypeItem[] = [
 
 export const SelectMapType = () => {
   const [isMapReady, setIsMapReady] = useState(false)
-  const mapType = useFleetTrackingStore(
-    (state) =>
-      state.mapType ||
-      (localStorage.getItem('fleet-tracking:mapType') as MapType) ||
-      'default'
-  )
+  const mapType = useFleetTrackingStore((state) => state.mapType)
 
   useEffect(() => {
     const fleetTrackingMap = FleetTrackingMap.getInstance()
