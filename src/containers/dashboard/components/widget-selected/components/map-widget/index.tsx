@@ -12,7 +12,7 @@ import { WidgetType } from '@/widget-models/widget'
 import MapPreview from './components/map-preview'
 import TableWidgetInfo from './components/widget-info'
 import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
-import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 

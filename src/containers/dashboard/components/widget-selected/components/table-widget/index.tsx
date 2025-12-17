@@ -19,7 +19,7 @@ import TableWidgetInfo from './components/widget-info'
 import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
 import { v4 as uuidv4 } from 'uuid'
-import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { toast } from 'sonner'
 
 const TABLE_TABS_KEY = [

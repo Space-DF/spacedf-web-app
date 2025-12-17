@@ -29,6 +29,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { v4 as uuidv4 } from 'uuid'
 import { Alert } from '@/types/alert'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
+import { useDevAuthentication } from '@/hooks/useDevAuthentication'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -59,6 +60,8 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const isAuthorized =
     organization && spaceSlugName && !isDemo && isAuthenticated
 
+  const { verified: isDevVerified, isLoading: isDevLoading } =
+    useDevAuthentication()
   const {
     setDeviceModel,
     setInitializedSuccess,
@@ -243,7 +246,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (isDemo) return
+    if (isDemo || isDevLoading || !isDevVerified) return
     mqttRouterRef.current = new MQTTRouter()
 
     // Register device telemetry handler (no store dependency)
@@ -315,10 +318,17 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         mqttRouterRef.current = null
       }
     }
-  }, [organization, spaceSlugName, isAuthorized])
+  }, [organization, spaceSlugName, isAuthorized, isDevVerified, isDevLoading])
 
   useEffect(() => {
-    if (isDemo || !mqttServiceRef.current || !mqttRouterRef.current) return
+    if (
+      isDemo ||
+      !mqttServiceRef.current ||
+      !mqttRouterRef.current ||
+      isDevLoading ||
+      !isDevVerified
+    )
+      return
     mqttServiceRef.current?.setEventCallbacks({
       onMessage: (topic: string, payload: Buffer) => {
         const results =
@@ -343,7 +353,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
         })
       },
     })
-  }, [devicesFleetTracking])
+  }, [devicesFleetTracking, isDemo, isDevLoading, isDevVerified])
 
   const getDevices = async () => {
     const devices: Device[] = transformDeviceData(deviceSpaces || [])

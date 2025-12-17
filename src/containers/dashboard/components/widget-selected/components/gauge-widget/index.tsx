@@ -15,7 +15,7 @@ import TimeFrame from './components/time-frame'
 import PreviewGauge from './components/preview-gauge'
 import { WidgetType } from '@/widget-models/widget'
 import { v4 as uuidv4 } from 'uuid'
-import { useCreateWidget } from '@/app/[locale]/[organization]/(withAuth)/test-api/hooks/useCreateWidget'
+import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { toast } from 'sonner'
 
 const TabContents = () => {

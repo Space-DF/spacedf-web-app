@@ -75,7 +75,6 @@ export default async function middleware(request: NextRequest) {
   })
 
   const subdomain = await getValidSubdomain(host)
-
   if (!subdomain) {
     const demoUrl = `${request.nextUrl.protocol}//demo.${request.nextUrl.host}`
 
@@ -84,7 +83,7 @@ export default async function middleware(request: NextRequest) {
 
   const userIsAuthenticated = await readSession()
 
-  const publicRoutes = ['', 'invitation']
+  const publicRoutes = ['', 'invitation', 'protected']
 
   const pathAfterSubdomain = segments.join('/')
   const isPublicRoute = publicRoutes.includes(pathAfterSubdomain)
@@ -116,7 +115,6 @@ export default async function middleware(request: NextRequest) {
   const response = handleI18nRouting(request)
 
   response.cookies.set('organization', subdomain || '')
-
   return response
 }
 

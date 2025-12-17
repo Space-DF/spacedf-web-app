@@ -76,9 +76,7 @@ export default function ProtectedPage() {
                 name="password"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel className="uppercase tracking-wider">
-                      Password
-                    </FormLabel>
+                    <FormLabel className="tracking-wider">Password</FormLabel>
                     <FormControl>
                       <InputWithIcon
                         type={isShowPassword ? 'text' : 'password'}

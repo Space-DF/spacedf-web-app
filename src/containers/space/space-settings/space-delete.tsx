@@ -22,7 +22,7 @@ import { useRouter } from '@/i18n/routing'
 import {
   useDeleteSpace,
   useGetSpaces,
-} from '@/app/[locale]/[organization]/(withAuth)/spaces/hooks'
+} from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/spaces/hooks'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useRefreshToken } from './hooks/useRefreshToken'
 
