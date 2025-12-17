@@ -11,6 +11,16 @@ import { OPERATORS } from '@/containers/dashboard/components/widget-selected/com
 import dayjs from 'dayjs'
 import { MapType } from '@/validator'
 
+const CHART_DATA = [
+  { timestamp: '2025-12-10T08:00:00Z', value: 12 },
+  { timestamp: '2025-12-10T09:00:00Z', value: 18 },
+  { timestamp: '2025-12-10T10:00:00Z', value: 15 },
+  { timestamp: '2025-12-10T11:00:00Z', value: 22 },
+  { timestamp: '2025-12-10T12:00:00Z', value: 19 },
+  { timestamp: '2025-12-10T13:00:00Z', value: 25 },
+  { timestamp: '2025-12-10T14:00:00Z', value: 21 },
+]
+
 export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
@@ -126,6 +136,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '1',
+    data: {
+      data: CHART_DATA,
+    },
     configuration: {
       id: '6',
       type: WidgetType.Chart,
@@ -165,20 +178,18 @@ export const DEMO_WIDGET_DASHBOARD = [
           chart_type: ChartType.AreaChart,
           device_id: '1',
         },
-        {
-          legend: 'Temperature',
-          field: 'temperature',
-          color: 'FA8750',
-          show_legend: true,
-          chart_type: ChartType.AreaChart,
-          device_id: '1',
-        },
       ],
     },
   },
   {
     id: uuidv4(),
     dashboard: '1',
+    data: {
+      coordinate: {
+        latitude: 16.05198423790203,
+        longitude: 108.21679652348709,
+      },
+    },
     configuration: {
       id: '7',
       type: WidgetType.Map,
@@ -222,26 +233,26 @@ export const DEMO_WIDGET_DASHBOARD = [
       minW: 4,
       minH: 3,
       source: {
-        devices: [
+        entities: [
           {
-            device_id: '1',
-            device_name: 'RAK Sticker 01',
+            entity_id: '1',
+            entity_name: 'RAK Sticker 01',
             last_seen: '2021-01-01',
             battery: 100,
             status: 'active',
             coordinate: [16.061307485294005, 108.23972422618492],
           },
           {
-            device_id: '2',
-            device_name: 'RAK Sticker 02',
+            entity_id: '2',
+            entity_name: 'RAK Sticker 02',
             last_seen: '2021-01-01',
             battery: 100,
             status: 'active',
             coordinate: [16.061307485294005, 108.23972422618492],
           },
           {
-            device_id: '3',
-            device_name: 'RAK Sticker 03',
+            entity_id: '3',
+            entity_name: 'RAK Sticker 03',
             last_seen: '2021-01-01',
             battery: 100,
             status: 'active',
@@ -251,22 +262,25 @@ export const DEMO_WIDGET_DASHBOARD = [
       },
       columns: [
         {
-          column_name: 'Device Name',
+          column_name: 'Entity Name',
           column_type: 'string',
-          field: 'device_name',
+          field: 'entity_name',
         },
         {
-          column_name: 'Device ID',
+          column_name: 'Entity ID',
           column_type: 'string',
-          field: 'device_id',
+          field: 'entity_id',
         },
       ],
-      conditions: [],
+      conditionals: [],
     },
   },
   {
     id: uuidv4(),
     dashboard: '1',
+    data: {
+      value: 84,
+    },
     configuration: {
       id: '9',
       type: WidgetType.Gauge,
@@ -303,46 +317,46 @@ export const DEMO_WIDGET_DASHBOARD = [
       minH: 3,
     },
   },
-  {
-    id: uuidv4(),
-    dashboard: '1',
-    configuration: {
-      id: '10',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M01',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 0,
-      y: 17,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
-    },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '1',
-    configuration: {
-      id: '11',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M02',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 4,
-      y: 17,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
-    },
-  },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '1',
+  //   configuration: {
+  //     id: '10',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M01',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 0,
+  //     y: 17,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '1',
+  //   configuration: {
+  //     id: '11',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M02',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 4,
+  //     y: 17,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
   {
     id: uuidv4(),
     dashboard: '1',
@@ -423,6 +437,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '2',
+    data: {
+      data: CHART_DATA,
+    },
     configuration: {
       id: '2',
       type: WidgetType.Chart,
@@ -462,6 +479,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '2',
+    data: {
+      data: CHART_DATA,
+    },
     configuration: {
       id: '3',
       type: WidgetType.Sensor,
@@ -506,6 +526,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '2',
+    data: {
+      value: 84,
+    },
     configuration: {
       id: '5',
       type: WidgetType.Gauge,
@@ -576,45 +599,52 @@ export const DEMO_WIDGET_DASHBOARD = [
           show_value: true,
         },
       },
-      source: [
-        {
-          device_id: '1',
-          device_name: 'RAK Sticker 01',
-          last_seen: '2021-01-01',
-          battery: 60,
-          status: 'active',
-          coordinate: [16.061307485294005, 108.23972422618492],
-        },
-        {
-          device_id: '2',
-          device_name: 'RAK Sticker 02',
-          last_seen: '2021-01-01',
-          battery: 70,
-          status: 'active',
-          coordinate: [16.061307485294005, 108.23972422618492],
-        },
-        {
-          device_id: '3',
-          device_name: 'RAK Sticker 03',
-          last_seen: '2021-01-01',
-          battery: 100,
-          status: 'active',
-          coordinate: [16.061307485294005, 108.23972422618492],
-        },
-        {
-          device_id: '4',
-          device_name: 'RAK Sticker 04',
-          last_seen: '2021-01-01',
-          battery: 10,
-          status: 'inactive',
-          coordinate: [16.061307485294005, 108.23972422618492],
-        },
-      ],
+      source: {
+        entities: [
+          {
+            entity_id: '1',
+            entity_name: 'RAK Sticker 01',
+            last_seen: '2021-01-01',
+            battery: 60,
+            status: 'active',
+            coordinate: [16.061307485294005, 108.23972422618492],
+          },
+          {
+            entity_id: '2',
+            entity_name: 'RAK Sticker 02',
+            last_seen: '2021-01-01',
+            battery: 70,
+            status: 'active',
+            coordinate: [16.061307485294005, 108.23972422618492],
+          },
+          {
+            entity_id: '3',
+            entity_name: 'RAK Sticker 03',
+            last_seen: '2021-01-01',
+            battery: 100,
+            status: 'active',
+            coordinate: [16.061307485294005, 108.23972422618492],
+          },
+          {
+            entity_id: '4',
+            entity_name: 'RAK Sticker 04',
+            last_seen: '2021-01-01',
+            battery: 10,
+            status: 'inactive',
+            coordinate: [16.061307485294005, 108.23972422618492],
+          },
+        ],
+      },
       columns: [
         {
-          column_name: 'Device Name',
+          column_name: 'Entity Name',
           column_type: 'string',
-          field: 'device_name',
+          field: 'entity_name',
+        },
+        {
+          column_name: 'Entity ID',
+          column_type: 'string',
+          field: 'entity_id',
         },
         {
           column_name: 'Battery',
@@ -627,7 +657,7 @@ export const DEMO_WIDGET_DASHBOARD = [
           field: 'status',
         },
       ],
-      conditions: [
+      conditionals: [
         {
           field: 'battery',
           operator: OPERATORS.GreaterThan,
@@ -673,49 +703,55 @@ export const DEMO_WIDGET_DASHBOARD = [
       minW: 3,
     },
   },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '2',
+  //   configuration: {
+  //     id: '9',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M01',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 0,
+  //     y: 13,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '2',
+  //   configuration: {
+  //     id: '10',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M02',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 3,
+  //     y: 13,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
   {
     id: uuidv4(),
     dashboard: '2',
-    configuration: {
-      id: '9',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M01',
-        appearance: {
-          show_value: true,
-        },
+    data: {
+      coordinate: {
+        latitude: 16.05198423790203,
+        longitude: 108.21679652348709,
       },
-      type: WidgetType.Camera,
-      x: 0,
-      y: 13,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
     },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '2',
-    configuration: {
-      id: '10',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M02',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 3,
-      y: 13,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
-    },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '2',
     configuration: {
       id: '11',
       type: WidgetType.Map,
@@ -743,69 +779,72 @@ export const DEMO_WIDGET_DASHBOARD = [
       minH: 2,
     },
   },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '3',
+  //   configuration: {
+  //     id: '1',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M01',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 0,
+  //     y: 0,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '3',
+  //   configuration: {
+  //     id: '2',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M02',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 3,
+  //     y: 0,
+  //     w: 3,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
+  // {
+  //   id: uuidv4(),
+  //   dashboard: '3',
+  //   configuration: {
+  //     id: '3',
+  //     widget_info: {
+  //       name: 'Camera DMZ 01-1511-M02',
+  //       appearance: {
+  //         show_value: true,
+  //       },
+  //     },
+  //     type: WidgetType.Camera,
+  //     x: 0,
+  //     y: 4,
+  //     w: 6,
+  //     h: 3,
+  //     minW: 3,
+  //     minH: 3,
+  //   },
+  // },
   {
     id: uuidv4(),
     dashboard: '3',
-    configuration: {
-      id: '1',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M01',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 0,
-      y: 0,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
+    data: {
+      data: CHART_DATA,
     },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '3',
-    configuration: {
-      id: '2',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M02',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 3,
-      y: 0,
-      w: 3,
-      h: 3,
-      minW: 3,
-      minH: 3,
-    },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '3',
-    configuration: {
-      id: '3',
-      widget_info: {
-        name: 'Camera DMZ 01-1511-M02',
-        appearance: {
-          show_value: true,
-        },
-      },
-      type: WidgetType.Camera,
-      x: 0,
-      y: 4,
-      w: 6,
-      h: 3,
-      minW: 3,
-      minH: 3,
-    },
-  },
-  {
-    id: uuidv4(),
-    dashboard: '3',
     configuration: {
       id: '4',
       type: WidgetType.Chart,
@@ -897,6 +936,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '3',
+    data: {
+      value: 84,
+    },
     configuration: {
       id: '7',
       type: WidgetType.Gauge,
@@ -1047,6 +1089,12 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '3',
+    data: {
+      coordinate: {
+        latitude: 16.05198423790203,
+        longitude: 108.21679652348709,
+      },
+    },
     configuration: {
       id: '13',
       type: WidgetType.Map,
