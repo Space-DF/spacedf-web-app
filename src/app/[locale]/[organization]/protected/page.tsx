@@ -20,6 +20,8 @@ import { SpaceDFLogoFull } from '@/components/icons'
 import { TypographySecondary } from '@/components/ui/typography'
 import { useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
+import { PRODUCTION_SITE_URL } from '@/shared/env'
 
 const passwordSchema = z.object({
   password: z.string().min(1, { message: 'Password is required' }),
@@ -34,6 +36,7 @@ export default function ProtectedPage() {
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
   })
+  const { organization } = useParams()
   const t = useTranslations('common')
 
   const onSubmit = (value: PasswordFormValues) => {
@@ -72,9 +75,12 @@ export default function ProtectedPage() {
           </h1>
           <TypographySecondary className="mb-6 text-base text-center">
             This is the development environment. Please switch to our{' '}
-            <span className="bg-gradient-to-r from-[#6580EB] via-[#9957EC] to-[#B443ED] bg-clip-text text-transparent text-base font-semibold">
+            <a
+              href={`https://${organization}.${PRODUCTION_SITE_URL}`}
+              className="bg-gradient-to-r from-[#6580EB] via-[#9957EC] to-[#B443ED] bg-clip-text text-transparent text-base font-semibold"
+            >
               Official Website
-            </span>
+            </a>
           </TypographySecondary>
 
           <Form {...form}>

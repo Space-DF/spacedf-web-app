@@ -18,7 +18,6 @@ export const getResponsiveLayout = (
   } else {
     sidebarWidth = 15
   }
-
   return [sidebarWidth, 100 - sidebarWidth]
 }
 
@@ -34,7 +33,15 @@ export const getResponsiveCollapseThreshold = (): number => {
     return SIDEBAR_COLLAPSE_THRESHOLDS.TABLET
   } else if (screenWidth < RESPONSIVE_BREAKPOINTS.DESKTOP) {
     return SIDEBAR_COLLAPSE_THRESHOLDS.DESKTOP
-  } else {
+  } else if (screenWidth < RESPONSIVE_BREAKPOINTS.LARGE_DESKTOP) {
     return SIDEBAR_COLLAPSE_THRESHOLDS.LARGE_DESKTOP
+  } else if (screenWidth < RESPONSIVE_BREAKPOINTS.FULL_HD) {
+    return SIDEBAR_COLLAPSE_THRESHOLDS.DESKTOP
+  } else if (screenWidth < RESPONSIVE_BREAKPOINTS.QUAD_HD) {
+    return SIDEBAR_COLLAPSE_THRESHOLDS.QUAD_HD
+  } else if (screenWidth < RESPONSIVE_BREAKPOINTS.OCTA_HD) {
+    return SIDEBAR_COLLAPSE_THRESHOLDS.OCTA_HD
+  } else {
+    return SIDEBAR_COLLAPSE_THRESHOLDS.DESKTOP
   }
 }

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtDecrypt } from 'jose'
 import * as jose from 'jose'
-import { SPACEDF_DEV_SECRET } from '@/shared/env'
+import { NODE_ENV, SPACEDF_DEV_SECRET } from '@/shared/env'
 import { handleError } from '@/utils/error'
 
 export const GET = async (request: NextRequest) => {
   try {
-    const isDev = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+    const isDev = NODE_ENV === 'development'
 
     if (!isDev) {
       return NextResponse.json({ verified: true })

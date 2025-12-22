@@ -18,3 +18,7 @@ export const ADMIN_SITE_URL =
   process.env.NEXT_PUBLIC_ADMIN_SITE_URL || 'https://spacedf.com'
 
 export const SPACEDF_DEV_PASSWORD = process.env.SPACEDF_DEV_PASSWORD || ''
+
+export const PRODUCTION_SITE_URL =
+  process.env.PRODUCTION_SITE_URL || 'myspacedf.com'
+export const NODE_ENV = process.env.NEXT_PUBLIC_NODE_ENV || 'development'

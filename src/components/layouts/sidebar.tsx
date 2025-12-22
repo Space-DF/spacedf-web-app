@@ -71,8 +71,12 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
 
   const handleCollapseChanges = (isCollapsed: boolean) => {
     if (!ref || !('current' in ref)) return
-
-    if (isCollapsed) return ref?.current?.setLayout([4, 96])
+    const maxLeftCollapsedSize = 50
+    const percentMaxLeftCollapsedSize =
+      (maxLeftCollapsedSize / window.innerWidth) * 100
+    const finalLeftSize = Math.min(percentMaxLeftCollapsedSize, 4)
+    if (isCollapsed)
+      return ref?.current?.setLayout([finalLeftSize, 100 - finalLeftSize])
     ref?.current?.setLayout([sidebarWidth, mainWidth])
   }
 

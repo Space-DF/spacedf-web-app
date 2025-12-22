@@ -11,8 +11,8 @@ export const getCookieServer = <TDefaultValue = any>(
   key: string,
   defaultValue: TDefaultValue
 ) => {
-  const cookie = cookies().get(key)
-
+  const cookieStore = cookies()
+  const cookie = cookieStore.get(encodeURIComponent(key))
   if (cookie)
     return isJsonString(cookie.value)
       ? JSON.parse(cookie.value)
@@ -22,7 +22,7 @@ export const getCookieServer = <TDefaultValue = any>(
 }
 
 export const getServerOrganization = async () => {
-  const cookieStore = await cookies()
+  const cookieStore = cookies()
   return (cookieStore.get('organization')?.value || '') as string
 }
 

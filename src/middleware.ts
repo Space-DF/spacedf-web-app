@@ -7,7 +7,7 @@ import { Locale } from './types/global'
 import { getValidSubdomain } from './utils/subdomain'
 import { readSession } from './utils/server-actions'
 import { jwtDecrypt } from 'jose'
-import { SPACEDF_DEV_SECRET } from './shared/env'
+import { NODE_ENV, SPACEDF_DEV_SECRET } from './shared/env'
 import * as jose from 'jose'
 
 // RegExp for public files
@@ -32,7 +32,7 @@ export default async function middleware(request: NextRequest) {
     segments = url.pathname.split('/').filter(Boolean) // Reset segments without locale
   }
 
-  const isDev = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+  const isDev = NODE_ENV === 'development'
   if (isDev) {
     const devToken = request.cookies.get('dev-token')
     let decodedDevToken: jose.JWTPayload | null = null
