@@ -33,7 +33,14 @@ type DynamicLayoutProps = {
   defaultCollapsed: boolean
 } & PropsWithChildren
 
-const COLLAPSED_LAYOUT = [4, 96]
+const calculateCollapsedLayout = () => {
+  const maxLeftCollapsedSize = 50 //max left size when collapsed with pixels value
+  const percentMaxLeftCollapsedSize =
+    (maxLeftCollapsedSize / window.innerWidth) * 100
+  console.log({ percentMaxLeftCollapsedSize, windowWidth: window.innerWidth })
+  const finalLeftSize = Math.min(percentMaxLeftCollapsedSize, 4)
+  return [finalLeftSize, 100 - finalLeftSize]
+}
 
 const DynamicLayout = ({
   children,
@@ -140,18 +147,21 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
+    console.log({ sizes })
     // Use responsive collapse threshold from hook (updates with screen size changes)
     if (sizes[0] < collapseThreshold) {
       setCollapsed(true)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
-      mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
-      setCookie(COOKIES.MAIN_LAYOUTS, COLLAPSED_LAYOUT)
+      const collapsedLayout = calculateCollapsedLayout()
+      mainLayoutRefs.current?.setLayout(collapsedLayout)
+      setCookie(COOKIES.MAIN_LAYOUTS, collapsedLayout)
     } else if (sizes[0] > collapseThreshold && isCollapsed) {
       setCookie(COOKIES.MAIN_LAYOUTS, sizes)
       setCollapsed(false)
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
       mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
     }
+    console.log({ mainLayoutRefs: mainLayoutRefs.current?.getLayout() })
   }
 
   useEffect(() => {
@@ -161,8 +171,9 @@ const DynamicLayout = ({
       if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
         setCollapsed(true)
         setCookie(COOKIES.SIDEBAR_COLLAPSED, true)
-        mainLayoutRefs.current?.setLayout(COLLAPSED_LAYOUT)
-        setCookie(COOKIES.MAIN_LAYOUTS, COLLAPSED_LAYOUT)
+        const collapsedLayout = calculateCollapsedLayout()
+        mainLayoutRefs.current?.setLayout(collapsedLayout)
+        setCookie(COOKIES.MAIN_LAYOUTS, collapsedLayout)
       }
     }
 
@@ -191,6 +202,27 @@ const DynamicLayout = ({
   const { isShowAll, second, first } =
     displayedRightDynamicLayout(dynamicLayoutRight)
 
+  const maxRightSize = () => {
+    if (typeof window === 'undefined') return 60
+    const maxRightWidth = 600
+    return (maxRightWidth / window.innerWidth) * 100
+  }
+
+  const maxLeftSize = () => {
+    if (typeof window === 'undefined') return 30
+    const maxLeftWidth = 400
+    return (maxLeftWidth / window.innerWidth) * 100
+  }
+
+  const minLeftSize = () => {
+    if (typeof window === 'undefined') return 4
+    const minLeftWidth = 50
+
+    return (minLeftWidth / window.innerWidth) * 100
+  }
+
+  console.log({ minLeftSize: minLeftSize(), maxLeftSize: maxLeftSize() })
+
   return (
     <EffectLayout>
       <div className="flex max-h-screen max-w-full overflow-hidden">
@@ -200,8 +232,8 @@ const DynamicLayout = ({
           ref={mainLayoutRefs}
         >
           <ResizablePanel
-            minSize={4}
-            maxSize={30}
+            minSize={minLeftSize()}
+            maxSize={maxLeftSize()}
             defaultSize={sidebarWidth}
             className="duration-200"
           >
@@ -239,7 +271,7 @@ const DynamicLayout = ({
                   isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
                 )}
                 minSize={getRightMinSize()}
-                maxSize={60}
+                maxSize={maxRightSize()}
               >
                 <ResizablePanelGroup
                   direction="horizontal"

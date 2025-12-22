@@ -314,7 +314,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
     const handleMqttConnect = async () => {
       mqttServiceRef.current = MqttService.getInstance(organization)
       await mqttServiceRef.current.initialize()
-      mqttServiceRef.current.setEventCallbacks({
+      mqttServiceRef.current?.setEventCallbacks({
         onReconnect: () => {
           toast.info('MQTT reconnecting...', {
             position: 'bottom-right',

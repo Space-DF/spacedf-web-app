@@ -1,7 +1,8 @@
+import { NEXT_PUBLIC_NODE_ENV } from '@/shared/env'
 import { fetcher } from '@/utils'
 import useSWR from 'swr'
 
-const isDev = process.env.NEXT_PUBLIC_NODE_ENV === 'development'
+const isDev = NEXT_PUBLIC_NODE_ENV === 'development'
 
 const useCheckDevVerification = () => {
   return useSWR(
