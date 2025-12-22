@@ -30,6 +30,7 @@ class FleetTrackingMap {
   }
 
   init(container: HTMLElement, options: Partial<MapOptions> = {}) {
+    console.log('init')
     if (this.isInitialized) return this.map
 
     this.map = new mapboxgl.Map({

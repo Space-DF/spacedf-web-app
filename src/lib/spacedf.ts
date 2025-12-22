@@ -1,4 +1,4 @@
-import { NODE_ENV } from '@/shared/env'
+import { NEXT_PUBLIC_NODE_ENV } from '@/shared/env'
 import { getClientOrganization } from '@/utils'
 import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
@@ -26,7 +26,9 @@ export class SpaceDFClient {
     this.client = new SpaceDF({
       organization: organization || '',
       APIKey: this.api_key,
-      development: NODE_ENV === 'development' || NODE_ENV === 'local',
+      development:
+        NEXT_PUBLIC_NODE_ENV === 'development' ||
+        NEXT_PUBLIC_NODE_ENV === 'local',
     })
   }
 
