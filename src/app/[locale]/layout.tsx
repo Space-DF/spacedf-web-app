@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
   openGraph: {
     images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
+    siteName: 'SpaceDF Digital Twin Dashboard',
   },
   twitter: {
     images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
