@@ -11,7 +11,8 @@ export default function SpaceDetail() {
   )
 
   if (
-    NEXT_PUBLIC_NODE_ENV === 'development' &&
+    (NEXT_PUBLIC_NODE_ENV === 'development' ||
+      NEXT_PUBLIC_NODE_ENV === 'local') &&
     NEXT_PUBLIC_MAP_ENABLED !== 'true'
   ) {
     return (
