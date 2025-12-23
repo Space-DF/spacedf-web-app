@@ -13,11 +13,28 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
 
 export const metadata: Metadata = {
-  title: 'SpaceDF',
+  title: 'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
   description:
-    'SpaceDF is a ready-to-use IoT platform that lets you connect, manage, and control all your devices from one dashboard - No code & minimum setup. Easily turn it into a white-label solution, ready to launch under your own brand!',
+    'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
+  openGraph: {
+    images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
+    siteName: 'SpaceDF Digital Twin Dashboard',
+  },
+  twitter: {
+    images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
+  },
+  keywords: [
+    'IoT dashboard',
+    'Real-time GPS tracking',
+    'GPS tracking dashboard',
+    'Device monitoring dashboard',
+    'Centralized dashboard',
+    'all-in-one dashboard',
+    'Device tracking platform',
+    'Device data monitoring',
+    'Digital Twins dashboard',
+  ],
 }
-
 export default async function RootLayout({
   children,
   params: { locale },

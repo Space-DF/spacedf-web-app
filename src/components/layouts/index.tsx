@@ -37,7 +37,6 @@ const calculateCollapsedLayout = () => {
   const maxLeftCollapsedSize = 50 //max left size when collapsed with pixels value
   const percentMaxLeftCollapsedSize =
     (maxLeftCollapsedSize / window.innerWidth) * 100
-  console.log({ percentMaxLeftCollapsedSize, windowWidth: window.innerWidth })
   const finalLeftSize = Math.min(percentMaxLeftCollapsedSize, 4)
   return [finalLeftSize, 100 - finalLeftSize]
 }
@@ -147,7 +146,6 @@ const DynamicLayout = ({
     setCookie(COOKIES.LAYOUTS, sizes)
 
   const handleMainLayoutChanges = (sizes: number[]) => {
-    console.log({ sizes })
     // Use responsive collapse threshold from hook (updates with screen size changes)
     if (sizes[0] < collapseThreshold) {
       setCollapsed(true)
@@ -161,7 +159,6 @@ const DynamicLayout = ({
       setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
       mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
     }
-    console.log({ mainLayoutRefs: mainLayoutRefs.current?.getLayout() })
   }
 
   useEffect(() => {
@@ -204,7 +201,7 @@ const DynamicLayout = ({
 
   const maxRightSize = () => {
     if (typeof window === 'undefined') return 60
-    const maxRightWidth = 600
+    const maxRightWidth = 900
     return (maxRightWidth / window.innerWidth) * 100
   }
 
@@ -220,8 +217,6 @@ const DynamicLayout = ({
 
     return (minLeftWidth / window.innerWidth) * 100
   }
-
-  console.log({ minLeftSize: minLeftSize(), maxLeftSize: maxLeftSize() })
 
   return (
     <EffectLayout>
