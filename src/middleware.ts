@@ -33,7 +33,9 @@ export default async function middleware(request: NextRequest) {
   }
 
   const isDev = NEXT_PUBLIC_NODE_ENV === 'development'
-  if (isDev) {
+  const isLocal = host?.includes('localhost:')
+
+  if (isDev && !isLocal) {
     const devToken = request.cookies.get('dev-token')
     let decodedDevToken: jose.JWTPayload | null = null
     if (devToken?.value && SPACEDF_DEV_SECRET) {
