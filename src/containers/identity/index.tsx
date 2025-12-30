@@ -146,8 +146,8 @@ const Identity = () => {
     router.replace(pathName)
   }
 
-  const handleLogout = () => {
-    signOut({
+  const handleLogout = async () => {
+    await signOut({
       redirect: false,
     })
     setIsDifferentUser(false)
