@@ -26,6 +26,7 @@ class FetchInstance {
   public isRefreshing = false
   public refreshAttempts = 0
   public maxRefreshAttempts = 3
+  private isSigningOut = false
   private failedQueue: Array<{
     resolve: (value: any) => void
     reject: (error: any) => void
@@ -57,6 +58,18 @@ class FetchInstance {
     return new Promise((resolve, reject) => {
       this.failedQueue.push({ resolve, reject, endpoint, config })
     })
+  }
+
+  public async handleSignOut(): Promise<void> {
+    if (this.isSigningOut) {
+      return
+    }
+    this.isSigningOut = true
+
+    if (typeof window !== 'undefined') {
+      await signOut({ redirect: false })
+      window.location.href = '/'
+    }
   }
 
   private async fetchWithTimeout(
@@ -196,10 +209,7 @@ api.setInterceptors({
 
       if (originalConfig && originalEndpoint) {
         if (api.refreshAttempts >= api.maxRefreshAttempts) {
-          if (typeof window !== 'undefined') {
-            signOut({ redirect: false })
-            window.location.href = '/'
-          }
+          await api.handleSignOut()
           throw new Error('Max refresh attempts exceeded')
         }
 
@@ -224,20 +234,12 @@ api.setInterceptors({
           } else {
             const refreshError = new Error('Token refresh failed')
             api.processQueue(refreshError, null)
-
-            if (typeof window !== 'undefined') {
-              signOut({ redirect: false })
-              window.location.href = '/'
-            }
+            await api.handleSignOut()
             throw refreshError
           }
         } catch (refreshError) {
           api.processQueue(refreshError, null)
-
-          if (typeof window !== 'undefined') {
-            signOut({ redirect: false })
-            window.location.href = '/'
-          }
+          await api.handleSignOut()
           throw refreshError
         } finally {
           api.isRefreshing = false
