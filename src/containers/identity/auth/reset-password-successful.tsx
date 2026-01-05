@@ -17,7 +17,10 @@ export const ResetPasswordSuccessful = () => {
   const router = useRouter()
 
   const handleLogin = useCallback(() => {
-    if (!isAuthenticated) return setFormType('signIn')
+    if (!isAuthenticated) {
+      setFormType('signIn')
+      return router.replace('/')
+    }
     setOpenDrawer(false)
     router.replace('/')
   }, [isAuthenticated, setFormType, router, setOpenDrawer])
