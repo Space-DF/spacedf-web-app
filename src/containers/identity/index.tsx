@@ -160,9 +160,16 @@ const Identity = () => {
     setFormType('signIn')
   }
 
+  const handleOpenChangeDrawer = (open: boolean) => {
+    setOpenDrawer(open)
+    if (!open) {
+      setFormType('signIn')
+    }
+  }
+
   return (
     <>
-      <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
+      <Drawer open={openDrawer} onOpenChange={handleOpenChangeDrawer}>
         <DrawerContent className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost">
           <div className="flex size-full flex-col overflow-auto">
             <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
