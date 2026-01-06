@@ -2,6 +2,7 @@
 import { useDeviceStore } from '@/stores/device-store'
 import { WaterLevelInstance } from '@/utils/fleet-tracking-map/layer-instance/water-level-instance'
 import { useCallback, useEffect, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 const waterLevelInstance = WaterLevelInstance.getInstance()
 
@@ -10,17 +11,25 @@ export const useDisplayWaterDevice = (devices: Record<string, any>) => {
     new Map()
   )
 
-  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+  const { setDeviceSelected, deviceSelected } = useDeviceStore(
+    useShallow((state) => ({
+      setDeviceSelected: state.setDeviceSelected,
+      deviceSelected: state.deviceSelected,
+    }))
+  )
   const [clusterDropdownOpen, setClusterDropdownOpen] = useState(false)
 
   useEffect(() => {
+    if (deviceSelected) {
+      waterLevelInstance.setDisplayedDeviceForLocation(deviceSelected)
+    }
     const { visibleDevices } = waterLevelInstance.getVisibleDevicesAndGroups(
       Object.values(devices)
     )
     setVisibleDeviceIds(
       new Map(visibleDevices.map((device) => [device.id, device.id]))
     )
-  }, [devices])
+  }, [devices, deviceSelected])
 
   const handleSelectDevice = useCallback(
     (deviceId: string) => {

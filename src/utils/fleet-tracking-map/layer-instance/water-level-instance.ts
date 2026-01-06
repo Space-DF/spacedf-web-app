@@ -66,14 +66,6 @@ class WaterLevelInstance {
     this.emitter.off(event, handler)
   }
 
-  private _getRainLevel = (
-    waterLevelName: 'safe' | 'warning' | 'danger'
-  ): [number, number] => {
-    if (waterLevelName === 'safe') return [1, 3]
-    if (waterLevelName === 'warning') return [3, 5]
-    return [2, 18]
-  }
-
   private _getLevelColor = (
     waterLevelName: 'safe' | 'caution' | 'warning' | 'critical'
   ) => {
@@ -192,7 +184,7 @@ class WaterLevelInstance {
     return { locationGroups, visibleDevices }
   }
 
-  setDisplayedDeviceForLocation(deviceId: string) {
+  public setDisplayedDeviceForLocation(deviceId: string) {
     const device = this.devices[deviceId]
     if (!device) return
 
