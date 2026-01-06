@@ -1,7 +1,7 @@
 import { Device } from '@/stores/device-store'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import * as turf from '@turf/turf'
-import { ColumnLayer, PolygonLayer } from 'deck.gl'
+import { ColumnLayer, PolygonLayer, ScatterplotLayer, TextLayer } from 'deck.gl'
 import { easeOut, linear, animate } from 'popmotion'
 import {
   appendLayerForGlobalOverlay,
@@ -46,6 +46,8 @@ class WaterLevelInstance {
   private globalOverlay: MapboxOverlay | null = null
   private waterDepthLayer: ColumnLayer<WaterLevelDataType> | null = null
   private emitter = new EventEmitter()
+
+  private displayedDeviceByLocation: Map<string, string> = new Map()
 
   private constructor() {}
 
@@ -120,14 +122,98 @@ class WaterLevelInstance {
     this.selectedWaterDeviceProgress = 0
   }
 
-  //draw or remove polygon based on devices
+  private getLocationKey = (device: Device): string => {
+    const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+    return `${location[0]},${location[1]}`
+  }
+
+  public getVisibleDevicesAndGroups = (devices: Device[]) => {
+    const locationGroups = new Map<
+      string,
+      {
+        location: [number, number]
+        count: number
+        deviceIds: string[]
+        devices: Device[]
+        displayedDeviceId: string
+      }
+    >()
+
+    devices.forEach((device) => {
+      const locationKey = this.getLocationKey(device)
+
+      if (locationGroups.has(locationKey)) {
+        const group = locationGroups.get(locationKey)!
+        group.count += 1
+        group.deviceIds.push(device.id)
+        group.devices.push(device)
+      } else {
+        locationGroups.set(locationKey, {
+          location: (device.deviceProperties?.latest_checkpoint_arr || [
+            0, 0,
+          ]) as [number, number],
+          count: 1,
+          deviceIds: [device.id],
+          devices: [device],
+          displayedDeviceId: device.id,
+        })
+      }
+    })
+
+    locationGroups.forEach((group, locationKey) => {
+      const manuallySelected = this.displayedDeviceByLocation.get(locationKey)
+      if (manuallySelected && group.deviceIds.includes(manuallySelected)) {
+        group.displayedDeviceId = manuallySelected
+      } else {
+        const highestWaterLevelDevice = group.devices.reduce((prev, current) =>
+          (current.deviceProperties?.water_depth || 0) >
+          (prev.deviceProperties?.water_depth || 0)
+            ? current
+            : prev
+        )
+        group.displayedDeviceId = highestWaterLevelDevice.id
+        this.displayedDeviceByLocation.set(
+          locationKey,
+          highestWaterLevelDevice.id
+        )
+      }
+    })
+
+    const visibleDevices: Device[] = []
+    locationGroups.forEach((group) => {
+      const displayedDevice = group.devices.find(
+        (d) => d.id === group.displayedDeviceId
+      )
+      if (displayedDevice) {
+        visibleDevices.push(displayedDevice)
+      }
+    })
+
+    return { locationGroups, visibleDevices }
+  }
+
+  setDisplayedDeviceForLocation(deviceId: string) {
+    const device = this.devices[deviceId]
+    if (!device) return
+
+    const locationKey = this.getLocationKey(device)
+    this.displayedDeviceByLocation.set(locationKey, deviceId)
+
+    this.buildLayers(this.type)
+
+    this.emitter.emit('displayed-device-changed', deviceId)
+  }
+
   private _handlePolygon(
     devices: Device[],
     type: 'visible' | 'hidden' = 'visible'
   ) {
     if (!this.globalOverlay) return
 
-    const dataLayers = devices.map((device) => {
+    const { locationGroups, visibleDevices } =
+      this.getVisibleDevicesAndGroups(devices)
+
+    const dataLayers = visibleDevices.map((device) => {
       return {
         circle: turf.circle(
           device.deviceProperties?.latest_checkpoint_arr || [0, 0],
@@ -164,9 +250,75 @@ class WaterLevelInstance {
       } as any,
     })
 
+    // Create cluster-like layers to show device count at each location
+    const deviceCountData = Array.from(locationGroups.values()).filter(
+      (group) => group.count > 1
+    )
+
+    // Cluster background circle layer
+    const clusterBackgroundLayer = new ScatterplotLayer({
+      id: LAYER_IDS.DEVICE_COUNT_CLUSTER_BG_LAYER,
+      data: deviceCountData,
+      getPosition: (d) => [...d.location, 75] as [number, number, number],
+      getRadius: 18,
+      getFillColor: [0, 0, 0, 230], // #000000 - black background
+      getLineColor: [64, 6, 170, 255], // #4006AA - purple border
+      getLineWidth: 2,
+      stroked: true,
+      filled: true,
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      opacity: type === 'visible' ? 1 : 0,
+      transitions: {
+        opacity: { duration: 200, easing: easeOut },
+      },
+      billboard: true,
+      antialiasing: true,
+      pickable: true,
+      onClick: ({ object, x, y }) => {
+        if (object) {
+          this.emitter.emit('cluster-clicked', {
+            deviceIds: object.deviceIds,
+            location: object.location,
+            count: object.count,
+            screenPosition: { x, y },
+          })
+        }
+      },
+    })
+
+    const clusterTextLayer = new TextLayer({
+      id: LAYER_IDS.DEVICE_COUNT_TEXT_LAYER,
+      data: deviceCountData,
+      getPosition: (d) => [...d.location, 75] as [number, number, number],
+      getText: (d) => `+${d.count - 1}`,
+      getSize: 14,
+      getColor: [255, 255, 255, 255],
+      getTextAnchor: 'middle',
+      getAlignmentBaseline: 'center',
+      fontFamily: 'Inter, Arial, sans-serif',
+      fontWeight: 'bold',
+      opacity: type === 'visible' ? 1 : 0,
+      transitions: {
+        opacity: { duration: 200, easing: easeOut },
+      },
+      billboard: true,
+      pickable: true,
+      onClick: ({ object, x, y }) => {
+        if (object) {
+          this.emitter.emit('cluster-clicked', {
+            deviceIds: object.deviceIds,
+            location: object.location,
+            count: object.count,
+            screenPosition: { x, y },
+          })
+        }
+      },
+    })
+
     if (this.globalOverlay) {
       const newLayers = appendLayerForGlobalOverlay(
-        [polygonLayer],
+        [polygonLayer, clusterBackgroundLayer, clusterTextLayer],
         this.globalOverlay
       )
 
@@ -179,7 +331,9 @@ class WaterLevelInstance {
   private _buildWrapperLayer(devices: Device[], type?: 'visible' | 'hidden') {
     if (!this.globalOverlay) return
 
-    const dataLayers = devices.map((device) => {
+    const { visibleDevices } = this.getVisibleDevicesAndGroups(devices)
+
+    const dataLayers = visibleDevices.map((device) => {
       const isSelected = device.id === this.selectedWaterDeviceId
       const color = this._getLevelColor(
         device.deviceProperties?.water_level_name || 'safe'
@@ -235,7 +389,9 @@ class WaterLevelInstance {
   ) {
     if (!this.globalOverlay) return
 
-    const dataLayers = devices.map((device) => {
+    const { visibleDevices } = this.getVisibleDevicesAndGroups(devices)
+
+    const dataLayers = visibleDevices.map((device) => {
       const waterLevel = device.deviceProperties?.water_depth
         ? device.deviceProperties?.water_depth
         : 0
@@ -308,6 +464,8 @@ class WaterLevelInstance {
         const idsToRemove = [
           LAYER_IDS.DEVICE_POLYGON_LAYER,
           LAYER_IDS.DEVICE_WATER_LEVEL_LAYER,
+          LAYER_IDS.DEVICE_COUNT_CLUSTER_BG_LAYER,
+          LAYER_IDS.DEVICE_COUNT_TEXT_LAYER,
         ]
 
         const newLayers = removeLayersFromGlobalOverlay(

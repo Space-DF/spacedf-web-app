@@ -165,6 +165,23 @@ export const MapControl = () => {
     }
   }, [bearing])
 
+  const handleGeolocate = () => {
+    if (!geolocateControlRef.current) return
+
+    if (isGeolocateAllowed) {
+      geolocateControlRef.current._clearWatch()
+      geolocateControlRef.current._watchState = 'OFF'
+      ;(geolocateControlRef.current as any)._geolocationWatchID = undefined
+      geolocateControlRef.current._lastKnownPosition = undefined
+
+      setIsGeolocateAllowed(false)
+    } else {
+      geolocateControlRef.current?.trigger()
+      geolocateControlRef.current._watchState = 'ACTIVE_LOCK'
+      setIsGeolocateAllowed(true)
+    }
+  }
+
   return (
     <div className="mapbox-custom-controls absolute top-3.5 right-4 z-[2] flex flex-col gap-3">
       <Button
@@ -172,22 +189,7 @@ export const MapControl = () => {
         variant="ghost"
         size="icon"
         key={isGeolocateAllowed ? 'geolocate-allowed' : 'geolocate-not-allowed'}
-        onClick={() => {
-          if (!geolocateControlRef.current) return
-
-          if (isGeolocateAllowed) {
-            geolocateControlRef.current._clearWatch()
-            geolocateControlRef.current._watchState = 'OFF'
-            ;(geolocateControlRef.current as any)._geolocationWatchID =
-              undefined
-            geolocateControlRef.current._lastKnownPosition = undefined
-
-            setIsGeolocateAllowed(false)
-          } else {
-            geolocateControlRef.current?.trigger()
-            setIsGeolocateAllowed(true)
-          }
-        }}
+        onClick={handleGeolocate}
       >
         {!isGeolocateAllowed ? (
           <LocationOffIcon />
