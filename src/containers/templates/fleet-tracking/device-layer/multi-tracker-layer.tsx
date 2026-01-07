@@ -157,7 +157,7 @@ export const MultiTrackerLayer = () => {
 
   useEffect(() => {
     const handleZoomEnd = () => {
-      if (isClusterVisible) {
+      if (isClusterVisible && !isAlreadyShowTripRoute) {
         setDeviceSelected('')
       }
     }
@@ -166,7 +166,7 @@ export const MultiTrackerLayer = () => {
     return () => {
       fleetTrackingMap.off('zoomend', handleZoomEnd)
     }
-  }, [isClusterVisible])
+  }, [isClusterVisible, isAlreadyShowTripRoute])
 
   useEffect(() => {
     if (deviceSelected && !devices[deviceSelected]) {

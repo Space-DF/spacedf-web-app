@@ -40,10 +40,11 @@ export const WaterLevelLayer = () => {
     useState<ClusterDropdownData>(null)
   const t = useTranslations('dashboard')
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null)
-
+  const isAlreadyShowTripRoute = useFleetTrackingStore(
+    (state) => state.isAlreadyShowTripRoute
+  )
   const devices = useDeviceStore(
     useShallow((state) => {
-      //handle water level devices
       const waterLevelDevices = Object.fromEntries(
         Object.entries(state.devicesFleetTracking).filter(
           ([_, device]) =>
@@ -84,7 +85,7 @@ export const WaterLevelLayer = () => {
 
   useEffect(() => {
     const handleZoomEnd = () => {
-      if (isClusterVisible) {
+      if (isClusterVisible && !isAlreadyShowTripRoute) {
         setDeviceSelected('')
       }
     }
@@ -93,7 +94,7 @@ export const WaterLevelLayer = () => {
     return () => {
       fleetTrackingMap.off('zoomend', handleZoomEnd)
     }
-  }, [isClusterVisible])
+  }, [isClusterVisible, isAlreadyShowTripRoute])
 
   useEffect(() => {
     if (isClusterVisible) {
@@ -267,10 +268,12 @@ export const WaterLevelLayer = () => {
           className="w-48 max-h-80 overflow-hidden bg-[#171A28] border-none rounded-lg p-3"
         >
           <DropdownMenuLabel className="flex items-center justify-between">
-            <span className="text-brand-component-text-light font-medium">
-              {t('device')}
-            </span>
-            <X size={20} className="text-[#667085]" />
+            <span className="text-white font-medium">{t('device')}</span>
+            <X
+              size={20}
+              className="text-[#667085]"
+              onClick={() => setClusterDropdownOpen(false)}
+            />
           </DropdownMenuLabel>
           <ScrollArea className="max-h-56">
             {clusterDevices?.map((device) => {

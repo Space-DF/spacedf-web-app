@@ -10,11 +10,14 @@ export const GET = withAuthApiRequired(
     { params }: { params: { spaceSlug: string; deviceId: string } }
   ) => {
     try {
-      const date = req.nextUrl.searchParams.get('date')
+      const startDate = req.nextUrl.searchParams.get('start_date')
+      const endDate = req.nextUrl.searchParams.get('end_date')
+      const now = format(new Date(), 'yyyy-MM-dd')
       const client = await spaceClient()
       const alerts = await client.telemetry.alerts.list(
         {
-          date: date || format(new Date(), 'yyyy-MM-dd'),
+          start_date: startDate || now,
+          end_date: endDate || now,
           device_id: params.deviceId,
           category: 'water_depth',
         },

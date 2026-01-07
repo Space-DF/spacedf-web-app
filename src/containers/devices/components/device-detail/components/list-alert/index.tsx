@@ -139,7 +139,11 @@ export default function ListAlert() {
     data: alerts,
     isLoading,
     isValidating,
-  } = useGetAlert(deviceSelected, getDateByDateType(selectedDate))
+  } = useGetAlert(
+    deviceSelected,
+    getDateByDateType(selectedDate),
+    getDateByDateType('today')
+  )
   const t = useTranslations('common')
   const deviceAlerts = useDeviceStore(
     useShallow((state) => state.deviceAlerts.water_depth[state.deviceSelected])
