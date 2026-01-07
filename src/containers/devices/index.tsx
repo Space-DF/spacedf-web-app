@@ -6,9 +6,8 @@ import {
   Ellipsis,
   LoaderCircle,
   Map,
-  Pencil,
+  PlusIcon,
   Search,
-  Trash2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, {
@@ -29,17 +28,6 @@ import DeviceTracki from '/public/images/device-tracki.webp'
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
 import { RightSideBarLayout } from '@/components/ui'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -59,12 +47,10 @@ import {
 } from '@/components/ui/form'
 import ImageWithBlur from '@/components/ui/image-blur'
 import { Input, InputWithIcon } from '@/components/ui/input'
-import { Nodata } from '@/components/ui/no-data'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { useGetDevices } from '@/hooks/useDevices'
 import { usePrevious } from '@/hooks/usePrevious'
 import { cn } from '@/lib/utils'
@@ -85,8 +71,6 @@ import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
 
 const Devices = () => {
-  const t = useTranslations('common')
-
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
@@ -94,8 +78,6 @@ const Devices = () => {
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
 
   const previousDeviceSelected = usePrevious(deviceSelected)
-
-  // const [selected, setSelected] = useState<number>()
 
   const handleCloseSlide = () => {
     setDeviceSelected('')
@@ -129,25 +111,20 @@ const Devices = () => {
     }
   }
 
+  const handleClose = () => {
+    const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+    setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+    setCookieDirty(true)
+    toggleDynamicLayout('devices')
+    setDeviceSelected('')
+  }
+
   return (
-    <RightSideBarLayout
-      onClose={() => {
-        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
-        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-        setCookieDirty(true)
-        toggleDynamicLayout('devices')
-        setDeviceSelected('')
-      }}
-      className="relative"
-      title={t('selected_devices')}
-    >
+    <RightSideBarLayout allowClose={false} className="relative">
       <DeviceDetail onClose={handleCloseSlide} open={!!deviceSelected} />
 
-      <div className="flex h-full flex-col pt-4">
-        <div>
-          <DeviceSelected />
-        </div>
-        <DevicesList />
+      <div className="flex h-full flex-col">
+        <DevicesList onClose={handleClose} />
       </div>
     </RightSideBarLayout>
   )
@@ -315,160 +292,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   )
 }
 
-const DeviceSelected = () => {
-  const t = useTranslations('addNewDevice')
-
-  const { deviceSelected, devices } = useDeviceStore(
-    useShallow((state) => ({
-      deviceSelected: state.deviceSelected,
-      devices: state.devices,
-    }))
-  )
-
-  const { startDrawHistory } = useDeviceHistory()
-
-  const InformationItem = (props: { label: string; content: string }) => {
-    return (
-      <div className="flex gap-4 text-sm">
-        <span className="font-semibold text-brand-component-text-dark">
-          {props.label}
-        </span>
-        <span className="text-brand-component-text-gray">{props.content}</span>
-      </div>
-    )
-  }
-
-  // if (!isAuth) {
-  //   return (
-  //     <div className="flex flex-col gap-3 rounded-xl bg-brand-component-fill-gray-soft p-4">
-  //       <div className="flex items-center justify-between">
-  //         <div className="flex items-center gap-2">
-  //           <span className="size-2 rounded-full bg-brand-component-fill-positive" />
-  //           <span className="text-xs font-medium text-brand-component-text-dark">
-  //             {t('online')}
-  //           </span>
-  //         </div>
-  //         <div className="flex gap-2">
-  //           <Button
-  //             size="icon"
-  //             className="size-8"
-  //             onClick={() => {
-  //               setOpenDrawerIdentity(true)
-  //             }}
-  //           >
-  //             <Pencil size={16} />
-  //           </Button>
-  //           <Button
-  //             size="icon"
-  //             variant="destructive"
-  //             className="size-8 border-2 border-brand-semantic-accent-dark"
-  //             onClick={() => {
-  //               setOpenDrawerIdentity(true)
-  //             }}
-  //           >
-  //             <Trash2 size={16} />
-  //           </Button>
-  //         </div>
-  //       </div>
-  //       <div className="flex flex-col gap-2">
-  //         <InformationItem
-  //           label={`${t('device_id')}:`}
-  //           content={'DMZ 01 12312123'}
-  //         />
-  //         <InformationItem
-  //           label={`${t('device_name')}:`}
-  //           content={'DF Sticker Tracker'}
-  //         />
-  //         <InformationItem
-  //           label={`${t('deveui')}`}
-  //           content={'A591DEA6EB25DB6C'}
-  //         />
-  //         <InformationItem label={`${t('description')}:`} content={'Bus'} />
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
-  if (!deviceSelected) {
-    return (
-      <div className="rounded-xl bg-brand-component-fill-gray-soft">
-        <Nodata content={t('no_selected_devices')} />
-      </div>
-    )
-  }
-
-  const deviceData = devices[deviceSelected]
-
-  return (
-    <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-brand-component-fill-positive" />
-          <span className="text-xs font-medium text-brand-component-text-dark">
-            {t('online')}
-          </span>
-        </div>
-        <div className="flex gap-2">
-          <Button size="icon" className="size-8">
-            <Pencil size={16} />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                size="icon"
-                variant="destructive"
-                className="size-8 border-2 border-brand-semantic-accent-dark"
-              >
-                <Trash2 size={16} />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="sm:max-w-md sm:rounded-2xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-center font-bold text-brand-component-text-dark">
-                  {t('remove_device')}
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-medium text-center text-sm text-brand-text-gray">
-                  {t('are_you_sure_you_want_to_remove_this_device')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
-                  {t('cancel')}
-                </AlertDialogCancel>
-                <AlertDialogAction className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  {t('delete')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-col gap-2 gap-y-1">
-          <InformationItem
-            label={`${t('device_id')}:`}
-            content={deviceData?.id}
-          />
-          <InformationItem
-            label={`${t('device_name')}:`}
-            content={deviceData?.name}
-          />
-          <InformationItem
-            label={`${t('deveui')}:`}
-            content={'Mild Steel Cement Lined'}
-          />
-          <InformationItem label={`${t('description')}:`} content={'150'} />
-        </div>
-
-        <Button onClick={() => startDrawHistory()}>
-          {t('device_history')}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-const DevicesList = () => {
+const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
   const {
     data: devices = [],
@@ -551,12 +375,24 @@ const DevicesList = () => {
   }, [isLoading])
 
   return (
-    <div className="mt-6 flex flex-1 flex-col gap-4 h-full overflow-hidden">
+    <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-brand-component-text-dark">
           {t('devices_list')}
         </div>
-        <AddDeviceDialog mutate={mutate} />
+        <div className="flex space-x-1 items-center">
+          <AddDeviceDialog mutate={mutate} />
+          <div
+            className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
+            onClick={onClose}
+          >
+            <PlusIcon
+              width={24}
+              height={24}
+              className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 dark:text-brand-dark-text-gray"
+            />
+          </div>
+        </div>
       </div>
       <InputWithIcon
         prefixCpn={
@@ -566,7 +402,7 @@ const DevicesList = () => {
         wrapperClass="w-full"
       />
       <div
-        className="flex max-h-[60dvh] overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
+        className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
         ref={parentRef}
       >
         <div className="flex-1 transition-all duration-300">

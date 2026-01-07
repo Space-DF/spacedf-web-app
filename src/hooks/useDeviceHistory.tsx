@@ -30,20 +30,16 @@ export const useDeviceHistory = () => {
   const deviceModels = useDeviceStore(useShallow((state) => state.models))
   const setDeviceHistory = useDeviceStore((state) => state.setDeviceHistory)
 
-  const { isClusterVisible, modelType, updateBooleanState } =
-    useFleetTrackingStore(
-      useShallow((state) => ({
-        isClusterVisible: state.isClusterVisible,
-        modelType:
-          state.modelType ||
-          (typeof window !== 'undefined' &&
-            (localStorage.getItem('fleet-tracking:modelType') as
-              | '2d'
-              | '3d')) ||
-          '2d',
-        updateBooleanState: state.updateBooleanState,
-      }))
-    )
+  const { modelType, updateBooleanState } = useFleetTrackingStore(
+    useShallow((state) => ({
+      modelType:
+        state.modelType ||
+        (typeof window !== 'undefined' &&
+          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d')) ||
+        '2d',
+      updateBooleanState: state.updateBooleanState,
+    }))
+  )
 
   const map = fleetTrackingMap.getMap()
 
@@ -223,35 +219,38 @@ export const useDeviceHistory = () => {
       },
     }
 
-    if (map?.getSource('route')) {
-      ;(map?.getSource('route') as any)?.setData(geojson)
-    } else {
-      map?.addLayer({
-        id: 'route',
-        type: 'line',
-        source: {
-          type: 'geojson',
-          data: geojson as any,
-          lineMetrics: true,
-        },
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-width': 6,
-          'line-gradient': [
-            'interpolate',
-            ['linear'],
-            ['line-progress'],
-            0,
-            '#282B38',
-            1,
-            '#70799E',
-          ],
-        },
-      })
+    if (map?.getLayer('route')) {
+      map.removeLayer('route')
     }
+    if (map?.getSource('route')) {
+      map.removeSource('route')
+    }
+
+    map?.addLayer({
+      id: 'route',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        data: geojson as any,
+        lineMetrics: true,
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+      },
+      paint: {
+        'line-width': 6,
+        'line-gradient': [
+          'interpolate',
+          ['linear'],
+          ['line-progress'],
+          0,
+          '#282B38',
+          1,
+          '#70799E',
+        ],
+      },
+    })
 
     // Add start and end point markers
     const startPoint = {
@@ -382,6 +381,16 @@ export const useDeviceHistory = () => {
       rotationRef.current = 0
     }
 
+    if (map.getLayer('clusters')) {
+      map.setLayoutProperty('clusters', 'visibility', 'visible')
+    }
+    if (map.getLayer('cluster-count')) {
+      map.setLayoutProperty('cluster-count', 'visibility', 'visible')
+    }
+    if (map.getLayer('unclustered-point')) {
+      map.setLayoutProperty('unclustered-point', 'visibility', 'visible')
+    }
+
     // Remove the route layer if it exists
     if (map?.getLayer('route')) {
       map.removeLayer('route')
@@ -416,19 +425,6 @@ export const useDeviceHistory = () => {
     // Show 3D models (DeckGL layers) based on model type
     if (is3DModel && multiTrackerLayerInstance.checkLayerAvailable()) {
       multiTrackerLayerInstance.syncLayers(devices, 'visible')
-    }
-
-    // Restore cluster visibility if it was enabled
-    if (isClusterVisible) {
-      if (map.getLayer('clusters')) {
-        map.setLayoutProperty('clusters', 'visibility', 'visible')
-      }
-      if (map.getLayer('cluster-count')) {
-        map.setLayoutProperty('cluster-count', 'visibility', 'visible')
-      }
-      if (map.getLayer('unclustered-point')) {
-        map.setLayoutProperty('unclustered-point', 'visibility', 'visible')
-      }
     }
 
     updateBooleanState('isAlreadyShowTripRoute', false)

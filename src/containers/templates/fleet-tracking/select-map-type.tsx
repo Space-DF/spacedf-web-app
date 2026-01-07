@@ -120,7 +120,7 @@ const MapTypeSelection = ({ name, id, thumbnail }: MapTypeItem) => {
   return (
     <div
       onClick={() => {
-        if (mapType === id) return
+        if (isActive) return
         setMapType(id)
       }}
       className={cn(
