@@ -258,6 +258,7 @@ export function MemberTab({}: { space: Space }) {
         pageCount={totalPages}
         pagination={paginatedState}
         onPaginationChange={onPaginationChange}
+        showPaginate={!!sortedMembers.length}
       />
 
       <AlertDialog

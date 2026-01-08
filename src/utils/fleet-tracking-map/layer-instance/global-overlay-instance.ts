@@ -33,7 +33,7 @@ class GlobalOverlayInstance {
 
     const globalOverlay = new MapboxOverlay({
       id: 'global-overlay',
-      interleaved: true,
+      interleaved: false,
       layers: [],
       getTooltip: ({ object, layer }: PickingInfo<any>): any => {
         const isWaterLevelLayer =
