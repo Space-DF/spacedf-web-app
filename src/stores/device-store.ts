@@ -15,6 +15,7 @@ import { immer } from 'zustand/middleware/immer'
 
 export type Device<T = {}> = {
   lorawan_device?: LorawanDevice
+  deviceSpaceId?: string
   name: string
   description?: string
   id: string

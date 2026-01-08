@@ -82,7 +82,10 @@ export class EntityTelemetryHandler extends BaseMQTTHandler {
       case 'location':
         return this.normalizeLocationData(payload)
       case 'battery':
-        return this.normalizeBatteryData(payload)
+      case 'humidity':
+      case 'pressure':
+      case 'temperature':
+        return this.normalizeSensorData(payload)
       default:
         return { ...payload }
     }
@@ -104,7 +107,7 @@ export class EntityTelemetryHandler extends BaseMQTTHandler {
     }
   }
 
-  private normalizeBatteryData(
+  private normalizeSensorData(
     payload: MQTTMessagePayload
   ): Partial<Entity> & { state?: any } {
     const entity = payload.entity || {}

@@ -130,6 +130,7 @@ export const transformDeviceData = (
       status: device.device.status as 'active' | 'inactive',
       id: device.device.id,
       deviceId: device.device.id,
+      deviceSpaceId: device.id,
       description: device.description || '',
       latestLocation: checkpoint,
       lorawan_device: device.device.lorawan_device,

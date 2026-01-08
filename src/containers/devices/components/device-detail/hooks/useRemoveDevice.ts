@@ -7,7 +7,7 @@ import { useGetDevices } from '@/hooks/useDevices'
 
 const removeDevice = async (url: string) => api.delete(url)
 
-export const useRemoveDevice = (deviceId: string) => {
+export const useRemoveDevice = (deviceId?: string) => {
   const t = useTranslations('dashboard')
   const { mutate } = useGetDevices()
   const { spaceSlug } = useParams<{ spaceSlug: string }>()

@@ -40,7 +40,7 @@ const DeviceSelected = () => {
   const [openDialog, setOpenDialog] = useState(false)
 
   const { trigger: deleteDevice, isMutating } = useRemoveDevice(
-    deviceDataSelected?.id
+    deviceDataSelected?.deviceSpaceId
   )
 
   const handleDeleteDevice = async () => {
