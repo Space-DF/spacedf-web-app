@@ -20,11 +20,7 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
     <>
       <div className="flex gap-3">
         <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 dark:bg-purple-700">
-          <AvatarImage
-            src={logo}
-            alt={name}
-            className="mix-blend-darken rounded-lg"
-          />
+          <AvatarImage src={logo} alt={name} className="rounded-lg" />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             <OrganizationLogo
               className="text-purple-900 dark:text-purple-400"

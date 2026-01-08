@@ -36,11 +36,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             }
           )}
         >
-          <AvatarImage
-            src={logo}
-            alt={name}
-            className="mix-blend-darken size-full rounded-lg"
-          />
+          <AvatarImage src={logo} alt={name} className="size-full rounded-lg" />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
             src={}
