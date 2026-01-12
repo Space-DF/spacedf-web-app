@@ -1,0 +1,565 @@
+@tailwind base;
+
+@layer base {
+  :root {
+    --icon-light-fixed: 0, 0%, 100%;
+    --icon-dark: 229.41, 26.98%, 12.35%;
+    --icon-gray: 220.65, 13.19%, 46.08%;
+    --icon-secondary: 261.22, 93.18%, 34.51%;
+    --icon-accent: 0.39, 65.81%, 54.12%;
+    --icon-info: 206.57, 89.74%, 54.12%;
+    --icon-positive: 143.73, 91.71%, 37.84%;
+    --icon-positive-dark: 144.17, 100%, 14.12%;
+    --icon-negative: 3.75, 95.65%, 63.92%;
+    --icon-negative-dark: 3.78, 100%, 24.9%;
+    --icon-warning: 39.45, 100%, 64.51%;
+    --icon-warning-dark: 39.33, 100%, 17.65%;
+    --icon-disabled: 228.26, 30.67%, 70.59%;
+    --icon-hover-dark: 232.5, 25%, 12.55%;
+    --icon-hover-gray: 229.41, 32.08%, 20.78%;
+    --icon-hover-secondary: 261.07, 92.91%, 27.65%;
+    --icon-hover-accent: 0.98, 55.66%, 43.33%;
+    --icon-hover-info: 206.59, 75.57%, 43.33%;
+    --icon-hover-positive: 144.47, 100%, 29.8%;
+    --icon-hover-negative: 3.87, 78.15%, 53.33%;
+    --icon-hover-warning: 39.52, 99.05%, 41.18%;
+    --background-fill-surface: 0, 0%, 98.04%;
+    --background-fill-outermost: 0, 0%, 100%;
+    --background-fill-middle: 0, 0%, 100%;
+    --background-fill-inner: 0, 0%, 100%;
+    --background-fill-central: 0, 0%, 100%;
+    --background-fill-heart: 0, 0%, 100%;
+    --background-stroke-surface: 220, 10.71%, 89.02%;
+    --background-stroke-outermost: 220, 11.11%, 94.71%;
+    --background-stroke-middle: 0, 0%, 90.2%;
+    --background-stroke-inner: 220, 11.11%, 94.71%;
+    --background-stroke-central: 220, 11.11%, 94.71%;
+    --background-stroke-heart: 220, 11.11%, 94.71%;
+    --typo-display: 231.43, 41.18%, 6.67%;
+    --typo-display-light: 0, 0%, 100%;
+    --typo-heading: 231.43, 41.18%, 6.67%;
+    --typo-heading-light: 0, 0%, 100%;
+    --typo-caption: 231.43, 41.18%, 6.67%;
+    --typo-caption-light: 0, 0%, 100%;
+    --typo-caption-soft: 220.65, 13.19%, 46.08%;
+    --typo-body: 231.43, 41.18%, 6.67%;
+    --typo-body-light: 0, 0%, 100%;
+    --typo-body-soft: 220.65, 13.19%, 46.08%;
+    --component-text-light-fixed: 0, 0%, 100%;
+    --component-text-light: 0, 0%, 100%;
+    --component-text-dark: 229.29, 34.15%, 16.08%;
+    --component-text-dark-hover: 232.5, 25%, 12.55%;
+    --component-text-gray: 220.65, 13.19%, 46.08%;
+    --component-text-gray-hover: 229.41, 32.08%, 20.78%;
+    --component-text-secondary: 261.22, 93.18%, 34.51%;
+    --component-text-secondary-hover: 261.07, 92.91%, 27.65%;
+    --component-text-accent: 0.39, 65.81%, 54.12%;
+    --component-text-accent-hover: 0.98, 55.66%, 43.33%;
+    --component-text-info: 206.57, 89.74%, 54.12%;
+    --component-text-info-hover: 206.59, 75.57%, 43.33%;
+    --component-text-positive: 143.1, 88.78%, 38.43%;
+    --component-text-positive-dark: 144.17, 100%, 14.12%;
+    --component-text-positive-hover: 144.47, 100%, 29.8%;
+    --component-text-negative: 3.75, 95.65%, 63.92%;
+    --component-text-negative-dark: 3.31, 100%, 24.9%;
+    --component-text-negative-hover: 3.87, 78.15%, 53.33%;
+    --component-text-warning: 39.52, 99.05%, 41.18%;
+    --component-text-warning-dark: 39.33, 100%, 17.65%;
+    --component-text-warning-hover: 39.52, 99.05%, 41.18%;
+    --component-text-disabled: 220, 10.91%, 78.43%;
+    --component-fill-light-fixed: 0, 0%, 100%;
+    --component-fill-light: 0, 0%, 100%;
+    --component-fill-gray: 220.65, 13.19%, 46.08%;
+    --component-fill-gray-light: 220, 10.91%, 78.43%;
+    --component-fill-gray-soft: 220, 11.11%, 94.71%;
+    --component-fill-reversed: 0, 0%, 100%;
+    --component-fill-dark: 232.5, 25%, 12.55%;
+    --component-fill-dark-soft: 220, 11.11%, 94.71%;
+    --component-fill-secondary: 261.22, 93.18%, 34.51%;
+    --component-fill-secondary-soft: 261.67, 94.74%, 92.55%;
+    --component-fill-accent: 0.39, 65.81%, 54.12%;
+    --component-fill-accent-soft: 0, 100%, 98.24%;
+    --component-fill-info: 206.57, 89.74%, 54.12%;
+    --component-fill-info-soft: 206.67, 100%, 98.24%;
+    --component-fill-positive: 143.1, 88.78%, 38.43%;
+    --component-fill-positive-soft: 146.67, 60%, 97.06%;
+    --component-fill-negative: 3.87, 78.15%, 53.33%;
+    --component-fill-negative-soft: 7.5, 100%, 98.43%;
+    --component-fill-warning: 39.4, 83.4%, 52.75%;
+    --component-fill-warning-soft: 40, 100%, 96.47%;
+    --component-fill-disabled: 0, 0%, 98.04%;
+    --component-stroke-light-fixed: 0, 0%, 100%;
+    --component-stroke-light: 0, 0%, 100%;
+    --component-stroke-dark: 231.43, 41.18%, 6.67%;
+    --component-stroke-dark-soft: 220, 10.71%, 89.02%;
+    --component-stroke-gray: 220.65, 13.19%, 46.08%;
+    --component-stroke-gray-soft: 220, 10.91%, 78.43%;
+    --component-stroke-secondary: 261.22, 93.18%, 34.51%;
+    --component-stroke-secondary-soft: 261.64, 62.89%, 80.98%;
+    --component-stroke-accent: 0.39, 65.81%, 54.12%;
+    --component-stroke-accent-soft: 0, 65.96%, 90.78%;
+    --component-stroke-info: 206.57, 89.74%, 54.12%;
+    --component-stroke-info-soft: 207.14, 91.3%, 90.98%;
+    --component-stroke-positive: 144.07, 71.06%, 46.08%;
+    --component-stroke-positive-light: 144.47, 100%, 29.8%;
+    --component-stroke-positive-dark: 144.17, 100%, 14.12%;
+    --component-stroke-positive-soft: 143.64, 60%, 78.43%;
+    --component-stroke-negative: 3.68, 51.82%, 56.86%;
+    --component-stroke-negative-light: 3.87, 78.15%, 53.33%;
+    --component-stroke-negative-dark: 3.31, 100%, 24.9%;
+    --component-stroke-negative-soft: 3.87, 100%, 93.92%;
+    --component-stroke-warning: 39.23, 100%, 64.31%;
+    --component-stroke-warning-light: 39.52, 99.05%, 41.18%;
+    --component-stroke-warning-dark: 39.33, 100%, 17.65%;
+    --component-stroke-warning-soft: 39.45, 100%, 85.69%;
+    --component-stroke-disabled: 228.26, 30.67%, 70.59%;
+    --component-hover-light-fixed: 0, 0%, 100%;
+    --component-hover-light: 0, 0%, 100%;
+    --component-hover-dark: 229.41, 32.08%, 20.78%;
+    --component-hover-dark-light: 228, 20.16%, 51.37%;
+    --component-hover-dark-soft: 220, 10.71%, 89.02%;
+    --component-hover-gray: 220, 15.64%, 41.37%;
+    --component-hover-gray-light: 220, 10.91%, 78.43%;
+    --component-hover-gray-soft: 0, 0%, 98.04%;
+    --component-hover-secondary: 261.07, 92.91%, 27.65%;
+    --component-hover-secondary-light: 261.38, 55.41%, 69.22%;
+    --component-hover-secondary-soft: 260.82, 73.13%, 86.86%;
+    --component-hover-accent: 0.98, 55.66%, 43.33%;
+    --component-hover-accent-light: 0, 65.96%, 81.57%;
+    --component-hover-accent-soft: 356.25, 66.67%, 95.29%;
+    --component-hover-info: 206.59, 75.57%, 43.33%;
+    --component-hover-info-light: 206.43, 89.36%, 81.57%;
+    --component-hover-info-soft: 205.71, 91.3%, 95.49%;
+    --component-hover-positive: 144.47, 100%, 29.8%;
+    --component-hover-positive-light: 143.64, 60.74%, 68.04%;
+    --component-hover-positive-soft: 144.71, 62.96%, 94.71%;
+    --component-hover-negative: 3.64, 70.82%, 45.69%;
+    --component-hover-negative-light: 3, 100%, 88.24%;
+    --component-hover-negative-soft: 0, 100%, 97.06%;
+    --component-hover-warning: 39.52, 99.05%, 41.18%;
+    --component-hover-warning-light: 39.63, 100%, 78.63%;
+    --component-hover-warning-soft: 40, 100%, 96.47%;
+    --background-fill-default-chart: 229, 27%, 12%;
+    --component-progressbar-container: 240, 16%, 15%, 0.3;
+    --component-fill-sensor: 231, 84%, 76%;
+
+    /*"--icon-light-fixed": "#FFFFFF",*/
+    /*"--icon-dark": "#171A28",*/
+    /*"--icon-gray": "#667085",*/
+    /*"--icon-secondary": "#4006AA",*/
+    /*"--icon-accent": "#D73E3D",*/
+    /*"--icon-info": "#2196F3",*/
+    /*"--icon-positive": "#08B94E",*/
+    /*"--icon-positive-dark": "#00481D",*/
+    /*"--icon-negative": "#FB564B",*/
+    /*"--icon-negative-dark": "#7F0800",*/
+    /*"--icon-warning": "#FFC14A",*/
+    /*"--icon-warning-dark": "#5A3B00",*/
+    /*"--icon-disabled": "#9DA6CB",*/
+    /*"--icon-hover-dark": "#181A28",*/
+    /*"--icon-hover-gray": "#242A46",*/
+    /*"--icon-hover-secondary": "#330588",*/
+    /*"--icon-hover-accent": "#AC3331",*/
+    /*"--icon-hover-info": "#1B78C2",*/
+    /*"--icon-hover-positive": "#00983E",*/
+    /*"--icon-hover-negative": "#E5372B",*/
+    /*"--icon-hover-warning": "#D18A01",*/
+    /*"--background-fill-surface": "#FAFAFA",*/
+    /*"--background-fill-outermost": "#FFFFFF",*/
+    /*"--background-fill-middle": "#FFFFFF",*/
+    /*"--background-fill-inner": "#FFFFFF",*/
+    /*"--background-fill-central": "#FFFFFF",*/
+    /*"--background-fill-heart": "#FFFFFF",*/
+    /*"--background-stroke-surface": "#E0E2E6",*/
+    /*"--background-stroke-outermost": "#F0F1F3",*/
+    /*"--background-stroke-middle": "#E6E6E6",*/
+    /*"--background-stroke-inner": "#F0F1F3",*/
+    /*"--background-stroke-central": "#F0F1F3",*/
+    /*"--background-stroke-heart": "#F0F1F3",*/
+    /*"--typo-display": "#0A0C18",*/
+    /*"--typo-display-light": "#FFFFFF",*/
+    /*"--typo-heading": "#0A0C18",*/
+    /*"--typo-heading-light": "#FFFFFF",*/
+    /*"--typo-caption": "#0A0C18",*/
+    /*"--typo-caption-light": "#FFFFFF",*/
+    /*"--typo-caption-soft": "#667085",*/
+    /*"--typo-body": "#0A0C18",*/
+    /*"--typo-body-light": "#FFFFFF",*/
+    /*"--typo-body-soft": "#667085",*/
+    /*"--component-text-light-fixed": "#FFFFFF",*/
+    /*"--component-text-light": "#FFFFFF",*/
+    /*"--component-text-dark": "#1B2037",*/
+    /*"--component-text-dark-hover": "#181A28",*/
+    /*"--component-text-gray": "#667085",*/
+    /*"--component-text-gray-hover": "#242A46",*/
+    /*"--component-text-secondary": "#4006AA",*/
+    /*"--component-text-secondary-hover": "#330588",*/
+    /*"--component-text-accent": "#D73E3D",*/
+    /*"--component-text-accent-hover": "#AC3331",*/
+    /*"--component-text-info": "#2196F3",*/
+    /*"--component-text-info-hover": "#1B78C2",*/
+    /*"--component-text-positive": "#0BB94E",*/
+    /*"--component-text-positive-dark": "#00481D",*/
+    /*"--component-text-positive-hover": "#00983E",*/
+    /*"--component-text-negative": "#FB564B",*/
+    /*"--component-text-negative-dark": "#7F0700",*/
+    /*"--component-text-negative-hover": "#E5372B",*/
+    /*"--component-text-warning": "#D18A01",*/
+    /*"--component-text-warning-dark": "#5A3B00",*/
+    /*"--component-text-warning-hover": "#D18A01",*/
+    /*"--component-text-disabled": "#C2C6CE",*/
+    /*"--component-fill-light-fixed": "#FFFFFF",*/
+    /*"--component-fill-light": "#FFFFFF",*/
+    /*"--component-fill-gray": "#667085",*/
+    /*"--component-fill-gray-light": "#C2C6CE",*/
+    /*"--component-fill-gray-soft": "#F0F1F3",*/
+    /*"--component-fill-reversed": "#FFFFFF",*/
+    /*"--component-fill-dark": "#181A28",*/
+    /*"--component-fill-dark-soft": "#F0F1F3",*/
+    /*"--component-fill-secondary": "#4006AA",*/
+    /*"--component-fill-secondary-soft": "#E7DAFE",*/
+    /*"--component-fill-accent": "#D73E3D",*/
+    /*"--component-fill-accent-soft": "#FFF6F6",*/
+    /*"--component-fill-info": "#2196F3",*/
+    /*"--component-fill-info-soft": "#F6FBFF",*/
+    /*"--component-fill-positive": "#0BB94E",*/
+    /*"--component-fill-positive-soft": "#F3FCF7",*/
+    /*"--component-fill-negative": "#E5372B",*/
+    /*"--component-fill-negative-soft": "#FFF8F7",*/
+    /*"--component-fill-warning": "#EBA622",*/
+    /*"--component-fill-warning-soft": "#FFF9ED",*/
+    /*"--component-fill-disabled": "#FAFAFA",*/
+    /*"--component-stroke-light-fixed": "#FFFFFF",*/
+    /*"--component-stroke-light": "#FFFFFF",*/
+    /*"--component-stroke-dark": "#0A0C18",*/
+    /*"--component-stroke-dark-soft": "#E0E2E6",*/
+    /*"--component-stroke-gray": "#667085",*/
+    /*"--component-stroke-gray-soft": "#C2C6CE",*/
+    /*"--component-stroke-secondary": "#4006AA",*/
+    /*"--component-stroke-secondary-soft": "#C6B0ED",*/
+    /*"--component-stroke-accent": "#D73E3D",*/
+    /*"--component-stroke-accent-soft": "#F7D8D8",*/
+    /*"--component-stroke-info": "#2196F3",*/
+    /*"--component-stroke-info-soft": "#D3EAFD",*/
+    /*"--component-stroke-positive": "#22C965",*/
+    /*"--component-stroke-positive-light": "#00983E",*/
+    /*"--component-stroke-positive-dark": "#00481D",*/
+    /*"--component-stroke-positive-soft": "#A7E9C1",*/
+    /*"--component-stroke-negative": "#CA5F58",*/
+    /*"--component-stroke-negative-light": "#E5372B",*/
+    /*"--component-stroke-negative-dark": "#7F0700",*/
+    /*"--component-stroke-negative-soft": "#FFE2E0",*/
+    /*"--component-stroke-warning": "#FFC049",*/
+    /*"--component-stroke-warning-light": "#D18A01",*/
+    /*"--component-stroke-warning-dark": "#5A3B00",*/
+    /*"--component-stroke-warning-soft": "#FFE6B6",*/
+    /*"--component-stroke-disabled": "#9DA6CB",*/
+    /*"--component-hover-light-fixed": "#FFFFFF",*/
+    /*"--component-hover-light": "#FFFFFF",*/
+    /*"--component-hover-dark": "#242A46",*/
+    /*"--component-hover-dark-light": "#6A749C",*/
+    /*"--component-hover-dark-soft": "#E0E2E6",*/
+    /*"--component-hover-gray": "#59647A",*/
+    /*"--component-hover-gray-light": "#C2C6CE",*/
+    /*"--component-hover-gray-soft": "#FAFAFA",*/
+    /*"--component-hover-secondary": "#330588",*/
+    /*"--component-hover-secondary-light": "#A485DC",*/
+    /*"--component-hover-secondary-soft": "#D6C5F6",*/
+    /*"--component-hover-accent": "#AC3331",*/
+    /*"--component-hover-accent-light": "#EFB1B1",*/
+    /*"--component-hover-accent-soft": "#FBEBEC",*/
+    /*"--component-hover-info": "#1B78C2",*/
+    /*"--component-hover-info-light": "#A6D5FA",*/
+    /*"--component-hover-info-soft": "#E9F5FE",*/
+    /*"--component-hover-positive": "#00983E",*/
+    /*"--component-hover-positive-light": "#7CDFA3",*/
+    /*"--component-hover-positive-soft": "#E9FAF0",*/
+    /*"--component-hover-negative": "#C72C22",*/
+    /*"--component-hover-negative-light": "#FFC6C3",*/
+    /*"--component-hover-negative-soft": "#FFF0F0",*/
+    /*"--component-hover-warning": "#D18A01",*/
+    /*"--component-hover-warning-light": "#FFDA92",*/
+    /*"--component-hover-warning-soft": "#FFF9ED",*/
+  }
+
+  .dark {
+    --icon-light-fixed: 0, 0%, 100%;
+    --icon-dark: 0, 0%, 100%;
+    --icon-gray: 220.65, 13.19%, 46.08%;
+    --icon-secondary: 261.22, 93.18%, 34.51%;
+    --icon-accent: 0.39, 65.81%, 54.12%;
+    --icon-info: 206.57, 89.74%, 54.12%;
+    --icon-positive: 143.73, 91.71%, 37.84%;
+    --icon-positive-dark: 144.17, 100%, 14.12%;
+    --icon-negative: 3.75, 95.65%, 63.92%;
+    --icon-negative-dark: 3.78, 100%, 24.9%;
+    --icon-warning: 39.45, 100%, 64.51%;
+    --icon-warning-dark: 39.33, 100%, 17.65%;
+    --icon-disabled: 226.83, 26.8%, 30%;
+    --icon-hover-dark: 0, 0%, 100%;
+    --icon-hover-gray: 228.57, 42.86%, 9.61%;
+    --icon-hover-secondary: 261.15, 59.15%, 46.08%;
+    --icon-hover-accent: 0.49, 65.78%, 63.33%;
+    --icon-hover-info: 206.43, 89.36%, 63.14%;
+    --icon-hover-positive: 143.91, 60.73%, 57.06%;
+    --icon-hover-negative: 3.93, 100%, 76.08%;
+    --icon-hover-warning: 39.11, 98.75%, 31.37%;
+    --background-fill-surface: 228, 45.45%, 6.47%;
+    --background-fill-outermost: 229.41, 26.98%, 12.35%;
+    --background-fill-middle: 229.29, 34.15%, 16.08%;
+    --background-fill-inner: 229.41, 32.08%, 20.78%;
+    --background-fill-central: 228, 29.85%, 26.27%;
+    --background-fill-heart: 227.14, 27.27%, 30.2%;
+    --background-stroke-surface: 229.41, 32.08%, 20.78%;
+    --background-stroke-outermost: 229.41, 32.08%, 20.78%;
+    --background-stroke-middle: 229.41, 32.08%, 20.78%;
+    --background-stroke-inner: 229.23, 28.89%, 26.47%;
+    --background-stroke-central: 226.83, 26.8%, 30%;
+    --background-stroke-heart: 226.96, 24.47%, 36.86%;
+    --typo-display: 0, 0%, 100%;
+    --typo-display-light: 0, 0%, 100%;
+    --typo-heading: 0, 0%, 100%;
+    --typo-heading-light: 0, 0%, 100%;
+    --typo-caption: 0, 0%, 100%;
+    --typo-caption-light: 0, 0%, 100%;
+    --typo-caption-soft: 227.5, 25%, 62.35%;
+    --typo-body: 0, 0%, 100%;
+    --typo-body-light: 0, 0%, 100%;
+    --typo-body-soft: 227.5, 25%, 62.35%;
+    --component-text-light-fixed: 0, 0%, 100%;
+    --component-text-light: 229.29, 34.15%, 16.08%;
+    --component-text-dark: 0, 0%, 100%;
+    --component-text-dark-hover: 228.26, 30.67%, 70.59%;
+    --component-text-gray: 228, 20.16%, 51.37%;
+    --component-text-gray-hover: 229.41, 32.08%, 20.78%;
+    --component-text-secondary: 261.22, 93.18%, 34.51%;
+    --component-text-secondary-hover: 261.15, 59.15%, 46.08%;
+    --component-text-accent: 0.39, 65.81%, 54.12%;
+    --component-text-accent-hover: 0.98, 55.66%, 43.33%;
+    --component-text-info: 206.57, 89.74%, 54.12%;
+    --component-text-info-hover: 206.43, 89.36%, 63.14%;
+    --component-text-positive: 143.1, 88.78%, 38.43%;
+    --component-text-positive-dark: 144.17, 100%, 14.12%;
+    --component-text-positive-hover: 144.47, 100%, 29.8%;
+    --component-text-negative: 3.75, 95.65%, 63.92%;
+    --component-text-negative-dark: 3.31, 100%, 24.9%;
+    --component-text-negative-hover: 3.87, 78.15%, 53.33%;
+    --component-text-warning: 39.52, 99.05%, 41.18%;
+    --component-text-warning-dark: 39.33, 100%, 17.65%;
+    --component-text-warning-hover: 39.52, 99.05%, 41.18%;
+    --component-text-disabled: 220, 10.91%, 78.43%;
+    --component-fill-light-fixed: 231.43, 41.18%, 6.67%;
+    --component-fill-light: 231.43, 41.18%, 6.67%;
+    --component-fill-gray: 228, 20.16%, 51.37%;
+    --component-fill-gray-light: 220, 16.75%, 38.63%;
+    --component-fill-gray-soft: 229.29, 34.15%, 16.08%;
+    --component-fill-reversed: 0, 0%, 100%;
+    --component-fill-dark: 0, 0%, 100%;
+    --component-fill-dark-soft: 232.5, 25%, 12.55%;
+    --component-fill-secondary: 261.22, 93.18%, 34.51%;
+    --component-fill-secondary-soft: 260.82, 73.13%, 86.86%;
+    --component-fill-accent: 0.39, 65.81%, 54.12%;
+    --component-fill-accent-soft: 356.25, 66.67%, 95.29%;
+    --component-fill-info: 206.57, 89.74%, 54.12%;
+    --component-fill-info-soft: 205.71, 91.3%, 95.49%;
+    --component-fill-positive: 143.1, 88.78%, 38.43%;
+    --component-fill-positive-soft: 144.71, 62.96%, 94.71%;
+    --component-fill-negative: 3.64, 70.82%, 45.69%;
+    --component-fill-negative-soft: 3.91, 52.27%, 17.25%;
+    --component-fill-warning: 39.4, 83.4%, 52.75%;
+    --component-fill-warning-soft: 39.43, 100%, 93.14%;
+    --component-fill-disabled: 229.29, 34.15%, 16.08%;
+    --component-stroke-light-fixed: 0, 0%, 100%;
+    --component-stroke-light: 231.43, 41.18%, 6.67%;
+    --component-stroke-dark: 232.5, 25%, 12.55%;
+    --component-stroke-dark-soft: 229.41, 32.08%, 20.78%;
+    --component-stroke-gray: 227.5, 25%, 62.35%;
+    --component-stroke-gray-soft: 229.23, 41.05%, 81.37%;
+    --component-stroke-secondary: 261.22, 93.18%, 34.51%;
+    --component-stroke-secondary-soft: 229.41, 32.08%, 20.78%;
+    --component-stroke-accent: 0.39, 65.81%, 54.12%;
+    --component-stroke-accent-soft: 229.41, 32.08%, 20.78%;
+    --component-stroke-info: 206.57, 89.74%, 54.12%;
+    --component-stroke-info-soft: 229.41, 32.08%, 20.78%;
+    --component-stroke-positive: 144.07, 71.06%, 46.08%;
+    --component-stroke-positive-light: 144.07, 71.06%, 46.08%;
+    --component-stroke-positive-dark: 144.17, 100%, 14.12%;
+    --component-stroke-positive-soft: 143.64, 60%, 78.43%;
+    --component-stroke-negative: 3.68, 51.82%, 56.86%;
+    --component-stroke-negative-light: 3.87, 78.15%, 53.33%;
+    --component-stroke-negative-dark: 3.31, 100%, 24.9%;
+    --component-stroke-negative-soft: 3.87, 100%, 93.92%;
+    --component-stroke-warning: 39.23, 100%, 64.31%;
+    --component-stroke-warning-light: 39.52, 99.05%, 41.18%;
+    --component-stroke-warning-dark: 39.33, 100%, 17.65%;
+    --component-stroke-warning-soft: 39.23, 100%, 64.31%;
+    --component-stroke-disabled: 229.41, 32.08%, 20.78%;
+    --component-hover-light-fixed: 0, 0%, 100%;
+    --component-hover-light: 229.29, 34.15%, 16.08%;
+    --component-hover-dark: 0, 0%, 100%;
+    --component-hover-dark-light: 228, 20.16%, 51.37%;
+    --component-hover-dark-soft: 232.5, 25%, 12.55%;
+    --component-hover-gray: 220, 15.64%, 41.37%;
+    --component-hover-gray-light: 220, 10.91%, 78.43%;
+    --component-hover-gray-soft: 231.43, 41.18%, 6.67%;
+    --component-hover-secondary: 261.07, 92.91%, 27.65%;
+    --component-hover-secondary-light: 261.38, 55.41%, 69.22%;
+    --component-hover-secondary-soft: 261.82, 94.29%, 13.73%;
+    --component-hover-accent: 0.98, 55.66%, 43.33%;
+    --component-hover-accent-light: 0, 65.96%, 81.57%;
+    --component-hover-accent-soft: 1.9, 57.8%, 21.37%;
+    --component-hover-info: 206.59, 75.57%, 43.33%;
+    --component-hover-info-light: 206.43, 89.36%, 81.57%;
+    --component-hover-info-soft: 206.75, 74.77%, 21.76%;
+    --component-hover-positive: 144.47, 100%, 29.8%;
+    --component-hover-positive-light: 143.64, 60.74%, 68.04%;
+    --component-hover-positive-soft: 143.36, 96.58%, 22.94%;
+    --component-hover-negative: 3.64, 70.82%, 45.69%;
+    --component-hover-negative-light: 3, 100%, 88.24%;
+    --component-hover-negative-soft: 3.64, 70.82%, 45.69%;
+    --component-hover-warning: 39.52, 99.05%, 41.18%;
+    --component-hover-warning-light: 39.23, 100%, 64.31%;
+    --component-hover-warning-soft: 39.11, 98.75%, 31.37%;
+    --background-fill-default-chart: 0, 0%, 100%;
+    --component-progressbar-container: 240, 16%, 15%, 0.3;
+    --component-fill-sensor: 231, 84%, 76%;
+
+    /*"--icon-light-fixed": "#FFFFFF",*/
+    /*"--icon-dark": "#FFFFFF",*/
+    /*"--icon-gray": "#667085",*/
+    /*"--icon-secondary": "#4006AA",*/
+    /*"--icon-accent": "#D73E3D",*/
+    /*"--icon-info": "#2196F3",*/
+    /*"--icon-positive": "#08B94E",*/
+    /*"--icon-positive-dark": "#00481D",*/
+    /*"--icon-negative": "#FB564B",*/
+    /*"--icon-negative-dark": "#7F0800",*/
+    /*"--icon-warning": "#FFC14A",*/
+    /*"--icon-warning-dark": "#5A3B00",*/
+    /*"--icon-disabled": "#384161",*/
+    /*"--icon-hover-dark": "#FFFFFF",*/
+    /*"--icon-hover-gray": "#0E1223",*/
+    /*"--icon-hover-secondary": "#6130BB",*/
+    /*"--icon-hover-accent": "#DF6564",*/
+    /*"--icon-hover-info": "#4DABF5",*/
+    /*"--icon-hover-positive": "#4FD484",*/
+    /*"--icon-hover-negative": "#FF8D85",*/
+    /*"--icon-hover-warning": "#9F6801",*/
+    /*"--background-fill-surface": "#090C18",*/
+    /*"--background-fill-outermost": "#171A28",*/
+    /*"--background-fill-middle": "#1B2037",*/
+    /*"--background-fill-inner": "#242A46",*/
+    /*"--background-fill-central": "#2F3757",*/
+    /*"--background-fill-heart": "#384162",*/
+    /*"--background-stroke-surface": "#242A46",*/
+    /*"--background-stroke-outermost": "#242A46",*/
+    /*"--background-stroke-middle": "#242A46",*/
+    /*"--background-stroke-inner": "#303757",*/
+    /*"--background-stroke-central": "#384161",*/
+    /*"--background-stroke-heart": "#475175",*/
+    /*"--typo-display": "#FFFFFF",*/
+    /*"--typo-display-light": "#FFFFFF",*/
+    /*"--typo-heading": "#FFFFFF",*/
+    /*"--typo-heading-light": "#FFFFFF",*/
+    /*"--typo-caption": "#FFFFFF",*/
+    /*"--typo-caption-light": "#FFFFFF",*/
+    /*"--typo-caption-soft": "#8791B7",*/
+    /*"--typo-body": "#FFFFFF",*/
+    /*"--typo-body-light": "#FFFFFF",*/
+    /*"--typo-body-soft": "#8791B7",*/
+    /*"--component-text-light-fixed": "#FFFFFF",*/
+    /*"--component-text-light": "#1B2037",*/
+    /*"--component-text-dark": "#FFFFFF",*/
+    /*"--component-text-dark-hover": "#9DA6CB",*/
+    /*"--component-text-gray": "#6A749C",*/
+    /*"--component-text-gray-hover": "#242A46",*/
+    /*"--component-text-secondary": "#4006AA",*/
+    /*"--component-text-secondary-hover": "#6130BB",*/
+    /*"--component-text-accent": "#D73E3D",*/
+    /*"--component-text-accent-hover": "#AC3331",*/
+    /*"--component-text-info": "#2196F3",*/
+    /*"--component-text-info-hover": "#4DABF5",*/
+    /*"--component-text-positive": "#0BB94E",*/
+    /*"--component-text-positive-dark": "#00481D",*/
+    /*"--component-text-positive-hover": "#00983E",*/
+    /*"--component-text-negative": "#FB564B",*/
+    /*"--component-text-negative-dark": "#7F0700",*/
+    /*"--component-text-negative-hover": "#E5372B",*/
+    /*"--component-text-warning": "#D18A01",*/
+    /*"--component-text-warning-dark": "#5A3B00",*/
+    /*"--component-text-warning-hover": "#D18A01",*/
+    /*"--component-text-disabled": "#C2C6CE",*/
+    /*"--component-fill-light-fixed": "#0A0C18",*/
+    /*"--component-fill-light": "#0A0C18",*/
+    /*"--component-fill-gray": "#6A749C",*/
+    /*"--component-fill-gray-light": "#525D73",*/
+    /*"--component-fill-gray-soft": "#1B2037",*/
+    /*"--component-fill-reversed": "#FFFFFF",*/
+    /*"--component-fill-dark": "#FFFFFF",*/
+    /*"--component-fill-dark-soft": "#181A28",*/
+    /*"--component-fill-secondary": "#4006AA",*/
+    /*"--component-fill-secondary-soft": "#D6C5F6",*/
+    /*"--component-fill-accent": "#D73E3D",*/
+    /*"--component-fill-accent-soft": "#FBEBEC",*/
+    /*"--component-fill-info": "#2196F3",*/
+    /*"--component-fill-info-soft": "#E9F5FE",*/
+    /*"--component-fill-positive": "#0BB94E",*/
+    /*"--component-fill-positive-soft": "#E9FAF0",*/
+    /*"--component-fill-negative": "#C72C22",*/
+    /*"--component-fill-negative-soft": "#431815",*/
+    /*"--component-fill-warning": "#EBA622",*/
+    /*"--component-fill-warning-soft": "#FFF3DC",*/
+    /*"--component-fill-disabled": "#1B2037",*/
+    /*"--component-stroke-light-fixed": "#FFFFFF",*/
+    /*"--component-stroke-light": "#0A0C18",*/
+    /*"--component-stroke-dark": "#181A28",*/
+    /*"--component-stroke-dark-soft": "#242A46",*/
+    /*"--component-stroke-gray": "#8791B7",*/
+    /*"--component-stroke-gray-soft": "#BCC3E3",*/
+    /*"--component-stroke-secondary": "#4006AA",*/
+    /*"--component-stroke-secondary-soft": "#242A46",*/
+    /*"--component-stroke-accent": "#D73E3D",*/
+    /*"--component-stroke-accent-soft": "#242A46",*/
+    /*"--component-stroke-info": "#2196F3",*/
+    /*"--component-stroke-info-soft": "#242A46",*/
+    /*"--component-stroke-positive": "#22C965",*/
+    /*"--component-stroke-positive-light": "#22C965",*/
+    /*"--component-stroke-positive-dark": "#00481D",*/
+    /*"--component-stroke-positive-soft": "#A7E9C1",*/
+    /*"--component-stroke-negative": "#CA5F58",*/
+    /*"--component-stroke-negative-light": "#E5372B",*/
+    /*"--component-stroke-negative-dark": "#7F0700",*/
+    /*"--component-stroke-negative-soft": "#FFE2E0",*/
+    /*"--component-stroke-warning": "#FFC049",*/
+    /*"--component-stroke-warning-light": "#D18A01",*/
+    /*"--component-stroke-warning-dark": "#5A3B00",*/
+    /*"--component-stroke-warning-soft": "#FFC049",*/
+    /*"--component-stroke-disabled": "#242A46",*/
+    /*"--component-hover-light-fixed": "#FFFFFF",*/
+    /*"--component-hover-light": "#1B2037",*/
+    /*"--component-hover-dark": "#FFFFFF",*/
+    /*"--component-hover-dark-light": "#6A749C",*/
+    /*"--component-hover-dark-soft": "#181A28",*/
+    /*"--component-hover-gray": "#59647A",*/
+    /*"--component-hover-gray-light": "#C2C6CE",*/
+    /*"--component-hover-gray-soft": "#0A0C18",*/
+    /*"--component-hover-secondary": "#330588",*/
+    /*"--component-hover-secondary-light": "#A485DC",*/
+    /*"--component-hover-secondary-soft": "#1A0244",*/
+    /*"--component-hover-accent": "#AC3331",*/
+    /*"--component-hover-accent-light": "#EFB1B1",*/
+    /*"--component-hover-accent-soft": "#561917",*/
+    /*"--component-hover-info": "#1B78C2",*/
+    /*"--component-hover-info-light": "#A6D5FA",*/
+    /*"--component-hover-info-soft": "#0E3C61",*/
+    /*"--component-hover-positive": "#00983E",*/
+    /*"--component-hover-positive-light": "#7CDFA3",*/
+    /*"--component-hover-positive-soft": "#02732E",*/
+    /*"--component-hover-negative": "#C72C22",*/
+    /*"--component-hover-negative-light": "#FFC6C3",*/
+    /*"--component-hover-negative-soft": "#C72C22",*/
+    /*"--component-hover-warning": "#D18A01",*/
+    /*"--component-hover-warning-light": "#FFC049",*/
+    /*"--component-hover-warning-soft": "#9F6801",*/
+  }
+}

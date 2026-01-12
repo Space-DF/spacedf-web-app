@@ -1,0 +1,417 @@
+@import url('./color-variables.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --checkbox-bg: white;
+    --checkbox-checked-bg: black;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --checkbox-bg: black;
+
+    --sidebar-background: 240 5.9% 10%;
+
+    --sidebar-foreground: 240 4.8% 95.9%;
+
+    --sidebar-primary: 224.3 76.3% 48%;
+
+    --sidebar-primary-foreground: 0 0% 100%;
+
+    --sidebar-accent: 240 3.7% 15.9%;
+
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+
+    --sidebar-border: 240 3.7% 15.9%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  [data-theme='dark'] {
+    --background: black;
+    --foreground: white;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground text-sm;
+  }
+}
+
+html {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji';
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  /* border-radius: 5px; */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(163 163 163);
+  border-radius: 20px;
+  border: 3px solid var(--primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: gray;
+  cursor: default;
+}
+
+.text-gradiant {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(
+    90.37deg,
+    #6580eb 10.98%,
+    #9957ec 57.08%,
+    #b443ed 95.56%
+  );
+}
+
+.txt-gradiant {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rak-marker {
+  background-image: url('/images/3d-preview/rak.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.marker.fade-in {
+  opacity: 1;
+}
+
+.marker.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.marker-hidden {
+  display: none;
+}
+
+.tracki-marker {
+  background-image: url('/images/3d-preview/airtag.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 70px;
+  height: 100px;
+  cursor: pointer;
+}
+
+input[type='checkbox'] {
+  appearance: none;
+  background-color: var(--checkbox-bg);
+  position: relative;
+}
+
+input[type='checkbox']:checked {
+  background-color: var(--checkbox-checked-bg);
+}
+
+input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  top: 2px;
+  left: 1px;
+  background-color: transparent;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+input[type='checkbox']:checked::after {
+  opacity: 1;
+  background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%20stroke-width%3D%221%22%20fill%3D%22currentColor%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M9.08284%203.1442L4.08284%208.1442C4.0393%208.1879%203.98755%208.22257%203.93057%208.24623C3.87359%208.26989%203.81251%208.28207%203.75081%208.28207C3.68912%208.28207%203.62803%208.26989%203.57105%208.24623C3.51408%208.22257%203.46233%208.1879%203.41878%208.1442L1.23128%205.9567C1.18768%205.91309%201.15309%205.86133%201.12949%205.80436C1.1059%205.74739%201.09375%205.68633%201.09375%205.62467C1.09375%205.563%201.1059%205.50194%201.12949%205.44497C1.15309%205.388%201.18768%205.33624%201.23128%205.29263C1.27488%205.24903%201.32665%205.21444%201.38362%205.19085C1.44059%205.16725%201.50165%205.1551%201.56331%205.1551C1.62498%205.1551%201.68604%205.16725%201.74301%205.19085C1.79998%205.21444%201.85174%205.24903%201.89534%205.29263L3.7512%207.14849L8.41956%202.48092C8.50762%202.39286%208.62706%202.34338%208.75159%202.34338C8.87613%202.34338%208.99556%202.39286%209.08362%202.48092C9.17169%202.56898%209.22116%202.68841%209.22116%202.81295C9.22116%202.93748%209.17169%203.05692%209.08362%203.14498L9.08284%203.1442Z%22%20fill%3D%22%23ffffff%22%2F%3E%3C%2Fsvg%3E');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* For WebKit browsers */
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+video::-webkit-media-controls-panel {
+  display: none !important;
+}
+
+video::-webkit-media-controls-play-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
+
+.button-introduction {
+  position: relative;
+  background-clip: padding-box;
+  border: 0.5px solid transparent;
+}
+
+.button-introduction:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  margin: -0.5px;
+  border-radius: inherit;
+}
+
+.form-waitlist {
+  position: relative;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+
+.form-waitlist:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  margin: -1px;
+  border-radius: inherit;
+}
+
+.mapboxgl-ctrl-top-right .mapboxgl-ctrl:first-of-type {
+  margin-top: 16px;
+}
+
+#map-container .mapboxgl-ctrl.mapboxgl-ctrl-group {
+  background-color: #090c18;
+  padding: 2px;
+  width: 36px;
+  border-radius: 6px;
+  border: none;
+}
+
+#map-container .mapboxgl-ctrl-group button {
+  background-color: #171a28;
+  border-radius: 6px;
+  margin: 2px;
+  border: none;
+  box-shadow: 0px 2px 0px 0px #ffffff1f inset;
+}
+
+.mapboxgl-ctrl-top-right {
+  display: none;
+}
+
+.mapboxgl-ctrl
+  button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active
+  .mapboxgl-ctrl-icon {
+  background-image: url('/images/crosshair-active.svg');
+}
+
+.mapboxgl-ctrl button.mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
+  background-image: url('/images/arrows-out.svg');
+}
+
+.mapboxgl-ctrl button.mapboxgl-ctrl-shrink .mapboxgl-ctrl-icon {
+  background-image: url('/images/arrows-in.svg');
+}
+
+/* Custom scrollbar utility class */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #282c3f;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.scrollbar-custom {
+  scrollbar-width: thin;
+}
+
+@layer components {
+  [data-rich-colors='true'][data-sonner-toast][data-type='success']
+    [data-close-button] {
+    @apply !border-brand-component-stroke-positive !bg-brand-component-fill-positive-soft;
+  }
+
+  [data-rich-colors='true'][data-sonner-toast][data-type='error']
+    [data-close-button] {
+    @apply !border-brand-component-stroke-negative !bg-brand-component-fill-negative-soft;
+  }
+
+  [data-rich-colors='true'][data-sonner-toast][data-type='info']
+    [data-close-button] {
+    @apply !border-brand-component-stroke-info !bg-brand-component-fill-info-soft;
+  }
+
+  [data-rich-colors='true'][data-sonner-toast][data-type='warning']
+    [data-close-button] {
+    @apply !border-brand-component-stroke-warning !bg-brand-component-fill-warning-soft;
+  }
+}
+
+.route-point-popup .mapboxgl-popup-content {
+  background-color: #171a28;
+  width: 54px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.route-point-popup.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #171a28;
+}
