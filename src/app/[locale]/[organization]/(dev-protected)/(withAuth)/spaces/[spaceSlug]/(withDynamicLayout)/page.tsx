@@ -7,12 +7,9 @@ export default function SpaceDetail() {
   const headersList = headers()
   const host = headersList.get('host')
 
-  const Template = dynamic(
-    () => import(`@/containers/templates/${currentTemplate}`),
-    {
-      ssr: false,
-    }
-  )
+  const Template = dynamic(() => import(`@/templates/${currentTemplate}`), {
+    ssr: false,
+  })
 
   const isLocal = host?.includes('localhost:')
 

@@ -117,6 +117,18 @@
   }
 }
 
+@layer components {
+  .location-marker {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker.png');
+  }
+
+  .dark .location-marker {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-dark.png');
+  }
+}
+
 html {
   font-family:
     system-ui,

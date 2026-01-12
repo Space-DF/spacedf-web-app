@@ -1,36 +1,30 @@
+import { DEVICE_MODEL } from '@/constants/device-property'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useDevAuthentication } from '@/hooks/useDevAuthentication'
+import { useGetDevices } from '@/hooks/useDevices'
+import { useIsDemo } from '@/hooks/useIsDemo'
+import MqttService from '@/lib/mqtt'
+import {
+  DeviceTelemetryData,
+  DeviceTelemetryHandler,
+  EntityTelemetryData,
+  EntityTelemetryHandler,
+  MQTTRouter,
+} from '@/lib/mqtt-handlers'
+import { useGlobalStore } from '@/stores'
+import { useDashboardStore } from '@/stores/dashboard-store'
 import { Device, useDeviceStore } from '@/stores/device-store'
+import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
+import { Alert } from '@/types/alert'
+import { MapType, transformDeviceData } from '@/utils/map'
+import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { useShallow } from 'zustand/react/shallow'
-import {
-  MQTTRouter,
-  DeviceTelemetryHandler,
-  DeviceTelemetryData,
-  EntityTelemetryHandler,
-  EntityTelemetryData,
-} from '@/lib/mqtt-handlers'
-import MqttService from '@/lib/mqtt'
-import { MapType, transformDeviceData } from '@/utils/map'
-import { useGetDevices } from '@/hooks/useDevices'
-import { useGlobalStore } from '@/stores'
-import { toast } from 'sonner'
 import { useParams } from 'next/navigation'
-import { useIsDemo } from '@/hooks/useIsDemo'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { DEVICE_MODEL } from '@/constants/device-property'
-import { useDashboardStore } from '@/stores/dashboard-store'
+import { PropsWithChildren, useCallback, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { v4 as uuidv4 } from 'uuid'
-import { Alert } from '@/types/alert'
-import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
-import { useDevAuthentication } from '@/hooks/useDevAuthentication'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
+import { useShallow } from 'zustand/react/shallow'
 
 const Rak3DModel = '/3d-model/RAK_3D.glb'
 const Tracki3DModel = '/3d-model/airtag.glb'
@@ -153,11 +147,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices()
 
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
-
-  const [fetchStatus, setFetchStatus] = useState({
-    initializedModels: false,
-    initializedDevices: false,
-  })
 
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
@@ -427,12 +416,10 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
   }, [deviceSpaces])
 
   useEffect(() => {
-    setGlobalLoading(true)
-    if (!isLoadingDevices && fetchStatus.initializedModels) {
-      setGlobalLoading(false)
-      setInitializedSuccess(true)
-    }
-  }, [fetchStatus.initializedModels, isLoadingDevices])
+    setGlobalLoading(isLoadingDevices)
+
+    setInitializedSuccess(!isLoadingDevices)
+  }, [isLoadingDevices])
 
   const loadModels = async () => {
     try {
@@ -458,11 +445,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
 
       setModelPreview(DEVICE_MODEL.RAK, PREVIEW_PATH.rak)
       setModelPreview(DEVICE_MODEL.TRACKI, PREVIEW_PATH.tracki)
-
-      setFetchStatus((prev) => ({
-        ...prev,
-        initializedModels: true,
-      }))
     } catch (error) {
       console.error({ error })
     }
