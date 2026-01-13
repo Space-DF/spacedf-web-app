@@ -1,7 +1,13 @@
-import { NEXT_PUBLIC_NODE_ENV } from '@/shared/env'
+import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
 import { getClientOrganization } from '@/utils'
 import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
+
+const getBaseURL = (organization: string) => {
+  const url = new URL(NEXT_PUBLIC_AUTH_API)
+  url.hostname = `${organization}.${url.hostname}`
+  return `${url.toString().replace(/\/$/, '')}/api`
+}
 export class SpaceDFClient {
   private static instance: SpaceDFClient | null = null
   private client: SpaceDF | null = null
@@ -26,9 +32,7 @@ export class SpaceDFClient {
     this.client = new SpaceDF({
       organization: organization || '',
       APIKey: this.api_key,
-      development:
-        NEXT_PUBLIC_NODE_ENV === 'development' ||
-        NEXT_PUBLIC_NODE_ENV === 'local',
+      baseURL: getBaseURL(organization),
     })
   }
 
