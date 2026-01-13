@@ -1,7 +1,11 @@
 import { Device } from '@/stores/device-store'
 import MapLibreGL from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
-import { smoothMoveMarker } from '../../utils/marker'
+import {
+  smoothMoveMarker,
+  smoothRotateMarker,
+  smoothUpdateFocusDeviceSource,
+} from '../../utils/marker'
 import EventEmitter from '@/utils/event'
 import MapInstance from '../map-instance'
 
@@ -15,6 +19,7 @@ export class LocationMarker {
   private devices: Device[] = []
   private locationMarkers: Record<string, MapLibreGL.Marker> = {}
   private focusedMarker: string = ''
+  private context: CanvasRenderingContext2D | null = null
 
   private constructor() {}
 
@@ -34,6 +39,10 @@ export class LocationMarker {
   }
 
   private _handleMarkerVisible() {
+    if (this.type === 'hidden') {
+      this.clearFocus()
+    }
+
     for (const marker of Object.values(this.locationMarkers)) {
       const el = marker.getElement()
       if (!el) continue
@@ -57,6 +66,8 @@ export class LocationMarker {
       el.className = `location-marker`
       el.id = `location-marker-${device.id}`
 
+      // el.style.transform = `rotate(${device.deviceProperties?.direction ?? 0}deg)`
+
       el.setAttribute('data-device-id', device.id)
 
       el.onclick = () => {
@@ -76,8 +87,9 @@ export class LocationMarker {
         element: el,
         anchor: 'center',
         pitchAlignment: 'viewport',
-        rotationAlignment: 'viewport',
+        rotationAlignment: 'map',
       })
+        .setRotation(device.deviceProperties?.direction ?? 0)
         .setLngLat(position)
         .addTo(this.map)
 
@@ -101,15 +113,15 @@ export class LocationMarker {
 
       if (isEqualData || !prevData || !newData) continue
 
-      // if (
-      //   prevData?.deviceProperties?.direction !==
-      //   newData?.deviceProperties?.direction
-      // ) {
-      //   const newDirection = newData.deviceProperties?.direction ?? 0
-      //   const prevDirection = marker.getRotation() ?? 0
-      //   smoothRotateMarker(marker, prevDirection, newDirection)
-      //   marker.setRotation(newData.deviceProperties?.direction ?? 0)
-      // }
+      if (
+        prevData?.deviceProperties?.direction !==
+        newData?.deviceProperties?.direction
+      ) {
+        const newDirection = newData.deviceProperties?.direction ?? 0
+        const prevDirection = marker.getRotation() ?? 0
+        smoothRotateMarker(marker, prevDirection, newDirection)
+        marker.setRotation(newData.deviceProperties?.direction ?? 0)
+      }
 
       if (
         !isEqual(
@@ -130,9 +142,19 @@ export class LocationMarker {
             zoom: 18,
             duration: 500,
           })
+
+          if (this.type === 'visible') {
+            smoothUpdateFocusDeviceSource({
+              map: this.map!,
+              from: [oldLng, oldLat],
+              to: [newLng, newLat],
+              deviceId: newData.id,
+              duration: 500,
+            })
+          }
         }
 
-        smoothMoveMarker(marker, [oldLng, oldLat], [newLng, newLat])
+        smoothMoveMarker(marker, [oldLng, oldLat], [newLng, newLat], 500)
       }
     }
   }
@@ -150,6 +172,90 @@ export class LocationMarker {
         marker.remove()
         delete this.locationMarkers[detectDeviceId]
       }
+    }
+  }
+
+  private _createPulsingDot() {
+    const size = 150
+
+    return {
+      width: size,
+      height: size,
+      data: new Uint8ClampedArray(size * size * 4),
+      context: null as CanvasRenderingContext2D | null,
+      map: null as MapLibreGL.Map | null,
+
+      onAdd(map: MapLibreGL.Map) {
+        this.map = map
+        const canvas = document.createElement('canvas')
+        canvas.width = this.width
+        canvas.height = this.height
+        this.context = canvas.getContext('2d')
+      },
+
+      render() {
+        const duration = 1000
+        const t = (performance.now() % duration) / duration
+
+        const innerRadius = (size / 2) * 0.3
+        const outerRadius = (size / 2) * 0.7 * t + innerRadius
+
+        const ctx = this.context
+        if (!ctx) return false
+
+        ctx.clearRect(0, 0, this.width, this.height)
+
+        // outer ripple
+        ctx.beginPath()
+        ctx.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(121, 88, 255, ${1 - t})`
+        ctx.fill()
+
+        // inner dot
+        ctx.beginPath()
+        ctx.arc(this.width / 2, this.height / 2, innerRadius, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(121, 88, 255, 1)'
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 2 + 4 * (1 - t)
+        ctx.fill()
+        ctx.stroke()
+
+        this.data = ctx.getImageData(0, 0, this.width, this.height).data
+        this.map?.triggerRepaint()
+        return true
+      },
+    }
+  }
+
+  private _ensurePulseAssets() {
+    if (!this.map) return
+
+    if (!this.map.hasImage('pulsing-dot')) {
+      this.map.addImage('pulsing-dot', this._createPulsingDot(), {
+        pixelRatio: 2,
+      })
+    }
+
+    if (!this.map.getSource('focused-device')) {
+      this.map.addSource('focused-device', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      })
+    }
+
+    if (!this.map.getLayer('focused-device-layer')) {
+      this.map.addLayer({
+        id: 'focused-device-layer',
+        type: 'symbol',
+        source: 'focused-device',
+        layout: {
+          'icon-image': 'pulsing-dot',
+          'icon-allow-overlap': true,
+        },
+      })
     }
   }
 
@@ -184,8 +290,54 @@ export class LocationMarker {
   }
 
   focusMarker(deviceId: string) {
-    console.log('focusMarker', deviceId)
+    const device = this.devices.find((device) => device.id === deviceId)
+
+    if (!this.map || !device || !deviceId) return this.clearFocus()
+
+    this.clearFocus()
+
     this.focusedMarker = deviceId
+    this._ensurePulseAssets()
+
+    const coordinates = device.deviceProperties?.latest_checkpoint_arr ?? [0, 0]
+
+    this._updateFocusDeviceSource(deviceId, coordinates)
+  }
+
+  private _updateFocusDeviceSource(
+    deviceId: string,
+    coordinates: [number, number]
+  ) {
+    if (!this.map) return
+    const source = this.map.getSource(
+      'focused-device'
+    ) as MapLibreGL.GeoJSONSource
+
+    source.setData({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { id: deviceId },
+          geometry: {
+            type: 'Point',
+            coordinates,
+          },
+        },
+      ],
+    })
+  }
+
+  clearFocus() {
+    if (!this.map) return
+    const source = this.map.getSource(
+      'focused-device'
+    ) as MapLibreGL.GeoJSONSource
+
+    source?.setData({
+      type: 'FeatureCollection',
+      features: [],
+    })
   }
 
   destroyLocationMarkers() {

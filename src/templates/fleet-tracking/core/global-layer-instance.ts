@@ -3,6 +3,7 @@ import MapLibreGL, { IControl } from 'maplibre-gl'
 
 export const LAYER_IDS = {
   LOCATION_DECKGL_LAYER: 'location-deckgl-layer',
+  LOCATION_OUTLINE_PULSE: 'location-outline-pulse',
 }
 
 export class GlobalDeckGLInstance {

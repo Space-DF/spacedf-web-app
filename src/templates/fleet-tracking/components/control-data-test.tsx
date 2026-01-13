@@ -33,27 +33,27 @@ export default function ControlDataTest() {
       >
         Add Device
       </Button>
-      {/* <Button
-    onClick={() => {
-      const newDevices = Object.values(allDevices).map((device) => {
-        if (device.name === 'Rak 4630-RS3-C1F4') {
-          return {
-            ...device,
-            deviceProperties: {
-              ...device.deviceProperties,
-              // latest_checkpoint_arr: [108.22129, 16.05565],
-              direction: (device.deviceProperties?.direction ?? 0) + 10,
-            },
-          }
-        }
-        return device
-      })
+      <Button
+        onClick={() => {
+          const newDevices = Object.values(allDevices).map((device) => {
+            if (device.name === 'Rak 4630-RS3-C1F4') {
+              return {
+                ...device,
+                deviceProperties: {
+                  ...device.deviceProperties,
+                  // latest_checkpoint_arr: [108.22129, 16.05565],
+                  heading: (device.deviceProperties?.direction ?? 0) + 10,
+                },
+              }
+            }
+            return device
+          })
 
-      setDevices(newDevices)
-    }}
-  >
-    Update Direction
-  </Button> */}
+          setDevices(newDevices)
+        }}
+      >
+        Update Direction
+      </Button>
 
       <Button
         onClick={() => {

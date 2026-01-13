@@ -98,8 +98,17 @@ export const LocationLayer = memo(
         handleLocationDeviceSelected
       )
 
+      deckGLInstance.on(
+        'location-device-selected',
+        handleLocationDeviceSelected
+      )
+
       return () => {
         markerInstance.off(
+          'location-device-selected',
+          handleLocationDeviceSelected
+        )
+        deckGLInstance.off(
           'location-device-selected',
           handleLocationDeviceSelected
         )
@@ -128,7 +137,7 @@ export const LocationLayer = memo(
         }
 
         if (viewMode === '3d') {
-          console.log('device selected 3d', device)
+          deckGLInstance.focusDevice(deviceId)
         }
       },
       [deviceSelected, devices]

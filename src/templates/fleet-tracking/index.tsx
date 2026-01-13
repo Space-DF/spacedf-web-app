@@ -63,6 +63,34 @@ export default function FleetTrackingMap() {
       }))
     )
 
+  const handleDataReady = useCallback(() => {
+    if (!mapReadyRef.current || !dataReadyRef.current) return
+
+    if (isFirstRun.current) {
+      const resolvedModelType: '2d' | '3d' = localStorage.getItem(
+        'fleet-tracking:modelType'
+      ) as '2d' | '3d'
+
+      const pitch = MAP_PITCH[resolvedModelType]
+
+      mapInstance.onStrategyZoom(devices, pitch)
+
+      if (mapInstance.getMap()) {
+        globalDeckGLInstance.init(mapInstance.getMap()!)
+      }
+
+      updateBooleanState('isMapReady', true)
+      isFirstRun.current = false
+    }
+  }, [devices])
+
+  const handleVisibilityChange = useCallback(
+    (isVisible: boolean) => {
+      updateBooleanState('isClusterVisible', isVisible)
+    },
+    [updateBooleanState]
+  )
+
   useEffect(() => {
     if (containerRef.current && !mapInstance.getMap()) {
       mapInstance.init({
@@ -81,7 +109,7 @@ export default function FleetTrackingMap() {
 
     dataReadyRef.current = true
     handleDataReady()
-  }, [initializedSuccess])
+  }, [initializedSuccess, handleDataReady])
 
   useEffect(() => {
     const onMapReady = () => {
@@ -94,7 +122,7 @@ export default function FleetTrackingMap() {
     return () => {
       mapInstance.off('ready', onMapReady)
     }
-  }, [])
+  }, [handleDataReady])
 
   useEffect(() => {
     mapInstance.updateTheme(resolvedTheme as 'dark' | 'light')
@@ -132,14 +160,10 @@ export default function FleetTrackingMap() {
   }, [devices, isMapReady])
 
   useEffect(() => {
-    const onVisibleChange = (isVisible: boolean) => {
-      updateBooleanState('isClusterVisible', isVisible)
-    }
-
-    clusterInstance.on('visible-change', onVisibleChange)
+    clusterInstance.on('visible-change', handleVisibilityChange)
 
     return () => {
-      clusterInstance.off('visible-change', onVisibleChange)
+      clusterInstance.off('visible-change', handleVisibilityChange)
     }
   }, [])
 
@@ -158,27 +182,6 @@ export default function FleetTrackingMap() {
 
     // mapInstance.deviceFocus(deviceSelected)
   }, [isClusterVisible, deviceSelected])
-
-  const handleDataReady = useCallback(() => {
-    if (!mapReadyRef.current || !dataReadyRef.current) return
-
-    if (isFirstRun.current) {
-      const resolvedModelType: '2d' | '3d' = localStorage.getItem(
-        'fleet-tracking:modelType'
-      ) as '2d' | '3d'
-
-      const pitch = MAP_PITCH[resolvedModelType]
-
-      mapInstance.onStrategyZoom(devices, pitch)
-
-      if (mapInstance.getMap()) {
-        globalDeckGLInstance.init(mapInstance.getMap()!)
-      }
-
-      updateBooleanState('isMapReady', true)
-      isFirstRun.current = false
-    }
-  }, [devices])
 
   return (
     <div
