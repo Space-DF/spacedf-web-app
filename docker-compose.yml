@@ -3,14 +3,14 @@ services:
     image: kinhdev24/spacedf-web-app:latest
     environment:
       #These variables for next-auth (required)
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${DASHBOARD_NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${DASHBOARD_NEXTAUTH_SECRET}
 
       #This variable for Mapbox (required). Create a mapbox account to get the access token
       MAPBOX_ACCESS_TOKEN: ${MAPBOX_ACCESS_TOKEN}
 
       #These variables for API endpoint
-      AUTH_API: ${AUTH_API}
+      AUTH_API: ${DASHBOARD_AUTH_API}
       SPACE_API_KEY: ${SPACE_API_KEY}
 
       #These variables for MQTT dashboard (optional)
