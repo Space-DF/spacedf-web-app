@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin()
 
 const nextConfig = {
   reactStrictMode: false,
+  output: 'standalone',
   rules: [
     {
       test: /\bmapbox-gl-csp-worker.js\b/i,
