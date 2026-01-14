@@ -1,4 +1,3 @@
-import { getMapboxToken } from '@/lib/mapbox-token'
 import { MapType } from '@/stores'
 import mapboxgl from 'mapbox-gl'
 
@@ -14,7 +13,7 @@ class MapInstance {
     return MapInstance.instance
   }
 
-  public async initializeMap({
+  public initializeMap({
     container,
     zoom = 3,
     maxZoom = 19,
@@ -28,36 +27,8 @@ class MapInstance {
     pitch?: number
     antialias?: boolean
     style?: string
-  }): Promise<void> {
+  }): void {
     if (this.map) return
-    if (this.initPromise) return this.initPromise
-
-    this.initPromise = this.doInitialize({
-      container,
-      zoom,
-      maxZoom,
-      pitch,
-      style,
-    })
-    return this.initPromise
-  }
-
-  private async doInitialize({
-    container,
-    zoom,
-    maxZoom,
-    pitch,
-    style,
-  }: {
-    container: HTMLElement
-    zoom: number
-    maxZoom: number
-    pitch: number
-    style: string
-  }): Promise<void> {
-    const token = await getMapboxToken()
-    mapboxgl.accessToken = token
-
     this.map = new mapboxgl.Map({
       container: container,
       maxZoom: maxZoom,
@@ -67,10 +38,6 @@ class MapInstance {
       zoom: zoom,
       style,
     })
-
-    // this.map.on('load', () => {
-    //   this.apply3DBuildingLayer()
-    // })
   }
 
   public getMapStyle(): Record<string, any> {

@@ -1,10 +1,10 @@
 import { spaceClient } from '@/lib/spacedf'
 import {
-  MQTT_BROKER,
-  MQTT_PASSWORD,
-  MQTT_PORT,
-  MQTT_PROTOCOL,
-  MQTT_USERNAME,
+  DASHBOARD_MQTT_BROKER,
+  DASHBOARD_MQTT_PASSWORD,
+  DASHBOARD_MQTT_PORT,
+  DASHBOARD_MQTT_PROTOCOL,
+  DASHBOARD_MQTT_USERNAME,
 } from '@/shared/env'
 import { handleError } from '@/utils/error'
 import { isDemoSubdomain, readSession } from '@/utils/server-actions'
@@ -17,11 +17,11 @@ export async function GET(req: NextRequest) {
     if (!sessionCookie || isDemo) {
       return NextResponse.json({
         mqtt_token: null,
-        broker: MQTT_BROKER,
-        protocol: MQTT_PROTOCOL,
-        port: MQTT_PORT,
-        username: MQTT_USERNAME,
-        password: MQTT_PASSWORD,
+        broker: DASHBOARD_MQTT_BROKER,
+        protocol: DASHBOARD_MQTT_PROTOCOL,
+        port: DASHBOARD_MQTT_PORT,
+        username: DASHBOARD_MQTT_USERNAME,
+        password: DASHBOARD_MQTT_PASSWORD,
       })
     }
     const spacedfClient = await spaceClient()
@@ -29,11 +29,11 @@ export async function GET(req: NextRequest) {
     await spacedfClient.users.getMe()
     return NextResponse.json({
       mqtt_token: sessionCookie?.user?.access,
-      broker: MQTT_BROKER,
-      protocol: MQTT_PROTOCOL,
-      port: MQTT_PORT,
-      username: MQTT_USERNAME,
-      password: MQTT_PASSWORD,
+      broker: DASHBOARD_MQTT_BROKER,
+      protocol: DASHBOARD_MQTT_PROTOCOL,
+      port: DASHBOARD_MQTT_PORT,
+      username: DASHBOARD_MQTT_USERNAME,
+      password: DASHBOARD_MQTT_PASSWORD,
     })
   } catch (error) {
     return handleError(error)

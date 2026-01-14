@@ -19,6 +19,8 @@ import { ModelType } from './model-type'
 import { SelectMapType } from './select-map-type'
 import { GlobalOverlayInstance } from '@/utils/fleet-tracking-map/layer-instance/global-overlay-instance'
 import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
+import useSWR from 'swr'
+import { fetcher } from '@/utils'
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 const globalOverlayInstance = GlobalOverlayInstance.getInstance()
@@ -45,7 +47,10 @@ export default function FleetTracking() {
 
   const { zoomToSingleDevice, zoomToFitDevices } = useZoomStrategies()
   const { applyMapBuilding, removeMapBuilding } = useMapBuilding()
-
+  const { data: mapboxToken } = useSWR<{ mapbox_token: string }>(
+    '/api/mapbox-token',
+    fetcher
+  )
   const mapType = useFleetTrackingStore((state) => state.mapType)
 
   const resolvedMapType = useMemo(() => {
@@ -65,7 +70,12 @@ export default function FleetTracking() {
   }, [devices])
 
   useEffect(() => {
-    if (!fleetTrackingMapRef.current || !initializedSuccess) return
+    if (
+      !fleetTrackingMapRef.current ||
+      !initializedSuccess ||
+      !mapboxToken?.mapbox_token
+    )
+      return
 
     const { style, config } = getMapStyle(
       resolvedMapType,
@@ -73,15 +83,19 @@ export default function FleetTracking() {
     )
 
     if (!fleetTrackingMap.isInitialized) {
-      fleetTrackingMap.init(fleetTrackingMapRef.current, {
-        style,
-        config,
-        center: [0, 0],
-        zoom: 1,
-        pitch: resolvedModelType === '3d' ? 90 : 0,
-        antialias: true,
-        preserveDrawingBuffer: true,
-      })
+      fleetTrackingMap.init(
+        fleetTrackingMapRef.current,
+        {
+          style,
+          config,
+          center: [0, 0],
+          zoom: 1,
+          pitch: resolvedModelType === '3d' ? 90 : 0,
+          antialias: true,
+          preserveDrawingBuffer: true,
+        },
+        mapboxToken.mapbox_token
+      )
     }
 
     if (fleetTrackingMap.isInitialized && !isGlobalLoading) {
@@ -133,7 +147,7 @@ export default function FleetTracking() {
       // fleetTrackingMap.remove()
       // window.location.reload()
     }
-  }, [initializedSuccess, isGlobalLoading])
+  }, [initializedSuccess, isGlobalLoading, mapboxToken])
 
   useEffect(() => {
     if (!fleetTrackingMap.isInitialized) return
