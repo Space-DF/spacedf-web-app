@@ -1,4 +1,4 @@
-import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
+import { getMapboxToken } from '@/lib/mapbox-token'
 
 export interface GeocodingFeature {
   properties: {
@@ -33,6 +33,8 @@ export async function getLocationName({
       return locations.map(() => 'Unknown location')
     }
 
+    const token = await getMapboxToken()
+
     const requestBody = validLocations.map((location) => ({
       types: ['street'],
       longitude: location.longitude,
@@ -40,7 +42,7 @@ export async function getLocationName({
     }))
 
     const response = await fetch(
-      `https://api.mapbox.com/search/geocode/v6/batch?access_token=${NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}`,
+      `https://api.mapbox.com/search/geocode/v6/batch?access_token=${token}`,
       {
         method: 'POST',
         headers: {

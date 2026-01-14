@@ -1,12 +1,11 @@
-import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
+import { getMapboxToken } from '@/lib/mapbox-token'
 import { MapType } from '@/stores'
 import mapboxgl from 'mapbox-gl'
-
-mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
 class MapInstance {
   private static instance: MapInstance
   private map: mapboxgl.Map | null = null
+  private initPromise: Promise<void> | null = null
 
   public static getInstance(): MapInstance {
     if (!MapInstance.instance) {
@@ -15,7 +14,7 @@ class MapInstance {
     return MapInstance.instance
   }
 
-  public initializeMap({
+  public async initializeMap({
     container,
     zoom = 3,
     maxZoom = 19,
@@ -29,8 +28,36 @@ class MapInstance {
     pitch?: number
     antialias?: boolean
     style?: string
-  }): void {
+  }): Promise<void> {
     if (this.map) return
+    if (this.initPromise) return this.initPromise
+
+    this.initPromise = this.doInitialize({
+      container,
+      zoom,
+      maxZoom,
+      pitch,
+      style,
+    })
+    return this.initPromise
+  }
+
+  private async doInitialize({
+    container,
+    zoom,
+    maxZoom,
+    pitch,
+    style,
+  }: {
+    container: HTMLElement
+    zoom: number
+    maxZoom: number
+    pitch: number
+    style: string
+  }): Promise<void> {
+    const token = await getMapboxToken()
+    mapboxgl.accessToken = token
+
     this.map = new mapboxgl.Map({
       container: container,
       maxZoom: maxZoom,
@@ -101,6 +128,7 @@ class MapInstance {
     if (this.map) {
       this.map.remove()
       this.map = null
+      this.initPromise = null
     }
   }
 

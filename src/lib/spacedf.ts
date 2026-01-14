@@ -1,10 +1,10 @@
-import { NEXT_PUBLIC_AUTH_API } from '@/shared/env'
+import { AUTH_API } from '@/shared/env'
 import { getClientOrganization } from '@/utils'
 import { getServerOrganization } from '@/utils/server-actions'
 import SpaceDF from '@space-df/sdk'
 
 const getBaseURL = (organization: string) => {
-  const url = new URL(NEXT_PUBLIC_AUTH_API)
+  const url = new URL(AUTH_API)
   url.hostname = `${organization}.${url.hostname}`
   return `${url.toString().replace(/\/$/, '')}/api`
 }

@@ -86,18 +86,18 @@ Before you begin, ensure you have the following installed:
    ```env
    NEXTAUTH_SECRET=your-nextauth-secret
    NEXTAUTH_URL=http://localhost:3000
-   NEXT_PUBLIC_AUTH_API=your-auth-api-url
+   AUTH_API=your-auth-api-url
 
    SPACE_API_KEY=your-space-api-key
 
-   NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your-mapbox-access-token
+   MAPBOX_ACCESS_TOKEN=your-mapbox-access-token
 
    # MQTT Configuration
-   NEXT_PUBLIC_MQTT_USERNAME=your-mqtt-username
-   NEXT_PUBLIC_MQTT_PASSWORD=your-mqtt-password
-   NEXT_PUBLIC_MQTT_PROTOCOL=ws
-   NEXT_PUBLIC_MQTT_PORT=8883
-   NEXT_PUBLIC_MQTT_BROKER=your-mqtt-broker
+   MQTT_USERNAME=your-mqtt-username
+   MQTT_PASSWORD=your-mqtt-password
+   MQTT_PROTOCOL=ws
+   MQTT_PORT=8883
+   MQTT_BROKER=your-mqtt-broker
    ```
 
 4. **Run the development server**
@@ -147,18 +147,18 @@ spacedf-web-app/
 
 Required environment variables:
 
-| Variable                          | Description                                                                         |
-| --------------------------------- | ----------------------------------------------------------------------------------- |
-| `NEXTAUTH_URL`                    | Base URL of your application (e.g., `http://localhost:3000`)                        |
-| `NEXTAUTH_SECRET`                 | Secret key for NextAuth.js - [generate here](https://generate-secret.vercel.app/32) |
-| `NEXT_PUBLIC_AUTH_API`            | SpaceDF authentication API endpoint                                                 |
-| `SPACE_API_KEY`                   | SpaceDF SDK API key                                                                 |
-| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | Mapbox access token for 3D maps                                                     |
-| `NEXT_PUBLIC_MQTT_USERNAME`       | MQTT broker username                                                                |
-| `NEXT_PUBLIC_MQTT_PASSWORD`       | MQTT broker password                                                                |
-| `NEXT_PUBLIC_MQTT_PROTOCOL`       | MQTT protocol (`ws` or `wss`)                                                       |
-| `NEXT_PUBLIC_MQTT_PORT`           | MQTT broker port                                                                    |
-| `NEXT_PUBLIC_MQTT_BROKER`         | MQTT broker hostname                                                                |
+| Variable              | Description                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `NEXTAUTH_URL`        | Base URL of your application (e.g., `http://localhost:3000`)                        |
+| `NEXTAUTH_SECRET`     | Secret key for NextAuth.js - [generate here](https://generate-secret.vercel.app/32) |
+| `AUTH_API`            | SpaceDF authentication API endpoint                                                 |
+| `SPACE_API_KEY`       | SpaceDF SDK API key                                                                 |
+| `MAPBOX_ACCESS_TOKEN` | Mapbox access token for 3D maps (server-side only)                                  |
+| `MQTT_USERNAME`       | MQTT broker username                                                                |
+| `MQTT_PASSWORD`       | MQTT broker password                                                                |
+| `MQTT_PROTOCOL`       | MQTT protocol (`ws` or `wss`)                                                       |
+| `MQTT_PORT`           | MQTT broker port                                                                    |
+| `MQTT_BROKER`         | MQTT broker hostname                                                                |
 
 ## License
 

@@ -1,8 +1,6 @@
-import { NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN } from '@/shared/env'
+import { getMapboxToken } from '@/lib/mapbox-token'
 import { Device } from '@/stores/device-store'
 import mapboxgl, { MapEvent, MapOptions } from 'mapbox-gl'
-
-mapboxgl.accessToken = NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
 type MapboxMap = mapboxgl.Map
 type MapboxEventHandler = (event: mapboxgl.Map) => void
@@ -16,6 +14,7 @@ class FleetTrackingMap {
   private listeners: Record<string, MapboxEventHandler[]> = {}
   private layerListeners: Record<string, LayerEventHandler[]> = {}
   private devices: Record<string, Device> = {}
+  private initPromise: Promise<mapboxgl.Map | null> | null = null
 
   public isInitialized = false
 
@@ -29,9 +28,21 @@ class FleetTrackingMap {
     return FleetTrackingMap.instance
   }
 
-  init(container: HTMLElement, options: Partial<MapOptions> = {}) {
-    console.log('init')
+  async init(container: HTMLElement, options: Partial<MapOptions> = {}) {
     if (this.isInitialized) return this.map
+
+    if (this.initPromise) return this.initPromise
+
+    this.initPromise = this.initializeMap(container, options)
+    return this.initPromise
+  }
+
+  private async initializeMap(
+    container: HTMLElement,
+    options: Partial<MapOptions>
+  ) {
+    const token = await getMapboxToken()
+    mapboxgl.accessToken = token
 
     this.map = new mapboxgl.Map({
       container,
@@ -77,6 +88,11 @@ class FleetTrackingMap {
     return this.map
   }
 
+  waitForInit(): Promise<mapboxgl.Map | null> {
+    if (this.isInitialized) return Promise.resolve(this.map)
+    return this.initPromise || Promise.resolve(null)
+  }
+
   getMap() {
     if (!this.map) return null
     return this.map
@@ -106,6 +122,7 @@ class FleetTrackingMap {
     this.map.remove()
     this.map = null
     this.isInitialized = false
+    this.initPromise = null
     FleetTrackingMap.instance = undefined
   }
 

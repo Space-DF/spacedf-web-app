@@ -1,10 +1,3 @@
-import {
-  MQTT_BROKER,
-  MQTT_PASSWORD,
-  MQTT_PORT,
-  MQTT_PROTOCOL,
-  MQTT_USERNAME,
-} from '@/shared/env'
 import mqtt, { IClientOptions, MqttClient } from 'mqtt'
 import api from './api'
 import { sleep } from '@/utils'
@@ -21,6 +14,15 @@ export interface MqttTopicSubscription {
   callback?: (topic: string, payload: Buffer) => void
 }
 
+interface MqttToken {
+  mqtt_token: string
+  broker: string
+  port: number
+  protocol: string
+  username: string
+  password: string
+}
+
 export interface MqttEventCallbacks {
   onSubscribed?: () => void
   onConnect?: () => void
@@ -30,13 +32,12 @@ export interface MqttEventCallbacks {
   onReconnect?: () => void
 }
 
-const getMqttToken = async () =>
-  api.get<{ mqtt_token: string }>('/api/mqtt-token')
+const getMqttToken = async () => api.get<MqttToken>('/api/mqtt-token')
 
 class MqttService {
   private static instance: MqttService | undefined
   public client: MqttClient | null = null
-  private readonly brokerUrl: string
+  private brokerUrl: string = ''
   private readonly options: IClientOptions
   private subscriptions: Map<string, MqttTopicSubscription> = new Map()
   private eventCallbacks: MqttEventCallbacks = {}
@@ -48,7 +49,6 @@ class MqttService {
   private readonly maxConnectRetries = 3
 
   private constructor(organization: string) {
-    this.brokerUrl = `${MQTT_PROTOCOL}://${MQTT_BROKER}:${MQTT_PORT}/mqtt`
     this.options = {
       clientId: `spacedf-web-app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       clean: false,
@@ -104,15 +104,17 @@ class MqttService {
 
   private async connect(): Promise<void> {
     if (this.client) return
-    const mqttToken = await getMqttToken()
+    const { username, password, mqtt_token, protocol, broker, port } =
+      await getMqttToken()
     this.connectionStatus = 'connecting'
+    this.brokerUrl = `${protocol}://${broker}:${port}/mqtt`
     const options = {
       ...this.options,
-      username: MQTT_USERNAME,
-      password: MQTT_PASSWORD,
+      username,
+      password,
     }
-    if (mqttToken?.mqtt_token) {
-      options.username = mqttToken.mqtt_token
+    if (mqtt_token) {
+      options.username = mqtt_token
       options.password = ''
     }
     this.client = mqtt.connect(this.brokerUrl, options)
