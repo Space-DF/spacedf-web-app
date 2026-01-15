@@ -1,8 +1,9 @@
-name: CD
+name: Build & Publish Docker Image
 
 on:
   push:
     branches:
+      - main
       - develop
 
 jobs:
@@ -26,15 +27,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Generate Docker metadata (auto lowercase repo)
+      # Generate Docker metadata
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest
+            # main branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha
+
+            # develop branch
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
       # Build & Push image
       - name: Build & Push Docker image

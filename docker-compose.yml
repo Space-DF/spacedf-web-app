@@ -1,6 +1,7 @@
 services:
   web:
-    image: kinhdev24/spacedf-web-app:latest
+    # Image built from the Dockerfile in the current directory. Replace with your own Docker image if needed.
+    image: ''
     environment:
       #These variables for next-auth (required)
       NEXTAUTH_URL: ${DASHBOARD_NEXTAUTH_URL}
