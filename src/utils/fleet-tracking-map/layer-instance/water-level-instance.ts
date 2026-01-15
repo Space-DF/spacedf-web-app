@@ -2,18 +2,20 @@ import { Device } from '@/stores/device-store'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import * as turf from '@turf/turf'
 import { ColumnLayer, PolygonLayer, ScatterplotLayer, TextLayer } from 'deck.gl'
-import { easeOut, linear, animate } from 'popmotion'
+import isEqual from 'fast-deep-equal'
+import { easeOut } from 'popmotion'
+
+import EventEmitter from '@/utils/event'
+import {
+  getWaterDepthLevelName,
+  WaterDepthLevelName,
+} from '@/utils/water-depth'
+import { RainSpecification } from 'mapbox-gl'
 import {
   appendLayerForGlobalOverlay,
   LAYER_IDS,
   removeLayersFromGlobalOverlay,
 } from './global-overlay-instance'
-import EventEmitter from '@/utils/event'
-import { RainSpecification } from 'mapbox-gl'
-import {
-  getWaterDepthLevelName,
-  WaterDepthLevelName,
-} from '@/utils/water-depth'
 
 const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds
 
@@ -42,6 +44,8 @@ class WaterLevelInstance {
   private selectedWaterDeviceProgress = 1
   private animateState: 'idle' | 'animating' = 'idle'
   private selectedWaterDeviceAnimation: any = null
+  private mapZoom: number = 0
+  private previousDevice: Record<string, Device> = {}
 
   private globalOverlay: MapboxOverlay | null = null
   private waterDepthLayer: ColumnLayer<WaterLevelDataType> | null = null
@@ -101,6 +105,46 @@ class WaterLevelInstance {
       'center-thinning': 0, // Rain to be displayed on the whole screen area
     }
     this.map?.setRain(this.rainLayer)
+  }
+
+  private _handleMapMove = () => {
+    if (!this.map) return
+    const zoom = this.map.getZoom()
+
+    if (zoom === this.mapZoom) return
+
+    this.mapZoom = zoom
+
+    this._handlePolygon(Object.values(this.devices), this.type)
+    this._buildWaterLevelLayer(Object.values(this.devices), this.type)
+    this._buildWrapperLayer(Object.values(this.devices), this.type)
+  }
+
+  private _getElevationByZoom(zoom: number) {
+    const minZoom = 9
+    const maxZoom = 17
+
+    const minRadiusScale = 1
+    const minPolygon = 0.03
+    const minElevationScale = 0.1
+    const maxElevationScale = 2
+    const maxRadiusScale = 20
+    const maxPolygon = 0.4
+
+    const tRaw =
+      1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
+    const t = Math.pow(tRaw, 1.8)
+
+    const radiusScale = minRadiusScale + t * (maxRadiusScale - minRadiusScale)
+    const elevationScale =
+      minElevationScale + t * (maxElevationScale - minElevationScale)
+    const polygonScale = minPolygon + t * (maxPolygon - minPolygon)
+
+    return {
+      elevationScale,
+      radiusScale,
+      polygonScale,
+    }
   }
 
   private _stopAnimation = () => {
@@ -209,7 +253,7 @@ class WaterLevelInstance {
       return {
         circle: turf.circle(
           device.deviceProperties?.latest_checkpoint_arr || [0, 0],
-          0.03,
+          this._getElevationByZoom(this.mapZoom).polygonScale,
           {
             steps: 64,
             units: 'kilometers',
@@ -348,8 +392,9 @@ class WaterLevelInstance {
       data: dataLayers,
       diskResolution: 8,
       extruded: true,
-      radius: 12,
-      elevationScale: 0.1,
+      radius: 12 * this._getElevationByZoom(this.mapZoom).radiusScale,
+      radiusUnits: 'meters',
+      elevationScale: this._getElevationByZoom(this.mapZoom).elevationScale,
       getElevation: () => 600,
       getPosition: (d: WaterLevelDataType) => d.location,
       getFillColor: (d: WaterLevelDataType) => d.color,
@@ -403,25 +448,15 @@ class WaterLevelInstance {
       data: dataLayers,
       diskResolution: 8,
       extruded: true,
-      radius: 8,
-      elevationScale: 0.1,
-      getElevation: (d: WaterLevelDataType) => {
-        if (d.deviceId === this.selectedWaterDeviceId) {
-          return d.waterLevel * this.selectedWaterDeviceProgress
-        }
-
-        return d.waterLevel
-      },
+      radius: 8 * this._getElevationByZoom(this.mapZoom).radiusScale,
+      radiusUnits: 'meters',
+      elevationScale: this._getElevationByZoom(this.mapZoom).elevationScale,
+      getElevation: (d: WaterLevelDataType) => d.waterLevel,
       getPosition: (d: WaterLevelDataType) => d.location,
       getFillColor: (d: WaterLevelDataType) => d.color,
       opacity: (type || this.type) === 'visible' ? 1 : 0,
       transitions: {
         opacity: { duration: 200, easing: easeOut },
-        getElevation: {
-          duration: 1000,
-          easing: linear,
-          enter: () => 0,
-        },
       },
       updateTriggers: {
         getElevation: [
@@ -476,12 +511,16 @@ class WaterLevelInstance {
     if (this.isInitialized) return
     this.map = map
 
+    this.map.on('zoom', this._handleMapMove)
+
     this.globalOverlay = globalOverlay
     this.isInitialized = true
   }
 
   syncDevices(devices: Record<string, Device>) {
-    this.devices = Object.fromEntries(
+    this.previousDevice = this.devices
+
+    const newDevices = Object.fromEntries(
       Object.entries(devices).map(([key, device]) => [
         key,
         {
@@ -495,6 +534,10 @@ class WaterLevelInstance {
         } as Device,
       ])
     )
+
+    if (isEqual(this.previousDevice, newDevices)) return
+
+    this.devices = newDevices
   }
 
   buildLayers(type: 'visible' | 'hidden' = 'visible') {
@@ -517,7 +560,7 @@ class WaterLevelInstance {
     this._buildWrapperLayer(Object.values(this.devices), type)
   }
 
-  handleWaterLevelSelected(selectedId: string) {
+  async handleWaterLevelSelected(selectedId: string) {
     if (!this.map) return
 
     const deviceData = this.devices?.[selectedId]
@@ -527,47 +570,11 @@ class WaterLevelInstance {
 
       this.selectedWaterDeviceId = selectedId
 
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       this._handlePolygon(Object.values(this.devices), 'visible')
-      this._buildWrapperLayer(Object.values(this.devices), 'visible')
 
       this.animateState = 'animating'
-
-      const prevLayers = (this.globalOverlay as any)._props.layers || []
-      const baseLayers = prevLayers.filter(
-        (l: any) => l?.id !== LAYER_IDS.DEVICE_WATER_LEVEL_LAYER
-      )
-
-      this.selectedWaterDeviceAnimation = animate({
-        from: 0,
-        to: 1,
-        duration: 1000,
-        ease: linear,
-        onUpdate: (latest: number) => {
-          this.selectedWaterDeviceProgress = latest
-          this.waterDepthLayer = this.waterDepthLayer?.clone({
-            updateTriggers: {
-              getElevation: [
-                this.selectedWaterDeviceId,
-                this.selectedWaterDeviceProgress,
-              ],
-            },
-            transitions: {
-              getElevation: {
-                duration: 0,
-              },
-            },
-          })
-
-          this.globalOverlay?.setProps({
-            layers: [this.waterDepthLayer, ...baseLayers],
-          })
-        },
-        onComplete: () => {
-          this.animateState = 'idle'
-          this.selectedWaterDeviceProgress = 1
-          this.selectedWaterDeviceAnimation = null
-        },
-      })
     } else {
       this.selectedWaterDeviceId = null
 

@@ -1,25 +1,34 @@
 import { Device } from '@/stores/device-store'
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { GLTFWithBuffers } from '@loaders.gl/gltf'
-import { ScenegraphLayer } from 'deck.gl'
-import { animate, easeOut, linear } from 'popmotion'
-import EventEmitter from '../../event'
+import { ScatterplotLayer, ScenegraphLayer } from 'deck.gl'
 import { IControl } from 'mapbox-gl'
+import { easeOut, linear } from 'popmotion'
+import EventEmitter from '../../event'
+
 import {
   appendLayerForGlobalOverlay,
   LAYER_IDS,
   removeLayersFromGlobalOverlay,
 } from './global-overlay-instance'
-import { SupportedModels } from '@/constants/device-property'
 
-const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds
+const DESTROY_LAYERS_INTERVAL = 60000 // 60 seconds\
+
+const MODEL_URLS = {
+  light:
+    'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-grey.glb',
+  dark: 'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-purple.glb',
+}
+
+const COLORS = {
+  dark: [139, 27, 198],
+  light: [121, 88, 255],
+}
 
 class MultiTrackerLayerInstance {
   private static instance: MultiTrackerLayerInstance | undefined
   private emitter = new EventEmitter()
   private map: mapboxgl.Map | null = null
   private layers: ScenegraphLayer[] = []
-  private deviceModels: Record<string, GLTFWithBuffers> = {}
   private isInitialized = false
   private hasLayerRotation = false
   private isLayersAvailable = false
@@ -28,13 +37,45 @@ class MultiTrackerLayerInstance {
   private devices: Record<string, Device> = {}
   private focusedDevice: string | null = null
   private deviceTypes: Set<string> = new Set()
-
-  private rotationRef: {
-    stop: () => void
-  } | null = null
+  private mapZoom: number = 0
+  private currentTheme: 'light' | 'dark' = 'light'
 
   private globalOverlay: MapboxOverlay | null = null
   private constructor() {}
+
+  private _handleMapMove = () => {
+    if (!this.map) return
+    const zoom = this.map.getZoom()
+
+    if (zoom === this.mapZoom) return
+
+    this.mapZoom = zoom
+
+    const layers = this.buildLayers(
+      this.devices,
+      this.isVisible ? 'visible' : 'hidden'
+    )
+    if (this.globalOverlay && layers?.length) {
+      const newLayers = appendLayerForGlobalOverlay(layers, this.globalOverlay)
+      this.globalOverlay.setProps({ layers: newLayers })
+    }
+
+    this._build3DLayerOutline()
+  }
+
+  private _getScaleByZoom(zoom: number) {
+    const minZoom = 9
+    const maxZoom = 17
+
+    const minScale = 9
+    const maxScale = 400
+
+    const tRaw =
+      1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
+    const t = Math.pow(tRaw, 1.8)
+
+    return minScale + t * (maxScale - minScale)
+  }
 
   static getInstance() {
     if (!MultiTrackerLayerInstance.instance) {
@@ -49,19 +90,6 @@ class MultiTrackerLayerInstance {
 
   off(event: string, handler: Function) {
     this.emitter.off(event, handler)
-  }
-
-  stopDeviceRotationAnimation() {
-    if (this.rotationRef) {
-      this.rotationRef.stop()
-      this.rotationRef = null
-    }
-
-    this.focusedDevice = null
-
-    if (this.isVisible) {
-      this.resetLayersState()
-    }
   }
 
   resetLayersState() {
@@ -80,83 +108,66 @@ class MultiTrackerLayerInstance {
     }
   }
 
-  deviceRotationAnimation(deviceId: string) {
-    if (!this.map || !this.isInitialized || !this.isVisible) return
+  private _build3DLayerOutline() {
+    const baseRadius = this._getScaleByZoom(this.mapZoom) * 1.5
 
-    this.hasLayerRotation = true
-    this.focusedDevice = deviceId
+    const layerData = Object.values(this.devices).map((d) => {
+      const [lng, lat] = d.deviceProperties?.latest_checkpoint_arr || [0, 0]
 
-    const deviceData = this.devices[deviceId]
+      return {
+        id: d.id,
+        position: [lng, lat],
+      }
+    })
 
-    this.stopDeviceRotationAnimation()
+    const color = COLORS[this.currentTheme] as [number, number, number]
 
-    const initialLocation = deviceData.deviceProperties?.latest_checkpoint_arr
-      ? [...deviceData.deviceProperties?.latest_checkpoint_arr]
-      : null
+    const locationDeckGLPulseLayer = new ScatterplotLayer({
+      id: LAYER_IDS.LOCATION_OUTLINE_PULSE,
+      data: layerData,
 
-    this.rotationRef = animate({
-      from:
-        deviceData.layerProps?.orientation?.yaw === 360
-          ? 0
-          : deviceData.layerProps?.orientation?.yaw || 0,
-      to: 360 - (deviceData.layerProps?.orientation?.yaw || 0) || 360,
-      duration: 2000,
-      repeat: Infinity,
-      ease: linear,
-      onUpdate: (rotation) => {
-        const newDevices = Object.entries(this.devices).map(([key, device]) => {
-          if (device.id === deviceId) {
-            const latest =
-              this.devices[deviceId]?.deviceProperties?.latest_checkpoint_arr
+      getPosition: (d) => [d.position[0], d.position[1], 4],
 
-            if (
-              latest &&
-              initialLocation &&
-              (latest[0] !== initialLocation[0] ||
-                latest[1] !== initialLocation[1])
-            ) {
-              this.map?.easeTo({
-                center: latest as [number, number],
-                zoom: 18,
-                duration: 500,
-                essential: true,
-                pitch: 90,
-              })
-            }
+      getRadius: () => baseRadius,
 
-            return [
-              key,
-              {
-                ...device,
-                layerProps: {
-                  ...device.layerProps,
-                  orientation: {
-                    ...device.layerProps?.orientation,
-                    yaw: rotation,
-                  },
-                },
-              },
-            ]
-          }
-          return [key, device]
-        })
+      getFillColor: (d) => {
+        if (d.id !== this.focusedDevice) return [...color, 80]
 
-        const newDevicesData = Object.fromEntries(newDevices)
+        return [...color, 220]
+      },
 
-        const newLayersToAppend = this.buildLayers(newDevicesData, 'visible')
+      radiusUnits: 'meters',
+      stroked: false,
+      filled: true,
+      pickable: false,
 
-        if (this.globalOverlay && newLayersToAppend?.length) {
-          const newLayers = appendLayerForGlobalOverlay(
-            newLayersToAppend || [],
-            this.globalOverlay
-          )
+      opacity: this.isVisible ? 1 : 0,
 
-          this.globalOverlay.setProps({
-            layers: newLayers,
-          })
-        }
+      transitions: {
+        opacity: { duration: 300, easing: easeOut },
+        getPosition: { duration: 300, easing: linear },
+        getFillColor: { duration: 300, easing: linear },
+      },
+
+      updateTriggers: {
+        opacity: this.isVisible,
+        getPosition: Object.values(this.devices).map((d) => {
+          const [lng, lat] = d.deviceProperties?.latest_checkpoint_arr || [0, 0]
+          return `${lng}-${lat}`
+        }),
       },
     })
+
+    if (this.globalOverlay) {
+      const newLayers = appendLayerForGlobalOverlay(
+        [locationDeckGLPulseLayer],
+        this.globalOverlay
+      )
+
+      this.globalOverlay.setProps({
+        layers: newLayers,
+      })
+    }
   }
 
   private buildLayers(
@@ -184,33 +195,28 @@ class MultiTrackerLayerInstance {
 
     const layers: ScenegraphLayer[] = []
 
+    console.log(MODEL_URLS[this.currentTheme])
+
     Object.entries(grouped).forEach(([typeKey, group]) => {
       this.deviceTypes.add(typeKey)
 
       const layer = new ScenegraphLayer({
         id: `${LAYER_IDS.DEVICE_LAYER}-${typeKey}`,
         data: group.map((d) => {
-          const pitch = d.layerProps?.orientation?.pitch || 0
-          const yaw = d.layerProps?.orientation?.yaw || 0
-          const roll = d.layerProps?.orientation?.roll || 0
-
           const [lng, lat] = d.deviceProperties?.latest_checkpoint_arr || [0, 0]
 
           return {
             id: d.id,
             position: [lng, lat, 20],
-            orientation: [pitch, yaw, roll],
-
             /* Object-level triggers: KEY FOR PERFORMANCE */
             positionTrigger: `${lng}-${lat}`,
-            orientationTrigger: `${pitch}-${yaw}-${roll}`,
             opacityTrigger: type === 'visible' ? 1 : 0,
           }
         }),
-        scenegraph: this.deviceModels[typeKey as SupportedModels],
-        getPosition: (d) => d.position,
-        getOrientation: (d) => d.orientation,
-        sizeScale: group[0]?.layerProps?.sizeScale || 200,
+        scenegraph: MODEL_URLS[this.currentTheme],
+        getPosition: (d) => [d.position[0], d.position[1], 5],
+        getOrientation: () => [0, 0, 0],
+        sizeScale: this._getScaleByZoom(this.mapZoom),
         pickable: true,
         opacity: type === 'visible' ? 1 : 0,
         transitions: {
@@ -227,6 +233,7 @@ class MultiTrackerLayerInstance {
           getPosition: (d: any) => d.positionTrigger,
           getOrientation: (d: any) => d.orientationTrigger,
           getOpacity: (d: any) => d.opacityTrigger,
+          sizeScale: this.mapZoom,
         },
         onClick: ({ object }) => {
           if (!this.isVisible || !this.isLayersAvailable) return
@@ -236,8 +243,6 @@ class MultiTrackerLayerInstance {
         parameters: {
           depthTest: true,
         },
-
-        _lighting: 'pbr',
       })
 
       layers.push(layer)
@@ -246,14 +251,9 @@ class MultiTrackerLayerInstance {
     return layers
   }
 
-  init(
-    map: mapboxgl.Map,
-    deviceModels: Record<string, GLTFWithBuffers>,
-    globalOverlay: MapboxOverlay
-  ) {
+  init(map: mapboxgl.Map, globalOverlay: MapboxOverlay) {
     this.map = map
-    this.deviceModels = deviceModels
-
+    this.map.on('move', this._handleMapMove)
     this.globalOverlay = globalOverlay
 
     this.isInitialized = true
@@ -288,34 +288,17 @@ class MultiTrackerLayerInstance {
     type: 'visible' | 'hidden' = 'visible'
   ) {
     if (!this.map || !this.isInitialized) return
-
-    const hadDeviceDeleted =
-      this.hasLayerRotation &&
-      Object.keys(this.devices).some((id) => !devices[id])
-
-    const rotatingDeviceDeleted =
-      this.hasLayerRotation &&
-      this.focusedDevice &&
-      !devices[this.focusedDevice]
-
     this.devices = devices
 
     this.isVisible = type === 'visible'
 
     if (type === 'hidden') {
       this.scheduleLayerDestroy()
-      this.stopDeviceRotationAnimation()
+      this.clearFocusDevice()
       this.hasLayerRotation = false
     } else {
       if (this.destroyTimer) clearTimeout(this.destroyTimer)
     }
-
-    if (rotatingDeviceDeleted) {
-      this.stopDeviceRotationAnimation()
-      this.hasLayerRotation = false
-    }
-
-    if (this.hasLayerRotation && !hadDeviceDeleted) return
 
     const layers = this.buildLayers(devices, type)
     this.layers = layers || []
@@ -331,15 +314,22 @@ class MultiTrackerLayerInstance {
       })
     }
 
+    this._build3DLayerOutline()
+
     this.isLayersAvailable = true
   }
 
   focusDevice(deviceId: string) {
     this.focusedDevice = deviceId
+    const device = this.devices[deviceId]
+    if (!this.map || !deviceId || !device) return
+
+    this._build3DLayerOutline()
   }
 
   clearFocusDevice() {
     this.focusedDevice = null
+    this._build3DLayerOutline()
   }
 
   checkLayerAvailable() {
@@ -350,10 +340,31 @@ class MultiTrackerLayerInstance {
     return this.isVisible
   }
 
+  async syncTheme(theme: 'light' | 'dark') {
+    this.currentTheme = theme
+    if (!this.map || !this.isInitialized || !this.globalOverlay) return
+
+    const layers = this.buildLayers(
+      this.devices,
+      this.isVisible ? 'visible' : 'hidden'
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    if (this.globalOverlay && layers?.length) {
+      const newLayers = appendLayerForGlobalOverlay(layers, this.globalOverlay)
+      this.globalOverlay.setProps({ layers: newLayers })
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    this._build3DLayerOutline()
+  }
+
   remove() {
     if (!this.map) return
 
-    this.stopDeviceRotationAnimation()
+    this.clearFocusDevice()
     if (this.destroyTimer) {
       clearTimeout(this.destroyTimer)
       this.destroyTimer = null
@@ -367,7 +378,6 @@ class MultiTrackerLayerInstance {
 
     this.layers = []
     this.devices = {}
-    this.deviceModels = {}
     this.focusedDevice = null
     this.isInitialized = false
     this.hasLayerRotation = false

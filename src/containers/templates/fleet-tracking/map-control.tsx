@@ -80,7 +80,7 @@ export const MapControl = () => {
         zoom: 18,
         duration: currentZoom < 10 ? (10 - currentZoom) * 500 : 1000,
         essential: true,
-        pitch: currentModelType === '3d' ? 90 : 0,
+        pitch: currentModelType === '3d' ? 45 : 0,
       })
     }
 

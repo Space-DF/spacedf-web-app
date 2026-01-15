@@ -8,6 +8,7 @@ const LAYER_IDS = {
   DEVICE_WATER_LEVEL_WRAPPER_LAYER: 'device-water-level-wrapper-layer',
   DEVICE_COUNT_CLUSTER_BG_LAYER: 'device-count-cluster-bg-layer',
   DEVICE_COUNT_TEXT_LAYER: 'device-count-text-layer',
+  LOCATION_OUTLINE_PULSE: 'location-outline-pulse-layer',
 }
 
 class GlobalOverlayInstance {

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import Supercluster from 'supercluster'
 import { useShallow } from 'zustand/react/shallow'
 
-const MaxZoom = 15
+const MaxZoom = 11
 
 const fleetTrackingMap = FleetTrackingMap.getInstance()
 export const MapCluster = () => {
