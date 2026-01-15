@@ -148,8 +148,8 @@ class MarkerInstance {
         }
       } else {
         const el = document.createElement('div')
-        el.className = `${device.type}-marker`
-        el.id = `marker-${device.id}`
+        el.className = `location-marker`
+        el.id = `location-marker-${device.id}`
         el.style.opacity = '0'
         el.style.transition = 'opacity 0.3s ease'
         el.onclick = () => {

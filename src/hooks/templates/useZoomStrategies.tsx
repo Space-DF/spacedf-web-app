@@ -31,7 +31,7 @@ export const useZoomStrategies = () => {
     const modelType =
       (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d') || '2d'
 
-    return modelType === '3d' ? 90 : 0
+    return modelType === '3d' ? 45 : 0
   }, [])
 
   const zoomToSingleDevice = useCallback(

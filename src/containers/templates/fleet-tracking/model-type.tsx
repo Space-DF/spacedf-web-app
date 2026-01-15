@@ -24,7 +24,7 @@ export const ModelType = () => {
       <ToggleGroup
         onValueChange={(value) => {
           if (!value) return
-          fleetTrackingMap.updatePitch(value === '3d' ? 90 : 0)
+          fleetTrackingMap.updatePitch(value === '3d' ? 45 : 0)
           setModelTypeStore(value as '2d' | '3d')
         }}
         type="single"

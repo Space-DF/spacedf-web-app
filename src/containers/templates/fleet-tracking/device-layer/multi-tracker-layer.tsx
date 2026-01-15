@@ -9,6 +9,7 @@ import { GlobalOverlayInstance } from '@/utils/fleet-tracking-map/layer-instance
 import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
 import { MultiTrackerLayerInstance } from '@/utils/fleet-tracking-map/layer-instance/multi-tracker-instance'
 import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
+import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
@@ -39,6 +40,7 @@ export const MultiTrackerLayer = () => {
   const devices = useDeviceStore(useShallow((state) => state.devices))
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+  const { resolvedTheme } = useTheme()
 
   const { startDrawHistory } = useDeviceHistory()
 
@@ -63,7 +65,7 @@ export const MultiTrackerLayer = () => {
       const globalOverlay = globalOverlayInstance.init(map)
       markerInstance.init(map)
       if (globalOverlay) {
-        multiTrackerLayerInstance.init(map, deviceModels, globalOverlay)
+        multiTrackerLayerInstance.init(map, globalOverlay)
       }
     }
 
@@ -83,6 +85,10 @@ export const MultiTrackerLayer = () => {
     modelType,
     isAlreadyShowTripRoute,
   ])
+
+  useEffect(() => {
+    multiTrackerLayerInstance.syncTheme(resolvedTheme as 'dark' | 'light')
+  }, [resolvedTheme])
 
   useEffect(() => {
     const handleDeviceSelected = (object: any) => {
@@ -130,7 +136,7 @@ export const MultiTrackerLayer = () => {
           zoom: 18,
           duration: 500,
           essential: true,
-          pitch: modelType === '3d' ? 90 : 0,
+          pitch: modelType === '3d' ? 45 : 0,
         })
       }
 
@@ -144,7 +150,7 @@ export const MultiTrackerLayer = () => {
     }
 
     if (!deviceSelected || !devicesFleetTracking?.[deviceSelected]) {
-      multiTrackerLayerInstance.stopDeviceRotationAnimation()
+      multiTrackerLayerInstance.clearFocusDevice()
       markerInstance.clearFocusMarker()
     }
   }, [deviceSelected, prevDeviceSelected, devicesFleetTracking, modelType])
@@ -206,7 +212,7 @@ export const MultiTrackerLayer = () => {
 
   const handleDeviceRotation = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
-    multiTrackerLayerInstance.deviceRotationAnimation(deviceSelected)
+    multiTrackerLayerInstance.focusDevice(deviceSelected)
   }
 
   const handleLayerType = () => {
