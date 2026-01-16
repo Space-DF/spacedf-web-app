@@ -78,7 +78,7 @@ export default async function middleware(request: NextRequest) {
 
   const subdomain = await getValidSubdomain(host)
   if (!subdomain) {
-    const demoUrl = `${request.nextUrl.protocol}//demo.${request.nextUrl.host}`
+    const demoUrl = `${request.nextUrl.protocol}//demo.${host}`
 
     return NextResponse.redirect(demoUrl, 308)
   }
