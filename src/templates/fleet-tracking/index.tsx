@@ -9,13 +9,14 @@ import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { LocationLayer } from './components/device-layer/location'
+import WaterDepth from './components/device-layer/water-depth'
 import { ViewModeToggle } from './components/view-mode-toggle'
 import { MAP_PITCH } from './constant'
 import BuildingInstance from './core/building-instance'
 import ClusterInstance from './core/cluster-instance'
-import MapInstance from './core/map-instance'
 import { GlobalDeckGLInstance } from './core/global-layer-instance'
-import ControlDataTest from './components/control-data-test'
+import MapInstance from './core/map-instance'
+import { MapControls } from '@/components/common/map-controls'
 
 const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
@@ -33,7 +34,8 @@ export default function FleetTrackingMap() {
   const {
     initializedSuccess,
     devices,
-    locationDevices,
+    locationDevices = [],
+    waterLevelDevices = [],
     deviceSelected,
     setDeviceSelected,
   } = useDeviceStore(
@@ -64,7 +66,8 @@ export default function FleetTrackingMap() {
     )
 
   const handleDataReady = useCallback(() => {
-    if (!mapReadyRef.current || !dataReadyRef.current) return
+    if (!mapReadyRef.current || !dataReadyRef.current || !initializedSuccess)
+      return
 
     if (isFirstRun.current) {
       const resolvedModelType: '2d' | '3d' = localStorage.getItem(
@@ -82,14 +85,7 @@ export default function FleetTrackingMap() {
       updateBooleanState('isMapReady', true)
       isFirstRun.current = false
     }
-  }, [devices])
-
-  const handleVisibilityChange = useCallback(
-    (isVisible: boolean) => {
-      updateBooleanState('isClusterVisible', isVisible)
-    },
-    [updateBooleanState]
-  )
+  }, [devices, initializedSuccess])
 
   useEffect(() => {
     if (containerRef.current && !mapInstance.getMap()) {
@@ -183,14 +179,27 @@ export default function FleetTrackingMap() {
     // mapInstance.deviceFocus(deviceSelected)
   }, [isClusterVisible, deviceSelected])
 
+  const handleVisibilityChange = useCallback(
+    (isVisible: boolean) => {
+      updateBooleanState('isClusterVisible', isVisible)
+    },
+    [updateBooleanState]
+  )
+
   return (
     <div
       className="size-full overflow-hidden relative bg-transparent z-[1]"
       ref={containerRef}
     >
       <ViewModeToggle />
-      <LocationLayer devices={locationDevices || []} />
-      <ControlDataTest />
+      {isMapReady && <MapControls map={mapInstance.getMap()!} />}
+
+      {locationDevices.length && (
+        <LocationLayer devices={locationDevices || []} />
+      )}
+      {waterLevelDevices.length && (
+        <WaterDepth devices={waterLevelDevices || []} />
+      )}
     </div>
   )
 }

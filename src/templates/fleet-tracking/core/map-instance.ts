@@ -24,7 +24,7 @@ const defaultStyles = {
   light: 'https://tiles.openfreemap.org/styles/positron',
 }
 
-// keyof MapLibreGL.MapLayerEventType
+const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
 
 class MapInstance {
   private static instance: MapInstance | undefined
@@ -37,7 +37,7 @@ class MapInstance {
 
   private constructor() {}
 
-  private _handleZoomFitDevices = () => {
+  private _handleZoomToSingleDevice = () => {
     if (!this.map) return
     const firstDevice = Object.values(this.devices)[0]
 
@@ -48,8 +48,87 @@ class MapInstance {
       ],
       zoom: 17,
       duration: 5000,
+      padding: {
+        top: 0,
+      },
       pitch: this.pitch,
     })
+  }
+
+  private _handleEmptyDevices = () => {
+    if (!this.map) return
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.map?.flyTo({
+            center: [pos.coords.longitude, pos.coords.latitude],
+            zoom: 15,
+            duration: 5000,
+            padding: {
+              top: 0,
+            },
+            pitch: this.pitch,
+          })
+        },
+        (error) => {
+          console.log({ error })
+          this.map?.flyTo({
+            center: VIETNAM_CENTER,
+            zoom: 5,
+            duration: 1500,
+            essential: true,
+            padding: {
+              top: 0,
+            },
+            pitch: this.pitch,
+          })
+        },
+        {
+          enableHighAccuracy: true,
+        }
+      )
+    }
+  }
+
+  private _handleZoomFitDevices = () => {
+    if (!this.map) return
+
+    const devicesArr = Object.values(this.devices)
+    const coordinates = devicesArr
+      .map((d) => d.deviceProperties?.latest_checkpoint_arr)
+      .filter(
+        (loc): loc is [number, number] => Array.isArray(loc) && loc.length === 2
+      )
+
+    if (!coordinates.length) return
+
+    const bounds = getBoundsFromCoordinates(coordinates)
+    const [firstLng, firstLat] = coordinates[0]
+    const allSameLocation = coordinates.every(
+      ([lng, lat]) => lng === firstLng && lat === firstLat
+    )
+
+    if (allSameLocation) {
+      this.map.flyTo({
+        center: [firstLng, firstLat],
+        zoom: 17,
+        duration: 4000,
+        pitch: this.pitch,
+      })
+    } else {
+      this.map.fitBounds(
+        [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]],
+        {
+          padding: {
+            top: 0,
+          },
+          duration: 4000,
+          pitch: this.pitch,
+          maxZoom: 15,
+        }
+      )
+    }
   }
 
   on(event: MapEvent, handler: (...args: any[]) => void) {
@@ -79,8 +158,6 @@ class MapInstance {
       canvasContextAttributes: { antialias: true },
       ...(options || {}),
     })
-
-    map.addControl(new MapLibreGL.GlobeControl(), 'top-right')
 
     map.on('load', () => {
       if (map.isStyleLoaded()) {
@@ -118,11 +195,11 @@ class MapInstance {
     this.devices = devices
 
     if (!countDevices) {
-      console.log('handle devices is empty')
+      this._handleEmptyDevices()
     }
 
     if (countDevices === 1) {
-      console.log('handle devices is one')
+      this._handleZoomToSingleDevice()
     }
 
     if (countDevices > 1) {
@@ -163,6 +240,29 @@ class MapInstance {
     })
   }
 
+  public onZoomToDevice = (device: Device) => {
+    if (!this.map) return
+
+    const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+
+    const bounds = this.map.getBounds()
+    const isInView = bounds.contains(location)
+
+    if (isInView) {
+      this.map.easeTo({
+        center: location,
+        zoom: 18,
+        duration: 500,
+      })
+    } else {
+      this.map.flyTo({
+        center: location,
+        zoom: 18,
+        duration: 500,
+      })
+    }
+  }
+
   public getMap() {
     return this.map
   }
@@ -178,6 +278,31 @@ class MapInstance {
   public isReadyForLogic() {
     return this.isReady
   }
+}
+
+const getBoundsFromCoordinates = (coordinates: number[][]) => {
+  if (!coordinates.length)
+    return [
+      [0, 0],
+      [0, 0],
+    ] as number[][]
+
+  let minLng = coordinates[0][0]
+  let minLat = coordinates[0][1]
+  let maxLng = coordinates[0][0]
+  let maxLat = coordinates[0][1]
+
+  coordinates.forEach(([lng, lat]) => {
+    if (lng < minLng) minLng = lng
+    if (lat < minLat) minLat = lat
+    if (lng > maxLng) maxLng = lng
+    if (lat > maxLat) maxLat = lat
+  })
+
+  return [
+    [minLng, minLat],
+    [maxLng, maxLat],
+  ]
 }
 
 export default MapInstance

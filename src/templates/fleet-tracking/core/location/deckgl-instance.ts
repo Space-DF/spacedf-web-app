@@ -8,11 +8,29 @@ import { easeOut, linear } from 'popmotion'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import { pulseController } from '../pulse-controller'
 import { MAP_PITCH } from '../../constant'
+import { load } from '@loaders.gl/core'
+import { GLTFLoader } from '@loaders.gl/gltf'
 
 type LayerResource = {
   id: string
   position: [number, number]
   direction: number
+}
+
+const MODEL_URLS = {
+  light:
+    'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-grey.glb',
+  dark: 'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-purple.glb',
+}
+
+const modelCache: Record<string, any> = {}
+
+async function preloadModel(theme: 'dark' | 'light') {
+  if (!modelCache[theme]) {
+    modelCache[theme] = await load(MODEL_URLS[theme], GLTFLoader)
+  }
+
+  return modelCache[theme]
 }
 
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
@@ -27,8 +45,9 @@ export class LocationDeckGLInstance {
   private mapZoom: number = 0
   private hasVisibleBefore: boolean = false
   private emitter: EventEmitter = new EventEmitter()
-  private _pulseValue: number = 0
   private _deviceSelected: string = ''
+
+  private theme: 'dark' | 'light' = 'dark'
 
   private constructor() {}
 
@@ -100,7 +119,7 @@ export class LocationDeckGLInstance {
 
         // const phase = (pulseController.time % PERIOD) / PERIOD
 
-        return [121, 88, 255, Math.floor(140 * alpha)]
+        return [121, 88, 255, Math.floor(160 * alpha)]
       },
 
       radiusUnits: 'meters',
@@ -124,8 +143,7 @@ export class LocationDeckGLInstance {
       },
 
       parameters: {
-        depthTest: false,
-        depthMask: false,
+        depthTest: true,
       } as any,
     })
 
@@ -184,12 +202,10 @@ export class LocationDeckGLInstance {
       opacity: this.type === 'visible' ? 1 : 0,
       sizeScale: this._getScaleByZoom(this.mapZoom),
       pickable: true,
-      scenegraph:
-        'https://d33et8skld5wvq.cloudfront.net/glbs/Pointer-SpaceDF.glb',
+      scenegraph: modelCache[this.theme],
       transitions: {
         opacity: { duration: 300, easing: easeOut },
         getPosition: { duration: 300, easing: linear },
-        getOrientation: { duration: 300, easing: easeOut },
       },
 
       onClick: ({ object }) => {
@@ -201,11 +217,12 @@ export class LocationDeckGLInstance {
 
       updateTriggers: {
         opacity: this.type,
-        getPosition: isEqual(this.devices, this.previousDevices) ? false : true,
-        getOrientation: this.devices.map(
-          (d) => d.deviceProperties?.direction ?? 0
-        ),
+        getPosition: !isEqual(this.devices, this.previousDevices),
       },
+
+      parameters: {
+        blend: true,
+      } as any,
     })
 
     this._build3DOutlineLayer()
@@ -252,6 +269,15 @@ export class LocationDeckGLInstance {
     pulseController.start(() => {
       this._build3DOutlineLayer()
     })
+  }
+
+  async syncTheme(theme: 'dark' | 'light') {
+    this.theme = theme
+
+    await preloadModel(theme)
+    if (this.hasVisibleBefore) {
+      this._buildLayer()
+    }
   }
 
   clearFocus() {

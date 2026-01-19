@@ -103,4 +103,9 @@ function smoothRotateMarker(
   requestAnimationFrame(frame)
 }
 
-export { smoothRotateMarker, smoothMoveMarker, smoothUpdateFocusDeviceSource }
+export {
+  smoothRotateMarker,
+  smoothMoveMarker,
+  smoothUpdateFocusDeviceSource,
+  lerpAngle,
+}

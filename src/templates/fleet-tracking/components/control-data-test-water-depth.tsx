@@ -1,20 +1,16 @@
 import { Button } from '@/components/ui/button'
-import { Device, useDeviceStore } from '@/stores/device-store'
-import { useShallow } from 'zustand/react/shallow'
-import { groupDeviceByFeature } from '@/utils/map'
 import {
   DEVICE_FEATURE_SUPPORTED,
   DEVICE_MODEL,
 } from '@/constants/device-property'
+import { Device, useDeviceStore } from '@/stores/device-store'
+import { getWaterDepthLevelName } from '@/utils/water-depth'
 import { v4 as uuidv4 } from 'uuid'
+import { useShallow } from 'zustand/react/shallow'
 
-export default function ControlDataTest() {
+export default function ControlDataTestWaterDepth() {
   const { allDevices, setDevices } = useDeviceStore(
     useShallow((state) => ({
-      locationDevices: groupDeviceByFeature(
-        Object.values(state.devicesFleetTracking)
-      )[DEVICE_FEATURE_SUPPORTED.LOCATION],
-
       setDevices: state.setDevices,
       allDevices: state.devices,
     }))
@@ -33,32 +29,11 @@ export default function ControlDataTest() {
       >
         Add Device
       </Button>
-      <Button
-        onClick={() => {
-          const newDevices = Object.values(allDevices).map((device) => {
-            if (device.name === 'Rak 4630-RS3-C1F4') {
-              return {
-                ...device,
-                deviceProperties: {
-                  ...device.deviceProperties,
-                  // latest_checkpoint_arr: [108.22129, 16.05565],
-                  direction: (device.deviceProperties?.direction ?? 0) + 10,
-                },
-              }
-            }
-            return device
-          })
-
-          setDevices(newDevices)
-        }}
-      >
-        Update Direction
-      </Button>
 
       <Button
         onClick={() => {
           const newDevices = Object.values(allDevices).map((device) => {
-            if (device.name === 'Rak 4630-RS3-C1F4') {
+            if (device.id === 'wlb-v1-123') {
               const newLat =
                 (device.deviceProperties?.latest_checkpoint?.latitude ?? 0) +
                 0.0001
@@ -86,6 +61,29 @@ export default function ControlDataTest() {
       </Button>
       <Button
         onClick={() => {
+          const newDevices = Object.values(allDevices).map((device) => {
+            if (device.id === 'wlb-v1-123') {
+              const newLevel = (device.deviceProperties?.water_depth ?? 0) + 10
+
+              return {
+                ...device,
+                deviceProperties: {
+                  ...device.deviceProperties,
+                  water_depth: newLevel,
+                  water_level_name: getWaterDepthLevelName(newLevel),
+                },
+              }
+            }
+            return device
+          })
+
+          setDevices(newDevices)
+        }}
+      >
+        Update Level
+      </Button>
+      <Button
+        onClick={() => {
           const newDevices = Object.values(allDevices).filter(
             (device) => !device.name.endsWith('new')
           )
@@ -103,10 +101,10 @@ const getNewDevice = (): Device => {
   const deviceId = uuidv4()
   return {
     id: deviceId,
-    name: `Rak ${deviceId} new`,
+    name: `Water Level Board V2 new`,
     description: '',
     status: 'active',
-    type: DEVICE_MODEL.RAK,
+    type: DEVICE_MODEL.WLB,
     deviceId: deviceId,
     deviceInformation: {
       id: uuidv4(),
@@ -121,7 +119,7 @@ const getNewDevice = (): Device => {
         image_url: '',
         device_type: 'lorawan',
         default_config: {},
-        key_feature: DEVICE_FEATURE_SUPPORTED.LOCATION,
+        key_feature: DEVICE_FEATURE_SUPPORTED.WATER_DEPTH,
       },
       status: 'active',
       lorawan_device: {
@@ -138,6 +136,8 @@ const getNewDevice = (): Device => {
         latitude: 16.05565,
         longitude: 108.22129,
       },
+      water_depth: 50,
+      water_level_name: getWaterDepthLevelName(50),
     },
   }
 }

@@ -35,7 +35,7 @@ export const ViewModeToggle = memo(() => {
   return (
     <ToggleGroup
       type="single"
-      className="gap-0 absolute top-2 right-16 view-mode-control z-[2] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm p-1 rounded-lg shadow-sm"
+      className="gap-0 absolute top-3 right-16 view-mode-control z-[2] bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm p-1 rounded-lg shadow-sm"
       defaultValue={viewMode}
       onValueChange={handleViewModeChange}
       value={viewMode}

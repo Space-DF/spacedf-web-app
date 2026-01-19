@@ -1,9 +1,13 @@
 import { MapboxOverlay } from '@deck.gl/mapbox'
+import { PickingInfo } from 'deck.gl'
 import MapLibreGL, { IControl } from 'maplibre-gl'
 
 export const LAYER_IDS = {
   LOCATION_DECKGL_LAYER: 'location-deckgl-layer',
   LOCATION_OUTLINE_PULSE: 'location-outline-pulse',
+  WATER_DEPTH_POLYGON: 'water-depth-polygon',
+  WATER_DEPTH_COLUMN: 'water-depth-column',
+  WATER_DEPTH_COLUMN_WRAPPER: 'water-depth-column-wrapper',
 }
 
 export class GlobalDeckGLInstance {
@@ -35,6 +39,16 @@ export class GlobalDeckGLInstance {
     const globalOverlay = new MapboxOverlay({
       interleaved: true,
       layers: [],
+      getTooltip: ({ object, layer }: PickingInfo<any>): any => {
+        const isWaterLevelLayer =
+          layer?.id === LAYER_IDS.WATER_DEPTH_COLUMN_WRAPPER
+
+        if (isWaterLevelLayer && object) {
+          return `Water Level: ${object.waterLevel / 100}m`
+        }
+
+        return undefined
+      },
     })
 
     this.globalOverlay = globalOverlay

@@ -8,6 +8,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { LocationDeckGLInstance } from '../../core/location/deckgl-instance'
 import { LocationMarker } from '../../core/location/marker-instance'
 import MapInstance from '../../core/map-instance'
+import { useTheme } from 'next-themes'
 
 const shouldUpdate = (
   prevProps: LocationLayerProps,
@@ -31,6 +32,7 @@ const mapInstance = MapInstance.getInstance()
 
 export const LocationLayer = memo(
   ({ devices }: LocationLayerProps) => {
+    const { resolvedTheme } = useTheme()
     const resourceStatus = useRef({
       marker: false,
       deckLayer: false,
@@ -116,6 +118,14 @@ export const LocationLayer = memo(
     }, [isMapReady])
 
     useEffect(() => {
+      if (isMapReady) {
+        requestAnimationFrame(() => {
+          deckGLInstance.syncTheme(resolvedTheme as 'dark' | 'light')
+        })
+      }
+    }, [resolvedTheme, isMapReady])
+
+    useEffect(() => {
       if (!isMapReady) return
       handleDeviceSelected({ deviceId: deviceSelected, viewMode })
     }, [isMapReady, deviceSelected, viewMode])
@@ -129,7 +139,7 @@ export const LocationLayer = memo(
         await new Promise((resolve) => setTimeout(resolve, 300))
 
         if (device) {
-          handleMapZoomToDevice(device)
+          mapInstance.onZoomToDevice(device)
         }
 
         if (viewMode === '2d') {
@@ -158,30 +168,6 @@ export const LocationLayer = memo(
         deckGLInstance.syncDevices(devices, type)
       }
     }
-
-    const handleMapZoomToDevice = useCallback(async (device: Device) => {
-      const map = mapInstance.getMap()
-      if (!map) return
-
-      const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
-
-      const bounds = map.getBounds()
-      const isInView = bounds.contains(location)
-
-      if (isInView) {
-        map.easeTo({
-          center: location,
-          zoom: 18,
-          duration: 500,
-        })
-      } else {
-        map.flyTo({
-          center: location,
-          zoom: 18,
-          duration: 500,
-        })
-      }
-    }, [])
 
     return null
   },
