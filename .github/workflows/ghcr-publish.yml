@@ -35,8 +35,8 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             # main branch
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=sha
+            type=raw,value=${{ vars.APP_VERSION }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest
 
             # develop branch
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
