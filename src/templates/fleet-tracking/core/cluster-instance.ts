@@ -34,6 +34,8 @@ class ClusterInstance {
   private clusterLayerId = 'cluster-layer'
   private clusterCountLayerId = 'cluster-count-layer'
   private unclusteredLayerId = 'unclustered-layer'
+  private singleClusterLayerId = 'single-cluster-layer'
+  private singleClusterCountLayerId = 'single-cluster-count-layer'
 
   private constructor() {}
 
@@ -56,6 +58,8 @@ class ClusterInstance {
     if (!this.map) return
 
     if (!this.map.isStyleLoaded()) return
+
+    if (this.map.getSource(this.sourceId)) return
 
     this.map.addSource(this.sourceId, {
       type: 'geojson',
@@ -116,10 +120,49 @@ class ClusterInstance {
       id: this.unclusteredLayerId,
       type: 'circle',
       source: this.sourceId,
-      filter: ['!', ['has', 'point_count']],
+      filter: [
+        'all',
+        ['!', ['has', 'point_count']],
+        ['>=', ['zoom'], MAX_ZOOM + 1],
+      ],
       paint: {
         'circle-color': this.styleProps.pointColor,
         'circle-radius': 4,
+      },
+    })
+
+    this.map.addLayer({
+      id: this.singleClusterLayerId,
+      type: 'circle',
+      source: this.sourceId,
+      filter: [
+        'all',
+        ['!', ['has', 'point_count']],
+        ['<', ['zoom'], MAX_ZOOM + 1],
+      ],
+      paint: {
+        'circle-color': this.styleProps.clusterColor,
+        'circle-radius': 20,
+        'circle-stroke-color': this.styleProps.strokeColor,
+        'circle-stroke-width': 2,
+      },
+    })
+
+    this.map.addLayer({
+      id: this.singleClusterCountLayerId,
+      type: 'symbol',
+      source: this.sourceId,
+      filter: [
+        'all',
+        ['!', ['has', 'point_count']],
+        ['<', ['zoom'], MAX_ZOOM + 1],
+      ],
+      layout: {
+        'text-field': '1',
+        'text-size': 13,
+      },
+      paint: {
+        'text-color': '#fff',
       },
     })
   }
@@ -157,23 +200,19 @@ class ClusterInstance {
 
     this.isAlreadyShowTripRoute = visibility === 'none'
 
-    if (this.map.getLayer(this.clusterLayerId)) {
-      this.map.setLayoutProperty(this.clusterLayerId, 'visibility', visibility)
-    }
-    if (this.map.getLayer(this.clusterCountLayerId)) {
-      this.map.setLayoutProperty(
-        this.clusterCountLayerId,
-        'visibility',
-        visibility
-      )
-    }
-    if (this.map.getLayer(this.unclusteredLayerId)) {
-      this.map.setLayoutProperty(
-        this.unclusteredLayerId,
-        'visibility',
-        visibility
-      )
-    }
+    const layerIds = [
+      this.clusterLayerId,
+      this.clusterCountLayerId,
+      this.unclusteredLayerId,
+      this.singleClusterLayerId,
+      this.singleClusterCountLayerId,
+    ]
+
+    layerIds.forEach((layerId) => {
+      if (this.map?.getLayer(layerId)) {
+        this.map.setLayoutProperty(layerId, 'visibility', visibility)
+      }
+    })
   }
 
   private _syncClusterVisibility(next: boolean) {
@@ -210,13 +249,23 @@ class ClusterInstance {
     this.createClusterLayer()
 
     map.on('click', this.clusterLayerId, this._handleClusterClick)
+    map.on('click', 'single-cluster-layer', (e) => {
+      if (!e.features?.[0]) return
+
+      const coordinates = (e.features[0].geometry as GeoJSON.Point).coordinates
+
+      map.easeTo({
+        center: coordinates as [number, number],
+        zoom: MAX_ZOOM + 1,
+      })
+    })
     map.on('mouseenter', this.clusterLayerId, this._handleMouseEnterCluster)
     map.on('mouseleave', this.clusterLayerId, this._handleMouseLeaveCluster)
     map.on('zoom', this._handleZoomChange)
   }
 
   async updateClusterData() {
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    await new Promise((resolve) => setTimeout(resolve, 700))
     if (!this.map) return
 
     const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
@@ -277,14 +326,20 @@ class ClusterInstance {
         this._handleMouseLeaveCluster
       )
 
-      if (this.map.getLayer(this.clusterCountLayerId))
-        this.map.removeLayer(this.clusterCountLayerId)
-      if (this.map.getLayer(this.unclusteredLayerId))
-        this.map.removeLayer(this.unclusteredLayerId)
-      if (this.map.getLayer(this.clusterLayerId))
-        this.map.removeLayer(this.clusterLayerId)
-      if (this.map.getSource(this.sourceId))
-        this.map.removeSource(this.sourceId)
+      const layerIds = [
+        this.clusterCountLayerId,
+        this.unclusteredLayerId,
+        this.clusterLayerId,
+        this.sourceId,
+        this.singleClusterLayerId,
+        this.singleClusterCountLayerId,
+      ]
+
+      if (this.map) {
+        layerIds.forEach((layerId) => {
+          if (this.map!.getSource(layerId)) this.map!.removeSource(layerId)
+        })
+      }
     } catch {
       // ignore
     }

@@ -29,11 +29,14 @@ const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
 class MapInstance {
   private static instance: MapInstance | undefined
   private map: MapLibreGL.Map | null = null
+  private geoLocate: MapLibreGL.GeolocateControl | null = null
   private devices: Record<string, Device> = {}
   private emitter = new EventEmitter()
   private isReady = false
   private theme: 'dark' | 'light' = 'light'
   private pitch: number = 0
+  private initialized = false
+  private readyEmitted = false
 
   private constructor() {}
 
@@ -57,6 +60,8 @@ class MapInstance {
 
   private _handleEmptyDevices = () => {
     if (!this.map) return
+
+    this.geoLocate?.trigger()
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -124,7 +129,7 @@ class MapInstance {
           },
           duration: 4000,
           pitch: this.pitch,
-          maxZoom: 15,
+          maxZoom: 17,
         }
       )
     }
@@ -146,7 +151,11 @@ class MapInstance {
   }
 
   public init({ container, theme, options }: MapProps) {
-    if (this.map) return this.map
+    if (this.initialized && this.map) {
+      //clean up and reload
+      window.location.reload()
+      return
+    }
 
     this.theme = theme
 
@@ -159,7 +168,17 @@ class MapInstance {
     })
 
     map.on('load', () => {
-      if (map.isStyleLoaded()) {
+      if (!this.readyEmitted && map.isStyleLoaded()) {
+        this.geoLocate = new MapLibreGL.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        })
+
+        map.addControl(this.geoLocate)
+
+        this.readyEmitted = true
         this.emitter.emit('ready', map)
       }
     })
@@ -173,6 +192,8 @@ class MapInstance {
     })
 
     this.map = map
+
+    this.initialized = true
 
     return this.map
   }
@@ -206,36 +227,27 @@ class MapInstance {
     }
   }
 
-  public updateMapPitch = ({ pitch, duration = 400 }: UpdateMapPitchProps) => {
+  public updateMapPitch = async ({
+    pitch,
+    duration = 400,
+  }: UpdateMapPitchProps) => {
     if (!this.map) return
+
+    const zoom = this.map.getZoom()
+
+    if (zoom > 20) {
+      this.map.easeTo({
+        zoom: 17,
+        duration: 200,
+      })
+
+      //prevent map from zooming too fast
+      await new Promise((resolve) => setTimeout(resolve, 200))
+    }
 
     this.map.easeTo({
       pitch,
       duration,
-    })
-  }
-
-  async setContainer(newContainer: HTMLDivElement) {
-    if (!this.map) return
-
-    this.isReady = false
-
-    const currentContainer = this.map.getContainer()
-
-    if (currentContainer.parentElement === newContainer) return
-
-    requestAnimationFrame(() => {
-      if (!this.map) return
-
-      if (!newContainer.contains(currentContainer)) {
-        newContainer.appendChild(currentContainer)
-        this.map?.resize()
-
-        this.map.setZoom(0.5)
-        this.map.setCenter([0, 0])
-
-        this.emitter.emit('ready', this.map)
-      }
     })
   }
 

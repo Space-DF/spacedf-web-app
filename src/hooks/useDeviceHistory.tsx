@@ -90,7 +90,7 @@ export const useDeviceHistory = () => {
       })
         .setLngLat(coordinates)
         .setHTML(
-          `<div class="font-semibold text-brand-component-text-light text-base">${title}</div>`
+          `<div class="font-semibold text-black text-base">${title}</div>`
         )
         .addTo(map)
 
