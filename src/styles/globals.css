@@ -364,6 +364,13 @@ video::-webkit-media-controls-start-playback-button {
   display: none !important;
 }
 
+.maplibregl-ctrl-geolocate {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none;
+}
+
 .deck-tooltip {
   border-radius: 8px !important;
   box-shadow:
