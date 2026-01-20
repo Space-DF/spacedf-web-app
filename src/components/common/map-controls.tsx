@@ -42,28 +42,13 @@ const MapControls = ({ map }: MapControlsProps) => {
 
   const handleLocate = useCallback(() => {
     setWaitingForLocation(true)
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const coords = {
-            longitude: pos.coords.longitude,
-            latitude: pos.coords.latitude,
-          }
-          map?.flyTo({
-            center: [coords.longitude, coords.latitude],
-            zoom: 14,
-            duration: 1500,
-          })
-          setWaitingForLocation(false)
-        },
-        (error) => {
-          console.error('Error getting location:', error)
-          setWaitingForLocation(false)
-        },
-        {
-          enableHighAccuracy: true,
-        }
-      )
+    const geoLocateButton = document.querySelector(
+      '.maplibregl-ctrl-geolocate'
+    ) as HTMLButtonElement
+
+    if (geoLocateButton) {
+      geoLocateButton.click()
+      setWaitingForLocation(false)
     }
   }, [map])
 

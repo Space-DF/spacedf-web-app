@@ -71,7 +71,7 @@ export default function FleetTrackingMap() {
 
     if (isFirstRun.current) {
       const resolvedModelType: '2d' | '3d' = localStorage.getItem(
-        'fleet-tracking:modelType'
+        'fleet-tracking:view-mode'
       ) as '2d' | '3d'
 
       const pitch = MAP_PITCH[resolvedModelType]
@@ -82,22 +82,22 @@ export default function FleetTrackingMap() {
         globalDeckGLInstance.init(mapInstance.getMap()!)
       }
 
-      updateBooleanState('isMapReady', true)
+      if (!isMapReady) {
+        updateBooleanState('isMapReady', true)
+      }
       isFirstRun.current = false
     }
   }, [devices, initializedSuccess])
 
   useEffect(() => {
-    if (containerRef.current && !mapInstance.getMap()) {
-      mapInstance.init({
-        container: containerRef.current,
-        theme: resolvedTheme as 'dark' | 'light',
-      })
-    }
+    if (!containerRef.current) return
 
-    if (containerRef.current && mapInstance.getMap()) {
-      mapInstance.setContainer(containerRef.current)
-    }
+    mapInstance.init({
+      container: containerRef.current,
+      theme: resolvedTheme as 'dark' | 'light',
+    })
+
+    return () => {}
   }, [])
 
   useEffect(() => {
@@ -194,10 +194,10 @@ export default function FleetTrackingMap() {
       <ViewModeToggle />
       {isMapReady && <MapControls map={mapInstance.getMap()!} />}
 
-      {locationDevices.length && (
+      {!!locationDevices.length && (
         <LocationLayer devices={locationDevices || []} />
       )}
-      {waterLevelDevices.length && (
+      {!!waterLevelDevices.length && (
         <WaterDepth devices={waterLevelDevices || []} />
       )}
     </div>

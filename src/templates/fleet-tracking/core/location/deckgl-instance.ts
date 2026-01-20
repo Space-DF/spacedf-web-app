@@ -246,10 +246,14 @@ export class LocationDeckGLInstance {
     map.on('move', this._handleMapMove)
   }
 
-  syncDevices(devices: Device[], type: 'visible' | 'hidden') {
+  async syncDevices(devices: Device[], type: 'visible' | 'hidden') {
     if (!this.map || !this.globalOverlay) return
     this.type = type
     this.hasVisibleBefore = type === 'visible'
+
+    if (type === 'visible' && this.map.getZoom() >= 20) {
+      await new Promise((resolve) => setTimeout(resolve, 700))
+    }
 
     this.previousDevices = this.devices
     this.devices = devices
