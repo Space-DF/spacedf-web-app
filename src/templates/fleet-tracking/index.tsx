@@ -55,15 +55,21 @@ export default function FleetTrackingMap() {
     })
   )
 
-  const { updateBooleanState, isMapReady, viewMode, isClusterVisible } =
-    useFleetTrackingMapStore(
-      useShallow((state) => ({
-        updateBooleanState: state.updateBooleanState,
-        isMapReady: state.isMapReady,
-        viewMode: state.viewMode,
-        isClusterVisible: state.isClusterVisible,
-      }))
-    )
+  const {
+    updateBooleanState,
+    isMapReady,
+    viewMode,
+    isClusterVisible,
+    isAlreadyShowTripRoute,
+  } = useFleetTrackingMapStore(
+    useShallow((state) => ({
+      updateBooleanState: state.updateBooleanState,
+      isMapReady: state.isMapReady,
+      viewMode: state.viewMode,
+      isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
+      isClusterVisible: state.isClusterVisible,
+    }))
+  )
 
   const handleDataReady = useCallback(() => {
     if (!mapReadyRef.current || !dataReadyRef.current || !initializedSuccess)
@@ -172,12 +178,10 @@ export default function FleetTrackingMap() {
   }, [viewMode])
 
   useEffect(() => {
-    if (isClusterVisible && deviceSelected) {
+    if (isClusterVisible && deviceSelected && !isAlreadyShowTripRoute) {
       setDeviceSelected('')
     }
-
-    // mapInstance.deviceFocus(deviceSelected)
-  }, [isClusterVisible, deviceSelected])
+  }, [isClusterVisible, deviceSelected, isAlreadyShowTripRoute])
 
   const handleVisibilityChange = useCallback(
     (isVisible: boolean) => {

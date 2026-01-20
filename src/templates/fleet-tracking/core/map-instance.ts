@@ -65,9 +65,18 @@ class MapInstance {
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        () => {},
-        (error) => {
-          console.log({ error })
+        (pos) => {
+          this.map?.flyTo({
+            center: [pos.coords.longitude, pos.coords.latitude],
+            zoom: 15,
+            duration: 5000,
+            padding: {
+              top: 0,
+            },
+            pitch: this.pitch,
+          })
+        },
+        () => {
           this.map?.flyTo({
             center: VIETNAM_CENTER,
             zoom: 5,

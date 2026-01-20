@@ -3,7 +3,7 @@ import { WaterDepthLevelName } from '@/utils/water-depth'
 import { LayerDataSource } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import * as turf from '@turf/turf'
-import { ColumnLayer, PolygonLayer } from 'deck.gl'
+import { ColumnLayer, PolygonLayer, ScatterplotLayer, TextLayer } from 'deck.gl'
 import MapLibreGL from 'maplibre-gl'
 import { easeOut, linear } from 'popmotion'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
@@ -30,6 +30,7 @@ type MainColumData = {
 const WATER_LEVEL_SCALE_FACTOR = 3
 const WRAPPER_EXTRA_SIZE = 4
 const COLUMN_MAXIMUM_LEVEL = 600
+const CLUSTER_ELEVATION = 80 // Above maximum column height to ensure clusters always render on top
 
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
 
@@ -48,6 +49,11 @@ class WaterDepthDeckInstance {
   private mapZoom: number = 0
   private focusedDevice: string | null = null
   private hasAnimated = false
+  private _pendingClusterLayers: {
+    background: any
+    text: any
+  } | null = null
+  private displayedDeviceByLocation: Map<string, string> = new Map()
 
   private constructor() {}
 
@@ -71,9 +77,95 @@ class WaterDepthDeckInstance {
     this._buildWaterDepthLayer()
   }
 
+  private getLocationKey = (device: Device): string => {
+    const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+    return `${location[0]},${location[1]}`
+  }
+
+  public getVisibleDevicesAndGroups = (devices: Device[]) => {
+    const locationGroups = new Map<
+      string,
+      {
+        location: [number, number]
+        count: number
+        deviceIds: string[]
+        devices: Device[]
+        displayedDeviceId: string
+      }
+    >()
+
+    devices.forEach((device) => {
+      const locationKey = this.getLocationKey(device)
+
+      if (locationGroups.has(locationKey)) {
+        const group = locationGroups.get(locationKey)!
+        group.count += 1
+        group.deviceIds.push(device.id)
+        group.devices.push(device)
+      } else {
+        locationGroups.set(locationKey, {
+          location: (device.deviceProperties?.latest_checkpoint_arr || [
+            0, 0,
+          ]) as [number, number],
+          count: 1,
+          deviceIds: [device.id],
+          devices: [device],
+          displayedDeviceId: device.id,
+        })
+      }
+    })
+
+    locationGroups.forEach((group, locationKey) => {
+      const manuallySelected = this.displayedDeviceByLocation.get(locationKey)
+      if (manuallySelected && group.deviceIds.includes(manuallySelected)) {
+        group.displayedDeviceId = manuallySelected
+      } else {
+        const highestWaterLevelDevice = group.devices.reduce((prev, current) =>
+          (current.deviceProperties?.water_depth || 0) >
+          (prev.deviceProperties?.water_depth || 0)
+            ? current
+            : prev
+        )
+        group.displayedDeviceId = highestWaterLevelDevice.id
+        this.displayedDeviceByLocation.set(
+          locationKey,
+          highestWaterLevelDevice.id
+        )
+      }
+    })
+
+    const visibleDevices: Device[] = []
+    locationGroups.forEach((group) => {
+      const displayedDevice = group.devices.find(
+        (d) => d.id === group.displayedDeviceId
+      )
+      if (displayedDevice) {
+        visibleDevices.push(displayedDevice)
+      }
+    })
+
+    return { locationGroups, visibleDevices }
+  }
+
+  public setDisplayedDeviceForLocation(deviceId: string) {
+    const device = this.devices.find((d) => d.id === deviceId)
+    if (!device) return
+
+    const locationKey = this.getLocationKey(device)
+    this.displayedDeviceByLocation.set(locationKey, deviceId)
+
+    this._buildWaterDepthLayer()
+
+    this.emitter.emit('displayed-device-changed', deviceId)
+  }
+
   private _buildPolygonLayer() {
+    const { locationGroups, visibleDevices } = this.getVisibleDevicesAndGroups(
+      this.devices
+    )
+
     const polygonData = getPolygonData(
-      this.devices,
+      visibleDevices,
       getCircleRadiusByZoom(this.mapZoom)
     )
 
@@ -89,7 +181,14 @@ class WaterDepthDeckInstance {
       transitions: {
         opacity: { duration: 200, easing: easeOut },
       },
-
+      onClick: ({ object }) => {
+        this.emitter.emit('water-depth-device-selected', {
+          deviceId: object.deviceId,
+          deviceData: this.devices.find(
+            (device) => device.id === object.deviceId
+          ),
+        })
+      },
       parameters: {
         depthTest: false,
         depthMask: false,
@@ -97,19 +196,107 @@ class WaterDepthDeckInstance {
       } as any,
     })
 
-    const alreadyHasLayer = !!globalDeckGLInstance.getLayers(
+    // Create cluster-like layers to show device count at each location
+    const deviceCountData = Array.from(locationGroups.values()).filter(
+      (group) => group.count > 1
+    )
+
+    // Calculate zoom-based sizes for clusters
+    const clusterRadius = getClusterRadiusByZoom(this.mapZoom)
+    const clusterTextSize = getClusterTextSizeByZoom(this.mapZoom)
+
+    // Cluster background circle layer
+    const clusterBackgroundLayer = new ScatterplotLayer({
+      id: LAYER_IDS.WATER_DEPTH_COUNT_CLUSTER_BG_LAYER,
+      data: deviceCountData,
+      getPosition: (d) =>
+        [...d.location, CLUSTER_ELEVATION] as [number, number, number],
+      getRadius: clusterRadius,
+      getFillColor: [0, 0, 0, 230], // #000000 - black background
+      getLineColor: [64, 6, 170, 255], // #4006AA - purple border
+      getLineWidth: 2,
+      stroked: true,
+      filled: true,
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      opacity: this.type === 'visible' ? 1 : 0,
+      transitions: {
+        opacity: { duration: 200, easing: easeOut },
+        getRadius: { duration: 200, easing: easeOut },
+      },
+      billboard: true,
+      antialiasing: true,
+      pickable: true,
+      parameters: {
+        depthTest: false, // Disable depth testing to always render on top
+        depthMask: false, // Don't write to depth buffer
+      } as any,
+      onClick: ({ object, x, y }) => {
+        if (object) {
+          this.emitter.emit('cluster-clicked', {
+            deviceIds: object.deviceIds,
+            location: object.location,
+            count: object.count,
+            screenPosition: { x, y },
+          })
+        }
+      },
+    })
+
+    const clusterTextLayer = new TextLayer({
+      id: LAYER_IDS.WATER_DEPTH_COUNT_TEXT_LAYER,
+      data: deviceCountData,
+      getPosition: (d) =>
+        [...d.location, CLUSTER_ELEVATION] as [number, number, number],
+      getText: (d) => `+${d.count - 1}`,
+      getSize: clusterTextSize,
+      getColor: [255, 255, 255, 255],
+      getTextAnchor: 'middle',
+      getAlignmentBaseline: 'center',
+      fontFamily: 'Inter, Arial, sans-serif',
+      fontWeight: 'bold',
+      opacity: this.type === 'visible' ? 1 : 0,
+      transitions: {
+        opacity: { duration: 200, easing: easeOut },
+        getSize: { duration: 200, easing: easeOut },
+      },
+      billboard: true,
+      pickable: true,
+      parameters: {
+        depthTest: false, // Disable depth testing to always render on top
+        depthMask: false, // Don't write to depth buffer
+      } as any,
+      onClick: ({ object, x, y }) => {
+        if (object) {
+          this.emitter.emit('cluster-clicked', {
+            deviceIds: object.deviceIds,
+            location: object.location,
+            count: object.count,
+            screenPosition: { x, y },
+          })
+        }
+      },
+    })
+
+    const alreadyHasPolygonLayer = !!globalDeckGLInstance.getLayers(
       LAYER_IDS.WATER_DEPTH_POLYGON
     )
 
-    if (alreadyHasLayer) {
+    if (alreadyHasPolygonLayer) {
       globalDeckGLInstance.updateLayer(polygonLayer)
     } else {
       globalDeckGLInstance.appendLayer(polygonLayer)
     }
+    this._pendingClusterLayers = {
+      background: clusterBackgroundLayer,
+      text: clusterTextLayer,
+    }
   }
 
   private _buildMainWaterDepthColumn = () => {
-    const dataLayer: LayerDataSource<MainColumData> = this.devices.map(
+    const { visibleDevices } = this.getVisibleDevicesAndGroups(this.devices)
+
+    const dataLayer: LayerDataSource<MainColumData> = visibleDevices.map(
       (device) => {
         const waterLevel = device.deviceProperties?.water_depth
           ? device.deviceProperties?.water_depth
@@ -168,7 +355,9 @@ class WaterDepthDeckInstance {
   }
 
   private _buildWaterDepthWrapper() {
-    const dataLayer: LayerDataSource<MainColumData> = this.devices.map(
+    const { visibleDevices } = this.getVisibleDevicesAndGroups(this.devices)
+
+    const dataLayer: LayerDataSource<MainColumData> = visibleDevices.map(
       (device) => {
         const isSelected = device.id === this.focusedDevice
 
@@ -242,6 +431,30 @@ class WaterDepthDeckInstance {
     this._buildPolygonLayer()
     this._buildWaterDepthWrapper()
     this._buildMainWaterDepthColumn()
+
+    // Add cluster layers after water depth layers to ensure they render on top
+    if (this._pendingClusterLayers) {
+      const alreadyHasClusterBgLayer = !!globalDeckGLInstance.getLayers(
+        LAYER_IDS.WATER_DEPTH_COUNT_CLUSTER_BG_LAYER
+      )
+      const alreadyHasClusterTextLayer = !!globalDeckGLInstance.getLayers(
+        LAYER_IDS.WATER_DEPTH_COUNT_TEXT_LAYER
+      )
+
+      if (alreadyHasClusterBgLayer) {
+        globalDeckGLInstance.updateLayer(this._pendingClusterLayers.background)
+      } else {
+        globalDeckGLInstance.appendLayer(this._pendingClusterLayers.background)
+      }
+
+      if (alreadyHasClusterTextLayer) {
+        globalDeckGLInstance.updateLayer(this._pendingClusterLayers.text)
+      } else {
+        globalDeckGLInstance.appendLayer(this._pendingClusterLayers.text)
+      }
+
+      this._pendingClusterLayers = null
+    }
   }
 
   on(event: string, handler: (...args: any[]) => void) {
@@ -340,6 +553,36 @@ const getColumnElevationScaleByZoom = (zoom: number) => {
   const t = Math.pow(tRaw, 1.6)
 
   return minScale + t * (maxScale - minScale)
+}
+
+const getClusterRadiusByZoom = (zoom: number) => {
+  const minZoom = 9
+  const maxZoom = 17
+
+  const minRadius = 18 // Smaller when zoomed out
+  const maxRadius = 25 // Larger when zoomed in
+
+  const tRaw =
+    1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
+
+  const t = Math.pow(tRaw, 1.5)
+
+  return minRadius + t * (maxRadius - minRadius)
+}
+
+const getClusterTextSizeByZoom = (zoom: number) => {
+  const minZoom = 9
+  const maxZoom = 17
+
+  const minSize = 10 // Smaller when zoomed out
+  const maxSize = 14 // Larger when zoomed in
+
+  const tRaw =
+    1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
+
+  const t = Math.pow(tRaw, 1.5)
+
+  return minSize + t * (maxSize - minSize)
 }
 
 const getPolygonData = (

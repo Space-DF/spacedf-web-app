@@ -13,6 +13,7 @@ class ClusterInstance {
 
   private originalDevices: Record<string, Device> = {}
   private visible = true
+  private isAlreadyShowTripRoute = false
 
   private clusterData: GeoJSON.FeatureCollection<
     GeoJSON.Geometry,
@@ -194,6 +195,26 @@ class ClusterInstance {
     })
   }
 
+  public setClusterVisibility = (visibility: 'visible' | 'none') => {
+    if (!this.map) return
+
+    this.isAlreadyShowTripRoute = visibility === 'none'
+
+    const layerIds = [
+      this.clusterLayerId,
+      this.clusterCountLayerId,
+      this.unclusteredLayerId,
+      this.singleClusterLayerId,
+      this.singleClusterCountLayerId,
+    ]
+
+    layerIds.forEach((layerId) => {
+      if (this.map?.getLayer(layerId)) {
+        this.map.setLayoutProperty(layerId, 'visibility', visibility)
+      }
+    })
+  }
+
   private _syncClusterVisibility(next: boolean) {
     if (this.visible === next) return
 
@@ -208,6 +229,8 @@ class ClusterInstance {
 
   private _handleZoomChange = () => {
     if (!this.map) return
+    if (this.isAlreadyShowTripRoute) return
+
     const zoom = this.map.getZoom()
     const visible = zoom < MAX_ZOOM + 1
 
