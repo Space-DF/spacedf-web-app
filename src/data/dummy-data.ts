@@ -11,7 +11,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     name: 'Rak 4630-RS3-C1F4',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'rak4630-rs3-C1F4',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -39,14 +39,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05486,
         longitude: 108.22003,
       },
+      direction: 120,
     },
   },
   {
-    id: 'RAK Sticker_50E5',
+    id: 'RAK_Sticker_50E5',
     name: 'RAK_Sticker_50E5',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'RAK_Sticker_50E5',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -74,14 +75,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05487,
         longitude: 108.222,
       },
+      direction: 90,
     },
   },
   {
-    id: '3',
+    id: 'DMZ_01_1511-M03',
     name: 'DMZ 01 -1511-M03',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_01_1511-M03',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -109,14 +111,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.05485,
         longitude: 108.221,
       },
+      direction: 45,
     },
   },
   {
-    id: '4',
+    id: 'DMZ_02_1512_M01',
     name: 'DMZ 02 -1512-M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_02_1512_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -144,14 +147,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.062,
         longitude: 108.215,
       },
+      direction: 200,
     },
   },
   {
-    id: '5',
+    id: 'DMZ_03_1513_M01',
     name: 'DMZ 03 -1513-M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_03_1513_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -179,14 +183,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.048,
         longitude: 108.228,
       },
+      direction: 350,
     },
   },
   {
-    id: '6',
+    id: 'DMZ_04_1514-M01',
     name: 'DMZ 04 -1514-M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_04_1514-M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -214,14 +219,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.058,
         longitude: 108.235,
       },
+      direction: 100,
     },
   },
   {
-    id: '7',
-    name: 'DMZ 05 -1515-M01',
+    id: 'DMZ_05_1515_M01',
+    name: 'DMZ_05_1515_M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_05_1515_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -249,14 +255,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.052,
         longitude: 108.212,
       },
+      direction: 180,
     },
   },
   {
-    id: '8',
-    name: 'DMZ 06 -1516-M01',
+    id: 'DMZ_06_1516_M01',
+    name: 'DMZ_06_1516_M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_06_1516_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -284,14 +291,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.065,
         longitude: 108.242,
       },
+      direction: 360,
     },
   },
   {
     id: '9',
-    name: 'DMZ 07 -1517-M01',
+    name: 'DMZ_07_1517_M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_07_1517_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -319,14 +327,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.045,
         longitude: 108.205,
       },
+      direction: 90,
     },
   },
   {
-    id: '10',
-    name: 'DMZ 08 -1518-M01',
+    id: 'DMZ_08_1518_M01',
+    name: 'DMZ_08_1518_M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_08_1518_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -354,14 +363,15 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.042,
         longitude: 108.238,
       },
+      direction: 270,
     },
   },
   {
-    id: '11',
-    name: 'DMZ 09 -1519-M01',
+    id: 'DMZ_09_1519_M01',
+    name: 'DMZ_09_1519_M01',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'DMZ_09_1519_M01',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -389,6 +399,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         latitude: 16.068,
         longitude: 108.208,
       },
+      direction: 150,
     },
   },
   {
@@ -396,7 +407,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     name: 'Water Level Board V1',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'wlb-v1-123',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -433,7 +444,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     name: 'Water Level Board V2',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'wlb-v2-123',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {
@@ -470,7 +481,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
     name: 'Water Level Board V3',
     description: '',
     device: {
-      id: uuidv4(),
+      id: 'wlb-v3-123',
       network_server: uuidv4(),
       device_model: uuidv4(),
       device_profile: {

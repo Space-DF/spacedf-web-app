@@ -117,6 +117,18 @@
   }
 }
 
+@layer components {
+  .location-marker {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker.png');
+  }
+
+  .dark .location-marker {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-dark.png');
+  }
+}
+
 html {
   font-family:
     system-ui,
@@ -346,6 +358,17 @@ video::-webkit-media-controls-start-playback-button {
 
 .mapboxgl-ctrl button.mapboxgl-ctrl-shrink .mapboxgl-ctrl-icon {
   background-image: url('/images/arrows-in.svg');
+}
+
+.maplibregl-ctrl-globe {
+  display: none !important;
+}
+
+.deck-tooltip {
+  border-radius: 8px !important;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Custom scrollbar utility class */

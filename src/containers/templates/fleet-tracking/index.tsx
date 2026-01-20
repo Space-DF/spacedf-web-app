@@ -90,7 +90,7 @@ export default function FleetTracking() {
           config,
           center: [0, 0],
           zoom: 1,
-          pitch: resolvedModelType === '3d' ? 90 : 0,
+          pitch: resolvedModelType === '3d' ? 45 : 0,
           antialias: true,
           preserveDrawingBuffer: true,
         },
