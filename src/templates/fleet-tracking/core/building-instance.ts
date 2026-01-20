@@ -93,8 +93,9 @@ class BuildingInstance {
   }
 
   removeBuildingLayer() {
-    if (!this.map) return
-    this.map.removeLayer(this.sourceId)
+    if (this.map) {
+      this.map.removeLayer(this.sourceId)
+    }
   }
 }
 
