@@ -1,10 +1,8 @@
 name: Build & Publish Docker Image
 
 on:
-  push:
-    branches:
-      - main
-      - develop
+  release:
+    types: [published]
 
 jobs:
   deploy:
@@ -18,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       # Login to GHCR
       - name: Login to GHCR
@@ -34,12 +34,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            # main branch
-            type=raw,value=${{ vars.APP_VERSION }},enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=latest
-
-            # develop branch
-            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=semver,pattern={{version}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern={{major}},value=${{ github.event.release.tag_name }}
 
       # Build & Push image
       - name: Build & Push Docker image
