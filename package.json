@@ -99,6 +99,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@maptiler/sdk": "^3.10.2",
     "@next/eslint-plugin-next": "^15.1.4",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
