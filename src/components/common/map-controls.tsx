@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import MapLibreGL from 'maplibre-gl'
 
 type MapControlsProps = {
-  map: maplibregl.Map
+  map: MapLibreGL.Map
 }
 
 const MapControls = ({ map }: MapControlsProps) => {

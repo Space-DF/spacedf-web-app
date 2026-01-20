@@ -75,7 +75,7 @@ class MapGeocodingService {
         const queryResults = await maptilersdk.geocoding.batch(
           coordsNeedToQuery,
           {
-            types: options?.types ?? ['poi'],
+            types: options?.types ?? ['address'],
             ...options,
           }
         )

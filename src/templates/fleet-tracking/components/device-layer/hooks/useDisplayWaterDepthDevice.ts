@@ -1,12 +1,13 @@
 'use client'
 import { useDeviceStore } from '@/stores/device-store'
-import { WaterLevelInstance } from '@/utils/fleet-tracking-map/layer-instance/water-level-instance'
+import { WaterDepthDeckInstance } from '../../../core/water-depth/water-depth-deckgl-instance'
 import { useCallback, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { Device } from '@/stores/device-store'
 
-const waterLevelInstance = WaterLevelInstance.getInstance()
+const waterDepthDeckInstance = WaterDepthDeckInstance.getInstance()
 
-export const useDisplayWaterDevice = (devices: Record<string, any>) => {
+export const useDisplayWaterDepthDevice = (devices: Device[]) => {
   const [visibleDeviceIds, setVisibleDeviceIds] = useState<Map<string, string>>(
     new Map()
   )
@@ -21,11 +22,10 @@ export const useDisplayWaterDevice = (devices: Record<string, any>) => {
 
   useEffect(() => {
     if (deviceSelected) {
-      waterLevelInstance.setDisplayedDeviceForLocation(deviceSelected)
+      waterDepthDeckInstance.setDisplayedDeviceForLocation(deviceSelected)
     }
-    const { visibleDevices } = waterLevelInstance.getVisibleDevicesAndGroups(
-      Object.values(devices)
-    )
+    const { visibleDevices } =
+      waterDepthDeckInstance.getVisibleDevicesAndGroups(devices)
     setVisibleDeviceIds(
       new Map(visibleDevices.map((device) => [device.id, device.id]))
     )
@@ -33,17 +33,16 @@ export const useDisplayWaterDevice = (devices: Record<string, any>) => {
 
   const handleSelectDevice = useCallback(
     (deviceId: string) => {
-      waterLevelInstance.setDisplayedDeviceForLocation(deviceId)
-      const { visibleDevices } = waterLevelInstance.getVisibleDevicesAndGroups(
-        Object.values(devices)
-      )
+      waterDepthDeckInstance.setDisplayedDeviceForLocation(deviceId)
+      const { visibleDevices } =
+        waterDepthDeckInstance.getVisibleDevicesAndGroups(devices)
       setVisibleDeviceIds(
         new Map(visibleDevices.map((device) => [device.id, device.id]))
       )
       setDeviceSelected(deviceId)
       setClusterDropdownOpen(false)
     },
-    [setDeviceSelected]
+    [setDeviceSelected, devices]
   )
 
   return {

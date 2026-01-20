@@ -10,9 +10,6 @@ import languageName from '../../messages/en/language-name.json'
 import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
-import MapInstance from '@/utils/map-instance'
-import { MapboxOverlay } from '@deck.gl/mapbox'
-import { LayersList } from 'deck.gl'
 
 type Locale = (typeof locales)[number]
 
@@ -59,33 +56,8 @@ export interface PaginationResponse<T = unknown> {
   results: T[]
 }
 
-export type Response<T = unknown> = {
-  data?: {
-    response_data: {
-      count?: number
-      next?: any
-      previous?: any
-      results?: T[]
-    }
-  }
-  status: number
-}
-
 export type ApiErrorResponse = {
   detail: string
   code?: number
   result?: string
 } & Record<string, any>
-
-declare global {
-  interface Window {
-    mapInstance: MapInstance
-    cluster: Supercluster<Supercluster.AnyProps, Supercluster.AnyProps>
-    devicesMapOverlay: MapboxOverlay
-    devicesHistoryOverlay: MapboxOverlay
-    mapLayer: LayersList[]
-    mapResource: {
-      clusterIds: Set<string>
-    }
-  }
-}

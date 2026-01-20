@@ -71,8 +71,7 @@ class MapInstance {
             pitch: this.pitch,
           })
         },
-        (error) => {
-          console.log({ error })
+        () => {
           this.map?.flyTo({
             center: VIETNAM_CENTER,
             zoom: 5,

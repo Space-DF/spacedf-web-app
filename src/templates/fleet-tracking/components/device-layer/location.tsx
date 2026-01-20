@@ -38,13 +38,15 @@ export const LocationLayer = memo(
       deckLayer: false,
     })
 
-    const { isMapReady, isClusterVisible, viewMode } = useFleetTrackingMapStore(
-      useShallow((state) => ({
-        isMapReady: state.isMapReady,
-        isClusterVisible: state.isClusterVisible,
-        viewMode: state.viewMode,
-      }))
-    )
+    const { isMapReady, isClusterVisible, viewMode, isAlreadyShowTripRoute } =
+      useFleetTrackingMapStore(
+        useShallow((state) => ({
+          isMapReady: state.isMapReady,
+          isClusterVisible: state.isClusterVisible,
+          viewMode: state.viewMode,
+          isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
+        }))
+      )
 
     const { setDeviceSelected, deviceSelected } = useDeviceStore(
       useShallow((state) => ({
@@ -65,7 +67,7 @@ export const LocationLayer = memo(
     useEffect(() => {
       if (!isMapReady) return
       const map = mapInstance.getMap()
-      if (!map) return
+      if (!map || isAlreadyShowTripRoute) return
 
       if (viewMode === '2d' && !resourceStatus.current.marker) {
         markerInstance.init(map)
@@ -82,7 +84,13 @@ export const LocationLayer = memo(
       } else {
         handleLocationResource('visible', viewMode, devices)
       }
-    }, [viewMode, isMapReady, isClusterVisible, devices])
+    }, [
+      viewMode,
+      isMapReady,
+      isClusterVisible,
+      devices,
+      isAlreadyShowTripRoute,
+    ])
 
     useEffect(() => {
       if (!isMapReady) return
@@ -115,7 +123,7 @@ export const LocationLayer = memo(
           handleLocationDeviceSelected
         )
       }
-    }, [isMapReady])
+    }, [isMapReady, isAlreadyShowTripRoute])
 
     useEffect(() => {
       if (isMapReady) {
@@ -124,11 +132,6 @@ export const LocationLayer = memo(
         })
       }
     }, [resolvedTheme, isMapReady])
-
-    useEffect(() => {
-      if (!isMapReady) return
-      handleDeviceSelected({ deviceId: deviceSelected, viewMode })
-    }, [isMapReady, deviceSelected, viewMode])
 
     const handleDeviceSelected = useCallback(
       async (data: HandleDeviceSelectedProps) => {
@@ -141,7 +144,6 @@ export const LocationLayer = memo(
         if (device) {
           mapInstance.onZoomToDevice(device)
         }
-
         if (viewMode === '2d') {
           markerInstance.focusMarker(deviceId)
         }
@@ -152,6 +154,11 @@ export const LocationLayer = memo(
       },
       [deviceSelected, devices]
     )
+
+    useEffect(() => {
+      if (!isMapReady || isAlreadyShowTripRoute) return
+      handleDeviceSelected({ deviceId: deviceSelected, viewMode })
+    }, [isMapReady, deviceSelected, viewMode, isAlreadyShowTripRoute])
 
     const handleLocationResource = (
       type: 'visible' | 'hidden',

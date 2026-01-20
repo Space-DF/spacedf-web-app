@@ -4,44 +4,69 @@ import { useEffect, useRef } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useGlobalStore } from '@/stores'
-import { usePrevious } from './usePrevious'
 import { Checkpoint } from '@/types/trip'
-import { LngLatBoundsLike, Popup } from 'mapbox-gl'
-import { FleetTrackingMap } from '@/utils/fleet-tracking-map/map-instance'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
-import { MultiTrackerLayerInstance } from '@/utils/fleet-tracking-map/layer-instance/multi-tracker-instance'
+import { Popup, LngLatBoundsLike, IControl } from 'maplibre-gl'
 import { animate, linear } from 'popmotion'
-import { MarkerInstance } from '@/utils/fleet-tracking-map/layer-instance/marker-instance'
+import { LocationMarker } from '@/templates/fleet-tracking/core/location/marker-instance'
+import { LocationDeckGLInstance } from '@/templates/fleet-tracking/core/location/deckgl-instance'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
+import { groupDeviceByFeature } from '@/utils/map'
+import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-deckgl-instance'
+import ClusterInstance from '@/templates/fleet-tracking/core/cluster-instance'
 
-const markerInstance = MarkerInstance.getInstance()
-const fleetTrackingMap = FleetTrackingMap.getInstance()
-const multiTrackerLayerInstance = MultiTrackerLayerInstance.getInstance()
+const markerInstance = LocationMarker.getInstance()
+const deckGLInstance = LocationDeckGLInstance.getInstance()
+const mapInstance = MapInstance.getInstance()
+const waterDepthInstance = WaterDepthDeckInstance.getInstance()
+const clusterInstance = ClusterInstance.getInstance()
+
 export const useDeviceHistory = () => {
   const controlRef = useRef<any>(null)
   const rotationRef = useRef<number>(0)
   const animationControlRef = useRef<any>(null)
+  const viewModeRef = useRef<'2d' | '3d'>('2d')
   const deviceHistory = useDeviceStore(
     useShallow((state) => state.deviceHistory)
   )
-  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
-  const devices = useDeviceStore(
-    useShallow((state) => state.devicesFleetTracking)
+
+  const {
+    locationDevices = [],
+    waterLevelDevices = [],
+    deviceSelected,
+  } = useDeviceStore(
+    useShallow((state) => {
+      const deviceGroup = groupDeviceByFeature(
+        Object.values(state.devicesFleetTracking)
+      )
+
+      return {
+        initializedSuccess: state.initializedSuccess,
+        devices: state.devicesFleetTracking,
+        locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION],
+        waterLevelDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH],
+        deviceSelected: state.deviceSelected,
+        setDeviceSelected: state.setDeviceSelected,
+      }
+    })
   )
   const deviceModels = useDeviceStore(useShallow((state) => state.models))
   const setDeviceHistory = useDeviceStore((state) => state.setDeviceHistory)
 
-  const { modelType, updateBooleanState } = useFleetTrackingStore(
+  const { updateBooleanState, viewMode } = useFleetTrackingMapStore(
     useShallow((state) => ({
-      modelType:
-        state.modelType ||
-        (typeof window !== 'undefined' &&
-          (localStorage.getItem('fleet-tracking:modelType') as '2d' | '3d')) ||
-        '2d',
       updateBooleanState: state.updateBooleanState,
+      viewMode: state.viewMode,
     }))
   )
 
-  const map = fleetTrackingMap.getMap()
+  const map = mapInstance.getMap()
+
+  // Avoid stale-closure bugs when `removeRoute` is called later
+  useEffect(() => {
+    viewModeRef.current = viewMode
+  }, [viewMode])
 
   useEffect(() => {
     const handleMouseEnter = (e: any) => {
@@ -99,12 +124,9 @@ export const useDeviceHistory = () => {
     }
   }, [])
 
-  const mapType = useGlobalStore((state) => state.mapType)
   const isMapInitialized = useGlobalStore((state) => state.isMapInitialized)
 
-  const previousMapType = usePrevious(mapType)
-
-  const is3DModel = modelType === '3d'
+  const is3DModel = viewMode === '3d'
 
   useEffect(() => {
     if (!map) return
@@ -115,21 +137,13 @@ export const useDeviceHistory = () => {
 
       if (isHasRouteLayer) {
         startDrawHistory(deviceHistory)
+      } else {
+        removeRoute()
       }
     }
 
-    if (previousMapType !== mapType) {
-      setTimeout(() => {
-        handleStyleChange()
-      }, 500)
-    }
-  }, [
-    deviceSelected,
-    isMapInitialized,
-    mapType,
-    previousMapType,
-    deviceHistory,
-  ])
+    handleStyleChange()
+  }, [deviceSelected, isMapInitialized, deviceHistory, viewMode])
 
   const getIconLayer = (coordinates: number[] = []) => {
     // For 3D models, use ScenegraphLayer
@@ -185,22 +199,18 @@ export const useDeviceHistory = () => {
       checkpoint.latitude,
     ])
     if (!map) return
-
-    markerInstance.hideAllMarkers()
-    if (multiTrackerLayerInstance.checkLayerAvailable() && is3DModel) {
-      multiTrackerLayerInstance.syncLayers(devices, 'hidden')
+    if (is3DModel) {
+      deckGLInstance.syncDevices(locationDevices, 'hidden')
+    } else {
+      markerInstance.hideAllMarkers()
+      markerInstance.focusMarker('')
     }
-
+    waterDepthInstance.syncDevice({
+      devices: waterLevelDevices,
+      type: 'hidden',
+    })
     // Hide cluster layer if exists
-    if (map.getLayer('clusters')) {
-      map.setLayoutProperty('clusters', 'visibility', 'none')
-    }
-    if (map.getLayer('cluster-count')) {
-      map.setLayoutProperty('cluster-count', 'visibility', 'none')
-    }
-    if (map.getLayer('unclustered-point')) {
-      map.setLayoutProperty('unclustered-point', 'visibility', 'none')
-    }
+    clusterInstance.setClusterVisibility('none')
 
     const controlIcon = (map?._controls as any).find(
       (control: any) => control._props?.id === 'device-histories'
@@ -314,7 +324,7 @@ export const useDeviceHistory = () => {
 
     controlRef.current = deckOverlay
 
-    map?.addControl(deckOverlay)
+    map?.addControl(deckOverlay as unknown as IControl)
 
     if (is3DModel) {
       if (animationControlRef.current) {
@@ -374,22 +384,15 @@ export const useDeviceHistory = () => {
 
   const removeRoute = () => {
     if (!map) return
-
+    const is3DModelLatest = viewModeRef.current === '3d'
     if (animationControlRef.current) {
       animationControlRef.current.stop()
       animationControlRef.current = null
       rotationRef.current = 0
     }
 
-    if (map.getLayer('clusters')) {
-      map.setLayoutProperty('clusters', 'visibility', 'visible')
-    }
-    if (map.getLayer('cluster-count')) {
-      map.setLayoutProperty('cluster-count', 'visibility', 'visible')
-    }
-    if (map.getLayer('unclustered-point')) {
-      map.setLayoutProperty('unclustered-point', 'visibility', 'visible')
-    }
+    // Restore cluster visibility
+    clusterInstance.setClusterVisibility('visible')
 
     // Remove the route layer if it exists
     if (map?.getLayer('route')) {
@@ -416,16 +419,19 @@ export const useDeviceHistory = () => {
     if (controlIcon) {
       map?.removeControl(controlIcon)
     }
-
     // Restore markers and clusters after removing route
-    // Show 2D markers based on model type
-    if (!is3DModel) {
+    if (!is3DModelLatest) {
       markerInstance.displayAllMarkers()
+      if (deviceSelected) {
+        markerInstance.focusMarker(deviceSelected)
+      }
+    } else {
+      deckGLInstance.syncDevices(locationDevices, 'visible')
     }
-    // Show 3D models (DeckGL layers) based on model type
-    if (is3DModel && multiTrackerLayerInstance.checkLayerAvailable()) {
-      multiTrackerLayerInstance.syncLayers(devices, 'visible')
-    }
+    waterDepthInstance.syncDevice({
+      devices: waterLevelDevices,
+      type: 'visible',
+    })
 
     updateBooleanState('isAlreadyShowTripRoute', false)
     setDeviceHistory([])
