@@ -5,7 +5,7 @@ SpaceDF is a modern web application for IoT device tracking and digital twin vis
 ## ✨ Features
 
 - **🌐 Real-time Device Tracking** - Monitor IoT devices with live updates via MQTT
-- **🗺️ 3D Digital Twin Visualization** - Interactive 3D maps powered by Mapbox GL and deck.gl
+- **🗺️ 3D Digital Twin Visualization** - Interactive 3D maps powered by MapLibre and deck.gl
 - **📊 Customizable Dashboards** - Build custom dashboards with various widget types (charts, gauges, sliders, switches)
 - **🏢 Multi-tenant Spaces** - Organize devices and data in workspaces
 - **👥 Team Collaboration** - Manage team members, roles, and permissions
@@ -30,7 +30,7 @@ SpaceDF is a modern web application for IoT device tracking and digital twin vis
 
 ### Mapping & Visualization
 
-- **Mapbox GL** - Interactive maps
+- **MapLibre** - Interactive maps
 - **deck.gl** - WebGL-powered visualization framework
 - **Recharts** - Composable charting library
 
@@ -90,7 +90,7 @@ Before you begin, ensure you have the following installed:
 
    SPACE_API_KEY=your-space-api-key
 
-   MAPBOX_ACCESS_TOKEN=your-mapbox-access-token
+   MAPTILER_API_KEY=your-maptiler api key
 
    # MQTT Configuration
    DASHBOARD_DASHBOARD_MQTT_USERNAME=your-mqtt-username
@@ -153,7 +153,7 @@ Required environment variables:
 | `NEXTAUTH_SECRET`                   | Secret key for NextAuth.js - [generate here](https://generate-secret.vercel.app/32) |
 | `AUTH_API`                          | SpaceDF authentication API endpoint                                                 |
 | `SPACE_API_KEY`                     | SpaceDF SDK API key                                                                 |
-| `MAPBOX_ACCESS_TOKEN`               | Mapbox access token for 3D maps (server-side only)                                  |
+| `MAPTILER_API_KEY`                  | MapTiler api key for get map address (server-side only)                             |
 | `DASHBOARD_DASHBOARD_MQTT_USERNAME` | MQTT broker username                                                                |
 | `DASHBOARD_DASHBOARD_MQTT_PASSWORD` | MQTT broker password                                                                |
 | `DASHBOARD_DASHBOARD_MQTT_PROTOCOL` | MQTT protocol (`ws` or `wss`)                                                       |
