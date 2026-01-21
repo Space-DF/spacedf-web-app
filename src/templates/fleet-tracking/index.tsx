@@ -96,14 +96,20 @@ export default function FleetTrackingMap() {
   }, [devices, initializedSuccess])
 
   useEffect(() => {
-    if (!containerRef.current) return
+    if (containerRef.current && !mapInstance.getMap()) {
+      mapInstance.init({
+        container: containerRef.current,
+        theme: resolvedTheme as 'dark' | 'light',
+      })
+    }
 
-    mapInstance.init({
-      container: containerRef.current,
-      theme: resolvedTheme as 'dark' | 'light',
-    })
+    if (containerRef.current && mapInstance.getMap()) {
+      mapInstance.setContainer(containerRef.current)
+    }
 
-    return () => {}
+    return () => {
+      window.location.reload()
+    }
   }, [])
 
   useEffect(() => {

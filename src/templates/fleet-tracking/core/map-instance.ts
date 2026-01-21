@@ -151,12 +151,7 @@ class MapInstance {
   }
 
   public init({ container, theme, options }: MapProps) {
-    if (this.initialized && this.map) {
-      //clean up and reload
-      window.location.reload()
-      return
-    }
-
+    if (this.map) return
     this.theme = theme
 
     const map = new MapLibreGL.Map({
@@ -204,6 +199,30 @@ class MapInstance {
     this.theme = theme
 
     this.map.setStyle(defaultStyles[theme])
+  }
+
+  async setContainer(newContainer: HTMLDivElement) {
+    if (!this.map) return
+
+    this.isReady = false
+
+    const currentContainer = this.map.getContainer()
+
+    if (currentContainer.parentElement === newContainer) return
+
+    requestAnimationFrame(() => {
+      if (!this.map) return
+
+      if (!newContainer.contains(currentContainer)) {
+        newContainer.appendChild(currentContainer)
+        this.map?.resize()
+
+        this.map.setZoom(0.5)
+        this.map.setCenter([0, 0])
+
+        this.emitter.emit('ready', this.map)
+      }
+    })
   }
 
   public onStrategyZoom = (devices: Record<string, Device>, pitch: number) => {
