@@ -163,12 +163,12 @@ export default function ListAlert() {
     setDeviceAlertDevice(deviceSelected, 'water_depth', newDeviceAlerts)
   }, [isValidating])
 
-  const listLocation = useMemo(() => {
+  const listLocation: [number, number][] = useMemo(() => {
     return (
-      alerts?.results?.map((alert) => ({
-        longitude: alert.location.longitude,
-        latitude: alert.location.latitude,
-      })) || []
+      alerts?.results?.map((alert) => [
+        alert.location.longitude,
+        alert.location.latitude,
+      ]) || []
     )
   }, [alerts])
 
@@ -196,9 +196,9 @@ export default function ListAlert() {
             title: alert.message,
             severity: alert.level,
             waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
-            location: alertAddresses?.[index] || (
-              <Skeleton className="w-20 h-4" />
-            ),
+            location:
+              alertAddresses?.[index]?.features[0].place_name ||
+              ((<Skeleton className="w-20 h-4" />) as React.ReactNode),
             time: format(timestamp, 'hh:mm a'),
             timestamp,
             relativeTime: relativeTimeStr,

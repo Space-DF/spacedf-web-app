@@ -8,6 +8,8 @@ export const LAYER_IDS = {
   WATER_DEPTH_POLYGON: 'water-depth-polygon',
   WATER_DEPTH_COLUMN: 'water-depth-column',
   WATER_DEPTH_COLUMN_WRAPPER: 'water-depth-column-wrapper',
+  WATER_DEPTH_COUNT_CLUSTER_BG_LAYER: 'water-depth-count-cluster-bg-layer',
+  WATER_DEPTH_COUNT_TEXT_LAYER: 'water-depth-count-text-layer',
 }
 
 export class GlobalDeckGLInstance {

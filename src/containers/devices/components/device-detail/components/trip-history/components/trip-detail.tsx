@@ -63,11 +63,11 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
   const { startDrawHistory, removeRoute } = useDeviceHistory()
   const checkpoints = trip?.checkpoints || []
 
-  const listLocation = useMemo(() => {
-    return checkpoints.map((checkpoint) => ({
-      longitude: checkpoint.longitude,
-      latitude: checkpoint.latitude,
-    }))
+  const listLocation: [number, number][] = useMemo(() => {
+    return checkpoints.map((checkpoint) => [
+      checkpoint.longitude,
+      checkpoint.latitude,
+    ])
   }, [checkpoints])
 
   const { data: listLocationName = [], isLoading: isLoadingLocation } =
@@ -157,8 +157,8 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                         <div>
                           {isLoadingLocation ? (
                             <Skeleton className="w-20 h-4" />
-                          ) : listLocationName[index] ? (
-                            listLocationName[index]
+                          ) : listLocationName[index].features[0].place_name ? (
+                            listLocationName[index].features[0].place_name
                           ) : (
                             'Unknown location'
                           )}

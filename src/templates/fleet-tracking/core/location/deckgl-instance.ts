@@ -19,8 +19,8 @@ type LayerResource = {
 
 const MODEL_URLS = {
   light:
-    'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-grey.glb',
-  dark: 'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-purple.glb',
+    'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-grey.glb',
+  dark: 'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-purple.glb',
 }
 
 const modelCache: Record<string, any> = {}
@@ -198,7 +198,8 @@ export class LocationDeckGLInstance {
       id: LAYER_IDS.LOCATION_DECKGL_LAYER,
       data: layerResource,
       getPosition: (d) => [d.position[0], d.position[1], 5],
-      getOrientation: (d) => [0, -d.direction, 0],
+      // getOrientation: (d) => [0, -d.direction, 0],
+      getOrientation: () => [0, 0, 0],
       opacity: this.type === 'visible' ? 1 : 0,
       sizeScale: this._getScaleByZoom(this.mapZoom),
       pickable: true,

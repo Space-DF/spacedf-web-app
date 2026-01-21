@@ -5,93 +5,9 @@ import {
 } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
-import { ConfigSpecification } from 'mapbox-gl'
 import { getWaterDepthLevelName } from './water-depth'
 
 type MapType = 'default' | '3D_map' | 'street'
-const getMapStyle = (
-  mapType: MapType,
-  currentTheme: 'dark' | 'light'
-): {
-  style: string
-  config: {
-    [key: string]: ConfigSpecification
-  }
-} => {
-  if (mapType === 'street') {
-    return {
-      style: `mapbox://styles/mapbox/${currentTheme}-v11`,
-      config: {
-        basemap: {},
-      },
-    }
-  }
-
-  if (mapType === '3D_map') {
-    return {
-      style: `mapbox://styles/mapbox/standard`,
-      config: {
-        basemap:
-          currentTheme === 'dark'
-            ? {
-                lightPreset: 'dusk',
-              }
-            : {
-                darkPreset: 'night',
-              },
-      },
-    }
-  }
-
-  return {
-    style: `mapbox://styles/mapbox/${currentTheme}-v11`,
-    config: {
-      basemap: {},
-    },
-  }
-}
-
-function haversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-) {
-  const R = 6371 // Earth's radius in kilometers
-  const dLat = ((lat2 - lat1) * Math.PI) / 180 // Convert degrees to radians
-  const dLon = ((lon2 - lon1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  const distance = R * c // Distance in kilometers
-  return distance
-}
-
-export function calculateTotalDistance(
-  coordinates: {
-    latitude: number
-    longitude: number
-  }[]
-) {
-  let totalDistance = 0
-
-  for (let i = 0; i < coordinates.length - 1; i++) {
-    const point1 = coordinates[i]
-    const point2 = coordinates[i + 1]
-    totalDistance += haversineDistance(
-      point1.latitude,
-      point1.longitude,
-      point2.latitude,
-      point2.longitude
-    )
-  }
-
-  return totalDistance.toFixed(2) // km
-}
 
 const formatCheckpoint = (
   latestCheckpoint?: DeviceDataOriginal['latest_checkpoint']
@@ -171,5 +87,5 @@ const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
   )
 }
 
-export { getMapStyle, groupDeviceByFeature }
+export { groupDeviceByFeature }
 export type { MapType }

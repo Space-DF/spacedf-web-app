@@ -14,9 +14,8 @@ import {
 import { useGlobalStore } from '@/stores'
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { Device, useDeviceStore } from '@/stores/device-store'
-import { useFleetTrackingStore } from '@/stores/template/fleet-tracking'
 import { Alert } from '@/types/alert'
-import { MapType, transformDeviceData } from '@/utils/map'
+import { transformDeviceData } from '@/utils/map'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
 import { load } from '@loaders.gl/core'
 import { GLTFLoader } from '@loaders.gl/gltf'
@@ -455,14 +454,6 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
       clearDeviceModels()
     }
   }, [clearDeviceModels])
-
-  useEffect(() => {
-    const mapType =
-      (localStorage.getItem('fleet-tracking:mapType') as MapType) || 'default'
-    useFleetTrackingStore.setState({
-      mapType,
-    })
-  }, [])
 
   return <>{children}</>
 }

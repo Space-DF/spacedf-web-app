@@ -18,6 +18,7 @@ export class LocationMarker {
   private previousDevices: Device[] = []
   private devices: Device[] = []
   private locationMarkers: Record<string, MapLibreGL.Marker> = {}
+  private visible = true
   private focusedMarker: string = ''
   private context: CanvasRenderingContext2D | null = null
 
@@ -89,12 +90,47 @@ export class LocationMarker {
         pitchAlignment: 'viewport',
         rotationAlignment: 'map',
       })
-        .setRotation(device.deviceProperties?.direction ?? 0)
+        // .setRotation(device.deviceProperties?.direction ?? 0)
         .setLngLat(position)
         .addTo(this.map)
 
       this.locationMarkers[device.id] = marker
     }
+  }
+
+  hideAllMarkers() {
+    if (!this.visible) return
+    this.visible = false
+
+    Object.values(this.locationMarkers).forEach((marker) => {
+      const el = marker.getElement()
+      if (!el) return
+
+      el.classList.remove('fade-in')
+      el.classList.add('fade-out')
+
+      const timeoutId = setTimeout(() => {
+        el.style.display = 'none'
+        clearTimeout(timeoutId)
+      }, 300)
+    })
+  }
+
+  displayAllMarkers() {
+    if (this.visible) return
+    this.visible = true
+    Object.values(this.locationMarkers).forEach((marker) => {
+      const el = marker.getElement()
+      if (!el) return
+
+      el.classList.remove('fade-out')
+      el.classList.add('fade-in')
+
+      const timeoutId = setTimeout(() => {
+        el.style.display = 'block'
+        clearTimeout(timeoutId)
+      }, 300)
+    })
   }
 
   private _updateMarkers() {

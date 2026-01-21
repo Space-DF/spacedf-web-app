@@ -65,9 +65,18 @@ class MapInstance {
 
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        () => {},
-        (error) => {
-          console.log({ error })
+        (pos) => {
+          this.map?.flyTo({
+            center: [pos.coords.longitude, pos.coords.latitude],
+            zoom: 15,
+            duration: 5000,
+            padding: {
+              top: 0,
+            },
+            pitch: this.pitch,
+          })
+        },
+        () => {
           this.map?.flyTo({
             center: VIETNAM_CENTER,
             zoom: 5,
@@ -142,12 +151,10 @@ class MapInstance {
   }
 
   public init({ container, theme, options }: MapProps) {
-    if (this.initialized && this.map) {
-      //clean up and reload
+    if (this.map) {
       window.location.reload()
       return
     }
-
     this.theme = theme
 
     const map = new MapLibreGL.Map({
@@ -197,10 +204,32 @@ class MapInstance {
     this.map.setStyle(defaultStyles[theme])
   }
 
-  public onStrategyZoom = (devices: Record<string, Device>, pitch: number) => {
+  async setContainer(newContainer: HTMLDivElement) {
     if (!this.map) return
 
-    this.pitch = pitch
+    this.isReady = false
+
+    const currentContainer = this.map.getContainer()
+
+    if (currentContainer.parentElement === newContainer) return
+
+    requestAnimationFrame(() => {
+      if (!this.map) return
+
+      if (!newContainer.contains(currentContainer)) {
+        newContainer.appendChild(currentContainer)
+        this.map?.resize()
+
+        this.map.setZoom(0.5)
+        this.map.setCenter([0, 0])
+
+        this.emitter.emit('ready', this.map)
+      }
+    })
+  }
+
+  public onStrategyZoom = (devices: Record<string, Device>) => {
+    if (!this.map) return
 
     const countDevices = Object.keys(devices).length
     this.devices = devices
@@ -216,6 +245,10 @@ class MapInstance {
     if (countDevices > 1) {
       this._handleZoomFitDevices()
     }
+  }
+
+  public syncMapPitch(pitch: number) {
+    this.pitch = pitch
   }
 
   public updateMapPitch = async ({

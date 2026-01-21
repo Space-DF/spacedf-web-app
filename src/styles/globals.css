@@ -346,21 +346,11 @@ video::-webkit-media-controls-start-playback-button {
   display: none;
 }
 
-.mapboxgl-ctrl
-  button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active
-  .mapboxgl-ctrl-icon {
-  background-image: url('/images/crosshair-active.svg');
-}
-
-.mapboxgl-ctrl button.mapboxgl-ctrl-fullscreen .mapboxgl-ctrl-icon {
-  background-image: url('/images/arrows-out.svg');
-}
-
-.mapboxgl-ctrl button.mapboxgl-ctrl-shrink .mapboxgl-ctrl-icon {
-  background-image: url('/images/arrows-in.svg');
-}
-
 .maplibregl-ctrl-globe {
+  display: none !important;
+}
+
+.maplibregl-ctrl-globe-enabled {
   display: none !important;
 }
 
