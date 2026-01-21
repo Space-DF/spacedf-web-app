@@ -5,7 +5,6 @@ import {
 } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
-import { ConfigSpecification } from 'mapbox-gl'
 import { getWaterDepthLevelName } from './water-depth'
 
 type MapType = 'default' | '3D_map' | 'street'
@@ -15,7 +14,7 @@ const getMapStyle = (
 ): {
   style: string
   config: {
-    [key: string]: ConfigSpecification
+    [key: string]: any
   }
 } => {
   if (mapType === 'street') {
