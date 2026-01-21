@@ -4,20 +4,20 @@ import { Slide } from '@/components/ui/slide'
 import {
   Timeline,
   TimelineContent,
-  TimelineLine,
   TimelineDot,
   TimelineHeading,
   TimelineItem,
+  TimelineLine,
 } from '@/components/ui/timeline'
-import { useDeviceHistory } from '@/hooks/useDeviceHistory'
+// import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { cn } from '@/lib/utils'
+import { Checkpoint } from '@/types/trip'
 import { format } from 'date-fns'
 import { ArrowLeft, ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useGetTrip } from '../hooks/useGetTrip'
-import { Checkpoint } from '@/types/trip'
 import { useTripAddress } from '../hooks/useTripAddress'
 interface TripDetailProps {
   open: boolean
@@ -60,7 +60,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const { data: trip, isLoading } = useGetTrip(tripId)
-  const { startDrawHistory, removeRoute } = useDeviceHistory()
+  // const { startDrawHistory, removeRoute } = useDeviceHistory()
   const checkpoints = trip?.checkpoints || []
 
   const listLocation = useMemo(() => {
@@ -77,19 +77,19 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
     ? checkpoints
     : checkpoints.slice(0, 3)
 
-  useEffect(() => {
-    if (open && checkpoints.length > 0) {
-      startDrawHistory(checkpoints)
-      return () => {
-        removeRoute()
-      }
-    }
-  }, [open, checkpoints])
+  // useEffect(() => {
+  //   if (open && checkpoints.length > 0) {
+  //     startDrawHistory(checkpoints)
+  //     return () => {
+  //       removeRoute()
+  //     }
+  //   }
+  // }, [open, checkpoints])
 
-  const handleClose = () => {
-    removeRoute()
-    onClose()
-  }
+  // const handleClose = () => {
+  //   removeRoute()
+  //   onClose()
+  // }
 
   return (
     <Slide
@@ -99,7 +99,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
       direction="right"
       size="100%"
       contentClassName="p-0"
-      onClose={handleClose}
+      // onClose={handleClose}
     >
       <RightSideBarLayout
         onClose={onClose}
@@ -109,7 +109,7 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
             <ArrowLeft
               size={20}
               className="cursor-pointer"
-              onClick={handleClose}
+              // onClick={handleClose}
             />
             <div>{t('timeline')}</div>
           </div>

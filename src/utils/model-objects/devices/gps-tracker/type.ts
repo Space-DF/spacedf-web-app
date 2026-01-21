@@ -1,8 +1,7 @@
-import { LngLatLike } from 'mapbox-gl'
 import { DeviceAttributes } from '../device-model'
 
 type GpsTrackerAttributes = {
-  location?: LngLatLike
+  location?: [number, number]
   description?: string
 }
 
