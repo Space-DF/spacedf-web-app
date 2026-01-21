@@ -350,6 +350,10 @@ video::-webkit-media-controls-start-playback-button {
   display: none !important;
 }
 
+.maplibregl-ctrl-globe-enabled {
+  display: none !important;
+}
+
 .maplibregl-ctrl-geolocate {
   opacity: 0 !important;
   width: 0 !important;
