@@ -90,7 +90,7 @@ export class LocationMarker {
         pitchAlignment: 'viewport',
         rotationAlignment: 'map',
       })
-        .setRotation(device.deviceProperties?.direction ?? 0)
+        // .setRotation(device.deviceProperties?.direction ?? 0)
         .setLngLat(position)
         .addTo(this.map)
 
