@@ -151,7 +151,10 @@ class MapInstance {
   }
 
   public init({ container, theme, options }: MapProps) {
-    if (this.map) return
+    if (this.map) {
+      window.location.reload()
+      return
+    }
     this.theme = theme
 
     const map = new MapLibreGL.Map({
@@ -225,10 +228,8 @@ class MapInstance {
     })
   }
 
-  public onStrategyZoom = (devices: Record<string, Device>, pitch: number) => {
+  public onStrategyZoom = (devices: Record<string, Device>) => {
     if (!this.map) return
-
-    this.pitch = pitch
 
     const countDevices = Object.keys(devices).length
     this.devices = devices
@@ -244,6 +245,10 @@ class MapInstance {
     if (countDevices > 1) {
       this._handleZoomFitDevices()
     }
+  }
+
+  public syncMapPitch(pitch: number) {
+    this.pitch = pitch
   }
 
   public updateMapPitch = async ({

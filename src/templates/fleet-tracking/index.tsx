@@ -1,5 +1,6 @@
 'use client'
 
+import { MapControls } from '@/components/common/map-controls'
 import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
@@ -16,7 +17,6 @@ import BuildingInstance from './core/building-instance'
 import ClusterInstance from './core/cluster-instance'
 import { GlobalDeckGLInstance } from './core/global-layer-instance'
 import MapInstance from './core/map-instance'
-import { MapControls } from '@/components/common/map-controls'
 
 const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
@@ -76,13 +76,9 @@ export default function FleetTrackingMap() {
       return
 
     if (isFirstRun.current) {
-      const resolvedModelType: '2d' | '3d' = localStorage.getItem(
-        'fleet-tracking:view-mode'
-      ) as '2d' | '3d'
+      // const pitch = MAP_PITCH[resolvedModelType]
 
-      const pitch = MAP_PITCH[resolvedModelType]
-
-      mapInstance.onStrategyZoom(devices, pitch)
+      mapInstance.onStrategyZoom(devices)
 
       if (mapInstance.getMap()) {
         globalDeckGLInstance.init(mapInstance.getMap()!)
@@ -96,19 +92,11 @@ export default function FleetTrackingMap() {
   }, [devices, initializedSuccess])
 
   useEffect(() => {
-    if (containerRef.current && !mapInstance.getMap()) {
+    if (containerRef.current) {
       mapInstance.init({
         container: containerRef.current,
         theme: resolvedTheme as 'dark' | 'light',
       })
-    }
-
-    if (containerRef.current && mapInstance.getMap()) {
-      mapInstance.setContainer(containerRef.current)
-    }
-
-    return () => {
-      window.location.reload()
     }
   }, [])
 
@@ -176,6 +164,8 @@ export default function FleetTrackingMap() {
   }, [])
 
   useEffect(() => {
+    mapInstance.syncMapPitch(MAP_PITCH[viewMode])
+
     if (isFirstRun.current) return
 
     const pitch = MAP_PITCH[viewMode]
