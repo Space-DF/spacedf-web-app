@@ -445,7 +445,8 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
                     )
                     const isHasLocation = index !== -1
                     const locationName =
-                      isHasLocation && listLocationName[index]
+                      isHasLocation &&
+                      listLocationName[index]?.features?.[0]?.place_name
                         ? listLocationName[index].features[0].place_name
                         : 'Unknown'
 

@@ -157,7 +157,8 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                         <div>
                           {isLoadingLocation ? (
                             <Skeleton className="w-20 h-4" />
-                          ) : listLocationName[index].features[0].place_name ? (
+                          ) : listLocationName[index]?.features?.[0]
+                              ?.place_name ? (
                             listLocationName[index].features[0].place_name
                           ) : (
                             'Unknown location'

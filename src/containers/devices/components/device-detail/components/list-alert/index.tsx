@@ -197,7 +197,7 @@ export default function ListAlert() {
             severity: alert.level,
             waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
             location:
-              alertAddresses?.[index]?.features[0].place_name ||
+              alertAddresses?.[index]?.features?.[0]?.place_name ||
               ((<Skeleton className="w-20 h-4" />) as React.ReactNode),
             time: format(timestamp, 'hh:mm a'),
             timestamp,
