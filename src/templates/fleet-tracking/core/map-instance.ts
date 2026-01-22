@@ -37,6 +37,7 @@ class MapInstance {
   private pitch: number = 0
   private initialized = false
   private readyEmitted = false
+  private isMapFlying = false
 
   private constructor() {}
 
@@ -274,9 +275,14 @@ class MapInstance {
       duration,
     })
   }
+  public getIsMapFlying() {
+    return this.isMapFlying
+  }
 
   public onZoomToDevice = (device: Device) => {
     if (!this.map) return
+
+    this.isMapFlying = true
 
     const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
 
@@ -296,6 +302,10 @@ class MapInstance {
         duration: 500,
       })
     }
+
+    setTimeout(() => {
+      this.isMapFlying = false
+    }, 600)
   }
 
   public getMap() {

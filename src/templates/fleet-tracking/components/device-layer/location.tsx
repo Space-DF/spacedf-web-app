@@ -139,8 +139,6 @@ export const LocationLayer = memo(
 
         const device = devices.find((device) => device.id === deviceId)
 
-        await new Promise((resolve) => setTimeout(resolve, 300))
-
         if (device) {
           mapInstance.onZoomToDevice(device)
         }
@@ -152,7 +150,7 @@ export const LocationLayer = memo(
           deckGLInstance.focusDevice(deviceId)
         }
       },
-      [deviceSelected, devices]
+      [devices]
     )
 
     useEffect(() => {

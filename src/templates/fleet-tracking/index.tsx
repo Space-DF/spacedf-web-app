@@ -174,7 +174,12 @@ export default function FleetTrackingMap() {
   }, [viewMode])
 
   useEffect(() => {
-    if (isClusterVisible && deviceSelected && !isAlreadyShowTripRoute) {
+    if (
+      isClusterVisible &&
+      deviceSelected &&
+      !isAlreadyShowTripRoute &&
+      !mapInstance.getIsMapFlying()
+    ) {
       setDeviceSelected('')
     }
   }, [isClusterVisible, deviceSelected, isAlreadyShowTripRoute])
