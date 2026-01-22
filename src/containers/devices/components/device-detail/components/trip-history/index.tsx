@@ -74,7 +74,7 @@ const TripHistory = () => {
     () =>
       trips?.map((trip, index) => ({
         id: trip.id,
-        name: tripAddresses?.[index].features[0].place_name || (
+        name: tripAddresses?.[index]?.features?.[0]?.place_name || (
           <Skeleton className="w-20 h-4" />
         ),
         checkpoints: trip.checkpoints,
