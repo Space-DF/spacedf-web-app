@@ -68,14 +68,17 @@ const TripHistory = () => {
     return trips.map((trip) => [trip.last_longitude, trip.last_latitude])
   }, [trips])
 
-  const { data: tripAddresses } = useTripAddress(listLocation)
+  const { data: tripAddresses, isLoading: isLoadingTripAddress } =
+    useTripAddress(listLocation)
 
   const tripHistory: ListItem[] = useMemo(
     () =>
       trips?.map((trip, index) => ({
         id: trip.id,
-        name: tripAddresses?.[index]?.features?.[0]?.place_name || (
+        name: isLoadingTripAddress ? (
           <Skeleton className="w-20 h-4" />
+        ) : (
+          tripAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
         ),
         checkpoints: trip.checkpoints,
         distance: '0',

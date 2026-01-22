@@ -172,7 +172,8 @@ export default function ListAlert() {
     )
   }, [alerts])
 
-  const { data: alertAddresses } = useTripAddress(listLocation)
+  const { data: alertAddresses, isLoading: isLoadingAlertAddress } =
+    useTripAddress(listLocation)
 
   const alertAvailableList = useMemo(() => {
     return (
@@ -196,9 +197,11 @@ export default function ListAlert() {
             title: alert.message,
             severity: alert.level,
             waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
-            location:
-              alertAddresses?.[index]?.features?.[0]?.place_name ||
-              ((<Skeleton className="w-20 h-4" />) as React.ReactNode),
+            location: isLoadingAlertAddress ? (
+              <Skeleton className="w-20 h-4" />
+            ) : (
+              alertAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
+            ),
             time: format(timestamp, 'hh:mm a'),
             timestamp,
             relativeTime: relativeTimeStr,
