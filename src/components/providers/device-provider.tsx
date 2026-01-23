@@ -192,6 +192,7 @@ export const DeviceProvider = ({ children }: PropsWithChildren) => {
             dataUpdatesRef.current[data.entityUpdate.device_id] = {
               ...dataUpdatesRef.current[data.entityUpdate.device_id],
               water_depth: newWaterDepth,
+              water_level_name: getWaterDepthLevelName(newWaterDepth),
             }
 
           case 'location':

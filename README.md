@@ -88,8 +88,6 @@ Before you begin, ensure you have the following installed:
    NEXTAUTH_URL=http://localhost:3000
    AUTH_API=your-auth-api-url
 
-   SPACE_API_KEY=your-space-api-key
-
    MAPTILER_API_KEY=your-maptiler api key
 
    # MQTT Configuration
@@ -152,7 +150,6 @@ Required environment variables:
 | `NEXTAUTH_URL`                      | Base URL of your application (e.g., `http://localhost:3000`)                        |
 | `NEXTAUTH_SECRET`                   | Secret key for NextAuth.js - [generate here](https://generate-secret.vercel.app/32) |
 | `AUTH_API`                          | SpaceDF authentication API endpoint                                                 |
-| `SPACE_API_KEY`                     | SpaceDF SDK API key                                                                 |
 | `MAPTILER_API_KEY`                  | MapTiler api key for get map address (server-side only)                             |
 | `DASHBOARD_DASHBOARD_MQTT_USERNAME` | MQTT broker username                                                                |
 | `DASHBOARD_DASHBOARD_MQTT_PASSWORD` | MQTT broker password                                                                |
