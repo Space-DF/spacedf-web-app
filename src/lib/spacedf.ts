@@ -12,12 +12,10 @@ export class SpaceDFClient {
   private static instance: SpaceDFClient | null = null
   private client: SpaceDF | null = null
   private token?: string | undefined
-  private api_key: string
   private currentOrganization: string = ''
 
   private constructor() {
     this.token = undefined
-    this.api_key = process.env.SPACE_API_KEY || ''
   }
 
   private async initialize() {
@@ -31,7 +29,6 @@ export class SpaceDFClient {
     this.currentOrganization = organization
     this.client = new SpaceDF({
       organization: organization || '',
-      APIKey: this.api_key,
       baseURL: getBaseURL(organization),
     })
   }
@@ -66,10 +63,6 @@ export class SpaceDFClient {
     }
     this.token = token // Update the token property
     this.client.setAccessToken(token) // Update the token in the SpaceDF client
-  }
-
-  public setAPIKey(apiKey: string): void {
-    this.api_key = apiKey
   }
 
   public getToken(): string {

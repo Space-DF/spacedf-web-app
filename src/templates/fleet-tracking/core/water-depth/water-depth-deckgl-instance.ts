@@ -23,6 +23,7 @@ type PolygonData = {
 type MainColumData = {
   location: [number, number]
   waterLevel: number
+  waterDepth: number
   color: [number, number, number]
   deviceId: string
 }
@@ -298,12 +299,13 @@ class WaterDepthDeckInstance {
 
     const dataLayer: LayerDataSource<MainColumData> = visibleDevices.map(
       (device) => {
-        const waterLevel = device.deviceProperties?.water_depth
+        const waterDepth = device.deviceProperties?.water_depth
           ? device.deviceProperties?.water_depth
           : 0
 
         return {
-          waterLevel: waterLevel * WATER_LEVEL_SCALE_FACTOR,
+          waterLevel: waterDepth * WATER_LEVEL_SCALE_FACTOR,
+          waterDepth: waterDepth,
           color: getLevelColor(
             device.deviceProperties?.water_level_name || 'safe'
           ).column,
@@ -361,7 +363,7 @@ class WaterDepthDeckInstance {
       (device) => {
         const isSelected = device.id === this.focusedDevice
 
-        const waterLevel = device.deviceProperties?.water_depth
+        const waterDepth = device.deviceProperties?.water_depth
           ? device.deviceProperties?.water_depth
           : 0
 
@@ -370,7 +372,8 @@ class WaterDepthDeckInstance {
         ).column
 
         return {
-          waterLevel: waterLevel * WATER_LEVEL_SCALE_FACTOR,
+          waterLevel: waterDepth * WATER_LEVEL_SCALE_FACTOR,
+          waterDepth: waterDepth,
           color: isSelected
             ? [color[0], color[1], color[2], 50]
             : [255, 255, 255, 70],

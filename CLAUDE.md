@@ -120,7 +120,6 @@ SpaceDF is a Next.js web application for IoT tracking and digital twin visualiza
 Required environment variables:
 
 - `NEXTAUTH_SECRET` - NextAuth.js secret
-- `SPACE_API_KEY` - SpaceDF SDK API key
 - Additional config in `src/shared/env.ts`
 
 ## Important Implementation Notes
