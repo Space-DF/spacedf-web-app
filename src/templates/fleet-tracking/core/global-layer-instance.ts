@@ -46,7 +46,8 @@ export class GlobalDeckGLInstance {
           layer?.id === LAYER_IDS.WATER_DEPTH_COLUMN_WRAPPER
 
         if (isWaterLevelLayer && object) {
-          return `Water Level: ${object.waterLevel / 100}m`
+          const waterDepthInMeters = (object.waterDepth ?? 0) / 100
+          return `Water Level: ${waterDepthInMeters.toFixed(2)}m`
         }
 
         return undefined

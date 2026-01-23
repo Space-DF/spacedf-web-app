@@ -10,7 +10,6 @@ services:
 
       #These variables for API endpoint
       AUTH_API: ${DASHBOARD_AUTH_API}
-      SPACE_API_KEY: ${SPACE_API_KEY}
 
       #These variables for MQTT dashboard (optional)
       DASHBOARD_MQTT_USERNAME: ${DASHBOARD_MQTT_USERNAME}
