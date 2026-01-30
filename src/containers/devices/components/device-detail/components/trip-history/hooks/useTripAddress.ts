@@ -1,13 +1,11 @@
-import { getLocationName } from '@/utils/mapbox-geocoding'
+import { geocodingService } from '@/utils/map-geocoding'
 import useSWR from 'swr'
 
-export const useTripAddress = (
-  locations: { longitude?: number; latitude?: number }[]
-) => {
+export const useTripAddress = (locations: [number, number][]) => {
   return useSWR(
     locations.length > 0
-      ? `mapbox-geocoding-${locations.map((location) => `${location.longitude},${location.latitude}`).join(';')}`
+      ? `geocoding-${locations.map((location) => `${location[0]},${location[1]}`).join(';')}`
       : null,
-    () => getLocationName({ locations })
+    () => geocodingService.batchReverse(locations, { returnType: 'array' })
   )
 }

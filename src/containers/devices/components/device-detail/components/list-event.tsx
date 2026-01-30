@@ -106,11 +106,8 @@ const ListEvent = () => {
     deviceDataSelected?.deviceId
   )
 
-  const listLocation = useMemo(() => {
-    return events?.map((event) => ({
-      latitude: event.latitude,
-      longitude: event.longitude,
-    }))
+  const listLocation: [number, number][] = useMemo(() => {
+    return events?.map((event) => [event.latitude, event.longitude])
   }, [events])
 
   const { data: listLocationName = [], isLoading: isLoadingLocation } =
@@ -127,7 +124,8 @@ const ListEvent = () => {
             location: isLoadingLocation ? (
               <Skeleton className="w-20 h-4" />
             ) : (
-              listLocationName[index] || 'Unknown location'
+              listLocationName[index]?.features?.[0]?.place_name ||
+              'Unknown location'
             ),
           })),
     [events, showDummyData, isLoadingLocation, listLocationName]

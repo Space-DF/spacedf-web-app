@@ -24,7 +24,7 @@ SpaceDF is a Next.js web application for IoT tracking and digital twin visualiza
 - **State Management**: Zustand stores
 - **Data Fetching**: SWR for client-side data
 - **UI Components**: Radix UI + Tailwind CSS + shadcn/ui
-- **Mapping**: Mapbox GL + deck.gl for 3D visualization
+- **Mapping**: MapLibre + deck.gl for 3D visualization
 - **Real-time**: MQTT client integration
 
 ### Project Structure
@@ -120,7 +120,6 @@ SpaceDF is a Next.js web application for IoT tracking and digital twin visualiza
 Required environment variables:
 
 - `NEXTAUTH_SECRET` - NextAuth.js secret
-- `SPACE_API_KEY` - SpaceDF SDK API key
 - Additional config in `src/shared/env.ts`
 
 ## Important Implementation Notes

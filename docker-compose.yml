@@ -1,0 +1,23 @@
+services:
+  web:
+    # Image built from the Dockerfile in the current directory. Replace with your own Docker image if needed.
+    image: ''
+    environment:
+      #These variables for next-auth (required)
+      NEXTAUTH_URL: ${DASHBOARD_NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${DASHBOARD_NEXTAUTH_SECRET}
+      MAPTILER_API_KEY: ${MAPTILER_API_KEY}
+
+      #These variables for API endpoint
+      AUTH_API: ${DASHBOARD_AUTH_API}
+
+      #These variables for MQTT dashboard (optional)
+      DASHBOARD_MQTT_USERNAME: ${DASHBOARD_MQTT_USERNAME}
+      DASHBOARD_MQTT_PASSWORD: ${DASHBOARD_MQTT_PASSWORD}
+      DASHBOARD_MQTT_PORT: ${DASHBOARD_MQTT_PORT}
+      DASHBOARD_MQTT_PROTOCOL: ${DASHBOARD_MQTT_PROTOCOL}
+      DASHBOARD_MQTT_BROKER: ${DASHBOARD_MQTT_BROKER}
+
+    ports:
+      - '3000:3000'
+    restart: unless-stopped

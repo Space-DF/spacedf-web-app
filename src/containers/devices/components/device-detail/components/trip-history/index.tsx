@@ -64,20 +64,22 @@ const TripHistory = () => {
 
   const { data: trips = [], isLoading, mutate } = useGetTrips(deviceSelected)
 
-  const listLocation = useMemo(() => {
-    return trips.map((trip) => ({
-      longitude: trip.last_longitude,
-      latitude: trip.last_latitude,
-    }))
+  const listLocation: [number, number][] = useMemo(() => {
+    return trips.map((trip) => [trip.last_longitude, trip.last_latitude])
   }, [trips])
 
-  const { data: tripAddresses } = useTripAddress(listLocation)
+  const { data: tripAddresses, isLoading: isLoadingTripAddress } =
+    useTripAddress(listLocation)
 
   const tripHistory: ListItem[] = useMemo(
     () =>
       trips?.map((trip, index) => ({
         id: trip.id,
-        name: tripAddresses?.[index] || <Skeleton className="w-20 h-4" />,
+        name: isLoadingTripAddress ? (
+          <Skeleton className="w-20 h-4" />
+        ) : (
+          tripAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
+        ),
         checkpoints: trip.checkpoints,
         distance: '0',
         duration: dayjs(trip.last_report).diff(dayjs(trip.started_at)),
