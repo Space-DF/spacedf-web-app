@@ -21,7 +21,7 @@ import { Dashboard } from '@/types/dashboard'
 import { useUpdateDashboard } from './hooks/useUpdateDashboard'
 
 interface DashboardDialogProps {
-  setDashboardId?: (id: string) => void
+  setDashboard?: (dashboard: Dashboard) => void
   closePopover?: () => void
   dashboard?: Dashboard
   isOpen: boolean
@@ -29,7 +29,7 @@ interface DashboardDialogProps {
 }
 
 export const DashboardDialog = ({
-  setDashboardId,
+  setDashboard,
   closePopover,
   dashboard,
   isOpen,
@@ -77,7 +77,7 @@ export const DashboardDialog = ({
     }
     const newDashboard = await createDashboard({ name: data.name })
     handleClose()
-    setDashboardId?.(newDashboard.id)
+    setDashboard?.(newDashboard)
   }
 
   return (
