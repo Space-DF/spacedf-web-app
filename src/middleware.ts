@@ -54,19 +54,15 @@ export default async function middleware(request: NextRequest) {
       (!decodedDevToken?.exp || decodedDevToken.exp >= Date.now() / 1000)
 
     if (!hasValidToken && !isProtectedRoute) {
-      return NextResponse.redirect(
-        new URL(`/${locale}/protected`, request.nextUrl.origin)
-      )
+      return NextResponse.redirect(new URL(`/${locale}/protected`, url))
     }
 
     if (hasValidToken && isProtectedRoute) {
-      return NextResponse.redirect(
-        new URL(`/${locale}`, request.nextUrl.origin)
-      )
+      return NextResponse.redirect(new URL(`/${locale}`, url))
     }
   }
   if (!isDev && request.nextUrl.pathname === `/${locale}/protected`) {
-    return NextResponse.redirect(new URL(`/${locale}`, request.nextUrl.origin))
+    return NextResponse.redirect(new URL(`/${locale}`, url))
   }
 
   // Step 2: Create and call the next-intl middleware (example)
@@ -78,7 +74,7 @@ export default async function middleware(request: NextRequest) {
 
   const subdomain = await getValidSubdomain(host)
   if (!subdomain) {
-    const demoUrl = `${request.nextUrl.protocol}//demo.${request.nextUrl.host}`
+    const demoUrl = `${request.nextUrl.protocol}//demo.${url.host}`
 
     return NextResponse.redirect(demoUrl, 308)
   }
@@ -92,8 +88,8 @@ export default async function middleware(request: NextRequest) {
   const isApiRoute = segments[0] === 'api'
 
   if (!userIsAuthenticated && !isPublicRoute && !isApiRoute) {
-    const loginUrl = new URL(`/${locale}`, request.nextUrl.origin)
-    return NextResponse.redirect(loginUrl)
+    url.pathname = `/${locale}`
+    return NextResponse.redirect(url)
   }
 
   if (subdomain) {

@@ -1,4 +1,4 @@
-import { LngLatLike } from 'mapbox-gl'
+import { LngLatLike } from 'maplibre-gl'
 import { DeviceAttributes } from '../device-model'
 
 type GpsTrackerAttributes = {

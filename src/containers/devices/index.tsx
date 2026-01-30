@@ -303,18 +303,17 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
   } = useGetDevices()
 
   const { locations, deviceHasLocation } = useMemo(() => {
-    const locations = [] as { latitude: number; longitude: number }[]
+    const locations = [] as [number, number][]
     const deviceHasLocation = [] as DeviceDataOriginal[]
-
     devices.forEach((device) => {
       if (
         device?.device_properties?.latest_checkpoint?.latitude &&
         device?.device_properties?.latest_checkpoint?.longitude
       ) {
-        locations.push({
-          latitude: device?.device_properties?.latest_checkpoint?.latitude,
-          longitude: device?.device_properties?.latest_checkpoint?.longitude,
-        })
+        locations.push([
+          device?.device_properties?.latest_checkpoint?.longitude,
+          device?.device_properties?.latest_checkpoint?.latitude,
+        ])
         deviceHasLocation.push(device)
       }
     })
@@ -441,14 +440,15 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
                   }}
                 >
                   {rowDevices.map((device) => {
-                    const isHasLocation = deviceIdsHasLocation.includes(
-                      device.id
+                    const index = deviceIdsHasLocation.findIndex(
+                      (id) => id === device.id
                     )
-                    const locationName = isHasLocation
-                      ? listLocationName[
-                          deviceIdsHasLocation.indexOf(device.id)
-                        ]
-                      : 'Unknown'
+                    const isHasLocation = index !== -1
+                    const locationName =
+                      isHasLocation &&
+                      listLocationName[index]?.features?.[0]?.place_name
+                        ? listLocationName[index].features[0].place_name
+                        : 'Unknown'
 
                     return (
                       <div
