@@ -403,7 +403,7 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
         placeholder={t('device')}
         wrapperClass="w-full"
         value={deviceName}
-        onChange={(e) => setDeviceName(e.target.value.trim())}
+        onChange={(e) => setDeviceName(e.target.value)}
       />
       <div
         className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
