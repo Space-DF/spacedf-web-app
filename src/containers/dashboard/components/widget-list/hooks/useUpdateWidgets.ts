@@ -12,7 +12,7 @@ export const useUpdateWidgets = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const spaceSlugName = spaceSlug || currentSpace?.slug_name
-  const dashboardId = useDashboardStore((state) => state.dashboardId)
+  const dashboardId = useDashboardStore((state) => state.dashboard?.id)
   return useSWRMutation(
     `/api/dashboard/${spaceSlugName}/widgets/${dashboardId}`,
     updateWidgets

@@ -4,12 +4,14 @@ import { useParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
 import { fetcher } from '@/utils'
 
-export const useDashboard = () => {
+export const useDashboard = (search?: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const spaceSlugName = currentSpace?.slug_name || spaceSlug
   return useSWR<Dashboard[]>(
-    spaceSlugName ? `/api/dashboard/${spaceSlugName}` : null,
+    spaceSlugName
+      ? `/api/dashboard/${spaceSlugName}?search=${search ?? ''}`
+      : null,
     fetcher<Dashboard[]>
   )
 }
