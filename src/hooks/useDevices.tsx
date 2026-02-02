@@ -17,19 +17,23 @@ const PAGE_SIZE = 10
 const getKey = (
   pageIndex: number,
   previousPageData: DeviceDataOriginal[],
-  spaceSlug: string
+  spaceSlug: string,
+  deviceName = ''
 ) => {
   // Stop fetching if there is no more data
   if (previousPageData && !previousPageData.length) return null
   const offset = pageIndex * PAGE_SIZE
-  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${PAGE_SIZE}`
+  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${PAGE_SIZE}&search=${deviceName}`
 }
 
-export function useGetDevices(configs: SWRConfiguration = {}) {
+export function useGetDevices(
+  deviceName?: string,
+  configs: SWRConfiguration = {}
+) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const { data, isLoading, ...rest } = useSWRInfinite(
     (pageIndex, previousPageData) =>
-      getKey(pageIndex, previousPageData, spaceSlug),
+      getKey(pageIndex, previousPageData, spaceSlug, deviceName),
     getDevices<DeviceDataOriginal[]>,
     configs
   )

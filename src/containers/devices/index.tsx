@@ -69,6 +69,7 @@ import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
+import { useDebounce } from '@/hooks/useDebounce'
 
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
@@ -294,13 +295,15 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
 
 const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
+  const [deviceName, setDeviceName] = useState('')
+  const debouncedDeviceName = useDebounce(deviceName)
   const {
     data: devices = [],
     mutate,
     isReachingEnd,
     isLoading,
     setSize,
-  } = useGetDevices()
+  } = useGetDevices(debouncedDeviceName)
 
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
@@ -399,6 +402,8 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
         }
         placeholder={t('device')}
         wrapperClass="w-full"
+        value={deviceName}
+        onChange={(e) => setDeviceName(e.target.value.trim())}
       />
       <div
         className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
