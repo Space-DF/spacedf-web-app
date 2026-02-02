@@ -48,6 +48,9 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useDebounce } from '@/hooks/useDebounce'
 import DashboardTable from './components/dashboard-table'
+import { DashboardDialog } from './components/dashboard-dialog'
+import { Dashboard } from '@/types/dashboard'
+import { sleep } from '@/utils'
 
 interface Props {
   onCloseSideBar: () => void
@@ -90,6 +93,7 @@ export const WidgetList: React.FC<Props> = ({
   const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
     useUpdateWidgets()
   const [isOpenDashboardDialog, setIsOpenDashboardDialog] = useState(false)
+  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>()
   const [widgets, setWidgets] = useState<any[]>([])
   const handleChangeWidgets = useCallback((widgets: any[]) => {
     setWidgets(widgets)
@@ -104,27 +108,15 @@ export const WidgetList: React.FC<Props> = ({
     isLoading: isLoadingDashboard,
   } = useDashboard(searchDashboardDebounced)
 
-  const dashboardList = useMemo(() => {
-    const isCurrentDashboardInList = dashboards.find(
-      (dashboardItem) => dashboardItem.id !== dashboard?.id
-    )
-    if (dashboard && (isCurrentDashboardInList || !dashboards.length)) {
-      return [
-        dashboard,
-        ...dashboards.filter(
-          (dashboardItem) => dashboardItem.id !== dashboard.id
-        ),
-      ]
-    }
-    return dashboards
-  }, [dashboard, dashboards])
-
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)
 
   const handleDeleteDashboard = async () => {
     await deleteDashboard()
     await mutate()
+    if (dashboard?.id === deleteId) {
+      setDashboard(undefined)
+    }
     setDeleteId(undefined)
   }
 
@@ -172,14 +164,11 @@ export const WidgetList: React.FC<Props> = ({
   }, [currentWidgetLayout])
 
   useEffect(() => {
-    if (dashboardList.length > 0 && !dashboard) {
-      setDashboard(dashboardList[0])
+    if (dashboards.length > 0 && !dashboard) {
+      setDashboard(dashboards[0])
       return
     }
-    if (dashboard && !dashboardList.length) {
-      setDashboard(undefined)
-    }
-  }, [dashboardList, dashboard])
+  }, [dashboards, dashboard])
 
   const currentDashboardName = useMemo(() => {
     return dashboard?.name || 'Select Dashboard'
@@ -193,8 +182,34 @@ export const WidgetList: React.FC<Props> = ({
     }
   }
 
+  const handleOpenChangeDashboard = (value: boolean) => {
+    setOpen(value)
+    if (!value) {
+      setSearchDashboard('')
+    }
+  }
+
+  const handleSelectDashboard = (dashboard: Dashboard) => {
+    setSelectedDashboard(dashboard)
+    setIsOpenDashboardDialog(true)
+  }
+
+  const handleCloseDashboardDialog = async () => {
+    setOpen(false)
+    setIsOpenDashboardDialog(false)
+    await sleep(300)
+    setSelectedDashboard(undefined)
+  }
+
   return (
     <>
+      <DashboardDialog
+        isOpen={isOpenDashboardDialog}
+        setDashboard={setDashboard}
+        closePopover={handleCloseDashboardDialog}
+        setIsOpen={setIsOpenDashboardDialog}
+        selectedDashboard={selectedDashboard}
+      />
       <RightSideBarLayout
         onClose={onCloseSideBar}
         title={
@@ -208,12 +223,7 @@ export const WidgetList: React.FC<Props> = ({
               <div>{t('dashboard.all_dashboard')}</div>
             </div>
           ) : (
-            <Popover
-              open={open}
-              onOpenChange={(open) => {
-                setOpen(open)
-              }}
-            >
+            <Popover open={open} onOpenChange={handleOpenChangeDashboard}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -242,7 +252,7 @@ export const WidgetList: React.FC<Props> = ({
                     value={searchDashboard}
                   />
                   <CommandList>
-                    {!isLoadingDashboard && !dashboardList.length && (
+                    {!isLoadingDashboard && !dashboards.length && (
                       <CommandEmpty>
                         {t('dashboard.no_dashboard_found')}
                       </CommandEmpty>
@@ -257,17 +267,17 @@ export const WidgetList: React.FC<Props> = ({
                               <Skeleton className="h-5 w-full" />
                             </div>
                           ))
-                        : dashboardList.map((dashboardItem) => (
+                        : dashboards.map((dashboardItem) => (
                             <CommandItem
                               key={dashboardItem.id}
                               value={dashboardItem.id}
                               onSelect={(currentValue) => {
-                                const itemSelect = dashboardList.find(
+                                const itemSelect = dashboards.find(
                                   (dashboardItem) =>
                                     dashboardItem.id === currentValue
                                 )
                                 setDashboard(itemSelect!)
-                                setOpen(false)
+                                handleOpenChangeDashboard(false)
                                 setEdit(false)
                               }}
                               className={cn(
@@ -319,11 +329,7 @@ export const WidgetList: React.FC<Props> = ({
       >
         <div className="mt-4">
           {isViewAllDashboard ? (
-            <DashboardTable
-              setOpen={setOpen}
-              setIsOpenDashboardDialog={setIsOpenDashboardDialog}
-              isOpenDashboardDialog={isOpenDashboardDialog}
-            />
+            <DashboardTable onSelectDashboard={handleSelectDashboard} />
           ) : (
             <>
               {isEdit && (

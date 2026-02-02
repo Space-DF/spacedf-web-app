@@ -19,11 +19,12 @@ import { useIsDemo } from '@/hooks/useIsDemo'
 import { useCreateDashboard } from '@/containers/dashboard/hooks/useCreateDashboard'
 import { Dashboard } from '@/types/dashboard'
 import { useUpdateDashboard } from './hooks/useUpdateDashboard'
+import { useSWRConfig } from 'swr'
 
 interface DashboardDialogProps {
   setDashboard?: (dashboard: Dashboard) => void
   closePopover?: () => void
-  dashboard?: Dashboard
+  selectedDashboard?: Dashboard
   isOpen: boolean
   setIsOpen: (open: boolean) => void
 }
@@ -31,7 +32,7 @@ interface DashboardDialogProps {
 export const DashboardDialog = ({
   setDashboard,
   closePopover,
-  dashboard,
+  selectedDashboard,
   isOpen,
   setIsOpen,
 }: DashboardDialogProps) => {
@@ -44,10 +45,10 @@ export const DashboardDialog = ({
   })
 
   useEffect(() => {
-    if (dashboard) {
-      form.setValue('name', dashboard.name)
+    if (selectedDashboard) {
+      form.setValue('name', selectedDashboard.name)
     }
-  }, [dashboard])
+  }, [selectedDashboard])
 
   const isDemo = useIsDemo()
   const { trigger: createDashboard, isMutating: isCreatingDashboard } =
@@ -55,6 +56,8 @@ export const DashboardDialog = ({
 
   const { trigger: updateDashboard, isMutating: isUpdatingDashboard } =
     useUpdateDashboard()
+
+  const { mutate: mutateGlobal } = useSWRConfig()
 
   const handleClose = async () => {
     await closePopover?.()
@@ -70,12 +73,24 @@ export const DashboardDialog = ({
 
   const onSubmit = async (data: z.infer<typeof dashboardSchema>) => {
     if (isDemo) return handleClose()
-    if (dashboard) {
-      await updateDashboard({ name: data.name, id: dashboard.id })
+    if (selectedDashboard) {
+      const newDashboard = await updateDashboard({
+        name: data.name,
+        id: selectedDashboard.id,
+      })
+      mutateGlobal(
+        (key) => typeof key === 'string' && key.startsWith('/api/dashboard')
+      )
+      if (newDashboard.name !== selectedDashboard.name) {
+        setDashboard?.(newDashboard)
+      }
       handleClose()
       return
     }
     const newDashboard = await createDashboard({ name: data.name })
+    mutateGlobal(
+      (key) => typeof key === 'string' && key.startsWith('/api/dashboard')
+    )
     handleClose()
     setDashboard?.(newDashboard)
   }
@@ -84,7 +99,7 @@ export const DashboardDialog = ({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="text-sm text-brand-component-text-dark p-6">
         <DialogTitle>
-          {dashboard ? t('update_dashboard') : t('create_dashboard')}
+          {selectedDashboard ? t('update_dashboard') : t('create_dashboard')}
         </DialogTitle>
         <Form {...form}>
           <form
@@ -116,7 +131,7 @@ export const DashboardDialog = ({
               type="submit"
               className="w-full"
             >
-              {dashboard ? t('save') : t('create_dashboard')}
+              {selectedDashboard ? t('save') : t('create_dashboard')}
             </Button>
           </form>
         </Form>

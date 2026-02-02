@@ -23,7 +23,10 @@ const GET = async (
     const isDemo = await isDemoSubdomain(request)
     if (isDemo) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      return NextResponse.json(dummyDevice, {
+      const dummyResults = dummyDevice.filter((device) =>
+        device.name.toLowerCase().includes(search.toLowerCase().trim())
+      )
+      return NextResponse.json(dummyResults, {
         status: 200,
       })
     }

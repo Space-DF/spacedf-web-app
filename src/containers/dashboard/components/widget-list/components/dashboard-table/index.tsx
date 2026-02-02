@@ -6,60 +6,52 @@ import { Dashboard } from '@/types/dashboard'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { DashboardDialog } from '../dashboard-dialog'
-import { sleep } from '@/utils'
+import { useDebounce } from '@/hooks/useDebounce'
+import { InputWithIcon } from '@/components/ui/input'
+import { SearchIcon } from 'lucide-react'
 
 interface Props {
-  setOpen: (open: boolean) => void
-  setIsOpenDashboardDialog: (open: boolean) => void
-  isOpenDashboardDialog: boolean
+  onSelectDashboard: (dashboard: Dashboard) => void
 }
 
-const DashboardTable: React.FC<Props> = ({
-  setOpen,
-  setIsOpenDashboardDialog,
-  isOpenDashboardDialog,
-}) => {
+const DashboardTable: React.FC<Props> = ({ onSelectDashboard }) => {
   const t = useTranslations()
-  const [selectedDashboard, setSelectedDashboard] = useState<Dashboard>()
-  const { setDeleteId, setDashboard } = useDashboardStore(
+  const { setDeleteId } = useDashboardStore(
     useShallow((state) => ({
       setDeleteId: state.setDeleteId,
-      setDashboard: state.setDashboard,
     }))
   )
-  const { data: dashboards = [] } = useDashboard()
+  const [searchDashboard, setSearchDashboard] = useState('')
+  const searchDashboardDebounced = useDebounce(searchDashboard, 300)
+  const { data: dashboards = [], isLoading: isLoadingDashboard } = useDashboard(
+    searchDashboardDebounced
+  )
   const handleDeleteSpace = (id: string) => {
     setDeleteId(id)
   }
 
-  const handleSelectDashboard = (dashboard: Dashboard) => {
-    setSelectedDashboard(dashboard)
-    setIsOpenDashboardDialog(true)
-  }
-
   const columns = useMemo(() => {
-    return getColumns({ handleDeleteSpace, t, handleSelectDashboard })
-  }, [t])
-
-  const handleCloseDashboardDialog = async () => {
-    setOpen(false)
-    setIsOpenDashboardDialog(false)
-    await sleep(300)
-    setSelectedDashboard(undefined)
-  }
+    return getColumns({
+      handleDeleteSpace,
+      t,
+      handleSelectDashboard: onSelectDashboard,
+    })
+  }, [t, onSelectDashboard])
 
   return (
-    <>
-      <DashboardDialog
-        isOpen={isOpenDashboardDialog}
-        setDashboard={setDashboard}
-        closePopover={handleCloseDashboardDialog}
-        setIsOpen={setIsOpenDashboardDialog}
-        dashboard={selectedDashboard}
+    <div className="flex flex-col gap-4">
+      <InputWithIcon
+        prefixCpn={<SearchIcon size={18} />}
+        placeholder={t('dashboard.search')}
+        value={searchDashboard}
+        onChange={(e) => setSearchDashboard(e.target.value)}
       />
-      <DataTable columns={columns} data={dashboards} />
-    </>
+      <DataTable
+        columns={columns}
+        data={dashboards}
+        isLoading={isLoadingDashboard}
+      />
+    </div>
   )
 }
 
