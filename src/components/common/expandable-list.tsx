@@ -1,0 +1,51 @@
+import React from 'react'
+import { ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useExpandable } from '@/hooks/useExpandable'
+import { Nodata } from '../ui'
+
+interface ExpandableListProps<T> {
+  items: T[]
+  initialCount?: number
+  renderItem: (item: T, index: number, isExpanded: boolean) => React.ReactNode
+  className?: string
+  expandMessage?: string
+  collapseMessage?: string
+}
+
+const ExpandableList = <T,>({
+  items,
+  initialCount = 2,
+  renderItem,
+  className,
+  expandMessage = 'More',
+  collapseMessage = 'Less',
+}: ExpandableListProps<T>) => {
+  const { isExpanded, toggleExpand, visibleItems } = useExpandable<T>({
+    items,
+    initialCount,
+  })
+
+  return (
+    <div className={cn('flex flex-col gap-1', className)}>
+      {!items.length && <Nodata />}
+      {visibleItems.map((item, index) => renderItem(item, index, true))}
+      {items.length > initialCount && (
+        <button
+          className="w-full border-none p-2 flex items-center justify-center gap-x-1 text-brand-component-text-dark text-sm font-medium"
+          onClick={toggleExpand}
+        >
+          <p>{isExpanded ? collapseMessage : expandMessage}</p>{' '}
+          <ChevronDown
+            className={cn(
+              'size-5 transition-transform duration-300',
+              isExpanded ? 'rotate-180' : ''
+            )}
+          />
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default ExpandableList

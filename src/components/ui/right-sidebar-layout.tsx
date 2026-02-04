@@ -1,0 +1,62 @@
+import { cn } from '@/lib/utils'
+import { PlusIcon } from '@radix-ui/react-icons'
+import React, { PropsWithChildren } from 'react'
+
+type RightSideBarLayoutProps = {
+  onClose?: () => void
+  title?: React.ReactNode | string
+  headerButton?: React.ReactNode | string
+  externalButton?: React.ReactNode
+  allowClose?: boolean
+  className?: string
+  contentClassName?: string
+} & PropsWithChildren
+
+export const RightSideBarLayout = ({
+  onClose,
+  title,
+  headerButton,
+  allowClose = true,
+  children,
+  externalButton,
+  className,
+  contentClassName,
+}: RightSideBarLayoutProps) => {
+  return (
+    <div className={cn('flex h-screen flex-col', className)}>
+      <div className="flex w-full">
+        <div className="flex flex-1 items-center gap-2 pl-4 pr-2 pt-4">
+          <div className="flex flex-1 flex-wrap items-center justify-between gap-2 duration-300">
+            <div className="text-base font-semibold text-brand-component-text-dark dark:text-white">
+              {title}
+            </div>
+            {headerButton}
+            {externalButton}
+          </div>
+        </div>
+        <div className="flex items-start gap-2 pr-4 pt-4">
+          {allowClose && (
+            <div
+              className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
+              onClick={onClose}
+            >
+              <PlusIcon
+                width={24}
+                height={24}
+                className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 dark:text-brand-dark-text-gray"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      <div
+        className={cn(
+          'flex-1 shrink-0 overflow-hidden dark:text-brand-dark-text-gray px-4 overflow-y-auto scroll-smooth transition-all [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]',
+          contentClassName
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
