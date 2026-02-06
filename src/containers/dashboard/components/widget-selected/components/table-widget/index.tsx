@@ -75,7 +75,7 @@ const TableWidget: React.FC<Props> = ({
 
   const tableValue = form.getValues()
 
-  const { createWidget } = useCreateWidget({
+  const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
       toast.success('Created table widget successfully')
       onSaveWidget()
@@ -135,7 +135,9 @@ const TableWidget: React.FC<Props> = ({
         </div>
       }
       externalButton={
-        <Button onClick={handleAddTableWidget}>{t('save')}</Button>
+        <Button onClick={handleAddTableWidget} loading={isMutating}>
+          {t('save')}
+        </Button>
       }
       onClose={onClose}
       contentClassName="px-0"
