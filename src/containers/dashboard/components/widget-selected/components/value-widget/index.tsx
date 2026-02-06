@@ -91,7 +91,7 @@ const ValueWidget: React.FC<Props> = ({
     [color]
   )
 
-  const { createWidget } = useCreateWidget({
+  const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
       toast.success('Created value widget successfully')
       onSaveWidget()
@@ -151,7 +151,9 @@ const ValueWidget: React.FC<Props> = ({
         </div>
       }
       externalButton={
-        <Button onClick={handleSaveValueWidget}>{t('save')}</Button>
+        <Button onClick={handleSaveValueWidget} loading={isMutating}>
+          {t('save')}
+        </Button>
       }
       onClose={onClose}
       contentClassName="px-0"

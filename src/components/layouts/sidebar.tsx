@@ -1,6 +1,11 @@
 'use client'
 
-import { COOKIES, NavigationData, Navigation as TNavigation } from '@/constants'
+import {
+  COOKIES,
+  NavigationData,
+  RESPONSIVE_BREAKPOINTS,
+  Navigation as TNavigation,
+} from '@/constants'
 import { useKeyboardShortcut, useMounted } from '@/hooks'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
@@ -37,6 +42,7 @@ import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
 import { useCache } from '@/hooks/useCache'
+import { useWindowSize } from '@/hooks/useWindowSize'
 type SidebarChildProps = {
   onCollapseChanges?: () => void
 }
@@ -210,6 +216,8 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const { clearAllCache } = useCache()
   const router = useRouter()
 
+  const { width } = useWindowSize()
+
   const { mounted } = useMounted()
   const t = useTranslations('common')
 
@@ -228,6 +236,8 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     router.push('/')
   }
 
+  const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
+
   return (
     <div
       className={cn(
@@ -244,12 +254,14 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
       >
         <div className="flex flex-1 flex-col items-center">
           <div className="flex flex-col space-y-3 items-center mb-3">
-            <div className="flex items-center justify-center">
-              <SidebarCollapsedSimple
-                className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
-                onClick={handleCollapsedChange}
-              />
-            </div>
+            {isTablet && (
+              <div className="flex items-center justify-center">
+                <SidebarCollapsedSimple
+                  className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
+                  onClick={handleCollapsedChange}
+                />
+              </div>
+            )}
             {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
             {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
           </div>
@@ -422,18 +434,24 @@ const CollapsedNavigation = () => {
         }
 
         return (
-          <div
-            onClick={handleDynamicLayoutChange}
-            className={cn(
-              'cursor-pointer rounded-lg p-2 duration-300',
-              isDisplayed
-                ? 'bg-brand-heading text-white dark:bg-brand-dark-fill-secondary'
-                : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white'
-            )}
-            key={navigation.href}
-          >
-            {navigation.icon}
-          </div>
+          <Tooltip key={navigation.href}>
+            <TooltipTrigger>
+              <div
+                onClick={handleDynamicLayoutChange}
+                className={cn(
+                  'cursor-pointer rounded-lg p-2 duration-300',
+                  isDisplayed
+                    ? 'bg-brand-heading text-white dark:bg-brand-dark-fill-secondary'
+                    : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white'
+                )}
+              >
+                {navigation.icon}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+              <p>{uppercaseFirstLetter(navigation.title)}</p>
+            </TooltipContent>
+          </Tooltip>
         )
       })}
     </div>

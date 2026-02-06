@@ -76,7 +76,7 @@ const GaugeWidget: React.FC<Props> = ({
       ],
     })
 
-  const { createWidget } = useCreateWidget({
+  const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
       toast.success('Created gauge widget successfully')
       onSaveWidget()
@@ -138,7 +138,9 @@ const GaugeWidget: React.FC<Props> = ({
         </div>
       }
       externalButton={
-        <Button onClick={handleAddGaugeWidget}>{t('save')}</Button>
+        <Button onClick={handleAddGaugeWidget} loading={isMutating}>
+          {t('save')}
+        </Button>
       }
       onClose={onClose}
       contentClassName="px-0"
