@@ -60,7 +60,7 @@ const TableWidget: React.FC<Props> = ({
     name: ['sources.0', 'widget_info'],
   })
 
-  const { createWidget } = useCreateWidget({
+  const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
       toast.success('Created map widget successfully')
       onSaveWidget()
@@ -118,7 +118,11 @@ const TableWidget: React.FC<Props> = ({
           <div>{t('add_map_widget')}</div>
         </div>
       }
-      externalButton={<Button onClick={handleAddMapWidget}>{t('save')}</Button>}
+      externalButton={
+        <Button onClick={handleAddMapWidget} loading={isMutating}>
+          {t('save')}
+        </Button>
+      }
       onClose={onClose}
       contentClassName="px-0"
     >
