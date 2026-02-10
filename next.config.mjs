@@ -53,6 +53,7 @@ const nextConfig = {
         hostname: 'd3f53s68dquwpy.cloudfront.net',
       },
     ],
+    unoptimized: true,
   },
   async headers() {
     return [
