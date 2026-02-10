@@ -101,6 +101,24 @@ class MapGeocodingService {
 
     return orderedResults as GeocodingReverseResult<T>
   }
+
+  public forward = async (
+    query: string,
+    options?: { limit?: number }
+  ): Promise<maptilersdk.GeocodingFeature[]> => {
+    if (!this.initialized || !query?.trim()) {
+      return []
+    }
+    try {
+      const result = await maptilersdk.geocoding.forward(query, {
+        limit: options?.limit ?? 8,
+      })
+      return result?.features ?? []
+    } catch (error) {
+      console.error({ error })
+      return []
+    }
+  }
 }
 
 export const geocodingService = MapGeocodingService.getInstance()
