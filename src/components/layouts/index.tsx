@@ -2,9 +2,10 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { COOKIES, RESPONSIVE_BREAKPOINTS } from '@/constants'
+import { COOKIES, NavigationEnums, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
+import { Geofences } from '@/containers/geofences'
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,8 @@ import {
 } from '../ui/resizable'
 import Sidebar from './sidebar'
 import { useWindowSize } from '@/hooks/useWindowSize'
+import { useGeofenceStore } from '@/stores/geofence-store'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -42,6 +45,8 @@ const calculateCollapsedLayout = () => {
   return [finalLeftSize, 100 - finalLeftSize]
 }
 
+const mapInstance = MapInstance.getInstance()
+
 const DynamicLayout = ({
   children,
   defaultLayout,
@@ -56,6 +61,8 @@ const DynamicLayout = ({
   const setCollapsed = useLayout((state) => state.setCollapsed)
   const cookieDirty = useLayout((state) => state.cookieDirty)
 
+  const resetGeofenceStore = useGeofenceStore((state) => state.reset)
+
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
@@ -67,7 +74,7 @@ const DynamicLayout = ({
   const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
 
   const dynamicLayoutRight = useMemo(
-    () => getDynamicLayoutRight(dynamicLayouts),
+    () => getDynamicLayoutRight(dynamicLayouts as NavigationEnums[]),
     [dynamicLayouts]
   )
 
@@ -228,6 +235,21 @@ const DynamicLayout = ({
     return (minLeftWidth / window.innerWidth) * 100
   }
 
+  const isGeofencesActive = dynamicLayoutRight.includes(
+    NavigationEnums.GEOFENCES
+  )
+
+  useEffect(() => {
+    const draw = mapInstance.getTerraDraw()
+    if (!isGeofencesActive) {
+      resetGeofenceStore()
+      const snapshot = draw?.getSnapshot()
+      if (!snapshot?.length) return
+      draw?.clear()
+      draw?.setMode('select')
+    }
+  }, [isGeofencesActive])
+
   return (
     <EffectLayout>
       <div className="flex max-h-screen max-w-full overflow-hidden">
@@ -295,7 +317,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!first}
                   >
-                    <Devices />
+                    {isGeofencesActive ? <Geofences /> : <Devices />}
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel

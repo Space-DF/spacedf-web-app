@@ -6,7 +6,6 @@ import TripHistory from './components/trip-history'
 import { Slide } from '@/components/ui/slide'
 import ListAlert from './components/list-alert'
 import { useDeviceStore } from '@/stores/device-store'
-import ListGeofences from './components/list-geofences'
 
 interface DeviceDetailProps {
   onClose: () => void
@@ -49,7 +48,6 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
               <DeviceSelected />
-              <ListGeofences />
               {isWlb ? <ListAlert /> : <TripHistory />}
             </div>
           </div>

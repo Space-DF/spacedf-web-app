@@ -23,6 +23,7 @@ interface ActionsGeofenceStore {
   setActiveTool: (tool: GeofenceStore['activeTool']) => void
   setIsShowGeofenceControls: (isShow: boolean) => void
   setCurrentDrawingColor: (color: string) => void
+  reset: () => void
 }
 
 export const DEFAULT_GEOFENCE_COLOR = '#3b82f6'
@@ -36,5 +37,11 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
     setIsShowGeofenceControls: (isShow) =>
       set({ isShowGeofenceControls: isShow }),
     setCurrentDrawingColor: (color) => set({ currentDrawingColor: color }),
+    reset: () =>
+      set({
+        activeTool: undefined,
+        isShowGeofenceControls: false,
+        currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
+      }),
   })
 )

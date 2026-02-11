@@ -10,13 +10,16 @@ import { useTranslations } from 'next-intl'
 import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import SelectTemplate from './SelectTemplate'
+import { NavigationEnums } from '@/constants'
 
 const OnboardingContainer = () => {
   const t = useTranslations('onboarding')
   const commonTranslate = useTranslations('common')
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
 
-  const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
+  const rightDynamicLayout = getDynamicLayoutRight(
+    dynamicLayouts as NavigationEnums[]
+  )
 
   const { isShowAll } = displayedRightDynamicLayout(rightDynamicLayout)
 

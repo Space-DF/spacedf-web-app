@@ -70,14 +70,12 @@ import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useDebounce } from '@/hooks/useDebounce'
-
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
-
   const previousDeviceSelected = usePrevious(deviceSelected)
 
   const handleCloseSlide = () => {
@@ -92,7 +90,7 @@ const Devices = () => {
     const handle = (e: CustomEvent) => {
       const isChecked = e.detail.checked
       if (!isChecked) {
-        setDeviceSelected('')
+        handleCloseSlide()
       }
     }
     window.addEventListener('deviceLayoutUpdated', handle as EventListener)
@@ -117,7 +115,7 @@ const Devices = () => {
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
     setCookieDirty(true)
     toggleDynamicLayout('devices')
-    setDeviceSelected('')
+    handleCloseSlide()
   }
 
   return (

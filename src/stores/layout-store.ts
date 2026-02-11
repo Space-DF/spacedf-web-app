@@ -63,6 +63,22 @@ export const getNewLayouts = (
 
   if (isDisplayed) {
     layouts = layouts.filter((layout) => layout !== keyHandler)
+  } else if (
+    keyHandler === NavigationEnums.GEOFENCES &&
+    layouts.includes(NavigationEnums.DEVICES)
+  ) {
+    layouts = [
+      ...layouts.filter((layout) => layout !== NavigationEnums.DEVICES),
+      NavigationEnums.GEOFENCES,
+    ]
+  } else if (
+    keyHandler === NavigationEnums.DEVICES &&
+    layouts.includes(NavigationEnums.GEOFENCES)
+  ) {
+    layouts = [
+      ...layouts.filter((layout) => layout !== NavigationEnums.GEOFENCES),
+      NavigationEnums.DEVICES,
+    ]
   } else {
     layouts = [...layouts, keyHandler]
   }

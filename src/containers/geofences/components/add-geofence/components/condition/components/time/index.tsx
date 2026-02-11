@@ -4,10 +4,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { ChevronDown, Ellipsis } from 'lucide-react'
+import {
+  ChevronDown,
+  Ellipsis,
+  Scissors,
+  SquarePen,
+  Trash2,
+} from 'lucide-react'
 import { FieldArrayWithId, useFormContext } from 'react-hook-form'
 import { GeofenceForm } from '../../../../schema'
-import { Calendar } from '@/components/icons'
+import { Calendar, TestTube, Duplicate, Copy } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import {
   FormControl,
@@ -25,6 +31,12 @@ import {
 } from '@/components/ui/select'
 import { TimePicker } from '@/components/common/time-picker'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface Props {
   field: FieldArrayWithId<GeofenceForm, 'conditions', 'id'>
@@ -60,9 +72,39 @@ const ConditionTime = ({ field, path }: Props) => {
         <AccordionTrigger
           className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
-            <div>
-              <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <div className="cursor-pointer">
+                  <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem>
+                  <TestTube className="mr-2 h-4 w-4" />
+                  Test
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Duplicate className="mr-2 h-4 w-4" />
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Scissors className="mr-2 h-4 w-4" />
+                  Cut
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <SquarePen className="mr-2 h-4 w-4" />
+                  Edit in YAML
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-500 focus:text-red-500">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           }
         >
           <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />

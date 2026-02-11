@@ -5,13 +5,14 @@ import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import TabLineHeader from '@/components/common/tab-line-header'
 import { TabsContent } from '@/components/ui/tabs'
-import GeofenceInfo from './comonents/info'
+import GeofenceInfo from './components/info'
 import { useGeofenceStore } from '@/stores/geofence-store'
-import GeofenceCondition from './comonents/condition'
+import GeofenceCondition from './components/condition'
 import { addGeofenceSchema, GeofenceForm } from './schema'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form } from '@/components/ui/form'
+import { useEffect } from 'react'
 
 interface AddGeofenceProps {
   isOpen: boolean
@@ -20,9 +21,7 @@ interface AddGeofenceProps {
 
 const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
   const t = useTranslations('common')
-  const setIsShowGeofenceControls = useGeofenceStore(
-    (state) => state.setIsShowGeofenceControls
-  )
+  const resetGeofenceStore = useGeofenceStore((state) => state.reset)
 
   const form = useForm<GeofenceForm>({
     resolver: zodResolver(addGeofenceSchema),
@@ -32,9 +31,15 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
   })
 
   const handleClose = () => {
-    setIsShowGeofenceControls(false)
+    resetGeofenceStore()
     onClose()
   }
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetGeofenceStore()
+    }
+  }, [isOpen])
 
   return (
     <Slide
