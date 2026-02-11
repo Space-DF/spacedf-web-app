@@ -56,10 +56,10 @@ const MapControls = ({ map }: MapControlsProps) => {
     <div className="absolute z-10 flex flex-col gap-1.5 top-3 right-3">
       <ControlGroup>
         <ControlButton onClick={handleZoomIn} label="Zoom in">
-          <Plus className="size-4" />
+          <Plus className="size-4 text-brand-icon-light-fixed" />
         </ControlButton>
         <ControlButton onClick={handleZoomOut} label="Zoom out">
-          <Minus className="size-4" />
+          <Minus className="size-4 text-brand-icon-light-fixed" />
         </ControlButton>
       </ControlGroup>
 
@@ -74,9 +74,9 @@ const MapControls = ({ map }: MapControlsProps) => {
           disabled={waitingForLocation}
         >
           {waitingForLocation ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin text-brand-icon-light-fixed" />
           ) : (
-            <Locate className="size-4" />
+            <Locate className="size-4 text-brand-icon-light-fixed" />
           )}
         </ControlButton>
       </ControlGroup>
@@ -85,7 +85,7 @@ const MapControls = ({ map }: MapControlsProps) => {
         <ControlButton onClick={handleGlobeSwitch} label="Reset pitch">
           <Globe
             className={cn(
-              'size-4',
+              'size-4 text-brand-icon-light-fixed',
               globeActive && 'text-brand-dark-fill-secondary'
             )}
           />
@@ -97,7 +97,7 @@ const MapControls = ({ map }: MapControlsProps) => {
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-background shadow-sm overflow-hidden [&>button:not(:last-child)]:border-b [&>button:not(:last-child)]:border-border">
+    <div className="rounded-md bg-brand-component-stroke-dark shadow-sm overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
       {children}
     </div>
   )
@@ -120,7 +120,7 @@ function ControlButton({
       aria-label={label}
       type="button"
       className={cn(
-        'flex items-center justify-center size-8 hover:bg-accent dark:hover:bg-accent/40 transition-colors',
+        'flex items-center rounded-md justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
         disabled && 'opacity-50 pointer-events-none cursor-not-allowed'
       )}
       disabled={disabled}

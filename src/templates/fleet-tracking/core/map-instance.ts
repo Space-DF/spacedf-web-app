@@ -1,6 +1,23 @@
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
 import MapLibreGL from 'maplibre-gl'
+import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter'
+import {
+  TerraDraw,
+  TerraDrawAngledRectangleMode,
+  TerraDrawCircleMode,
+  TerraDrawFreehandMode,
+  TerraDrawPointMode,
+  TerraDrawPolygonMode,
+  TerraDrawRectangleMode,
+  TerraDrawSectorMode,
+  TerraDrawSelectMode,
+  TerraDrawSensorMode,
+} from 'terra-draw'
+import {
+  DEFAULT_GEOFENCE_COLOR,
+  useGeofenceStore,
+} from '@/stores/geofence-store'
 
 type MapProps = {
   container: HTMLElement
@@ -26,6 +43,17 @@ const defaultStyles = {
 
 const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
 
+const getGeofencePolygonStyles = () => ({
+  fillColor: (feature: { properties?: { color?: string } }) =>
+    (feature.properties?.color as `#${string}`) ||
+    useGeofenceStore.getState().currentDrawingColor ||
+    DEFAULT_GEOFENCE_COLOR,
+  outlineColor: (feature: { properties?: { color?: string } }) =>
+    (feature.properties?.color as `#${string}`) ||
+    useGeofenceStore.getState().currentDrawingColor ||
+    DEFAULT_GEOFENCE_COLOR,
+})
+
 class MapInstance {
   private static instance: MapInstance | undefined
   private map: MapLibreGL.Map | null = null
@@ -38,8 +66,9 @@ class MapInstance {
   private initialized = false
   private readyEmitted = false
   private isMapFlying = false
-
   private constructor() {}
+
+  private draw: TerraDraw | null = null
 
   private _handleZoomToSingleDevice = () => {
     if (!this.map) return
@@ -166,6 +195,23 @@ class MapInstance {
       ...(options || {}),
     })
 
+    const styles = getGeofencePolygonStyles()
+
+    this.draw = new TerraDraw({
+      adapter: new TerraDrawMapLibreGLAdapter({ map }),
+      modes: [
+        new TerraDrawRectangleMode({ styles }),
+        new TerraDrawCircleMode({ styles }),
+        new TerraDrawPolygonMode({ styles }),
+        new TerraDrawSectorMode({ styles }),
+        new TerraDrawPointMode(),
+        new TerraDrawFreehandMode({ styles }),
+        new TerraDrawAngledRectangleMode({ styles }),
+        new TerraDrawSensorMode({ styles }),
+        new TerraDrawSelectMode(),
+      ],
+    })
+
     map.on('load', () => {
       if (!this.readyEmitted && map.isStyleLoaded()) {
         this.geoLocate = new MapLibreGL.GeolocateControl({
@@ -195,6 +241,10 @@ class MapInstance {
     this.initialized = true
 
     return this.map
+  }
+
+  public getTerraDraw() {
+    return this.draw
   }
 
   public updateTheme(theme: 'dark' | 'light') {

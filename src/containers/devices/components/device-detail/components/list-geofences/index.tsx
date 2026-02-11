@@ -15,8 +15,9 @@ import Pen from '@/components/icons/pen'
 import { Trash2 } from '@/components/icons/trash2'
 import { useCallback, useState } from 'react'
 import ExpandableList from '@/components/common/expandable-list'
-import AddGeofence from './components/add-geofence'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
+import AddGeofence from './components/add-geofence'
+import { useGeofenceStore } from '@/stores/geofence-store'
 
 interface ListItem {
   id: number
@@ -76,7 +77,9 @@ const INITIAL_VISIBLE_COUNT = 2
 const ListGeofences = () => {
   const t = useTranslations('common')
   const [isAddGeofence, setIsAddGeofence] = useState(false)
-
+  const setIsShowGeofenceControls = useGeofenceStore(
+    (state) => state.setIsShowGeofenceControls
+  )
   const showDummyData = useShowDummyData()
 
   const listGeofences = showDummyData ? LIST_GEOFENCES : []
@@ -135,6 +138,11 @@ const ListGeofences = () => {
     []
   )
 
+  const handleAddGeofence = () => {
+    setIsAddGeofence(true)
+    setIsShowGeofenceControls(true)
+  }
+
   return (
     <>
       <AddGeofence
@@ -148,7 +156,7 @@ const ListGeofences = () => {
           </Label>
           <Button
             className="flex items-center space-x-2 py-1 px-2 h-auto border-brand-component-stroke-dark  dark:border-brand-component-stroke-light border-[2px]"
-            onClick={() => setIsAddGeofence(true)}
+            onClick={handleAddGeofence}
           >
             <span className="text-xs">{t('add_geofence')}</span>{' '}
             <Plus size={16} />
