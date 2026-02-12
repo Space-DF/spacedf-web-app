@@ -24,6 +24,7 @@ import {
   ResizablePanelGroup,
 } from '../ui/resizable'
 import Sidebar from './sidebar'
+import { useWindowSize } from '@/hooks/useWindowSize'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -95,6 +96,8 @@ const DynamicLayout = ({
   }
   const [sidebarWidth, mainWidth] = useResponsiveLayout(defaultMainLayout)
   const collapseThreshold = useResponsiveCollapseThreshold()
+
+  const { width } = useWindowSize()
 
   const handleSetDynamicLayout = () => {
     if (!prevLayouts.current.length && dynamicLayoutRight.length)
@@ -171,6 +174,11 @@ const DynamicLayout = ({
         const collapsedLayout = calculateCollapsedLayout()
         mainLayoutRefs.current?.setLayout(collapsedLayout)
         setCookie(COOKIES.MAIN_LAYOUTS, collapsedLayout)
+      } else {
+        setCollapsed(false)
+        setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
+        mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
+        setCookie(COOKIES.MAIN_LAYOUTS, [sidebarWidth, mainWidth])
       }
     }
 
@@ -179,6 +187,8 @@ const DynamicLayout = ({
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
   const getRightMinSize = () => {
@@ -234,7 +244,7 @@ const DynamicLayout = ({
           >
             <Sidebar ref={mainLayoutRefs} />
           </ResizablePanel>
-          <ResizableHandle />
+          <ResizableHandle disabled={!isTablet} />
           <ResizablePanel>
             <ResizablePanelGroup
               direction="horizontal"
