@@ -11,7 +11,7 @@ import EventEmitter from '@/utils/event'
 
 type SyncDeviceFn = {
   devices: Device[]
-  type: 'hidden' | 'visible'
+  allUngroupedDeviceIds: string[]
 }
 
 type PolygonData = {
@@ -31,7 +31,7 @@ type MainColumData = {
 const WATER_LEVEL_SCALE_FACTOR = 3
 const WRAPPER_EXTRA_SIZE = 4
 const COLUMN_MAXIMUM_LEVEL = 600
-const CLUSTER_ELEVATION = 80 // Above maximum column height to ensure clusters always render on top
+const CLUSTER_ELEVATION = 80
 
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
 
@@ -44,7 +44,6 @@ class WaterDepthDeckInstance {
   private emitter: EventEmitter = new EventEmitter()
 
   //own instance resource
-  private type: 'visible' | 'hidden' = 'hidden'
   private devices: Device[] = []
   private hasVisibleBefore = false
   private mapZoom: number = 0
@@ -55,6 +54,7 @@ class WaterDepthDeckInstance {
     text: any
   } | null = null
   private displayedDeviceByLocation: Map<string, string> = new Map()
+  private ungroupedDeviceIds: string[] = []
 
   private constructor() {}
 
@@ -69,7 +69,7 @@ class WaterDepthDeckInstance {
     if (!this.map) return
     const zoom = this.map.getZoom()
 
-    if (zoom === this.mapZoom) return
+    // if (zoom === this.mapZoom) return
 
     this.mapZoom = zoom
 
@@ -167,7 +167,8 @@ class WaterDepthDeckInstance {
 
     const polygonData = getPolygonData(
       visibleDevices,
-      getCircleRadiusByZoom(this.mapZoom)
+      getCircleRadiusByZoom(this.mapZoom),
+      this.ungroupedDeviceIds
     )
 
     const polygonLayer = new PolygonLayer<PolygonData>({
@@ -176,7 +177,6 @@ class WaterDepthDeckInstance {
       getPolygon: (d) => d.circle.geometry.coordinates[0],
       getFillColor: (d) => d.color,
       getLineColor: () => [0, 0, 0, 0],
-      opacity: this.type === 'visible' ? 1 : 0,
       pickable: true,
       filled: true,
       transitions: {
@@ -198,9 +198,14 @@ class WaterDepthDeckInstance {
     })
 
     // Create cluster-like layers to show device count at each location
-    const deviceCountData = Array.from(locationGroups.values()).filter(
-      (group) => group.count > 1
-    )
+    const deviceCountData = Array.from(locationGroups.values())
+      .filter((group) => group.count > 1)
+      .map((group) => ({
+        ...group,
+        visible: group.deviceIds.every((id) =>
+          this.ungroupedDeviceIds.includes(id)
+        ),
+      }))
 
     // Calculate zoom-based sizes for clusters
     const clusterRadius = getClusterRadiusByZoom(this.mapZoom)
@@ -212,17 +217,27 @@ class WaterDepthDeckInstance {
       data: deviceCountData,
       getPosition: (d) =>
         [...d.location, CLUSTER_ELEVATION] as [number, number, number],
-      getRadius: clusterRadius,
-      getFillColor: [0, 0, 0, 230], // #000000 - black background
-      getLineColor: [64, 6, 170, 255], // #4006AA - purple border
+      getRadius: (d) => {
+        if (!d.visible) return 0
+        return clusterRadius
+      },
+
+      getFillColor: (d) => {
+        if (!d.visible) return [0, 0, 0, 0]
+
+        return [0, 0, 0, 230]
+      }, // #000000 - black background
+      getLineColor: (d) => {
+        if (!d.visible) return [0, 0, 0, 0]
+
+        return [64, 6, 170, 255]
+      }, // #4006AA - purple border
       getLineWidth: 2,
       stroked: true,
       filled: true,
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
-      opacity: this.type === 'visible' ? 1 : 0,
       transitions: {
-        opacity: { duration: 200, easing: easeOut },
         getRadius: { duration: 200, easing: easeOut },
       },
       billboard: true,
@@ -250,17 +265,18 @@ class WaterDepthDeckInstance {
       getPosition: (d) =>
         [...d.location, CLUSTER_ELEVATION] as [number, number, number],
       getText: (d) => `+${d.count - 1}`,
-      getSize: clusterTextSize,
-      getColor: [255, 255, 255, 255],
+      getSize: (d) => {
+        if (!d.visible) return 0
+        return clusterTextSize
+      },
+      getColor: (d) => {
+        if (!d.visible) return [0, 0, 0, 0]
+        return [255, 255, 255, 255]
+      },
       getTextAnchor: 'middle',
       getAlignmentBaseline: 'center',
       fontFamily: 'Inter, Arial, sans-serif',
       fontWeight: 'bold',
-      opacity: this.type === 'visible' ? 1 : 0,
-      transitions: {
-        opacity: { duration: 200, easing: easeOut },
-        getSize: { duration: 200, easing: easeOut },
-      },
       billboard: true,
       pickable: true,
       parameters: {
@@ -269,6 +285,7 @@ class WaterDepthDeckInstance {
       } as any,
       onClick: ({ object, x, y }) => {
         if (object) {
+          console.log({ object })
           this.emitter.emit('cluster-clicked', {
             deviceIds: object.deviceIds,
             location: object.location,
@@ -303,12 +320,15 @@ class WaterDepthDeckInstance {
           ? device.deviceProperties?.water_depth
           : 0
 
+        const isVisible = this.ungroupedDeviceIds.includes(device.id)
+
         return {
           waterLevel: waterDepth * WATER_LEVEL_SCALE_FACTOR,
           waterDepth: waterDepth,
-          color: getLevelColor(
-            device.deviceProperties?.water_level_name || 'safe'
-          ).column,
+          color: isVisible
+            ? getLevelColor(device.deviceProperties?.water_level_name || 'safe')
+                .column
+            : [0, 0, 0, 0],
           deviceId: device.id,
           location: device.deviceProperties?.latest_checkpoint_arr || [0, 0],
         }
@@ -328,9 +348,7 @@ class WaterDepthDeckInstance {
       getElevation: (d) => d.waterLevel,
       getPosition: (d) => d.location,
       getFillColor: (d) => d.color,
-      opacity: this.type === 'visible' ? 1 : 0,
       transitions: {
-        opacity: { duration: 200, easing: easeOut },
         ...(this.hasAnimated && {
           getElevation: {
             duration: 500,
@@ -367,16 +385,25 @@ class WaterDepthDeckInstance {
           ? device.deviceProperties?.water_depth
           : 0
 
-        const color = getLevelColor(
-          device.deviceProperties?.water_level_name || 'safe'
-        ).column
+        const isVisible = this.ungroupedDeviceIds.includes(device.id)
+
+        let color = [255, 255, 255, 70]
+
+        if (isSelected) {
+          const columnColor = getLevelColor(
+            device.deviceProperties?.water_level_name || 'safe'
+          ).column
+          color = [columnColor[0], columnColor[1], columnColor[2], 50]
+        }
+
+        if (!isVisible) {
+          color = [0, 0, 0, 0]
+        }
 
         return {
           waterLevel: waterDepth * WATER_LEVEL_SCALE_FACTOR,
           waterDepth: waterDepth,
-          color: isSelected
-            ? [color[0], color[1], color[2], 50]
-            : [255, 255, 255, 70],
+          color,
           deviceId: device.id,
           location: device.deviceProperties?.latest_checkpoint_arr || [0, 0],
         }
@@ -397,10 +424,6 @@ class WaterDepthDeckInstance {
       getPosition: (d) => d.location,
       getFillColor: (d) => d.color,
       pickable: true,
-      opacity: this.type === 'visible' ? 1 : 0,
-      transitions: {
-        opacity: { duration: 200, easing: easeOut },
-      },
 
       onClick: ({ object }) => {
         this.emitter.emit('water-depth-device-selected', {
@@ -476,16 +499,23 @@ class WaterDepthDeckInstance {
     this.map.on('zoom', this._handleMapMove)
   }
 
-  public syncDevice({ devices, type }: SyncDeviceFn) {
+  public syncDevice({ devices, allUngroupedDeviceIds }: SyncDeviceFn) {
     if (!this.map || !this.globalOverlay) return
 
+    const devicesIds = devices.map((device) => device.deviceId)
+
+    const ungroupedDeviceIds = allUngroupedDeviceIds.filter((id) =>
+      devicesIds.includes(id)
+    )
+
     if (!this.hasVisibleBefore) {
-      this.hasVisibleBefore = type === 'visible'
+      this.hasVisibleBefore = !!ungroupedDeviceIds.length
     }
 
-    this.type = type
+    // this.type = type
 
     this.devices = devices
+    this.ungroupedDeviceIds = ungroupedDeviceIds
 
     this.hasAnimated = true
 
@@ -514,56 +544,37 @@ const getLevelColor = (
 }
 
 const getCircleRadiusByZoom = (zoom: number) => {
-  const minZoom = 9
-  const maxZoom = 17
+  const baseZoom = 16
+  const baseRadiusKm = 0.08
+  const scaleFactor = 1.4
 
-  const minRadius = 0.03
-  const maxRadius = 0.4
+  const zoomDiff = baseZoom - zoom
 
-  const tRaw =
-    1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
-
-  const t = Math.pow(tRaw, 1.8)
-
-  return minRadius + t * (maxRadius - minRadius)
+  return baseRadiusKm * Math.pow(scaleFactor, zoomDiff)
 }
 
 const getColumnRadiusByZoom = (zoom: number) => {
-  const minZoom = 9
-  const maxZoom = 17
+  const baseZoom = 14
+  const baseRadius = 60
+  const intensity = 0.65
 
-  const minRadius = 12
-  const maxRadius = 200
-
-  const tRaw =
-    1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
-
-  const t = Math.pow(tRaw, 1.8)
-
-  return minRadius + t * (maxRadius - minRadius)
+  return baseRadius * Math.pow(2, (baseZoom - zoom) * intensity)
 }
 
 const getColumnElevationScaleByZoom = (zoom: number) => {
-  const minZoom = 9
-  const maxZoom = 17
+  const baseZoom = 14
+  const baseScale = 0.5
+  const intensity = 0.4
 
-  const minScale = 0.1
-  const maxScale = 0.9
-
-  const tRaw =
-    1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
-
-  const t = Math.pow(tRaw, 1.6)
-
-  return minScale + t * (maxScale - minScale)
+  return baseScale * Math.pow(2, (baseZoom - zoom) * intensity)
 }
 
 const getClusterRadiusByZoom = (zoom: number) => {
   const minZoom = 9
   const maxZoom = 17
 
-  const minRadius = 18 // Smaller when zoomed out
-  const maxRadius = 25 // Larger when zoomed in
+  const minRadius = 18
+  const maxRadius = 25
 
   const tRaw =
     1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
@@ -577,8 +588,8 @@ const getClusterTextSizeByZoom = (zoom: number) => {
   const minZoom = 9
   const maxZoom = 17
 
-  const minSize = 10 // Smaller when zoomed out
-  const maxSize = 14 // Larger when zoomed in
+  const minSize = 10
+  const maxSize = 14
 
   const tRaw =
     1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
@@ -590,28 +601,34 @@ const getClusterTextSizeByZoom = (zoom: number) => {
 
 const getPolygonData = (
   devices: Device[],
-  radiusKm: number
+  radiusKm: number,
+  ungroupedDeviceIds: string[] = []
 ): LayerDataSource<PolygonData> => {
-  const polygonData: LayerDataSource<PolygonData> = devices.map((device) => {
-    const circle = turf.circle(
-      device.deviceProperties?.latest_checkpoint_arr || [0, 0],
-      radiusKm,
-      {
-        steps: 64,
-        units: 'kilometers',
+  const polygonData: LayerDataSource<PolygonData> = devices
+    .map((device) => {
+      if (!ungroupedDeviceIds.includes(device.id)) return null
+
+      const circle = turf.circle(
+        device.deviceProperties?.latest_checkpoint_arr || [0, 0],
+        radiusKm,
+        {
+          steps: 64,
+          units: 'kilometers',
+        }
+      )
+
+      const color = getLevelColor(
+        device.deviceProperties?.water_level_name as WaterDepthLevelName
+      ).polygon as [number, number, number]
+
+      return {
+        circle,
+        color,
+        deviceId: device.id,
       }
-    )
+    })
+    .filter((d) => !!d)
 
-    const color = getLevelColor(
-      device.deviceProperties?.water_level_name as WaterDepthLevelName
-    ).polygon as [number, number, number]
-
-    return {
-      circle,
-      color,
-      deviceId: device.id,
-    }
-  })
   return polygonData
 }
 

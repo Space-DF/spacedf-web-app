@@ -1,15 +1,15 @@
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
 import { MapboxOverlay } from '@deck.gl/mapbox'
+import { load } from '@loaders.gl/core'
+import { GLTFLoader } from '@loaders.gl/gltf'
 import { ScatterplotLayer, ScenegraphLayer } from 'deck.gl'
 import isEqual from 'fast-deep-equal'
 import MapLibreGL from 'maplibre-gl'
-import { easeOut, linear } from 'popmotion'
+import { linear } from 'popmotion'
+import { MAP_PITCH } from '../../constant'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import { pulseController } from '../pulse-controller'
-import { MAP_PITCH } from '../../constant'
-import { load } from '@loaders.gl/core'
-import { GLTFLoader } from '@loaders.gl/gltf'
 
 type LayerResource = {
   id: string
@@ -41,11 +41,12 @@ export class LocationDeckGLInstance {
   private layerSource: LayerResource[] = []
   private previousDevices: Device[] = []
   private devices: Device[] = []
-  private type: 'visible' | 'hidden' = 'hidden'
   private mapZoom: number = 0
   private hasVisibleBefore: boolean = false
   private emitter: EventEmitter = new EventEmitter()
   private _deviceSelected: string = ''
+  private ungroupedDeviceIds: string[] = []
+  private initialized = false
 
   private theme: 'dark' | 'light' = 'dark'
 
@@ -77,22 +78,37 @@ export class LocationDeckGLInstance {
     this.emitter.off(event, handler)
   }
 
-  private _getScaleByZoom(zoom: number) {
-    const minZoom = 9
-    const maxZoom = 17
+  private _getPixelConstantScale() {
+    const deck = (this.globalOverlay as any)?._deck
 
-    const minScale = 9
-    const maxScale = 400
+    if (deck && deck.viewManager) {
+      const viewport = deck.getViewports()[0]
 
-    const tRaw =
-      1 - Math.max(0, Math.min(1, (zoom - minZoom) / (maxZoom - minZoom)))
-    const t = Math.pow(tRaw, 1.8)
+      if (!viewport) return 1
 
-    return minScale + t * (maxScale - minScale)
+      const metersPerPixel = viewport.metersPerPixel
+
+      return 16 * metersPerPixel
+    }
+
+    return 1
+  }
+
+  private _getPixelConstantRadius(pixelSize: number) {
+    const deck = (this.globalOverlay as any)?._deck
+
+    if (!deck) return pixelSize
+
+    const viewport = deck.getViewports()[0]
+    if (!viewport) return pixelSize
+
+    const metersPerPixel = viewport.metersPerPixel
+
+    return pixelSize * metersPerPixel
   }
 
   private _build3DOutlineLayer() {
-    const baseRadius = this._getScaleByZoom(this.mapZoom) * 1.5
+    const baseRadius = this._getPixelConstantRadius(27)
 
     const PERIOD = 1.2
 
@@ -104,17 +120,18 @@ export class LocationDeckGLInstance {
       id: LAYER_IDS.LOCATION_OUTLINE_PULSE,
       data: this.layerSource,
 
-      getPosition: (d) => [d.position[0], d.position[1], 4],
+      getPosition: (d) => [d.position[0], d.position[1], 0],
 
       getRadius: (d) => {
+        if (!this.ungroupedDeviceIds.includes(d.id)) return 0
         if (d.id !== this._deviceSelected) return baseRadius
-
-        // const phase = (pulseController.time % PERIOD) / PERIOD
 
         return baseRadius * radiusFactor
       },
 
       getFillColor: (d) => {
+        if (!this.ungroupedDeviceIds.includes(d.id)) return [255, 255, 255, 0]
+
         if (d.id !== this._deviceSelected) return [121, 88, 255, 100]
 
         // const phase = (pulseController.time % PERIOD) / PERIOD
@@ -127,15 +144,11 @@ export class LocationDeckGLInstance {
       filled: true,
       pickable: false,
 
-      opacity: this.type === 'visible' ? 1 : 0,
-
       transitions: {
-        opacity: { duration: 300, easing: easeOut },
         getPosition: { duration: 300, easing: linear },
       },
 
       updateTriggers: {
-        opacity: this.type,
         getPosition: isEqual(this.devices, this.previousDevices) ? false : true,
 
         getRadius: pulseController.time,
@@ -143,7 +156,7 @@ export class LocationDeckGLInstance {
       },
 
       parameters: {
-        depthTest: true,
+        depthTest: false,
       } as any,
     })
 
@@ -197,19 +210,25 @@ export class LocationDeckGLInstance {
     const locationDeckGLLayer = new ScenegraphLayer<LayerResource>({
       id: LAYER_IDS.LOCATION_DECKGL_LAYER,
       data: layerResource,
-      getPosition: (d) => [d.position[0], d.position[1], 5],
-      // getOrientation: (d) => [0, -d.direction, 0],
+      getPosition: (d) => [d.position[0], d.position[1], 0],
+
+      getColor: (d) => {
+        const isVisible = this.ungroupedDeviceIds.includes(d.id)
+
+        return isVisible ? [255, 255, 255, 255] : [255, 255, 255, 0]
+      },
       getOrientation: () => [0, 0, 0],
-      opacity: this.type === 'visible' ? 1 : 0,
-      sizeScale: this._getScaleByZoom(this.mapZoom),
+
+      sizeScale: this._getPixelConstantScale(),
       pickable: true,
       scenegraph: modelCache[this.theme],
       transitions: {
-        opacity: { duration: 300, easing: easeOut },
         getPosition: { duration: 300, easing: linear },
       },
 
       onClick: ({ object }) => {
+        if (!this.ungroupedDeviceIds.includes(object.id)) return
+
         this.emitter.emit('location-device-selected', {
           deviceId: object.id,
           deviceData: this.devices.find((device) => device.id === object.id),
@@ -217,7 +236,6 @@ export class LocationDeckGLInstance {
       },
 
       updateTriggers: {
-        opacity: this.type,
         getPosition: !isEqual(this.devices, this.previousDevices),
       },
 
@@ -247,20 +265,39 @@ export class LocationDeckGLInstance {
     map.on('move', this._handleMapMove)
   }
 
-  async syncDevices(devices: Device[], type: 'visible' | 'hidden') {
+  async syncDevices(devices: Device[], allUngroupedDeviceIds: string[]) {
     if (!this.map || !this.globalOverlay) return
-    this.type = type
-    this.hasVisibleBefore = type === 'visible'
 
-    if (type === 'visible' && this.map.getZoom() >= 20) {
-      await new Promise((resolve) => setTimeout(resolve, 700))
-    }
+    const devicesIds = devices.map((device) => device.deviceId)
+
+    const ungroupedDeviceIds = allUngroupedDeviceIds.filter((id) =>
+      devicesIds.includes(id)
+    )
+
+    if (!this.initialized && !ungroupedDeviceIds.length) return
+
+    this.ungroupedDeviceIds = ungroupedDeviceIds
+    this.hasVisibleBefore = !!ungroupedDeviceIds.length
 
     this.previousDevices = this.devices
     this.devices = devices
 
     this._buildLayer()
     this._zoomFollowDevice()
+
+    const isLocationDevice = devicesIds.includes(this._deviceSelected)
+
+    if (
+      isLocationDevice &&
+      this._deviceSelected &&
+      !this.ungroupedDeviceIds.includes(this._deviceSelected)
+    ) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('unfocus_devices', {}))
+      }
+    }
+
+    this.initialized = true
   }
 
   focusDevice(deviceId: string) {

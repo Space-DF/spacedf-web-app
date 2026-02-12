@@ -38,15 +38,21 @@ export const LocationLayer = memo(
       deckLayer: false,
     })
 
-    const { isMapReady, isClusterVisible, viewMode, isAlreadyShowTripRoute } =
-      useFleetTrackingMapStore(
-        useShallow((state) => ({
-          isMapReady: state.isMapReady,
-          isClusterVisible: state.isClusterVisible,
-          viewMode: state.viewMode,
-          isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
-        }))
-      )
+    const {
+      isMapReady,
+      isClusterVisible,
+      viewMode,
+      isAlreadyShowTripRoute,
+      ungroupedDeviceIds,
+    } = useFleetTrackingMapStore(
+      useShallow((state) => ({
+        isMapReady: state.isMapReady,
+        isClusterVisible: state.isClusterVisible,
+        viewMode: state.viewMode,
+        isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
+        ungroupedDeviceIds: state.ungroupedDeviceIds,
+      }))
+    )
 
     const { setDeviceSelected, deviceSelected } = useDeviceStore(
       useShallow((state) => ({
@@ -79,17 +85,14 @@ export const LocationLayer = memo(
         resourceStatus.current.deckLayer = true
       }
 
-      if (isClusterVisible) {
-        handleLocationResource('hidden', viewMode, devices)
-      } else {
-        handleLocationResource('visible', viewMode, devices)
-      }
+      handleResource(viewMode, devices, ungroupedDeviceIds)
     }, [
       viewMode,
       isMapReady,
       isClusterVisible,
       devices,
       isAlreadyShowTripRoute,
+      ungroupedDeviceIds,
     ])
 
     useEffect(() => {
@@ -158,19 +161,19 @@ export const LocationLayer = memo(
       handleDeviceSelected({ deviceId: deviceSelected, viewMode })
     }, [isMapReady, deviceSelected, viewMode, isAlreadyShowTripRoute])
 
-    const handleLocationResource = (
-      type: 'visible' | 'hidden',
+    const handleResource = (
       viewMode: '2d' | '3d',
-      devices: Device[]
+      devices: Device[],
+      ungroupedDeviceIds: string[]
     ) => {
       if (viewMode === '2d') {
-        deckGLInstance.syncDevices(devices, 'hidden')
-        markerInstance.syncDevices(devices, type)
+        deckGLInstance.syncDevices(devices, [])
+        markerInstance.syncDevices(devices, ungroupedDeviceIds)
       }
 
       if (viewMode === '3d') {
-        markerInstance.syncDevices(devices, 'hidden')
-        deckGLInstance.syncDevices(devices, type)
+        markerInstance.syncDevices(devices, [])
+        deckGLInstance.syncDevices(devices, ungroupedDeviceIds)
       }
     }
 

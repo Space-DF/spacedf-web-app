@@ -54,12 +54,14 @@ export const useDeviceHistory = () => {
   const deviceModels = useDeviceStore(useShallow((state) => state.models))
   const setDeviceHistory = useDeviceStore((state) => state.setDeviceHistory)
 
-  const { updateBooleanState, viewMode } = useFleetTrackingMapStore(
-    useShallow((state) => ({
-      updateBooleanState: state.updateBooleanState,
-      viewMode: state.viewMode,
-    }))
-  )
+  const { updateBooleanState, viewMode, ungroupedDeviceIds } =
+    useFleetTrackingMapStore(
+      useShallow((state) => ({
+        updateBooleanState: state.updateBooleanState,
+        viewMode: state.viewMode,
+        ungroupedDeviceIds: state.ungroupedDeviceIds,
+      }))
+    )
 
   const map = mapInstance.getMap()
 
@@ -200,14 +202,14 @@ export const useDeviceHistory = () => {
     ])
     if (!map) return
     if (is3DModel) {
-      deckGLInstance.syncDevices(locationDevices, 'hidden')
+      deckGLInstance.syncDevices(locationDevices, [])
     } else {
       markerInstance.hideAllMarkers()
       markerInstance.focusMarker('')
     }
     waterDepthInstance.syncDevice({
       devices: waterLevelDevices,
-      type: 'hidden',
+      allUngroupedDeviceIds: [],
     })
     // Hide cluster layer if exists
     clusterInstance.setClusterVisibility('none')
@@ -426,11 +428,11 @@ export const useDeviceHistory = () => {
         markerInstance.focusMarker(deviceSelected)
       }
     } else {
-      deckGLInstance.syncDevices(locationDevices, 'visible')
+      deckGLInstance.syncDevices(locationDevices, ungroupedDeviceIds)
     }
     waterDepthInstance.syncDevice({
       devices: waterLevelDevices,
-      type: 'visible',
+      allUngroupedDeviceIds: ungroupedDeviceIds,
     })
 
     updateBooleanState('isAlreadyShowTripRoute', false)

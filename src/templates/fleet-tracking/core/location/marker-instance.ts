@@ -13,14 +13,14 @@ const mapInstance = MapInstance.getInstance()
 export class LocationMarker {
   private static instance: LocationMarker | undefined
   private map: MapLibreGL.Map | null = null
-  private type: 'visible' | 'hidden' = 'hidden'
   private emitter: EventEmitter = new EventEmitter()
   private previousDevices: Device[] = []
   private devices: Device[] = []
   private locationMarkers: Record<string, MapLibreGL.Marker> = {}
   private visible = true
   private focusedMarker: string = ''
-  private context: CanvasRenderingContext2D | null = null
+  private ungroupedDeviceIds: string[] = []
+  private isInitialized: boolean = false
 
   private constructor() {}
 
@@ -40,15 +40,26 @@ export class LocationMarker {
   }
 
   private _handleMarkerVisible() {
-    if (this.type === 'hidden') {
+    const deviceIds = this.devices.map((d) => d.id)
+
+    const isLocationDevice = deviceIds.includes(this.focusedMarker)
+    if (
+      this.focusedMarker &&
+      !this.ungroupedDeviceIds.includes(this.focusedMarker)
+    ) {
       this.clearFocus()
+
+      if (isLocationDevice && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('unfocus_devices', {}))
+      }
     }
 
     for (const marker of Object.values(this.locationMarkers)) {
       const el = marker.getElement()
-      if (!el) continue
+      const deviceId = el.getAttribute('data-device-id')
+      if (!el || !deviceId) continue
 
-      if (this.type === 'visible') {
+      if (this.ungroupedDeviceIds.includes(deviceId)) {
         el.style.display = 'block'
       } else {
         el.style.display = 'none'
@@ -67,18 +78,20 @@ export class LocationMarker {
       el.className = `location-marker`
       el.id = `location-marker-${device.id}`
 
-      // el.style.transform = `rotate(${device.deviceProperties?.direction ?? 0}deg)`
-
       el.setAttribute('data-device-id', device.id)
 
       el.onclick = () => {
+        if (!this.ungroupedDeviceIds.includes(device.id)) return
+
         this.emitter.emit('location-device-selected', {
           deviceId: device.id,
           deviceData: device,
         })
       }
 
-      if (this.type === 'visible') {
+      const isVisible = this.ungroupedDeviceIds.includes(device.id)
+
+      if (isVisible) {
         el.style.display = 'block'
       } else {
         el.style.display = 'none'
@@ -179,7 +192,9 @@ export class LocationMarker {
             duration: 500,
           })
 
-          if (this.type === 'visible') {
+          const isVisible = this.ungroupedDeviceIds.includes(newData.id)
+
+          if (isVisible) {
             smoothUpdateFocusDeviceSource({
               map: this.map!,
               from: [oldLng, oldLat],
@@ -300,15 +315,20 @@ export class LocationMarker {
     this.map = map
   }
 
-  syncDevices(devices: Device[], type: 'visible' | 'hidden') {
-    if (!this.map) return
+  syncDevices(devices: Device[], allUngroupedDeviceIds: string[]) {
+    const devicesIds = devices.map((device) => device.deviceId)
 
-    this.type = type
+    const ungroupedDeviceIds = allUngroupedDeviceIds.filter((id) =>
+      devicesIds.includes(id)
+    )
 
+    if (!this.isInitialized && !ungroupedDeviceIds.length) return
+
+    this.ungroupedDeviceIds = ungroupedDeviceIds
     this._handleMarkerVisible()
 
-    //prevent unnecessary re-rendering
     if (isEqual(this.devices, devices)) return
+
     const diffLength = devices.length - this.devices.length
 
     this.previousDevices = this.devices
@@ -323,6 +343,8 @@ export class LocationMarker {
     if (diffLength === 0) {
       this._updateMarkers()
     }
+
+    this.isInitialized = true
   }
 
   focusMarker(deviceId: string) {

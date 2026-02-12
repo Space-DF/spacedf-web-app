@@ -4,8 +4,13 @@ import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
 
 const MAX_ZOOM = 11
-type ClusterEvent = 'visible-change'
 
+export const CLUSTER_EVENTS = {
+  VISIBLE_CHANGE: 'visible-change',
+  UNGROUPED_CLUSTER_IDS: 'ungrouped-cluster-ids',
+} as const
+
+export type ClusterEvent = (typeof CLUSTER_EVENTS)[keyof typeof CLUSTER_EVENTS]
 class ClusterInstance {
   private static instance: ClusterInstance | undefined
   private map: MapLibreGL.Map | null = null
@@ -34,8 +39,6 @@ class ClusterInstance {
   private clusterLayerId = 'cluster-layer'
   private clusterCountLayerId = 'cluster-count-layer'
   private unclusteredLayerId = 'unclustered-layer'
-  private singleClusterLayerId = 'single-cluster-layer'
-  private singleClusterCountLayerId = 'single-cluster-count-layer'
 
   private constructor() {}
 
@@ -46,11 +49,11 @@ class ClusterInstance {
     return ClusterInstance.instance
   }
 
-  on(event: ClusterEvent, handler: (isVisible: boolean) => void) {
+  on(event: ClusterEvent, handler: (value: any) => void) {
     this.emitter.on(event, handler)
   }
 
-  off(event: ClusterEvent, handler: (isVisible: boolean) => void) {
+  off(event: ClusterEvent, handler: (value: any) => void) {
     this.emitter.off(event, handler)
   }
 
@@ -120,49 +123,10 @@ class ClusterInstance {
       id: this.unclusteredLayerId,
       type: 'circle',
       source: this.sourceId,
-      filter: [
-        'all',
-        ['!', ['has', 'point_count']],
-        ['>=', ['zoom'], MAX_ZOOM + 1],
-      ],
+      filter: ['!', ['has', 'point_count']],
       paint: {
         'circle-color': this.styleProps.pointColor,
         'circle-radius': 4,
-      },
-    })
-
-    this.map.addLayer({
-      id: this.singleClusterLayerId,
-      type: 'circle',
-      source: this.sourceId,
-      filter: [
-        'all',
-        ['!', ['has', 'point_count']],
-        ['<', ['zoom'], MAX_ZOOM + 1],
-      ],
-      paint: {
-        'circle-color': this.styleProps.clusterColor,
-        'circle-radius': 20,
-        'circle-stroke-color': this.styleProps.strokeColor,
-        'circle-stroke-width': 2,
-      },
-    })
-
-    this.map.addLayer({
-      id: this.singleClusterCountLayerId,
-      type: 'symbol',
-      source: this.sourceId,
-      filter: [
-        'all',
-        ['!', ['has', 'point_count']],
-        ['<', ['zoom'], MAX_ZOOM + 1],
-      ],
-      layout: {
-        'text-field': '1',
-        'text-size': 13,
-      },
-      paint: {
-        'text-color': '#fff',
       },
     })
   }
@@ -204,8 +168,6 @@ class ClusterInstance {
       this.clusterLayerId,
       this.clusterCountLayerId,
       this.unclusteredLayerId,
-      this.singleClusterLayerId,
-      this.singleClusterCountLayerId,
     ]
 
     layerIds.forEach((layerId) => {
@@ -219,7 +181,7 @@ class ClusterInstance {
     if (this.visible === next) return
 
     this.visible = next
-    this.emitter.emit('visible-change', next)
+    this.emitter.emit(CLUSTER_EVENTS.VISIBLE_CHANGE, next)
   }
 
   private _handleMouseEnterCluster = () => {
@@ -231,10 +193,11 @@ class ClusterInstance {
     if (!this.map) return
     if (this.isAlreadyShowTripRoute) return
 
-    const zoom = this.map.getZoom()
-    const visible = zoom < MAX_ZOOM + 1
+    this._syncClusterVisibility(false)
 
-    this._syncClusterVisibility(visible)
+    const singleDeviceIds = this.getSingleDeviceIds()
+
+    this.emitter.emit(CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS, singleDeviceIds)
   }
 
   private _handleMouseLeaveCluster = () => {
@@ -249,19 +212,29 @@ class ClusterInstance {
     this.createClusterLayer()
 
     map.on('click', this.clusterLayerId, this._handleClusterClick)
-    map.on('click', 'single-cluster-layer', (e) => {
-      if (!e.features?.[0]) return
-
-      const coordinates = (e.features[0].geometry as GeoJSON.Point).coordinates
-
-      map.easeTo({
-        center: coordinates as [number, number],
-        zoom: MAX_ZOOM + 1,
-      })
-    })
     map.on('mouseenter', this.clusterLayerId, this._handleMouseEnterCluster)
     map.on('mouseleave', this.clusterLayerId, this._handleMouseLeaveCluster)
-    map.on('zoom', this._handleZoomChange)
+    map.on('move', this._handleZoomChange)
+  }
+
+  public getSingleDeviceIds(): string[] {
+    if (!this.map) return []
+
+    const features = this.map.querySourceFeatures(this.sourceId)
+
+    const ids = new Set<string>()
+
+    for (const f of features) {
+      if (
+        f.geometry?.type === 'Point' &&
+        !('point_count' in (f.properties ?? {}))
+      ) {
+        const id = f.properties?.id
+        if (id) ids.add(id)
+      }
+    }
+
+    return Array.from(ids).sort((a, b) => a.localeCompare(b))
   }
 
   async updateClusterData() {
@@ -331,8 +304,6 @@ class ClusterInstance {
         this.unclusteredLayerId,
         this.clusterLayerId,
         this.sourceId,
-        this.singleClusterLayerId,
-        this.singleClusterCountLayerId,
       ]
 
       if (this.map) {

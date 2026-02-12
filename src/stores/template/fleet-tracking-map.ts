@@ -6,12 +6,14 @@ type FleetTrackingMapStore = {
   isClusterVisible: boolean
   isAlreadyShowTripRoute: boolean
   viewMode: '2d' | '3d'
+  ungroupedDeviceIds: string[]
 
   updateBooleanState: (
     key: 'isMapReady' | 'isClusterVisible' | 'isAlreadyShowTripRoute',
     value: boolean
   ) => void
   setViewMode: (viewMode: '2d' | '3d') => void
+  setUngroupedDeviceIds: (ungroupedDeviceIds: string[]) => void
 }
 
 export const useFleetTrackingMapStore = create<FleetTrackingMapStore>(
@@ -20,6 +22,7 @@ export const useFleetTrackingMapStore = create<FleetTrackingMapStore>(
     isClusterVisible: true,
     isAlreadyShowTripRoute: false,
     viewMode: '2d',
+    ungroupedDeviceIds: [],
 
     updateBooleanState: (key, value) =>
       set(() => ({
@@ -27,6 +30,9 @@ export const useFleetTrackingMapStore = create<FleetTrackingMapStore>(
       })),
     setViewMode: (viewMode) => {
       return set({ viewMode })
+    },
+    setUngroupedDeviceIds: (ungroupedDeviceIds) => {
+      return set({ ungroupedDeviceIds })
     },
   })
 )
