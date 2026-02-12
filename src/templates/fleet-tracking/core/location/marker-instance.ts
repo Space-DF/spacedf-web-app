@@ -40,17 +40,11 @@ export class LocationMarker {
   }
 
   private _handleMarkerVisible() {
-    const deviceIds = this.devices.map((d) => d.id)
-
-    const isLocationDevice = deviceIds.includes(this.focusedMarker)
-    if (
-      this.focusedMarker &&
-      !this.ungroupedDeviceIds.includes(this.focusedMarker)
-    ) {
-      this.clearFocus()
-
-      if (isLocationDevice && typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('unfocus_devices', {}))
+    if (this.focusedMarker) {
+      if (!this.ungroupedDeviceIds.includes(this.focusedMarker)) {
+        this.clearFocus()
+      } else {
+        this.focusMarker(this.focusedMarker)
       }
     }
 
@@ -324,6 +318,10 @@ export class LocationMarker {
 
     if (!this.isInitialized && !ungroupedDeviceIds.length) return
 
+    if (this.focusedMarker) {
+      this.focusMarker(this.focusedMarker)
+    }
+
     this.ungroupedDeviceIds = ungroupedDeviceIds
     this._handleMarkerVisible()
 
@@ -360,6 +358,10 @@ export class LocationMarker {
     const coordinates = device.deviceProperties?.latest_checkpoint_arr ?? [0, 0]
 
     this._updateFocusDeviceSource(deviceId, coordinates)
+  }
+
+  syncDeviceSelected(id: string) {
+    this.focusedMarker = id
   }
 
   private _updateFocusDeviceSource(
