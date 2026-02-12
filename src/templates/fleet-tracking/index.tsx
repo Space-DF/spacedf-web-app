@@ -45,8 +45,6 @@ export default function FleetTrackingMap() {
     devices,
     locationDevices = [],
     waterLevelDevices = [],
-    deviceSelected,
-    setDeviceSelected,
   } = useDeviceStore(
     useShallow((state) => {
       const deviceGroup = groupDeviceByFeature(
@@ -58,8 +56,6 @@ export default function FleetTrackingMap() {
         devices: state.devicesFleetTracking,
         locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION],
         waterLevelDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH],
-        deviceSelected: state.deviceSelected,
-        setDeviceSelected: state.setDeviceSelected,
       }
     })
   )
@@ -68,7 +64,6 @@ export default function FleetTrackingMap() {
     updateBooleanState,
     isMapReady,
     viewMode,
-    isAlreadyShowTripRoute,
     ungroupedDeviceIds,
     setUngroupedDeviceIds,
   } = useFleetTrackingMapStore(
@@ -184,14 +179,6 @@ export default function FleetTrackingMap() {
   }, [ungroupedDeviceIds])
 
   useEffect(() => {
-    window.addEventListener('unfocus_devices', handleUnfocusDevice)
-
-    return () => {
-      window.removeEventListener('unfocus_devices', handleUnfocusDevice)
-    }
-  }, [setDeviceSelected])
-
-  useEffect(() => {
     mapInstance.syncMapPitch(MAP_PITCH[viewMode])
 
     if (isFirstRun.current) return
@@ -200,20 +187,6 @@ export default function FleetTrackingMap() {
 
     mapInstance.updateMapPitch({ pitch })
   }, [viewMode])
-
-  useEffect(() => {
-    if (
-      deviceSelected &&
-      !isAlreadyShowTripRoute &&
-      !mapInstance.getIsMapFlying()
-    ) {
-      setDeviceSelected('')
-    }
-  }, [deviceSelected, isAlreadyShowTripRoute])
-
-  const handleUnfocusDevice = () => {
-    setDeviceSelected('')
-  }
 
   const handleVisibilityChange = useCallback(
     (isVisible: boolean) => {

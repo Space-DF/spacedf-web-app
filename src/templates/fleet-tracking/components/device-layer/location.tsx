@@ -146,6 +146,7 @@ export const LocationLayer = memo(
           mapInstance.onZoomToDevice(device)
         }
         if (viewMode === '2d') {
+          markerInstance.syncDeviceSelected(deviceId)
           markerInstance.focusMarker(deviceId)
         }
 
