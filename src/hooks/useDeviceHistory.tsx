@@ -1,20 +1,19 @@
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
+import { useGlobalStore } from '@/stores'
+import { useDeviceStore } from '@/stores/device-store'
+import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
+import ClusterInstance from '@/templates/fleet-tracking/core/cluster-instance'
+import { LocationDeckGLInstance } from '@/templates/fleet-tracking/core/location/deckgl-instance'
+import { LocationMarker } from '@/templates/fleet-tracking/core/location/marker-instance'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-deckgl-instance'
+import { Checkpoint } from '@/types/trip'
+import { groupDeviceByFeature } from '@/utils/map'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { IconLayer, ScenegraphLayer } from 'deck.gl'
+import { IControl, LngLatBoundsLike, Popup } from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
-import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
-import { useGlobalStore } from '@/stores'
-import { Checkpoint } from '@/types/trip'
-import { Popup, LngLatBoundsLike, IControl } from 'maplibre-gl'
-import { animate, linear } from 'popmotion'
-import { LocationMarker } from '@/templates/fleet-tracking/core/location/marker-instance'
-import { LocationDeckGLInstance } from '@/templates/fleet-tracking/core/location/deckgl-instance'
-import MapInstance from '@/templates/fleet-tracking/core/map-instance'
-import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
-import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
-import { groupDeviceByFeature } from '@/utils/map'
-import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-deckgl-instance'
-import ClusterInstance from '@/templates/fleet-tracking/core/cluster-instance'
 
 const markerInstance = LocationMarker.getInstance()
 const deckGLInstance = LocationDeckGLInstance.getInstance()
@@ -159,7 +158,7 @@ export const useDeviceHistory = () => {
             position: [...coordinates, 40], // [longitude, latitude, altitude]
           },
         ],
-        scenegraph: deviceModels.rak,
+        // scenegraph: deviceModels.rak,
         getPosition: (d: any) => d.position,
         getOrientation: () => [0, rotationRef.current, 90], // [pitch, yaw, roll] - animated rotation
         sizeScale: 200,
@@ -179,11 +178,11 @@ export const useDeviceHistory = () => {
         },
       ],
       getColor: () => [255, 140, 0],
-      getIcon: () => ({
-        url: '/images/3d-preview/rak.png',
-        width: 70,
-        height: 100,
-      }),
+      // getIcon: () => ({
+      //   url: '/images/3d-preview/rak.png',
+      //   width: 70,
+      //   height: 100,
+      // }),
       getPosition: (d: any) => d.coordinates,
       getSize: 100,
       pickable: false,
@@ -194,19 +193,23 @@ export const useDeviceHistory = () => {
 
   const startDrawHistory = async (checkpoints?: Checkpoint[]) => {
     const histories = checkpoints || deviceHistory
+
     if (!histories?.length) return
     setDeviceHistory(histories)
+
     const coordinates = histories.map((checkpoint) => [
       checkpoint.longitude,
       checkpoint.latitude,
     ])
     if (!map) return
+
     if (is3DModel) {
       deckGLInstance.syncDevices(locationDevices, [])
     } else {
       markerInstance.hideAllMarkers()
       markerInstance.focusMarker('')
     }
+
     waterDepthInstance.syncDevice({
       devices: waterLevelDevices,
       allUngroupedDeviceIds: [],
@@ -327,29 +330,6 @@ export const useDeviceHistory = () => {
     controlRef.current = deckOverlay
 
     map?.addControl(deckOverlay as unknown as IControl)
-
-    if (is3DModel) {
-      if (animationControlRef.current) {
-        animationControlRef.current.stop()
-      }
-
-      animationControlRef.current = animate({
-        from: 0,
-        to: 360,
-        duration: 2000,
-        repeat: Infinity,
-        ease: linear,
-        onUpdate: (latest) => {
-          rotationRef.current = latest
-
-          // Update the overlay with new rotation
-          const updatedIcon = getIconLayer(coordinates[0])
-          deckOverlay.setProps({
-            layers: [updatedIcon],
-          })
-        },
-      })
-    }
 
     // Calculate bounds to fit all checkpoints
     if (coordinates.length > 0) {
