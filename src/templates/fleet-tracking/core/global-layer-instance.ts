@@ -1,5 +1,5 @@
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { PickingInfo } from 'deck.gl'
+import { MapView, PickingInfo } from 'deck.gl'
 import MapLibreGL, { IControl } from 'maplibre-gl'
 
 export const LAYER_IDS = {
@@ -41,6 +41,10 @@ export class GlobalDeckGLInstance {
     const globalOverlay = new MapboxOverlay({
       interleaved: true,
       layers: [],
+      views: new MapView({
+        nearZMultiplier: 0.1,
+        farZMultiplier: 10,
+      }) as any,
       getTooltip: ({ object, layer }: PickingInfo<any>): any => {
         const isWaterLevelLayer =
           layer?.id === LAYER_IDS.WATER_DEPTH_COLUMN_WRAPPER

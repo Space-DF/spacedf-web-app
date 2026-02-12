@@ -36,8 +36,8 @@ type WaterDepthLayerProps = {
 }
 
 type HandleResourceFn = {
-  type: 'hidden' | 'visible'
   devices: Device[]
+  ungroupedDeviceIds: string[]
 }
 
 type ClusterDropdownData = {
@@ -57,11 +57,11 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null)
   const t = useTranslations('dashboard')
 
-  const { isMapReady, isClusterVisible } = useFleetTrackingMapStore(
+  const { isMapReady, ungroupedDeviceIds } = useFleetTrackingMapStore(
     useShallow((state) => ({
       isMapReady: state.isMapReady,
-      isClusterVisible: state.isClusterVisible,
       viewMode: state.viewMode,
+      ungroupedDeviceIds: state.ungroupedDeviceIds,
     }))
   )
 
@@ -97,10 +97,10 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
     }
 
     handleResource({
-      type: isClusterVisible ? 'hidden' : 'visible',
       devices,
+      ungroupedDeviceIds: ungroupedDeviceIds,
     })
-  }, [devices, isMapReady, isClusterVisible])
+  }, [devices, isMapReady, ungroupedDeviceIds])
 
   useEffect(() => {
     if (!isMapReady) return
@@ -132,6 +132,16 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   }, [setClusterDropdownOpen])
 
   useEffect(() => {
+    const deviceIds = devices.map((d) => d.id)
+
+    if (!deviceIds.includes(deviceSelected)) return
+
+    if (!ungroupedDeviceIds.includes(deviceSelected)) {
+      window.dispatchEvent(new CustomEvent('unfocus_devices', {}))
+    }
+  }, [ungroupedDeviceIds, deviceSelected, devices])
+
+  useEffect(() => {
     const map = mapInstance.getMap()
     if (!map) return
 
@@ -144,9 +154,15 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
     }
   }, [deviceSelected, devices])
 
-  const handleResource = useCallback(({ devices, type }: HandleResourceFn) => {
-    waterLevelDeckInstance.syncDevice({ devices, type })
-  }, [])
+  const handleResource = useCallback(
+    ({ devices, ungroupedDeviceIds }: HandleResourceFn) => {
+      waterLevelDeckInstance.syncDevice({
+        devices,
+        allUngroupedDeviceIds: ungroupedDeviceIds,
+      })
+    },
+    []
+  )
 
   const clusterDevices = useMemo(
     () =>

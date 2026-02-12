@@ -5,8 +5,10 @@ import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { useDeviceStore } from '@/stores/device-store'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
 import { groupDeviceByFeature } from '@/utils/map'
+import isEqual from 'fast-deep-equal'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTheme } from 'next-themes'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
@@ -15,7 +17,7 @@ import WaterDepth from './components/device-layer/water-depth'
 import { ViewModeToggle } from './components/view-mode-toggle'
 import { MAP_PITCH } from './constant'
 import BuildingInstance from './core/building-instance'
-import ClusterInstance from './core/cluster-instance'
+import ClusterInstance, { CLUSTER_EVENTS } from './core/cluster-instance'
 import { GlobalDeckGLInstance } from './core/global-layer-instance'
 import MapInstance from './core/map-instance'
 import GeofenceControls from '@/components/common/geofence-controls'
@@ -66,15 +68,18 @@ export default function FleetTrackingMap() {
     updateBooleanState,
     isMapReady,
     viewMode,
-    isClusterVisible,
     isAlreadyShowTripRoute,
+    ungroupedDeviceIds,
+    setUngroupedDeviceIds,
   } = useFleetTrackingMapStore(
     useShallow((state) => ({
       updateBooleanState: state.updateBooleanState,
+      setUngroupedDeviceIds: state.setUngroupedDeviceIds,
       isMapReady: state.isMapReady,
       viewMode: state.viewMode,
       isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
       isClusterVisible: state.isClusterVisible,
+      ungroupedDeviceIds: state.ungroupedDeviceIds,
     }))
   )
 
@@ -163,12 +168,28 @@ export default function FleetTrackingMap() {
   }, [devices, isMapReady])
 
   useEffect(() => {
-    clusterInstance.on('visible-change', handleVisibilityChange)
+    clusterInstance.on(CLUSTER_EVENTS.VISIBLE_CHANGE, handleVisibilityChange)
+    clusterInstance.on(
+      CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS,
+      handleUngroupedDeviceChanges
+    )
 
     return () => {
-      clusterInstance.off('visible-change', handleVisibilityChange)
+      clusterInstance.off(CLUSTER_EVENTS.VISIBLE_CHANGE, handleVisibilityChange)
+      clusterInstance.off(
+        CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS,
+        handleUngroupedDeviceChanges
+      )
     }
-  }, [])
+  }, [ungroupedDeviceIds])
+
+  useEffect(() => {
+    window.addEventListener('unfocus_devices', handleUnfocusDevice)
+
+    return () => {
+      window.removeEventListener('unfocus_devices', handleUnfocusDevice)
+    }
+  }, [setDeviceSelected])
 
   useEffect(() => {
     mapInstance.syncMapPitch(MAP_PITCH[viewMode])
@@ -182,20 +203,32 @@ export default function FleetTrackingMap() {
 
   useEffect(() => {
     if (
-      isClusterVisible &&
       deviceSelected &&
       !isAlreadyShowTripRoute &&
       !mapInstance.getIsMapFlying()
     ) {
       setDeviceSelected('')
     }
-  }, [isClusterVisible, deviceSelected, isAlreadyShowTripRoute])
+  }, [deviceSelected, isAlreadyShowTripRoute])
+
+  const handleUnfocusDevice = () => {
+    setDeviceSelected('')
+  }
 
   const handleVisibilityChange = useCallback(
     (isVisible: boolean) => {
       updateBooleanState('isClusterVisible', isVisible)
     },
     [updateBooleanState]
+  )
+
+  const handleUngroupedDeviceChanges = useCallback(
+    (deviceIds: string[]) => {
+      if (isEqual(ungroupedDeviceIds, deviceIds)) return
+
+      setUngroupedDeviceIds(deviceIds)
+    },
+    [setUngroupedDeviceIds, ungroupedDeviceIds]
   )
 
   return (
