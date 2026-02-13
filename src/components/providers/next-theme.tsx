@@ -1,0 +1,12 @@
+import { ThemeProvider } from 'next-themes'
+import React, { PropsWithChildren } from 'react'
+
+const NextThemeProvider = ({ children }: PropsWithChildren) => {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light">
+      {children}
+    </ThemeProvider>
+  )
+}
+
+export default NextThemeProvider
