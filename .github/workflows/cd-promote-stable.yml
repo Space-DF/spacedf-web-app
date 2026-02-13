@@ -1,0 +1,34 @@
+name: Promote Docker Image to Stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker image version (ex: v0.0.1)'
+        required: true
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote version to stable
+        run: |
+          IMAGE=ghcr.io/${{ github.repository }}
+          IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          VERSION=${{ inputs.version }}
+
+          docker buildx imagetools create \
+            --tag $IMAGE:stable \
+            --prefer-index \
+            $IMAGE:$VERSION
