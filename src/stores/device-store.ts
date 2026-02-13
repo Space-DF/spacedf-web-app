@@ -181,8 +181,6 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
-        if (data?.organization === 'dut-udn') return
-
         const currentDevice = Object.values(state.devices)?.find(
           (d) => d.deviceId === deviceId
         )
