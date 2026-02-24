@@ -58,16 +58,19 @@ const GeofenceControls = () => {
     const draw = mapInstance.getTerraDraw()
     if (tool === activeTool) {
       setActiveTool(undefined)
+      mapInstance.setDrawingMode(false)
       draw?.setMode('select')
       return
     }
     if (tool === 'delete') {
       draw?.clear()
       setActiveTool(undefined)
+      mapInstance.setDrawingMode(false)
       draw?.setMode('select')
       return
     }
     setActiveTool(tool)
+    mapInstance.setDrawingMode(true)
     draw?.start()
     draw?.setMode(tool)
   }

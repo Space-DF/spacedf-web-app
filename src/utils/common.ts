@@ -17,7 +17,6 @@ export const getDynamicLayoutRight = (dynamicLayouts: NavigationEnums[]) => {
 }
 
 export const displayedRightDynamicLayout = (dynamicLayout: string[]) => {
-  console.log({ dynamicLayout })
   const first =
     dynamicLayout.includes(NavigationEnums.DEVICES) ||
     dynamicLayout.includes(NavigationEnums.GEOFENCES)

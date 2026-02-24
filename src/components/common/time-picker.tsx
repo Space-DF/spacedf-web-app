@@ -24,6 +24,7 @@ export interface TimePickerProps
   minuteStep?: number
   disabled?: boolean
   placeholder?: string
+  isError?: boolean
 }
 
 export const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(
@@ -36,6 +37,7 @@ export const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(
       minuteStep = 1,
       disabled = false,
       placeholder = 'Select a time',
+      isError = false,
       className,
       ...props
     },
@@ -139,6 +141,7 @@ export const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(
               placeholder={placeholder}
               disabled={disabled}
               className={cn('pr-10 pl-8', className)}
+              isError={isError}
               readOnly
               {...props}
             />

@@ -4,16 +4,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import {
-  ChevronDown,
-  Ellipsis,
-  Scissors,
-  SquarePen,
-  Trash2,
-} from 'lucide-react'
-import { FieldArrayWithId, useFormContext } from 'react-hook-form'
+import { ChevronDown } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 import { GeofenceForm } from '../../../../schema'
-import { Calendar, TestTube, Duplicate, Copy } from '@/components/icons'
+import { Calendar } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import {
   FormControl,
@@ -31,22 +25,31 @@ import {
 } from '@/components/ui/select'
 import { TimePicker } from '@/components/common/time-picker'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { ConditionOptions } from '../condition-options'
 
 interface Props {
-  field: FieldArrayWithId<GeofenceForm, 'conditions', 'id'>
+  fieldId: string
   path: string
+  index: number
+  onRemove: (index: number) => void
+  onAppend: (value: GeofenceForm['conditions'][number]) => void
+  onCopy: (condition: GeofenceForm['conditions'][number]) => void
+  onCut: (condition: GeofenceForm['conditions'][number], index: number) => void
+  onEditInYAML?: () => void
 }
 
-const ConditionTime = ({ field, path }: Props) => {
+const ConditionTime = ({
+  fieldId,
+  path,
+  index,
+  onRemove,
+  onAppend,
+  onCopy,
+  onCut,
+  onEditInYAML,
+}: Props) => {
   const t = useTranslations('common')
-  const { control } = useFormContext<GeofenceForm>()
-
+  const { control, getValues } = useFormContext<GeofenceForm>()
   const weekdayOptions = [
     { value: 'sunday', label: t('sunday') },
     { value: 'monday', label: t('monday') },
@@ -57,9 +60,27 @@ const ConditionTime = ({ field, path }: Props) => {
     { value: 'saturday', label: t('saturday') },
   ]
 
+  const value = getValues(path as GeofenceForm['conditions'][number]['rules'])
+
+  const handleDuplicate = () => {
+    onAppend(value)
+  }
+
+  const handleDelete = () => {
+    onRemove(index)
+  }
+
+  const handleCopy = () => {
+    onCopy(value)
+  }
+
+  const handleCut = () => {
+    onCut(value, index)
+  }
+
   return (
     <Accordion
-      key={field.id}
+      key={fieldId}
       type="single"
       collapsible
       className="w-full"
@@ -72,39 +93,13 @@ const ConditionTime = ({ field, path }: Props) => {
         <AccordionTrigger
           className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <div className="cursor-pointer">
-                  <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem>
-                  <TestTube className="mr-2 h-4 w-4" />
-                  Test
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Duplicate className="mr-2 h-4 w-4" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Scissors className="mr-2 h-4 w-4" />
-                  Cut
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <SquarePen className="mr-2 h-4 w-4" />
-                  Edit in YAML
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500 focus:text-red-500">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ConditionOptions
+              onDelete={handleDelete}
+              onDuplicate={handleDuplicate}
+              onCopy={handleCopy}
+              onCut={handleCut}
+              onEditInYAML={onEditInYAML}
+            />
           }
         >
           <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
@@ -125,11 +120,15 @@ const ConditionTime = ({ field, path }: Props) => {
                 name={
                   `${path}.after` as GeofenceForm['conditions'][number]['after']
                 }
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className="col-span-3">
                     <FormLabel>{t('after')}</FormLabel>
                     <FormControl>
-                      <TimePicker {...field} format="12h" />
+                      <TimePicker
+                        {...field}
+                        format="12h"
+                        isError={!!fieldState.error}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,11 +173,15 @@ const ConditionTime = ({ field, path }: Props) => {
                 name={
                   `${path}.before` as GeofenceForm['conditions'][number]['before']
                 }
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className="col-span-3">
                     <FormLabel>{t('before')}</FormLabel>
                     <FormControl>
-                      <TimePicker {...field} format="12h" />
+                      <TimePicker
+                        {...field}
+                        format="12h"
+                        isError={!!fieldState.error}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +190,7 @@ const ConditionTime = ({ field, path }: Props) => {
               <FormField
                 control={control}
                 name={
-                  `${path}.before_type` as GeofenceForm['conditions'][number]['before']
+                  `${path}.before_type` as GeofenceForm['conditions'][number]['before_type']
                 }
                 render={({ field }) => (
                   <FormItem className="col-span-2">
