@@ -11,8 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import ColorSelect from '@/containers/dashboard/components/widget-selected/components/color-select'
 import { useTranslations } from 'next-intl'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useFormContext } from 'react-hook-form'
 import { addGeofenceSchema } from '../../schema'
 import { z } from 'zod'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
@@ -46,17 +45,8 @@ const GeofenceInfo = () => {
   const setCurrentDrawingColor = useGeofenceStore(
     (state) => state.setCurrentDrawingColor
   )
-  const form = useForm<GeofenceForm>({
-    resolver: zodResolver(addGeofenceSchema),
-    defaultValues: {
-      type: 'safe',
-    },
-  })
+  const form = useFormContext<GeofenceForm>()
   const t = useTranslations('common')
-
-  const onSubmit = (data: GeofenceForm) => {
-    console.log(data)
-  }
 
   const handleChangeColor = (color: string) => {
     const draw = mapInstance.getTerraDraw()
@@ -91,7 +81,7 @@ const GeofenceInfo = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form className="space-y-4">
         <FormField
           control={form.control}
           name="type"

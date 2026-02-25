@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { GeofenceForm } from '@/containers/geofences/components/add-geofence/schema'
 
 export type GeofenceTool =
   | 'linestring'
@@ -13,16 +14,20 @@ export type GeofenceTool =
   | 'delete'
   | 'delete-selection'
 
+type GeofenceCondition = GeofenceForm['conditions'][number]
+
 interface GeofenceStore {
   activeTool?: GeofenceTool
   isShowGeofenceControls: boolean
   currentDrawingColor: string
+  currentCondition?: GeofenceCondition
 }
 
 interface ActionsGeofenceStore {
   setActiveTool: (tool: GeofenceStore['activeTool']) => void
   setIsShowGeofenceControls: (isShow: boolean) => void
   setCurrentDrawingColor: (color: string) => void
+  setCurrentCondition: (condition?: GeofenceCondition) => void
   reset: () => void
 }
 
@@ -33,15 +38,18 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
     activeTool: undefined,
     isShowGeofenceControls: false,
     currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
+    currentCondition: undefined,
     setActiveTool: (tool) => set({ activeTool: tool }),
     setIsShowGeofenceControls: (isShow) =>
       set({ isShowGeofenceControls: isShow }),
     setCurrentDrawingColor: (color) => set({ currentDrawingColor: color }),
+    setCurrentCondition: (condition) => set({ currentCondition: condition }),
     reset: () =>
       set({
         activeTool: undefined,
         isShowGeofenceControls: false,
         currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
+        currentCondition: undefined,
       }),
   })
 )

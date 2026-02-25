@@ -27,6 +27,8 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
     resolver: zodResolver(addGeofenceSchema),
     defaultValues: {
       type: 'safe',
+      color: 'default',
+      name: '',
     },
   })
 
@@ -40,6 +42,11 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
       resetGeofenceStore()
     }
   }, [isOpen])
+
+  const handleSave = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) return
+  }
 
   return (
     <Slide
@@ -65,7 +72,7 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
             <div>{t('add_geofence')}</div>
           </div>
         }
-        externalButton={<Button>{t('save')}</Button>}
+        externalButton={<Button onClick={handleSave}>{t('save')}</Button>}
       >
         <FormProvider {...form}>
           <Form {...form}>

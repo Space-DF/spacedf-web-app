@@ -8,10 +8,7 @@ interface Props {
 
 const TabLineHeader = ({ tabs, tabContents, defaultValue }: Props) => {
   return (
-    <Tabs
-      defaultValue={defaultValue || tabs[0].value}
-      className="size-full overflow-y-auto scroll-smooth px-0 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
-    >
+    <Tabs defaultValue={defaultValue || tabs[0].value} className="size-full">
       <TabsList className="flex w-full items-end rounded-none border-b border-brand-stroke-dark-soft bg-transparent p-0">
         {tabs.map((tab) => (
           <TabsTrigger

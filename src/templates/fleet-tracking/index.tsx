@@ -209,11 +209,13 @@ export default function FleetTrackingMap() {
       className="size-full overflow-hidden relative bg-transparent z-[1]"
       ref={containerRef}
     >
-      <SpacedfLogo />
-      <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
-        <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
+        <SpacedfLogo />
+        <div className="pointer-events-auto">
+          <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+        </div>
+        <ViewModeToggle />
       </div>
-      <ViewModeToggle />
       {isMapReady && <MapControls map={mapInstance.getMap()!} />}
       <AnimatePresence>
         {isShowGeofenceControls && (

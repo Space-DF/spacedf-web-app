@@ -4,8 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { ChevronDown, Ellipsis } from 'lucide-react'
-import { FieldArrayWithId, useFormContext } from 'react-hook-form'
+import { ChevronDown } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 import { GeofenceForm } from '../../../../schema'
 import { NumberIcon } from '@/components/icons'
 import { useTranslations } from 'next-intl'
@@ -25,37 +25,68 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ChangeEvent } from 'react'
+import { ConditionOptions } from '../condition-options'
 
 interface Props {
-  field: FieldArrayWithId<GeofenceForm, 'conditions', 'id'>
+  fieldId: string
   path: string
+  index: number
+  onRemove: (index: number) => void
+  onAppend: (value: GeofenceForm['conditions'][number]) => void
+  onCopy: (condition: GeofenceForm['conditions'][number]) => void
+  onCut: (condition: GeofenceForm['conditions'][number], index: number) => void
+  onEditInYAML?: () => void
 }
 
-const ConditionDistanceThreshold = ({ field, path }: Props) => {
+const ConditionDistanceThreshold = ({
+  fieldId,
+  path,
+  index,
+  onRemove,
+  onAppend,
+  onCopy,
+  onCut,
+  onEditInYAML,
+}: Props) => {
   const t = useTranslations('common')
   const form = useFormContext<GeofenceForm>()
   const { control } = form
   const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    if (!value) {
+      form.setValue(
+        `${path}.threshold` as GeofenceForm['conditions'][number]['threshold'],
+        '',
+        { shouldValidate: true }
+      )
+      return
+    }
     const numericValue = Number(value)
-    if (isNaN(numericValue)) {
-      return
-    }
-    if (numericValue < 0) {
-      return
-    }
-    if (numericValue > 100000) {
-      return
-    }
+    if (Number.isNaN(numericValue)) return
+    if (numericValue < 0) return
+    if (numericValue > 100_000) return
     form.setValue(
       `${path}.threshold` as GeofenceForm['conditions'][number]['threshold'],
-      numericValue
+      numericValue,
+      { shouldValidate: true }
     )
+  }
+
+  const value = form.getValues(
+    path as GeofenceForm['conditions'][number]['rules']
+  )
+
+  const handleCopy = () => {
+    onCopy(value)
+  }
+
+  const handleCut = () => {
+    onCut(value, index)
   }
 
   return (
     <Accordion
-      key={field.id}
+      key={fieldId}
       type="single"
       collapsible
       className="w-full"
@@ -68,9 +99,13 @@ const ConditionDistanceThreshold = ({ field, path }: Props) => {
         <AccordionTrigger
           className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
-            <div>
-              <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
-            </div>
+            <ConditionOptions
+              onDelete={() => onRemove(index)}
+              onDuplicate={() => onAppend(value)}
+              onCopy={handleCopy}
+              onCut={handleCut}
+              onEditInYAML={onEditInYAML}
+            />
           }
         >
           <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
@@ -103,6 +138,11 @@ const ConditionDistanceThreshold = ({ field, path }: Props) => {
                     <FormControl>
                       <Input
                         {...field}
+                        value={
+                          field.value !== undefined && field.value !== null
+                            ? `${field.value}`
+                            : ''
+                        }
                         onChange={handleThresholdChange}
                         className="border-none bg-brand-component-fill-dark-soft"
                         isError={!!fieldState.error}
@@ -124,7 +164,7 @@ const ConditionDistanceThreshold = ({ field, path }: Props) => {
                               defaultValue="km"
                             >
                               <SelectTrigger
-                                className="border-none shadow-none bg-brand-fill-dark-soft border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 dark:bg-brand-heading "
+                                className={`border-none shadow-none border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 ${fieldState.error ? 'bg-brand-component-fill-negative-soft' : 'bg-brand-fill-dark-soft dark:bg-brand-heading'}`}
                                 icon={
                                   <ChevronDown className="w-3 text-brand-icon-gray" />
                                 }

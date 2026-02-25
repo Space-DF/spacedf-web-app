@@ -8,7 +8,7 @@
   "workspace_settings": "Space Settings",
   "plan_and_billing": "Plan and billing",
   "search": "Search",
-  "or": "or",
+  "or": "Or",
   "max": "max",
   "nodata": "No Data yet, let's add {module}",
   "widget": "widget",
@@ -91,5 +91,15 @@
   "sunday": "Sunday",
   "weekdays": "Weekdays",
   "before": "Before",
-  "after": "After"
+  "after": "After",
+  "or_lowercase": "or",
+  "paste": "Paste Condition",
+  "test": "Test",
+  "duplicate": "Duplicate",
+  "copy": "Copy",
+  "cut": "Cut",
+  "edit_in_yaml": "Edit in YAML",
+  "invalid_yaml_structure": "Invalid YAML structure",
+  "cancel": "Cancel",
+  "edit_yaml": "Edit YAML"
 }

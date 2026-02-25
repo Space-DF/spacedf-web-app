@@ -8,7 +8,7 @@
   "workspace_settings": "Cài đặt không gian làm việc",
   "plan_and_billing": "Kế hoạch và thanh toán",
   "search": "Tìm kiếm",
-  "or": "hoặc",
+  "or": "Hoặc",
   "max": "tối đa",
   "nodata": "Chưa có dữ liệu, hãy thêm {module}",
   "widget": "tiện ích",
@@ -84,5 +84,15 @@
   "sunday": "Chủ Nhật",
   "weekdays": "Các ngày trong tuần",
   "before": "Trước",
-  "after": "Sau"
+  "after": "Sau",
+  "or_lowercase": "hoặc",
+  "paste": "Dán điều kiện",
+  "test": "Kiểm tra",
+  "duplicate": "Nhân bản",
+  "copy": "Sao chép",
+  "cut": "Cắt",
+  "edit_in_yaml": "Chỉnh sửa YAML",
+  "invalid_yaml_structure": "Cấu trúc YAML không hợp lệ",
+  "cancel": "Hủy",
+  "edit_yaml": "Chỉnh sửa YAML"
 }

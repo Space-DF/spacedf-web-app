@@ -2,9 +2,13 @@ import { z } from 'zod'
 
 export const timeConditionSchema = z.object({
   type: z.literal('time'),
-  before: z.string({ required_error: 'Before is required' }),
+  before: z
+    .string({ required_error: 'Before time is required' })
+    .min(1, { message: 'Before time is required' }),
   before_type: z.enum(['am', 'pm']),
-  after: z.string({ required_error: 'After is required' }),
+  after: z
+    .string({ required_error: 'After time is required' })
+    .min(1, { message: 'After time is required' }),
   after_type: z.enum(['am', 'pm']),
   weekdays: z.array(
     z.enum([
@@ -19,18 +23,24 @@ export const timeConditionSchema = z.object({
   ),
 })
 
+const THRESHOLD_MAX = 100_000
+
 export const distanceThresholdConditionSchema = z.object({
   type: z.literal('distance_threshold'),
-  threshold: z.coerce
-    .number({
-      required_error: 'Threshold is required',
-      invalid_type_error: 'Threshold must be a number',
-    })
-    .positive({ message: 'Threshold must be greater than 0' }),
+  threshold: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.coerce
+      .number({ invalid_type_error: 'Threshold must be a number' })
+      .refine((n) => !Number.isNaN(n), { message: 'Threshold is required' })
+      .refine((n) => n > 0, { message: 'Threshold must be greater than 0' })
+      .refine((n) => n <= THRESHOLD_MAX, {
+        message: `Threshold must be ${THRESHOLD_MAX.toLocaleString()} or less`,
+      })
+  ),
   unit: z.enum(['km', 'm']),
 })
 
-const ruleSchema: z.ZodTypeAny = z.lazy(() =>
+export const ruleSchema: z.ZodTypeAny = z.lazy(() =>
   z.discriminatedUnion('type', [
     timeConditionSchema,
     distanceThresholdConditionSchema,
@@ -57,3 +67,28 @@ export const addGeofenceSchema = z.object({
 })
 
 export type GeofenceForm = z.infer<typeof addGeofenceSchema>
+
+export type ConditionType = GeofenceForm['conditions'][number]['type']
+
+/** Default condition values when adding a new condition (ensures schema validation passes) */
+export const DEFAULT_CONDITIONS: Record<
+  Extract<ConditionType, 'time' | 'distance_threshold'>,
+  Extract<
+    GeofenceForm['conditions'][number],
+    { type: 'time' } | { type: 'distance_threshold' }
+  >
+> = {
+  time: {
+    type: 'time',
+    before: '12:00',
+    before_type: 'pm',
+    after: '12:00',
+    after_type: 'am',
+    weekdays: [],
+  },
+  distance_threshold: {
+    type: 'distance_threshold',
+    threshold: 1,
+    unit: 'km',
+  },
+}

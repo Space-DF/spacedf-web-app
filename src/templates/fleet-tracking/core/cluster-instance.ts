@@ -2,6 +2,7 @@ import { Device } from '@/stores/device-store'
 import MapLibreGL from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
+import MapInstance from './map-instance'
 
 const MAX_ZOOM = 11
 
@@ -185,7 +186,7 @@ class ClusterInstance {
   }
 
   private _handleMouseEnterCluster = () => {
-    if (!this.map) return
+    if (!this.map || MapInstance.getInstance().isDrawingMode()) return
     this.map.getCanvas().style.cursor = 'pointer'
   }
 
@@ -201,7 +202,7 @@ class ClusterInstance {
   }
 
   private _handleMouseLeaveCluster = () => {
-    if (!this.map) return
+    if (!this.map || MapInstance.getInstance().isDrawingMode()) return
     this.map.getCanvas().style.cursor = ''
   }
 

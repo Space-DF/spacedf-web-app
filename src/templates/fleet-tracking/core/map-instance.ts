@@ -66,6 +66,7 @@ class MapInstance {
   private initialized = false
   private readyEmitted = false
   private isMapFlying = false
+  private _isDrawingMode = false
   private constructor() {}
 
   private draw: TerraDraw | null = null
@@ -245,6 +246,17 @@ class MapInstance {
 
   public getTerraDraw() {
     return this.draw
+  }
+
+  public setDrawingMode(active: boolean) {
+    this._isDrawingMode = active
+    const container = this.map?.getContainer()
+    if (!container) return
+    container.classList.toggle('geofence-drawing', active)
+  }
+
+  public isDrawingMode() {
+    return this._isDrawingMode
   }
 
   public updateTheme(theme: 'dark' | 'light') {
