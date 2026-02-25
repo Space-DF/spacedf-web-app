@@ -1,12 +1,20 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { Circle, Diamond, Square, Trash2 } from 'lucide-react'
+import {
+  Circle,
+  Delete,
+  Diamond,
+  MousePointer2,
+  Square,
+  Trash2,
+} from 'lucide-react'
 import Image from 'next/image'
 import { useGeofenceStore } from '@/stores/geofence-store'
 import { useShallow } from 'zustand/react/shallow'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { GeofenceTool } from '@/stores/geofence-store'
+import { useCallback, useEffect, useState } from 'react'
 
 const Broadcast = () => {
   return (
@@ -42,6 +50,8 @@ const TOOL_CONFIG: {
   { id: 'angled-rectangle', icon: Rectangle, label: 'Move shape' },
   { id: 'sensor', icon: Broadcast2, label: 'Geofence mode' },
   { id: 'sector', icon: Broadcast, label: 'Draw sector' },
+  { id: 'select', icon: MousePointer2, label: 'Select' },
+  { id: 'delete-selection', icon: Delete, label: 'Delete selected' },
   { id: 'delete', icon: Trash2, label: 'Delete' },
 ]
 const mapInstance = MapInstance.getInstance()
@@ -53,20 +63,66 @@ const GeofenceControls = () => {
       activeTool: state.activeTool,
     }))
   )
+  const [isGeofenceEmpty, setIsGeofenceEmpty] = useState(true)
+
+  const checkIsEmpty = useCallback(() => {
+    const draw = mapInstance.getTerraDraw()
+    const snapshot = draw?.getSnapshot() ?? []
+    const hasFeatures = snapshot.some((f) => f.properties?.mode !== 'select')
+    setIsGeofenceEmpty(!hasFeatures)
+  }, [])
+
+  useEffect(() => {
+    const draw = mapInstance.getTerraDraw()
+    if (!draw) return
+
+    const handleFinish = () => setIsGeofenceEmpty(false)
+    const handleChange = () => checkIsEmpty()
+
+    draw.on('finish', handleFinish)
+    draw.on('change', handleChange)
+
+    return () => {
+      draw.off('finish', handleFinish)
+      draw.off('change', handleChange)
+    }
+  }, [checkIsEmpty])
+
+  const toolConfig =
+    activeTool !== 'select'
+      ? TOOL_CONFIG.filter((t) => t.id !== 'delete-selection')
+      : TOOL_CONFIG
 
   const handleToolClick = (tool: GeofenceTool) => {
     const draw = mapInstance.getTerraDraw()
     if (tool === activeTool) {
       setActiveTool(undefined)
       mapInstance.setDrawingMode(false)
-      draw?.setMode('select')
+      draw?.setMode('render')
       return
     }
     if (tool === 'delete') {
       draw?.clear()
+      setIsGeofenceEmpty(true)
       setActiveTool(undefined)
       mapInstance.setDrawingMode(false)
-      draw?.setMode('select')
+      draw?.setMode('render')
+      return
+    }
+    if (tool === 'delete-selection') {
+      const snapshot = draw?.getSnapshot()
+      const selectedIds = snapshot
+        ?.filter((f) => f.properties?.selected)
+        .map((f) => f.id!)
+      if (selectedIds?.length) {
+        draw?.removeFeatures(selectedIds)
+        checkIsEmpty()
+        if (activeTool === 'select') {
+          setActiveTool(undefined)
+          mapInstance.setDrawingMode(false)
+          draw?.setMode('render')
+        }
+      }
       return
     }
     setActiveTool(tool)
@@ -77,14 +133,18 @@ const GeofenceControls = () => {
 
   return (
     <ControlGroup>
-      {TOOL_CONFIG.map(({ id, icon: Icon, label }) => {
+      {toolConfig.map(({ id, icon: Icon, label }) => {
         const isActive = activeTool === id
+        const isDisabled =
+          isGeofenceEmpty &&
+          (id === 'delete-selection' || id === 'delete' || id === 'select')
         return (
           <ControlButton
             key={id}
             onClick={() => handleToolClick(id)}
             label={label}
             active={isActive}
+            disabled={isDisabled}
           >
             <Icon className="size-4 text-brand-icon-light-fixed" />
           </ControlButton>
@@ -107,11 +167,13 @@ function ControlButton({
   label,
   children,
   active = false,
+  disabled = false,
 }: {
   onClick: () => void
   label: string
   children: React.ReactNode
   active?: boolean
+  disabled?: boolean
 }) {
   return (
     <button
@@ -121,8 +183,11 @@ function ControlButton({
       type="button"
       className={cn(
         'rounded-md flex items-center justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
-        active && 'bg-brand-component-fill-gray'
+        active && 'bg-brand-component-fill-gray',
+        disabled &&
+          'opacity-50 pointer-events-none cursor-not-allowed bg-brand-component-fill-gray'
       )}
+      disabled={disabled}
     >
       {children}
     </button>
