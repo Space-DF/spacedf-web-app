@@ -13,6 +13,7 @@ import {
   TerraDrawSectorMode,
   TerraDrawSelectMode,
   TerraDrawSensorMode,
+  TerraDrawRenderMode,
 } from 'terra-draw'
 import {
   DEFAULT_GEOFENCE_COLOR,
@@ -209,7 +210,48 @@ class MapInstance {
         new TerraDrawFreehandMode({ styles }),
         new TerraDrawAngledRectangleMode({ styles }),
         new TerraDrawSensorMode({ styles }),
-        new TerraDrawSelectMode(),
+        new TerraDrawSelectMode({
+          allowManualDeselection: true,
+          flags: Object.fromEntries(
+            [
+              'polygon',
+              'linestring',
+              'freehand',
+              'circle',
+              'rectangle',
+              'sensor',
+              'sector',
+              'angled-rectangle',
+            ].map((mode) => [
+              mode,
+              {
+                feature: {
+                  draggable: true,
+                  coordinates: {
+                    midpoints: true,
+                    draggable: true,
+                    deletable: true,
+                  },
+                },
+              },
+            ])
+          ),
+          styles: {
+            selectedPointColor: (f) => styles.fillColor(f),
+            selectedPointOutlineColor: (f) => styles.outlineColor(f),
+            selectedLineStringColor: (f) => styles.outlineColor(f),
+            selectedPolygonColor: (f) => styles.fillColor(f),
+            selectedPolygonOutlineColor: (f) => styles.outlineColor(f),
+            selectionPointColor: (f) => styles.outlineColor(f),
+            selectionPointOutlineColor: (f) => styles.outlineColor(f),
+            midPointColor: (f) => styles.outlineColor(f),
+            midPointOutlineColor: (f) => styles.outlineColor(f),
+          },
+        }),
+        new TerraDrawRenderMode({
+          modeName: 'render',
+          styles: {},
+        }),
       ],
     })
 
