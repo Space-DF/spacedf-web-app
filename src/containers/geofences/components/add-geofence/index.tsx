@@ -13,11 +13,14 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form } from '@/components/ui/form'
 import { useEffect } from 'react'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 interface AddGeofenceProps {
   isOpen: boolean
   onClose: () => void
 }
+
+const mapInstance = MapInstance.getInstance()
 
 const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
   const t = useTranslations('common')
@@ -45,7 +48,13 @@ const AddGeofence = ({ isOpen, onClose }: AddGeofenceProps) => {
 
   const handleSave = async () => {
     const isValid = await form.trigger()
+    const data = form.getValues()
     if (!isValid) return
+
+    const draw = mapInstance.getTerraDraw()
+    if (!draw) return
+    const features = draw?.getSnapshot()
+    console.log({ features, ...data })
   }
 
   return (

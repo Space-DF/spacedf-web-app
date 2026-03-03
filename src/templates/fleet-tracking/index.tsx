@@ -128,15 +128,12 @@ export default function FleetTrackingMap() {
   }, [handleDataReady])
 
   useEffect(() => {
-    mapInstance.updateTheme(resolvedTheme as 'dark' | 'light')
     clusterInstance.syncTheme(resolvedTheme as 'dark' | 'light')
 
-    if (isMapReady) {
-      requestAnimationFrame(() => {
-        clusterInstance.updateClusterData()
-        buildingInstance.createBuildingLayer(resolvedTheme as 'dark' | 'light')
-      })
-    }
+    mapInstance.updateTheme(resolvedTheme as 'dark' | 'light', () => {
+      clusterInstance.createClusterLayer()
+      buildingInstance.createBuildingLayer(resolvedTheme as 'dark' | 'light')
+    })
   }, [resolvedTheme, isMapReady])
 
   useEffect(() => {

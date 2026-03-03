@@ -54,7 +54,7 @@ export const ruleSchema: z.ZodTypeAny = z.lazy(() =>
     }),
     z.object({
       type: z.literal('not'),
-      rule: ruleSchema,
+      rules: z.array(ruleSchema).min(1),
     }),
   ])
 )
