@@ -283,7 +283,15 @@ class MapInstance {
 
     this.initialized = true
 
+    this._prefetchStyles()
+
     return this.map
+  }
+
+  private _prefetchStyles() {
+    Object.values(defaultStyles).forEach((url) => {
+      fetch(url).catch(() => {})
+    })
   }
 
   public getTerraDraw() {
@@ -301,10 +309,16 @@ class MapInstance {
     return this._isDrawingMode
   }
 
-  public updateTheme(theme: 'dark' | 'light') {
-    if (theme === this.theme || !this.map) return
+  public updateTheme(theme: 'dark' | 'light', onComplete?: () => void) {
+    if (!theme || theme === this.theme || !this.map) return
 
     this.theme = theme
+
+    if (onComplete) {
+      this.map.once('idle', () => {
+        onComplete()
+      })
+    }
 
     this.map.setStyle(defaultStyles[theme])
   }

@@ -20,15 +20,9 @@ class BuildingInstance {
     return BuildingInstance.instance
   }
 
-  async createBuildingLayer(theme: 'dark' | 'light') {
+  createBuildingLayer(theme: 'dark' | 'light') {
     if (!this.map) return
-
-    // wait for style to be loaded
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
-
-    if (source) return
+    if (!this.map.isStyleLoaded() || this.map.getLayer(this.sourceId)) return
 
     const layers = this.map.getStyle().layers
 
@@ -93,7 +87,7 @@ class BuildingInstance {
   }
 
   removeBuildingLayer() {
-    if (this.map) {
+    if (this.map?.getLayer(this.sourceId)) {
       this.map.removeLayer(this.sourceId)
     }
   }

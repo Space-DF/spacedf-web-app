@@ -219,7 +219,7 @@ class ClusterInstance {
   }
 
   public getSingleDeviceIds(): string[] {
-    if (!this.map) return []
+    if (!this.map || !this.map.getSource(this.sourceId)) return []
 
     const features = this.map.querySourceFeatures(this.sourceId)
 
@@ -238,8 +238,7 @@ class ClusterInstance {
     return Array.from(ids).sort((a, b) => a.localeCompare(b))
   }
 
-  async updateClusterData() {
-    await new Promise((resolve) => setTimeout(resolve, 700))
+  updateClusterData() {
     if (!this.map) return
 
     const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
@@ -304,13 +303,14 @@ class ClusterInstance {
         this.clusterCountLayerId,
         this.unclusteredLayerId,
         this.clusterLayerId,
-        this.sourceId,
       ]
 
-      if (this.map) {
-        layerIds.forEach((layerId) => {
-          if (this.map!.getSource(layerId)) this.map!.removeSource(layerId)
-        })
+      layerIds.forEach((layerId) => {
+        if (this.map!.getLayer(layerId)) this.map!.removeLayer(layerId)
+      })
+
+      if (this.map.getSource(this.sourceId)) {
+        this.map.removeSource(this.sourceId)
       }
     } catch {
       // ignore
