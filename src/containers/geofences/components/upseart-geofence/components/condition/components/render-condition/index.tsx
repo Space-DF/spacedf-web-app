@@ -24,6 +24,11 @@ import { AddCondition } from '../add-condition'
 import { ConditionOptions } from '../condition-options'
 import { EditYamlPanel } from '../edit-yaml-dialog'
 import { useGeofenceStore } from '@/stores/geofence-store'
+import { useTestCondition } from './hooks/useTestCondition'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { featuresToGeometries, transformConditions } from '../../../../utils'
+import { toast } from 'sonner'
+import { useShallow } from 'zustand/react/shallow'
 
 const CONDITION_ICONS: Record<
   string,
@@ -42,9 +47,9 @@ interface Props {
   index: number
   onRemove: (index: number) => void
   onAppend: (value: GeofenceForm['conditions'][number]) => void
-  onCopy: (condition: GeofenceForm['conditions'][number]) => void
-  onCut: (condition: GeofenceForm['conditions'][number], index: number) => void
 }
+
+const mapInstance = MapInstance.getInstance()
 
 export const RenderCondition = ({
   field,
@@ -52,15 +57,19 @@ export const RenderCondition = ({
   index,
   onRemove,
   onAppend,
-  onCopy,
-  onCut,
 }: Props) => {
   const t = useTranslations('common')
+  const tGeofence = useTranslations('geofence')
   const form = useFormContext<GeofenceForm>()
   const { control } = form
   const [isEditingYaml, setIsEditingYaml] = useState(false)
 
-  const currentCondition = useGeofenceStore((state) => state.currentCondition)
+  const { currentCondition, setCurrentCondition } = useGeofenceStore(
+    useShallow((state) => ({
+      currentCondition: state.currentCondition,
+      setCurrentCondition: state.setCurrentCondition,
+    }))
+  )
 
   const nestedName = `${path}.rules`
 
@@ -72,6 +81,8 @@ export const RenderCondition = ({
     control,
     name: nestedName as GeofenceForm['conditions'][number]['rules'],
   })
+
+  const { trigger: testCondition } = useTestCondition()
 
   const handleAppendCondition = (key: ConditionType) => {
     if (currentCondition && key === 'paste') {
@@ -91,18 +102,36 @@ export const RenderCondition = ({
     const value = form.getValues(
       path as GeofenceForm['conditions'][number]['rules']
     )
-    onCopy(value)
+    setCurrentCondition(value)
   }
 
   const handleCut = () => {
     const value = form.getValues(
       path as GeofenceForm['conditions'][number]['rules']
     )
-    onCut(value, index)
+    setCurrentCondition(value)
+    onRemove(index)
   }
 
   const handleEditInYAML = () => {
     setIsEditingYaml(true)
+  }
+
+  const handleTest = () => {
+    const value = form.getValues(
+      path as GeofenceForm['conditions'][number]['rules']
+    )
+    const values = form.getValues()
+    const draw = mapInstance.getTerraDraw()
+    const features = draw?.getSnapshot()
+    if (!features?.length)
+      return toast.error(tGeofence('please_draw_a_geofence'))
+    const geometry = featuresToGeometries(features)
+    testCondition({
+      type_zone: values.type_zone,
+      features: geometry,
+      definition: transformConditions([value]),
+    })
   }
 
   const handleYamlSave = (updated: GeofenceForm['conditions'][number]) => {
@@ -136,6 +165,7 @@ export const RenderCondition = ({
                 onCopy={handleCopy}
                 onCut={handleCut}
                 onEditInYAML={handleEditInYAML}
+                onTest={handleTest}
               />
             }
           >
@@ -170,8 +200,6 @@ export const RenderCondition = ({
           index={index}
           onRemove={onRemove}
           onAppend={onAppend}
-          onCopy={onCopy}
-          onCut={onCut}
           onEditInYAML={handleEditInYAML}
         />
       )
@@ -183,8 +211,6 @@ export const RenderCondition = ({
           index={index}
           onRemove={onRemove}
           onAppend={onAppend}
-          onCopy={onCopy}
-          onCut={onCut}
           onEditInYAML={handleEditInYAML}
         />
       )
@@ -214,6 +240,7 @@ export const RenderCondition = ({
                   onCopy={handleCopy}
                   onCut={handleCut}
                   onEditInYAML={handleEditInYAML}
+                  onTest={handleTest}
                 />
               }
             >
@@ -238,8 +265,6 @@ export const RenderCondition = ({
                     index={nestedIndex}
                     onRemove={nestedRemove}
                     onAppend={nestedAppend}
-                    onCopy={onCopy}
-                    onCut={onCut}
                   />
                 ))}
               </div>

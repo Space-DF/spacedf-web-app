@@ -10,17 +10,7 @@ export const timeConditionSchema = z.object({
     .string({ required_error: 'After time is required' })
     .min(1, { message: 'After time is required' }),
   after_type: z.enum(['am', 'pm']),
-  weekdays: z.array(
-    z.enum([
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-      'sunday',
-    ])
-  ),
+  weekdays: z.array(z.number().int().min(0).max(6)),
 })
 
 const THRESHOLD_MAX = 100_000
@@ -46,21 +36,21 @@ export const ruleSchema: z.ZodTypeAny = z.lazy(() =>
     distanceThresholdConditionSchema,
     z.object({
       type: z.literal('and'),
-      rules: z.array(ruleSchema).min(1),
+      rules: z.array(ruleSchema),
     }),
     z.object({
       type: z.literal('or'),
-      rules: z.array(ruleSchema).min(1),
+      rules: z.array(ruleSchema),
     }),
     z.object({
       type: z.literal('not'),
-      rules: z.array(ruleSchema).min(1),
+      rules: z.array(ruleSchema),
     }),
   ])
 )
 
 export const addGeofenceSchema = z.object({
-  type: z.enum(['safe', 'danger']),
+  type_zone: z.enum(['safe', 'danger']),
   color: z.string().optional(),
   name: z.string().min(1, { message: 'Name is required' }),
   conditions: z.array(ruleSchema).min(1),
@@ -70,7 +60,6 @@ export type GeofenceForm = z.infer<typeof addGeofenceSchema>
 
 export type ConditionType = GeofenceForm['conditions'][number]['type']
 
-/** Default condition values when adding a new condition (ensures schema validation passes) */
 export const DEFAULT_CONDITIONS: Record<
   Extract<ConditionType, 'time' | 'distance_threshold'>,
   Extract<

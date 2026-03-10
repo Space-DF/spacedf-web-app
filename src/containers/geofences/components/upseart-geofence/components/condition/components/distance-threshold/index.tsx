@@ -26,6 +26,11 @@ import {
 } from '@/components/ui/select'
 import { ChangeEvent } from 'react'
 import { ConditionOptions } from '../condition-options'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { featuresToGeometries, transformConditions } from '../../../../utils'
+import { useTestCondition } from '../render-condition/hooks/useTestCondition'
+import { toast } from 'sonner'
+import { useGeofenceStore } from '@/stores/geofence-store'
 
 interface Props {
   fieldId: string
@@ -33,10 +38,10 @@ interface Props {
   index: number
   onRemove: (index: number) => void
   onAppend: (value: GeofenceForm['conditions'][number]) => void
-  onCopy: (condition: GeofenceForm['conditions'][number]) => void
-  onCut: (condition: GeofenceForm['conditions'][number], index: number) => void
   onEditInYAML?: () => void
 }
+
+const mapInstance = MapInstance.getInstance()
 
 const ConditionDistanceThreshold = ({
   fieldId,
@@ -44,13 +49,16 @@ const ConditionDistanceThreshold = ({
   index,
   onRemove,
   onAppend,
-  onCopy,
-  onCut,
   onEditInYAML,
 }: Props) => {
   const t = useTranslations('common')
+  const tGeofence = useTranslations('geofence')
   const form = useFormContext<GeofenceForm>()
   const { control } = form
+  const { trigger: testCondition } = useTestCondition()
+  const setCurrentCondition = useGeofenceStore(
+    (state) => state.setCurrentCondition
+  )
   const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (!value) {
@@ -77,11 +85,29 @@ const ConditionDistanceThreshold = ({
   )
 
   const handleCopy = () => {
-    onCopy(value)
+    setCurrentCondition(value)
   }
 
   const handleCut = () => {
-    onCut(value, index)
+    setCurrentCondition(value)
+    onRemove(index)
+  }
+
+  const handleTest = () => {
+    const value = form.getValues(
+      path as GeofenceForm['conditions'][number]['rules']
+    )
+    const values = form.getValues()
+    const draw = mapInstance.getTerraDraw()
+    const features = draw?.getSnapshot()
+    if (!features?.length)
+      return toast.error(tGeofence('please_draw_a_geofence'))
+    const geometry = featuresToGeometries(features)
+    testCondition({
+      type_zone: values.type_zone,
+      features: geometry,
+      definition: transformConditions([value]),
+    })
   }
 
   return (
@@ -105,6 +131,7 @@ const ConditionDistanceThreshold = ({
               onCopy={handleCopy}
               onCut={handleCut}
               onEditInYAML={onEditInYAML}
+              onTest={handleTest}
             />
           }
         >

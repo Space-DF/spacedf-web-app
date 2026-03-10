@@ -6,7 +6,7 @@ export * from './color'
 export * from './date-format'
 export * from './time-zone'
 export * from './demo'
-
+export * from './pagination'
 // Responsive breakpoints and sidebar collapse thresholds
 export const RESPONSIVE_BREAKPOINTS = {
   MOBILE: 768,

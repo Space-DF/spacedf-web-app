@@ -84,7 +84,7 @@ const GeofenceInfo = () => {
       <form className="space-y-4">
         <FormField
           control={form.control}
-          name="type"
+          name="type_zone"
           render={({ field }) => (
             <FormItem className="space-y-3">
               <FormLabel>{t('type')}</FormLabel>

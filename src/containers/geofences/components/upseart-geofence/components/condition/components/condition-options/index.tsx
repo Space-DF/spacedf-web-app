@@ -19,6 +19,12 @@ interface Props {
   onDelete?: () => void
 }
 
+const withStopPropagation =
+  (fn?: () => void) => (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+    fn?.()
+  }
+
 export const ConditionOptions = ({
   onTest,
   onDuplicate,
@@ -28,30 +34,6 @@ export const ConditionOptions = ({
   onDelete,
 }: Props) => {
   const t = useTranslations('common')
-  const handleDuplicate = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onDuplicate?.()
-  }
-  const handleCopy = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onCopy?.()
-  }
-  const handleCut = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onCut?.()
-  }
-  const handleEditInYAML = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onEditInYAML?.()
-  }
-  const handleDelete = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onDelete?.()
-  }
-  const handleTest = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onTest?.()
-  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -60,29 +42,29 @@ export const ConditionOptions = ({
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={handleTest}>
+        <DropdownMenuItem onClick={withStopPropagation(onTest)}>
           <TestTube className="mr-2 h-4 w-4 text-brand-component-text-dark" />
           {t('test')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDuplicate}>
+        <DropdownMenuItem onClick={withStopPropagation(onDuplicate)}>
           <Duplicate className="mr-2 h-4 w-4 text-brand-component-text-dark" />
           {t('duplicate')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleCopy}>
+        <DropdownMenuItem onClick={withStopPropagation(onCopy)}>
           <Copy className="mr-2 h-4 w-4 text-brand-component-text-dark" />
           {t('copy')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleCut}>
+        <DropdownMenuItem onClick={withStopPropagation(onCut)}>
           <Scissors className="mr-2 h-4 w-4 text-brand-component-text-dark" />
           {t('cut')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleEditInYAML}>
+        <DropdownMenuItem onClick={withStopPropagation(onEditInYAML)}>
           <SquarePen className="mr-2 h-4 w-4 text-brand-component-text-dark" />
           {t('edit_in_yaml')}
         </DropdownMenuItem>
         <Separator className="" />
         <DropdownMenuItem
-          onClick={handleDelete}
+          onClick={withStopPropagation(onDelete)}
           className="text-brand-component-text-accent"
         >
           <Trash2 className="mr-2 h-4 w-4 text-brand-component-text-accent" />

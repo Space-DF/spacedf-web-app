@@ -15,6 +15,7 @@ import { useShallow } from 'zustand/react/shallow'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { GeofenceTool } from '@/stores/geofence-store'
 import { useCallback, useEffect, useState } from 'react'
+import { FeatureId } from '@/types/geofence'
 
 const Broadcast = () => {
   return (
@@ -57,12 +58,15 @@ const TOOL_CONFIG: {
 const mapInstance = MapInstance.getInstance()
 
 const GeofenceControls = () => {
-  const { setActiveTool, activeTool } = useGeofenceStore(
-    useShallow((state) => ({
-      setActiveTool: state.setActiveTool,
-      activeTool: state.activeTool,
-    }))
-  )
+  const { setActiveTool, activeTool, geoFencesIds, setGeoFencesIds } =
+    useGeofenceStore(
+      useShallow((state) => ({
+        setActiveTool: state.setActiveTool,
+        activeTool: state.activeTool,
+        geoFencesIds: state.geoFencesIds,
+        setGeoFencesIds: state.setGeoFencesIds,
+      }))
+    )
   const [isGeofenceEmpty, setIsGeofenceEmpty] = useState(true)
 
   const checkIsEmpty = useCallback(() => {
@@ -76,7 +80,12 @@ const GeofenceControls = () => {
     const draw = mapInstance.getTerraDraw()
     if (!draw) return
 
-    const handleFinish = () => setIsGeofenceEmpty(false)
+    const handleFinish = (featureId: FeatureId) => {
+      if (!geoFencesIds.includes(featureId)) {
+        setGeoFencesIds([...geoFencesIds, featureId])
+      }
+      setIsGeofenceEmpty(false)
+    }
     const handleChange = () => checkIsEmpty()
 
     draw.on('finish', handleFinish)
@@ -86,7 +95,7 @@ const GeofenceControls = () => {
       draw.off('finish', handleFinish)
       draw.off('change', handleChange)
     }
-  }, [checkIsEmpty])
+  }, [geoFencesIds])
 
   const toolConfig =
     activeTool !== 'select'
@@ -102,7 +111,8 @@ const GeofenceControls = () => {
       return
     }
     if (tool === 'delete') {
-      draw?.clear()
+      draw?.removeFeatures(geoFencesIds)
+      setGeoFencesIds([])
       setIsGeofenceEmpty(true)
       setActiveTool(undefined)
       mapInstance.setDrawingMode(false)
@@ -116,6 +126,7 @@ const GeofenceControls = () => {
         .map((f) => f.id!)
       if (selectedIds?.length) {
         draw?.removeFeatures(selectedIds)
+        setGeoFencesIds(geoFencesIds.filter((id) => !selectedIds.includes(id)))
         checkIsEmpty()
         if (activeTool === 'select') {
           setActiveTool(undefined)

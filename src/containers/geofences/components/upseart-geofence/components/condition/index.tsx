@@ -3,7 +3,6 @@ import { GeofenceForm, DEFAULT_CONDITIONS } from '../../schema'
 import { RenderCondition } from './components/render-condition'
 import { AddCondition } from './components/add-condition'
 import { useGeofenceStore } from '@/stores/geofence-store'
-import { useShallow } from 'zustand/react/shallow'
 
 const GeofenceCondition = () => {
   const form = useFormContext<GeofenceForm>()
@@ -12,12 +11,7 @@ const GeofenceCondition = () => {
     name: 'conditions',
   })
 
-  const { currentCondition, setCurrentCondition } = useGeofenceStore(
-    useShallow((state) => ({
-      currentCondition: state.currentCondition,
-      setCurrentCondition: state.setCurrentCondition,
-    }))
-  )
+  const currentCondition = useGeofenceStore((state) => state.currentCondition)
 
   const handleSelectCondition = (
     optionKey: GeofenceForm['conditions'][number]['type']
@@ -35,20 +29,6 @@ const GeofenceCondition = () => {
     }
   }
 
-  const handleCopyCondition = (
-    condition: GeofenceForm['conditions'][number]
-  ) => {
-    setCurrentCondition(condition)
-  }
-
-  const handleCutCondition = (
-    condition: GeofenceForm['conditions'][number],
-    index: number
-  ) => {
-    handleCopyCondition(condition)
-    remove(index)
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <AddCondition onSelect={handleSelectCondition} />
@@ -60,8 +40,6 @@ const GeofenceCondition = () => {
           index={index}
           onRemove={remove}
           onAppend={append}
-          onCopy={handleCopyCondition}
-          onCut={handleCutCondition}
         />
       ))}
     </div>
