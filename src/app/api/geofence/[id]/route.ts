@@ -1,0 +1,41 @@
+import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
+import { spaceClient } from '@/lib/spacedf'
+import { handleError } from '@/utils/error'
+import { NextRequest, NextResponse } from 'next/server'
+
+export const DELETE = withAuthApiRequired(
+  async (request: NextRequest, { params }: { params: { id: string } }) => {
+    try {
+      const geofenceId = params.id
+      const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
+      const spacedfClient = await spaceClient()
+      await spacedfClient.telemetry.geofences.delete(geofenceId, {
+        headers: {
+          'X-Space': spaceSlug,
+        },
+      })
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)
+
+export const PATCH = withAuthApiRequired(
+  async (request: NextRequest, { params }: { params: { id: string } }) => {
+    try {
+      const geofenceId = params.id
+      const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
+      const geofence = await request.json()
+      const spacedfClient = await spaceClient()
+      await spacedfClient.telemetry.geofences.update(geofenceId, geofence, {
+        headers: {
+          'X-Space': spaceSlug,
+        },
+      })
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)

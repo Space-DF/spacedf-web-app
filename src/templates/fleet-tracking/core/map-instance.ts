@@ -19,6 +19,7 @@ import {
   DEFAULT_GEOFENCE_COLOR,
   useGeofenceStore,
 } from '@/stores/geofence-store'
+import { PolygonGeometry } from '@/types/geofence'
 
 type MapProps = {
   container: HTMLElement
@@ -43,6 +44,13 @@ const defaultStyles = {
 }
 
 const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
+
+type Bounds = {
+  minLng: number
+  minLat: number
+  maxLng: number
+  maxLat: number
+}
 
 const getGeofencePolygonStyles = () => ({
   fillColor: (feature: { properties?: { color?: string } }) =>
@@ -424,6 +432,39 @@ class MapInstance {
     setTimeout(() => {
       this.isMapFlying = false
     }, 600)
+  }
+  private getBoundary(data: PolygonGeometry[]): Bounds | null {
+    if (!data.length) return null
+
+    let minLng = Infinity
+    let minLat = Infinity
+    let maxLng = -Infinity
+    let maxLat = -Infinity
+
+    data.forEach((polygon) => {
+      polygon.coordinates.forEach((ring) => {
+        ring.forEach(([lng, lat]) => {
+          minLng = Math.min(minLng, lng)
+          minLat = Math.min(minLat, lat)
+          maxLng = Math.max(maxLng, lng)
+          maxLat = Math.max(maxLat, lat)
+        })
+      })
+    })
+
+    return { minLng, minLat, maxLng, maxLat }
+  }
+
+  public flyToBoundary(data: PolygonGeometry[]) {
+    if (!this.map) return
+    const boundary = this.getBoundary(data)
+    if (!boundary) return
+    this.map.flyTo({
+      center: [boundary.minLng, boundary.minLat],
+      zoom: 10,
+      duration: 500,
+      pitch: this.pitch,
+    })
   }
 
   public getMap() {

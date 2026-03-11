@@ -4,11 +4,24 @@ interface Props {
   tabs: { value: string; label: string }[]
   tabContents: React.ReactNode
   defaultValue?: string
+  currentTab?: string
+  onTabChange?: (tab: string) => void
 }
 
-const TabLineHeader = ({ tabs, tabContents, defaultValue }: Props) => {
+const TabLineHeader = ({
+  tabs,
+  tabContents,
+  defaultValue,
+  currentTab,
+  onTabChange,
+}: Props) => {
   return (
-    <Tabs defaultValue={defaultValue || tabs[0].value} className="size-full">
+    <Tabs
+      defaultValue={defaultValue || tabs[0].value}
+      className="size-full"
+      value={currentTab}
+      onValueChange={onTabChange}
+    >
       <TabsList className="flex w-full items-end rounded-none border-b border-brand-stroke-dark-soft bg-transparent p-0">
         {tabs.map((tab) => (
           <TabsTrigger

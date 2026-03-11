@@ -26,6 +26,11 @@ import {
 import { TimePicker } from '@/components/common/time-picker'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConditionOptions } from '../condition-options'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { featuresToGeometries, transformConditions } from '../../../../utils'
+import { useTestCondition } from '../render-condition/hooks/useTestCondition'
+import { toast } from 'sonner'
+import { useGeofenceStore } from '@/stores/geofence-store'
 
 interface Props {
   fieldId: string
@@ -33,10 +38,10 @@ interface Props {
   index: number
   onRemove: (index: number) => void
   onAppend: (value: GeofenceForm['conditions'][number]) => void
-  onCopy: (condition: GeofenceForm['conditions'][number]) => void
-  onCut: (condition: GeofenceForm['conditions'][number], index: number) => void
   onEditInYAML?: () => void
 }
+
+const mapInstance = MapInstance.getInstance()
 
 const ConditionTime = ({
   fieldId,
@@ -44,21 +49,25 @@ const ConditionTime = ({
   index,
   onRemove,
   onAppend,
-  onCopy,
-  onCut,
   onEditInYAML,
 }: Props) => {
   const t = useTranslations('common')
+  const tGeofence = useTranslations('geofence')
   const { control, getValues } = useFormContext<GeofenceForm>()
   const weekdayOptions = [
-    { value: 'sunday', label: t('sunday') },
-    { value: 'monday', label: t('monday') },
-    { value: 'tuesday', label: t('tuesday') },
-    { value: 'wednesday', label: t('wednesday') },
-    { value: 'thursday', label: t('thursday') },
-    { value: 'friday', label: t('friday') },
-    { value: 'saturday', label: t('saturday') },
+    { value: 0, label: t('sunday') },
+    { value: 1, label: t('monday') },
+    { value: 2, label: t('tuesday') },
+    { value: 3, label: t('wednesday') },
+    { value: 4, label: t('thursday') },
+    { value: 5, label: t('friday') },
+    { value: 6, label: t('saturday') },
   ]
+
+  const { trigger: testCondition } = useTestCondition()
+  const setCurrentCondition = useGeofenceStore(
+    (state) => state.setCurrentCondition
+  )
 
   const value = getValues(path as GeofenceForm['conditions'][number]['rules'])
 
@@ -71,11 +80,26 @@ const ConditionTime = ({
   }
 
   const handleCopy = () => {
-    onCopy(value)
+    setCurrentCondition(value)
   }
 
   const handleCut = () => {
-    onCut(value, index)
+    setCurrentCondition(value)
+    onRemove(index)
+  }
+
+  const handleTest = () => {
+    const values = getValues()
+    const draw = mapInstance.getTerraDraw()
+    const features = draw?.getSnapshot()
+    if (!features?.length)
+      return toast.error(tGeofence('please_draw_a_geofence'))
+    const geometry = featuresToGeometries(features)
+    testCondition({
+      type_zone: values.type_zone,
+      features: geometry,
+      definition: transformConditions([value]),
+    })
   }
 
   return (
@@ -94,6 +118,7 @@ const ConditionTime = ({
           className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
             <ConditionOptions
+              onTest={handleTest}
               onDelete={handleDelete}
               onDuplicate={handleDuplicate}
               onCopy={handleCopy}

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { GeofenceForm } from '@/containers/geofences/components/add-geofence/schema'
+import type { GeofenceForm } from '@/containers/geofences/components/upseart-geofence/schema'
+import { FeatureId } from '@/types/geofence'
 
 export type GeofenceTool =
   | 'linestring'
@@ -21,6 +22,7 @@ interface GeofenceStore {
   isShowGeofenceControls: boolean
   currentDrawingColor: string
   currentCondition?: GeofenceCondition
+  geoFencesIds: FeatureId[]
 }
 
 interface ActionsGeofenceStore {
@@ -29,12 +31,14 @@ interface ActionsGeofenceStore {
   setCurrentDrawingColor: (color: string) => void
   setCurrentCondition: (condition?: GeofenceCondition) => void
   reset: () => void
+  setGeoFencesIds: (ids: FeatureId[]) => void
 }
 
 export const DEFAULT_GEOFENCE_COLOR = '#3b82f6'
 
 export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
   (set) => ({
+    geoFencesIds: [],
     activeTool: undefined,
     isShowGeofenceControls: false,
     currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
@@ -50,6 +54,8 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
         isShowGeofenceControls: false,
         currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
         currentCondition: undefined,
+        geoFencesIds: [],
       }),
+    setGeoFencesIds: (ids) => set({ geoFencesIds: ids }),
   })
 )

@@ -1,5 +1,16 @@
 {
   "geofence_name": "Geofence Name",
   "geofences": "Geofences",
-  "view_details": "View details"
+  "geofence_added_successfully": "Geofence added successfully",
+  "geofence_added_error": "Geofence added error",
+  "delete_confirm_title": "Are you sure",
+  "delete_confirm_description": "This geofence will be deleted from the system and cannot be restored.",
+  "geofence_deleted_successfully": "Geofence deleted successfully",
+  "geofence_deleted_error": "Geofence deleted error",
+  "please_draw_a_geofence": "Please draw a geofence",
+  "edit_geofence": "Edit Geofence",
+  "geofence_updated_successfully": "Geofence updated successfully",
+  "geofence_updated_error": "Geofence updated error",
+  "geofence_test_passed": "Geofence test passed",
+  "geofence_test_failed": "Geofence test failed"
 }

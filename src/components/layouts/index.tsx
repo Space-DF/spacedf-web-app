@@ -246,7 +246,7 @@ const DynamicLayout = ({
       const snapshot = draw?.getSnapshot()
       if (!snapshot?.length) return
       draw?.clear()
-      draw?.setMode('select')
+      draw?.setMode('render')
     }
   }, [isGeofencesActive])
 

@@ -1,5 +1,16 @@
 {
   "geofence_name": "Tên vùng giới hạn",
   "geofences": "Vùng giới hạn",
-  "view_details": "Xem chi tiết"
+  "geofence_added_successfully": "Vùng giới hạn đã được thêm thành công",
+  "geofence_added_error": "Lỗi khi thêm vùng giới hạn",
+  "delete_confirm_title": "Bạn có chắc chắn không",
+  "delete_confirm_description": "Vùng giới hạn này sẽ bị xóa khỏi hệ thống và không thể khôi phục.",
+  "geofence_deleted_successfully": "Vùng giới hạn đã được xóa thành công",
+  "geofence_deleted_error": "Lỗi khi xóa vùng giới hạn",
+  "please_draw_a_geofence": "Vui lòng vẽ một vùng giới hạn",
+  "edit_geofence": "Chỉnh sửa vùng giới hạn",
+  "geofence_updated_successfully": "Vùng giới hạn đã được cập nhật thành công",
+  "geofence_updated_error": "Lỗi khi cập nhật vùng giới hạn",
+  "geofence_test_passed": "Vùng giới hạn đã được kiểm tra thành công",
+  "geofence_test_failed": "Vùng giới hạn đã được kiểm tra thất bại"
 }

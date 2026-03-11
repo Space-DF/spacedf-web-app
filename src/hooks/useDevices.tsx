@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE_SIZE } from '@/constants'
 import api from '@/lib/api'
 import { DeviceDataOriginal } from '@/types/device'
 import { useParams } from 'next/navigation'
@@ -12,8 +13,6 @@ export function getDevices<T>(url: string): Promise<T> {
   return api.get(url)
 }
 
-const PAGE_SIZE = 10
-
 const getKey = (
   pageIndex: number,
   previousPageData: DeviceDataOriginal[],
@@ -22,8 +21,8 @@ const getKey = (
 ) => {
   // Stop fetching if there is no more data
   if (previousPageData && !previousPageData.length) return null
-  const offset = pageIndex * PAGE_SIZE
-  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${PAGE_SIZE}&search=${deviceName}`
+  const offset = pageIndex * DEFAULT_PAGE_SIZE
+  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${deviceName}`
 }
 
 export function useGetDevices(
@@ -51,6 +50,8 @@ export function useGetDevices(
     return Array.from(map.values())
   }, [data])
 
-  const isReachingEnd = data ? data[data.length - 1]?.length < PAGE_SIZE : false
+  const isReachingEnd = data
+    ? data[data.length - 1]?.length < DEFAULT_PAGE_SIZE
+    : false
   return { data: flatData, isReachingEnd, isLoading, ...rest }
 }

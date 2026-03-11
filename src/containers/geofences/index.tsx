@@ -1,59 +1,120 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+
 import { InputWithIcon } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { Ellipsis, PlusIcon, Search, Trash2 } from 'lucide-react'
+import { LoaderCircle, PlusIcon, Search } from 'lucide-react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Nodata } from '@/components/ui'
-import { Eye, Pencil } from '@/components/icons'
-import AddGeofence from './components/add-geofence'
+import { Skeleton } from '@/components/ui/skeleton'
+import UpsertGeofence from './components/upseart-geofence'
 import { useGeofenceStore } from '@/stores/geofence-store'
+import { useDebounce } from '@/hooks'
+import { useGeofences } from './hooks/useGeofences'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { GeofenceItem } from './components/geofence-item'
+import { Geofence } from '@/types/geofence'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
-interface GeofenceListItem {
-  id: number
-  name: string
-}
+const ROW_HEIGHT = 72
+const ROW_GAP = 8
+const ROW_ESTIMATE = ROW_HEIGHT + ROW_GAP
+const SKELETON_COUNT = 5
 
-const DUMMY_GEOFENCES: GeofenceListItem[] = Array.from({ length: 4 }).map(
-  (_, idx) => ({
-    id: idx + 1,
-    name: `Geofence ${String(idx + 1).padStart(2, '0')}`,
-  })
+const GeofenceRowSkeleton = () => (
+  <div
+    className={cn(
+      'flex items-center justify-between rounded-lg border border-brand-component-stroke-dark-soft bg-brand-component-fill-light p-2 dark:bg-brand-fill-outermost'
+    )}
+    style={{ height: ROW_HEIGHT }}
+  >
+    <div className="flex min-w-0 items-center gap-3">
+      <Skeleton className="size-12 shrink-0 rounded-lg" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <Skeleton className="h-4 w-32" />
+      </div>
+    </div>
+    <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
+  </div>
 )
+
+const mapInstance = MapInstance.getInstance()
 
 export const Geofences = () => {
   const t = useTranslations('geofence')
   const tCommon = useTranslations('common')
   const [geofenceName, setGeofenceName] = useState('')
+  const geofenceDebounce = useDebounce(geofenceName, 500)
+  const {
+    data: geofencesList,
+    isLoading,
+    isReachingEnd,
+    setSize,
+    mutate,
+  } = useGeofences(geofenceDebounce)
+  const [selectedGeofence, setSelectedGeofence] = useState<Geofence>()
+  const parentRef = useRef<HTMLDivElement>(null)
+  const fetchingRef = useRef(false)
+
   const { isShowGeofenceControls, setIsShowGeofenceControls } =
     useGeofenceStore((state) => ({
       isShowGeofenceControls: state.isShowGeofenceControls,
       setIsShowGeofenceControls: state.setIsShowGeofenceControls,
     }))
 
-  const filteredGeofences = useMemo(() => {
-    const q = geofenceName.trim().toLowerCase()
-    if (!q) return DUMMY_GEOFENCES
-    return DUMMY_GEOFENCES.filter((g) => g.name.toLowerCase().includes(q))
-  }, [geofenceName])
-
   const handleClose = () => {
     setIsShowGeofenceControls(false)
+    setGeofenceName('')
+    setSelectedGeofence(undefined)
+  }
+
+  const count = geofencesList.length
+  const virtualCount = isReachingEnd ? count : count + 1
+
+  const rowVirtualizer = useVirtualizer({
+    count: virtualCount,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ROW_ESTIMATE,
+    overscan: 5,
+  })
+
+  const virtualItems = rowVirtualizer.getVirtualItems()
+
+  useEffect(() => {
+    const [lastItem] = [...virtualItems].reverse()
+    if (!lastItem) return
+    if (
+      lastItem.index >= count - 1 &&
+      !isLoading &&
+      !isReachingEnd &&
+      !fetchingRef.current
+    ) {
+      fetchingRef.current = true
+      setSize((prev) => prev + 1)
+    }
+  }, [virtualItems.length, count, isLoading, isReachingEnd, setSize])
+
+  useEffect(() => {
+    if (!isLoading) fetchingRef.current = false
+  }, [isLoading])
+
+  const handleSelectGeofence = (geofence: Geofence) => {
+    setSelectedGeofence(geofence)
+    setIsShowGeofenceControls(true)
+    mapInstance.flyToBoundary(geofence.features)
   }
 
   return (
     <div className="relative flex flex-1 flex-col h-full overflow-hidden">
-      <AddGeofence isOpen={isShowGeofenceControls} onClose={handleClose} />
+      <UpsertGeofence
+        isOpen={isShowGeofenceControls}
+        onClose={handleClose}
+        geofence={selectedGeofence}
+        mutate={mutate}
+      />
       <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden px-4 pt-4">
         <div className="flex items-center justify-between">
           <div className="font-semibold text-brand-component-text-dark">
@@ -91,69 +152,45 @@ export const Geofences = () => {
           onChange={(e) => setGeofenceName(e.target.value)}
         />
 
-        <div className="flex-1 overflow-auto pb-4">
-          {filteredGeofences.length === 0 ? (
+        <div className="flex-1 overflow-auto pb-4 min-h-0" ref={parentRef}>
+          {isLoading && geofencesList.length === 0 ? (
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: SKELETON_COUNT }).map((_, idx) => (
+                <GeofenceRowSkeleton key={idx} />
+              ))}
+            </div>
+          ) : geofencesList.length === 0 ? (
             <Nodata content={tCommon('nodata', { module: t('geofences') })} />
           ) : (
-            <div className="flex flex-col gap-2">
-              {filteredGeofences.map((item) => {
-                return (
-                  <div
-                    key={item.id}
-                    className={cn(
-                      'flex items-center justify-between rounded-lg border border-brand-component-stroke-dark-soft bg-brand-component-fill-light p-2 shadow-sm transition-all duration-200 hover:shadow-md dark:bg-brand-fill-outermost'
-                    )}
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="relative size-12 overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft bg-brand-fill-surface">
-                        <Image
-                          src="/images/map.svg"
-                          alt="geofence"
-                          fill
-                          className="object-cover opacity-60"
-                        />
-                      </div>
-
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-brand-component-text-dark dark:text-white">
-                          {item.name}
-                        </div>
-                      </div>
+            <div
+              className="relative w-full"
+              style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
+              {virtualItems.map((virtualRow) => {
+                if (virtualRow.index >= count) {
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      className="absolute left-0 flex w-full items-center justify-center"
+                      style={{
+                        height: `${ROW_ESTIMATE}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
                     </div>
+                  )
+                }
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-brand-component-text-gray hover:bg-brand-fill-surface hover:text-brand-component-text-dark dark:hover:bg-brand-stroke-outermost"
-                        >
-                          <Ellipsis size={18} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
-                          <Eye />
-                          <span className="text-sm font-medium">
-                            {t('view_details')}
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
-                          <Pencil className="size-4" />
-                          <span className="text-sm font-medium">
-                            {tCommon('edit')}
-                          </span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive">
-                          <Trash2 className="size-4" />
-                          <span className="text-sm font-medium">
-                            {tCommon('delete')}
-                          </span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                const item = geofencesList[virtualRow.index]
+                return (
+                  <GeofenceItem
+                    key={virtualRow.key}
+                    virtualRow={virtualRow}
+                    item={item}
+                    onSelectGeofence={handleSelectGeofence}
+                    mutate={mutate}
+                  />
                 )
               })}
             </div>
