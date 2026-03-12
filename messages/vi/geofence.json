@@ -12,5 +12,6 @@
   "geofence_updated_successfully": "Vùng giới hạn đã được cập nhật thành công",
   "geofence_updated_error": "Lỗi khi cập nhật vùng giới hạn",
   "geofence_test_passed": "Vùng giới hạn đã được kiểm tra thành công",
-  "geofence_test_failed": "Vùng giới hạn đã được kiểm tra thất bại"
+  "geofence_test_failed": "Vùng giới hạn đã được kiểm tra thất bại",
+  "please_select_weekdays": "Vui lòng chọn các ngày trong tuần"
 }

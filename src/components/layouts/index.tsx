@@ -252,7 +252,7 @@ const DynamicLayout = ({
 
   return (
     <EffectLayout>
-      <div className="flex max-h-screen max-w-full overflow-hidden">
+      <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
         <ResizablePanelGroup
           onLayout={handleMainLayoutChanges}
           direction="horizontal"

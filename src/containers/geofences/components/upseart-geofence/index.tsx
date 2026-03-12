@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import {
   featuresToGeometries,
+  hasEmptyWeekdays,
   parseConditions,
   transformConditions,
 } from './utils'
@@ -24,8 +25,10 @@ import {
   type CreateGeofencePayload,
 } from '../hooks/useAddGeofence'
 import { toast } from 'sonner'
-import { Geofence } from '@/types/geofence'
+import { FeatureId, Geofence } from '@/types/geofence'
 import { useUpdateGeofence } from '../hooks/useUpdateGeofence'
+import { useShallow } from 'zustand/react/shallow'
+import { useCache } from '@/hooks/useCache'
 
 interface UpsertGeofenceProps {
   isOpen: boolean
@@ -58,7 +61,23 @@ const UpsertGeofence = ({
 }: UpsertGeofenceProps) => {
   const t = useTranslations('common')
   const tGeofence = useTranslations('geofence')
-  const resetGeofenceStore = useGeofenceStore((state) => state.reset)
+  const {
+    reset: resetGeofenceStore,
+    setOriginalGeoFencesIds,
+    draftGeoFencesIds,
+    setDraftGeoFencesIds,
+    geoFencesIds,
+  } = useGeofenceStore(
+    useShallow((state) => ({
+      reset: state.reset,
+      setOriginalGeoFencesIds: state.setOriginalGeoFencesIds,
+      draftGeoFencesIds: state.draftGeoFencesIds,
+      setDraftGeoFencesIds: state.setDraftGeoFencesIds,
+      geoFencesIds: state.geoFencesIds,
+    }))
+  )
+
+  const { clearCacheStartsWith } = useCache()
 
   const form = useForm<GeofenceForm>({
     resolver: zodResolver(addGeofenceSchema),
@@ -71,12 +90,15 @@ const UpsertGeofence = ({
     useAddGeofence()
   const { trigger: updateGeofence, isMutating: isUpdatingGeofence } =
     useUpdateGeofence(geofence?.id)
+
   const draw = mapInstance.getTerraDraw()
+
   const handleClose = () => {
     if (!draw) return
-    const geoFencesIds = useGeofenceStore.getState().geoFencesIds
     if (!!geoFencesIds.length) {
-      draw.removeFeatures(geoFencesIds)
+      draw.removeFeatures(draftGeoFencesIds)
+      setOriginalGeoFencesIds([])
+      setDraftGeoFencesIds([])
     }
     resetGeofenceStore()
     form.reset(DEFAULT_GEOFENCE_FORM)
@@ -84,23 +106,19 @@ const UpsertGeofence = ({
     draw.setMode('render')
     setCurrentTab('info')
     mapInstance.setDrawingMode(false)
+    const features = draw.getSnapshot()
+    features.forEach((f) => {
+      draw.updateFeatureProperties(f.id as FeatureId, {
+        disabled: false,
+      })
+    })
   }
-
-  useEffect(() => {
-    if (!draw) return
-    if (!isOpen) {
-      const geoFencesIds = useGeofenceStore.getState().geoFencesIds
-      if (!!geoFencesIds.length) {
-        draw.removeFeatures(geoFencesIds)
-      }
-      resetGeofenceStore()
-    }
-  }, [isOpen])
 
   const handleSave = async () => {
     if (!draw) return
     const features = draw?.getSnapshot()
-    if (!features) return toast.error(tGeofence('please_draw_a_geofence'))
+    if (!geoFencesIds.length)
+      return toast.error(tGeofence('please_draw_a_geofence'))
     const isValid = await form.trigger()
     const data = form.getValues()
     if (!isValid) {
@@ -114,7 +132,22 @@ const UpsertGeofence = ({
         return
       }
     }
-    const geometry = featuresToGeometries(features)
+
+    if (data.conditions.some(hasEmptyWeekdays)) {
+      setCurrentTab('condition')
+      return toast.error(tGeofence('please_select_weekdays'))
+    }
+
+    const featuresWithId = features
+      .filter((f) => geoFencesIds.includes(f.id as string))
+      .map((f) => ({
+        ...f,
+        properties: {
+          ...f.properties,
+          id: f.id as string,
+        },
+      }))
+    const geometry = featuresToGeometries(featuresWithId)
     if (!geometry.length)
       return toast.error(tGeofence('please_draw_a_geofence'))
     const payload: CreateGeofencePayload = {
@@ -129,6 +162,9 @@ const UpsertGeofence = ({
     } else {
       await addGeofence(payload)
     }
+    setDraftGeoFencesIds([])
+    setOriginalGeoFencesIds([])
+    clearCacheStartsWith('/api/geofence')
     mutate()
     handleClose()
   }

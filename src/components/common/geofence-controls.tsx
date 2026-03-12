@@ -16,6 +16,7 @@ import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { GeofenceTool } from '@/stores/geofence-store'
 import { useCallback, useEffect, useState } from 'react'
 import { FeatureId } from '@/types/geofence'
+import { toHexColor } from '@/containers/geofences/components/upseart-geofence/utils'
 
 const Broadcast = () => {
   return (
@@ -58,15 +59,29 @@ const TOOL_CONFIG: {
 const mapInstance = MapInstance.getInstance()
 
 const GeofenceControls = () => {
-  const { setActiveTool, activeTool, geoFencesIds, setGeoFencesIds } =
-    useGeofenceStore(
-      useShallow((state) => ({
-        setActiveTool: state.setActiveTool,
-        activeTool: state.activeTool,
-        geoFencesIds: state.geoFencesIds,
-        setGeoFencesIds: state.setGeoFencesIds,
-      }))
-    )
+  const {
+    setActiveTool,
+    activeTool,
+    setOriginalGeoFencesIds,
+    originalGeoFencesIds,
+    draftGeoFencesIds,
+    setDraftGeoFencesIds,
+    currentDrawingColor,
+    isShowGeofenceControls,
+    geoFencesIds,
+  } = useGeofenceStore(
+    useShallow((state) => ({
+      setActiveTool: state.setActiveTool,
+      activeTool: state.activeTool,
+      originalGeoFencesIds: state.originalGeoFencesIds,
+      setOriginalGeoFencesIds: state.setOriginalGeoFencesIds,
+      currentDrawingColor: state.currentDrawingColor,
+      isShowGeofenceControls: state.isShowGeofenceControls,
+      draftGeoFencesIds: state.draftGeoFencesIds,
+      setDraftGeoFencesIds: state.setDraftGeoFencesIds,
+      geoFencesIds: state.geoFencesIds,
+    }))
+  )
   const [isGeofenceEmpty, setIsGeofenceEmpty] = useState(true)
 
   const checkIsEmpty = useCallback(() => {
@@ -81,12 +96,21 @@ const GeofenceControls = () => {
     if (!draw) return
 
     const handleFinish = (featureId: FeatureId) => {
-      if (!geoFencesIds.includes(featureId)) {
-        setGeoFencesIds([...geoFencesIds, featureId])
+      if (!draftGeoFencesIds.includes(featureId)) {
+        setDraftGeoFencesIds([...draftGeoFencesIds, featureId])
       }
       setIsGeofenceEmpty(false)
     }
-    const handleChange = () => checkIsEmpty()
+    const handleChange = (ids: FeatureId[], type: string) => {
+      if (type === 'create' && isShowGeofenceControls) {
+        ids.forEach((id) => {
+          draw?.updateFeatureProperties(id, {
+            color: toHexColor(currentDrawingColor),
+          })
+        })
+      }
+      checkIsEmpty()
+    }
 
     draw.on('finish', handleFinish)
     draw.on('change', handleChange)
@@ -95,7 +119,7 @@ const GeofenceControls = () => {
       draw.off('finish', handleFinish)
       draw.off('change', handleChange)
     }
-  }, [geoFencesIds])
+  }, [draftGeoFencesIds, currentDrawingColor, isShowGeofenceControls])
 
   const toolConfig =
     activeTool !== 'select'
@@ -112,7 +136,8 @@ const GeofenceControls = () => {
     }
     if (tool === 'delete') {
       draw?.removeFeatures(geoFencesIds)
-      setGeoFencesIds([])
+      setOriginalGeoFencesIds([])
+      setDraftGeoFencesIds([])
       setIsGeofenceEmpty(true)
       setActiveTool(undefined)
       mapInstance.setDrawingMode(false)
@@ -126,7 +151,12 @@ const GeofenceControls = () => {
         .map((f) => f.id!)
       if (selectedIds?.length) {
         draw?.removeFeatures(selectedIds)
-        setGeoFencesIds(geoFencesIds.filter((id) => !selectedIds.includes(id)))
+        setDraftGeoFencesIds(
+          draftGeoFencesIds.filter((id) => !selectedIds.includes(id))
+        )
+        setOriginalGeoFencesIds(
+          originalGeoFencesIds.filter((id) => !selectedIds.includes(id))
+        )
         checkIsEmpty()
         if (activeTool === 'select') {
           setActiveTool(undefined)
@@ -141,6 +171,23 @@ const GeofenceControls = () => {
     draw?.start()
     draw?.setMode(tool)
   }
+
+  useEffect(() => {
+    const draw = mapInstance.getTerraDraw()
+    if (!draw || !geoFencesIds.length || !isShowGeofenceControls) return
+    geoFencesIds.forEach((id) => {
+      if (draw.hasFeature(id)) {
+        draw.updateFeatureProperties(id, {
+          color: toHexColor(currentDrawingColor),
+        })
+      }
+    })
+  }, [
+    currentDrawingColor,
+    originalGeoFencesIds,
+    draftGeoFencesIds,
+    isShowGeofenceControls,
+  ])
 
   return (
     <ControlGroup>

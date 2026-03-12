@@ -22,7 +22,10 @@ interface GeofenceStore {
   isShowGeofenceControls: boolean
   currentDrawingColor: string
   currentCondition?: GeofenceCondition
+  originalGeoFencesIds: FeatureId[]
+  draftGeoFencesIds: FeatureId[]
   geoFencesIds: FeatureId[]
+  dirtyFeatureIds: FeatureId[]
 }
 
 interface ActionsGeofenceStore {
@@ -31,18 +34,23 @@ interface ActionsGeofenceStore {
   setCurrentDrawingColor: (color: string) => void
   setCurrentCondition: (condition?: GeofenceCondition) => void
   reset: () => void
-  setGeoFencesIds: (ids: FeatureId[]) => void
+  setOriginalGeoFencesIds: (ids: FeatureId[]) => void
+  setDraftGeoFencesIds: (ids: FeatureId[]) => void
+  setDirtyFeatureIds: (ids: FeatureId[]) => void
 }
 
 export const DEFAULT_GEOFENCE_COLOR = '#3b82f6'
 
 export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
   (set) => ({
-    geoFencesIds: [],
+    dirtyFeatureIds: [],
+    originalGeoFencesIds: [],
     activeTool: undefined,
     isShowGeofenceControls: false,
     currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
     currentCondition: undefined,
+    draftGeoFencesIds: [],
+    geoFencesIds: [],
     setActiveTool: (tool) => set({ activeTool: tool }),
     setIsShowGeofenceControls: (isShow) =>
       set({ isShowGeofenceControls: isShow }),
@@ -54,8 +62,21 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
         isShowGeofenceControls: false,
         currentDrawingColor: DEFAULT_GEOFENCE_COLOR,
         currentCondition: undefined,
+        originalGeoFencesIds: [],
+        draftGeoFencesIds: [],
         geoFencesIds: [],
+        dirtyFeatureIds: [],
       }),
-    setGeoFencesIds: (ids) => set({ geoFencesIds: ids }),
+    setOriginalGeoFencesIds: (ids) =>
+      set((s) => ({
+        originalGeoFencesIds: ids,
+        geoFencesIds: [...ids, ...s.draftGeoFencesIds],
+      })),
+    setDraftGeoFencesIds: (ids) =>
+      set((s) => ({
+        draftGeoFencesIds: ids,
+        geoFencesIds: [...s.originalGeoFencesIds, ...ids],
+      })),
+    setDirtyFeatureIds: (ids) => set({ dirtyFeatureIds: ids }),
   })
 )

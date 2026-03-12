@@ -16,30 +16,11 @@ import { addGeofenceSchema } from '../../schema'
 import { z } from 'zod'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { useEffect } from 'react'
-import {
-  DEFAULT_GEOFENCE_COLOR,
-  useGeofenceStore,
-} from '@/stores/geofence-store'
-
-const GEOFENCE_DRAWING_MODES = [
-  'rectangle',
-  'circle',
-  'polygon',
-  'sector',
-  'freehand',
-  'angled-rectangle',
-  'sensor',
-] as const
+import { useGeofenceStore } from '@/stores/geofence-store'
+import { toHexColor } from '../../utils'
 
 type GeofenceForm = z.infer<typeof addGeofenceSchema>
 const mapInstance = MapInstance.getInstance()
-
-const toHexColor = (color?: string) =>
-  color === 'default' || !color
-    ? DEFAULT_GEOFENCE_COLOR
-    : color.startsWith('#')
-      ? color
-      : `#${color}`
 
 const GeofenceInfo = () => {
   const setCurrentDrawingColor = useGeofenceStore(
@@ -53,31 +34,15 @@ const GeofenceInfo = () => {
     if (!draw) return
     const hexColor = toHexColor(color)
     setCurrentDrawingColor(hexColor)
-    const features = draw.getSnapshot()
     form.setValue('color', color)
-    if (!features.length) return
-    features.forEach((feature) => {
-      const id = feature.id
-      if (id != null && draw.hasFeature(id)) {
-        draw.updateFeatureProperties(id, { color: hexColor })
-      }
-    })
-    GEOFENCE_DRAWING_MODES.forEach((mode) => {
-      draw.updateModeOptions(mode, {
-        styles: {
-          fillColor: (f: { properties?: { color?: string } }) =>
-            (f.properties?.color as `#${string}`) || hexColor,
-          outlineColor: (f: { properties?: { color?: string } }) =>
-            (f.properties?.color as `#${string}`) || hexColor,
-        },
-      })
-    })
   }
 
+  const color = form.watch('color')
+
   useEffect(() => {
-    const hexColor = toHexColor(form.getValues('color'))
+    const hexColor = toHexColor(color)
     setCurrentDrawingColor(hexColor)
-  }, [])
+  }, [color])
 
   return (
     <Form {...form}>

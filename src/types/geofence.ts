@@ -4,6 +4,7 @@ export type Coordinate = [number, number]
 
 export type PolygonGeometry = {
   coordinates: Coordinate[][]
+  properties: NormalizedPolygonProperties
 }
 
 export type GeofenceCondition =
@@ -17,12 +18,14 @@ export type GeofenceCondition =
 export type NormalizedPolygon = {
   type: 'Polygon' | 'MultiPolygon'
   coordinates: Coordinate[][]
-  properties?: NormalizedPolygonProperties
+  properties: NormalizedPolygonProperties
 }
 
 export type NormalizedPolygonProperties = {
   color?: string
   type?: string
+  mode?: 'rectangle' | 'angled-rectangle' | string
+  id?: string
 }
 
 export interface EventRule {

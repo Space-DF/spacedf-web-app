@@ -25,6 +25,9 @@ import { useTranslations } from 'next-intl'
 import { useDeleteGeofence } from '../../hooks/useDeleteGeofence'
 import { useState } from 'react'
 import { Geofence } from '@/types/geofence'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useCache } from '@/hooks/useCache'
+import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 
 const ROW_HEIGHT = 72
 const ROW_GAP = 8
@@ -48,6 +51,12 @@ export const GeofenceItem: React.FC<Props> = ({
     useDeleteGeofence(item.id)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
+  const syncGeofencesToMap = useGeofenceMapStore(
+    (state) => state.syncGeofencesToMap
+  )
+
+  const { clearCacheStartsWith } = useCache()
+
   const handleOpenDeleteDialog = () => {
     setIsDeleteDialogOpen(true)
   }
@@ -55,7 +64,9 @@ export const GeofenceItem: React.FC<Props> = ({
   const handleConfirmDelete = async () => {
     await deleteGeofence()
     setIsDeleteDialogOpen(false)
-    mutate()
+    clearCacheStartsWith('/api/geofence')
+    await mutate()
+    syncGeofencesToMap()
   }
 
   return (
@@ -145,3 +156,20 @@ export const GeofenceItem: React.FC<Props> = ({
     </div>
   )
 }
+
+export const GeofenceRowSkeleton = () => (
+  <div
+    className={cn(
+      'flex items-center justify-between rounded-lg border border-brand-component-stroke-dark-soft bg-brand-component-fill-light p-2 dark:bg-brand-fill-outermost'
+    )}
+    style={{ height: ROW_HEIGHT }}
+  >
+    <div className="flex min-w-0 items-center gap-3">
+      <Skeleton className="size-12 shrink-0 rounded-lg" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <Skeleton className="h-4 w-32" />
+      </div>
+    </div>
+    <Skeleton className="h-8 w-8 shrink-0 rounded-md" />
+  </div>
+)

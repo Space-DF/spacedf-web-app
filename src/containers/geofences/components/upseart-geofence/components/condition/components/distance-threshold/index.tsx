@@ -31,6 +31,7 @@ import { featuresToGeometries, transformConditions } from '../../../../utils'
 import { useTestCondition } from '../render-condition/hooks/useTestCondition'
 import { toast } from 'sonner'
 import { useGeofenceStore } from '@/stores/geofence-store'
+import { useShallow } from 'zustand/react/shallow'
 
 interface Props {
   fieldId: string
@@ -56,9 +57,13 @@ const ConditionDistanceThreshold = ({
   const form = useFormContext<GeofenceForm>()
   const { control } = form
   const { trigger: testCondition } = useTestCondition()
-  const setCurrentCondition = useGeofenceStore(
-    (state) => state.setCurrentCondition
+  const { setCurrentCondition, geoFencesIds } = useGeofenceStore(
+    useShallow((state) => ({
+      setCurrentCondition: state.setCurrentCondition,
+      geoFencesIds: state.geoFencesIds,
+    }))
   )
+
   const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (!value) {
@@ -100,9 +105,12 @@ const ConditionDistanceThreshold = ({
     const values = form.getValues()
     const draw = mapInstance.getTerraDraw()
     const features = draw?.getSnapshot()
-    if (!features?.length)
+    if (!geoFencesIds.length || !features?.length)
       return toast.error(tGeofence('please_draw_a_geofence'))
-    const geometry = featuresToGeometries(features)
+    const currenGeofenceFeatures = features?.filter((f) =>
+      geoFencesIds.includes(f.id as string)
+    )
+    const geometry = featuresToGeometries(currenGeofenceFeatures)
     testCondition({
       type_zone: values.type_zone,
       features: geometry,
