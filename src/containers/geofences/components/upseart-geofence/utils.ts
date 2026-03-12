@@ -6,6 +6,7 @@ import {
   NormalizedPolygon,
   NormalizedPolygonProperties,
 } from '@/types/geofence'
+import { DEFAULT_GEOFENCE_COLOR } from '@/stores/geofence-store'
 
 type GeofenceRule = GeofenceForm['conditions'][number]
 
@@ -187,7 +188,7 @@ export function toCoordinate(pos: number[]): Coordinate {
 export function toPolygonGeometry(geom: {
   type: string
   coordinates: Coordinate[][]
-  properties?: NormalizedPolygonProperties
+  properties: NormalizedPolygonProperties
 }): NormalizedPolygon {
   if (geom.type === 'Polygon') {
     const rings = geom.coordinates as Coordinate[][]
@@ -211,7 +212,7 @@ export function toPolygonGeometry(geom: {
 export function featuresToGeometries(
   features: Array<{
     geometry: { type: string; coordinates: unknown }
-    properties?: NormalizedPolygonProperties
+    properties: NormalizedPolygonProperties
   }>
 ): NormalizedPolygon[] {
   return features
@@ -225,4 +226,35 @@ export function featuresToGeometries(
         properties: f.properties,
       })
     )
+}
+
+export const toHexColor = (color?: string) =>
+  color === 'default' || !color
+    ? DEFAULT_GEOFENCE_COLOR
+    : color.startsWith('#')
+      ? color
+      : `#${color}`
+
+export function hexWithOpacity(hex: string, opacity: number): `#${string}` {
+  const alpha = Math.round(opacity * 255)
+    .toString(16)
+    .padStart(2, '0')
+    .toUpperCase()
+
+  return (hex + alpha) as `#${string}`
+}
+
+export const hasEmptyWeekdays = (
+  rule: GeofenceForm['conditions'][number]
+): boolean => {
+  switch (rule.type) {
+    case 'time':
+      return rule.weekdays.length === 0
+    case 'and':
+    case 'or':
+    case 'not':
+      return rule.rules.some(hasEmptyWeekdays)
+    default:
+      return false
+  }
 }

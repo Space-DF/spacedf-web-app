@@ -12,5 +12,6 @@
   "geofence_updated_successfully": "Geofence updated successfully",
   "geofence_updated_error": "Geofence updated error",
   "geofence_test_passed": "Geofence test passed",
-  "geofence_test_failed": "Geofence test failed"
+  "geofence_test_failed": "Geofence test failed",
+  "please_select_weekdays": "Please select weekdays"
 }

@@ -15,11 +15,8 @@ import {
   TerraDrawSensorMode,
   TerraDrawRenderMode,
 } from 'terra-draw'
-import {
-  DEFAULT_GEOFENCE_COLOR,
-  useGeofenceStore,
-} from '@/stores/geofence-store'
 import { PolygonGeometry } from '@/types/geofence'
+import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
 
 type MapProps = {
   container: HTMLElement
@@ -51,17 +48,6 @@ type Bounds = {
   maxLng: number
   maxLat: number
 }
-
-const getGeofencePolygonStyles = () => ({
-  fillColor: (feature: { properties?: { color?: string } }) =>
-    (feature.properties?.color as `#${string}`) ||
-    useGeofenceStore.getState().currentDrawingColor ||
-    DEFAULT_GEOFENCE_COLOR,
-  outlineColor: (feature: { properties?: { color?: string } }) =>
-    (feature.properties?.color as `#${string}`) ||
-    useGeofenceStore.getState().currentDrawingColor ||
-    DEFAULT_GEOFENCE_COLOR,
-})
 
 class MapInstance {
   private static instance: MapInstance | undefined
@@ -205,19 +191,54 @@ class MapInstance {
       ...(options || {}),
     })
 
-    const styles = getGeofencePolygonStyles()
+    const fillColor = (feature: {
+      properties: { color?: string; disabled?: boolean }
+    }) =>
+      feature.properties.disabled
+        ? hexWithOpacity(feature.properties.color as `#${string}`, 0.4)
+        : (feature.properties.color as `#${string}`) || '#cccccc'
+    const outlineColor = (feature: {
+      properties: { color?: string; disabled?: boolean }
+    }) =>
+      feature.properties.disabled
+        ? hexWithOpacity(feature.properties.color as `#${string}`, 0.4)
+        : (feature.properties.color as `#${string}`) || '#000000'
 
     this.draw = new TerraDraw({
       adapter: new TerraDrawMapLibreGLAdapter({ map }),
       modes: [
-        new TerraDrawRectangleMode({ styles }),
-        new TerraDrawCircleMode({ styles }),
-        new TerraDrawPolygonMode({ styles }),
-        new TerraDrawSectorMode({ styles }),
-        new TerraDrawPointMode(),
-        new TerraDrawFreehandMode({ styles }),
-        new TerraDrawAngledRectangleMode({ styles }),
-        new TerraDrawSensorMode({ styles }),
+        new TerraDrawRectangleMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawCircleMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawPolygonMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawSectorMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawPointMode({
+          styles: {
+            pointColor: fillColor,
+            pointOutlineColor: outlineColor,
+          },
+        }),
+        new TerraDrawFreehandMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawAngledRectangleMode({
+          styles: { fillColor, outlineColor },
+        }),
+        new TerraDrawSensorMode({
+          styles: {
+            fillColor,
+            outlineColor,
+            centerPointColor: fillColor,
+            centerPointOutlineColor: outlineColor,
+          },
+        }),
         new TerraDrawSelectMode({
           allowManualDeselection: true,
           flags: Object.fromEntries(
@@ -245,20 +266,20 @@ class MapInstance {
             ])
           ),
           styles: {
-            selectedPointColor: (f) => styles.fillColor(f),
-            selectedPointOutlineColor: (f) => styles.outlineColor(f),
-            selectedLineStringColor: (f) => styles.outlineColor(f),
-            selectedPolygonColor: (f) => styles.fillColor(f),
-            selectedPolygonOutlineColor: (f) => styles.outlineColor(f),
-            selectionPointColor: (f) => styles.outlineColor(f),
-            selectionPointOutlineColor: (f) => styles.outlineColor(f),
-            midPointColor: (f) => styles.outlineColor(f),
-            midPointOutlineColor: (f) => styles.outlineColor(f),
+            selectedPolygonColor: fillColor,
+            selectedPolygonOutlineColor: outlineColor,
+            selectedPointColor: fillColor,
+            selectedPointOutlineColor: outlineColor,
           },
         }),
         new TerraDrawRenderMode({
           modeName: 'render',
-          styles: {},
+          styles: {
+            polygonFillColor: fillColor,
+            polygonOutlineColor: outlineColor,
+            pointColor: fillColor,
+            pointOutlineColor: outlineColor,
+          },
         }),
       ],
     })
@@ -469,6 +490,28 @@ class MapInstance {
 
   public getMap() {
     return this.map
+  }
+
+  public getCurrentMapBoundary(): Bounds | null {
+    if (!this.map) return null
+    const bounds = this.map.getBounds()
+    return {
+      minLng: bounds.getWest(),
+      minLat: bounds.getSouth(),
+      maxLng: bounds.getEast(),
+      maxLat: bounds.getNorth(),
+    }
+  }
+
+  public getCurrentMapBoundsArray():
+    | [[number, number], [number, number]]
+    | null {
+    const boundary = this.getCurrentMapBoundary()
+    if (!boundary) return null
+    return [
+      [boundary.minLng, boundary.minLat],
+      [boundary.maxLng, boundary.maxLat],
+    ]
   }
 
   public remove() {
