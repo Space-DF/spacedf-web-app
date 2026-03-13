@@ -256,6 +256,7 @@ class MapInstance {
               {
                 feature: {
                   draggable: true,
+                  deletable: true,
                   coordinates: {
                     midpoints: true,
                     draggable: true,

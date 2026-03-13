@@ -1,5 +1,5 @@
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
-import type { FeatureId, Geofence } from '@/types/geofence'
+import type { Coordinate, FeatureId, Geofence } from '@/types/geofence'
 import { NavigationEnums } from '@/constants'
 import { toHexColor } from '@/containers/geofences/components/upseart-geofence/utils'
 import { useLayout } from '@/stores/layout-store'
@@ -15,12 +15,23 @@ interface GeofenceMapStore {
   clearRendered: () => void
   setGeofences: (geofences: Geofence[]) => void
   syncGeofencesToMap: () => void
+  clearDirtyFeatureIds: () => void
+  geofenceFeatureIds: FeatureId[]
+  selectedGeofence?: Geofence
+  setSelectedGeofence: (geofence?: Geofence) => void
+  selectedFeature?: FeatureId
+  setSelectedFeature: (featureId?: FeatureId) => void
 }
 
 export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
+  selectedFeature: undefined,
+  setSelectedFeature: (featureId) => set({ selectedFeature: featureId }),
   geofences: [],
   renderIds: [],
   started: false,
+  geofenceFeatureIds: [],
+  selectedGeofence: undefined,
+  setSelectedGeofence: (geofence) => set({ selectedGeofence: geofence }),
   clearRendered: () => {
     const draw = mapInstance.getTerraDraw()
     if (!draw) return
@@ -40,14 +51,27 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
 
     const { dirtyFeatureIds, setDirtyFeatureIds } = useGeofenceStore.getState()
 
-    const removeFeatureIds = [...dirtyFeatureIds, ...notInGeofenceFeatureIds]
+    const removeFeatureIds = [
+      ...dirtyFeatureIds,
+      ...notInGeofenceFeatureIds,
+    ].filter(Boolean)
 
     if (removeFeatureIds.length) {
-      draw.removeFeatures(removeFeatureIds)
+      removeFeatureIds.forEach((id) => {
+        if (draw.hasFeature(id)) {
+          draw.removeFeatures([id])
+        }
+      })
     }
     setDirtyFeatureIds([])
   },
-  setGeofences: (geofences) => set({ geofences }),
+  setGeofences: (geofences) =>
+    set({
+      geofences,
+      geofenceFeatureIds: geofences
+        .flatMap((g) => g.features.map((f) => String(f.properties.id ?? '')))
+        .filter(Boolean),
+    }),
   syncGeofencesToMap: () => {
     const map = mapInstance.getMap()
     const draw = mapInstance.getTerraDraw()
@@ -66,11 +90,14 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
       set({ started: true })
     }
 
+    const selectedGeofence = get().selectedGeofence
+    const selectedFeature = get().selectedFeature
     draw.setMode('render')
     get().clearRendered()
-
-    const features = geofences.flatMap((geofence) =>
-      geofence.features.map((poly) => ({
+    const { renderIds } = get()
+    const existingIds = new Set(draw.getSnapshot().map((f) => String(f.id)))
+    const features = geofences.flatMap((geofence) => {
+      return geofence.features.map((poly) => ({
         type: 'Feature' as const,
         id: poly.properties.id,
         geometry: {
@@ -81,14 +108,94 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
           color: toHexColor(geofence.color),
           mode: poly.properties.mode ?? '',
           geofenceId: geofence.id,
-          disabled: false,
+          disabled: selectedGeofence
+            ? selectedGeofence.id !== geofence.id
+            : false,
           id: poly.properties.id ?? '',
         },
       }))
-    )
+    })
     if (!features.length) return
+    const newFeatures = features.filter((f) => !existingIds.has(String(f.id)))
+    draw.addFeatures(newFeatures)
+    if (selectedFeature) {
+      draw.setMode('select')
+      draw.selectFeature(selectedFeature)
+    }
+    set({
+      renderIds: [...renderIds, ...newFeatures.map((f) => f.id as FeatureId)],
+    })
+  },
 
-    draw.addFeatures(features)
-    set({ renderIds: features.map((f) => f.id) as FeatureId[] })
+  clearDirtyFeatureIds: () => {
+    const draw = mapInstance.getTerraDraw()
+    if (!draw) return
+    const { originalGeoFencesIds } = useGeofenceStore.getState()
+    const geofences = get().geofences
+    const geofencesByFeatureId = new Map<
+      string,
+      {
+        geometry: {
+          type: 'Polygon'
+          coordinates: Coordinate[][]
+        }
+        properties: {
+          mode: string
+          geofenceId: string
+          disabled: boolean
+          id: string
+          color: string
+        }
+      }
+    >()
+
+    geofences.forEach((geofence) => {
+      const hexColor = toHexColor(geofence.color)
+      geofence.features.forEach((poly) => {
+        const id = String(poly.properties.id ?? '')
+        if (!id) return
+        geofencesByFeatureId.set(id, {
+          geometry: {
+            type: 'Polygon',
+            coordinates: poly.coordinates,
+          },
+          properties: {
+            mode: poly.properties.mode ?? 'polygon',
+            geofenceId: geofence.id,
+            disabled: false,
+            id: poly.properties.id ?? '',
+            color: hexColor,
+          },
+        })
+      })
+    })
+
+    originalGeoFencesIds.forEach((id) => {
+      const key = String(id ?? '')
+      const entry = geofencesByFeatureId.get(key)
+      if (!entry) return
+      if (!draw.hasFeature(id)) {
+        draw.addFeatures([
+          {
+            type: 'Feature',
+            id,
+            geometry: {
+              type: 'Polygon',
+              coordinates: entry.geometry.coordinates,
+            },
+            properties: entry.properties,
+          },
+        ])
+        return
+      }
+      draw.updateFeatureGeometry(id, {
+        coordinates: entry.geometry.coordinates,
+        type: 'Polygon',
+      })
+      draw.updateFeatureProperties(id, {
+        color: entry.properties.color,
+        disabled: false,
+      })
+    })
   },
 }))

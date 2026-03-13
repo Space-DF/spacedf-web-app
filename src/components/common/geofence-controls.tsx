@@ -17,6 +17,7 @@ import { GeofenceTool } from '@/stores/geofence-store'
 import { useCallback, useEffect, useState } from 'react'
 import { FeatureId } from '@/types/geofence'
 import { toHexColor } from '@/containers/geofences/components/upseart-geofence/utils'
+import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 
 const Broadcast = () => {
   return (
@@ -69,6 +70,7 @@ const GeofenceControls = () => {
     currentDrawingColor,
     isShowGeofenceControls,
     geoFencesIds,
+    setDirtyFeatureIds,
   } = useGeofenceStore(
     useShallow((state) => ({
       setActiveTool: state.setActiveTool,
@@ -80,8 +82,13 @@ const GeofenceControls = () => {
       draftGeoFencesIds: state.draftGeoFencesIds,
       setDraftGeoFencesIds: state.setDraftGeoFencesIds,
       geoFencesIds: state.geoFencesIds,
+      setDirtyFeatureIds: state.setDirtyFeatureIds,
     }))
   )
+  const setSelectedFeature = useGeofenceMapStore(
+    (state) => state.setSelectedFeature
+  )
+
   const [isGeofenceEmpty, setIsGeofenceEmpty] = useState(true)
 
   const checkIsEmpty = useCallback(() => {
@@ -96,15 +103,32 @@ const GeofenceControls = () => {
     if (!draw) return
 
     const handleFinish = (featureId: FeatureId) => {
-      if (!draftGeoFencesIds.includes(featureId)) {
+      if (
+        !draftGeoFencesIds.includes(featureId) &&
+        !originalGeoFencesIds.includes(featureId)
+      ) {
         setDraftGeoFencesIds([...draftGeoFencesIds, featureId])
       }
       setIsGeofenceEmpty(false)
     }
     const handleChange = (ids: FeatureId[], type: string) => {
-      if (type === 'create' && isShowGeofenceControls) {
-        ids.forEach((id) => {
-          draw?.updateFeatureProperties(id, {
+      const geofenceFeatureIds =
+        useGeofenceMapStore.getState().geofenceFeatureIds
+      const isNewGeofenceFromData = geofenceFeatureIds.some((id) =>
+        ids.includes(id)
+      )
+      if (
+        type === 'create' &&
+        isShowGeofenceControls &&
+        !isNewGeofenceFromData
+      ) {
+        const snapshot = draw.getSnapshot() ?? []
+        // Filter guidance features (select mode creates auxiliary features with mode === 'select')
+        const nonGuidanceIds = ids.filter((id) =>
+          snapshot.some((f) => f.id === id && f.properties?.mode !== 'select')
+        )
+        nonGuidanceIds.forEach((id) => {
+          draw.updateFeatureProperties(id, {
             color: toHexColor(currentDrawingColor),
           })
         })
@@ -112,12 +136,30 @@ const GeofenceControls = () => {
       checkIsEmpty()
     }
 
+    const handleSelect = (id: FeatureId) => {
+      const feature = draw.getSnapshotFeature(id)
+      if (feature?.properties?.disabled) {
+        draw.deselectFeature(id)
+        draw.updateFeatureProperties(id, {
+          selected: false,
+        })
+      }
+      setSelectedFeature(id)
+    }
+
+    const handleDeselect = () => {
+      setSelectedFeature(undefined)
+    }
+
     draw.on('finish', handleFinish)
     draw.on('change', handleChange)
-
+    draw.on('select', handleSelect)
+    draw.on('deselect', handleDeselect)
     return () => {
       draw.off('finish', handleFinish)
       draw.off('change', handleChange)
+      draw.off('select', handleSelect)
+      draw.off('deselect', handleDeselect)
     }
   }, [draftGeoFencesIds, currentDrawingColor, isShowGeofenceControls])
 
@@ -136,7 +178,6 @@ const GeofenceControls = () => {
     }
     if (tool === 'delete') {
       draw?.removeFeatures(geoFencesIds)
-      setOriginalGeoFencesIds([])
       setDraftGeoFencesIds([])
       setIsGeofenceEmpty(true)
       setActiveTool(undefined)
@@ -152,10 +193,10 @@ const GeofenceControls = () => {
       if (selectedIds?.length) {
         draw?.removeFeatures(selectedIds)
         setDraftGeoFencesIds(
-          draftGeoFencesIds.filter((id) => !selectedIds.includes(id))
+          Array.from(new Set([...draftGeoFencesIds, ...selectedIds]))
         )
         setOriginalGeoFencesIds(
-          originalGeoFencesIds.filter((id) => !selectedIds.includes(id))
+          Array.from(new Set([...originalGeoFencesIds, ...selectedIds]))
         )
         checkIsEmpty()
         if (activeTool === 'select') {
@@ -175,19 +216,21 @@ const GeofenceControls = () => {
   useEffect(() => {
     const draw = mapInstance.getTerraDraw()
     if (!draw || !geoFencesIds.length || !isShowGeofenceControls) return
-    geoFencesIds.forEach((id) => {
-      if (draw.hasFeature(id)) {
-        draw.updateFeatureProperties(id, {
-          color: toHexColor(currentDrawingColor),
-        })
-      }
+    const dirtyIds = originalGeoFencesIds.filter((id) =>
+      geoFencesIds.includes(id)
+    )
+    setDirtyFeatureIds(dirtyIds)
+    const snapshot = draw.getSnapshot() ?? []
+    // Only update actual features (not guidance features of select mode)
+    const updatableIds = geoFencesIds.filter((id) =>
+      snapshot.some((f) => f.id === id && f.properties?.mode !== 'select')
+    )
+    updatableIds.forEach((id) => {
+      draw.updateFeatureProperties(id, {
+        color: toHexColor(currentDrawingColor),
+      })
     })
-  }, [
-    currentDrawingColor,
-    originalGeoFencesIds,
-    draftGeoFencesIds,
-    isShowGeofenceControls,
-  ])
+  }, [currentDrawingColor, geoFencesIds, isShowGeofenceControls])
 
   return (
     <ControlGroup>
