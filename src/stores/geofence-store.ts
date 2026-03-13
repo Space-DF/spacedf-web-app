@@ -77,6 +77,7 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
         draftGeoFencesIds: ids,
         geoFencesIds: [...s.originalGeoFencesIds, ...ids],
       })),
+
     setDirtyFeatureIds: (ids) => set({ dirtyFeatureIds: ids }),
   })
 )

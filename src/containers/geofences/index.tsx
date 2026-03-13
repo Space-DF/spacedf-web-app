@@ -20,6 +20,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { setCookie } from '@/utils'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { getNewLayouts, useLayout } from '@/stores'
+import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 
 const ROW_HEIGHT = 72
 const ROW_GAP = 8
@@ -40,7 +41,6 @@ export const Geofences = () => {
     setSize,
     mutate,
   } = useGeofences(geofenceDebounce)
-  const [selectedGeofence, setSelectedGeofence] = useState<Geofence>()
   const parentRef = useRef<HTMLDivElement>(null)
   const fetchingRef = useRef(false)
 
@@ -66,9 +66,12 @@ export const Geofences = () => {
     }))
   )
 
-  const handleClose = () => {
+  const setSelectedGeofence = useGeofenceMapStore(
+    (state) => state.setSelectedGeofence
+  )
+
+  const handleCloseUpsertGeofence = () => {
     setIsShowGeofenceControls(false)
-    setGeofenceName('')
     setSelectedGeofence(undefined)
     const draw = mapInstance.getTerraDraw()
     if (!draw) return
@@ -80,6 +83,10 @@ export const Geofences = () => {
     })
     setOriginalGeoFencesIds([])
     setDraftGeoFencesIds([])
+  }
+
+  const handleClose = () => {
+    setGeofenceName('')
     const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.GEOFENCES)
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
     setCookieDirty(true)
@@ -160,8 +167,7 @@ export const Geofences = () => {
     <div className="relative flex flex-1 flex-col h-full min-h-0 overflow-hidden">
       <UpsertGeofence
         isOpen={isShowGeofenceControls}
-        onClose={handleClose}
-        geofence={selectedGeofence}
+        onClose={handleCloseUpsertGeofence}
         mutate={mutate}
       />
       <div className="flex flex-1 flex-col gap-4 min-h-0 overflow-hidden px-4 pt-4">

@@ -25,15 +25,15 @@ import {
   type CreateGeofencePayload,
 } from '../hooks/useAddGeofence'
 import { toast } from 'sonner'
-import { FeatureId, Geofence } from '@/types/geofence'
+import { FeatureId } from '@/types/geofence'
 import { useUpdateGeofence } from '../hooks/useUpdateGeofence'
 import { useShallow } from 'zustand/react/shallow'
 import { useCache } from '@/hooks/useCache'
+import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 
 interface UpsertGeofenceProps {
   isOpen: boolean
   onClose: () => void
-  geofence?: Geofence
   mutate: () => void
 }
 
@@ -53,12 +53,7 @@ const DEFAULT_GEOFENCE_FORM: GeofenceForm = {
   conditions: [],
 }
 
-const UpsertGeofence = ({
-  isOpen,
-  onClose,
-  geofence,
-  mutate,
-}: UpsertGeofenceProps) => {
+const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
   const t = useTranslations('common')
   const tGeofence = useTranslations('geofence')
   const {
@@ -84,6 +79,21 @@ const UpsertGeofence = ({
     defaultValues: DEFAULT_GEOFENCE_FORM,
   })
 
+  const {
+    clearDirtyFeatureIds,
+    selectedGeofence: geofence,
+    setSelectedGeofence,
+    setSelectedFeature,
+    selectedFeature,
+  } = useGeofenceMapStore(
+    useShallow((state) => ({
+      clearDirtyFeatureIds: state.clearDirtyFeatureIds,
+      selectedGeofence: state.selectedGeofence,
+      setSelectedGeofence: state.setSelectedGeofence,
+      setSelectedFeature: state.setSelectedFeature,
+      selectedFeature: state.selectedFeature,
+    }))
+  )
   const [currentTab, setCurrentTab] = useState<'info' | 'condition'>('info')
 
   const { trigger: addGeofence, isMutating: isAddingGeofence } =
@@ -95,6 +105,7 @@ const UpsertGeofence = ({
 
   const handleClose = () => {
     if (!draw) return
+    clearDirtyFeatureIds()
     if (!!geoFencesIds.length) {
       draw.removeFeatures(draftGeoFencesIds)
       setOriginalGeoFencesIds([])
@@ -112,6 +123,11 @@ const UpsertGeofence = ({
         disabled: false,
       })
     })
+    if (selectedFeature) {
+      draw.deselectFeature(selectedFeature)
+    }
+    setSelectedGeofence(undefined)
+    setSelectedFeature(undefined)
   }
 
   const handleSave = async () => {
