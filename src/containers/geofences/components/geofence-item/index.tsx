@@ -24,10 +24,11 @@ import { Pencil } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useDeleteGeofence } from '../../hooks/useDeleteGeofence'
 import { useState } from 'react'
-import { Geofence } from '@/types/geofence'
+import { FeatureId, Geofence } from '@/types/geofence'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCache } from '@/hooks/useCache'
 import { useGeofenceMapStore } from '@/stores/geofence-map-store'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 const ROW_HEIGHT = 72
 const ROW_GAP = 8
@@ -38,6 +39,8 @@ interface Props {
   onSelectGeofence: (geofence: Geofence) => void
   mutate: () => void
 }
+
+const mapInstance = MapInstance.getInstance()
 
 export const GeofenceItem: React.FC<Props> = ({
   virtualRow,
@@ -54,6 +57,8 @@ export const GeofenceItem: React.FC<Props> = ({
   const syncGeofencesToMap = useGeofenceMapStore(
     (state) => state.syncGeofencesToMap
   )
+  const geofencesMap = useGeofenceMapStore((state) => state.geofences)
+  const setGeofencesMap = useGeofenceMapStore((state) => state.setGeofences)
 
   const { clearCacheStartsWith } = useCache()
 
@@ -64,8 +69,19 @@ export const GeofenceItem: React.FC<Props> = ({
   const handleConfirmDelete = async () => {
     await deleteGeofence()
     setIsDeleteDialogOpen(false)
+    const newGeofences = geofencesMap.filter((g) => g.id !== item.id)
+    setGeofencesMap(newGeofences)
     clearCacheStartsWith('/api/geofence')
     await mutate()
+    const draw = mapInstance.getTerraDraw()
+    if (draw) {
+      const featureIds = draw
+        .getSnapshot()
+        .filter((feature) => feature.properties.geofenceId === item.id)
+        .filter(Boolean)
+        .map((feature) => feature.id) as FeatureId[]
+      draw.removeFeatures(featureIds)
+    }
     syncGeofencesToMap()
   }
 

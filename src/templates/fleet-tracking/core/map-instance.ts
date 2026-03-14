@@ -14,6 +14,7 @@ import {
   TerraDrawSelectMode,
   TerraDrawSensorMode,
   TerraDrawRenderMode,
+  ValidateNotSelfIntersecting,
 } from 'terra-draw'
 import { PolygonGeometry } from '@/types/geofence'
 import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
@@ -209,15 +210,27 @@ class MapInstance {
       modes: [
         new TerraDrawRectangleMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawCircleMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawPolygonMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawSectorMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawPointMode({
           styles: {
@@ -227,9 +240,15 @@ class MapInstance {
         }),
         new TerraDrawFreehandMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawAngledRectangleMode({
           styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
         }),
         new TerraDrawSensorMode({
           styles: {
@@ -237,6 +256,9 @@ class MapInstance {
             outlineColor,
             centerPointColor: fillColor,
             centerPointOutlineColor: outlineColor,
+          },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
           },
         }),
         new TerraDrawSelectMode({
