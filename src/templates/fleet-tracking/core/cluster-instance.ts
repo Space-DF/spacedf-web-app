@@ -281,6 +281,11 @@ class ClusterInstance {
 
     if (source) {
       source.setData(this.clusterData)
+      this.map.once('idle', () => {
+        if (this.isAlreadyShowTripRoute) return
+        const singleDeviceIds = this.getSingleDeviceIds()
+        this.emitter.emit(CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS, singleDeviceIds)
+      })
     }
   }
 

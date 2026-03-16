@@ -14,6 +14,7 @@ const GET = async (
   const limit = searchParams.get('limit') || '10'
   const offset = searchParams.get('offset') || '0'
   const search = searchParams.get('search') || ''
+  const bbox = searchParams.get('bbox') || ''
   try {
     const session = await readSession()
     if (!session || !spaceSlug)
@@ -38,6 +39,7 @@ const GET = async (
         offset: +offset,
         limit: +limit,
         search,
+        bbox,
       },
       {
         headers: {

@@ -55,7 +55,7 @@ import { useGetDevices } from '@/hooks/useDevices'
 import { usePrevious } from '@/hooks/usePrevious'
 import { cn } from '@/lib/utils'
 import { getNewLayouts, useLayout } from '@/stores'
-import { useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useIdentityStore } from '@/stores/identity-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
@@ -70,6 +70,7 @@ import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useDebounce } from '@/hooks/useDebounce'
+import { transformDeviceData } from '@/utils/map'
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
@@ -301,7 +302,7 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
     isReachingEnd,
     isLoading,
     setSize,
-  } = useGetDevices(debouncedDeviceName)
+  } = useGetDevices({ deviceName: debouncedDeviceName })
 
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
@@ -329,7 +330,7 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
     return deviceHasLocation.map((device) => device.id)
   }, [deviceHasLocation])
 
-  const { deviceSelected, setDeviceSelected } = useDeviceStore(
+  const { deviceSelected, setDeviceSelected, setDevices } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
@@ -373,6 +374,11 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
       fetchingRef.current = false
     }
   }, [isLoading])
+
+  useEffect(() => {
+    const newDevices: Device[] = transformDeviceData(devices)
+    setDevices(newDevices)
+  }, [devices])
 
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">

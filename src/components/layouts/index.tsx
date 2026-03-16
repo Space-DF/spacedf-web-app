@@ -198,7 +198,7 @@ const DynamicLayout = ({
   const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
-  const getRightMinSize = () => {
+  const minRightSize = useMemo(() => {
     const { first, second, isShowAll } =
       displayedRightDynamicLayout(dynamicLayoutRight)
 
@@ -207,7 +207,7 @@ const DynamicLayout = ({
     if (first || second) return 25
 
     return 0
-  }
+  }, [dynamicLayoutRight])
 
   const layoutCannotDuplicate = useMemo(() => {
     return <Dashboard />
@@ -216,24 +216,24 @@ const DynamicLayout = ({
   const { isShowAll, second, first } =
     displayedRightDynamicLayout(dynamicLayoutRight)
 
-  const maxRightSize = () => {
+  const maxRightSize = useMemo(() => {
     if (typeof window === 'undefined') return 60
     const maxRightWidth = 900
     return (maxRightWidth / window.innerWidth) * 100
-  }
+  }, [dynamicLayoutRight])
 
-  const maxLeftSize = () => {
+  const maxLeftSize = useMemo(() => {
     if (typeof window === 'undefined') return 30
     const maxLeftWidth = 400
     return (maxLeftWidth / window.innerWidth) * 100
-  }
+  }, [dynamicLayoutRight])
 
-  const minLeftSize = () => {
+  const minLeftSize = useMemo(() => {
     if (typeof window === 'undefined') return 4
     const minLeftWidth = 50
 
     return (minLeftWidth / window.innerWidth) * 100
-  }
+  }, [dynamicLayoutRight])
 
   const isGeofencesActive = dynamicLayoutRight.includes(
     NavigationEnums.GEOFENCES
@@ -259,8 +259,8 @@ const DynamicLayout = ({
           ref={mainLayoutRefs}
         >
           <ResizablePanel
-            minSize={minLeftSize()}
-            maxSize={maxLeftSize()}
+            minSize={minLeftSize}
+            maxSize={maxLeftSize}
             defaultSize={sidebarWidth}
             className="duration-200"
           >
@@ -297,8 +297,8 @@ const DynamicLayout = ({
                   'transition-all duration-300',
                   isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
                 )}
-                minSize={getRightMinSize()}
-                maxSize={maxRightSize()}
+                minSize={minRightSize}
+                maxSize={maxRightSize}
               >
                 <ResizablePanelGroup
                   direction="horizontal"
