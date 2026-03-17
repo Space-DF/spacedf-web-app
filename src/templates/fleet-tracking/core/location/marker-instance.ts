@@ -408,5 +408,7 @@ export class LocationMarker {
     }
     this.locationMarkers = {}
     this.devices = []
+    this.previousDevices = []
+    this.isInitialized = false
   }
 }

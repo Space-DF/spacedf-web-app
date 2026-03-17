@@ -75,6 +75,7 @@ type DeviceModelAction = {
     type: 'water_depth',
     data: Alert[]
   ) => void
+  setDevicesFleetTracking: (data: Device[]) => void
 }
 
 const reduceDevices = (data: Device[]) => {
@@ -146,6 +147,12 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
       }))
     },
 
+    setDevicesFleetTracking: (data) => {
+      return set(() => ({
+        devicesFleetTracking: reduceDeviceFleetTracking(data),
+      }))
+    },
+
     setDeviceProperties: (deviceId, data) => {
       return set((state) => {
         const newDevices = Object.values(state.devices).map((device) => {
@@ -168,7 +175,6 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDevices: (data) => {
       return set(() => ({
-        devicesFleetTracking: reduceDeviceFleetTracking(data),
         devices: reduceDevices(data),
       }))
     },

@@ -13,26 +13,31 @@ export function getDevices<T>(url: string): Promise<T> {
   return api.get(url)
 }
 
+type GetDevicesQuery = {
+  deviceName?: string
+  bbox?: string
+}
+
 const getKey = (
   pageIndex: number,
   previousPageData: DeviceDataOriginal[],
   spaceSlug: string,
-  deviceName = ''
+  query?: GetDevicesQuery
 ) => {
   // Stop fetching if there is no more data
   if (previousPageData && !previousPageData.length) return null
   const offset = pageIndex * DEFAULT_PAGE_SIZE
-  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${deviceName}`
+  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${query?.deviceName || ''}&bbox=${query?.bbox || ''}`
 }
 
 export function useGetDevices(
-  deviceName?: string,
+  query?: GetDevicesQuery,
   configs: SWRConfiguration = {}
 ) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const { data, isLoading, ...rest } = useSWRInfinite(
     (pageIndex, previousPageData) =>
-      getKey(pageIndex, previousPageData, spaceSlug, deviceName),
+      getKey(pageIndex, previousPageData, spaceSlug, query),
     getDevices<DeviceDataOriginal[]>,
     configs
   )
