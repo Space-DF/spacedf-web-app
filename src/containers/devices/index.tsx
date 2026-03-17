@@ -71,6 +71,7 @@ import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useDebounce } from '@/hooks/useDebounce'
 import { transformDeviceData } from '@/utils/map'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
@@ -292,6 +293,8 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   )
 }
 
+const mapInstance = MapInstance.getInstance()
+
 const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
   const [deviceName, setDeviceName] = useState('')
@@ -379,6 +382,14 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
     const newDevices: Device[] = transformDeviceData(devices)
     setDevices(newDevices)
   }, [devices])
+
+  const handleSelectDevice = (device: DeviceDataOriginal) => {
+    setDeviceSelected(device.device.id)
+    const deviceData = transformDeviceData([device])[0]
+    if (deviceData) {
+      mapInstance.onZoomToDevice(deviceData)
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
@@ -472,7 +483,7 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                 device?.device.id === deviceSelected,
                             }
                           )}
-                          onClick={() => setDeviceSelected(device?.device.id)}
+                          onClick={() => handleSelectDevice(device)}
                         >
                           <div className="space-y-2 mb-2">
                             <div className="flex items-start justify-between">

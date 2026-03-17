@@ -454,7 +454,14 @@ class MapInstance {
 
     this.isMapFlying = true
 
-    const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+    const location = device.deviceProperties?.latest_checkpoint_arr
+
+    if (
+      !location ||
+      location.length !== 2 ||
+      location.every((loc) => loc === 0)
+    )
+      return
 
     const bounds = this.map.getBounds()
     const isInView = bounds.contains(location)
@@ -503,12 +510,17 @@ class MapInstance {
     if (!this.map) return
     const boundary = this.getBoundary(data)
     if (!boundary) return
-    this.map.flyTo({
-      center: [boundary.minLng, boundary.minLat],
-      zoom: 10,
-      duration: 500,
-      pitch: this.pitch,
-    })
+    this.map.fitBounds(
+      [boundary.minLng, boundary.minLat, boundary.maxLng, boundary.maxLat],
+      {
+        padding: {
+          top: 0,
+        },
+        duration: 500,
+        maxZoom: 17,
+        pitch: this.pitch,
+      }
+    )
   }
 
   public getMap() {
