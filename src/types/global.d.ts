@@ -11,6 +11,7 @@ import onboarding from '../../messages/en/onboarding.json'
 import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
 import geofenceMessages from '../../messages/en/geofence.json'
+import eventMessages from '../../messages/en/event.json'
 
 type Locale = (typeof locales)[number]
 
@@ -24,6 +25,7 @@ type Messages = {
   dashboard: typeof dashboard
   space: typeof space
   geofence: typeof geofenceMessages
+  event: typeof eventMessages
   // Create a new type by combining all message types
 }
 
