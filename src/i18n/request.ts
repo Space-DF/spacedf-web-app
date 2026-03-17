@@ -46,6 +46,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     geofence: {
       ...(await import(`../../messages/${locale}/geofence.json`)).default,
     },
+    event: {
+      ...(await import(`../../messages/${locale}/event.json`)).default,
+    },
   }
 
   // Return merged messages
