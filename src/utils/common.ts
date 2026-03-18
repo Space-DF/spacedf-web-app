@@ -17,17 +17,17 @@ export const getDynamicLayoutRight = (dynamicLayouts: NavigationEnums[]) => {
 }
 
 export const displayedRightDynamicLayout = (dynamicLayout: string[]) => {
-  const first =
-    dynamicLayout.includes(NavigationEnums.DEVICES) ||
-    dynamicLayout.includes(NavigationEnums.GEOFENCES)
-  const second =
-    dynamicLayout.includes(NavigationEnums.DASHBOARD) ||
-    dynamicLayout.includes(NavigationEnums.USER)
+  const left = dynamicLayout[0] || null
+  const right = dynamicLayout[1] || null
+  const first = !!left
+  const second = !!right
 
   return {
     first,
     second,
     isShowAll: first && second,
+    left,
+    right,
   }
 }
 

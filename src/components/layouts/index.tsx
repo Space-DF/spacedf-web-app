@@ -139,10 +139,6 @@ const DynamicLayout = ({
       parentLayout = [75, 25]
       rightLayout = [100, 0]
     }
-    if (!first && second) {
-      parentLayout = [75, 25]
-      rightLayout = [0, 100]
-    }
 
     refs.current?.setLayout(parentLayout)
     rightLayoutRefs.current?.setLayout(rightLayout)
@@ -209,11 +205,7 @@ const DynamicLayout = ({
     return 0
   }, [dynamicLayoutRight])
 
-  const layoutCannotDuplicate = useMemo(() => {
-    return <Dashboard />
-  }, [dynamicLayouts])
-
-  const { isShowAll, second, first } =
+  const { isShowAll, second, first, left, right } =
     displayedRightDynamicLayout(dynamicLayoutRight)
 
   const maxRightSize = useMemo(() => {
@@ -234,6 +226,20 @@ const DynamicLayout = ({
 
     return (minLeftWidth / window.innerWidth) * 100
   }, [dynamicLayoutRight])
+
+  const renderDynamicPanel = (panelType: string | null) => {
+    switch (panelType) {
+      case NavigationEnums.GEOFENCES:
+        return <Geofences />
+      case NavigationEnums.DEVICES:
+        return <Devices />
+      case NavigationEnums.DASHBOARD:
+      case NavigationEnums.USER:
+        return <Dashboard />
+      default:
+        return null
+    }
+  }
 
   const isGeofencesActive = dynamicLayoutRight.includes(
     NavigationEnums.GEOFENCES
@@ -317,7 +323,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!first}
                   >
-                    {isGeofencesActive ? <Geofences /> : <Devices />}
+                    {renderDynamicPanel(left)}
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel
@@ -331,7 +337,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!second}
                   >
-                    {layoutCannotDuplicate}
+                    {renderDynamicPanel(right)}
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>
