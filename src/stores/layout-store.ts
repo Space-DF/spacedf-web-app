@@ -48,39 +48,34 @@ export const getNewLayouts = (
   prevLayouts: DynamicLayout[],
   keyHandler: DynamicLayout
 ) => {
-  let layouts = prevLayouts
+  let layouts = [...prevLayouts]
+  const MAX_DYNAMIC_TABS = 2
   const isDisplayed = layouts.includes(keyHandler)
+
+  if (isDisplayed) {
+    return layouts.filter((layout) => layout !== keyHandler)
+  }
 
   const isKeyOfCantDuplicated = KEYS_CANNOT_DUPLICATED.includes(
     keyHandler as any
   )
-
   if (isKeyOfCantDuplicated) {
     layouts = layouts.filter(
       (layout) => !KEYS_CANNOT_DUPLICATED.includes(layout as any)
     )
   }
 
-  if (isDisplayed) {
-    layouts = layouts.filter((layout) => layout !== keyHandler)
-  } else if (
-    keyHandler === NavigationEnums.GEOFENCES &&
-    layouts.includes(NavigationEnums.DEVICES)
-  ) {
-    layouts = [
-      ...layouts.filter((layout) => layout !== NavigationEnums.DEVICES),
-      NavigationEnums.GEOFENCES,
-    ]
-  } else if (
-    keyHandler === NavigationEnums.DEVICES &&
-    layouts.includes(NavigationEnums.GEOFENCES)
-  ) {
-    layouts = [
-      ...layouts.filter((layout) => layout !== NavigationEnums.GEOFENCES),
-      NavigationEnums.DEVICES,
-    ]
-  } else {
-    layouts = [...layouts, keyHandler]
+  layouts = [...layouts, keyHandler]
+
+  if (layouts.length > MAX_DYNAMIC_TABS) {
+    const dashboardIndex = layouts.indexOf(NavigationEnums.DASHBOARD)
+    if (keyHandler !== NavigationEnums.DASHBOARD && dashboardIndex !== -1) {
+      layouts.splice(dashboardIndex, 1)
+    }
+
+    while (layouts.length > MAX_DYNAMIC_TABS) {
+      layouts = layouts.slice(1)
+    }
   }
 
   return layouts
