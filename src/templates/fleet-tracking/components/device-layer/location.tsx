@@ -73,7 +73,7 @@ export const LocationLayer = memo(
     useEffect(() => {
       if (!isMapReady) return
       const map = mapInstance.getMap()
-      if (!map || isAlreadyShowTripRoute) return
+      if (!map || isAlreadyShowTripRoute || !devices) return
 
       if (viewMode === '2d' && !resourceStatus.current.marker) {
         markerInstance.init(map)
@@ -137,7 +137,7 @@ export const LocationLayer = memo(
     }, [resolvedTheme, isMapReady])
 
     const handleDeviceSelected = useCallback(
-      async (data: HandleDeviceSelectedProps) => {
+      (data: HandleDeviceSelectedProps) => {
         const { deviceId, viewMode } = data
 
         const device = devices.find((device) => device.id === deviceId)

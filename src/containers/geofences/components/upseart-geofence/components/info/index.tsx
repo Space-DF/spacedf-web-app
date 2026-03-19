@@ -56,7 +56,7 @@ const GeofenceInfo = () => {
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   className="flex gap-x-4"
                 >
                   <FormItem className="flex items-center gap-2 space-y-0">

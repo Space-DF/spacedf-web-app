@@ -66,9 +66,14 @@ export const Geofences = () => {
     }))
   )
 
-  const setSelectedGeofence = useGeofenceMapStore(
-    (state) => state.setSelectedGeofence
-  )
+  const { setSelectedGeofence, selectedGeofence, geofences } =
+    useGeofenceMapStore(
+      useShallow((state) => ({
+        setSelectedGeofence: state.setSelectedGeofence,
+        selectedGeofence: state.selectedGeofence,
+        geofences: state.geofences,
+      }))
+    )
 
   const handleCloseUpsertGeofence = () => {
     setIsShowGeofenceControls(false)
@@ -123,7 +128,7 @@ export const Geofences = () => {
     if (!isLoading) fetchingRef.current = false
   }, [isLoading])
 
-  const handleSelectGeofence = (geofence: Geofence) => {
+  const handleSetDetailGeofence = (geofence: Geofence) => {
     const draw = mapInstance.getTerraDraw()
     if (!draw) return
     const features = draw.getSnapshot()
@@ -145,11 +150,18 @@ export const Geofences = () => {
         disabled: true,
       })
     })
+  }
+
+  const handleSelectGeofence = (geofence: Geofence) => {
+    mapInstance.flyToBoundary(geofence.features)
     setSelectedGeofence(geofence)
     setIsShowGeofenceControls(true)
-    //need to fix this to get the correct boundary
-    mapInstance.flyToBoundary(geofence.features)
   }
+
+  useEffect(() => {
+    if (!selectedGeofence || !geofences) return
+    handleSetDetailGeofence(selectedGeofence)
+  }, [selectedGeofence, geofences])
 
   const handleOpenSlideGeofence = () => {
     const draw = mapInstance.getTerraDraw()
