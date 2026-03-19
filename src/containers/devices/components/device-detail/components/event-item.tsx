@@ -1,5 +1,8 @@
 import { BatteryLow, Warning, Temperature, Humidity } from '@/components/icons'
+import { Skeleton } from '@/components/ui/skeleton'
+import React from 'react'
 import { cn } from '@/lib/utils'
+import { TelemetryEvent } from '@/types/event'
 import Image from 'next/image'
 
 const getIconConfig = (item: any) => {
@@ -26,10 +29,40 @@ const getIconConfig = (item: any) => {
 }
 
 interface EventItemProps {
-  item: any
+  item: TelemetryEvent
+  address?: string | React.ReactNode
 }
 
-export const EventItem = ({ item }: EventItemProps) => {
+export const EventItemSkeleton = () => {
+  return (
+    <div className="flex items-start gap-2 p-2 rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm">
+      <div className="flex items-center justify-center">
+        <Skeleton className="size-5 rounded-full" />
+      </div>
+      <div className="flex flex-col gap-1 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-4 w-40" />
+        </div>
+        <div className="mt-1 flex flex-col gap-y-1">
+          <div className="flex items-center gap-x-1">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <div className="flex items-center gap-x-1">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-3 w-56 max-w-full" />
+          </div>
+          <div className="flex items-center gap-x-1">
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const EventItem = ({ item, address }: EventItemProps) => {
   const { Icon } = getIconConfig(item)
   return (
     <div
@@ -56,7 +89,7 @@ export const EventItem = ({ item }: EventItemProps) => {
               height={16}
             />
             <div className="text-brand-component-text-gray text-xs">
-              {item.time}
+              {item.time_fired}
             </div>
           </div>
           <div className="flex items-center gap-x-1">
@@ -67,13 +100,14 @@ export const EventItem = ({ item }: EventItemProps) => {
               height={16}
             />
             <div className="text-brand-component-text-gray text-xs line-clamp-2">
-              {item.address}
+              {address ??
+                `${item.location?.latitude}, ${item.location?.longitude}`}
             </div>
           </div>
           <div className="flex items-center gap-x-1">
             <Image
               src={
-                item.source.includes('Automation')
+                item.automation
                   ? '/images/flow-arrow.svg'
                   : '/images/square-logo.svg'
               }
@@ -82,7 +116,8 @@ export const EventItem = ({ item }: EventItemProps) => {
               height={16}
             />
             <div className="text-brand-component-text-gray text-xs">
-              {item.source}
+              From {item.automation ? 'Automation' : 'Geofence'}{' '}
+              {item.automation?.name ?? item.geofence?.name}
             </div>
           </div>
         </div>
