@@ -1,6 +1,23 @@
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
 import MapLibreGL from 'maplibre-gl'
+import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter'
+import {
+  TerraDraw,
+  TerraDrawAngledRectangleMode,
+  TerraDrawCircleMode,
+  TerraDrawFreehandMode,
+  TerraDrawPointMode,
+  TerraDrawPolygonMode,
+  TerraDrawRectangleMode,
+  TerraDrawSectorMode,
+  TerraDrawSelectMode,
+  TerraDrawSensorMode,
+  TerraDrawRenderMode,
+  ValidateNotSelfIntersecting,
+} from 'terra-draw'
+import { PolygonGeometry } from '@/types/geofence'
+import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
 
 type MapProps = {
   container: HTMLElement
@@ -26,6 +43,13 @@ const defaultStyles = {
 
 const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
 
+type Bounds = {
+  minLng: number
+  minLat: number
+  maxLng: number
+  maxLat: number
+}
+
 class MapInstance {
   private static instance: MapInstance | undefined
   private map: MapLibreGL.Map | null = null
@@ -38,8 +62,10 @@ class MapInstance {
   private initialized = false
   private readyEmitted = false
   private isMapFlying = false
-
+  private _isDrawingMode = false
   private constructor() {}
+
+  private draw: TerraDraw | null = null
 
   private _handleZoomToSingleDevice = () => {
     if (!this.map) return
@@ -166,6 +192,121 @@ class MapInstance {
       ...(options || {}),
     })
 
+    const fillColor = (feature: {
+      properties: { color?: string; disabled?: boolean }
+    }) =>
+      feature.properties.disabled
+        ? hexWithOpacity(feature.properties.color as `#${string}`, 0.4)
+        : (feature.properties.color as `#${string}`) || '#cccccc'
+    const outlineColor = (feature: {
+      properties: { color?: string; disabled?: boolean }
+    }) =>
+      feature.properties.disabled
+        ? hexWithOpacity(feature.properties.color as `#${string}`, 0.4)
+        : (feature.properties.color as `#${string}`) || '#000000'
+
+    this.draw = new TerraDraw({
+      adapter: new TerraDrawMapLibreGLAdapter({ map }),
+      modes: [
+        new TerraDrawRectangleMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawCircleMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawPolygonMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawSectorMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawPointMode({
+          styles: {
+            pointColor: fillColor,
+            pointOutlineColor: outlineColor,
+          },
+        }),
+        new TerraDrawFreehandMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawAngledRectangleMode({
+          styles: { fillColor, outlineColor },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawSensorMode({
+          styles: {
+            fillColor,
+            outlineColor,
+            centerPointColor: fillColor,
+            centerPointOutlineColor: outlineColor,
+          },
+          validation: (f) => {
+            return ValidateNotSelfIntersecting(f)
+          },
+        }),
+        new TerraDrawSelectMode({
+          allowManualDeselection: true,
+          flags: Object.fromEntries(
+            [
+              'polygon',
+              'linestring',
+              'freehand',
+              'circle',
+              'rectangle',
+              'sensor',
+              'sector',
+              'angled-rectangle',
+            ].map((mode) => [
+              mode,
+              {
+                feature: {
+                  draggable: true,
+                  deletable: true,
+                  coordinates: {
+                    midpoints: true,
+                    draggable: true,
+                    deletable: true,
+                  },
+                },
+              },
+            ])
+          ),
+          styles: {
+            selectedPolygonColor: fillColor,
+            selectedPolygonOutlineColor: outlineColor,
+            selectedPointColor: fillColor,
+            selectedPointOutlineColor: outlineColor,
+          },
+        }),
+        new TerraDrawRenderMode({
+          modeName: 'render',
+          styles: {
+            polygonFillColor: fillColor,
+            polygonOutlineColor: outlineColor,
+            pointColor: fillColor,
+            pointOutlineColor: outlineColor,
+          },
+        }),
+      ],
+    })
+
     map.on('load', () => {
       if (!this.readyEmitted && map.isStyleLoaded()) {
         this.geoLocate = new MapLibreGL.GeolocateControl({
@@ -194,13 +335,42 @@ class MapInstance {
 
     this.initialized = true
 
+    this._prefetchStyles()
+
     return this.map
   }
 
-  public updateTheme(theme: 'dark' | 'light') {
-    if (theme === this.theme || !this.map) return
+  private _prefetchStyles() {
+    Object.values(defaultStyles).forEach((url) => {
+      fetch(url).catch(() => {})
+    })
+  }
+
+  public getTerraDraw() {
+    return this.draw
+  }
+
+  public setDrawingMode(active: boolean) {
+    this._isDrawingMode = active
+    const container = this.map?.getContainer()
+    if (!container) return
+    container.classList.toggle('geofence-drawing', active)
+  }
+
+  public isDrawingMode() {
+    return this._isDrawingMode
+  }
+
+  public updateTheme(theme: 'dark' | 'light', onComplete?: () => void) {
+    if (!theme || theme === this.theme || !this.map) return
 
     this.theme = theme
+
+    if (onComplete) {
+      this.map.once('idle', () => {
+        onComplete()
+      })
+    }
 
     this.map.setStyle(defaultStyles[theme])
   }
@@ -284,7 +454,14 @@ class MapInstance {
 
     this.isMapFlying = true
 
-    const location = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+    const location = device.deviceProperties?.latest_checkpoint_arr
+
+    if (
+      !location ||
+      location.length !== 2 ||
+      location.every((loc) => loc === 0)
+    )
+      return
 
     const bounds = this.map.getBounds()
     const isInView = bounds.contains(location)
@@ -307,9 +484,69 @@ class MapInstance {
       this.isMapFlying = false
     }, 600)
   }
+  private getBoundary(data: PolygonGeometry[]): Bounds | null {
+    if (!data.length) return null
+
+    let minLng = Infinity
+    let minLat = Infinity
+    let maxLng = -Infinity
+    let maxLat = -Infinity
+
+    data.forEach((polygon) => {
+      polygon.coordinates.forEach((ring) => {
+        ring.forEach(([lng, lat]) => {
+          minLng = Math.min(minLng, lng)
+          minLat = Math.min(minLat, lat)
+          maxLng = Math.max(maxLng, lng)
+          maxLat = Math.max(maxLat, lat)
+        })
+      })
+    })
+
+    return { minLng, minLat, maxLng, maxLat }
+  }
+
+  public flyToBoundary(data: PolygonGeometry[]) {
+    if (!this.map) return
+    const boundary = this.getBoundary(data)
+    if (!boundary) return
+    this.map.fitBounds(
+      [boundary.minLng, boundary.minLat, boundary.maxLng, boundary.maxLat],
+      {
+        padding: {
+          top: 0,
+        },
+        duration: 500,
+        maxZoom: 17,
+        pitch: this.pitch,
+      }
+    )
+  }
 
   public getMap() {
     return this.map
+  }
+
+  public getCurrentMapBoundary(): Bounds | null {
+    if (!this.map) return null
+    const bounds = this.map.getBounds()
+    return {
+      minLng: bounds.getWest(),
+      minLat: bounds.getSouth(),
+      maxLng: bounds.getEast(),
+      maxLat: bounds.getNorth(),
+    }
+  }
+
+  public getCurrentMapBoundsArray():
+    | [[number, number], [number, number]]
+    | null {
+    const boundary = this.getCurrentMapBoundary()
+    if (!boundary) return null
+    return [
+      [boundary.minLng, boundary.minLat],
+      [boundary.maxLng, boundary.maxLat],
+    ]
   }
 
   public remove() {

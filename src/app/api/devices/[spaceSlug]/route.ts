@@ -13,6 +13,8 @@ const GET = async (
   const searchParams = request.nextUrl.searchParams
   const limit = searchParams.get('limit') || '10'
   const offset = searchParams.get('offset') || '0'
+  const search = searchParams.get('search') || ''
+  const bbox = searchParams.get('bbox') || ''
   try {
     const session = await readSession()
     if (!session || !spaceSlug)
@@ -22,14 +24,23 @@ const GET = async (
     const isDemo = await isDemoSubdomain(request)
     if (isDemo) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
-      return NextResponse.json(dummyDevice, {
+      const dummyResults = dummyDevice.filter((device) =>
+        device.name.toLowerCase().includes(search.toLowerCase().trim())
+      )
+      return NextResponse.json(dummyResults, {
         status: 200,
       })
     }
     const client = await spaceClient()
     client.setAccessToken(session?.user?.access as string)
     const devices = await client.deviceSpaces.list(
-      { include_latest_checkpoint: true, offset: +offset, limit: +limit },
+      {
+        include_latest_checkpoint: true,
+        offset: +offset,
+        limit: +limit,
+        search,
+        bbox,
+      },
       {
         headers: {
           'X-Space': spaceSlug,

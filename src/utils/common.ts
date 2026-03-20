@@ -10,24 +10,24 @@ export const checkDisplayedDynamicLayout = (
   )
 }
 
-export const getDynamicLayoutRight = (
-  dynamicLayouts: `${NavigationEnums}`[]
-) => {
+export const getDynamicLayoutRight = (dynamicLayouts: NavigationEnums[]) => {
   return dynamicLayouts.filter((layoutKey) =>
     dynamicLayoutKeys.includes(layoutKey as any)
   )
 }
 
 export const displayedRightDynamicLayout = (dynamicLayout: string[]) => {
-  const first = dynamicLayout.includes(NavigationEnums.DEVICES)
-  const second =
-    dynamicLayout.includes(NavigationEnums.DASHBOARD) ||
-    dynamicLayout.includes(NavigationEnums.USER)
+  const left = dynamicLayout[0] || null
+  const right = dynamicLayout[1] || null
+  const first = !!left
+  const second = !!right
 
   return {
     first,
     second,
     isShowAll: first && second,
+    left,
+    right,
   }
 }
 

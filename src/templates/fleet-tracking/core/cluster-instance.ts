@@ -2,6 +2,7 @@ import { Device } from '@/stores/device-store'
 import MapLibreGL from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
+import MapInstance from './map-instance'
 
 const MAX_ZOOM = 11
 
@@ -185,7 +186,7 @@ class ClusterInstance {
   }
 
   private _handleMouseEnterCluster = () => {
-    if (!this.map) return
+    if (!this.map || MapInstance.getInstance().isDrawingMode()) return
     this.map.getCanvas().style.cursor = 'pointer'
   }
 
@@ -201,7 +202,7 @@ class ClusterInstance {
   }
 
   private _handleMouseLeaveCluster = () => {
-    if (!this.map) return
+    if (!this.map || MapInstance.getInstance().isDrawingMode()) return
     this.map.getCanvas().style.cursor = ''
   }
 
@@ -218,7 +219,7 @@ class ClusterInstance {
   }
 
   public getSingleDeviceIds(): string[] {
-    if (!this.map) return []
+    if (!this.map || !this.map.getSource(this.sourceId)) return []
 
     const features = this.map.querySourceFeatures(this.sourceId)
 
@@ -237,8 +238,7 @@ class ClusterInstance {
     return Array.from(ids).sort((a, b) => a.localeCompare(b))
   }
 
-  async updateClusterData() {
-    await new Promise((resolve) => setTimeout(resolve, 700))
+  updateClusterData() {
     if (!this.map) return
 
     const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
@@ -281,6 +281,11 @@ class ClusterInstance {
 
     if (source) {
       source.setData(this.clusterData)
+      this.map.once('idle', () => {
+        if (this.isAlreadyShowTripRoute) return
+        const singleDeviceIds = this.getSingleDeviceIds()
+        this.emitter.emit(CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS, singleDeviceIds)
+      })
     }
   }
 
@@ -303,13 +308,14 @@ class ClusterInstance {
         this.clusterCountLayerId,
         this.unclusteredLayerId,
         this.clusterLayerId,
-        this.sourceId,
       ]
 
-      if (this.map) {
-        layerIds.forEach((layerId) => {
-          if (this.map!.getSource(layerId)) this.map!.removeSource(layerId)
-        })
+      layerIds.forEach((layerId) => {
+        if (this.map!.getLayer(layerId)) this.map!.removeLayer(layerId)
+      })
+
+      if (this.map.getSource(this.sourceId)) {
+        this.map.removeSource(this.sourceId)
       }
     } catch {
       // ignore

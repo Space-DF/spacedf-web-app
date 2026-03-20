@@ -17,6 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
@@ -26,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   tableCellClass?: string
   emptyLabel?: string
   showPaginate?: boolean
+  isLoading?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -35,6 +37,7 @@ export function DataTable<TData, TValue>({
   tableCellClass,
   emptyLabel = 'No results',
   showPaginate = true,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -74,7 +77,20 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {isLoading ? (
+            Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
+              <TableRow key={`skeleton-row-${rowIndex}`}>
+                {columns.map((_, colIndex) => (
+                  <TableCell
+                    className={tableCellClass || ''}
+                    key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                  >
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}

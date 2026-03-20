@@ -5,6 +5,7 @@ import { Session } from 'next-auth'
 import { PropsWithChildren } from 'react'
 import { SWRDevTools } from 'swr-devtools'
 import { DeviceProvider } from './device-provider'
+import { GeofenceProvider } from './geofence-provider'
 import NextThemeProvider from './next-theme'
 import { NextAuthSessionProvider } from './session-provider'
 import SWRProvider from './swr-provider'
@@ -22,7 +23,9 @@ const AppProvider = ({
         <NextAuthSessionProvider session={session}>
           <SWRProvider>
             <AuthDemoProvider>
-              <DeviceProvider>{children}</DeviceProvider>
+              <DeviceProvider>
+                <GeofenceProvider>{children}</GeofenceProvider>
+              </DeviceProvider>
             </AuthDemoProvider>
           </SWRProvider>
           <Toaster position="top-right" richColors />

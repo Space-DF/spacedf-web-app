@@ -8,6 +8,8 @@ import { groupDeviceByFeature } from '@/utils/map'
 import isEqual from 'fast-deep-equal'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTheme } from 'next-themes'
+import 'maplibre-gl/dist/maplibre-gl.css'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { LocationLayer } from './components/device-layer/location'
@@ -18,6 +20,11 @@ import BuildingInstance from './core/building-instance'
 import ClusterInstance, { CLUSTER_EVENTS } from './core/cluster-instance'
 import { GlobalDeckGLInstance } from './core/global-layer-instance'
 import MapInstance from './core/map-instance'
+import GeofenceControls from '@/components/common/geofence-controls'
+import { SearchLocation } from '@/components/common/search-location'
+import SpacedfLogo from '@/components/common/spacedf-logo'
+import { useGeofenceStore } from '@/stores/geofence-store'
+import { useMapResize } from './hooks/useMapResize'
 
 const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
@@ -25,10 +32,11 @@ const buildingInstance = BuildingInstance.getInstance()
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
 
 export default function FleetTrackingMap() {
-  const containerRef = useRef<HTMLDivElement>(null)
   const { resolvedTheme } = useTheme()
   const isFirstRun = useRef(true)
-
+  const isShowGeofenceControls = useGeofenceStore(
+    (state) => state.isShowGeofenceControls
+  )
   const mapReadyRef = useRef(false)
   const dataReadyRef = useRef(false)
 
@@ -70,6 +78,8 @@ export default function FleetTrackingMap() {
     }))
   )
 
+  const { wrapperRef, mapContainerRef } = useMapResize(isMapReady)
+
   const handleDataReady = useCallback(() => {
     if (!mapReadyRef.current || !dataReadyRef.current || !initializedSuccess)
       return
@@ -91,9 +101,9 @@ export default function FleetTrackingMap() {
   }, [devices, initializedSuccess])
 
   useEffect(() => {
-    if (containerRef.current) {
+    if (mapContainerRef.current) {
       mapInstance.init({
-        container: containerRef.current,
+        container: mapContainerRef.current,
         theme: resolvedTheme as 'dark' | 'light',
       })
     }
@@ -120,15 +130,12 @@ export default function FleetTrackingMap() {
   }, [handleDataReady])
 
   useEffect(() => {
-    mapInstance.updateTheme(resolvedTheme as 'dark' | 'light')
     clusterInstance.syncTheme(resolvedTheme as 'dark' | 'light')
 
-    if (isMapReady) {
-      requestAnimationFrame(() => {
-        clusterInstance.updateClusterData()
-        buildingInstance.createBuildingLayer(resolvedTheme as 'dark' | 'light')
-      })
-    }
+    mapInstance.updateTheme(resolvedTheme as 'dark' | 'light', () => {
+      clusterInstance.createClusterLayer()
+      buildingInstance.createBuildingLayer(resolvedTheme as 'dark' | 'light')
+    })
   }, [resolvedTheme, isMapReady])
 
   useEffect(() => {
@@ -199,17 +206,43 @@ export default function FleetTrackingMap() {
   return (
     <div
       className="size-full overflow-hidden relative bg-transparent z-[1]"
-      ref={containerRef}
+      ref={wrapperRef}
     >
-      <ViewModeToggle />
-      {isMapReady && <MapControls map={mapInstance.getMap()!} />}
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
+        <SpacedfLogo />
+        <div className="pointer-events-auto">
+          <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+        </div>
+        <ViewModeToggle />
+      </div>
 
-      {!!locationDevices.length && (
-        <LocationLayer devices={locationDevices || []} />
-      )}
-      {!!waterLevelDevices.length && (
-        <WaterDepth devices={waterLevelDevices || []} />
-      )}
+      <div
+        ref={mapContainerRef}
+        className="relative h-full will-change-transform"
+      >
+        {isMapReady && <MapControls map={mapInstance.getMap()!} />}
+        <AnimatePresence>
+          {isShowGeofenceControls && (
+            <motion.div
+              key="geofence-controls"
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 12 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute top-56 right-3 z-10"
+            >
+              <GeofenceControls />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!!locationDevices.length && (
+          <LocationLayer devices={locationDevices || []} />
+        )}
+        {!!waterLevelDevices.length && (
+          <WaterDepth devices={waterLevelDevices || []} />
+        )}
+      </div>
     </div>
   )
 }

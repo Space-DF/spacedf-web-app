@@ -49,6 +49,7 @@ export class LocationDeckGLInstance {
   private initialized = false
 
   private theme: 'dark' | 'light' = 'dark'
+  private _deviceSetChanged: boolean = false
 
   private constructor() {}
 
@@ -144,13 +145,12 @@ export class LocationDeckGLInstance {
       filled: true,
       pickable: false,
 
-      transitions: {
-        getPosition: { duration: 300, easing: linear },
-      },
+      transitions: this._deviceSetChanged
+        ? {}
+        : { getPosition: { duration: 300, easing: linear } },
 
       updateTriggers: {
-        getPosition: isEqual(this.devices, this.previousDevices) ? false : true,
-
+        getPosition: this.devices,
         getRadius: pulseController.time,
         getFillColor: pulseController.time,
       },
@@ -222,9 +222,9 @@ export class LocationDeckGLInstance {
       sizeScale: this._getPixelConstantScale(),
       pickable: true,
       scenegraph: modelCache[this.theme],
-      transitions: {
-        getPosition: { duration: 300, easing: linear },
-      },
+      transitions: this._deviceSetChanged
+        ? {}
+        : { getPosition: { duration: 300, easing: linear } },
 
       onClick: ({ object }) => {
         if (!this.ungroupedDeviceIds.includes(object.id)) return
@@ -236,7 +236,7 @@ export class LocationDeckGLInstance {
       },
 
       updateTriggers: {
-        getPosition: !isEqual(this.devices, this.previousDevices),
+        getPosition: this.devices,
       },
 
       parameters: {
@@ -281,6 +281,13 @@ export class LocationDeckGLInstance {
 
     this.previousDevices = this.devices
     this.devices = devices
+
+    const prevIds = new Set(this.previousDevices.map((d) => d.id))
+    const newIds = new Set(devices.map((d) => d.id))
+    this._deviceSetChanged =
+      prevIds.size !== newIds.size ||
+      this.previousDevices.some((d) => !newIds.has(d.id)) ||
+      devices.some((d) => !prevIds.has(d.id))
 
     this._buildLayer()
     this._zoomFollowDevice()
