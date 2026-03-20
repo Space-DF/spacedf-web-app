@@ -10,13 +10,16 @@ import { useTranslations } from 'next-intl'
 import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import SelectTemplate from './SelectTemplate'
+import { NavigationEnums } from '@/constants'
 
 const OnboardingContainer = () => {
   const t = useTranslations('onboarding')
   const commonTranslate = useTranslations('common')
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
 
-  const rightDynamicLayout = getDynamicLayoutRight(dynamicLayouts)
+  const rightDynamicLayout = getDynamicLayoutRight(
+    dynamicLayouts as NavigationEnums[]
+  )
 
   const { isShowAll } = displayedRightDynamicLayout(rightDynamicLayout)
 
@@ -42,11 +45,12 @@ const OnboardingContainer = () => {
             <span className="font-semibold text-brand-component-text-dark dark:text-brand-stroke-outermost">
               {t('click_to_upload')}
             </span>{' '}
-            {commonTranslate('or')} {t('drag_drop')}
+            {commonTranslate('or_lowercase')} {t('drag_drop')}
           </p>
           <p className="text-center text-[13px] font-normal text-brand-text-gray dark:text-brand-dark-text-gray">
-            SVG, PTS, DWF, CDR, SKP, XCF, DWG, DXF {commonTranslate('or')} AI (
-            {commonTranslate('max')}. 300 MB)
+            SVG, PTS, DWF, CDR, SKP, XCF, DWG, DXF{' '}
+            {commonTranslate('or_lowercase')} AI ({commonTranslate('max')}. 300
+            MB)
           </p>
         </div>
 

@@ -361,6 +361,11 @@ video::-webkit-media-controls-start-playback-button {
   pointer-events: none;
 }
 
+.geofence-drawing .maplibregl-canvas-container.maplibregl-interactive,
+.geofence-drawing canvas.maplibregl-canvas {
+  cursor: crosshair !important;
+}
+
 .deck-tooltip {
   border-radius: 8px !important;
   box-shadow:

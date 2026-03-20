@@ -348,7 +348,6 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 
   const handleCheckedChange = () => {
     const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
-
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
 
     toggleDynamicLayout(navigation.href)

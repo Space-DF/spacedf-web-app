@@ -2,9 +2,10 @@
 
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
-import { COOKIES, RESPONSIVE_BREAKPOINTS } from '@/constants'
+import { COOKIES, NavigationEnums, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import Dashboard from '@/containers/dashboard'
 import Devices from '@/containers/devices'
+import { Geofences } from '@/containers/geofences'
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,8 @@ import {
 } from '../ui/resizable'
 import Sidebar from './sidebar'
 import { useWindowSize } from '@/hooks/useWindowSize'
+import { useGeofenceStore } from '@/stores/geofence-store'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -42,6 +45,8 @@ const calculateCollapsedLayout = () => {
   return [finalLeftSize, 100 - finalLeftSize]
 }
 
+const mapInstance = MapInstance.getInstance()
+
 const DynamicLayout = ({
   children,
   defaultLayout,
@@ -56,6 +61,8 @@ const DynamicLayout = ({
   const setCollapsed = useLayout((state) => state.setCollapsed)
   const cookieDirty = useLayout((state) => state.cookieDirty)
 
+  const resetGeofenceStore = useGeofenceStore((state) => state.reset)
+
   useEffect(() => {
     setCollapsed(defaultCollapsed)
   }, [])
@@ -67,7 +74,7 @@ const DynamicLayout = ({
   const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
 
   const dynamicLayoutRight = useMemo(
-    () => getDynamicLayoutRight(dynamicLayouts),
+    () => getDynamicLayoutRight(dynamicLayouts as NavigationEnums[]),
     [dynamicLayouts]
   )
 
@@ -132,10 +139,6 @@ const DynamicLayout = ({
       parentLayout = [75, 25]
       rightLayout = [100, 0]
     }
-    if (!first && second) {
-      parentLayout = [75, 25]
-      rightLayout = [0, 100]
-    }
 
     refs.current?.setLayout(parentLayout)
     rightLayoutRefs.current?.setLayout(rightLayout)
@@ -191,7 +194,7 @@ const DynamicLayout = ({
   const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
-  const getRightMinSize = () => {
+  const minRightSize = useMemo(() => {
     const { first, second, isShowAll } =
       displayedRightDynamicLayout(dynamicLayoutRight)
 
@@ -200,45 +203,70 @@ const DynamicLayout = ({
     if (first || second) return 25
 
     return 0
-  }
+  }, [dynamicLayoutRight])
 
-  const layoutCannotDuplicate = useMemo(() => {
-    return <Dashboard />
-  }, [dynamicLayouts])
-
-  const { isShowAll, second, first } =
+  const { isShowAll, second, first, left, right } =
     displayedRightDynamicLayout(dynamicLayoutRight)
 
-  const maxRightSize = () => {
+  const maxRightSize = useMemo(() => {
     if (typeof window === 'undefined') return 60
     const maxRightWidth = 900
     return (maxRightWidth / window.innerWidth) * 100
-  }
+  }, [dynamicLayoutRight])
 
-  const maxLeftSize = () => {
+  const maxLeftSize = useMemo(() => {
     if (typeof window === 'undefined') return 30
     const maxLeftWidth = 400
     return (maxLeftWidth / window.innerWidth) * 100
-  }
+  }, [dynamicLayoutRight])
 
-  const minLeftSize = () => {
+  const minLeftSize = useMemo(() => {
     if (typeof window === 'undefined') return 4
     const minLeftWidth = 50
 
     return (minLeftWidth / window.innerWidth) * 100
+  }, [dynamicLayoutRight])
+
+  const renderDynamicPanel = (panelType: string | null) => {
+    switch (panelType) {
+      case NavigationEnums.GEOFENCES:
+        return <Geofences />
+      case NavigationEnums.DEVICES:
+        return <Devices />
+      case NavigationEnums.DASHBOARD:
+      case NavigationEnums.USER:
+        return <Dashboard />
+      default:
+        return null
+    }
   }
+
+  const isGeofencesActive = dynamicLayoutRight.includes(
+    NavigationEnums.GEOFENCES
+  )
+
+  useEffect(() => {
+    const draw = mapInstance.getTerraDraw()
+    if (!isGeofencesActive) {
+      resetGeofenceStore()
+      const snapshot = draw?.getSnapshot()
+      if (!snapshot?.length) return
+      draw?.clear()
+      draw?.setMode('render')
+    }
+  }, [isGeofencesActive])
 
   return (
     <EffectLayout>
-      <div className="flex max-h-screen max-w-full overflow-hidden">
+      <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
         <ResizablePanelGroup
           onLayout={handleMainLayoutChanges}
           direction="horizontal"
           ref={mainLayoutRefs}
         >
           <ResizablePanel
-            minSize={minLeftSize()}
-            maxSize={maxLeftSize()}
+            minSize={minLeftSize}
+            maxSize={maxLeftSize}
             defaultSize={sidebarWidth}
             className="duration-200"
           >
@@ -275,8 +303,8 @@ const DynamicLayout = ({
                   'transition-all duration-300',
                   isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
                 )}
-                minSize={getRightMinSize()}
-                maxSize={maxRightSize()}
+                minSize={minRightSize}
+                maxSize={maxRightSize}
               >
                 <ResizablePanelGroup
                   direction="horizontal"
@@ -295,7 +323,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!first}
                   >
-                    <Devices />
+                    {renderDynamicPanel(left)}
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel
@@ -309,7 +337,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!second}
                   >
-                    {layoutCannotDuplicate}
+                    {renderDynamicPanel(right)}
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>

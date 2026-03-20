@@ -1,5 +1,11 @@
 'use client'
-import { CodeSandbox, CubeFocus, Devices, Warehouse } from '@/components/icons'
+import {
+  CodeSandbox,
+  CubeFocus,
+  Devices,
+  Warehouse,
+  Square,
+} from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
@@ -13,6 +19,7 @@ export enum NavigationEnums {
   USER = 'user',
   WORKSPACE_SETTINGS = '/workspace-settings',
   PLAN_BILLING = 'plan-billing',
+  GEOFENCES = 'geofences',
 }
 
 export type Navigation = {
@@ -22,13 +29,19 @@ export type Navigation = {
   isDynamic?: boolean
   isAlwayEnabled?: boolean
   onClick?: () => void
-  key: 'digital_twin' | 'devices' | 'dashboard' | 'workspace_settings'
+  key:
+    | 'digital_twin'
+    | 'devices'
+    | 'dashboard'
+    | 'workspace_settings'
+    | 'geofences'
 }
 
 export type DynamicLayout =
-  | `${NavigationEnums.DASHBOARD}`
-  | `${NavigationEnums.DEVICES}`
-  | `${NavigationEnums.USER}`
+  | NavigationEnums.DASHBOARD
+  | NavigationEnums.DEVICES
+  | NavigationEnums.USER
+  | NavigationEnums.GEOFENCES
 
 export const NavigationData = (
   translateFn: ReturnType<typeof useTranslations>
@@ -57,6 +70,13 @@ export const NavigationData = (
       href: NavigationEnums.DASHBOARD,
       title: translateFn('dashboard'),
       icon: <CodeSandbox />,
+      isDynamic: true,
+    },
+    {
+      key: 'geofences',
+      href: NavigationEnums.GEOFENCES,
+      title: translateFn('geofences'),
+      icon: <Square />,
       isDynamic: true,
     },
     // {
@@ -92,5 +112,6 @@ export const NavigationData = (
 export const dynamicLayoutKeys: DynamicLayout[] = [
   NavigationEnums.DASHBOARD,
   NavigationEnums.DEVICES,
+  NavigationEnums.GEOFENCES,
   NavigationEnums.USER,
 ]

@@ -25,6 +25,8 @@ export const GET = async (
   { params }: { params: { spaceSlug: string } }
 ) => {
   try {
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search') as string
     const isDemo = await isDemoSubdomain(request)
     const session = await readSession()
     if (isDemo) {
@@ -36,7 +38,7 @@ export const GET = async (
     const spacedfClient = await spaceClient()
     spacedfClient.setAccessToken(session?.user?.access as string)
     const dashboardPagination = await spacedfClient.dashboards.list(
-      {},
+      { search },
       {
         headers: {
           'X-Space': params.spaceSlug,

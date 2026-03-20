@@ -23,10 +23,11 @@ const Dashboard = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
-  const { setEdit, dashboardId, setWidgetList } = useDashboardStore()
+  const { setEdit, dashboard, setWidgetList } = useDashboardStore()
 
-  const { data: widgetLayout, mutate: mutateWidgets } =
-    useGetWidgets(dashboardId)
+  const { data: widgetLayout, mutate: mutateWidgets } = useGetWidgets(
+    dashboard?.id
+  )
 
   useEffect(() => {
     if (widgetLayout) {

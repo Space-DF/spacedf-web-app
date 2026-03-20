@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { Dashboard } from '@/types/dashboard'
 import { Pencil } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -9,7 +10,7 @@ interface Props {
   handleSaveDashboard: () => void
   isUpdatingWidgets: boolean
   setEdit: (edit: boolean) => void
-  dashboardId?: string
+  dashboard?: Dashboard
 }
 
 export const WidgetAction: React.FC<Props> = ({
@@ -19,10 +20,10 @@ export const WidgetAction: React.FC<Props> = ({
   handleSaveDashboard,
   isUpdatingWidgets,
   setEdit,
-  dashboardId,
+  dashboard,
 }) => {
   const t = useTranslations()
-  if (isViewAllDashboard || !dashboardId) return <></>
+  if (isViewAllDashboard || !dashboard) return <></>
   return (
     <div className="flex gap-2 ">
       {isEdit ? (

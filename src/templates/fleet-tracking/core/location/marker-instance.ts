@@ -327,20 +327,19 @@ export class LocationMarker {
 
     if (isEqual(this.devices, devices)) return
 
-    const diffLength = devices.length - this.devices.length
-
     this.previousDevices = this.devices
     this.devices = devices
 
-    if (diffLength > 0) {
-      this._appendMarkers()
-    } else if (diffLength < 0) {
-      this._removeMarkers()
-    }
+    const prevIds = new Set(this.previousDevices.map((d) => d.id))
+    const newIds = new Set(devices.map((d) => d.id))
 
-    if (diffLength === 0) {
-      this._updateMarkers()
-    }
+    const hasRemovals = this.previousDevices.some((d) => !newIds.has(d.id))
+    const hasAdditions = devices.some((d) => !prevIds.has(d.id))
+    const hasUpdates = devices.some((d) => prevIds.has(d.id))
+
+    if (hasRemovals) this._removeMarkers()
+    if (hasAdditions) this._appendMarkers()
+    if (hasUpdates) this._updateMarkers()
 
     this.isInitialized = true
   }
@@ -408,5 +407,7 @@ export class LocationMarker {
     }
     this.locationMarkers = {}
     this.devices = []
+    this.previousDevices = []
+    this.isInitialized = false
   }
 }

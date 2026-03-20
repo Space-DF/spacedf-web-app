@@ -14,7 +14,7 @@ export function createWidget(
 export const useCreateWidget = (
   options: SWRMutationConfiguration<any, any, string> = {}
 ) => {
-  const dashboardId = useDashboardStore((state) => state.dashboardId)
+  const dashboardId = useDashboardStore((state) => state.dashboard?.id)
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const spaceSlugName = spaceSlug || currentSpace?.slug_name

@@ -27,7 +27,7 @@ import DeviceTracki from '/public/images/device-tracki.webp'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
-import { RightSideBarLayout } from '@/components/ui'
+import { Nodata, RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -55,7 +55,7 @@ import { useGetDevices } from '@/hooks/useDevices'
 import { usePrevious } from '@/hooks/usePrevious'
 import { cn } from '@/lib/utils'
 import { getNewLayouts, useLayout } from '@/stores'
-import { useDeviceStore } from '@/stores/device-store'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useIdentityStore } from '@/stores/identity-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { setCookie, uppercaseFirstLetter } from '@/utils'
@@ -69,14 +69,15 @@ import { useAddDeviceManually } from './hooks/useAddDeviceManually'
 import { useCheckClaimCode } from './hooks/useCheckClaimCode'
 import { countTwoDigitNumbers, formatValueEUI } from './utils'
 import CircleCheckSvg from '/public/images/circle-check.svg'
-
+import { useDebounce } from '@/hooks/useDebounce'
+import { transformDeviceData } from '@/utils/map'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
-
   const previousDeviceSelected = usePrevious(deviceSelected)
 
   const handleCloseSlide = () => {
@@ -91,7 +92,7 @@ const Devices = () => {
     const handle = (e: CustomEvent) => {
       const isChecked = e.detail.checked
       if (!isChecked) {
-        setDeviceSelected('')
+        handleCloseSlide()
       }
     }
     window.addEventListener('deviceLayoutUpdated', handle as EventListener)
@@ -116,7 +117,7 @@ const Devices = () => {
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
     setCookieDirty(true)
     toggleDynamicLayout('devices')
-    setDeviceSelected('')
+    handleCloseSlide()
   }
 
   return (
@@ -292,15 +293,19 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   )
 }
 
+const mapInstance = MapInstance.getInstance()
+
 const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
+  const [deviceName, setDeviceName] = useState('')
+  const debouncedDeviceName = useDebounce(deviceName)
   const {
     data: devices = [],
     mutate,
     isReachingEnd,
     isLoading,
     setSize,
-  } = useGetDevices()
+  } = useGetDevices({ deviceName: debouncedDeviceName })
 
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
@@ -328,7 +333,7 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
     return deviceHasLocation.map((device) => device.id)
   }, [deviceHasLocation])
 
-  const { deviceSelected, setDeviceSelected } = useDeviceStore(
+  const { deviceSelected, setDeviceSelected, setDevices } = useDeviceStore(
     useShallow((state) => ({
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
@@ -373,6 +378,19 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
     }
   }, [isLoading])
 
+  useEffect(() => {
+    const newDevices: Device[] = transformDeviceData(devices)
+    setDevices(newDevices)
+  }, [devices])
+
+  const handleSelectDevice = (device: DeviceDataOriginal) => {
+    setDeviceSelected(device.device.id)
+    const deviceData = transformDeviceData([device])[0]
+    if (deviceData) {
+      mapInstance.onZoomToDevice(deviceData)
+    }
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center justify-between">
@@ -399,113 +417,121 @@ const DevicesList = ({ onClose }: { onClose: () => void }) => {
         }
         placeholder={t('device')}
         wrapperClass="w-full"
+        value={deviceName}
+        onChange={(e) => setDeviceName(e.target.value)}
       />
       <div
         className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
         ref={parentRef}
       >
         <div className="flex-1 transition-all duration-300">
-          <div
-            className="relative w-full"
-            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-          >
-            {virtualItems.map((virtualRow) => {
-              const startIndex = virtualRow.index * 2
-              const endIndex = Math.min(startIndex + 2, devices.length)
-              const rowDevices = devices.slice(startIndex, endIndex)
+          {devices.length === 0 && !isLoading ? (
+            <Nodata content="No devices found" />
+          ) : (
+            <div
+              className="relative w-full"
+              style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
+              {virtualItems.map((virtualRow) => {
+                const startIndex = virtualRow.index * 2
+                const endIndex = Math.min(startIndex + 2, devices.length)
+                const rowDevices = devices.slice(startIndex, endIndex)
 
-              // Show loading indicator for the last row when loading more
-              if (virtualRow.index === rowCount && isLoading) {
+                // Show loading indicator for the last row when loading more
+                if (virtualRow.index === rowCount && isLoading) {
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      className="absolute top-0 left-0 w-full flex items-center justify-center"
+                      style={{
+                        height: `${virtualRow.size}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
+                    </div>
+                  )
+                }
+
                 return (
                   <div
                     key={virtualRow.key}
-                    className="absolute top-0 left-0 w-full flex items-center justify-center"
+                    className="absolute top-0 left-0 w-full grid grid-cols-2 gap-1"
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
-                  </div>
-                )
-              }
+                    {rowDevices.map((device) => {
+                      const index = deviceIdsHasLocation.findIndex(
+                        (id) => id === device.id
+                      )
+                      const isHasLocation = index !== -1
+                      const locationName =
+                        isHasLocation &&
+                        listLocationName[index]?.features?.[0]?.place_name
+                          ? listLocationName[index].features[0].place_name
+                          : 'Unknown'
 
-              return (
-                <div
-                  key={virtualRow.key}
-                  className="absolute top-0 left-0 w-full grid grid-cols-2 gap-1"
-                  style={{
-                    height: `${virtualRow.size}px`,
-                    transform: `translateY(${virtualRow.start}px)`,
-                  }}
-                >
-                  {rowDevices.map((device) => {
-                    const index = deviceIdsHasLocation.findIndex(
-                      (id) => id === device.id
-                    )
-                    const isHasLocation = index !== -1
-                    const locationName =
-                      isHasLocation &&
-                      listLocationName[index]?.features?.[0]?.place_name
-                        ? listLocationName[index].features[0].place_name
-                        : 'Unknown'
-
-                    return (
-                      <div
-                        key={device.id}
-                        className={cn(
-                          'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
-                          {
-                            'border-brand-component-stroke-dark':
-                              device?.device.id === deviceSelected,
-                          }
-                        )}
-                        onClick={() => setDeviceSelected(device?.device.id)}
-                      >
-                        <div className="space-y-2 mb-2">
-                          <div className="flex items-start justify-between">
-                            <div className="size-8">
-                              <ImageWithBlur
-                                src={DeviceIcon}
-                                alt="DMZ 01 -1511-M01"
+                      return (
+                        <div
+                          key={device.id}
+                          className={cn(
+                            'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                            {
+                              'border-brand-component-stroke-dark':
+                                device?.device.id === deviceSelected,
+                            }
+                          )}
+                          onClick={() => handleSelectDevice(device)}
+                        >
+                          <div className="space-y-2 mb-2">
+                            <div className="flex items-start justify-between">
+                              <div className="size-8">
+                                <ImageWithBlur
+                                  src={DeviceIcon}
+                                  alt="DMZ 01 -1511-M01"
+                                />
+                              </div>
+                              <Ellipsis
+                                size={16}
+                                className="text-brand-component-text-gray"
                               />
                             </div>
-                            <Ellipsis
-                              size={16}
-                              className="text-brand-component-text-gray"
-                            />
+                            <div className="text-xs font-medium">
+                              <span className="leading-[18px] line-clamp-1">
+                                {device.name}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-xs font-medium">
-                            <span className="leading-[18px] line-clamp-1">
-                              {device.name}
+                          <div className="flex items-center gap-2 text-xs font-medium ">
+                            <Map
+                              size={16}
+                              className="text-brand-text-gray w-max"
+                            />
+                            <span
+                              className="leading-[18px] line-clamp-1 flex-1 truncate"
+                              title={
+                                (isHasLocation && locationName) || undefined
+                              }
+                            >
+                              {isLoadingLocation ? (
+                                <Skeleton className="w-full h-4" />
+                              ) : isHasLocation ? (
+                                locationName
+                              ) : (
+                                'N/A'
+                              )}
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-medium ">
-                          <Map
-                            size={16}
-                            className="text-brand-text-gray w-max"
-                          />
-                          <span
-                            className="leading-[18px] line-clamp-1 flex-1 truncate"
-                            title={(isHasLocation && locationName) || undefined}
-                          >
-                            {isLoadingLocation ? (
-                              <Skeleton className="w-full h-4" />
-                            ) : isHasLocation ? (
-                              locationName
-                            ) : (
-                              'N/A'
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
-          </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
