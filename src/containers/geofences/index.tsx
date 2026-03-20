@@ -134,7 +134,9 @@ export const Geofences = () => {
     const features = draw.getSnapshot()
 
     const disabledFeatures = features.filter(
-      (f) => f.properties.geofenceId !== geofence.id
+      (f) =>
+        f.properties.geofenceId !== geofence.id &&
+        f.properties?.mode !== 'select'
     )
 
     const currentSelectedFeature = features.filter(
