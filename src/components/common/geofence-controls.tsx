@@ -63,26 +63,22 @@ const GeofenceControls = () => {
   const {
     setActiveTool,
     activeTool,
-    setOriginalGeoFencesIds,
     originalGeoFencesIds,
     draftGeoFencesIds,
     setDraftGeoFencesIds,
     currentDrawingColor,
     isShowGeofenceControls,
     geoFencesIds,
-    setDirtyFeatureIds,
   } = useGeofenceStore(
     useShallow((state) => ({
       setActiveTool: state.setActiveTool,
       activeTool: state.activeTool,
       originalGeoFencesIds: state.originalGeoFencesIds,
-      setOriginalGeoFencesIds: state.setOriginalGeoFencesIds,
       currentDrawingColor: state.currentDrawingColor,
       isShowGeofenceControls: state.isShowGeofenceControls,
       draftGeoFencesIds: state.draftGeoFencesIds,
       setDraftGeoFencesIds: state.setDraftGeoFencesIds,
       geoFencesIds: state.geoFencesIds,
-      setDirtyFeatureIds: state.setDirtyFeatureIds,
     }))
   )
   const setSelectedFeature = useGeofenceMapStore(
@@ -188,15 +184,14 @@ const GeofenceControls = () => {
     if (tool === 'delete-selection') {
       const snapshot = draw?.getSnapshot()
       const selectedIds = snapshot
-        ?.filter((f) => f.properties?.selected)
+        ?.filter(
+          (f) => f.properties?.selected && f.properties?.mode !== 'select'
+        )
         .map((f) => f.id!)
       if (selectedIds?.length) {
         draw?.removeFeatures(selectedIds)
         setDraftGeoFencesIds(
-          Array.from(new Set([...draftGeoFencesIds, ...selectedIds]))
-        )
-        setOriginalGeoFencesIds(
-          Array.from(new Set([...originalGeoFencesIds, ...selectedIds]))
+          draftGeoFencesIds.filter((id) => !selectedIds.includes(id))
         )
         checkIsEmpty()
         if (activeTool === 'select') {
@@ -216,12 +211,7 @@ const GeofenceControls = () => {
   useEffect(() => {
     const draw = mapInstance.getTerraDraw()
     if (!draw || !geoFencesIds.length || !isShowGeofenceControls) return
-    const dirtyIds = originalGeoFencesIds.filter((id) =>
-      geoFencesIds.includes(id)
-    )
-    setDirtyFeatureIds(dirtyIds)
     const snapshot = draw.getSnapshot() ?? []
-    // Only update actual features (not guidance features of select mode)
     const updatableIds = geoFencesIds.filter((id) =>
       snapshot.some((f) => f.id === id && f.properties?.mode !== 'select')
     )

@@ -49,13 +49,7 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
       (id) => !geofenceFeatureIds.has(String(id))
     )
 
-    const { dirtyFeatureIds, setDirtyFeatureIds } = useGeofenceStore.getState()
-
-    const removeFeatureIds = [
-      ...dirtyFeatureIds,
-      ...notInGeofenceFeatureIds,
-    ].filter(Boolean)
-
+    const removeFeatureIds = notInGeofenceFeatureIds.filter(Boolean)
     if (removeFeatureIds.length) {
       removeFeatureIds.forEach((id) => {
         if (draw.hasFeature(id)) {
@@ -63,7 +57,6 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
         }
       })
     }
-    setDirtyFeatureIds([])
   },
   setGeofences: (geofences) =>
     set({
@@ -115,8 +108,17 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
         },
       }))
     })
+    const { originalGeoFencesIds } = useGeofenceStore.getState()
+    const originalGeofenceIdSets = new Set(
+      originalGeoFencesIds.map((id) => String(id))
+    )
+
     if (!features.length) return
-    const newFeatures = features.filter((f) => !existingIds.has(String(f.id)))
+    const newFeatures = features.filter(
+      (f) =>
+        !existingIds.has(String(f.id)) &&
+        !originalGeofenceIdSets.has(String(f.id))
+    )
     draw.addFeatures(newFeatures)
     if (selectedFeature) {
       draw.setMode('select')

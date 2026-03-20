@@ -25,7 +25,6 @@ interface GeofenceStore {
   originalGeoFencesIds: FeatureId[]
   draftGeoFencesIds: FeatureId[]
   geoFencesIds: FeatureId[]
-  dirtyFeatureIds: FeatureId[]
 }
 
 interface ActionsGeofenceStore {
@@ -36,14 +35,12 @@ interface ActionsGeofenceStore {
   reset: () => void
   setOriginalGeoFencesIds: (ids: FeatureId[]) => void
   setDraftGeoFencesIds: (ids: FeatureId[]) => void
-  setDirtyFeatureIds: (ids: FeatureId[]) => void
 }
 
 export const DEFAULT_GEOFENCE_COLOR = '#3b82f6'
 
 export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
   (set) => ({
-    dirtyFeatureIds: [],
     originalGeoFencesIds: [],
     activeTool: undefined,
     isShowGeofenceControls: false,
@@ -65,7 +62,6 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
         originalGeoFencesIds: [],
         draftGeoFencesIds: [],
         geoFencesIds: [],
-        dirtyFeatureIds: [],
       }),
     setOriginalGeoFencesIds: (ids) =>
       set((s) => ({
@@ -77,7 +73,5 @@ export const useGeofenceStore = create<GeofenceStore & ActionsGeofenceStore>(
         draftGeoFencesIds: ids,
         geoFencesIds: [...s.originalGeoFencesIds, ...ids],
       })),
-
-    setDirtyFeatureIds: (ids) => set({ dirtyFeatureIds: ids }),
   })
 )
