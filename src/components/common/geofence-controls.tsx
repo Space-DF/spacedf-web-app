@@ -209,6 +209,9 @@ const GeofenceControls = () => {
   }
 
   useEffect(() => {
+    if (isShowGeofenceControls) {
+      checkIsEmpty()
+    }
     const draw = mapInstance.getTerraDraw()
     if (!draw || !geoFencesIds.length || !isShowGeofenceControls) return
     const snapshot = draw.getSnapshot() ?? []

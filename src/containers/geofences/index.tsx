@@ -143,6 +143,8 @@ export const Geofences = () => {
       (f) => f.properties.geofenceId === geofence.id
     )
 
+    if (!currentSelectedFeature.length) return
+
     setOriginalGeoFencesIds(
       currentSelectedFeature.map((f) => f.id as FeatureId)
     )
