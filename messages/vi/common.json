@@ -94,5 +94,6 @@
   "edit_in_yaml": "Chỉnh sửa YAML",
   "invalid_yaml_structure": "Cấu trúc YAML không hợp lệ",
   "cancel": "Hủy",
-  "edit_yaml": "Chỉnh sửa YAML"
+  "edit_yaml": "Chỉnh sửa YAML",
+  "automation_settings": "Cài đặt tự động"
 }

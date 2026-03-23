@@ -1,0 +1,21 @@
+{
+  "automation_settings": "Cài đặt tự động",
+  "manage_and_monitor": "Quản lý và giám sát các tự động hóa IoT của bạn",
+  "add_automation": "Thêm tự động",
+  "search_placeholder": "Tìm kiếm tên tự động, Thiết bị mục tiêu...",
+  "all_status": "Tất cả trạng thái",
+  "active": "Hoạt động",
+  "disabled": "Tắt",
+  "total_automations": "Tổng tự động",
+  "automation_name": "Tên tự động",
+  "trigger_when": "Kích hoạt khi",
+  "target_device": "Thiết bị mục tiêu",
+  "assigned_action": "Hành động",
+  "status": "Trạng thái",
+  "last_triggered": "Lần kích hoạt cuối",
+  "last_updated": "Lần cập nhật cuối",
+  "action": "Thao tác",
+  "previous": "Trước",
+  "next": "Tiếp",
+  "page": "Trang"
+}
