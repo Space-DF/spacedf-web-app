@@ -1,0 +1,21 @@
+{
+  "automation_settings": "Automation Settings",
+  "manage_and_monitor": "Manage and monitor your IoT automations",
+  "add_automation": "Add Automation",
+  "search_placeholder": "Search automation Name, Target Device...",
+  "all_status": "All Status",
+  "active": "Active",
+  "disabled": "Disabled",
+  "total_automations": "Total Automations",
+  "automation_name": "Automation Name",
+  "trigger_when": "Trigger When",
+  "target_device": "Target Device",
+  "assigned_action": "Assigned Action",
+  "status": "Status",
+  "last_triggered": "Last Triggered",
+  "last_updated": "Last Updated",
+  "action": "Action",
+  "previous": "Previous",
+  "next": "Next",
+  "page": "Page"
+}
