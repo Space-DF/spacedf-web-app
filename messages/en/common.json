@@ -101,5 +101,6 @@
   "edit_in_yaml": "Edit in YAML",
   "invalid_yaml_structure": "Invalid YAML structure",
   "cancel": "Cancel",
-  "edit_yaml": "Edit YAML"
+  "edit_yaml": "Edit YAML",
+  "automation_settings": "Automation Settings"
 }
