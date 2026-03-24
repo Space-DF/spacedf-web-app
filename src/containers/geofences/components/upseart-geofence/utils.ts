@@ -15,7 +15,10 @@ const to24HourTime = (time: string, meridiem: 'am' | 'pm'): string => {
   return format(date, 'HH:mm')
 }
 
-const mapRuleToBackend = (rule: GeofenceRule): GeofenceCondition => {
+const mapRuleToBackend = (
+  rule: GeofenceRule,
+  type_zone: 'safe' | 'danger'
+): GeofenceCondition => {
   switch (rule.type) {
     case 'time': {
       const parts: GeofenceCondition[] = []
@@ -38,25 +41,28 @@ const mapRuleToBackend = (rule: GeofenceRule): GeofenceCondition => {
         rule.unit === 'km' ? rule.threshold : rule.threshold / 1000
 
       return {
-        distance_from_geofence_km: {
-          lte: distanceKm,
-        },
+        distance_from_geofence_km:
+          type_zone === 'safe' ? { gte: distanceKm } : { lte: distanceKm },
       }
     }
 
     case 'and':
       return {
-        and: rule.rules.map(mapRuleToBackend),
+        and: rule.rules.map((r: GeofenceRule) =>
+          mapRuleToBackend(r, type_zone)
+        ),
       }
 
     case 'or':
       return {
-        or: rule.rules.map(mapRuleToBackend),
+        or: rule.rules.map((r: GeofenceRule) => mapRuleToBackend(r, type_zone)),
       }
 
     case 'not':
       return {
-        not: rule.rules.map(mapRuleToBackend),
+        not: rule.rules.map((r: GeofenceRule) =>
+          mapRuleToBackend(r, type_zone)
+        ),
       }
 
     default:
@@ -64,10 +70,13 @@ const mapRuleToBackend = (rule: GeofenceRule): GeofenceCondition => {
   }
 }
 
-export const transformConditions = (conditions: GeofenceForm['conditions']) => {
+export const transformConditions = (
+  conditions: GeofenceForm['conditions'],
+  type_zone: 'safe' | 'danger'
+) => {
   return {
     conditions: {
-      and: conditions.map(mapRuleToBackend),
+      and: conditions.map((c) => mapRuleToBackend(c, type_zone)),
     },
   }
 }
@@ -139,7 +148,9 @@ const mapBackendToRule = (condition: GeofenceCondition): GeofenceRule => {
   }
 
   if ('distance_from_geofence_km' in condition) {
-    const distanceKm = condition.distance_from_geofence_km.lte
+    const distanceKm =
+      condition.distance_from_geofence_km.lte ??
+      condition.distance_from_geofence_km.gte
     return {
       type: 'distance_threshold',
       threshold: distanceKm,
