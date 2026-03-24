@@ -11,7 +11,7 @@ const DefaultColor = (props: SVGProps) => {
       fill="none"
       {...props}
     >
-      <g clip-path="url(#clip0_7857_178201)">
+      <g clipPath="url(#clip0_7857_178201)">
         <path
           d="M6 0.5H18C21.0376 0.5 23.5 2.96243 23.5 6V18C23.5 21.0376 21.0376 23.5 18 23.5H6C2.96243 23.5 0.5 21.0376 0.5 18V6C0.5 2.96243 2.96243 0.5 6 0.5Z"
           fill="white"

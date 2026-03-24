@@ -57,12 +57,16 @@ export const Geofences = () => {
     setIsShowGeofenceControls,
     setDraftGeoFencesIds,
     setOriginalGeoFencesIds,
+    originalGeoFencesIds,
+    draftGeoFencesIds,
   } = useGeofenceStore(
     useShallow((state) => ({
       isShowGeofenceControls: state.isShowGeofenceControls,
       setIsShowGeofenceControls: state.setIsShowGeofenceControls,
       setDraftGeoFencesIds: state.setDraftGeoFencesIds,
       setOriginalGeoFencesIds: state.setOriginalGeoFencesIds,
+      originalGeoFencesIds: state.originalGeoFencesIds,
+      draftGeoFencesIds: state.draftGeoFencesIds,
     }))
   )
 
@@ -136,7 +140,8 @@ export const Geofences = () => {
     const disabledFeatures = features.filter(
       (f) =>
         f.properties.geofenceId !== geofence.id &&
-        f.properties?.mode !== 'select'
+        f.properties?.mode !== 'select' &&
+        !draftGeoFencesIds.includes(f.id as FeatureId)
     )
 
     const currentSelectedFeature = features.filter(
@@ -144,11 +149,14 @@ export const Geofences = () => {
     )
 
     if (!currentSelectedFeature.length) return
-
     setOriginalGeoFencesIds(
-      currentSelectedFeature.map((f) => f.id as FeatureId)
+      Array.from(
+        new Set([
+          ...originalGeoFencesIds,
+          ...currentSelectedFeature.map((f) => f.id as FeatureId),
+        ])
+      )
     )
-    setDraftGeoFencesIds([])
     disabledFeatures.forEach((f) => {
       draw.updateFeatureProperties(f.id as FeatureId, {
         disabled: true,

@@ -83,9 +83,17 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
       set({ started: true })
     }
 
+    const { activeTool } = useGeofenceStore.getState()
+    const isDrawingActive =
+      !!activeTool &&
+      activeTool !== 'delete' &&
+      activeTool !== 'delete-selection'
+
     const selectedGeofence = get().selectedGeofence
     const selectedFeature = get().selectedFeature
-    draw.setMode('render')
+    if (!isDrawingActive) {
+      draw.setMode('render')
+    }
     get().clearRendered()
     const { renderIds } = get()
     const existingIds = new Set(draw.getSnapshot().map((f) => String(f.id)))
@@ -120,10 +128,12 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
         !originalGeofenceIdSets.has(String(f.id))
     )
     draw.addFeatures(newFeatures)
-    if (selectedFeature) {
+
+    if (!isDrawingActive && selectedFeature) {
       draw.setMode('select')
       draw.selectFeature(selectedFeature)
     }
+
     set({
       renderIds: [...renderIds, ...newFeatures.map((f) => f.id as FeatureId)],
     })
