@@ -49,6 +49,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     event: {
       ...(await import(`../../messages/${locale}/event.json`)).default,
     },
+    automation: {
+      ...(await import(`../../messages/${locale}/automation.json`)).default,
+    },
   }
 
   // Return merged messages

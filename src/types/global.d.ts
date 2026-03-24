@@ -12,6 +12,7 @@ import signUp from '../../messages/en/sign-up.json'
 import space from '../../messages/en/space.json'
 import geofenceMessages from '../../messages/en/geofence.json'
 import eventMessages from '../../messages/en/event.json'
+import automationMessages from '../../messages/en/automation.json'
 
 type Locale = (typeof locales)[number]
 
@@ -26,6 +27,7 @@ type Messages = {
   space: typeof space
   geofence: typeof geofenceMessages
   event: typeof eventMessages
+  automation: typeof automationMessages
   // Create a new type by combining all message types
 }
 
