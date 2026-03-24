@@ -160,7 +160,7 @@ export const LocationLayer = memo(
     useEffect(() => {
       if (!isMapReady || isAlreadyShowTripRoute) return
       handleDeviceSelected({ deviceId: deviceSelected, viewMode })
-    }, [isMapReady, deviceSelected, viewMode, isAlreadyShowTripRoute])
+    }, [isMapReady, deviceSelected, viewMode, isAlreadyShowTripRoute, devices])
 
     const handleResource = (
       viewMode: '2d' | '3d',

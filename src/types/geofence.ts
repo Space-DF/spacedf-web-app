@@ -10,7 +10,7 @@ export type PolygonGeometry = {
 export type GeofenceCondition =
   | { time_between: { start: string; end: string } }
   | { weekday_in: number[] }
-  | { distance_from_geofence_km: { lte: number } }
+  | { distance_from_geofence_km: { lte?: number; gte?: number } }
   | { and: GeofenceCondition[] }
   | { or: GeofenceCondition[] }
   | { not: GeofenceCondition[] }

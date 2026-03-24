@@ -171,7 +171,7 @@ const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
       name: data.name,
       color: data.color ?? 'default',
       type_zone: data.type_zone,
-      definition: transformConditions(data.conditions),
+      definition: transformConditions(data.conditions, data.type_zone),
     }
     if (geofence) {
       await updateGeofence({ id: geofence.id, ...payload })
