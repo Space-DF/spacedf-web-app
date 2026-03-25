@@ -5,6 +5,7 @@ import {
   Devices,
   Warehouse,
   Square,
+  AutomationSettings,
 } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
@@ -20,6 +21,7 @@ export enum NavigationEnums {
   WORKSPACE_SETTINGS = '/workspace-settings',
   PLAN_BILLING = 'plan-billing',
   GEOFENCES = 'geofences',
+  AUTOMATION_SETTINGS = '/automation-settings',
 }
 
 export type Navigation = {
@@ -35,6 +37,7 @@ export type Navigation = {
     | 'dashboard'
     | 'workspace_settings'
     | 'geofences'
+    | 'automation_settings'
 }
 
 export type DynamicLayout =
@@ -42,6 +45,7 @@ export type DynamicLayout =
   | NavigationEnums.DEVICES
   | NavigationEnums.USER
   | NavigationEnums.GEOFENCES
+  | NavigationEnums.AUTOMATION_SETTINGS
 
 export const NavigationData = (
   translateFn: ReturnType<typeof useTranslations>
@@ -99,6 +103,16 @@ export const NavigationData = (
       onClick: () =>
         router.push(
           `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`
+        ),
+    },
+    {
+      key: 'automation_settings',
+      href: NavigationEnums.AUTOMATION_SETTINGS,
+      title: translateFn('automation_settings'),
+      icon: <AutomationSettings />,
+      onClick: () =>
+        router.push(
+          `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.AUTOMATION_SETTINGS}`
         ),
     },
     // {
