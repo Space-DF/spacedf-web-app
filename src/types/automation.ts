@@ -15,10 +15,10 @@ export interface AutomationEventRule {
       and: AutomationRuleCondition[]
     }
   }
-  is_active: boolean
-  repeat_able: boolean
-  cooldown_sec: number
-  description: string
+  is_active?: boolean
+  repeat_able?: boolean
+  cooldown_sec?: number
+  description?: string
 }
 
 export interface AutomationAction {

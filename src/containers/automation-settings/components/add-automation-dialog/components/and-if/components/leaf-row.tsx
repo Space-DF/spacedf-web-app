@@ -1,4 +1,4 @@
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { AddAutomationFormValues } from '../../../schema'
 import {
   FormControl,
@@ -16,22 +16,23 @@ import {
 import { ChevronDown, Trash2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { OPERATORS } from '@/containers/automation-settings/contanst'
+import { useDeviceEntity } from '@/containers/dashboard/components/widget-selected/hooks/useDeviceEntity'
 
 interface LeafRowProps {
   path: `conditions.${number}.rules.${number}`
   onRemove: () => void
 }
 
-const ENTITY_OPTIONS = [
-  { value: 'temperature', label: 'Temperature' },
-  { value: 'humidity', label: 'Humidity' },
-  { value: 'battery', label: 'Battery' },
-  { value: 'co2', label: 'CO2' },
-  { value: 'light', label: 'Light' },
-]
-
 export const LeafRow = ({ path, onRemove }: LeafRowProps) => {
   const { control } = useFormContext<AddAutomationFormValues>()
+  const deviceId = useWatch({ control, name: 'device_id' })
+  const { data: entities } = useDeviceEntity(undefined, undefined, deviceId)
+  const entityOptions =
+    entities?.results?.map((entity) => ({
+      value: entity.id,
+      label: entity.name,
+    })) || []
+
   return (
     <div className="grid grid-cols-9 gap-2 items-start">
       <FormField
@@ -49,7 +50,7 @@ export const LeafRow = ({ path, onRemove }: LeafRowProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {ENTITY_OPTIONS.map((o) => (
+                {entityOptions.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}
                   </SelectItem>

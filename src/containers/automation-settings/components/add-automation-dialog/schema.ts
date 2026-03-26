@@ -62,30 +62,17 @@ export const ruleSchema: z.ZodTypeAny = z.lazy(() =>
   ])
 )
 
-const actionTypeSchema = z.string()
+const actionTypeSchema = z.string().min(1, { message: 'Please select action' })
 const actionSchema = z.object({
   id: z.string(),
   type: actionTypeSchema,
 })
 
-export const addAutomationFormSchema = z
-  .object({
-    name: z.string().min(1, { message: 'Please enter name' }),
-    device_id: z.string().min(1, { message: 'Please select device' }),
-    conditions: z.array(ruleSchema).min(1),
-    actions: z.array(actionSchema).min(1, { message: 'Please select actions' }),
-  })
-  .superRefine((values, ctx) => {
-    const selectedActionCount = values.actions.filter(
-      (a) => a.type && a.type.trim().length > 0
-    ).length
-    if (selectedActionCount === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['actions'],
-        message: 'Please select actions',
-      })
-    }
-  })
+export const addAutomationFormSchema = z.object({
+  name: z.string().min(1, { message: 'Please enter name' }),
+  device_id: z.string().min(1, { message: 'Please select device' }),
+  conditions: z.array(ruleSchema),
+  actions: z.array(actionSchema),
+})
 
 export type AddAutomationFormValues = z.infer<typeof addAutomationFormSchema>

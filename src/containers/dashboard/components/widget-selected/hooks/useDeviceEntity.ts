@@ -4,11 +4,15 @@ import { fetcher } from '@/utils'
 import { useParams } from 'next/navigation'
 import useSWR from 'swr'
 
-export const useDeviceEntity = (entityType: string, search?: string) => {
+export const useDeviceEntity = (
+  entityType?: string,
+  search?: string,
+  deviceId?: string
+) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   return useSWR(
     spaceSlug
-      ? `/api/spaces/entities?type=${entityType}&spaceSlug=${spaceSlug}&search=${search ?? ''}`
+      ? `/api/spaces/entities?type=${entityType ?? ''}&spaceSlug=${spaceSlug}&search=${search ?? ''}&deviceId=${deviceId ?? ''}`
       : null,
     fetcher<PaginationResponse<Entity>>
   )

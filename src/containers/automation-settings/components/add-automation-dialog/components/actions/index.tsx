@@ -17,12 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { ChevronDown, Plus, Trash2 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
-
-const ACTION_OPTIONS = [
-  { value: 'turn_off', label: 'Turn Off' },
-  { value: 'turn_on', label: 'Turn On' },
-  { value: 'send_notification', label: 'Send Notification' },
-]
+import { useActions } from './hooks/useActions'
 
 export const Actions = () => {
   const { control } = useFormContext<AddAutomationFormValues>()
@@ -34,6 +29,15 @@ export const Actions = () => {
     control,
     name: 'actions',
   })
+
+  const { data: actions } = useActions()
+
+  const actionOptions =
+    actions?.results.map((action) => ({
+      value: action.id,
+      label: action.name,
+    })) || []
+
   const t = useTranslations('automation')
   return (
     <div className="flex flex-col gap-2">
@@ -69,7 +73,7 @@ export const Actions = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {ACTION_OPTIONS.map((o) => (
+                      {actionOptions.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
                           {o.label}
                         </SelectItem>
