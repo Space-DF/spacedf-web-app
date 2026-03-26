@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useTranslations } from 'next-intl'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { useGetDevices } from '@/hooks/useDevices'
-import { createAutomation } from '../../hooks/useAutomations'
 import { AutomationRuleCondition } from '@/types/automation'
 import { toast } from 'sonner'
 import {
@@ -40,6 +39,7 @@ import {
 import { AndIf } from './components/and-if'
 import { Actions } from './components/actions'
 import { useAutomationStore } from './components/and-if/stores/automation'
+import { useCreateAutomation } from './hooks/useCreateAutomation'
 
 const buildConditionPayload = (
   c: AutomationCondition
@@ -74,7 +74,18 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
     mode: 'onSubmit',
   })
 
+  const { trigger: createAutomation, isMutating: isCreatingAutomation } =
+    useCreateAutomation()
+
   const { reset, control, handleSubmit, formState } = form
+
+  const deviceId = useWatch({ control, name: 'device_id' })
+
+  const deviceOptions =
+    devices?.map((device) => ({
+      value: device.device.id,
+      label: device.name,
+    })) || []
 
   const setCurrentCondition = useAutomationStore(
     (state) => state.setCurrentCondition
@@ -91,29 +102,37 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
   }
 
   const onValidSubmit = async (values: AddAutomationFormValues) => {
-    try {
-      const conditionPayloads = values.conditions.map(buildConditionPayload)
+    const conditionPayloads = values.conditions.map(buildConditionPayload)
+    const action_ids = values.actions.map((a) => a.type).filter(Boolean)
+    if (!conditionPayloads.length) {
+      return toast.error(t('please_add_at_least_one_condition'))
+    }
 
-      await createAutomation({
+    if (!action_ids.length) {
+      return toast.error(t('please_add_at_least_one_action'))
+    }
+
+    createAutomation(
+      {
         name: values.name,
         device_id: values.device_id,
-        action_ids: values.actions.map((a) => a.type).filter(Boolean),
+        action_ids,
         event_rule: {
           rule_key: `rule_${uuidv4()}`,
           definition: { conditions: { and: conditionPayloads } },
-          is_active: true,
-          repeat_able: true,
-          cooldown_sec: 0,
-          description: values.name,
         },
-      })
-
-      toast.success(t('automation_created_successfully'))
-      onSuccess?.()
-      handleClose()
-    } catch {
-      toast.error(t('automation_create_failed'))
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success(t('automation_created_successfully'))
+          onSuccess?.()
+          handleClose()
+        },
+        onError: (error) => {
+          toast.error(error?.message || t('automation_create_failed'))
+        },
+      }
+    )
   }
 
   return (
@@ -183,9 +202,12 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {devices.map((device) => (
-                                <SelectItem key={device.id} value={device.id}>
-                                  {device.name}
+                              {deviceOptions.map((device) => (
+                                <SelectItem
+                                  key={device.value}
+                                  value={device.value}
+                                >
+                                  {device.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -196,7 +218,7 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                     )}
                   />
                 </div>
-                <AndIf />
+                {deviceId && <AndIf />}
                 <Actions />
               </div>
 
@@ -204,7 +226,10 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                 <Button type="button" variant="outline" onClick={handleClose}>
                   {t('cancel')}
                 </Button>
-                <Button type="submit" loading={formState.isSubmitting}>
+                <Button
+                  type="submit"
+                  loading={formState.isSubmitting || isCreatingAutomation}
+                >
                   {t('add')}
                 </Button>
               </div>

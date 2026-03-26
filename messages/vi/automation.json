@@ -46,5 +46,7 @@
   "copy": "Sao chép",
   "cut": "Cắt",
   "paste": "Dán",
-  "edit_in_yaml": "Chỉnh sửa YAML"
+  "edit_in_yaml": "Chỉnh sửa YAML",
+  "please_add_at_least_one_condition": "Vui lòng thêm ít nhất một điều kiện",
+  "please_add_at_least_one_action": "Vui lòng thêm ít nhất một hành động"
 }

@@ -46,5 +46,7 @@
   "copy": "Copy",
   "cut": "Cut",
   "paste": "Paste",
-  "edit_in_yaml": "Edit in YAML"
+  "edit_in_yaml": "Edit in YAML",
+  "please_add_at_least_one_condition": "Please add at least one condition",
+  "please_add_at_least_one_action": "Please add at least one action"
 }
