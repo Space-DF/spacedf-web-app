@@ -10,11 +10,12 @@ import {
 } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Eye, Pen } from 'lucide-react'
-import { Switch } from '@/components/ui/switch'
 import { Trash } from '@/components/icons'
+import { ToggleAutomationSwitch } from '../components/toggle-automation-switch'
+
 export const useTableColumn = (
-  handleToggleStatus: (id: string) => void,
-  handleDelete: (id: string) => void
+  handleDelete: (id: string) => void,
+  onToggleSuccess?: () => void
 ) => {
   const t = useTranslations('automation')
   const columns = useMemo<ColumnDef<Automation>[]>(
@@ -29,29 +30,31 @@ export const useTableColumn = (
         ),
       },
       {
-        accessorKey: 'triggers',
+        accessorKey: 'event_rule',
         header: t('trigger_when'),
         cell: ({ row }) => {
-          const triggers = row.original.triggers
+          const rule = row.original.event_rule
+          const description = rule?.description || '—'
+          const conditions = rule?.definition?.conditions?.and ?? []
           return (
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="max-w-[160px] truncate text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-                    {triggers.join(' ')}
-                    {triggers.length > 1 && (
+                    {description}
+                    {conditions.length > 1 && (
                       <span className="ml-0.5 text-brand-text-gray">...</span>
                     )}
                   </div>
                 </TooltipTrigger>
-                {triggers.length > 1 && (
+                {conditions.length > 1 && (
                   <TooltipContent
                     side="bottom"
-                    className=" rounded-lg border-none bg-brand-component-fill-dark px-3 py-2 text-xs text-white shadow-lg"
+                    className="rounded-lg border-none bg-brand-component-fill-dark px-3 py-2 text-xs text-white shadow-lg"
                   >
                     <div className="flex flex-col leading-5">
-                      {triggers.map((trigger, i) => (
-                        <span key={i}>{trigger}</span>
+                      {conditions.map((condition, i) => (
+                        <span key={i}>{JSON.stringify(condition)}</span>
                       ))}
                     </div>
                   </TooltipContent>
@@ -62,67 +65,60 @@ export const useTableColumn = (
         },
       },
       {
-        accessorKey: 'targetDevice',
+        accessorKey: 'device_id',
         header: t('target_device'),
         cell: ({ row }) => (
           <span className="text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-            {row.original.targetDevice}
+            {row.original.device_id}
           </span>
         ),
       },
       {
-        accessorKey: 'assignedAction',
+        accessorKey: 'actions',
         header: t('assigned_action'),
         cell: ({ row }) => (
           <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-            {row.original.assignedAction.map((action, i) => (
-              <span key={i}>{action}</span>
+            {row.original.actions.map((action) => (
+              <span key={action.id}>{action.name}</span>
             ))}
           </div>
         ),
       },
       {
-        accessorKey: 'status',
+        id: 'status',
         header: t('status'),
         cell: ({ row }) => (
-          <Switch
-            checked={row.original.status === 'active'}
-            onCheckedChange={() => handleToggleStatus(row.original.id)}
+          <ToggleAutomationSwitch
+            automation={row.original}
+            onSuccess={onToggleSuccess}
           />
         ),
       },
       {
-        accessorKey: 'lastTriggered',
-        header: t('last_triggered'),
-        cell: ({ row }) => (
-          <span className="text-sm text-brand-text-gray">
-            {row.original.lastTriggered}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'lastUpdated',
+        accessorKey: 'updated_at',
         header: t('last_updated'),
         cell: ({ row }) => (
           <span className="text-sm text-brand-text-gray">
-            {row.original.lastUpdated}
+            {row.original.updated_at
+              ? new Date(row.original.updated_at).toLocaleString()
+              : '—'}
           </span>
         ),
       },
       {
-        id: 'actions',
+        id: 'actions_col',
         header: () => <div className="text-center">{t('action')}</div>,
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-1">
-            <Button variant={'outline'} size={'icon'}>
+            <Button variant="outline" size="icon">
               <Eye width={16} height={16} />
             </Button>
-            <Button variant={'outline'} size={'icon'}>
+            <Button variant="outline" size="icon">
               <Pen width={13} height={13} />
             </Button>
             <Button
-              variant={'outline'}
-              size={'icon'}
+              variant="outline"
+              size="icon"
               onClick={() => handleDelete(row.original.id)}
             >
               <Trash width={16} height={16} />
@@ -131,7 +127,7 @@ export const useTableColumn = (
         ),
       },
     ],
-    [t, handleToggleStatus, handleDelete]
+    [t, handleDelete, onToggleSuccess]
   )
   return columns
 }
