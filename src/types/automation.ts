@@ -3,9 +3,9 @@ export type AutomationStatus = 'active' | 'disabled'
 export type AutomationRuleConditionLeaf = Record<string, Record<string, number>>
 
 export type AutomationRuleCondition =
-  | { and: AutomationRuleCondition[] }
-  | { or: AutomationRuleCondition[] }
-  | { not: AutomationRuleCondition[] }
+  | { type: 'and'; rules: AutomationRuleCondition[] }
+  | { type: 'or'; rules: AutomationRuleCondition[] }
+  | { type: 'not'; rules: AutomationRuleCondition[] }
   | AutomationRuleConditionLeaf
 
 export interface AutomationEventRule {

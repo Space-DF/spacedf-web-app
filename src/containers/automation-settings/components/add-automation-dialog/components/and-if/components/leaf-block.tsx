@@ -5,11 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import {
-  AddAutomationFormValues,
-  AutomationCondition,
-  GroupType,
-} from '../../../schema'
+import { AddAutomationFormValues, AutomationCondition } from '../../../schema'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,26 +21,18 @@ import {
 } from 'lucide-react'
 import { Copy, Duplicate } from '@/components/icons'
 import { Separator } from '@/components/ui/separator'
-import {
-  FieldArrayWithId,
-  useFieldArray,
-  useFormContext,
-} from 'react-hook-form'
-import {
-  GROUP_ICONS,
-  GROUP_LABEL,
-} from '@/containers/automation-settings/contanst'
-import { AddConditionDropdown } from './add-condition-dropdown'
+import { useFormContext } from 'react-hook-form'
 import { EditYamlPanel } from './edit-yaml-dialog'
 import { useTranslations } from 'next-intl'
 import { useAutomationStore } from '../stores/automation'
 import { useShallow } from 'zustand/react/shallow'
-import { RenderCondition } from './render-condition'
+import { LeafRow } from './leaf-row'
+import { uppercaseFirstLetter } from '@/utils'
 
-interface GroupBlockProps {
-  path: string
-  group: FieldArrayWithId<AddAutomationFormValues, 'conditions', 'id'>
-  onDuplicateSelf: (group: AutomationCondition) => void
+interface LeafBlockProps {
+  path: `conditions.${number}.${string}`
+  leaf: Extract<AutomationCondition, { type: 'leaf' }> & { id: string }
+  onDuplicateSelf: (condition: AutomationCondition) => void
   onRemoveSelf: () => void
   isEditable: boolean
 }
@@ -55,40 +43,26 @@ const withStopPropagation =
     fn?.()
   }
 
-export const GroupBlock = ({
+export const LeafBlock = ({
   path,
-  group,
+  leaf,
   onDuplicateSelf,
   onRemoveSelf,
   isEditable,
-}: GroupBlockProps) => {
-  const Icon = GROUP_ICONS[group.type as keyof typeof GROUP_ICONS]
-  const label = GROUP_LABEL[group.type as keyof typeof GROUP_LABEL]
+}: LeafBlockProps) => {
   const [isEditingYaml, setIsEditingYaml] = useState(false)
-
-  const { control, setValue } = useFormContext<AddAutomationFormValues>()
-
-  const rulesName = `${path}.rules` as `conditions.${number}.rules`
-  const { fields, append, remove, insert } = useFieldArray({
-    control,
-    name: rulesName,
-  })
-
-  const { currentCondition, setCurrentCondition } = useAutomationStore(
+  const { setValue } = useFormContext<AddAutomationFormValues>()
+  const { setCurrentCondition } = useAutomationStore(
     useShallow((state) => ({
-      currentCondition: state.currentCondition,
       setCurrentCondition: state.setCurrentCondition,
     }))
   )
+  const t = useTranslations('automation')
 
   const handleCutCondition = () => {
-    setCurrentCondition(group)
+    setCurrentCondition(leaf)
     onRemoveSelf()
   }
-
-  const ruleFields = fields as (AutomationCondition & { id: string })[]
-
-  const t = useTranslations('automation')
 
   const handleSaveYaml = (updated: AutomationCondition) => {
     setValue(
@@ -97,35 +71,15 @@ export const GroupBlock = ({
     )
   }
 
-  const handleAddCondition = (
-    type: GroupType | 'leaf' | 'paste',
-    entity?: string
-  ) => {
-    if (type === 'paste') {
-      append(currentCondition)
-      return
-    }
-    if (type === 'leaf') {
-      append({
-        type: 'leaf',
-        entity: entity ?? '',
-        operator: 'lte',
-        value: '',
-      })
-      return
-    }
-    append({ type, rules: [] })
-  }
-
   return (
     <Accordion
       type="single"
       collapsible
       className="w-full"
-      defaultValue={group.id}
+      defaultValue={leaf.id}
     >
       <AccordionItem
-        value={group.id}
+        value={leaf.id}
         className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
       >
         <AccordionTrigger
@@ -143,14 +97,14 @@ export const GroupBlock = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem
-                    onClick={withStopPropagation(() => onDuplicateSelf(group))}
+                    onClick={withStopPropagation(() => onDuplicateSelf(leaf))}
                   >
                     <Duplicate className="mr-2 h-4 w-4 text-brand-component-text-dark" />
                     {t('duplicate')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={withStopPropagation(() => {
-                      setCurrentCondition(group)
+                      setCurrentCondition(leaf)
                     })}
                   >
                     <Copy className="mr-2 h-4 w-4 text-brand-component-text-dark" />
@@ -186,38 +140,25 @@ export const GroupBlock = ({
           <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
           <div className="mr-2 flex w-full items-center">
             <div className="flex items-center space-x-1">
-              <Icon className="h-5 w-5 shrink-0 text-brand-icon-gray" />
               <p className="text-sm font-semibold text-brand-component-text-dark">
-                {label}
+                {uppercaseFirstLetter(leaf.entity) || 'Select entity'}
               </p>
             </div>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="p-3 space-y-3">
+        <AccordionContent className="p-3">
           {isEditingYaml ? (
             <EditYamlPanel
-              condition={group}
+              condition={leaf}
               onCancel={() => setIsEditingYaml(false)}
               onSave={handleSaveYaml}
             />
           ) : (
-            ruleFields.map((rule, ruleIndex) => {
-              return (
-                <RenderCondition
-                  key={rule.id}
-                  id={rule.id}
-                  path={
-                    `${rulesName}.${ruleIndex}` as `conditions.${number}.${string}`
-                  }
-                  onDuplicate={(condition) => insert(ruleIndex, condition)}
-                  onRemove={() => remove(ruleIndex)}
-                  isEditable={isEditable}
-                />
-              )
-            })
-          )}
-          {isEditable && (
-            <AddConditionDropdown isChildren onAdd={handleAddCondition} />
+            <LeafRow
+              path={path}
+              onRemove={onRemoveSelf}
+              isEditable={isEditable}
+            />
           )}
         </AccordionContent>
       </AccordionItem>

@@ -23,6 +23,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  getRowId?: (row: TData) => string
   tableHeadClass?: string
   tableCellClass?: string
   emptyLabel?: string
@@ -38,6 +39,7 @@ export function DataTable<TData, TValue>({
   emptyLabel = 'No results',
   showPaginate = true,
   isLoading = false,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -49,10 +51,12 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: false,
     onPaginationChange: setPagination,
     state: {
       pagination,
     },
+    getRowId,
   })
 
   return (
@@ -77,20 +81,7 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {isLoading ? (
-            Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
-              <TableRow key={`skeleton-row-${rowIndex}`}>
-                {columns.map((_, colIndex) => (
-                  <TableCell
-                    className={tableCellClass || ''}
-                    key={`skeleton-cell-${rowIndex}-${colIndex}`}
-                  >
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : table.getRowModel().rows?.length ? (
+          {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -99,6 +90,19 @@ export function DataTable<TData, TValue>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell className={tableCellClass || ''} key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : isLoading ? (
+            Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
+              <TableRow key={`skeleton-row-${rowIndex}`}>
+                {columns.map((_, colIndex) => (
+                  <TableCell
+                    className={tableCellClass || ''}
+                    key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                  >
+                    <Skeleton className="h-5 w-full" />
                   </TableCell>
                 ))}
               </TableRow>
