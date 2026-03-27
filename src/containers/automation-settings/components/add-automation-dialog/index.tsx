@@ -14,13 +14,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
   Form,
   FormControl,
   FormField,
@@ -28,33 +21,24 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useGetDevices } from '@/hooks/useDevices'
-import { AutomationRuleCondition } from '@/types/automation'
+import { Automation } from '@/types/automation'
 import { toast } from 'sonner'
-import {
-  addAutomationFormSchema,
-  type AddAutomationFormValues,
-  type AutomationCondition,
-} from './schema'
+import { addAutomationFormSchema, type AddAutomationFormValues } from './schema'
 import { AndIf } from './components/and-if'
 import { Actions } from './components/actions'
 import { useAutomationStore } from './components/and-if/stores/automation'
 import { useCreateAutomation } from './hooks/useCreateAutomation'
-
-const buildConditionPayload = (
-  c: AutomationCondition
-): AutomationRuleCondition => {
-  if (c.type === 'leaf') {
-    return { [c.entity]: { [c.operator]: Number(c.value) } }
-  }
-  const rules = c.rules.map(buildConditionPayload)
-  return { [c.type]: rules } as AutomationRuleCondition
-}
+import { X } from 'lucide-react'
+import { PencilSimple } from '@/components/icons'
+import { buildConditionPayload, mapBackendRuleToFormCondition } from './utils'
+import { When } from './components/when'
 
 interface Props {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
+  isEditable?: boolean
+  automation?: Automation
 }
 
 const DEFAULT_VALUES: AddAutomationFormValues = {
@@ -64,9 +48,18 @@ const DEFAULT_VALUES: AddAutomationFormValues = {
   actions: [{ id: uuidv4(), type: '' }],
 }
 
-export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
+export const AddAutomationDialog = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  isEditable,
+  automation,
+}: Props) => {
   const t = useTranslations('automation')
-  const { data: devices } = useGetDevices()
+
+  const isCanEdit = (isEditable && !!automation) || !automation
+
+  const isViewOnly = !isEditable && !!automation
 
   const form = useForm<AddAutomationFormValues>({
     resolver: zodResolver(addAutomationFormSchema),
@@ -81,19 +74,31 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
 
   const deviceId = useWatch({ control, name: 'device_id' })
 
-  const deviceOptions =
-    devices?.map((device) => ({
-      value: device.device.id,
-      label: device.name,
-    })) || []
-
   const setCurrentCondition = useAutomationStore(
     (state) => state.setCurrentCondition
   )
 
   useEffect(() => {
-    if (isOpen) reset(DEFAULT_VALUES)
-  }, [isOpen])
+    if (isOpen && !automation) reset(DEFAULT_VALUES)
+    if (isOpen && automation)
+      reset({
+        name: automation.name,
+        device_id: automation.device_id,
+        conditions:
+          automation.event_rule?.definition?.conditions?.and.map(
+            (condition) => {
+              const mapped = mapBackendRuleToFormCondition(condition)
+              return mapped.type === 'leaf'
+                ? { type: 'and', rules: [mapped] }
+                : mapped
+            }
+          ) ?? [],
+        actions: automation.actions.map((action) => ({
+          id: action.id,
+          type: action.id,
+        })),
+      })
+  }, [isOpen, automation])
 
   const handleClose = () => {
     reset(DEFAULT_VALUES)
@@ -135,12 +140,34 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
     )
   }
 
+  const labelDialog = () => {
+    if (isViewOnly) return t('automation_detail')
+    if (automation) return t('edit_automation')
+    return t('add_automation')
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden p-0">
+      <DialogContent
+        showCloseIcon={false}
+        className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden p-0"
+      >
         <DialogHeader className="border-none shrink-0">
           <DialogTitle className="text-brand-component-text-dark text-[16px] font-semibold">
-            {t('add_automation')}
+            <div className="flex justify-between items-center">
+              {labelDialog()}
+              <div className="flex space-x-2 items-center">
+                {isViewOnly && (
+                  <Button className="flex items-center gap-2">
+                    Edit
+                    <PencilSimple className="size-4" />
+                  </Button>
+                )}
+                <button type="button" onClick={handleClose}>
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
           </DialogTitle>
         </DialogHeader>
         <FormProvider {...form}>
@@ -163,6 +190,7 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                           {...field}
                           placeholder={t('automation_name_placeholder')}
                           className="bg-brand-fill-dark-soft"
+                          disabled={!isCanEdit}
                         />
                       </FormControl>
                       <FormMessage />
@@ -170,56 +198,9 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                   )}
                 />
 
-                <div className="flex flex-col gap-2">
-                  <div>
-                    <h3 className="text-lg font-semibold text-brand-component-text-dark">
-                      {t('when')}
-                    </h3>
-                    <p className="text-xs text-brand-component-text-gray leading-4">
-                      {t('when_description')}
-                    </p>
-                  </div>
-                  <FormField
-                    control={control}
-                    name="device_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="rounded-lg border border-brand-stroke-dark-soft px-3 py-2.5 shadow-md">
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 text-sm font-medium [&>svg]:hidden">
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className={`size-2 shrink-0 rounded-full ${field.value ? 'bg-brand-component-text-positive' : 'bg-gray-300'}`}
-                                  />
-                                  <SelectValue
-                                    placeholder={t('select_device')}
-                                  />
-                                </div>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {deviceOptions.map((device) => (
-                                <SelectItem
-                                  key={device.value}
-                                  value={device.value}
-                                >
-                                  {device.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {deviceId && <AndIf />}
-                <Actions />
+                <When isEditable={isCanEdit} />
+                {deviceId && <AndIf isEditable={isCanEdit} />}
+                <Actions isEditable={isCanEdit} />
               </div>
 
               <div className="flex shrink-0 items-center justify-end gap-3 p-4">
@@ -229,8 +210,9 @@ export const AddAutomationDialog = ({ isOpen, onClose, onSuccess }: Props) => {
                 <Button
                   type="submit"
                   loading={formState.isSubmitting || isCreatingAutomation}
+                  disabled={!isCanEdit}
                 >
-                  {t('add')}
+                  {isCanEdit ? t('save') : t('add')}
                 </Button>
               </div>
             </form>

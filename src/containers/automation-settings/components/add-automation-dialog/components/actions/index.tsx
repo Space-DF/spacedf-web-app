@@ -19,7 +19,11 @@ import { ChevronDown, Plus, Trash2 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { useActions } from './hooks/useActions'
 
-export const Actions = () => {
+interface ActionsProps {
+  isEditable: boolean
+}
+
+export const Actions = ({ isEditable }: ActionsProps) => {
   const { control } = useFormContext<AddAutomationFormValues>()
   const {
     fields: actionFields,
@@ -63,7 +67,11 @@ export const Actions = () => {
               name={`actions.${index}.type`}
               render={({ field }) => (
                 <FormItem className="flex-1 space-y-0">
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!isEditable}
+                  >
                     <FormControl>
                       <SelectTrigger
                         icon={<ChevronDown size={12} className="opacity-50" />}
@@ -88,6 +96,7 @@ export const Actions = () => {
               <button
                 type="button"
                 onClick={() => remove(index)}
+                disabled={!isEditable}
                 className="shrink-0 text-brand-component-text-accent hover:opacity-70 transition-opacity"
               >
                 <Trash2 size={14} />
@@ -95,14 +104,16 @@ export const Actions = () => {
             )}
           </div>
         ))}
-        <Button
-          type="button"
-          className="w-fit gap-2"
-          onClick={() => append({ id: uuidv4(), type: '' })}
-        >
-          {t('add_action')}
-          <Plus size={16} />
-        </Button>
+        {isEditable && (
+          <Button
+            type="button"
+            className="w-fit gap-2"
+            onClick={() => append({ id: uuidv4(), type: '' })}
+          >
+            {t('add_action')}
+            <Plus size={16} />
+          </Button>
+        )}
       </div>
     </div>
   )

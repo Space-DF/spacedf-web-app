@@ -33,6 +33,10 @@
   "then_do_description": "Các hành động này sẽ được thực thi khi automation được kích hoạt và tất cả các điều kiện được đáp ứng.",
   "add_action": "Thêm hành động",
   "select_device": "Chọn thiết bị",
+  "search_device_placeholder": "Tìm thiết bị...",
+  "no_device_found": "Không tìm thấy thiết bị.",
+  "loading_devices": "Đang tải thiết bị...",
+  "loading_more_devices": "Đang tải thêm thiết bị...",
   "select_action": "Chọn hành động",
   "cancel": "Hủy",
   "delete": "Xóa",
@@ -48,5 +52,16 @@
   "paste": "Dán",
   "edit_in_yaml": "Chỉnh sửa YAML",
   "please_add_at_least_one_condition": "Vui lòng thêm ít nhất một điều kiện",
-  "please_add_at_least_one_action": "Vui lòng thêm ít nhất một hành động"
+  "please_add_at_least_one_action": "Vui lòng thêm ít nhất một hành động",
+  "edit_automation": "Chỉnh sửa automation",
+  "this_list_of_triggers_defines_what_starts_the_automation": "Danh sách trigger xác định điều gì khởi động automation",
+  "a_trigger_occurs_when_the_selected_device_entity_receives_new_data_or_its_value_changes": "Một trigger xảy ra khi thực thể thiết bị được chọn nhận dữ liệu mới hoặc giá trị thay đổi",
+  "these_conditions_must_be_satisfied_for_the_automation_to_run": "Các điều kiện này phải được thỏa mãn để automation chạy",
+  "conditions_allow_you_to_evaluate_device_entity_values_and_create_more_precise_automation_rules": "Điều kiện cho phép bạn đánh giá giá trị thực thể thiết bị và tạo quy tắc automation chính xác hơn.",
+  "save": "Lưu",
+  "automation_detail": "Chi tiết automation",
+  "loading_more_entities": "Đang tải thêm entity...",
+  "loading_entities": "Đang tải entity...",
+  "search_condition_placeholder": "Tìm kiếm điều kiện",
+  "no_condition_found": "Không tìm thấy điều kiện."
 }

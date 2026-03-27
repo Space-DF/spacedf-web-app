@@ -9,13 +9,14 @@ import {
   TooltipContent,
 } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
-import { Eye, Pen } from 'lucide-react'
-import { Trash } from '@/components/icons'
+import { Eye } from 'lucide-react'
+import { PencilSimple, Trash } from '@/components/icons'
 import { ToggleAutomationSwitch } from '../components/toggle-automation-switch'
 
 export const useTableColumn = (
   handleDelete: (id: string) => void,
-  onToggleSuccess?: () => void
+  onToggleSuccess: () => void,
+  onSelect: (automation: Automation) => void
 ) => {
   const t = useTranslations('automation')
   const columns = useMemo<ColumnDef<Automation>[]>(
@@ -110,11 +111,15 @@ export const useTableColumn = (
         header: () => <div className="text-center">{t('action')}</div>,
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-1">
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onSelect(row.original)}
+            >
               <Eye width={16} height={16} />
             </Button>
             <Button variant="outline" size="icon">
-              <Pen width={13} height={13} />
+              <PencilSimple className="size-4 " />
             </Button>
             <Button
               variant="outline"
@@ -127,7 +132,7 @@ export const useTableColumn = (
         ),
       },
     ],
-    [t, handleDelete, onToggleSuccess]
+    [t, handleDelete, onToggleSuccess, onSelect]
   )
   return columns
 }
