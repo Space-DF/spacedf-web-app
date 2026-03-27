@@ -98,7 +98,7 @@ const ConditionTime = ({
     testCondition({
       type_zone: values.type_zone,
       features: geometry,
-      definition: transformConditions([value]),
+      definition: transformConditions([value], values.type_zone),
     })
   }
 

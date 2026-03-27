@@ -1,11 +1,16 @@
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
+import { isDemoSubdomain } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const DELETE = withAuthApiRequired(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
     try {
+      const isDemo = await isDemoSubdomain(request)
+      if (isDemo) {
+        return NextResponse.json({ success: true })
+      }
       const geofenceId = params.id
       const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
       const spacedfClient = await spaceClient()
@@ -24,6 +29,10 @@ export const DELETE = withAuthApiRequired(
 export const PATCH = withAuthApiRequired(
   async (request: NextRequest, { params }: { params: { id: string } }) => {
     try {
+      const isDemo = await isDemoSubdomain(request)
+      if (isDemo) {
+        return NextResponse.json({ success: true })
+      }
       const geofenceId = params.id
       const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
       const geofence = await request.json()

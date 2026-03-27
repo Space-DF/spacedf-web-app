@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from '../../ui/dialog'
 import { CircleUser, Trash } from 'lucide-react'
-import { AutomationSettings, Laptop, SettingIcon } from '../../icons'
+import { Laptop, SettingIcon } from '../../icons'
 import { cn } from '@/lib/utils'
 import Profile from './profile'
 import Account from './account'
@@ -19,7 +19,6 @@ import { Separator } from '@/components/ui/separator'
 import { useTranslations } from 'next-intl'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useGeneralSetting } from './store/useGeneralSetting'
-import { useRouter } from '@/i18n/routing'
 
 const settings = [
   {
@@ -36,11 +35,6 @@ const settings = [
     key: 'appearance',
     icon: <Laptop />,
     label: 'Appearance',
-  },
-  {
-    key: 'automation_settings',
-    icon: <AutomationSettings />,
-    label: 'Automation Settings',
   },
   // {
   //   key: 'language',
@@ -62,7 +56,6 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
     (state) => state.setCurrentSetting
   )
 
-  const router = useRouter()
   const t = useTranslations('common')
 
   const isAuthenticated = useAuthenticated()
@@ -79,9 +72,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
     }
     return settings.filter(
       (setting) =>
-        setting.key !== 'delete_account' &&
-        setting.key !== 'account' &&
-        setting.key !== 'profile'
+        !['delete_account', 'account', 'profile'].includes(setting.key)
     )
   }, [isAuthenticated])
 
@@ -103,11 +94,6 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   }, [currentSetting])
 
   const handleSettingClick = (key: string) => {
-    if (key === 'automation_settings') {
-      setIsOpen(false)
-      router.push('/automation-settings')
-      return
-    }
     setCurrentSetting(key)
   }
 
