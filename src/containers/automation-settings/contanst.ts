@@ -8,11 +8,11 @@ export const STATUS_FILTER = [
   },
   {
     label: 'active',
-    value: 'active',
+    value: 'true',
   },
   {
     label: 'disabled',
-    value: 'disabled',
+    value: 'false',
   },
 ]
 
