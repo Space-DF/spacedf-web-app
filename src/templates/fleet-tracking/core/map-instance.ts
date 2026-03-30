@@ -67,6 +67,14 @@ class MapInstance {
 
   private draw: TerraDraw | null = null
 
+  private _reregisterTerraDrawAfterStyleLoad = () => {
+    if (!this.draw) return
+    if (this.draw.enabled) {
+      this.draw.stop()
+    }
+    this.draw.start()
+  }
+
   private _handleZoomToSingleDevice = () => {
     if (!this.map) return
     const firstDevice = Object.values(this.devices)[0]
@@ -325,6 +333,7 @@ class MapInstance {
     })
 
     map.on('style.load', (map: maplibregl.Map) => {
+      this._reregisterTerraDrawAfterStyleLoad()
       this.emitter.emit('style.load', map)
     })
 

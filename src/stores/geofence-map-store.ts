@@ -14,7 +14,7 @@ interface GeofenceMapStore {
   started: boolean
   clearRendered: () => void
   setGeofences: (geofences: Geofence[]) => void
-  syncGeofencesToMap: () => void
+  syncGeofencesToMap: (options?: { forceRedraw?: boolean }) => void
   clearDirtyFeatureIds: () => void
   geofenceFeatureIds: FeatureId[]
   selectedGeofence?: Geofence
@@ -65,10 +65,20 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
         .flatMap((g) => g.features.map((f) => String(f.properties.id ?? '')))
         .filter(Boolean),
     }),
-  syncGeofencesToMap: () => {
+  syncGeofencesToMap: (options) => {
+    const forceRedraw = options?.forceRedraw ?? false
     const map = mapInstance.getMap()
     const draw = mapInstance.getTerraDraw()
-    if (!draw || !map || !map.isStyleLoaded()) return
+    if (!draw || !map) return
+
+    if (!map.isStyleLoaded()) {
+      if (forceRedraw) {
+        map.once('idle', () => {
+          get().syncGeofencesToMap({ forceRedraw: true })
+        })
+      }
+      return
+    }
 
     const dynamicLayouts = useLayout.getState().dynamicLayouts
     const isGeofencesActive = dynamicLayouts.includes(NavigationEnums.GEOFENCES)
@@ -78,7 +88,7 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
       return
     }
 
-    if (!get().started) {
+    if (!draw.enabled) {
       draw.start()
       set({ started: true })
     }
@@ -91,12 +101,11 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
 
     const selectedGeofence = get().selectedGeofence
     const selectedFeature = get().selectedFeature
-    if (!isDrawingActive) {
+    if (!isDrawingActive && draw.enabled) {
       draw.setMode('render')
     }
     get().clearRendered()
     const { renderIds } = get()
-    const existingIds = new Set(draw.getSnapshot().map((f) => String(f.id)))
     const features = geofences.flatMap((geofence) => {
       return geofence.features.map((poly) => ({
         type: 'Feature' as const,
@@ -122,21 +131,38 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
     )
 
     if (!features.length) return
-    const newFeatures = features.filter(
-      (f) =>
-        !existingIds.has(String(f.id)) &&
-        !originalGeofenceIdSets.has(String(f.id))
-    )
-    draw.addFeatures(newFeatures)
+
+    if (forceRedraw) {
+      const apiIds = features.map((f) => String(f.id))
+      const toRemove = apiIds.filter((id) => draw.hasFeature(id))
+      if (toRemove.length) {
+        draw.removeFeatures(toRemove as FeatureId[])
+      }
+      draw.addFeatures(features)
+      const apiIdSet = new Set(apiIds)
+      set({
+        renderIds: [
+          ...renderIds.filter((id) => !apiIdSet.has(String(id))),
+          ...features.map((f) => f.id as FeatureId),
+        ],
+      })
+    } else {
+      const existingIds = new Set(draw.getSnapshot().map((f) => String(f.id)))
+      const newFeatures = features.filter(
+        (f) =>
+          !existingIds.has(String(f.id)) &&
+          !originalGeofenceIdSets.has(String(f.id))
+      )
+      draw.addFeatures(newFeatures)
+      set({
+        renderIds: [...renderIds, ...newFeatures.map((f) => f.id as FeatureId)],
+      })
+    }
 
     if (!isDrawingActive && selectedFeature) {
       draw.setMode('select')
       draw.selectFeature(selectedFeature)
     }
-
-    set({
-      renderIds: [...renderIds, ...newFeatures.map((f) => f.id as FeatureId)],
-    })
   },
 
   clearDirtyFeatureIds: () => {
