@@ -33,6 +33,10 @@ import { PencilSimple } from '@/components/icons'
 import { buildConditionPayload, mapBackendRuleToFormCondition } from './utils'
 import { When } from './components/when'
 import { useUpdateAutomation } from './hooks/useUpdateAutomation'
+import {
+  AutomationDialogPopoverPortalProvider,
+  PopoverPortalAnchor,
+} from './automation-dialog-popover-portal-context'
 
 interface Props {
   isOpen: boolean
@@ -166,85 +170,94 @@ export const AddAutomationDialog = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent
-        showCloseIcon={false}
-        className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden p-0"
-      >
-        <DialogHeader className="border-none shrink-0">
-          <DialogTitle className="text-brand-component-text-dark text-[16px] font-semibold">
-            <div className="flex justify-between items-center">
-              {labelDialog()}
-              <div className="flex space-x-2 items-center">
-                {isViewOnly && (
-                  <Button
-                    className="flex items-center gap-2"
-                    onClick={() => setIsEditAutomation(true)}
-                  >
-                    {t('edit')}
-                    <PencilSimple className="size-4" />
-                  </Button>
-                )}
-                <button type="button" onClick={handleClose}>
-                  <X className="size-5" />
-                </button>
-              </div>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
-        <FormProvider {...form}>
-          <Form {...form}>
-            <form
-              onSubmit={handleSubmit(onValidSubmit)}
-              className="flex max-h-[90vh] flex-col overflow-hidden"
-            >
-              <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-2">
-                <FormField
-                  control={control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1.5">
-                      <FormLabel className="text-sm font-semibold text-brand-component-text-gray">
-                        {t('automation_name')}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder={t('automation_name_placeholder')}
-                          className="bg-brand-fill-dark-soft"
-                          disabled={!isCanEdit}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <When isEditable={isCanEdit} />
-                {deviceId && <AndIf isEditable={isCanEdit} />}
-                <Actions isEditable={isCanEdit} />
-              </div>
-
-              <div className="flex shrink-0 items-center justify-end gap-3 p-4">
-                <Button type="button" variant="outline" onClick={handleClose}>
-                  {t('cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  loading={
-                    formState.isSubmitting ||
-                    isCreatingAutomation ||
-                    isUpdatingAutomation
-                  }
-                  disabled={!isCanEdit}
+    <AutomationDialogPopoverPortalProvider>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+        <DialogContent
+          showCloseIcon={false}
+          className="max-w-2xl max-h-[90vh] flex flex-col overflow-visible p-0"
+        >
+          <div className="flex min-h-0 max-h-[90vh] flex-1 flex-col overflow-hidden">
+            <DialogHeader className="border-none shrink-0">
+              <DialogTitle className="text-brand-component-text-dark text-[16px] font-semibold">
+                <div className="flex justify-between items-center">
+                  {labelDialog()}
+                  <div className="flex space-x-2 items-center">
+                    {isViewOnly && (
+                      <Button
+                        className="flex items-center gap-2"
+                        onClick={() => setIsEditAutomation(true)}
+                      >
+                        {t('edit')}
+                        <PencilSimple className="size-4" />
+                      </Button>
+                    )}
+                    <button type="button" onClick={handleClose}>
+                      <X className="size-5" />
+                    </button>
+                  </div>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+            <FormProvider {...form}>
+              <Form {...form}>
+                <form
+                  onSubmit={handleSubmit(onValidSubmit)}
+                  className="flex min-h-0 flex-1 flex-col overflow-hidden"
                 >
-                  {isCanEdit ? t('save') : t('add')}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </FormProvider>
-      </DialogContent>
-    </Dialog>
+                  <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-2">
+                    <FormField
+                      control={control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1.5">
+                          <FormLabel className="text-sm font-semibold text-brand-component-text-gray">
+                            {t('automation_name')}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={t('automation_name_placeholder')}
+                              className="bg-brand-fill-dark-soft"
+                              disabled={!isCanEdit}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <When isEditable={isCanEdit} />
+                    {deviceId && <AndIf isEditable={isCanEdit} />}
+                    <Actions isEditable={isCanEdit} />
+                  </div>
+
+                  <div className="flex shrink-0 items-center justify-end gap-3 p-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleClose}
+                    >
+                      {t('cancel')}
+                    </Button>
+                    <Button
+                      type="submit"
+                      loading={
+                        formState.isSubmitting ||
+                        isCreatingAutomation ||
+                        isUpdatingAutomation
+                      }
+                      disabled={!isCanEdit}
+                    >
+                      {isCanEdit ? t('save') : t('add')}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </FormProvider>
+          </div>
+          <PopoverPortalAnchor />
+        </DialogContent>
+      </Dialog>
+    </AutomationDialogPopoverPortalProvider>
   )
 }

@@ -30,6 +30,7 @@ import { ChevronDown, Check, Loader2, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ConfirmDialog } from './components/confirm-dialog'
 import { useDeviceDetail } from '../../hooks/useDeviceDetail'
+import { useAutomationDialogPopoverPortal } from '../../automation-dialog-popover-portal-context'
 
 interface WhenProps {
   isEditable: boolean
@@ -44,7 +45,7 @@ export const When = ({ isEditable }: WhenProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
-
+  const popoverPortal = useAutomationDialogPopoverPortal()
   const {
     data: devices,
     isLoading,
@@ -60,10 +61,15 @@ export const When = ({ isEditable }: WhenProps) => {
         label: device.name,
       })) ?? []
     if (deviceDetail && deviceDetail.length > 0) {
+      const detail = deviceDetail[0]
+      const detailId = detail.device.id
+      if (options.some((o) => o.value === detailId)) {
+        return options
+      }
       return [
         {
-          value: deviceDetail[0].device.id,
-          label: deviceDetail[0].name,
+          value: detailId,
+          label: detail.name,
         },
         ...options,
       ]
@@ -180,10 +186,13 @@ export const When = ({ isEditable }: WhenProps) => {
                       </PopoverTrigger>
                     </FormControl>
                     <PopoverContent
-                      portal={false}
+                      portal={true}
                       align="start"
+                      container={
+                        popoverPortal?.popoverPortalContainerRef?.current
+                      }
                       sideOffset={8}
-                      className="z-[9999] w-[var(--radix-popover-trigger-width)] p-0 overflow-hidden"
+                      className="z-[100] w-[var(--radix-popover-trigger-width)] p-0 overflow-hidden"
                       onCloseAutoFocus={(e) => e.preventDefault()}
                       onInteractOutside={(e) => {
                         const target = e.target as HTMLElement

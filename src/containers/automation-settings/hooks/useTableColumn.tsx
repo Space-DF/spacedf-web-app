@@ -2,12 +2,6 @@ import { Automation } from '@/types/automation'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Eye } from 'lucide-react'
 import { PencilSimple, Trash } from '@/components/icons'
@@ -30,41 +24,6 @@ export const useTableColumn = (
             {row.original.name}
           </span>
         ),
-      },
-      {
-        accessorKey: 'event_rule',
-        header: t('trigger_when'),
-        cell: ({ row }) => {
-          const rule = row.original.event_rule
-          const description = rule?.description || '—'
-          const conditions = rule?.definition?.conditions?.and ?? []
-          return (
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="max-w-[160px] truncate text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-                    {description}
-                    {conditions.length > 1 && (
-                      <span className="ml-0.5 text-brand-text-gray">...</span>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                {conditions.length > 1 && (
-                  <TooltipContent
-                    side="bottom"
-                    className="rounded-lg border-none bg-brand-component-fill-dark px-3 py-2 text-xs text-white shadow-lg"
-                  >
-                    <div className="flex flex-col leading-5">
-                      {conditions.map((condition, i) => (
-                        <span key={i}>{JSON.stringify(condition)}</span>
-                      ))}
-                    </div>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )
-        },
       },
       {
         accessorKey: 'device_id',
