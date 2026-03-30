@@ -92,18 +92,20 @@ export const EventItem = ({ item, address }: EventItemProps) => {
               {item.time_fired}
             </div>
           </div>
-          <div className="flex items-center gap-x-1">
-            <Image
-              src={'/images/map-pin.svg'}
-              alt="location"
-              width={16}
-              height={16}
-            />
-            <div className="text-brand-component-text-gray text-xs line-clamp-2">
-              {address ??
-                `${item.location?.latitude}, ${item.location?.longitude}`}
+          {address && (
+            <div className="flex items-center gap-x-1">
+              <Image
+                src={'/images/map-pin.svg'}
+                alt="location"
+                width={16}
+                height={16}
+              />
+              <div className="text-brand-component-text-gray text-xs line-clamp-2">
+                {address ??
+                  `${item.location?.latitude}, ${item.location?.longitude}`}
+              </div>
             </div>
-          </div>
+          )}
           <div className="flex items-center gap-x-1">
             <Image
               src={

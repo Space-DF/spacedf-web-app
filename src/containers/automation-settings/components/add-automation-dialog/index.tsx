@@ -37,6 +37,7 @@ import {
   AutomationDialogPopoverPortalProvider,
   PopoverPortalAnchor,
 } from './automation-dialog-popover-portal-context'
+import Info from '@/components/icons/info'
 
 interface Props {
   isOpen: boolean
@@ -49,6 +50,7 @@ interface Props {
 
 const DEFAULT_VALUES: AddAutomationFormValues = {
   name: '',
+  title: '',
   device_id: '',
   conditions: [],
   actions: [{ id: uuidv4(), type: '' }],
@@ -93,6 +95,7 @@ export const AddAutomationDialog = ({
     if (isOpen && automation)
       reset({
         name: automation.name,
+        title: automation.title,
         device_id: automation.device_id,
         conditions:
           automation.event_rule?.definition?.conditions?.and.map(
@@ -129,6 +132,7 @@ export const AddAutomationDialog = ({
 
     const payload = {
       name: values.name,
+      title: values.title,
       device_id: values.device_id,
       action_ids,
       event_rule: {
@@ -221,6 +225,35 @@ export const AddAutomationDialog = ({
                               disabled={!isCanEdit}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1.5">
+                          <FormLabel className="text-sm font-semibold text-brand-component-text-gray">
+                            {t('event_title')}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder={t('event_title_placeholder')}
+                              className="bg-brand-fill-dark-soft"
+                              disabled={!isCanEdit}
+                            />
+                          </FormControl>
+                          <div className="flex items-center gap-x-1">
+                            <Info className="size-4" />
+                            <p className="font-medium text-xs text-brand-component-text-gray">
+                              {t(
+                                'this_text_will_appear_in_the_event_list_when_this_automation_is_triggered'
+                              )}
+                            </p>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

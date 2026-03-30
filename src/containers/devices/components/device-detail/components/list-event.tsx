@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ChevronRight, Search } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { useTranslations } from 'next-intl'
@@ -44,15 +44,16 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   const { data: addresses, isLoading: isLoadingAddresses } =
     useTripAddress(validLocations)
 
-  const getAddress = (index: number) => {
-    if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
-    const addressIndex = addressIndexByEventIndex[index]
-
-    if (addressIndex === undefined) return 'Unknown'
-
-    const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
-    return placeName && placeName.trim() ? placeName : 'Unknown'
-  }
+  const getAddress = useCallback(
+    (index: number) => {
+      if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
+      const addressIndex = addressIndexByEventIndex[index]
+      if (addressIndex === undefined) return undefined
+      const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
+      return placeName && placeName.trim() ? placeName : 'Unknown'
+    },
+    [addresses, isLoadingAddresses, addressIndexByEventIndex]
+  )
 
   return (
     <div className="flex flex-col gap-3">

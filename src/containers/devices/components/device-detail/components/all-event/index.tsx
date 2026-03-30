@@ -52,13 +52,11 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
     (index: number) => {
       if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
       const addressIndex = addressIndexByEventIndex[index]
-
-      if (addressIndex === undefined) return 'Unknown'
-
+      if (addressIndex === undefined) return undefined
       const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
       return placeName && placeName.trim() ? placeName : 'Unknown'
     },
-    [addresses, isLoadingAddresses]
+    [addresses, isLoadingAddresses, addressIndexByEventIndex]
   )
 
   const rowVirtualizer = useVirtualizer({
