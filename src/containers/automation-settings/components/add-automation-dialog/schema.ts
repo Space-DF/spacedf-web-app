@@ -70,6 +70,10 @@ const actionSchema = z.object({
 
 export const addAutomationFormSchema = z.object({
   name: z.string().min(1, { message: 'Please enter name' }),
+  title: z
+    .string({ required_error: 'Please enter title' })
+    .min(1, { message: 'Please enter title' })
+    .max(100, { message: 'Title must not exceed 100 characters' }),
   device_id: z.string().min(1, { message: 'Please select device' }),
   conditions: z.array(ruleSchema),
   actions: z.array(actionSchema),

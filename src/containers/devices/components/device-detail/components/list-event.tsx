@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ChevronRight, Search } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { useTranslations } from 'next-intl'
@@ -24,21 +24,36 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
 
   const filteredEvents = useMemo(() => events?.results ?? [], [events])
 
-  const locations: [number, number][] = useMemo(
-    () =>
-      filteredEvents
-        .filter((e) => e.location)
-        .map((e) => [e.location!.longitude, e.location!.latitude]),
-    [filteredEvents]
-  )
+  const { validLocations, addressIndexByEventIndex } = useMemo(() => {
+    const validLocations: [number, number][] = []
+    const addressIndexByEventIndex: Record<number, number> = {}
+
+    filteredEvents.forEach((e, eventIndex) => {
+      const longitude = e.location?.longitude
+      const latitude = e.location?.latitude
+
+      if (typeof longitude !== 'number' || typeof latitude !== 'number') return
+
+      addressIndexByEventIndex[eventIndex] = validLocations.length
+      validLocations.push([longitude, latitude])
+    })
+
+    return { validLocations, addressIndexByEventIndex }
+  }, [filteredEvents])
 
   const { data: addresses, isLoading: isLoadingAddresses } =
-    useTripAddress(locations)
+    useTripAddress(validLocations)
 
-  const getAddress = (index: number) => {
-    if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
-    return addresses?.[index]?.features?.[0]?.place_name ?? 'Unknown'
-  }
+  const getAddress = useCallback(
+    (index: number) => {
+      if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
+      const addressIndex = addressIndexByEventIndex[index]
+      if (addressIndex === undefined) return undefined
+      const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
+      return placeName && placeName.trim() ? placeName : 'Unknown'
+    },
+    [addresses, isLoadingAddresses, addressIndexByEventIndex]
+  )
 
   return (
     <div className="flex flex-col gap-3">

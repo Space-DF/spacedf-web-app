@@ -28,6 +28,7 @@ import { useAutomationStore } from '../stores/automation'
 import { useShallow } from 'zustand/react/shallow'
 import { LeafRow } from './leaf-row'
 import { uppercaseFirstLetter } from '@/utils'
+import { useAutomationDialogPopoverPortal } from '../../../automation-dialog-popover-portal-context'
 
 interface LeafBlockProps {
   path: `conditions.${number}.${string}`
@@ -58,6 +59,7 @@ export const LeafBlock = ({
     }))
   )
   const t = useTranslations('automation')
+  const popoverPortal = useAutomationDialogPopoverPortal()
 
   const handleCutCondition = () => {
     setCurrentCondition(leaf)
@@ -95,7 +97,11 @@ export const LeafBlock = ({
                     <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray" />
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent
+                  align="end"
+                  container={popoverPortal?.popoverPortalContainerRef.current}
+                  className="z-[100] w-48"
+                >
                   <DropdownMenuItem
                     onClick={withStopPropagation(() => onDuplicateSelf(leaf))}
                   >

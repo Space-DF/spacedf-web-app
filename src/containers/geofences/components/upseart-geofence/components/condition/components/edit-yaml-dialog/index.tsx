@@ -108,7 +108,7 @@ export const EditYamlPanel = ({
   onCancel,
 }: EditYamlPanelProps) => {
   const t = useTranslations('common')
-  const theme = useTheme()
+  const { resolvedTheme } = useTheme()
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const dialogEditorRef = useRef<Parameters<OnMount>[0] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -172,7 +172,7 @@ export const EditYamlPanel = ({
       <Editor
         height="200px"
         language="yaml"
-        theme={theme.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
+        theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
         defaultValue={initialYaml}
         onMount={handleEditorMount}
         onChange={() => setError(null)}
@@ -210,7 +210,7 @@ export const EditYamlPanel = ({
           <Editor
             height="60vh"
             language="yaml"
-            theme={theme.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
+            theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
             defaultValue={editorRef.current?.getValue() ?? initialYaml}
             onMount={handleDialogEditorMount}
             onChange={() => setError(null)}

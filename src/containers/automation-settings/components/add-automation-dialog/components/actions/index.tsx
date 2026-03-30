@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronDown, Plus, Trash2 } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { useActions } from './hooks/useActions'
+import { useAutomationDialogPopoverPortal } from '../../automation-dialog-popover-portal-context'
 
 interface ActionsProps {
   isEditable: boolean
@@ -25,6 +26,7 @@ interface ActionsProps {
 
 export const Actions = ({ isEditable }: ActionsProps) => {
   const { control } = useFormContext<AddAutomationFormValues>()
+  const popoverPortal = useAutomationDialogPopoverPortal()
   const {
     fields: actionFields,
     append,
@@ -43,6 +45,7 @@ export const Actions = ({ isEditable }: ActionsProps) => {
     })) || []
 
   const t = useTranslations('automation')
+
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -80,7 +83,12 @@ export const Actions = ({ isEditable }: ActionsProps) => {
                         <SelectValue placeholder={t('select_action')} />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent
+                      container={
+                        popoverPortal?.popoverPortalContainerRef.current
+                      }
+                      className="z-[100]"
+                    >
                       {actionOptions.map((o) => (
                         <SelectItem key={o.value} value={o.value}>
                           {o.label}

@@ -28,6 +28,7 @@ import Sidebar from './sidebar'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import { useGeofenceStore } from '@/stores/geofence-store'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { FeatureId } from '@/types/geofence'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -251,7 +252,11 @@ const DynamicLayout = ({
       resetGeofenceStore()
       const snapshot = draw?.getSnapshot()
       if (!snapshot?.length) return
-      draw?.clear()
+      const features = snapshot.reduce<FeatureId[]>((acc, f) => {
+        if (f.properties?.mode !== 'select') acc.push(f.id as FeatureId)
+        return acc
+      }, [])
+      draw?.removeFeatures(features)
       draw?.setMode('render')
     }
   }, [isGeofencesActive])

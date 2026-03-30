@@ -14,6 +14,7 @@ import { useDeviceEntity } from '@/containers/dashboard/components/widget-select
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useDebounce } from '@/hooks'
 import { uppercaseFirstLetter } from '@/utils'
+import { useAutomationDialogPopoverPortal } from '../../../automation-dialog-popover-portal-context'
 
 const CONDITION_OPTIONS = [
   ['and', 'And'],
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export const AddConditionDropdown = ({ onAdd, isChildren }: Props) => {
+  const popoverPortal = useAutomationDialogPopoverPortal()
   const currentCondition = useAutomationStore((state) => state.currentCondition)
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -99,6 +101,7 @@ export const AddConditionDropdown = ({ onAdd, isChildren }: Props) => {
   )
 
   const t = useTranslations('automation')
+
   return (
     <Popover
       open={isOpen}
@@ -114,9 +117,9 @@ export const AddConditionDropdown = ({ onAdd, isChildren }: Props) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        portal={false}
         align="start"
-        className="min-w-52 rounded-xl border-0 bg-white p-1.5 shadow-lg"
+        container={popoverPortal?.popoverPortalContainerRef?.current}
+        className="z-[100] min-w-52 rounded-xl border-0 bg-white p-1.5 shadow-lg pointer-events-auto"
         sideOffset={6}
       >
         <div className="border-b p-2">

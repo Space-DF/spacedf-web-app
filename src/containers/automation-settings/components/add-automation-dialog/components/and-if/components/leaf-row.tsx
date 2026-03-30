@@ -16,6 +16,7 @@ import {
 import { ChevronDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { OPERATORS } from '@/containers/automation-settings/contanst'
+import { useAutomationDialogPopoverPortal } from '../../../automation-dialog-popover-portal-context'
 
 interface LeafRowProps {
   path: `conditions.${number}${string}`
@@ -25,6 +26,7 @@ interface LeafRowProps {
 
 export const LeafRow = ({ path, isEditable }: LeafRowProps) => {
   const { control } = useFormContext<AddAutomationFormValues>()
+  const popoverPortal = useAutomationDialogPopoverPortal()
 
   return (
     <div className="grid grid-cols-9 gap-2 items-start">
@@ -46,7 +48,10 @@ export const LeafRow = ({ path, isEditable }: LeafRowProps) => {
                   <SelectValue />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent
+                container={popoverPortal?.popoverPortalContainerRef.current}
+                className="z-[100]"
+              >
                 {OPERATORS.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}

@@ -2,16 +2,15 @@ import { Automation } from '@/types/automation'
 import { ColumnDef } from '@tanstack/react-table'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Eye } from 'lucide-react'
 import { PencilSimple, Trash } from '@/components/icons'
 import { ToggleAutomationSwitch } from '../components/toggle-automation-switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 export const useTableColumn = (
   handleDelete: (id: string) => void,
@@ -32,41 +31,6 @@ export const useTableColumn = (
         ),
       },
       {
-        accessorKey: 'event_rule',
-        header: t('trigger_when'),
-        cell: ({ row }) => {
-          const rule = row.original.event_rule
-          const description = rule?.description || '—'
-          const conditions = rule?.definition?.conditions?.and ?? []
-          return (
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="max-w-[160px] truncate text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-                    {description}
-                    {conditions.length > 1 && (
-                      <span className="ml-0.5 text-brand-text-gray">...</span>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                {conditions.length > 1 && (
-                  <TooltipContent
-                    side="bottom"
-                    className="rounded-lg border-none bg-brand-component-fill-dark px-3 py-2 text-xs text-white shadow-lg"
-                  >
-                    <div className="flex flex-col leading-5">
-                      {conditions.map((condition, i) => (
-                        <span key={i}>{JSON.stringify(condition)}</span>
-                      ))}
-                    </div>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )
-        },
-      },
-      {
         accessorKey: 'device_id',
         header: t('target_device'),
         cell: ({ row }) => (
@@ -78,13 +42,55 @@ export const useTableColumn = (
       {
         accessorKey: 'actions',
         header: t('assigned_action'),
-        cell: ({ row }) => (
-          <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-            {row.original.actions.map((action) => (
-              <span key={action.id}>{action.name}</span>
-            ))}
-          </div>
-        ),
+        cell: ({ row }) =>
+          (() => {
+            const actions = row.original.actions
+            const visibleActions = actions.slice(0, 3)
+
+            if (actions.length <= 3) {
+              return (
+                <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
+                  {visibleActions.map((action) => (
+                    <span key={action.id}>{action.name}</span>
+                  ))}
+                </div>
+              )
+            }
+            const tooltipActions = actions.slice(0, 20)
+            const remainingForTooltip = actions.length - tooltipActions.length
+            const remainingForCell = actions.length - visibleActions.length
+
+            return (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
+                    {visibleActions.map((action, idx) => (
+                      <span key={action.id}>
+                        {action.name}
+                        {idx === visibleActions.length - 1 ? (
+                          <span className="text-xs text-popover-foreground font-semibold">
+                            +{remainingForCell} more
+                          </span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-72">
+                  <div className="flex max-h-60 flex-col gap-1 overflow-auto">
+                    {tooltipActions.map((action) => (
+                      <span key={action.id}>{action.name}</span>
+                    ))}
+                    {remainingForTooltip > 0 ? (
+                      <span className="text-xs text-popover-foreground font-semibold">
+                        +{remainingForTooltip} more
+                      </span>
+                    ) : null}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })(),
       },
       {
         id: 'status',

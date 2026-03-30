@@ -17,10 +17,18 @@ const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
     portal?: boolean
+    container?: HTMLElement | null
   }
 >(
   (
-    { className, align = 'center', sideOffset = 4, portal = true, ...props },
+    {
+      className,
+      align = 'center',
+      sideOffset = 4,
+      portal = true,
+      container,
+      ...props
+    },
     ref
   ) => {
     const content = (
@@ -36,7 +44,9 @@ const PopoverContent = React.forwardRef<
       />
     )
     return portal ? (
-      <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal>
+      <PopoverPrimitive.Portal container={container}>
+        {content}
+      </PopoverPrimitive.Portal>
     ) : (
       content
     )

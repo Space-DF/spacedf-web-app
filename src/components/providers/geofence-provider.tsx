@@ -21,7 +21,6 @@ export const GeofenceProvider = ({ children }: PropsWithChildren) => {
   const isGeofencesActive = dynamicLayouts.includes(NavigationEnums.GEOFENCES)
 
   const bboxDebounced = useBBoxDebounce()
-
   const swrKey = useMemo(() => {
     if (!spaceSlug || !isGeofencesActive || !bboxDebounced) return null
     const base = `/api/geofence?spaceSlug=${spaceSlug}&offset=0&limit=200`
@@ -34,30 +33,48 @@ export const GeofenceProvider = ({ children }: PropsWithChildren) => {
   )
   const geofences = useMemo(() => data?.results ?? [], [data?.results])
 
-  const setGeofences = useGeofenceMapStore((s) => s.setGeofences)
-  const syncGeofencesToMap = useGeofenceMapStore((s) => s.syncGeofencesToMap)
-  const clearRendered = useGeofenceMapStore((s) => s.clearRendered)
+  const { setGeofences, syncGeofencesToMap, clearRendered } =
+    useGeofenceMapStore(
+      useShallow((s) => ({
+        setGeofences: s.setGeofences,
+        syncGeofencesToMap: s.syncGeofencesToMap,
+        clearRendered: s.clearRendered,
+      }))
+    )
 
   useEffect(() => {
     if (!geofences.length || isLoading) return
     setGeofences(geofences)
     syncGeofencesToMap()
+    return () => {
+      clearRendered()
+    }
   }, [geofences, setGeofences, syncGeofencesToMap])
 
   useEffect(() => {
-    if (!isGeofencesActive || !geofences.length || isLoading) return
+    if (!isGeofencesActive) return
+
+    const handleReady = () => syncGeofencesToMap()
+    const handleStyleLoad = () => {
+      syncGeofencesToMap()
+      const map = mapInstance.getMap()
+      map?.once('idle', () => syncGeofencesToMap({ forceRedraw: true }))
+    }
 
     syncGeofencesToMap()
-    const handleMapReady = () => syncGeofencesToMap()
-    mapInstance.on('ready', handleMapReady)
-    mapInstance.on('style.load', handleMapReady)
+    mapInstance.on('ready', handleReady)
+    mapInstance.on('style.load', handleStyleLoad)
 
     return () => {
-      mapInstance.off('ready', handleMapReady)
-      mapInstance.off('style.load', handleMapReady)
-      clearRendered()
+      mapInstance.off('ready', handleReady)
+      mapInstance.off('style.load', handleStyleLoad)
     }
-  }, [syncGeofencesToMap, clearRendered, isGeofencesActive])
+  }, [syncGeofencesToMap, isGeofencesActive])
+
+  useEffect(() => {
+    if (isGeofencesActive) return
+    clearRendered()
+  }, [isGeofencesActive, clearRendered])
 
   return <>{children}</>
 }
