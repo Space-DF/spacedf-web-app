@@ -5,6 +5,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   PaginationState,
+  Row,
   useReactTable,
 } from '@tanstack/react-table'
 import React from 'react'
@@ -29,6 +30,58 @@ interface DataTableProps<TData, TValue> {
   emptyLabel?: string
   showPaginate?: boolean
   isLoading?: boolean
+}
+
+interface DataTableBodyProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[]
+  rowsData: Row<TData>[]
+  tableCellClass?: string
+  emptyLabel?: string
+  isLoading?: boolean
+  pagination: PaginationState
+  isEmpty?: boolean
+}
+
+const DataTableBody = <TData, TValue>({
+  columns,
+  rowsData,
+  tableCellClass,
+  emptyLabel = 'No results',
+  isLoading = false,
+  pagination,
+  isEmpty = false,
+}: DataTableBodyProps<TData, TValue>) => {
+  if (isLoading) {
+    return Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
+      <TableRow key={`skeleton-row-${rowIndex}`}>
+        {columns.map((_, colIndex) => (
+          <TableCell
+            className={tableCellClass || ''}
+            key={`skeleton-cell-${rowIndex}-${colIndex}`}
+          >
+            <Skeleton className="h-5 w-full" />
+          </TableCell>
+        ))}
+      </TableRow>
+    ))
+  }
+  return isEmpty ? (
+    <TableRow>
+      <TableCell colSpan={columns.length} className="h-24 text-center">
+        {emptyLabel}
+      </TableCell>
+    </TableRow>
+  ) : (
+    rowsData.map((row) => (
+      <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+        {row.getVisibleCells().map((cell) => (
+          <TableCell className={tableCellClass || ''} key={cell.id}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    ))
+  )
 }
 
 export function DataTable<TData, TValue>({
@@ -59,6 +112,8 @@ export function DataTable<TData, TValue>({
     getRowId,
   })
 
+  const rowsData = table.getRowModel().rows
+
   return (
     <div className="overflow-hidden rounded-lg border border-brand-stroke-dark-soft">
       <Table>
@@ -81,39 +136,15 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell className={tableCellClass || ''} key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : isLoading ? (
-            Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
-              <TableRow key={`skeleton-row-${rowIndex}`}>
-                {columns.map((_, colIndex) => (
-                  <TableCell
-                    className={tableCellClass || ''}
-                    key={`skeleton-cell-${rowIndex}-${colIndex}`}
-                  >
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {emptyLabel}
-              </TableCell>
-            </TableRow>
-          )}
+          <DataTableBody
+            columns={columns}
+            rowsData={rowsData}
+            tableCellClass={tableCellClass}
+            emptyLabel={emptyLabel}
+            isLoading={isLoading}
+            pagination={pagination}
+            isEmpty={rowsData.length === 0}
+          />
         </TableBody>
       </Table>
       {showPaginate && (

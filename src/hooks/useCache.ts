@@ -1,7 +1,7 @@
 import { useSWRConfig } from 'swr'
 
 export const useCache = () => {
-  const { mutate } = useSWRConfig()
+  const { mutate, cache } = useSWRConfig()
 
   const clearAllCache = () => {
     mutate(() => true, undefined, { revalidate: true })
@@ -12,11 +12,12 @@ export const useCache = () => {
   }
 
   const clearCacheStartsWith = (prefix: string) => {
-    mutate(
-      (key) => typeof key === 'string' && key.startsWith(prefix),
-      undefined,
-      { revalidate: true }
-    )
+    const keys = Array.from(cache.keys())
+    for (const key of keys) {
+      if (key.includes(prefix)) {
+        mutate(key)
+      }
+    }
   }
 
   return {

@@ -21,6 +21,7 @@ export const useEvents = (deviceId: string, name?: string) => {
     fetcher<PaginationResponse<TelemetryEvent>>,
     {
       revalidateFirstPage: false,
+      revalidateAll: true,
     }
   )
 
