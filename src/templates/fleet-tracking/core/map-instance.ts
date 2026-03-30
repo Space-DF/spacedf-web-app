@@ -321,6 +321,7 @@ class MapInstance {
         this.readyEmitted = true
         this.emitter.emit('ready', map)
       }
+      map.resize()
     })
 
     map.on('style.load', (map: maplibregl.Map) => {
