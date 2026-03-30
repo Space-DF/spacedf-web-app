@@ -15,6 +15,7 @@ const GET = async (
   const offset = searchParams.get('offset') || '0'
   const search = searchParams.get('search') || ''
   const bbox = searchParams.get('bbox') || ''
+  const device_id = searchParams.get('device_id') || ''
   try {
     const session = await readSession()
     if (!session || !spaceSlug)
@@ -33,20 +34,19 @@ const GET = async (
     }
     const client = await spaceClient()
     client.setAccessToken(session?.user?.access as string)
-    const devices = await client.deviceSpaces.list(
-      {
-        include_latest_checkpoint: true,
-        offset: +offset,
-        limit: +limit,
-        search,
-        bbox,
+    const params = {
+      include_latest_checkpoint: true,
+      offset: +offset,
+      limit: +limit,
+      search,
+      bbox,
+      device_id,
+    }
+    const devices = await client.deviceSpaces.list(params, {
+      headers: {
+        'X-Space': spaceSlug,
       },
-      {
-        headers: {
-          'X-Space': spaceSlug,
-        },
-      }
-    )
+    })
 
     return NextResponse.json(devices.results, {
       status: 200,

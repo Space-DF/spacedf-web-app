@@ -63,5 +63,10 @@
   "loading_more_entities": "Đang tải thêm entity...",
   "loading_entities": "Đang tải entity...",
   "search_condition_placeholder": "Tìm kiếm điều kiện",
-  "no_condition_found": "Không tìm thấy điều kiện."
+  "no_condition_found": "Không tìm thấy điều kiện.",
+  "edit": "Chỉnh sửa",
+  "changing_the_device_will_clear_all_existing_conditions_and_actions_do_you_want_to_continue": "Thay đổi thiết bị sẽ xóa tất cả các điều kiện và hành động hiện có. Bạn có chắc chắn muốn tiếp tục",
+  "confirm": "Xác nhận",
+  "changing_the_device": "Thay đổi thiết bị",
+  "automation_updated_successfully": "Cập nhật automation thành công"
 }

@@ -32,6 +32,7 @@ import { X } from 'lucide-react'
 import { PencilSimple } from '@/components/icons'
 import { buildConditionPayload, mapBackendRuleToFormCondition } from './utils'
 import { When } from './components/when'
+import { useUpdateAutomation } from './hooks/useUpdateAutomation'
 
 interface Props {
   isOpen: boolean
@@ -39,6 +40,7 @@ interface Props {
   onSuccess?: () => void
   isEditable?: boolean
   automation?: Automation
+  setIsEditAutomation: (isEdit: boolean) => void
 }
 
 const DEFAULT_VALUES: AddAutomationFormValues = {
@@ -54,6 +56,7 @@ export const AddAutomationDialog = ({
   onSuccess,
   isEditable,
   automation,
+  setIsEditAutomation,
 }: Props) => {
   const t = useTranslations('automation')
 
@@ -69,6 +72,9 @@ export const AddAutomationDialog = ({
 
   const { trigger: createAutomation, isMutating: isCreatingAutomation } =
     useCreateAutomation()
+
+  const { trigger: updateAutomation, isMutating: isUpdatingAutomation } =
+    useUpdateAutomation(automation?.id)
 
   const { reset, control, handleSubmit, formState } = form
 
@@ -117,27 +123,40 @@ export const AddAutomationDialog = ({
       return toast.error(t('please_add_at_least_one_action'))
     }
 
-    createAutomation(
-      {
-        name: values.name,
-        device_id: values.device_id,
-        action_ids,
-        event_rule: {
-          rule_key: `rule_${uuidv4()}`,
-          definition: { conditions: { and: conditionPayloads } },
-        },
+    const payload = {
+      name: values.name,
+      device_id: values.device_id,
+      action_ids,
+      event_rule: {
+        rule_key: `rule_${uuidv4()}`,
+        definition: { conditions: { and: conditionPayloads } },
       },
-      {
+    }
+
+    if (automation) {
+      updateAutomation(payload, {
         onSuccess: () => {
-          toast.success(t('automation_created_successfully'))
+          toast.success(t('automation_updated_successfully'))
           onSuccess?.()
           handleClose()
         },
         onError: (error) => {
-          toast.error(error?.message || t('automation_create_failed'))
+          toast.error(error?.message || t('automation_update_failed'))
         },
-      }
-    )
+      })
+      return
+    }
+
+    createAutomation(payload, {
+      onSuccess: () => {
+        toast.success(t('automation_created_successfully'))
+        onSuccess?.()
+        handleClose()
+      },
+      onError: (error) => {
+        toast.error(error?.message || t('automation_create_failed'))
+      },
+    })
   }
 
   const labelDialog = () => {
@@ -158,8 +177,11 @@ export const AddAutomationDialog = ({
               {labelDialog()}
               <div className="flex space-x-2 items-center">
                 {isViewOnly && (
-                  <Button className="flex items-center gap-2">
-                    Edit
+                  <Button
+                    className="flex items-center gap-2"
+                    onClick={() => setIsEditAutomation(true)}
+                  >
+                    {t('edit')}
                     <PencilSimple className="size-4" />
                   </Button>
                 )}
@@ -209,7 +231,11 @@ export const AddAutomationDialog = ({
                 </Button>
                 <Button
                   type="submit"
-                  loading={formState.isSubmitting || isCreatingAutomation}
+                  loading={
+                    formState.isSubmitting ||
+                    isCreatingAutomation ||
+                    isUpdatingAutomation
+                  }
                   disabled={!isCanEdit}
                 >
                   {isCanEdit ? t('save') : t('add')}

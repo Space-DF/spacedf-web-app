@@ -16,7 +16,8 @@ import { ToggleAutomationSwitch } from '../components/toggle-automation-switch'
 export const useTableColumn = (
   handleDelete: (id: string) => void,
   onToggleSuccess: () => void,
-  onSelect: (automation: Automation) => void
+  onSelect: (automation: Automation) => void,
+  onEdit: (automation: Automation) => void
 ) => {
   const t = useTranslations('automation')
   const columns = useMemo<ColumnDef<Automation>[]>(
@@ -118,7 +119,11 @@ export const useTableColumn = (
             >
               <Eye width={16} height={16} />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onEdit(row.original)}
+            >
               <PencilSimple className="size-4 " />
             </Button>
             <Button

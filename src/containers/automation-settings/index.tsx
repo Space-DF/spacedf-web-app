@@ -66,7 +66,17 @@ export const AutomationSettings = () => {
     setSelectedAutomation(automation)
   }, [])
 
-  const columns = useTableColumn(handleDelete, mutate, handleSelectAutomation)
+  const handleEditAutomation = useCallback((automation: Automation) => {
+    handleSelectAutomation(automation)
+    setIsEditAutomation(true)
+  }, [])
+
+  const columns = useTableColumn(
+    handleDelete,
+    mutate,
+    handleSelectAutomation,
+    handleEditAutomation
+  )
 
   const handleGoback = () => {
     if (window.history.length === 1) return router.replace('/')
@@ -156,6 +166,7 @@ export const AutomationSettings = () => {
         onSuccess={mutate}
         isEditable={isEditAutomation}
         automation={selectedAutomation}
+        setIsEditAutomation={setIsEditAutomation}
       />
 
       <DeleteAutomationDialog
