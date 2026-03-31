@@ -107,8 +107,8 @@ export const When = ({ isEditable }: WhenProps) => {
 
   const handleSwitchDevice = (deviceId?: string) => {
     if (!deviceId) return
-    setValue('device_id', deviceId)
-    setValue('conditions', [])
+    setValue('device_id', deviceId, { shouldValidate: true })
+    setValue('conditions', [], { shouldValidate: true })
     setIsOpen(false)
     setCurrentTempDeviceId(undefined)
   }

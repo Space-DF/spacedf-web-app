@@ -4,6 +4,9 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { TelemetryEvent } from '@/types/event'
 import Image from 'next/image'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 
 const getIconConfig = (item: any) => {
   switch (item.type) {
@@ -89,7 +92,7 @@ export const EventItem = ({ item, address }: EventItemProps) => {
               height={16}
             />
             <div className="text-brand-component-text-gray text-xs">
-              {item.time_fired}
+              {dayjs.utc(item.time_fired).local().format('DD/MM/YYYY HH:mm:ss')}
             </div>
           </div>
           {address && (

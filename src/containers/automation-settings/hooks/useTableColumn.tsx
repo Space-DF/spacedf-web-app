@@ -11,6 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { v4 as uuidv4 } from 'uuid'
 
 export const useTableColumn = (
   handleDelete: (id: string) => void,
@@ -44,14 +45,18 @@ export const useTableColumn = (
         header: t('assigned_action'),
         cell: ({ row }) =>
           (() => {
-            const actions = row.original.actions
+            const actions = row.original.actions.map((action) => ({
+              id: action.id,
+              name: action.name,
+              actionId: uuidv4(),
+            }))
             const visibleActions = actions.slice(0, 3)
 
             if (actions.length <= 3) {
               return (
                 <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
                   {visibleActions.map((action) => (
-                    <span key={action.id}>{action.name}</span>
+                    <span key={action.actionId}>{action.name}</span>
                   ))}
                 </div>
               )
@@ -65,7 +70,7 @@ export const useTableColumn = (
                 <TooltipTrigger asChild>
                   <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
                     {visibleActions.map((action, idx) => (
-                      <span key={action.id}>
+                      <span key={action.actionId}>
                         {action.name}
                         {idx === visibleActions.length - 1 ? (
                           <span className="text-xs text-popover-foreground font-semibold">
@@ -79,7 +84,7 @@ export const useTableColumn = (
                 <TooltipContent className="max-w-72">
                   <div className="flex max-h-60 flex-col gap-1 overflow-auto">
                     {tooltipActions.map((action) => (
-                      <span key={action.id}>{action.name}</span>
+                      <span key={action.actionId}>{action.name}</span>
                     ))}
                     {remainingForTooltip > 0 ? (
                       <span className="text-xs text-popover-foreground font-semibold">
