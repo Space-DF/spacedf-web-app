@@ -15,6 +15,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useRemoveDevice } from '../hooks/useRemoveDevice'
 import { useState } from 'react'
+import Image from 'next/image'
 
 const InformationItem = (props: { label: string; content: string }) => {
   return (
@@ -27,7 +28,11 @@ const InformationItem = (props: { label: string; content: string }) => {
   )
 }
 
-const DeviceSelected = () => {
+interface DeviceSelectedProps {
+  isWlb: boolean
+}
+
+const DeviceSelected = ({ isWlb }: DeviceSelectedProps) => {
   const t = useTranslations('addNewDevice')
 
   const { deviceDataSelected, setDeviceSelected } = useDeviceStore(
@@ -52,7 +57,16 @@ const DeviceSelected = () => {
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <div className="px-1">
+            <Image
+              src={`/images/${!isWlb ? 'rak-image' : 'water-sensor'}.webp`}
+              alt="rak"
+              width={28}
+              height={32}
+              quality={100}
+            />
+          </div>
           <span className="size-2 rounded-full bg-brand-component-fill-positive" />
           <span className="text-xs font-medium text-brand-component-text-dark">
             {t('online')}
