@@ -33,6 +33,7 @@ export const ConfirmDialog = ({
             {t(
               'changing_the_device_will_clear_all_existing_conditions_and_actions_do_you_want_to_continue'
             )}
+            ?
           </AlertDialogDescription>
         </AlertDialogHeader>
 

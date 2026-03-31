@@ -1,33 +1,45 @@
 import { AutomationRuleCondition } from '@/types/automation'
 import { AutomationCondition, ConditionOperator } from './schema'
 
-export const buildConditionPayload = (
-  c: AutomationCondition
-): AutomationRuleCondition => {
+export function normalize(c: AutomationCondition): any {
   if (c.type === 'leaf') {
     return { [c.entity]: { [c.operator]: Number(c.value) } }
   }
-  const rules = c.rules.map(buildConditionPayload)
-  return { type: c.type, rules } as AutomationRuleCondition
+  return { [c.type]: c.rules.map(normalize) }
 }
+
+export const buildConditionPayload = (c: AutomationCondition) => normalize(c)
 
 export function mapBackendRuleToFormCondition(
   c: AutomationRuleCondition
 ): AutomationCondition {
-  if (
-    c &&
-    typeof c === 'object' &&
-    !Array.isArray(c) &&
-    Array.isArray((c as { rules?: unknown }).rules) &&
-    ((c as { type?: unknown }).type === 'and' ||
-      (c as { type?: unknown }).type === 'or' ||
-      (c as { type?: unknown }).type === 'not')
-  ) {
-    const groupType = (
-      c as { type: 'and' | 'or' | 'not'; rules: AutomationRuleCondition[] }
-    ).type
-    const rules = (c as { rules: AutomationRuleCondition[] }).rules
-    return { type: groupType, rules: rules.map(mapBackendRuleToFormCondition) }
+  if (c && typeof c === 'object' && !Array.isArray(c)) {
+    if ('and' in c && Array.isArray(c.and)) {
+      return {
+        type: 'and',
+        rules: (c.and as AutomationRuleCondition[]).map(
+          mapBackendRuleToFormCondition
+        ),
+      }
+    }
+
+    if ('or' in c && Array.isArray(c.or)) {
+      return {
+        type: 'or',
+        rules: (c.or as AutomationRuleCondition[]).map(
+          mapBackendRuleToFormCondition
+        ),
+      }
+    }
+
+    if ('not' in c && Array.isArray(c.not)) {
+      return {
+        type: 'not',
+        rules: (c.not as AutomationRuleCondition[]).map(
+          mapBackendRuleToFormCondition
+        ),
+      }
+    }
   }
 
   const leaf = c as Record<string, Record<string, number> | unknown>

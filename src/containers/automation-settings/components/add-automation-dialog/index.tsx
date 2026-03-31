@@ -95,7 +95,7 @@ export const AddAutomationDialog = ({
     if (isOpen && automation)
       reset({
         name: automation.name,
-        title: automation.title,
+        title: automation.title || '',
         device_id: automation.device_id,
         conditions:
           automation.event_rule?.definition?.conditions?.and.map(

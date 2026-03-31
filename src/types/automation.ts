@@ -1,11 +1,13 @@
 export type AutomationStatus = 'active' | 'disabled'
 
-export type AutomationRuleConditionLeaf = Record<string, Record<string, number>>
+export type AutomationRuleConditionLeaf = {
+  [entity: string]: Record<string, number>
+}
 
 export type AutomationRuleCondition =
-  | { type: 'and'; rules: AutomationRuleCondition[] }
-  | { type: 'or'; rules: AutomationRuleCondition[] }
-  | { type: 'not'; rules: AutomationRuleCondition[] }
+  | { and: AutomationRuleCondition[] }
+  | { or: AutomationRuleCondition[] }
+  | { not: AutomationRuleCondition[] }
   | AutomationRuleConditionLeaf
 
 export interface AutomationEventRule {
