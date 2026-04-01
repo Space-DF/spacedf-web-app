@@ -145,11 +145,9 @@ const ConditionDistanceThreshold = ({
         >
           <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
           <div className="mr-2 flex w-full items-center">
-            <div className="flex space-x-1 items-center">
-              <NumberIcon width={20} height={20} />
-              <p className="text-sm font-semibold text-brand-component-text-dark">
-                {t('distance_threshold')}
-              </p>
+            <div className="flex space-x-1 items-center text-brand-component-text-dark">
+              <NumberIcon className="size-5" />
+              <p className="text-sm font-semibold">{t('distance_threshold')}</p>
             </div>
           </div>
         </AccordionTrigger>

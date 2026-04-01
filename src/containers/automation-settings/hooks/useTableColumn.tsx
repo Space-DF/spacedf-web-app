@@ -3,13 +3,21 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useTranslations } from 'next-intl'
 import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
-import { Eye, Pen } from 'lucide-react'
-import { Trash } from '@/components/icons'
+import { Eye } from 'lucide-react'
+import { PencilSimple, Trash } from '@/components/icons'
 import { ToggleAutomationSwitch } from '../components/toggle-automation-switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { v4 as uuidv4 } from 'uuid'
 
 export const useTableColumn = (
   handleDelete: (id: string) => void,
-  onToggleSuccess?: () => void
+  onToggleSuccess: () => void,
+  onSelect: (automation: Automation) => void,
+  onEdit: (automation: Automation) => void
 ) => {
   const t = useTranslations('automation')
   const columns = useMemo<ColumnDef<Automation>[]>(
@@ -35,13 +43,59 @@ export const useTableColumn = (
       {
         accessorKey: 'actions',
         header: t('assigned_action'),
-        cell: ({ row }) => (
-          <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
-            {row.original.actions.map((action) => (
-              <span key={action.id}>{action.name}</span>
-            ))}
-          </div>
-        ),
+        cell: ({ row }) =>
+          (() => {
+            const actions = row.original.actions.map((action) => ({
+              id: action.id,
+              name: action.name,
+              actionId: uuidv4(),
+            }))
+            const visibleActions = actions.slice(0, 3)
+
+            if (actions.length <= 3) {
+              return (
+                <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
+                  {visibleActions.map((action) => (
+                    <span key={action.actionId}>{action.name}</span>
+                  ))}
+                </div>
+              )
+            }
+            const tooltipActions = actions.slice(0, 20)
+            const remainingForTooltip = actions.length - tooltipActions.length
+            const remainingForCell = actions.length - visibleActions.length
+
+            return (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col text-sm text-brand-component-text-dark dark:text-brand-dark-text-gray">
+                    {visibleActions.map((action, idx) => (
+                      <span key={action.actionId}>
+                        {action.name}
+                        {idx === visibleActions.length - 1 ? (
+                          <span className="text-xs text-popover-foreground font-semibold">
+                            +{remainingForCell} more
+                          </span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-72">
+                  <div className="flex max-h-60 flex-col gap-1 overflow-auto">
+                    {tooltipActions.map((action) => (
+                      <span key={action.actionId}>{action.name}</span>
+                    ))}
+                    {remainingForTooltip > 0 ? (
+                      <span className="text-xs text-popover-foreground font-semibold">
+                        +{remainingForTooltip} more
+                      </span>
+                    ) : null}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })(),
       },
       {
         id: 'status',
@@ -69,11 +123,19 @@ export const useTableColumn = (
         header: () => <div className="text-center">{t('action')}</div>,
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-1">
-            <Button variant="outline" size="icon">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onSelect(row.original)}
+            >
               <Eye width={16} height={16} />
             </Button>
-            <Button variant="outline" size="icon">
-              <Pen width={13} height={13} />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onEdit(row.original)}
+            >
+              <PencilSimple className="size-4 " />
             </Button>
             <Button
               variant="outline"
@@ -86,7 +148,7 @@ export const useTableColumn = (
         ),
       },
     ],
-    [t, handleDelete, onToggleSuccess]
+    [t, handleDelete, onToggleSuccess, onSelect]
   )
   return columns
 }

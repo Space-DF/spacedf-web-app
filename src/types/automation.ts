@@ -1,6 +1,8 @@
 export type AutomationStatus = 'active' | 'disabled'
 
-export type AutomationRuleConditionLeaf = Record<string, Record<string, number>>
+export type AutomationRuleConditionLeaf = {
+  [entity: string]: Record<string, number>
+}
 
 export type AutomationRuleCondition =
   | { and: AutomationRuleCondition[] }
@@ -32,6 +34,7 @@ export interface AutomationAction {
 export interface Automation {
   id: string
   name: string
+  title: string
   device_id: string
   actions: AutomationAction[]
   event_rule?: AutomationEventRule
@@ -41,6 +44,7 @@ export interface Automation {
 
 export interface AutomationParams {
   name: string
+  title: string
   device_id: string
   action_ids: string[]
   event_rule: AutomationEventRule

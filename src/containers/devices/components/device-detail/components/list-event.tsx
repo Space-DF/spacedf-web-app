@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ChevronRight, Search } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { useTranslations } from 'next-intl'
@@ -11,6 +11,8 @@ import { Slide } from '@/components/ui/slide'
 import { AllEvent } from './all-event'
 import { useEvents } from '../hooks/useEvents'
 import { useTripAddress } from './trip-history/hooks/useTripAddress'
+import { useEventStore } from '../stores/event'
+import { mergeEvents } from '@/containers/devices/utils'
 
 interface ListEventProps {
   deviceId: string
@@ -22,13 +24,21 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   const [openAllEvent, setOpenAllEvent] = useState(false)
   const { data: events, isLoading } = useEvents(deviceId, searchValue)
 
-  const filteredEvents = useMemo(() => events?.results ?? [], [events])
+  const eventDevices = useEventStore(
+    (state) => state.eventDevices[deviceId] ?? []
+  )
+
+  const fullDeviceEvents = useMemo(() => {
+    const eventResults = events?.results ?? []
+    if (!eventDevices.length) return eventResults
+    return mergeEvents(eventDevices, eventResults)
+  }, [eventDevices, events?.results])
 
   const { validLocations, addressIndexByEventIndex } = useMemo(() => {
     const validLocations: [number, number][] = []
     const addressIndexByEventIndex: Record<number, number> = {}
 
-    filteredEvents.forEach((e, eventIndex) => {
+    fullDeviceEvents.forEach((e, eventIndex) => {
       const longitude = e.location?.longitude
       const latitude = e.location?.latitude
 
@@ -39,20 +49,21 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
     })
 
     return { validLocations, addressIndexByEventIndex }
-  }, [filteredEvents])
+  }, [fullDeviceEvents])
 
   const { data: addresses, isLoading: isLoadingAddresses } =
     useTripAddress(validLocations)
 
-  const getAddress = (index: number) => {
-    if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
-    const addressIndex = addressIndexByEventIndex[index]
-
-    if (addressIndex === undefined) return 'Unknown'
-
-    const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
-    return placeName && placeName.trim() ? placeName : 'Unknown'
-  }
+  const getAddress = useCallback(
+    (index: number) => {
+      if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
+      const addressIndex = addressIndexByEventIndex[index]
+      if (addressIndex === undefined) return undefined
+      const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
+      return placeName && placeName.trim() ? placeName : 'Unknown'
+    },
+    [addresses, isLoadingAddresses, addressIndexByEventIndex]
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -65,7 +76,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
             <Skeleton className="h-[18px] w-8 rounded-full" />
           ) : (
             <span className="rounded-full bg-brand-component-fill-negative px-2 py-[2px] text-[11px] font-semibold text-brand-component-text-light">
-              {filteredEvents.length > 9 ? '10+' : filteredEvents.length}
+              {fullDeviceEvents.length > 9 ? '10+' : fullDeviceEvents.length}
             </span>
           )}
         </div>
@@ -91,10 +102,10 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
               <EventItemSkeleton key={index} />
             ))}
           </div>
-        ) : filteredEvents.length === 0 ? (
+        ) : fullDeviceEvents.length === 0 ? (
           <Nodata content={t('no_events')} />
         ) : (
-          filteredEvents.map((item, index) => (
+          fullDeviceEvents.map((item, index) => (
             <EventItem item={item} key={item.id} address={getAddress(index)} />
           ))
         )}

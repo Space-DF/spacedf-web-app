@@ -21,9 +21,8 @@ export const ToggleAutomationSwitch = ({
   const { trigger, isMutating } = useToggleAutomation(automation.id)
   const t = useTranslations('automation')
   useEffect(() => {
-    if (isMutating) return
     setIsActive(serverActive)
-  }, [serverActive, automation])
+  }, [serverActive])
 
   const handleChange = async () => {
     if (!automation.event_rule) return

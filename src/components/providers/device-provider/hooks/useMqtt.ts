@@ -3,6 +3,7 @@ import {
   DeviceTelemetryHandler,
   EntityTelemetryData,
   EntityTelemetryHandler,
+  EventHandler,
   MQTTRouter,
 } from '@/lib/mqtt-handlers'
 import { useDashboardStore } from '@/stores/dashboard-store'
@@ -20,6 +21,30 @@ import { useParams } from 'next/navigation'
 import { useGlobalStore } from '@/stores'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { toast } from 'sonner'
+import { useEventStore } from '@/containers/devices/components/device-detail/stores/event'
+import { TelemetryEvent } from '@/types/event'
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object'
+
+const isDeviceTelemetryResult = (
+  value: unknown
+): value is DeviceTelemetryData =>
+  isRecord(value) &&
+  typeof value.deviceId === 'string' &&
+  'deviceUpdate' in value
+
+const isEntityTelemetryResult = (
+  value: unknown
+): value is EntityTelemetryData =>
+  isRecord(value) &&
+  typeof value.entityId === 'string' &&
+  'entityUpdate' in value
+
+const isDeviceEventResult = (
+  value: unknown
+): value is { deviceId: string; event: TelemetryEvent } =>
+  isRecord(value) && typeof value.deviceId === 'string' && 'event' in value
 
 export const useMqtt = () => {
   const {
@@ -40,6 +65,8 @@ export const useMqtt = () => {
       setWidgetList: state.setWidgetList,
     }))
   )
+
+  const insertDeviceEvents = useEventStore((state) => state.insertDeviceEvents)
 
   const { organization, spaceSlug } = useParams<{
     organization: string
@@ -215,6 +242,10 @@ export const useMqtt = () => {
     const entityTelemetryHandler = new EntityTelemetryHandler()
     mqttRouterRef.current.registerHandler(entityTelemetryHandler)
 
+    // Register event handler
+    const eventHandler = new EventHandler()
+    mqttRouterRef.current.registerHandler(eventHandler)
+
     const handleMqttConnect = async () => {
       mqttServiceRef.current = MqttService.getInstance(organization)
       await mqttServiceRef.current.initialize()
@@ -229,6 +260,7 @@ export const useMqtt = () => {
           const spaceDeviceTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/telemetry`
           const publicEntityTopic = `tenant/${organization}/entity/+/telemetry`
           const spaceEntityTopic = `tenant/${organization}/space/${spaceSlugName}/entity/+/telemetry`
+          const spaceEventTopic = `tenant/${organization}/space/${spaceSlugName}/device/+/event`
 
           const currentSubscriptions =
             mqttServiceRef.current?.getSubscriptions() || []
@@ -243,6 +275,7 @@ export const useMqtt = () => {
                   publicDeviceTopic,
                   spaceEntityTopic,
                   publicEntityTopic,
+                  spaceEventTopic,
                 ]
               : [publicDeviceTopic, publicEntityTopic]
           )
@@ -293,20 +326,18 @@ export const useMqtt = () => {
           mqttRouterRef.current?.routeMessage(topic, payload) || []
 
         results.forEach((result) => {
-          if (
-            result &&
-            typeof result === 'object' &&
-            'deviceId' in result &&
-            'deviceUpdate' in result
-          ) {
-            handleDeviceTelemetry(result as DeviceTelemetryData)
-          } else if (
-            result &&
-            typeof result === 'object' &&
-            'entityId' in result &&
-            'entityUpdate' in result
-          ) {
-            handleEntityTelemetry(result as EntityTelemetryData)
+          if (isDeviceTelemetryResult(result)) {
+            handleDeviceTelemetry(result)
+            return
+          }
+
+          if (isEntityTelemetryResult(result)) {
+            handleEntityTelemetry(result)
+            return
+          }
+
+          if (isDeviceEventResult(result)) {
+            insertDeviceEvents(result.deviceId, result.event)
           }
         })
       },
@@ -317,5 +348,6 @@ export const useMqtt = () => {
     isDevLoading,
     isDevVerified,
     handleEntityTelemetry,
+    insertDeviceEvents,
   ])
 }

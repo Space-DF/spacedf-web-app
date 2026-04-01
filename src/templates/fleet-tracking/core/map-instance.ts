@@ -185,6 +185,22 @@ class MapInstance {
     return MapInstance.instance
   }
 
+  public triggerGeoLocate(): Promise<
+    | {
+        longitude: number
+        latitude: number
+      }
+    | undefined
+  > {
+    if (!this.geoLocate) return Promise.resolve(undefined)
+    return new Promise((resolve) => {
+      this.geoLocate?.trigger()
+      this.geoLocate?.once('geolocate', (e: any) => {
+        resolve(e?.coords)
+      })
+    })
+  }
+
   public init({ container, theme, options }: MapProps) {
     if (this.map) {
       window.location.reload()

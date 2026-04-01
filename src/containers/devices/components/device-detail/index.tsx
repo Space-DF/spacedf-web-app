@@ -48,7 +48,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         >
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
-              <DeviceSelected />
+              <DeviceSelected isWlb={isWlb} />
               <ListEvent deviceId={deviceDataSelected.id} />
               {isWlb ? <ListAlert /> : <TripHistory />}
             </div>
