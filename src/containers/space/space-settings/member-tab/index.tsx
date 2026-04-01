@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { DataTable } from '@/components/ui/data-table'
 import { Separator } from '@/components/ui/separator'
-import { Space, SpaceRole } from '@/types/space'
+import { SpaceRole } from '@/types/space'
 import { Option, SearchMember } from '../search-member'
 import { useSpaceRoles } from '../hooks/useSpaceRoles'
 import { useInviteSpaceMembers } from '../hooks/useInviteSpaceMembers'
@@ -46,7 +46,7 @@ const INITIAL_PAGINATION_STATE = {
   pageSize: DEFAULT_PAGE_SIZE,
 }
 
-export function MemberTab({}: { space: Space }) {
+export function MemberTab() {
   const t = useTranslations()
   const [deleteId, setDeleteId] = useState<string | undefined>()
   const [inviteMembers, setInviteMembers] = useState<InviteMember[]>([])
@@ -184,7 +184,7 @@ export function MemberTab({}: { space: Space }) {
     [paginatedState]
   )
   return (
-    <div className="p-4 space-y-3">
+    <div className="h-full min-h-0 overflow-auto p-4 space-y-3">
       <div className="space-y-2">
         <Label className="text-sm font-semibold text-brand-component-text-dark">
           {t('space.invite_list')}
@@ -209,6 +209,8 @@ export function MemberTab({}: { space: Space }) {
           })}
           showPaginate={false}
           data={inviteMembers}
+          scrollClassName="max-h-64 overflow-auto"
+          stickyHeader
         />
         <div className="flex justify-end">
           <div className="grid grid-cols-2 gap-2 w-48">
@@ -259,6 +261,8 @@ export function MemberTab({}: { space: Space }) {
         pagination={paginatedState}
         onPaginationChange={onPaginationChange}
         showPaginate={!!sortedMembers.length}
+        scrollClassName="max-h-64 overflow-auto"
+        stickyHeader
       />
 
       <AlertDialog
