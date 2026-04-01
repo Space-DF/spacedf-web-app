@@ -24,7 +24,9 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   const [openAllEvent, setOpenAllEvent] = useState(false)
   const { data: events, isLoading } = useEvents(deviceId, searchValue)
 
-  const eventDevices = useEventStore((state) => state.eventDevices[deviceId])
+  const eventDevices = useEventStore(
+    (state) => state.eventDevices[deviceId] ?? []
+  )
 
   const fullDeviceEvents = useMemo(() => {
     const eventResults = events?.results ?? []

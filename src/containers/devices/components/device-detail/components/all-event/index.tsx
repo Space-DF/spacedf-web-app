@@ -34,7 +34,9 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
 
   const allItems = useMemo(() => events?.results ?? [], [events])
 
-  const eventDevices = useEventStore((state) => state.eventDevices[deviceId])
+  const eventDevices = useEventStore(
+    (state) => state.eventDevices[deviceId] ?? []
+  )
 
   const fullDeviceEvents = useMemo(() => {
     if (!eventDevices.length) return allItems
