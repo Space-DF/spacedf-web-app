@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -30,6 +31,9 @@ interface DataTableProps<TData, TValue> {
   emptyLabel?: string
   showPaginate?: boolean
   isLoading?: boolean
+  containerClassName?: string
+  scrollClassName?: string
+  stickyHeader?: boolean
 }
 
 interface DataTableBodyProps<TData, TValue> {
@@ -93,6 +97,9 @@ export function DataTable<TData, TValue>({
   showPaginate = true,
   isLoading = false,
   getRowId,
+  containerClassName,
+  scrollClassName,
+  stickyHeader = false,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -107,7 +114,12 @@ export function DataTable<TData, TValue>({
     autoResetPageIndex: false,
     onPaginationChange: setPagination,
     state: {
-      pagination,
+      pagination: showPaginate
+        ? pagination
+        : {
+            pageIndex: 0,
+            pageSize: data.length,
+          },
     },
     getRowId,
   })
@@ -115,38 +127,50 @@ export function DataTable<TData, TValue>({
   const rowsData = table.getRowModel().rows
 
   return (
-    <div className="overflow-hidden rounded-lg border border-brand-stroke-dark-soft">
-      <Table>
-        <TableHeader className="bg-brand-fill-dark-soft">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead className={tableHeadClass || ''} key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          <DataTableBody
-            columns={columns}
-            rowsData={rowsData}
-            tableCellClass={tableCellClass}
-            emptyLabel={emptyLabel}
-            isLoading={isLoading}
-            pagination={pagination}
-            isEmpty={rowsData.length === 0}
-          />
-        </TableBody>
-      </Table>
+    <div
+      className={cn(
+        'rounded-lg border border-brand-stroke-dark-soft',
+        containerClassName
+      )}
+    >
+      <div className={cn('w-full', scrollClassName)}>
+        <Table>
+          <TableHeader
+            className={cn(
+              'bg-brand-fill-dark-soft',
+              stickyHeader && 'sticky top-0 z-[1]'
+            )}
+          >
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead className={tableHeadClass || ''} key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            <DataTableBody
+              columns={columns}
+              rowsData={rowsData}
+              tableCellClass={tableCellClass}
+              emptyLabel={emptyLabel}
+              isLoading={isLoading}
+              pagination={pagination}
+              isEmpty={rowsData.length === 0}
+            />
+          </TableBody>
+        </Table>
+      </div>
       {showPaginate && (
         <div className="flex items-center justify-between border-t p-2">
           <Button
