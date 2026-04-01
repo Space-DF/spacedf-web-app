@@ -8,31 +8,46 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { EventItem, EventItemSkeleton } from '../event-item'
 import { useEvents } from '../../hooks/useEvents'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
+import { useEventStore } from '../../stores/event'
+import { useDebounce } from '@/hooks'
+import { mergeEvents } from '@/containers/devices/utils'
 
 interface AllEventProps {
   deviceId: string
   onClose: () => void
 }
 
+const NEAR_BOTTOM_ROW_THRESHOLD = 8
+
 export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
   const t = useTranslations('event')
   const [searchValue, setSearchValue] = useState('')
+  const debouncedSearchValue = useDebounce(searchValue, 500)
   const {
     data: events,
     isLoading,
     hasMore,
     loadMore,
     isLoadingMore,
-  } = useEvents(deviceId, searchValue)
+  } = useEvents(deviceId, debouncedSearchValue)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const allItems = useMemo(() => events?.results ?? [], [events])
+
+  const eventDevices = useEventStore(
+    (state) => state.eventDevices[deviceId] ?? []
+  )
+
+  const fullDeviceEvents = useMemo(() => {
+    if (!eventDevices.length) return allItems
+    return mergeEvents(eventDevices, allItems)
+  }, [eventDevices, allItems])
 
   const { validLocations, addressIndexByEventIndex } = useMemo(() => {
     const validLocations: [number, number][] = []
     const addressIndexByEventIndex: Record<number, number> = {}
 
-    allItems.forEach((e, eventIndex) => {
+    fullDeviceEvents.forEach((e, eventIndex) => {
       const longitude = e.location?.longitude
       const latitude = e.location?.latitude
 
@@ -43,7 +58,7 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
     })
 
     return { validLocations, addressIndexByEventIndex }
-  }, [allItems])
+  }, [fullDeviceEvents])
 
   const { data: addresses, isLoading: isLoadingAddresses } =
     useTripAddress(validLocations)
@@ -52,17 +67,15 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
     (index: number) => {
       if (isLoadingAddresses) return <Skeleton className="h-3 w-32" />
       const addressIndex = addressIndexByEventIndex[index]
-
-      if (addressIndex === undefined) return 'Unknown'
-
+      if (addressIndex === undefined) return undefined
       const placeName = addresses?.[addressIndex]?.features?.[0]?.place_name
       return placeName && placeName.trim() ? placeName : 'Unknown'
     },
-    [addresses, isLoadingAddresses]
+    [addresses, isLoadingAddresses, addressIndexByEventIndex]
   )
 
   const rowVirtualizer = useVirtualizer({
-    count: hasMore ? allItems.length + 1 : allItems.length,
+    count: hasMore ? fullDeviceEvents.length + 1 : fullDeviceEvents.length,
     getScrollElement: () => scrollContainerRef.current,
     estimateSize: () => 122,
     overscan: 5,
@@ -71,17 +84,27 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
   const virtualItems = rowVirtualizer.getVirtualItems()
 
   useEffect(() => {
+    if (!hasMore || isLoadingMore) return
+
     const lastItem = virtualItems[virtualItems.length - 1]
     if (!lastItem) return
 
-    if (lastItem.index >= allItems.length - 1 && hasMore && !isLoadingMore) {
+    const lastDataIndex = fullDeviceEvents.length - 1
+    if (lastDataIndex < 0) return
+
+    const triggerFromIndex = Math.max(
+      0,
+      lastDataIndex - NEAR_BOTTOM_ROW_THRESHOLD
+    )
+
+    if (lastItem.index >= triggerFromIndex) {
       loadMore()
     }
-  }, [hasMore, isLoadingMore, allItems.length, loadMore, virtualItems])
+  }, [hasMore, isLoadingMore, fullDeviceEvents.length, loadMore, virtualItems])
 
   const renderRow = useCallback(
     (index: number) => {
-      const isLoaderRow = index >= allItems.length
+      const isLoaderRow = index >= fullDeviceEvents.length
 
       if (isLoaderRow) {
         return (
@@ -91,10 +114,10 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
         )
       }
 
-      const item = allItems[index]
+      const item = fullDeviceEvents[index]
       return <EventItem item={item} address={getAddress(index)} />
     },
-    [allItems, getAddress]
+    [fullDeviceEvents, getAddress]
   )
 
   return (

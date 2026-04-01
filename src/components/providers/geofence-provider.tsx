@@ -21,7 +21,6 @@ export const GeofenceProvider = ({ children }: PropsWithChildren) => {
   const isGeofencesActive = dynamicLayouts.includes(NavigationEnums.GEOFENCES)
 
   const bboxDebounced = useBBoxDebounce()
-
   const swrKey = useMemo(() => {
     if (!spaceSlug || !isGeofencesActive || !bboxDebounced) return null
     const base = `/api/geofence?spaceSlug=${spaceSlug}&offset=0&limit=200`

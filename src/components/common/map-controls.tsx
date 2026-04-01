@@ -2,15 +2,20 @@ import { cn } from '@/lib/utils'
 import { Globe, Loader2, Locate, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import MapLibreGL from 'maplibre-gl'
+import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 type MapControlsProps = {
   map: MapLibreGL.Map
 }
 
+const mapInstance = MapInstance.getInstance()
+
 const MapControls = ({ map }: MapControlsProps) => {
   const [globeActive, setGlobeActive] = useState(false)
   const [waitingForLocation, setWaitingForLocation] = useState(false)
   const globeControlRef = useRef<MapLibreGL.GlobeControl | null>(null)
+
+  const latestUserLocationRef = useRef<[number, number] | null>(null)
 
   useEffect(() => {
     if (!map) return
@@ -40,16 +45,22 @@ const MapControls = ({ map }: MapControlsProps) => {
     setGlobeActive((prev) => !prev)
   }, [map])
 
-  const handleLocate = useCallback(() => {
+  const handleLocate = useCallback(async () => {
     setWaitingForLocation(true)
-    const geoLocateButton = document.querySelector(
-      '.maplibregl-ctrl-geolocate'
-    ) as HTMLButtonElement
-
-    if (geoLocateButton) {
-      geoLocateButton.click()
+    if (latestUserLocationRef.current) {
+      map.flyTo({
+        center: latestUserLocationRef.current,
+        zoom: 15,
+        duration: 500,
+        padding: { top: 0 },
+      })
       setWaitingForLocation(false)
+      return
     }
+    const coords = await mapInstance.triggerGeoLocate()
+    if (!coords) return
+    latestUserLocationRef.current = [coords.longitude, coords.latitude]
+    setWaitingForLocation(false)
   }, [map])
 
   return (

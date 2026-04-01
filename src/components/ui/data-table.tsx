@@ -24,6 +24,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  getRowId?: (row: TData) => string
   tableHeadClass?: string
   tableCellClass?: string
   emptyLabel?: string
@@ -91,6 +92,7 @@ export function DataTable<TData, TValue>({
   emptyLabel = 'No results',
   showPaginate = true,
   isLoading = false,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -102,10 +104,12 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: false,
     onPaginationChange: setPagination,
     state: {
       pagination,
     },
+    getRowId,
   })
 
   const rowsData = table.getRowModel().rows

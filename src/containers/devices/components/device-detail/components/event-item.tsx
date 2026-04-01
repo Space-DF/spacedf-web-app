@@ -4,6 +4,9 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { TelemetryEvent } from '@/types/event'
 import Image from 'next/image'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 
 const getIconConfig = (item: any) => {
   switch (item.type) {
@@ -89,21 +92,23 @@ export const EventItem = ({ item, address }: EventItemProps) => {
               height={16}
             />
             <div className="text-brand-component-text-gray text-xs">
-              {item.time_fired}
+              {dayjs.utc(item.time_fired).local().format('DD/MM/YYYY HH:mm:ss')}
             </div>
           </div>
-          <div className="flex items-center gap-x-1">
-            <Image
-              src={'/images/map-pin.svg'}
-              alt="location"
-              width={16}
-              height={16}
-            />
-            <div className="text-brand-component-text-gray text-xs line-clamp-2">
-              {address ??
-                `${item.location?.latitude}, ${item.location?.longitude}`}
+          {address && (
+            <div className="flex items-center gap-x-1">
+              <Image
+                src={'/images/map-pin.svg'}
+                alt="location"
+                width={16}
+                height={16}
+              />
+              <div className="text-brand-component-text-gray text-xs line-clamp-2">
+                {address ??
+                  `${item.location?.latitude}, ${item.location?.longitude}`}
+              </div>
             </div>
-          </div>
+          )}
           <div className="flex items-center gap-x-1">
             <Image
               src={

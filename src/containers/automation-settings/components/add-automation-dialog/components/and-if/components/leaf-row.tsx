@@ -1,4 +1,4 @@
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { AddAutomationFormValues } from '../../../schema'
 import {
   FormControl,
@@ -13,61 +13,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ChevronDown, Trash2 } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { OPERATORS } from '@/containers/automation-settings/contanst'
-import { useDeviceEntity } from '@/containers/dashboard/components/widget-selected/hooks/useDeviceEntity'
+import { useAutomationDialogPopoverPortal } from '../../../automation-dialog-popover-portal-context'
 
 interface LeafRowProps {
-  path: `conditions.${number}.rules.${number}`
+  path: `conditions.${number}${string}`
   onRemove: () => void
+  isEditable: boolean
 }
 
-export const LeafRow = ({ path, onRemove }: LeafRowProps) => {
+export const LeafRow = ({ path, isEditable }: LeafRowProps) => {
   const { control } = useFormContext<AddAutomationFormValues>()
-  const deviceId = useWatch({ control, name: 'device_id' })
-  const { data: entities } = useDeviceEntity(undefined, undefined, deviceId)
-  const entityOptions =
-    entities?.results?.map((entity) => ({
-      value: entity.id,
-      label: entity.name,
-    })) || []
+  const popoverPortal = useAutomationDialogPopoverPortal()
 
   return (
     <div className="grid grid-cols-9 gap-2 items-start">
       <FormField
         control={control}
-        name={`${path}.entity`}
-        render={({ field }) => (
-          <FormItem className="col-span-3">
-            <Select value={field.value} onValueChange={field.onChange}>
-              <FormControl>
-                <SelectTrigger
-                  className="flex-1 bg-brand-component-fill-dark-soft h-9 text-sm"
-                  icon={<ChevronDown size={12} className="opacity-50" />}
-                >
-                  <SelectValue placeholder="Select entity" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {entityOptions.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name={`${path}.operator`}
+        name={`${path}.operator` as `conditions.${number}.${string}`}
         render={({ field }) => (
           <FormItem className="col-span-2">
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={!isEditable}
+            >
               <FormControl>
                 <SelectTrigger
                   className="w-full bg-brand-component-fill-dark-soft h-9 text-sm"
@@ -76,7 +48,10 @@ export const LeafRow = ({ path, onRemove }: LeafRowProps) => {
                   <SelectValue />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent
+                container={popoverPortal?.popoverPortalContainerRef.current}
+                className="z-[100]"
+              >
                 {OPERATORS.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}
@@ -88,33 +63,23 @@ export const LeafRow = ({ path, onRemove }: LeafRowProps) => {
           </FormItem>
         )}
       />
-
       <FormField
         control={control}
-        name={`${path}.value`}
+        name={`${path}.value` as `conditions.${number}.${string}`}
         render={({ field }) => (
-          <FormItem className="col-span-3">
+          <FormItem className="col-span-7">
             <FormControl>
               <Input
                 placeholder="Value"
                 className="w-full text-sm h-9"
                 {...field}
+                disabled={!isEditable}
               />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-
-      <div className=" relative">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="text-brand-component-text-accent hover:opacity-70 transition-opacity absolute top-5 -translate-y-1/2 left-1/2 -translate-x-1/2"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
     </div>
   )
 }

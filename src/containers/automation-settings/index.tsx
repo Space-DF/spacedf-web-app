@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { ChevronLeft, Plus, Power } from 'lucide-react'
@@ -14,7 +14,8 @@ import { useAutomations } from './hooks/useAutomations'
 import { DeleteAutomationDialog } from './components/delete-automation-dialog'
 import { useParams, useSearchParams } from 'next/navigation'
 import { STATUS_FILTER } from './contanst'
-import { AutomationStatus } from '@/types/automation'
+import { Automation, AutomationStatus } from '@/types/automation'
+import { FilterAutomation } from './components/filter-automation'
 
 export const AutomationSettings = () => {
   const t = useTranslations('automation')
@@ -40,6 +41,10 @@ export const AutomationSettings = () => {
     spaceSlug,
   })
 
+  const [selectedAutomation, setSelectedAutomation] = useState<Automation>()
+
+  const [isEditAutomation, setIsEditAutomation] = useState(false)
+
   const stats = useMemo(() => {
     const total = totalCount
     const active = automations.filter((a) => a.event_rule?.is_active).length
@@ -47,20 +52,41 @@ export const AutomationSettings = () => {
     return { total, active, disabled }
   }, [automations, totalCount])
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     setDeleteTargetId(id)
-  }
+  }, [])
 
   const handleConfirmDelete = async () => {
     mutate()
     setDeleteTargetId(undefined)
   }
 
-  const columns = useTableColumn(handleDelete, mutate)
+  const handleSelectAutomation = useCallback((automation: Automation) => {
+    setIsAddDialogOpen(true)
+    setSelectedAutomation(automation)
+  }, [])
+
+  const handleEditAutomation = useCallback((automation: Automation) => {
+    handleSelectAutomation(automation)
+    setIsEditAutomation(true)
+  }, [])
+
+  const columns = useTableColumn(
+    handleDelete,
+    mutate,
+    handleSelectAutomation,
+    handleEditAutomation
+  )
 
   const handleGoback = () => {
     if (window.history.length === 1) return router.replace('/')
     router.back()
+  }
+
+  const handleCloseAddDialog = () => {
+    setIsAddDialogOpen(false)
+    setSelectedAutomation(undefined)
+    setIsEditAutomation(false)
   }
 
   return (
@@ -87,6 +113,8 @@ export const AutomationSettings = () => {
           <Plus size={16} />
         </Button>
       </div>
+
+      <FilterAutomation />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4">
@@ -127,14 +155,18 @@ export const AutomationSettings = () => {
       <DataTable
         columns={columns}
         data={automations}
+        getRowId={(row) => row.id}
         isLoading={isLoading}
         tableHeadClass="text-xs font-semibold text-brand-component-text-gray h-5 leading-5 py-2"
       />
 
       <AddAutomationDialog
         isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
+        onClose={handleCloseAddDialog}
         onSuccess={mutate}
+        isEditable={isEditAutomation}
+        automation={selectedAutomation}
+        setIsEditAutomation={setIsEditAutomation}
       />
 
       <DeleteAutomationDialog

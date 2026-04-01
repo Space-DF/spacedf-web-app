@@ -90,6 +90,7 @@ const Identity = () => {
 
   const token = searchParams.get('token')
   const type = searchParams.get('type')
+  const code = searchParams.get('code')
 
   const { data: decodedToken } = useDecodedToken(token)
 
@@ -131,11 +132,11 @@ const Identity = () => {
   }, [type, token, setOpenDrawer, setFormType, decodedToken])
 
   useEffect(() => {
-    if (decodedToken && !isAuthenticated && !type) {
+    if (decodedToken && !isAuthenticated && !type && !code) {
       setOpenDrawer(true)
       setFormType('signUp')
     }
-  }, [decodedToken, isAuthenticated, setOpenDrawer, setFormType])
+  }, [decodedToken, isAuthenticated, type, code, setOpenDrawer, setFormType])
 
   const dataDrawer = getDrawerData(identityStep)
 
