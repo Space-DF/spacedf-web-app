@@ -49,3 +49,9 @@ export interface AutomationParams {
   action_ids: string[]
   event_rule: AutomationEventRule
 }
+
+export interface AutomationSummary {
+  total: number
+  active: number
+  disabled: number
+}

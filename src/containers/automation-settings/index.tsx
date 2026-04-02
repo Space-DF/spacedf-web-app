@@ -9,13 +9,40 @@ import { AddAutomationDialog } from './components/add-automation-dialog'
 import Image from 'next/image'
 import { StatCard } from './components/stat-card'
 import { DataTable } from '@/components/ui/data-table'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useTableColumn } from './hooks/useTableColumn'
 import { useAutomations } from './hooks/useAutomations'
 import { DeleteAutomationDialog } from './components/delete-automation-dialog'
 import { useParams, useSearchParams } from 'next/navigation'
 import { STATUS_FILTER } from './contanst'
-import { Automation, AutomationStatus } from '@/types/automation'
+import {
+  Automation,
+  AutomationStatus,
+  AutomationSummary,
+} from '@/types/automation'
 import { FilterAutomation } from './components/filter-automation'
+import { useAutomationSummary } from './hooks/useAutomationSummary'
+
+const StatCardSkeleton = ({ iconBgClass }: { iconBgClass: string }) => (
+  <div className="flex items-center gap-3 rounded-lg border border-brand-stroke-dark-soft p-4 dark:border-brand-stroke-outermost">
+    <div
+      className={`flex size-10 items-center justify-center rounded-full ${iconBgClass}`}
+      aria-hidden="true"
+    >
+      <Skeleton className="size-5 rounded-full" />
+    </div>
+    <div>
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="mt-2 h-6 w-12" />
+    </div>
+  </div>
+)
+
+const DEFAULT_SUMMARY: AutomationSummary = {
+  total: 0,
+  active: 0,
+  disabled: 0,
+}
 
 export const AutomationSettings = () => {
   const t = useTranslations('automation')
@@ -35,29 +62,35 @@ export const AutomationSettings = () => {
 
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
 
-  const { automations, totalCount, isLoading, mutate } = useAutomations({
+  const { automations, isLoading, mutate } = useAutomations({
     search,
     status: statusFilter,
     spaceSlug,
   })
 
+  const {
+    data: automationSummary,
+    isLoading: isLoadingSummary,
+    mutate: mutateSummary,
+  } = useAutomationSummary()
+
   const [selectedAutomation, setSelectedAutomation] = useState<Automation>()
 
   const [isEditAutomation, setIsEditAutomation] = useState(false)
 
-  const stats = useMemo(() => {
-    const total = totalCount
-    const active = automations.filter((a) => a.event_rule?.is_active).length
-    const disabled = automations.filter((a) => !a.event_rule?.is_active).length
-    return { total, active, disabled }
-  }, [automations, totalCount])
+  const stats = automationSummary ?? DEFAULT_SUMMARY
 
   const handleDelete = useCallback((id: string) => {
     setDeleteTargetId(id)
   }, [])
 
-  const handleConfirmDelete = async () => {
+  const handleSuccess = useCallback(() => {
     mutate()
+    mutateSummary()
+  }, [mutate, mutateSummary])
+
+  const handleConfirmDelete = async () => {
+    handleSuccess()
     setDeleteTargetId(undefined)
   }
 
@@ -73,7 +106,7 @@ export const AutomationSettings = () => {
 
   const columns = useTableColumn(
     handleDelete,
-    mutate,
+    handleSuccess,
     handleSelectAutomation,
     handleEditAutomation
   )
@@ -118,38 +151,56 @@ export const AutomationSettings = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard
-          icon={
-            <div className="flex size-10 items-center justify-center rounded-full bg-blue-50">
-              <Image src="/images/zap.svg" alt="zap" width={20} height={20} />
-            </div>
-          }
-          label={t('total_automations')}
-          value={stats.total}
-        />
-        <StatCard
-          icon={
-            <div className="bg-green-50 size-10 rounded-full flex items-center justify-center">
-              <Power size={20} className="text-brand-component-text-positive" />
-            </div>
-          }
-          label={t('active')}
-          value={stats.active}
-        />
-        <StatCard
-          icon={
-            <div className="flex size-10 items-center justify-center rounded-full bg-gray-100">
-              <Image
-                src="/images/disable-electricity.svg"
-                alt="power-off"
-                width={20}
-                height={20}
-              />
-            </div>
-          }
-          label={t('disabled')}
-          value={stats.disabled}
-        />
+        {isLoadingSummary ? (
+          <>
+            <StatCardSkeleton iconBgClass="bg-blue-50" />
+            <StatCardSkeleton iconBgClass="bg-green-50" />
+            <StatCardSkeleton iconBgClass="bg-gray-100" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              icon={
+                <div className="flex size-10 items-center justify-center rounded-full bg-blue-50">
+                  <Image
+                    src="/images/zap.svg"
+                    alt="zap"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              }
+              label={t('total_automations')}
+              value={stats.total}
+            />
+            <StatCard
+              icon={
+                <div className="bg-green-50 size-10 rounded-full flex items-center justify-center">
+                  <Power
+                    size={20}
+                    className="text-brand-component-text-positive"
+                  />
+                </div>
+              }
+              label={t('active')}
+              value={stats.active}
+            />
+            <StatCard
+              icon={
+                <div className="flex size-10 items-center justify-center rounded-full bg-gray-100">
+                  <Image
+                    src="/images/disable-electricity.svg"
+                    alt="power-off"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              }
+              label={t('disabled')}
+              value={stats.disabled}
+            />
+          </>
+        )}
       </div>
 
       <DataTable
@@ -163,7 +214,7 @@ export const AutomationSettings = () => {
       <AddAutomationDialog
         isOpen={isAddDialogOpen}
         onClose={handleCloseAddDialog}
-        onSuccess={mutate}
+        onSuccess={handleSuccess}
         isEditable={isEditAutomation}
         automation={selectedAutomation}
         setIsEditAutomation={setIsEditAutomation}
