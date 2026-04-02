@@ -176,6 +176,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
     setDevices: (data) => {
       return set(() => ({
         devices: reduceDevices(data),
+        devicesFleetTracking: reduceDeviceFleetTracking(data),
       }))
     },
 
@@ -205,11 +206,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
             },
           } as Device['deviceProperties']
           state.devices[deviceId].deviceProperties = newDeviceProperties
-
-          if (state.devicesFleetTracking[deviceId]) {
-            state.devicesFleetTracking[deviceId].deviceProperties =
-              newDeviceProperties
-          }
+          state.devicesFleetTracking[deviceId] = state.devices[deviceId]
         } else {
           const newDevice: Device = {
             type: DEVICE_MODEL.RAK,

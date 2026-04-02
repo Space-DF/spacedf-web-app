@@ -31,10 +31,10 @@ export function SpaceSettings({
           <div className="flex items-center border-b border-brand-component-stroke-dark-soft p-4 font-semibold text-brand-component-text-dark">
             {t('common.workspace_settings')}
           </div>
-          <div className="grow-1 flex-1 shrink-0 basis-0">
+          <div className="grow-1 flex-1 shrink-0 basis-0 min-h-0">
             <Tabs
               defaultValue="information"
-              className="flex h-full animate-display-effect flex-col"
+              className="flex h-full animate-display-effect flex-col min-h-0"
             >
               <TabsList className="relative flex h-auto w-full items-center justify-start rounded-none bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-brand-component-stroke-dark-soft">
                 <TabsTrigger
@@ -52,14 +52,20 @@ export function SpaceSettings({
                   {t('space.members')}
                 </TabsTrigger>
               </TabsList>
-              <TabsContent className="mt-0 h-full" value="information">
+              <TabsContent
+                className="mt-0 flex-1 min-h-0 overflow-auto"
+                value="information"
+              >
                 <InformationTab
                   space={spaceDetail}
                   mutateSpaceDetails={mutateSpaceDetails}
                 />
               </TabsContent>
-              <TabsContent className="mt-0 h-full" value="member">
-                <MemberTab space={spaceDetail} />
+              <TabsContent
+                className="mt-0 flex-1 min-h-0 overflow-auto"
+                value="member"
+              >
+                <MemberTab />
               </TabsContent>
             </Tabs>
           </div>

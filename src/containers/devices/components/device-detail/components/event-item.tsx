@@ -6,6 +6,7 @@ import { TelemetryEvent } from '@/types/event'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { useTranslations } from 'next-intl'
 dayjs.extend(utc)
 
 const getIconConfig = (item: any) => {
@@ -67,6 +68,7 @@ export const EventItemSkeleton = () => {
 
 export const EventItem = ({ item, address }: EventItemProps) => {
   const { Icon } = getIconConfig(item)
+  const t = useTranslations('event')
   return (
     <div
       key={item.id}
@@ -109,22 +111,27 @@ export const EventItem = ({ item, address }: EventItemProps) => {
               </div>
             </div>
           )}
-          <div className="flex items-center gap-x-1">
-            <Image
-              src={
-                item.automation
-                  ? '/images/flow-arrow.svg'
-                  : '/images/square-logo.svg'
-              }
-              alt="source"
-              width={16}
-              height={16}
-            />
-            <div className="text-brand-component-text-gray text-xs">
-              From {item.automation ? 'Automation' : 'Geofence'}{' '}
-              {item.automation?.name ?? item.geofence?.name}
+          {item.automation || item.geofence ? (
+            <div className="flex items-center gap-x-1">
+              <Image
+                src={
+                  item.automation
+                    ? '/images/flow-arrow.svg'
+                    : '/images/square-logo.svg'
+                }
+                alt="source"
+                width={16}
+                height={16}
+              />
+
+              <div className="text-brand-component-text-gray text-xs">
+                {t('from')} {item.automation ? 'Automation' : 'Geofence'}{' '}
+                {item.automation?.name ?? item.geofence?.name}
+              </div>
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </div>
