@@ -2,6 +2,7 @@ import { ApiErrorResponse } from '@/types/global'
 import { NextRequest, NextResponse } from 'next/server'
 import { SpaceDFClient } from '../spacedf'
 import { readSession } from '@/utils/server-actions'
+import { handleError } from '@/utils/error'
 
 type Handler = (req: NextRequest, options: any) => Promise<NextResponse>
 
@@ -19,11 +20,7 @@ export function withAuthApiRequired(handler: Handler) {
       spacedf.setToken(accessToken as string)
       return await handler(req, options)
     } catch (error) {
-      console.error('API Error:', error)
-      return NextResponse.json(
-        { error: 'Internal Server Error' },
-        { status: 500 }
-      )
+      return handleError(error)
     }
   }
 }

@@ -40,8 +40,8 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
 
   const fullDeviceEvents = useMemo(() => {
     if (!eventDevices.length) return allItems
-    return mergeEvents(eventDevices, allItems)
-  }, [eventDevices, allItems])
+    return mergeEvents(eventDevices, allItems, debouncedSearchValue)
+  }, [eventDevices, allItems, debouncedSearchValue])
 
   const { validLocations, addressIndexByEventIndex } = useMemo(() => {
     const validLocations: [number, number][] = []

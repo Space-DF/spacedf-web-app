@@ -13,6 +13,7 @@ import { useEvents } from '../hooks/useEvents'
 import { useTripAddress } from './trip-history/hooks/useTripAddress'
 import { useEventStore } from '../stores/event'
 import { mergeEvents } from '@/containers/devices/utils'
+import { useDebounce } from '@/hooks'
 
 interface ListEventProps {
   deviceId: string
@@ -21,8 +22,9 @@ interface ListEventProps {
 const ListEvent = ({ deviceId }: ListEventProps) => {
   const t = useTranslations('event')
   const [searchValue, setSearchValue] = useState('')
+  const searchDebouncedValue = useDebounce(searchValue, 500)
   const [openAllEvent, setOpenAllEvent] = useState(false)
-  const { data: events, isLoading } = useEvents(deviceId, searchValue)
+  const { data: events, isLoading } = useEvents(deviceId, searchDebouncedValue)
 
   const eventDevices = useEventStore(
     (state) => state.eventDevices[deviceId] ?? []
@@ -31,8 +33,8 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   const fullDeviceEvents = useMemo(() => {
     const eventResults = events?.results ?? []
     if (!eventDevices.length) return eventResults
-    return mergeEvents(eventDevices, eventResults)
-  }, [eventDevices, events?.results])
+    return mergeEvents(eventDevices, eventResults, searchDebouncedValue)
+  }, [eventDevices, events?.results, searchDebouncedValue])
 
   const { validLocations, addressIndexByEventIndex } = useMemo(() => {
     const validLocations: [number, number][] = []

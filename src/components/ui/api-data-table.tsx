@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface ApiDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -30,6 +31,9 @@ interface ApiDataTableProps<TData, TValue> {
   pageCount: number
   pagination: PaginationState
   onPaginationChange: OnChangeFn<PaginationState>
+  containerClassName?: string
+  scrollClassName?: string
+  stickyHeader?: boolean
 }
 
 export function ApiDataTable<TData, TValue>({
@@ -42,6 +46,9 @@ export function ApiDataTable<TData, TValue>({
   pageCount,
   pagination,
   onPaginationChange,
+  containerClassName,
+  scrollClassName,
+  stickyHeader = false,
 }: ApiDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -57,49 +64,67 @@ export function ApiDataTable<TData, TValue>({
   })
 
   return (
-    <div className="overflow-hidden rounded-lg border border-brand-stroke-dark-soft">
-      <Table>
-        <TableHeader className="bg-brand-fill-dark-soft">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead className={tableHeadClass || ''} key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell className={tableCellClass || ''} key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+    <div
+      className={cn(
+        'rounded-lg border border-brand-stroke-dark-soft',
+        containerClassName
+      )}
+    >
+      <div className={cn('w-full', scrollClassName)}>
+        <Table>
+          <TableHeader
+            className={cn(
+              'bg-brand-fill-dark-soft',
+              stickyHeader && 'sticky top-0 z-[1]'
+            )}
+          >
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead className={tableHeadClass || ''} key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {emptyLabel}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell className={tableCellClass || ''} key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  {emptyLabel}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {showPaginate && (
         <div className="flex items-center justify-between border-t p-2">
           <Button

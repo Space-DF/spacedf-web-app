@@ -1,5 +1,4 @@
 import { DEFAULT_PAGE_SIZE } from '@/constants'
-import { useDebounce } from '@/hooks/useDebounce'
 import { TelemetryEvent } from '@/types/event'
 import { PaginationResponse } from '@/types/global'
 import { fetcher } from '@/utils/common'
@@ -8,7 +7,6 @@ import useSWRInfinite from 'swr/infinite'
 
 export const useEvents = (deviceId: string, name?: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  const debouncedName = useDebounce(name, 500)
 
   const swr = useSWRInfinite<PaginationResponse<TelemetryEvent>>(
     (pageIndex, previousPageData) => {
@@ -16,7 +14,7 @@ export const useEvents = (deviceId: string, name?: string) => {
       if (previousPageData && previousPageData.results.length === 0) return null
 
       const offset = pageIndex * DEFAULT_PAGE_SIZE
-      return `/api/events/device/${deviceId}?spaceSlug=${spaceSlug ?? ''}&search=${debouncedName ?? ''}&limit=${DEFAULT_PAGE_SIZE}&offset=${offset}`
+      return `/api/events/device/${deviceId}?spaceSlug=${spaceSlug ?? ''}&search=${name ?? ''}&limit=${DEFAULT_PAGE_SIZE}&offset=${offset}`
     },
     fetcher<PaginationResponse<TelemetryEvent>>,
     {
