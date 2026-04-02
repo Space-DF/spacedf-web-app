@@ -23,7 +23,6 @@ import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { useShallow } from 'zustand/react/shallow'
 import DeviceIcon from '/public/images/device-icon.webp'
-import DeviceTracki from '/public/images/device-tracki.webp'
 
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
 import { AddDeviceManual } from '@/components/icons/add-device-manual'
@@ -595,15 +594,6 @@ const AddDeviceSuccess: React.FC<AddDeviceSuccessProps> = ({ onReset }) => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-center w-full">
-        <Image
-          src={DeviceTracki}
-          alt="DMZ 01 -1511-M01"
-          width={208}
-          height={208}
-          className="size-52"
-        />
-      </div>
       <div className="my-4 flex flex-col items-center gap-2">
         <div className="flex items-center justify-center gap-2 text-2xl font-bold text-brand-component-text-dark">
           <Image
