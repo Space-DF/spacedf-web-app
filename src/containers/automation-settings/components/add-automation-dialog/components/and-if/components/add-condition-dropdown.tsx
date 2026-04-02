@@ -44,10 +44,12 @@ export const AddConditionDropdown = ({ onAdd, isChildren }: Props) => {
   } = useDeviceEntity(undefined, debouncedSearch, deviceId)
   const entityOptions = useMemo(
     () =>
-      entities?.results?.map((entity) => ({
-        value: entity.category,
-        label: uppercaseFirstLetter(entity.category),
-      })) ?? [],
+      entities?.results
+        ?.map((entity) => ({
+          value: entity.category,
+          label: uppercaseFirstLetter(entity.category),
+        }))
+        .filter((entity) => entity.value !== 'location') ?? [],
     [entities?.results]
   )
 
