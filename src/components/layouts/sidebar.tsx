@@ -3,6 +3,7 @@
 import {
   COOKIES,
   NavigationData,
+  NavigationEnums,
   RESPONSIVE_BREAKPOINTS,
   Navigation as TNavigation,
 } from '@/constants'
@@ -43,6 +44,7 @@ import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
 import { useCache } from '@/hooks/useCache'
 import { useWindowSize } from '@/hooks/useWindowSize'
+import { useDeviceStore } from '@/stores/device-store'
 type SidebarChildProps = {
   onCollapseChanges?: () => void
 }
@@ -341,7 +343,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const isCollapsed = useLayout((state) => state.isCollapsed)
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
-
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
   const isDisplayed = dynamicLayouts.includes(navigation.href)
@@ -349,7 +351,9 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const handleCheckedChange = () => {
     const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-
+    if (!newLayout.includes(NavigationEnums.DEVICES)) {
+      setDeviceSelected('')
+    }
     toggleDynamicLayout(navigation.href)
 
     setCookieDirty(true)
