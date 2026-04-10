@@ -1,7 +1,14 @@
 {
   "loading_model": "Loading model...",
+  "uploading_glb": "Uploading...",
+  "glb_import_hint": "Only supports .glb files. Maximum file size: 100MB",
   "import_glb": "Import GLB",
   "reset_model": "Default model",
-  "invalid_glb": "Please choose a valid .glb file.",
-  "glb_too_large": "File is too large (max 100 MB)."
+  "invalid_three_model": "Please choose a valid .glb or .usdz file.",
+  "three_model_too_large": "File is too large (max 100 MB).",
+  "upload_failed": "Upload failed. Please try again.",
+  "change_glb_title": "Change to new 3D building model?",
+  "change_glb_description": "You will need to reposition the existing devices that correspond to the new building model.",
+  "cancel": "Cancel",
+  "confirm": "Confirm"
 }

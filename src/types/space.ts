@@ -10,6 +10,7 @@ export interface Space {
   created_by: string
   default_display: boolean
   description?: string
+  build_artifact?: string
 }
 
 export interface SpaceRole {

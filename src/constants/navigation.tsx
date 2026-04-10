@@ -10,7 +10,7 @@ import {
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
-import { useGlobalStore } from '@/stores'
+import { useGlobalStore, useOrganizationValidationStore } from '@/stores'
 
 export enum NavigationEnums {
   DASHBOARD = 'dashboard',
@@ -53,7 +53,9 @@ export const NavigationData = (
   const router = useRouter()
   const params = useParams()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
-  return [
+  const hasHydrated = useOrganizationValidationStore((s) => s.hasHydrated)
+  const template = useOrganizationValidationStore((s) => s.template)
+  const items: Navigation[] = [
     {
       key: 'digital_twin',
       href: NavigationEnums.DIGITAL_TWIN,
@@ -121,6 +123,15 @@ export const NavigationData = (
     //   icon: <CreditCard />,
     // },
   ]
+  return items.filter((item) => {
+    if (!hasHydrated) return true
+    if (
+      template === 'smart_building' &&
+      (item.key === 'digital_twin' || item.key === 'geofences')
+    )
+      return false
+    return true
+  })
 }
 
 export const dynamicLayoutKeys: DynamicLayout[] = [

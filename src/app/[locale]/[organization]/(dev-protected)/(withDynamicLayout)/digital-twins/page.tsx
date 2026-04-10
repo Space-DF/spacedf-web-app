@@ -1,17 +1,18 @@
+import { checkSlugName } from '@/lib/organizations'
+import { getValidSubdomain } from '@/utils/subdomain'
 import dynamic from 'next/dynamic'
-
-// const currentTemplate = 'fleet-tracking'
-const currentTemplate = 'smart-building'
-
-const templateImporters = {
-  'smart-building': () => import('@/templates/smart-building'),
-  'fleet-tracking': () => import('@/templates/fleet-tracking'),
-}
-
-const Template = dynamic(templateImporters[currentTemplate], {
+import { headers } from 'next/headers'
+const FleetTracking = dynamic(() => import('@/templates/fleet-tracking'), {
   ssr: false,
 })
+const SmartBuilding = dynamic(() => import('@/templates/smart-building'), {
+  ssr: false,
+})
+export default async function DigitalTwins() {
+  const headersList = headers()
+  const host = headersList.get('host') || 'localhost'
 
-export default function DigitalTwins() {
-  return <Template />
+  const org = await getValidSubdomain(host)
+  const { template } = await checkSlugName(org || '')
+  return template === 'smart_building' ? <SmartBuilding /> : <FleetTracking />
 }
