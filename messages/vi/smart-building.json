@@ -1,0 +1,7 @@
+{
+  "loading_model": "Đang tải mô hình...",
+  "import_glb": "Nhập GLB",
+  "reset_model": "Mô hình mặc định",
+  "invalid_glb": "Vui lòng chọn tệp .glb hợp lệ.",
+  "glb_too_large": "Tệp quá lớn (tối đa 100 MB)."
+}

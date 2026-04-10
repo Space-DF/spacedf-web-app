@@ -24,7 +24,7 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
-import { format as formatDate } from 'date-fns'
+import dayjs from 'dayjs'
 
 interface Props {
   selectedWidget: WidgetType
@@ -154,8 +154,8 @@ const ChartWidget: React.FC<Props> = ({
               period: chartValue.timeframe.type,
             }
           : {
-              start_time: formatDate(chartValue.timeframe.from, 'yyyy-MM-dd'),
-              end_time: formatDate(chartValue.timeframe.until, 'yyyy-MM-dd'),
+              start_time: dayjs(chartValue.timeframe.from).format('YYYY-MM-DD'),
+              end_time: dayjs(chartValue.timeframe.until).format('YYYY-MM-DD'),
             }),
         type: selectedWidget,
         x: 0,

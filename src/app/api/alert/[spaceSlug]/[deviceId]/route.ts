@@ -1,8 +1,8 @@
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { format } from 'date-fns'
 import { NextRequest, NextResponse } from 'next/server'
+import dayjs from 'dayjs'
 
 export const GET = withAuthApiRequired(
   async (
@@ -12,7 +12,7 @@ export const GET = withAuthApiRequired(
     try {
       const startDate = req.nextUrl.searchParams.get('start_date')
       const endDate = req.nextUrl.searchParams.get('end_date')
-      const now = format(new Date(), 'yyyy-MM-dd')
+      const now = dayjs().format('YYYY-MM-DD')
       const client = await spaceClient()
       const alerts = await client.telemetry.alerts.list(
         {
