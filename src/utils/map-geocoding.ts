@@ -32,18 +32,26 @@ class MapGeocodingService {
     if (this.initialized) return
 
     try {
-      const res = await fetch('/api/maptiler')
-      if (res.ok) {
-        const data = await res.json()
+      let apiKey: string | undefined
 
-        maptilersdk.config.apiKey = data.maptiler_api_key
-        this.initialized = true
+      if (typeof window === 'undefined') {
+        apiKey = process.env.MAPTILER_API_KEY
       } else {
-        console.error('Failed to fetch maptiler api key')
+        const res = await fetch('/api/maptiler')
+        if (res.ok) {
+          const data = await res.json()
+          apiKey = data.maptiler_api_key
+        } else {
+          console.error('Failed to fetch maptiler api key')
+        }
+      }
+
+      if (apiKey) {
+        maptilersdk.config.apiKey = apiKey
+        this.initialized = true
       }
     } catch (error) {
       console.error({ error })
-      throw new Error('Failed to fetch maptiler api key')
     }
   }
 

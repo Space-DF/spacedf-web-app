@@ -4,7 +4,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { formatDuration } from '@/utils/time'
 
-import { format } from 'date-fns'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { useCallback, useMemo, useState } from 'react'
@@ -120,7 +119,7 @@ const TripHistory = () => {
                 </span>
                 <span className="text-xs text-brand-component-stroke-gray">
                   {item.time
-                    ? format(item.time, 'HH:mm dd/MM/yyyy')
+                    ? dayjs(item.time).format('HH:mm DD/MM/YYYY')
                     : 'Unknown'}
                 </span>
               </div>

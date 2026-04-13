@@ -1,0 +1,14 @@
+{
+  "loading_model": "Đang tải mô hình...",
+  "uploading_glb": "Đang tải lên...",
+  "glb_import_hint": "Chỉ hỗ trợ tệp .glb. Dung lượng tối đa: 100MB",
+  "import_glb": "Nhập GLB",
+  "reset_model": "Mô hình mặc định",
+  "invalid_three_model": "Vui lòng chọn tệp .glb hoặc .usdz hợp lệ.",
+  "three_model_too_large": "Tệp quá lớn (tối đa 100 MB).",
+  "upload_failed": "Tải lên thất bại. Vui lòng thử lại.",
+  "change_glb_title": "Đổi sang mô hình tòa nhà 3D mới?",
+  "change_glb_description": "Bạn sẽ cần định vị lại các thiết bị hiện có tương ứng với mô hình tòa nhà mới.",
+  "cancel": "Hủy",
+  "confirm": "Xác nhận"
+}

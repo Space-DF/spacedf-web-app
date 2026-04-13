@@ -1,5 +1,6 @@
 import { GeofenceForm } from './schema'
-import { parse, format } from 'date-fns'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import {
   Coordinate,
   GeofenceCondition,
@@ -10,9 +11,10 @@ import { DEFAULT_GEOFENCE_COLOR } from '@/stores/geofence-store'
 
 type GeofenceRule = GeofenceForm['conditions'][number]
 
+dayjs.extend(customParseFormat)
+
 const to24HourTime = (time: string, meridiem: 'am' | 'pm'): string => {
-  const date = parse(`${time} ${meridiem.toUpperCase()}`, 'h:mm a', new Date())
-  return format(date, 'HH:mm')
+  return dayjs(`${time} ${meridiem.toUpperCase()}`, 'h:mm A').format('HH:mm')
 }
 
 const mapRuleToBackend = (
@@ -84,8 +86,7 @@ export const transformConditions = (
 const from12HourTime = (
   time24: string
 ): { time: string; meridiem: 'am' | 'pm' } => {
-  const date = parse(time24, 'HH:mm', new Date())
-  const formatted = format(date, 'h:mm a')
+  const formatted = dayjs(time24, 'HH:mm').format('h:mm a')
   const [time, period] = formatted.split(' ')
   return { time, meridiem: period.toLowerCase() as 'am' | 'pm' }
 }

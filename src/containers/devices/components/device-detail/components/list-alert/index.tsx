@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { format, subDays } from 'date-fns'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
@@ -105,17 +104,17 @@ const AlertItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
 }
 
 const getDateByDateType = (dateType: string) => {
-  const now = new Date()
+  const now = dayjs()
   const dateTypeObj = {
-    today: format(now, 'yyyy-MM-dd'),
-    yesterday: format(subDays(now, 1), 'yyyy-MM-dd'),
-    last_7_days: format(subDays(now, 7), 'yyyy-MM-dd'),
-    last_30_days: format(subDays(now, 30), 'yyyy-MM-dd'),
-    last_90_days: format(subDays(now, 90), 'yyyy-MM-dd'),
+    today: now.format('YYYY-MM-DD'),
+    yesterday: now.subtract(1, 'day').format('YYYY-MM-DD'),
+    last_7_days: now.subtract(7, 'day').format('YYYY-MM-DD'),
+    last_30_days: now.subtract(30, 'day').format('YYYY-MM-DD'),
+    last_90_days: now.subtract(90, 'day').format('YYYY-MM-DD'),
   }
   return (
     dateTypeObj[dateType as keyof typeof dateTypeObj] ||
-    format(now, 'yyyy-MM-dd')
+    now.format('YYYY-MM-DD')
   )
 }
 
@@ -157,7 +156,7 @@ export default function ListAlert() {
     const newDeviceAlerts =
       deviceAlerts?.filter(
         (alert) =>
-          format(alert.reported_at, 'yyyy-MM-dd') !==
+          dayjs(alert.reported_at).format('YYYY-MM-DD') !==
           getDateByDateType(selectedDate)
       ) || []
     setDeviceAlertDevice(deviceSelected, 'water_depth', newDeviceAlerts)
@@ -179,7 +178,7 @@ export default function ListAlert() {
     return (
       deviceAlerts?.filter(
         (alert) =>
-          format(alert.reported_at, 'yyyy-MM-dd') ===
+          dayjs(alert.reported_at).format('YYYY-MM-DD') ===
             getDateByDateType(selectedDate) && alert.level !== 'safe'
       ) || []
     )
@@ -202,7 +201,7 @@ export default function ListAlert() {
             ) : (
               alertAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
             ),
-            time: format(timestamp, 'hh:mm a'),
+            time: dayjs(timestamp).format('hh:mm a'),
             timestamp,
             relativeTime: relativeTimeStr,
           }

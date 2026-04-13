@@ -1,3 +1,4 @@
+'use client'
 import { useBBoxDebounce } from '@/hooks/useBBoxDebounce'
 import { useGetDevices } from '@/hooks/useDevices'
 import { useGlobalStore } from '@/stores'

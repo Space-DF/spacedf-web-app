@@ -16,6 +16,7 @@ import { useGetSpaces } from '@/app/[locale]/[organization]/(dev-protected)/(wit
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useRefreshToken } from '../space-settings/hooks/useRefreshToken'
 import { useCreateSpace } from './hooks/useCreateSpace'
+import { useModelGLB } from '@/stores/template/model-glb'
 
 const formSchema = z.object({
   space_name: z
@@ -40,9 +41,10 @@ const OrganizationSetting = () => {
   const { mutate: getSpaces } = useGetSpaces()
   const { trigger: createSpace, isMutating: isCreating } = useCreateSpace()
   const [isLoading, setIsLoading] = useState(false)
+  const resetModel = useModelGLB((state) => state.resetModel)
   const isDemo = useIsDemo()
   const { trigger: refreshToken } = useRefreshToken()
-
+  const setCurrentSpace = useGlobalStore((state) => state.setCurrentSpace)
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     await createSpace(
@@ -67,6 +69,8 @@ const OrganizationSetting = () => {
           if (data) {
             await refreshToken()
             await getSpaces()
+            setCurrentSpace(data)
+            resetModel()
             router.push(`/spaces/${data.slug_name}`)
           }
         },

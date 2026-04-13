@@ -1,4 +1,5 @@
 import { OrgNotExist } from '@/components/layouts/org-not-exist'
+import { OrganizationValidationHydration } from '@/components/layouts/organization-validation-hydration'
 import { getValidSubdomain } from '@/utils/subdomain'
 import {
   checkSlugName,
@@ -25,8 +26,7 @@ export default async function Layout({
 
   // Try to validate organization using SpaceDF SDK
   const isValidOrganization = await checkSlugName(org)
-
-  if (!isValidOrganization) {
+  if (!isValidOrganization.isValid) {
     // Fallback to hardcoded validation for backwards compatibility
     const isValidFallback = await validateOrganizationFallback(org)
 
@@ -35,5 +35,9 @@ export default async function Layout({
     }
   }
 
-  return <section>{children}</section>
+  return (
+    <OrganizationValidationHydration value={isValidOrganization}>
+      <section>{children}</section>
+    </OrganizationValidationHydration>
+  )
 }
