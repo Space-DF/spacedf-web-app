@@ -1,3 +1,4 @@
+'use client'
 import { useParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useSWRMutation from 'swr/mutation'

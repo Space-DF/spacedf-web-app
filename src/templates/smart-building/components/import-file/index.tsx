@@ -162,7 +162,7 @@ export function ImportThreeModel({
         <>
           <button
             type="button"
-            className="pointer-events-auto rounded-lg p-1 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/30"
+            className="pointer-events-auto rounded-lg p-1 flex-col flex outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/30"
             onClick={() => open()}
             aria-label={t('import_glb')}
           >
@@ -171,7 +171,7 @@ export function ImportThreeModel({
             </div>
           </button>
           <div className="flex w-full flex-col items-center gap-3">
-            <div className="flex flex-wrap items-center justify-center gap-y-4">
+            <div className="flex flex-col items-center justify-center gap-y-4">
               <Button
                 type="button"
                 size="sm"

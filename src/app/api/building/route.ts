@@ -7,7 +7,13 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
   const spacedfClient = await spaceClient()
   const searchParams = request.nextUrl.searchParams
   const spaceSlug = searchParams.get('spaceSlug')
-  const file = formData.get('model') as File
+  const file = formData.get('model') as File | null
+  if (!file || !spaceSlug) {
+    return NextResponse.json(
+      { message: 'File and space slug are required' },
+      { status: 400 }
+    )
+  }
   const data = await spacedfClient.presignedUrl.get()
   const presignedUrl = data.presigned_url
   const fileBuffer = await file.arrayBuffer()

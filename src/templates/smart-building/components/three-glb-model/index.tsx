@@ -18,13 +18,40 @@ type ModelProps = ThreeElements['group'] & {
 
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
+const FORMAT_PROBE_BYTES = 12
+
 async function detect3DFormatFromUrl(
   url: string,
   signal?: AbortSignal
 ): Promise<Detected3DFormat> {
   const res = await fetch(url, { signal })
-  const buf = await res.arrayBuffer()
-  const bytes = new Uint8Array(buf.slice(0, 12))
+  const body = res.body
+
+  let bytes: Uint8Array
+
+  if (body) {
+    const reader = body.getReader()
+    const header = new Uint8Array(FORMAT_PROBE_BYTES)
+    let filled = 0
+
+    try {
+      while (filled < FORMAT_PROBE_BYTES) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value?.length) continue
+        const take = Math.min(value.length, FORMAT_PROBE_BYTES - filled)
+        header.set(value.subarray(0, take), filled)
+        filled += take
+      }
+    } finally {
+      await reader.cancel().catch(() => {})
+    }
+
+    bytes = header.subarray(0, filled)
+  } else {
+    const buf = await res.arrayBuffer()
+    bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
+  }
 
   if (
     bytes.length >= 4 &&
