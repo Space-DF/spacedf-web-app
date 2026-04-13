@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/timeline'
 import { useDeviceHistory } from '@/hooks/useDeviceHistory'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
 import { ArrowLeft, ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
@@ -19,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGetTrip } from '../hooks/useGetTrip'
 import { Checkpoint } from '@/types/trip'
 import { useTripAddress } from '../hooks/useTripAddress'
+import dayjs from 'dayjs'
 interface TripDetailProps {
   open: boolean
   onClose: () => void
@@ -168,14 +168,14 @@ const TripDetail = ({ open, onClose, tripId }: TripDetailProps) => {
                           <Clock className="size-4" />
                           <p>
                             {item.timestamp
-                              ? format(item.timestamp, 'hh:mm a')
+                              ? dayjs(item.timestamp).format('hh:mm a')
                               : 'Unknown'}
                           </p>
                         </div>
                       </div>
                       <div className="mt-3">
                         {item.timestamp
-                          ? format(item.timestamp, 'EEEE dd MMMM yyyy')
+                          ? dayjs(item.timestamp).format('dddd DD MMMM YYYY')
                           : 'Unknown'}
                       </div>
                     </TimelineContent>

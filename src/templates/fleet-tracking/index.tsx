@@ -25,6 +25,8 @@ import { SearchLocation } from '@/components/common/search-location'
 import SpacedfLogo from '@/components/common/spacedf-logo'
 import { useGeofenceStore } from '@/stores/geofence-store'
 import { useMapResize } from './hooks/useMapResize'
+import { DeviceProvider } from '@/components/providers/device-provider'
+import { GeofenceProvider } from '@/components/providers/geofence-provider'
 
 const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
@@ -204,45 +206,49 @@ export default function FleetTrackingMap() {
   )
 
   return (
-    <div
-      className="size-full overflow-hidden relative bg-transparent z-[1]"
-      ref={wrapperRef}
-    >
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
-        <SpacedfLogo />
-        <div className="pointer-events-auto">
-          <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+    <DeviceProvider>
+      <GeofenceProvider>
+        <div
+          className="size-full overflow-hidden relative bg-transparent z-[1]"
+          ref={wrapperRef}
+        >
+          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
+            <SpacedfLogo />
+            <div className="pointer-events-auto">
+              <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+            </div>
+            <ViewModeToggle />
+          </div>
+
+          <div
+            ref={mapContainerRef}
+            className="relative h-full will-change-transform"
+          >
+            {isMapReady && <MapControls map={mapInstance.getMap()!} />}
+            <AnimatePresence>
+              {isShowGeofenceControls && (
+                <motion.div
+                  key="geofence-controls"
+                  initial={{ opacity: 0, x: 12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 12 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="absolute top-56 right-3 z-10"
+                >
+                  <GeofenceControls />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!!locationDevices.length && (
+              <LocationLayer devices={locationDevices || []} />
+            )}
+            {!!waterLevelDevices.length && (
+              <WaterDepth devices={waterLevelDevices || []} />
+            )}
+          </div>
         </div>
-        <ViewModeToggle />
-      </div>
-
-      <div
-        ref={mapContainerRef}
-        className="relative h-full will-change-transform"
-      >
-        {isMapReady && <MapControls map={mapInstance.getMap()!} />}
-        <AnimatePresence>
-          {isShowGeofenceControls && (
-            <motion.div
-              key="geofence-controls"
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 12 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              className="absolute top-56 right-3 z-10"
-            >
-              <GeofenceControls />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {!!locationDevices.length && (
-          <LocationLayer devices={locationDevices || []} />
-        )}
-        {!!waterLevelDevices.length && (
-          <WaterDepth devices={waterLevelDevices || []} />
-        )}
-      </div>
-    </div>
+      </GeofenceProvider>
+    </DeviceProvider>
   )
 }

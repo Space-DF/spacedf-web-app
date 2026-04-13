@@ -52,6 +52,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
     automation: {
       ...(await import(`../../messages/${locale}/automation.json`)).default,
     },
+    smartBuilding: {
+      ...(await import(`../../messages/${locale}/smart-building.json`)).default,
+    },
   }
 
   // Return merged messages
