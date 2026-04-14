@@ -62,11 +62,11 @@ export const ruleSchema: z.ZodTypeAny = z.lazy(() =>
   ])
 )
 
-const actionTypeSchema = z.string().min(1, { message: 'Please select action' })
-const actionSchema = z.object({
-  id: z.string(),
-  type: actionTypeSchema,
-})
+// const actionTypeSchema = z.string().min(1, { message: 'Please select action' })
+// const actionSchema = z.object({
+//   id: z.string(),
+//   type: actionTypeSchema,
+// })
 
 export const addAutomationFormSchema = z.object({
   name: z.string().min(1, { message: 'Please enter name' }),
@@ -76,7 +76,7 @@ export const addAutomationFormSchema = z.object({
     .max(100, { message: 'Title must not exceed 100 characters' }),
   device_id: z.string().min(1, { message: 'Please select device' }),
   conditions: z.array(ruleSchema),
-  actions: z.array(actionSchema),
+  // actions: z.array(actionSchema),
 })
 
 export type AddAutomationFormValues = z.infer<typeof addAutomationFormSchema>

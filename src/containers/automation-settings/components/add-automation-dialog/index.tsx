@@ -25,7 +25,7 @@ import { Automation } from '@/types/automation'
 import { toast } from 'sonner'
 import { addAutomationFormSchema, type AddAutomationFormValues } from './schema'
 import { AndIf } from './components/and-if'
-import { Actions } from './components/actions'
+// import { Actions } from './components/actions'
 import { useAutomationStore } from './components/and-if/stores/automation'
 import { useCreateAutomation } from './hooks/useCreateAutomation'
 import { X } from 'lucide-react'
@@ -53,7 +53,7 @@ const DEFAULT_VALUES: AddAutomationFormValues = {
   title: '',
   device_id: '',
   conditions: [],
-  actions: [{ id: uuidv4(), type: '' }],
+  // actions: [{ id: uuidv4(), type: '' }],
 }
 
 export const AddAutomationDialog = ({
@@ -106,10 +106,10 @@ export const AddAutomationDialog = ({
                 : mapped
             }
           ) ?? [],
-        actions: automation.actions.map((action) => ({
-          id: action.id,
-          type: action.id,
-        })),
+        // actions: automation.actions.map((action) => ({
+        //   id: action.id,
+        //   type: action.id,
+        // })),
       })
   }, [isOpen, automation])
 
@@ -121,20 +121,20 @@ export const AddAutomationDialog = ({
 
   const onValidSubmit = async (values: AddAutomationFormValues) => {
     const conditionPayloads = values.conditions.map(buildConditionPayload)
-    const action_ids = values.actions.map((a) => a.type).filter(Boolean)
+    // const action_ids = values.actions.map((a) => a.type).filter(Boolean)
     if (!conditionPayloads.length) {
       return toast.error(t('please_add_at_least_one_condition'))
     }
 
-    if (!action_ids.length) {
-      return toast.error(t('please_add_at_least_one_action'))
-    }
+    // if (!action_ids.length) {
+    //   return toast.error(t('please_add_at_least_one_action'))
+    // }
 
     const payload = {
       name: values.name,
       title: values.title,
       device_id: values.device_id,
-      action_ids,
+      // action_ids,
       event_rule: {
         rule_key: `rule_${uuidv4()}`,
         definition: { conditions: { and: conditionPayloads } },
@@ -261,7 +261,7 @@ export const AddAutomationDialog = ({
 
                     <When isEditable={isCanEdit} />
                     {deviceId && <AndIf isEditable={isCanEdit} />}
-                    <Actions isEditable={isCanEdit} />
+                    {/* <Actions isEditable={isCanEdit} /> */}
                   </div>
 
                   <div className="flex shrink-0 items-center justify-end gap-3 p-4">
