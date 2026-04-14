@@ -46,7 +46,7 @@ export interface AutomationParams {
   name: string
   title: string
   device_id: string
-  action_ids: string[]
+  // action_ids: string[]
   event_rule: AutomationEventRule
 }
 

@@ -32,7 +32,7 @@ export const ToggleAutomationSwitch = ({
       {
         ...automation,
         event_rule: { ...automation.event_rule, is_active: next },
-        action_ids: automation.actions.map((action) => action.id),
+        // action_ids: automation.actions.map((action) => action.id),
       },
       {
         onSuccess: () => {
