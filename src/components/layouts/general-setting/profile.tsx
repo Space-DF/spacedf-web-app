@@ -85,7 +85,7 @@ const Profile = () => {
   useEffect(() => {
     if (!profile) return
     reset({ ...profile, avatar: undefined })
-    setPreviewImage(profile.avatar)
+    setPreviewImage(profile.url_avatar)
   }, [profile])
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {

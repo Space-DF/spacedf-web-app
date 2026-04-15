@@ -139,7 +139,6 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
               key={space.id}
               onClick={() => {
                 handleGoToSpace(space.slug_name)
-                // window.location.reload()
               }}
               className={cn(
                 'cursor-pointer rounded-xl p-1 focus:bg-brand-fill-outermost',

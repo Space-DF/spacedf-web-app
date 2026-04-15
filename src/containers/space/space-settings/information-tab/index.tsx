@@ -132,9 +132,9 @@ export function InformationTab({
               </FormLabel>
               <div className="flex gap-3">
                 <div className="size-24 rounded-lg border border-brand-component-stroke-dark-soft">
-                  {previewImage || space.logo ? (
+                  {previewImage || space.url_logo ? (
                     <ImageWithBlur
-                      src={previewImage || space.logo || OrganizationThumb}
+                      src={previewImage || space.url_logo || OrganizationThumb}
                       className="size-full rounded-lg object-cover"
                       alt=""
                       width={96}

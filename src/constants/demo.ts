@@ -25,7 +25,7 @@ export const DEMO_SPACE: PaginationResponse<Space> = {
       id: `demo-space-id-${idSuffix}`,
       name: `Demo Space ${idSuffix}`,
       slug_name: `demo-space-${idSuffix}`,
-      logo: '',
+      url_logo: '',
       created_at: now,
       updated_at: now,
       default_display: true,
