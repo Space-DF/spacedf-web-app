@@ -18,7 +18,11 @@ export const useModelGLB = create<ModelGLBState>()((set, get) => ({
   setModelGLB: (modelGLB) => set({ modelGLB }),
   setModelGLBUrl: (modelGLBUrl) => set({ modelGLBUrl }),
   setDefaultModel: () =>
-    set({ modelGLB: 'building.glb', modelGLBUrl: '/3d-model/building.glb' }),
+    set({
+      modelGLB: 'building.glb',
+      modelGLBUrl:
+        'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/building.glb',
+    }),
   resetModel: () => set({ modelGLB: undefined, modelGLBUrl: undefined }),
   uploadPickerOpener: undefined,
 

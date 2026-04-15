@@ -3,7 +3,7 @@ export interface Space {
   created_at: string
   updated_at: string
   name: string
-  logo: string
+  url_logo: string
   slug_name: string
   is_active: boolean
   total_devices: number
@@ -11,6 +11,7 @@ export interface Space {
   default_display: boolean
   description?: string
   build_artifact?: string
+  url_build_artifact?: string
 }
 
 export interface SpaceRole {
