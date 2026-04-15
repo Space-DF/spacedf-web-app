@@ -14,7 +14,7 @@ type SpaceProps = {
 }
 
 const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
-  const { logo, name } = spaceData || {}
+  const { url_logo, name } = spaceData || {}
 
   return (
     <div
@@ -32,11 +32,15 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             'flex items-center justify-center rounded-lg bg-purple-200 dark:bg-purple-700',
             {
               'size-7': hiddenOption,
-              'p-1': !logo,
+              'p-1': !url_logo,
             }
           )}
         >
-          <AvatarImage src={logo} alt={name} className="size-full rounded-lg" />
+          <AvatarImage
+            src={url_logo}
+            alt={name}
+            className="size-full rounded-lg"
+          />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             {/* <ImageWithBlur
             src={}

@@ -1,3 +1,4 @@
+import { getS3Url } from '@/utils'
 import { create } from 'zustand'
 
 interface ModelGLBState {
@@ -18,7 +19,10 @@ export const useModelGLB = create<ModelGLBState>()((set, get) => ({
   setModelGLB: (modelGLB) => set({ modelGLB }),
   setModelGLBUrl: (modelGLBUrl) => set({ modelGLBUrl }),
   setDefaultModel: () =>
-    set({ modelGLB: 'building.glb', modelGLBUrl: '/3d-model/building.glb' }),
+    set({
+      modelGLB: 'building.glb',
+      modelGLBUrl: getS3Url('glbs/spacedf/building.glb'),
+    }),
   resetModel: () => set({ modelGLB: undefined, modelGLBUrl: undefined }),
   uploadPickerOpener: undefined,
 
