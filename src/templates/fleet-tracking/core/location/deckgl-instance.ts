@@ -10,6 +10,7 @@ import { linear } from 'popmotion'
 import { MAP_PITCH } from '../../constant'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import { pulseController } from '../pulse-controller'
+import { getS3Url } from '@/utils'
 
 type LayerResource = {
   id: string
@@ -18,9 +19,8 @@ type LayerResource = {
 }
 
 const MODEL_URLS = {
-  light:
-    'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-grey.glb',
-  dark: 'https://d33et8skld5wvq.cloudfront.net/glbs/spacedf/location-model-logo-purple.glb',
+  light: getS3Url('glbs/spacedf/location-model-logo-grey.glb'),
+  dark: getS3Url('glbs/spacedf/location-model-logo-purple.glb'),
 }
 
 const modelCache: Record<string, any> = {}
