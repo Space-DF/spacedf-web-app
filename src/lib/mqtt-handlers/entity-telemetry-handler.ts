@@ -81,15 +81,8 @@ export class EntityTelemetryHandler extends BaseMQTTHandler {
         return this.normalizeWaterDepthData(payload)
       case 'location':
         return this.normalizeLocationData(payload)
-      case 'battery':
-      case 'humidity':
-      case 'pressure':
-      case 'temperature':
-      case 'sensor':
-      case 'binary_sensor':
-        return this.normalizeSensorData(payload)
       default:
-        return { ...payload }
+        return this.normalizeSensorData(payload)
     }
   }
 
