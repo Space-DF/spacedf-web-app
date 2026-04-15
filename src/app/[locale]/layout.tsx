@@ -11,17 +11,18 @@ import { notFound } from 'next/navigation'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
+import { getS3Url } from '@/utils'
 
 export const metadata: Metadata = {
   title: 'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
   description:
     'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
   openGraph: {
-    images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
+    images: [getS3Url('images/spacedf-og.jpg')],
     siteName: 'SpaceDF Digital Twin Dashboard',
   },
   twitter: {
-    images: ['https://d33et8skld5wvq.cloudfront.net/images/spacedf-og.jpg'],
+    images: [getS3Url('images/spacedf-og.jpg')],
   },
   keywords: [
     'IoT dashboard',
