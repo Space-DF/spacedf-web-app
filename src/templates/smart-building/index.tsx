@@ -25,7 +25,7 @@ export default function SmartBuilding() {
     )
   const blobUrlRef = useRef<string | null>(null)
   const currentSpace = useGlobalStore((state) => state.currentSpace)
-  const buildArtifact = currentSpace?.build_artifact
+  const buildArtifact = currentSpace?.url_build_artifact
 
   const handleImport = useCallback((objectUrl: string) => {
     if (blobUrlRef.current) {
