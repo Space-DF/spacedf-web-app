@@ -25,8 +25,8 @@ import { SearchLocation } from '@/components/common/search-location'
 import SpacedfLogo from '@/components/common/spacedf-logo'
 import { useGeofenceStore } from '@/stores/geofence-store'
 import { useMapResize } from './hooks/useMapResize'
-import { DeviceProvider } from '@/components/providers/device-provider'
 import { GeofenceProvider } from '@/components/providers/geofence-provider'
+import { FleetTrackingProvider } from '@/components/providers/device-provider/components/fleet-tracking-provider'
 
 const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
@@ -206,7 +206,7 @@ export default function FleetTrackingMap() {
   )
 
   return (
-    <DeviceProvider>
+    <FleetTrackingProvider>
       <GeofenceProvider>
         <div
           className="size-full overflow-hidden relative bg-transparent z-[1]"
@@ -249,6 +249,6 @@ export default function FleetTrackingMap() {
           </div>
         </div>
       </GeofenceProvider>
-    </DeviceProvider>
+    </FleetTrackingProvider>
   )
 }
