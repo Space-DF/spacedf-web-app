@@ -19,7 +19,7 @@ export const WidgetSwitch = ({
     <WidgetContainer className="flex flex-col gap-1">
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <Switch
-        defaultChecked={checked}
+        checked={checked}
         className={className}
         style={{ backgroundColor: color }}
       />
