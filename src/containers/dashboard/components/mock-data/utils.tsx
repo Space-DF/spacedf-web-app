@@ -21,6 +21,15 @@ import { mapPayload, SliderSource } from '@/validator'
 import WidgetSlider from './components/widget-slider'
 import { WidgetHistogram } from './components/widget-histogram'
 
+const getSwitchValue = (value: any) => {
+  if (typeof value === 'string') {
+    const normalized = value.toLowerCase()
+    if (['on', 'true', '1'].includes(normalized)) return true
+    if (['off', 'false', '0'].includes(normalized)) return false
+  }
+  return !!value
+}
+
 export const getWidgetByType = (widget: Widget, data: any) => {
   switch (widget.type) {
     case WidgetType.Text:
@@ -88,7 +97,7 @@ export const getWidgetByType = (widget: Widget, data: any) => {
           <WidgetSwitch
             widget_info={widget.widget_info!}
             color={widget.color!}
-            checked={widget.enabled}
+            checked={getSwitchValue(data.data.value)}
           />
         </div>
       )

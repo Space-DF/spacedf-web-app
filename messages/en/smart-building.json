@@ -1,7 +1,7 @@
 {
   "loading_model": "Loading model...",
   "uploading_glb": "Uploading...",
-  "glb_import_hint": "Only supports .glb files. Maximum file size: 100MB",
+  "glb_import_hint": "Only supports .glb and .usdz files. Maximum file size: 100MB",
   "import_glb": "Import GLB",
   "reset_model": "Default model",
   "invalid_three_model": "Please choose a valid .glb or .usdz file.",

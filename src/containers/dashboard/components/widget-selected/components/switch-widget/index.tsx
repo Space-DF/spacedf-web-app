@@ -79,7 +79,7 @@ const SwitchWidget: React.FC<Props> = ({
     const switchValue = form.getValues()
     const newWidgetData = {
       display_type: 'switch',
-      entity_id: switchValue.source?.entity_ids[0],
+      entity_id: switchValue.source?.entity_id,
       x: 0,
       y: 0,
       width: 0,

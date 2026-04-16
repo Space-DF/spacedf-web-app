@@ -154,9 +154,7 @@ export function ImportThreeModel({
               {Math.round(progress ?? 0)}%
             </span>
           </div>
-          <p className="text-xs text-brand-component-text-gray">
-            {t('glb_import_hint')}
-          </p>
+          <p className="text-xs text-white">{t('glb_import_hint')}</p>
         </div>
       ) : (
         <>
@@ -182,9 +180,7 @@ export function ImportThreeModel({
                 <CloudArrowUp />
                 Upload 3D Building File
               </Button>
-              <span className="text-brand-component-text-light">
-                {t('glb_import_hint')}
-              </span>
+              <span className="text-white">{t('glb_import_hint')}</span>
             </div>
           </div>
         </>
