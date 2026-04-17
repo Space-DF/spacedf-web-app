@@ -25,7 +25,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { cn } from '@/lib/utils'
 import { useDeviceEntity } from '../../../../hooks/useDeviceEntity'
 import { useMemo, useState } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useDebounce } from '@/hooks'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -34,9 +34,9 @@ const SwitchSource = () => {
   const form = useFormContext<SwitchPayload>()
   const [openCombobox, setOpenCombobox] = useState(false)
 
-  const selectedEntityIds = useWatch({
+  const selectedEntityId = useWatch({
     control: form.control,
-    name: 'source.entity_ids',
+    name: 'source.entity_id',
   })
 
   const [entityName, setEntityName] = useState('')
@@ -47,28 +47,26 @@ const SwitchSource = () => {
   )
   const entityList = entities?.results || []
 
-  const entityNames = useMemo(() => {
-    return entityList
-      .filter((entity) => selectedEntityIds.includes(entity.unique_key))
-      .map((entity) => entity.name)
-      .join(', ')
-  }, [entityList, selectedEntityIds])
+  const selectEntityName = useMemo(() => {
+    return (
+      entityList.find((entity) => entity.unique_key === selectedEntityId)
+        ?.name || ''
+    )
+  }, [entityList, selectedEntityId])
+
   const handleSelectEntity = (entityId: string) => {
-    const entityIds = form.getValues('source.entity_ids')
-    const isSelected = entityIds.includes(entityId)
-    const updatedEntityIds = isSelected
-      ? entityIds.filter((id) => id !== entityId)
-      : [...entityIds, entityId]
-    form.setValue('source.entity_ids', updatedEntityIds)
+    const currentEntityId = form.getValues('source.entity_id')
+    const isSelected = entityId === currentEntityId
+    form.setValue('source.entity_id', isSelected ? '' : entityId)
   }
 
-  const isError = form.formState.errors.source?.entity_ids
+  const isError = form.formState.errors.source?.entity_id
 
   return (
     <div className="size-full">
       <FormField
         control={form.control}
-        name="source.entity_ids"
+        name="source.entity_id"
         render={() => (
           <FormItem>
             <p className="mb-[6px] text-sm font-semibold">
@@ -92,7 +90,7 @@ const SwitchSource = () => {
                   aria-expanded={openCombobox}
                 >
                   <p className="max-w-[86%] overflow-hidden text-ellipsis whitespace-nowrap text-brand-component-text-gray text-start">
-                    {entityNames || t('select_entity')}
+                    {selectEntityName || t('select_entity')}
                   </p>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -133,23 +131,14 @@ const SwitchSource = () => {
                                 onSelect={() =>
                                   handleSelectEntity(entity.unique_key)
                                 }
-                                className="cursor-pointer px-3 py-2 data-[selected=true]:bg-brand-component-fill-dark-soft"
+                                className={cn(
+                                  'cursor-pointer px-3 py-2',
+                                  selectedEntityId === entity.unique_key
+                                    ? 'bg-brand-component-fill-dark-soft'
+                                    : ''
+                                )}
                               >
                                 <div className="flex items-center gap-3 w-full">
-                                  <div
-                                    className={cn(
-                                      'flex h-5 w-5 items-center justify-center rounded border border-brand-component-stroke-dark-soft',
-                                      selectedEntityIds.includes(
-                                        entity.unique_key
-                                      )
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-transparent'
-                                    )}
-                                  >
-                                    {selectedEntityIds.includes(
-                                      entity.unique_key
-                                    ) && <Check className="h-4 w-4" />}
-                                  </div>
                                   <Label className="text-sm text-brand-component-text-dark cursor-pointer">
                                     {`${entity.unique_key} - ${entity.device_name}`}
                                   </Label>

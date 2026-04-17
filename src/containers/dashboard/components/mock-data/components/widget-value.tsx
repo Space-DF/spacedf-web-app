@@ -13,9 +13,9 @@ export const ValueWidget = ({ widget, data }: Props) => {
   const { decimal, unit } = source
   const { value, unit_of_measurement } = data || {}
   const currentValue = useMemo(() => {
-    if (!decimal || decimal < 0) return value.toFixed(0)
-    if (decimal > 10) return value.toFixed(10)
-    return value.toFixed(decimal)
+    if (!decimal || decimal < 0) return value?.toFixed(0) ?? '0'
+    if (decimal > 10) return value?.toFixed(10) ?? '0'
+    return value?.toFixed(decimal) ?? '0'
   }, [value, decimal])
 
   return (

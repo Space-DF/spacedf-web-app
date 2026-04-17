@@ -25,7 +25,7 @@ export default function SmartBuilding() {
     )
   const blobUrlRef = useRef<string | null>(null)
   const currentSpace = useGlobalStore((state) => state.currentSpace)
-  const buildArtifact = currentSpace?.build_artifact
+  const buildArtifact = currentSpace?.url_build_artifact
 
   const handleImport = useCallback((objectUrl: string) => {
     if (blobUrlRef.current) {
@@ -78,16 +78,23 @@ export default function SmartBuilding() {
       <ImportThreeModel
         className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
         onImport={handleImport}
-        isHidden={!!modelGLBUrl && !isUploading}
+        isHidden={
+          (!!modelGLBUrl && !isUploading) || (!currentSpace && isAuthenticated)
+        }
         isUploading={isUploading}
         progress={uploadProgress}
         uploadModel={uploadModel}
       />
       <div className="absolute top-0 left-0 right-0 z-10">
-        <div className="w-fit p-3">
-          <SpacedfLogo />
+        <div className="flex p-3 justify-between">
+          <div className="w-fit">
+            <SpacedfLogo />
+          </div>
+          <div className="flex space-x-3">
+            {/* <DropdownSwitchFloor /> */}
+            {modelGLBUrl ? <ThreeModelControls /> : <></>}
+          </div>
         </div>
-        {modelGLBUrl ? <ThreeModelControls /> : null}
       </div>
       <div className="relative h-full bg-brand-component-fill-dark w-full">
         {modelGLBUrl ? (

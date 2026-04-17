@@ -3,11 +3,23 @@
 import Identity from '@/containers/identity'
 import { useGoogleSignIn } from '@/containers/identity/auth/hooks/useGoogleSignIn'
 import { Session } from 'next-auth'
-import { SessionProvider, signIn } from 'next-auth/react'
+import { SessionProvider, signIn, useSession } from 'next-auth/react'
 import { PropsWithChildren, useCallback, useEffect } from 'react'
 import LoadingFullScreen from '../ui/loading-fullscreen'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useJoinSpace from '@/containers/identity/auth/hooks/useJoinSpace'
+
+function SessionReconnectGuard() {
+  const { update } = useSession()
+
+  useEffect(() => {
+    const handleOnline = () => update()
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [update])
+
+  return null
+}
 
 export const NextAuthSessionProvider = ({
   children,
@@ -44,6 +56,7 @@ export const NextAuthSessionProvider = ({
 
   return (
     <SessionProvider session={session}>
+      <SessionReconnectGuard />
       {children}
       <Identity />
     </SessionProvider>

@@ -71,6 +71,7 @@ import CircleCheckSvg from '/public/images/circle-check.svg'
 import { useDebounce } from '@/hooks/useDebounce'
 import { transformDeviceData } from '@/utils/map'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
+import { useDeviceModalStore } from '@/stores/template/device-modal'
 const Devices = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
@@ -152,7 +153,14 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   const t = useTranslations()
   const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
-  const [open, setOpen] = useState(false)
+  const { setIsOpenDeviceModal, isOpenDeviceModal, resetDeviceModal } =
+    useDeviceModalStore(
+      useShallow((state) => ({
+        setIsOpenDeviceModal: state.setIsOpen,
+        isOpenDeviceModal: state.isOpen,
+        resetDeviceModal: state.reset,
+      }))
+    )
 
   const setOpenDrawerIdentity = useIdentityStore(
     useShallow((state) => state.setOpenDrawerIdentity)
@@ -163,11 +171,11 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
     resolver: zodResolver(addDeviceSchema),
   })
 
-  const handleReset = (value: boolean) => {
+  const handleReset = () => {
     setStep('select_mode')
     setMode('auto')
     form.reset()
-    setOpen(value)
+    resetDeviceModal()
   }
 
   const handleAddDeviceSuccess = async () => {
@@ -216,7 +224,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
         <AddDeviceForm
           mode={mode}
           onSuccess={handleAddDeviceSuccess}
-          onClose={() => handleReset(false)}
+          onClose={handleReset}
         />
       ),
     },
@@ -230,13 +238,13 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
         <AddDeviceForm
           mode={mode}
           onSuccess={handleAddDeviceSuccess}
-          onClose={() => handleReset(false)}
+          onClose={handleReset}
         />
       ),
     },
     add_device_success: {
       label: '',
-      component: <AddDeviceSuccess onReset={() => handleReset(false)} />,
+      component: <AddDeviceSuccess onReset={handleReset} />,
     },
   }
 
@@ -257,7 +265,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
             setOpenDrawerIdentity(true)
             return
           }
-          setOpen(true)
+          setIsOpenDeviceModal(true)
         }}
       >
         <span className="text-xs font-semibold leading-4">
@@ -265,7 +273,7 @@ const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
         </span>
         <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
       </Button>
-      <Dialog open={open} onOpenChange={handleReset}>
+      <Dialog open={isOpenDeviceModal} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
             <DialogHeader className="border-0">

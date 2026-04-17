@@ -4,7 +4,7 @@ import { Bounds, Center, Html, OrbitControls, useGLTF } from '@react-three/drei'
 import { useThree, type ThreeElements } from '@react-three/fiber'
 import { Progress } from '@/components/ui/progress'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D, Texture } from 'three'
 import { USDLoader } from 'three/addons/loaders/USDLoader.js'
 import { useLoader } from '@react-three/fiber'
@@ -19,39 +19,22 @@ type ModelProps = ThreeElements['group'] & {
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
 const FORMAT_PROBE_BYTES = 12
+// const DEFAULT_MODEL_OPACITY = 0.35
 
 async function detect3DFormatFromUrl(
   url: string,
   signal?: AbortSignal
 ): Promise<Detected3DFormat> {
-  const res = await fetch(url, { signal })
-  const body = res.body
-
-  let bytes: Uint8Array
-
-  if (body) {
-    const reader = body.getReader()
-    const header = new Uint8Array(FORMAT_PROBE_BYTES)
-    let filled = 0
-
-    try {
-      while (filled < FORMAT_PROBE_BYTES) {
-        const { done, value } = await reader.read()
-        if (done) break
-        if (!value?.length) continue
-        const take = Math.min(value.length, FORMAT_PROBE_BYTES - filled)
-        header.set(value.subarray(0, take), filled)
-        filled += take
-      }
-    } finally {
-      await reader.cancel().catch(() => {})
-    }
-
-    bytes = header.subarray(0, filled)
-  } else {
-    const buf = await res.arrayBuffer()
-    bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
+  const res = await fetch(url, {
+    signal,
+    cache: 'no-store',
+    headers: { Range: `bytes=0-${FORMAT_PROBE_BYTES - 1}` },
+  })
+  if (!res.ok) {
+    throw new Error(`Model probe failed: ${res.status} ${res.statusText}`)
   }
+  const buf = await res.arrayBuffer()
+  const bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
 
   if (
     bytes.length >= 4 &&
@@ -98,6 +81,25 @@ function disposeObject(root: Object3D) {
   })
 }
 
+// function setObjectOpacity(root: Object3D, opacity: number) {
+//   root.traverse((obj) => {
+//     const anyObj = obj as any
+//     const materials = anyObj.material
+//       ? Array.isArray(anyObj.material)
+//         ? anyObj.material
+//         : [anyObj.material]
+//       : []
+
+//     for (const mat of materials) {
+//       if (!mat) continue
+//       mat.transparent = opacity < 1
+//       mat.opacity = opacity
+//       if ('depthWrite' in mat) mat.depthWrite = false
+//       mat.needsUpdate = true
+//     }
+//   })
+// }
+
 function FitOnRefocus({ children }: { children: React.ReactNode }) {
   const api = useBounds()
   const objectRef = useRef<Object3D | null>(null)
@@ -134,6 +136,9 @@ function GlbScene({
   const invalidate = useThree((s) => s.invalidate)
 
   useEffect(() => {
+    // setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
+    // invalidate()
+
     return () => {
       disposeObject(scene)
       useGLTF.clear(url)
@@ -162,6 +167,9 @@ function UsdzModel({
   const invalidate = useThree((s) => s.invalidate)
 
   useEffect(() => {
+    // setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
+    // invalidate()
+
     return () => {
       disposeObject(object)
       useLoader.clear(USDLoader, url)
@@ -179,6 +187,68 @@ function UsdzModel({
         </Center>
       </Bounds>
     </group>
+  )
+}
+
+class ThreeModelErrorBoundary extends Component<
+  {
+    children: React.ReactNode
+    fallback: React.ReactNode
+    resetKey?: string | number
+  },
+  { hasError: boolean }
+> {
+  constructor(props: ThreeModelErrorBoundary['props']) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true }
+  }
+
+  componentDidUpdate(prevProps: ThreeModelErrorBoundary['props']) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false })
+    }
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback
+    return this.props.children
+  }
+}
+
+function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
+  const t = useTranslations('smartBuilding')
+  return (
+    <Html center>
+      <div className="w-72 overflow-hidden rounded-xl bg-gradient-to-b from-black/55 to-black/35 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-md">
+        <div className="px-4 py-3">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 grid size-8 place-items-center rounded-lg bg-white/10 ring-1 ring-white/10">
+              <span aria-hidden className="text-base leading-none">
+                !
+              </span>
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold tracking-tight text-brand-component-text-gray">
+                {t('model_load_error')}
+              </div>
+            </div>
+          </div>
+
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white ring-1 ring-white/15 transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              {t('model_load_retry')}
+            </button>
+          )}
+        </div>
+      </div>
+    </Html>
   )
 }
 
@@ -201,20 +271,33 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
   const [detectedFormat, setDetectedFormat] = useState<
     Detected3DFormat | 'detecting'
   >('detecting')
+  const [retryKey, setRetryKey] = useState(0)
+
+  const loadUrl = useMemo(() => {
+    if (!retryKey) return url
+    try {
+      const u = new URL(url)
+      u.searchParams.set('__retry', String(retryKey))
+      return u.toString()
+    } catch {
+      const hasQuery = url.includes('?')
+      return `${url}${hasQuery ? '&' : '?'}__retry=${retryKey}`
+    }
+  }, [url, retryKey])
 
   useEffect(() => {
     const ac = new AbortController()
     setDetectedFormat('detecting')
 
-    detect3DFormatFromUrl(url, ac.signal)
+    detect3DFormatFromUrl(loadUrl, ac.signal)
       .then((fmt) => setDetectedFormat(fmt))
       .catch((err) => {
         if (err.name === 'AbortError') return
-        setDetectedFormat('unknown')
+        setDetectedFormat(extensionHint)
       })
 
     return () => ac.abort()
-  }, [url])
+  }, [loadUrl, extensionHint])
 
   useEffect(() => {
     setCamera(camera)
@@ -240,14 +323,23 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
       : detectedFormat === 'usdz' ||
         (detectedFormat === 'unknown' && extensionHint === 'usdz')
 
+  const handleRetry = () => setRetryKey((k) => k + 1)
+
   return (
     <>
       {shouldUseUsdz === null ? (
         <ModelFallback />
-      ) : shouldUseUsdz ? (
-        <UsdzModel url={url} {...props} />
       ) : (
-        <GlbScene url={url} {...props} />
+        <ThreeModelErrorBoundary
+          resetKey={loadUrl}
+          fallback={<ModelLoadError onRetry={handleRetry} />}
+        >
+          {shouldUseUsdz ? (
+            <UsdzModel key={loadUrl} url={loadUrl} {...props} />
+          ) : (
+            <GlbScene key={loadUrl} url={loadUrl} {...props} />
+          )}
+        </ThreeModelErrorBoundary>
       )}
       <OrbitControls
         ref={controlsRef}

@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { cn } from '@/lib/utils'
 import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
@@ -18,12 +19,7 @@ export function ThreeModelControls({ className }: { className?: string }) {
   if (!hasControls) return null
 
   return (
-    <div
-      className={cn(
-        'absolute z-10 flex flex-col gap-1.5 top-3 right-3',
-        className
-      )}
-    >
+    <div className={cn('flex flex-col gap-1.5', className)}>
       <ControlGroup>
         <ControlButton onClick={zoomIn} label="Zoom in">
           <Plus className="size-4 text-brand-icon-light-fixed" />
@@ -63,29 +59,33 @@ function ControlGroup({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ControlButton({
-  onClick,
-  label,
-  children,
-  disabled = false,
-}: {
-  onClick: () => void
-  label: string
-  children: React.ReactNode
-  disabled?: boolean
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      type="button"
-      className={cn(
-        'flex items-center rounded-md justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
-        disabled && 'opacity-50 pointer-events-none cursor-not-allowed'
-      )}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
+const ControlButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    label: string
+  }
+>(
+  (
+    { onClick, label, children, disabled = false, className, ...props },
+    ref
+  ) => {
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        aria-label={label}
+        type="button"
+        className={cn(
+          'flex items-center rounded-md justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
+          disabled && 'opacity-50 pointer-events-none cursor-not-allowed',
+          className
+        )}
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
+)
+ControlButton.displayName = 'ControlButton'
