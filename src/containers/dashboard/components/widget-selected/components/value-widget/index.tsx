@@ -78,9 +78,9 @@ const ValueWidget: React.FC<Props> = ({
   })
 
   const currentValue = useMemo(() => {
-    if (!decimal || decimal < 0) return value.toFixed(0)
-    if (decimal > 10) return value.toFixed(10)
-    return value.toFixed(decimal)
+    if (!decimal || decimal < 0) return value?.toFixed(0) ?? '0'
+    if (decimal > 10) return value?.toFixed(10) ?? '0'
+    return value?.toFixed(decimal) ?? '0'
   }, [value, decimal])
 
   const currentColor = useMemo(
