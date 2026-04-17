@@ -27,9 +27,5 @@
   "device": "Thiết bị",
   "add_device_successfully": "Thêm thiết bị thành công",
   "failed_to_add_device": "Thêm thiết bị thất bại",
-  "failed_to_scan_qr_code": "Quét QR Code thất bại",
-  "asset_coordinates": "Tọa độ tài sản",
-  "x_axis": "TRỤC X",
-  "y_axis": "TRỤC Y",
-  "z_height": "Độ cao Z"
+  "failed_to_scan_qr_code": "Quét QR Code thất bại"
 }

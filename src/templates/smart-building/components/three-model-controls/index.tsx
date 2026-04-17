@@ -2,10 +2,8 @@
 
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { Pause, Play, RotateCcw, Minus, Plus, Layers } from 'lucide-react'
+import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
-import { DialogFloor } from './components/dialog-floor'
 
 export function ThreeModelControls({ className }: { className?: string }) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
@@ -17,8 +15,6 @@ export function ThreeModelControls({ className }: { className?: string }) {
       setAutoRotate: s.setAutoRotate,
       hasControls: Boolean(s.controls),
     }))
-
-  const isShowDummyData = useShowDummyData()
 
   if (!hasControls) return null
 
@@ -51,19 +47,6 @@ export function ThreeModelControls({ className }: { className?: string }) {
           )}
         </ControlButton>
       </ControlGroup>
-
-      {!isShowDummyData && (
-        <ControlGroup>
-          <DialogFloor>
-            <ControlButton label="Show floors" className="relative">
-              <Layers className="size-4 text-brand-icon-light-fixed" />
-              <div className="absolute bottom-0 right-0 text-white text-xs font-medium size-4 bg-brand-component-fill-secondary rounded-full">
-                1
-              </div>
-            </ControlButton>
-          </DialogFloor>
-        </ControlGroup>
-      )}
     </div>
   )
 }

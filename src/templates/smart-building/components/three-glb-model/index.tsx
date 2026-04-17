@@ -1,11 +1,7 @@
 'use client'
 
 import { Bounds, Center, Html, OrbitControls, useGLTF } from '@react-three/drei'
-import {
-  useThree,
-  type ThreeElements,
-  type ThreeEvent,
-} from '@react-three/fiber'
+import { useThree, type ThreeElements } from '@react-three/fiber'
 import { Progress } from '@/components/ui/progress'
 import { useTranslations } from 'next-intl'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
@@ -18,17 +14,12 @@ import { useBounds } from '@react-three/drei'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
-  onModelContextMenu?: (payload: {
-    clientX: number
-    clientY: number
-    worldPoint: { x: number; y: number; z: number }
-  }) => void
 }
 
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
 const FORMAT_PROBE_BYTES = 12
-const DEFAULT_MODEL_OPACITY = 0.35
+// const DEFAULT_MODEL_OPACITY = 0.35
 
 async function detect3DFormatFromUrl(
   url: string,
@@ -90,24 +81,24 @@ function disposeObject(root: Object3D) {
   })
 }
 
-function setObjectOpacity(root: Object3D, opacity: number) {
-  root.traverse((obj) => {
-    const anyObj = obj as any
-    const materials = anyObj.material
-      ? Array.isArray(anyObj.material)
-        ? anyObj.material
-        : [anyObj.material]
-      : []
+// function setObjectOpacity(root: Object3D, opacity: number) {
+//   root.traverse((obj) => {
+//     const anyObj = obj as any
+//     const materials = anyObj.material
+//       ? Array.isArray(anyObj.material)
+//         ? anyObj.material
+//         : [anyObj.material]
+//       : []
 
-    for (const mat of materials) {
-      if (!mat) continue
-      mat.transparent = opacity < 1
-      mat.opacity = opacity
-      if ('depthWrite' in mat) mat.depthWrite = false
-      mat.needsUpdate = true
-    }
-  })
-}
+//     for (const mat of materials) {
+//       if (!mat) continue
+//       mat.transparent = opacity < 1
+//       mat.opacity = opacity
+//       if ('depthWrite' in mat) mat.depthWrite = false
+//       mat.needsUpdate = true
+//     }
+//   })
+// }
 
 function FitOnRefocus({ children }: { children: React.ReactNode }) {
   const api = useBounds()
@@ -139,31 +130,14 @@ function FitOnRefocus({ children }: { children: React.ReactNode }) {
 
 function GlbScene({
   url,
-  onModelContextMenu,
   ...props
-}: Required<Pick<ModelProps, 'url'>> &
-  Pick<ModelProps, 'onModelContextMenu'> &
-  ThreeElements['group']) {
+}: Required<Pick<ModelProps, 'url'>> & ThreeElements['group']) {
   const { scene } = useGLTF(url)
   const invalidate = useThree((s) => s.invalidate)
 
-  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
-    event.nativeEvent.preventDefault()
-    event.stopPropagation()
-    onModelContextMenu?.({
-      clientX: event.nativeEvent.clientX,
-      clientY: event.nativeEvent.clientY,
-      worldPoint: {
-        x: event.point.x,
-        y: event.point.y,
-        z: event.point.z,
-      },
-    })
-  }
-
   useEffect(() => {
-    setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
-    invalidate()
+    // setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
+    // invalidate()
 
     return () => {
       disposeObject(scene)
@@ -177,7 +151,7 @@ function GlbScene({
       <Bounds fit observe margin={1.15}>
         <Center>
           <FitOnRefocus>
-            <primitive object={scene} onContextMenu={handleContextMenu} />
+            <primitive object={scene} />
           </FitOnRefocus>
         </Center>
       </Bounds>
@@ -187,31 +161,14 @@ function GlbScene({
 
 function UsdzModel({
   url,
-  onModelContextMenu,
   ...props
-}: Required<Pick<ModelProps, 'url'>> &
-  Pick<ModelProps, 'onModelContextMenu'> &
-  ThreeElements['group']) {
+}: Required<Pick<ModelProps, 'url'>> & ThreeElements['group']) {
   const object = useLoader(USDLoader, url)
   const invalidate = useThree((s) => s.invalidate)
 
-  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
-    event.nativeEvent.preventDefault()
-    event.stopPropagation()
-    onModelContextMenu?.({
-      clientX: event.nativeEvent.clientX,
-      clientY: event.nativeEvent.clientY,
-      worldPoint: {
-        x: event.point.x,
-        y: event.point.y,
-        z: event.point.z,
-      },
-    })
-  }
-
   useEffect(() => {
-    setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
-    invalidate()
+    // setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
+    // invalidate()
 
     return () => {
       disposeObject(object)
@@ -225,7 +182,7 @@ function UsdzModel({
       <Bounds fit observe margin={1.15}>
         <Center>
           <FitOnRefocus>
-            <primitive object={object} onContextMenu={handleContextMenu} />
+            <primitive object={object} />
           </FitOnRefocus>
         </Center>
       </Bounds>
