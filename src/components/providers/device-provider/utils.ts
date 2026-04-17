@@ -53,5 +53,19 @@ export const getWidgetRealtime = (widget: any, data: EntityTelemetryData) => {
       },
     }
   }
+  if (
+    ['toggle', 'switch'].some((type) =>
+      Array.isArray(widget.display_type)
+        ? widget.display_type.includes(type)
+        : widget.display_type === type
+    )
+  ) {
+    return {
+      ...widget,
+      data: {
+        value: data.entityUpdate.state,
+      },
+    }
+  }
   return widget
 }

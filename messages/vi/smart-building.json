@@ -1,7 +1,7 @@
 {
   "loading_model": "Đang tải mô hình...",
   "uploading_glb": "Đang tải lên...",
-  "glb_import_hint": "Chỉ hỗ trợ tệp .glb. Dung lượng tối đa: 100MB",
+  "glb_import_hint": "Chỉ hỗ trợ tệp .glb và .usdz. Dung lượng tối đa: 100MB",
   "import_glb": "Nhập GLB",
   "reset_model": "Mô hình mặc định",
   "invalid_three_model": "Vui lòng chọn tệp .glb hoặc .usdz hợp lệ.",
