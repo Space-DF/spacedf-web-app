@@ -10,5 +10,7 @@
   "change_glb_title": "Đổi sang mô hình tòa nhà 3D mới?",
   "change_glb_description": "Bạn sẽ cần định vị lại các thiết bị hiện có tương ứng với mô hình tòa nhà mới.",
   "cancel": "Hủy",
-  "confirm": "Xác nhận"
+  "confirm": "Xác nhận",
+  "model_load_error": "Không thể tải mô hình. Kiểm tra kết nối của bạn.",
+  "model_load_retry": "Thử lại"
 }
