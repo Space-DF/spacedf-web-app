@@ -34,34 +34,16 @@ async function detect3DFormatFromUrl(
   url: string,
   signal?: AbortSignal
 ): Promise<Detected3DFormat> {
-  const res = await fetch(url, { signal })
-  const body = res.body
-
-  let bytes: Uint8Array
-
-  if (body) {
-    const reader = body.getReader()
-    const header = new Uint8Array(FORMAT_PROBE_BYTES)
-    let filled = 0
-
-    try {
-      while (filled < FORMAT_PROBE_BYTES) {
-        const { done, value } = await reader.read()
-        if (done) break
-        if (!value?.length) continue
-        const take = Math.min(value.length, FORMAT_PROBE_BYTES - filled)
-        header.set(value.subarray(0, take), filled)
-        filled += take
-      }
-    } finally {
-      await reader.cancel().catch(() => {})
-    }
-
-    bytes = header.subarray(0, filled)
-  } else {
-    const buf = await res.arrayBuffer()
-    bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
+  const res = await fetch(url, {
+    signal,
+    cache: 'no-store',
+    headers: { Range: `bytes=0-${FORMAT_PROBE_BYTES - 1}` },
+  })
+  if (!res.ok) {
+    throw new Error(`Model probe failed: ${res.status} ${res.statusText}`)
   }
+  const buf = await res.arrayBuffer()
+  const bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
 
   if (
     bytes.length >= 4 &&
@@ -284,18 +266,33 @@ function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
   const t = useTranslations('smartBuilding')
   return (
     <Html center>
-      <div className="w-60 rounded-lg bg-black/40 px-4 py-3 text-white shadow-sm ring-1 ring-white/10 backdrop-blur-md">
-        <div className="text-sm font-medium opacity-90 text-brand-component-text-gray">
-          {t('model_load_error')}
+      <div className="w-70 overflow-hidden rounded-xl bg-gradient-to-b from-black/55 to-black/35 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-md">
+        <div className="px-4 py-3">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 grid size-8 place-items-center rounded-lg bg-white/10 ring-1 ring-white/10">
+              <span aria-hidden className="text-base leading-none">
+                !
+              </span>
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold tracking-tight text-brand-component-text-gray">
+                {t('model_load_error')}
+              </div>
+              <div className="mt-0.5 text-xs leading-relaxed text-white/70">
+                {t('model_load_retry')}
+              </div>
+            </div>
+          </div>
+
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white ring-1 ring-white/15 transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              {t('model_load_retry')}
+            </button>
+          )}
         </div>
-        {onRetry && (
-          <button
-            onClick={onRetry}
-            className="mt-2 text-xs opacity-70 underline hover:opacity-100"
-          >
-            {t('model_load_retry')}
-          </button>
-        )}
       </div>
     </Html>
   )
@@ -322,11 +319,23 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
   >('detecting')
   const [retryKey, setRetryKey] = useState(0)
 
+  const loadUrl = useMemo(() => {
+    if (!retryKey) return url
+    try {
+      const u = new URL(url)
+      u.searchParams.set('__retry', String(retryKey))
+      return u.toString()
+    } catch {
+      const hasQuery = url.includes('?')
+      return `${url}${hasQuery ? '&' : '?'}__retry=${retryKey}`
+    }
+  }, [url, retryKey])
+
   useEffect(() => {
     const ac = new AbortController()
     setDetectedFormat('detecting')
 
-    detect3DFormatFromUrl(url, ac.signal)
+    detect3DFormatFromUrl(loadUrl, ac.signal)
       .then((fmt) => setDetectedFormat(fmt))
       .catch((err) => {
         if (err.name === 'AbortError') return
@@ -334,7 +343,7 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
       })
 
     return () => ac.abort()
-  }, [url, extensionHint, retryKey])
+  }, [loadUrl, extensionHint])
 
   useEffect(() => {
     setCamera(camera)
@@ -368,13 +377,13 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
         <ModelFallback />
       ) : (
         <ThreeModelErrorBoundary
-          resetKey={`${url}-${retryKey}`}
+          resetKey={loadUrl}
           fallback={<ModelLoadError onRetry={handleRetry} />}
         >
           {shouldUseUsdz ? (
-            <UsdzModel key={`${url}-${retryKey}`} url={url} {...props} />
+            <UsdzModel key={loadUrl} url={loadUrl} {...props} />
           ) : (
-            <GlbScene key={`${url}-${retryKey}`} url={url} {...props} />
+            <GlbScene key={loadUrl} url={loadUrl} {...props} />
           )}
         </ThreeModelErrorBoundary>
       )}
