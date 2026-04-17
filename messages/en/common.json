@@ -102,5 +102,7 @@
   "invalid_yaml_structure": "Invalid YAML structure",
   "cancel": "Cancel",
   "edit_yaml": "Edit YAML",
-  "automation_settings": "Automation Settings"
+  "automation_settings": "Automation Settings",
+  "please_try_again_or_go_back_to_space_df": "Please try again, or go back to SpaceDF.",
+  "try_again": "Try again"
 }

@@ -10,5 +10,7 @@
   "change_glb_title": "Change to new 3D building model?",
   "change_glb_description": "You will need to reposition the existing devices that correspond to the new building model.",
   "cancel": "Cancel",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "model_load_error": "Failed to load model. Check your connection.",
+  "model_load_retry": "Retry"
 }

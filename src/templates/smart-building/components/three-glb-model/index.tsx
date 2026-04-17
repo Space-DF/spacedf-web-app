@@ -8,7 +8,7 @@ import {
 } from '@react-three/fiber'
 import { Progress } from '@/components/ui/progress'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import type { Object3D, Texture } from 'three'
 import { USDLoader } from 'three/addons/loaders/USDLoader.js'
 import { useLoader } from '@react-three/fiber'
@@ -251,6 +251,56 @@ function UsdzModel({
   )
 }
 
+class ThreeModelErrorBoundary extends Component<
+  {
+    children: React.ReactNode
+    fallback: React.ReactNode
+    resetKey?: string | number
+  },
+  { hasError: boolean }
+> {
+  constructor(props: ThreeModelErrorBoundary['props']) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true }
+  }
+
+  componentDidUpdate(prevProps: ThreeModelErrorBoundary['props']) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false })
+    }
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback
+    return this.props.children
+  }
+}
+
+function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
+  const t = useTranslations('smartBuilding')
+  return (
+    <Html center>
+      <div className="w-60 rounded-lg bg-black/40 px-4 py-3 text-white shadow-sm ring-1 ring-white/10 backdrop-blur-md">
+        <div className="text-sm font-medium opacity-90 text-brand-component-text-gray">
+          {t('model_load_error')}
+        </div>
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="mt-2 text-xs opacity-70 underline hover:opacity-100"
+          >
+            {t('model_load_retry')}
+          </button>
+        )}
+      </div>
+    </Html>
+  )
+}
+
 export default function ThreeModel({ url, ...props }: ModelProps) {
   const invalidate = useThree((s) => s.invalidate)
   const camera = useThree((s) => s.camera)
@@ -270,6 +320,7 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
   const [detectedFormat, setDetectedFormat] = useState<
     Detected3DFormat | 'detecting'
   >('detecting')
+  const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
     const ac = new AbortController()
@@ -279,11 +330,11 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
       .then((fmt) => setDetectedFormat(fmt))
       .catch((err) => {
         if (err.name === 'AbortError') return
-        setDetectedFormat('unknown')
+        setDetectedFormat(extensionHint)
       })
 
     return () => ac.abort()
-  }, [url])
+  }, [url, extensionHint, retryKey])
 
   useEffect(() => {
     setCamera(camera)
@@ -309,14 +360,23 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
       : detectedFormat === 'usdz' ||
         (detectedFormat === 'unknown' && extensionHint === 'usdz')
 
+  const handleRetry = () => setRetryKey((k) => k + 1)
+
   return (
     <>
       {shouldUseUsdz === null ? (
         <ModelFallback />
-      ) : shouldUseUsdz ? (
-        <UsdzModel url={url} {...props} />
       ) : (
-        <GlbScene url={url} {...props} />
+        <ThreeModelErrorBoundary
+          resetKey={`${url}-${retryKey}`}
+          fallback={<ModelLoadError onRetry={handleRetry} />}
+        >
+          {shouldUseUsdz ? (
+            <UsdzModel key={`${url}-${retryKey}`} url={url} {...props} />
+          ) : (
+            <GlbScene key={`${url}-${retryKey}`} url={url} {...props} />
+          )}
+        </ThreeModelErrorBoundary>
       )}
       <OrbitControls
         ref={controlsRef}

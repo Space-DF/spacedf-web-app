@@ -48,12 +48,11 @@ const SliderSource = () => {
     entityNameDebounce
   )
   const entityId = form.watch('source.entity_id')
-
   const [openCombobox, setOpenCombobox] = useState(false)
   const entityList = entities?.results || []
 
   const currentEntity = useMemo(() => {
-    return entityList.find((entity) => entity.id === entityId)
+    return entityList.find((entity) => entity.unique_key === entityId)
   }, [entityList, entityId])
 
   const t = useTranslations('dashboard')
