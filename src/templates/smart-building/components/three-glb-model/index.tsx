@@ -266,7 +266,7 @@ function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
   const t = useTranslations('smartBuilding')
   return (
     <Html center>
-      <div className="w-70 overflow-hidden rounded-xl bg-gradient-to-b from-black/55 to-black/35 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-md">
+      <div className="w-72 overflow-hidden rounded-xl bg-gradient-to-b from-black/55 to-black/35 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-md">
         <div className="px-4 py-3">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 grid size-8 place-items-center rounded-lg bg-white/10 ring-1 ring-white/10">
@@ -277,9 +277,6 @@ function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
             <div className="min-w-0">
               <div className="text-sm font-semibold tracking-tight text-brand-component-text-gray">
                 {t('model_load_error')}
-              </div>
-              <div className="mt-0.5 text-xs leading-relaxed text-white/70">
-                {t('model_load_retry')}
               </div>
             </div>
           </div>
