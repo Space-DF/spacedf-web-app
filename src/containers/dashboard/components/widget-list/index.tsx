@@ -51,6 +51,8 @@ import DashboardTable from './components/dashboard-table'
 import { DashboardDialog } from './components/dashboard-dialog'
 import { Dashboard } from '@/types/dashboard'
 import { sleep } from '@/utils'
+import { useGlobalStore } from '@/stores'
+import { useParams } from 'next/navigation'
 
 interface Props {
   onCloseSideBar: () => void
@@ -152,6 +154,10 @@ export const WidgetList: React.FC<Props> = ({
     })
   }
 
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
+  const spaceSlugName = spaceSlug || currentSpace?.slug_name
+
   const handleViewAllDashboard = () => {
     setOpen(false)
     setViewAllDashboard(true)
@@ -164,11 +170,15 @@ export const WidgetList: React.FC<Props> = ({
   }, [currentWidgetLayout])
 
   useEffect(() => {
+    if (!dashboards.length && !isLoadingDashboard) {
+      setDashboard(undefined)
+      return
+    }
     if (dashboards.length > 0 && !dashboard) {
       setDashboard(dashboards[0])
       return
     }
-  }, [dashboards, dashboard])
+  }, [dashboards, dashboard, spaceSlugName, isLoadingDashboard])
 
   const currentDashboardName = useMemo(() => {
     return dashboard?.name || 'Select Dashboard'
