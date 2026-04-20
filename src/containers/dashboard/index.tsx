@@ -29,11 +29,17 @@ const Dashboard = () => {
     dashboard?.id
   )
 
+  const dashboardId = dashboard?.id
+
   useEffect(() => {
+    if (!dashboardId) {
+      setWidgetList([])
+      return
+    }
     if (widgetLayout) {
       setWidgetList(widgetLayout)
     }
-  }, [widgetLayout])
+  }, [widgetLayout, dashboardId])
 
   const onSelectWidget = (widgetTitle: WidgetType) => {
     setSelectedWidget(widgetTitle)
