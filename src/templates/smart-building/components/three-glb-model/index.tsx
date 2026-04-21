@@ -15,6 +15,7 @@ import { useLoader } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
 import { useBounds } from '@react-three/drei'
+import Image from 'next/image'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
@@ -29,6 +30,71 @@ type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
 const FORMAT_PROBE_BYTES = 12
 const DEFAULT_MODEL_OPACITY = 0.35
+
+type MockDevice = {
+  id: string
+  name: string
+  type: 'electricity' | 'humidity' | 'temperature'
+  position: { x: number; y: number; z: number }
+  value: string
+}
+
+const MOCK_DEVICES: MockDevice[] = [
+  {
+    id: 'device-1',
+    name: 'Temperature Sensor',
+    type: 'temperature',
+    position: { x: 5.46, y: 1.27, z: -1.58 },
+    value: '24°C',
+  },
+  {
+    id: 'device-2',
+    name: 'Humidity Monitor',
+    type: 'humidity',
+    position: { x: -1.2, y: 0.5, z: 1.8 },
+    value: '65%',
+  },
+  {
+    id: 'device-3',
+    name: 'Power Meter',
+    type: 'electricity',
+    position: { x: 0.8, y: 0.2, z: -0.5 },
+    value: '2.4kW',
+  },
+]
+
+const DEVICE_ICONS = {
+  electricity: '/images/electricity.svg',
+  humidity: '/images/humidity.svg',
+  temperature: '/images/temperature.svg',
+}
+
+function DeviceMarker({ device }: { device: MockDevice }) {
+  return (
+    <Html
+      position={[device.position.x, device.position.y, device.position.z]}
+      center
+      distanceFactor={10}
+      zIndexRange={[0, 0]}
+    >
+      <div className="flex flex-col items-center cursor-pointer group">
+        <div className="relative transition-transform group-hover:scale-110">
+          <Image
+            src={DEVICE_ICONS[device.type]}
+            alt={device.name}
+            width={48}
+            height={48}
+            className="drop-shadow-lg"
+          />
+        </div>
+        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap backdrop-blur-sm">
+          <div className="font-semibold">{device.name}</div>
+          <div className="text-gray-300">{device.value}</div>
+        </div>
+      </div>
+    </Html>
+  )
+}
 
 async function detect3DFormatFromUrl(
   url: string,
@@ -134,7 +200,14 @@ function FitOnRefocus({ children }: { children: React.ReactNode }) {
     run()
   }, [api, controls])
 
-  return <group ref={objectRef as any}>{children}</group>
+  return (
+    <group ref={objectRef as any}>
+      {children}
+      {MOCK_DEVICES.map((device) => (
+        <DeviceMarker key={device.id} device={device} />
+      ))}
+    </group>
+  )
 }
 
 function GlbScene({

@@ -1,7 +1,7 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { ImportThreeModel } from './components/import-file'
 import ThreeModel, { ModelFallback } from './components/three-glb-model'
 import { useModelGLB } from '@/stores/template/model-glb'
@@ -11,7 +11,6 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import SpacedfLogo from '@/components/common/spacedf-logo'
 import { ThreeModelControls } from './components/three-model-controls'
 import { useGlobalStore } from '@/stores'
-import { useUploadModel } from './components/import-file/hooks/useUploadGlb'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,14 +34,6 @@ export default function SmartBuilding() {
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const buildArtifact = currentSpace?.url_build_artifact
 
-  const handleImport = useCallback((objectUrl: string) => {
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-    }
-    blobUrlRef.current = objectUrl
-    setModelGLBUrl(objectUrl)
-  }, [])
-
   useEffect(
     () => () => {
       if (blobUrlRef.current) {
@@ -52,11 +43,6 @@ export default function SmartBuilding() {
     []
   )
 
-  const {
-    uploadModel,
-    isUploading,
-    progress: uploadProgress,
-  } = useUploadModel()
   const setIsOpenDeviceModal = useDeviceModalStore((state) => state.setIsOpen)
   const setDeviceModalPosition = useDeviceModalStore(
     (state) => state.setPosition
@@ -95,13 +81,7 @@ export default function SmartBuilding() {
     <>
       <ImportThreeModel
         className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-        onImport={handleImport}
-        isHidden={
-          (!!modelGLBUrl && !isUploading) || (!currentSpace && isAuthenticated)
-        }
-        isUploading={isUploading}
-        progress={uploadProgress}
-        uploadModel={uploadModel}
+        isHidden={!!modelGLBUrl || (!currentSpace && isAuthenticated)}
       />
       <div className="absolute top-0 left-0 right-0 z-10">
         <div className="flex p-3 justify-between">
@@ -146,7 +126,7 @@ export default function SmartBuilding() {
                   shadow-mapSize-width={4096}
                   shadow-mapSize-height={4096}
                 />
-                {modelGLBUrl && !isUploading ? (
+                {modelGLBUrl ? (
                   <Suspense key={modelGLBUrl} fallback={<ModelFallback />}>
                     <ThreeModel
                       url={modelGLBUrl}

@@ -8,12 +8,9 @@ interface ModelGLBState {
   setModelGLBUrl: (modelGLBUrl?: string) => void
   setDefaultModel: () => void
   resetModel: () => void
-  uploadPickerOpener?: () => void
-  registerUploadPickerOpener: (opener?: () => void) => void
-  openUploadPicker: () => void
 }
 
-export const useModelGLB = create<ModelGLBState>()((set, get) => ({
+export const useModelGLB = create<ModelGLBState>()((set) => ({
   modelGLB: undefined,
   modelGLBUrl: undefined,
   setModelGLB: (modelGLB) => set({ modelGLB }),
@@ -24,10 +21,4 @@ export const useModelGLB = create<ModelGLBState>()((set, get) => ({
       modelGLBUrl: getS3Url('glbs/spacedf/building.glb'),
     }),
   resetModel: () => set({ modelGLB: undefined, modelGLBUrl: undefined }),
-  uploadPickerOpener: undefined,
-
-  registerUploadPickerOpener: (opener) => set({ uploadPickerOpener: opener }),
-  openUploadPicker: () => {
-    get().uploadPickerOpener?.()
-  },
 }))
