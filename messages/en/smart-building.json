@@ -10,7 +10,19 @@
   "change_glb_title": "Change to new 3D building model?",
   "change_glb_description": "You will need to reposition the existing devices that correspond to the new building model.",
   "cancel": "Cancel",
+  "create": "Create",
   "confirm": "Confirm",
   "model_load_error": "Failed to load model. Check your connection.",
-  "model_load_retry": "Retry"
+  "model_load_retry": "Retry",
+  "upload_3d_building_area": "Upload 3D Building/Area",
+  "upload_3d_building_area_dialog_title": "Upload 3D Building/Area",
+  "upload_3d_building_area_dialog_name": "Name",
+  "upload_3d_building_area_dialog_name_placeholder": "Building/Area Name",
+  "upload_3d_building_area_dialog_name_required": "Name is required.",
+  "upload_3d_building_area_dialog_tag": "Tag",
+  "upload_3d_building_area_dialog_tag_placeholder": "Select a tag",
+  "upload_floor_3d_model": "Upload Floor - 3D Model",
+  "floor_name_placeholder": "Floor Name",
+  "upload_your_first_3d_model": "Upload Your First 3D Model",
+  "upload_3d_model": "Upload 3D Model"
 }

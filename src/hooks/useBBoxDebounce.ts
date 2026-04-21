@@ -6,7 +6,7 @@ import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 const mapInstance = MapInstance.getInstance()
 
 export const useBBoxDebounce = () => {
-  const [bbox, setBbox] = useState<string>('')
+  const [bbox, setBbox] = useState<string | undefined>(undefined)
   const bboxDebounced = useDebounce(bbox, 500)
 
   useEffect(() => {
@@ -25,9 +25,17 @@ export const useBBoxDebounce = () => {
       map.on('zoomend', updateBbox)
     }
 
-    mapInstance.on('ready', updateBbox)
+    mapInstance.on('ready', () => {
+      updateBbox()
+      const map = mapInstance.getMap()
+      if (map) {
+        map.on('moveend', updateBbox)
+        map.on('zoomend', updateBbox)
+      }
+    })
 
     return () => {
+      const map = mapInstance.getMap()
       if (map) {
         map.off('moveend', updateBbox)
         map.off('zoomend', updateBbox)

@@ -10,7 +10,19 @@
   "change_glb_title": "Đổi sang mô hình tòa nhà 3D mới?",
   "change_glb_description": "Bạn sẽ cần định vị lại các thiết bị hiện có tương ứng với mô hình tòa nhà mới.",
   "cancel": "Hủy",
+  "create": "Tạo",
   "confirm": "Xác nhận",
   "model_load_error": "Không thể tải mô hình. Kiểm tra kết nối của bạn.",
-  "model_load_retry": "Thử lại"
+  "model_load_retry": "Thử lại",
+  "upload_3d_building_area": "Tải lên tòa nhà/khu vực 3D",
+  "upload_3d_building_area_dialog_title": "Tải lên tòa nhà/khu vực 3D",
+  "upload_3d_building_area_dialog_name": "Tên",
+  "upload_3d_building_area_dialog_name_placeholder": "Tên tòa nhà/khu vực",
+  "upload_3d_building_area_dialog_name_required": "Vui lòng nhập tên.",
+  "upload_3d_building_area_dialog_tag": "Thẻ",
+  "upload_3d_building_area_dialog_tag_placeholder": "Chọn thẻ",
+  "upload_floor_3d_model": "Tải lên tầng - Mô hình 3D",
+  "floor_name_placeholder": "Tên tầng",
+  "upload_your_first_3d_model": "Tải lên mô hình 3D đầu tiên của bạn",
+  "upload_3d_model": "Tải lên mô hình 3D"
 }

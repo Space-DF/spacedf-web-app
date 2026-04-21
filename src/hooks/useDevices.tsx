@@ -45,14 +45,7 @@ export function useGetDevices(
   const flatData = useMemo(() => {
     if (!data) return []
 
-    const merged = data.flat()
-
-    const map = new Map<string, DeviceDataOriginal>()
-    for (const device of merged) {
-      map.set(device.id, device)
-    }
-
-    return Array.from(map.values())
+    return data.flat()
   }, [data])
 
   const isReachingEnd = data

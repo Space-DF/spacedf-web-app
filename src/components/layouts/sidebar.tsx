@@ -241,7 +241,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     router.push('/')
   }
 
-  const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
+  const isTablet = mounted && width > RESPONSIVE_BREAKPOINTS.TABLET
 
   return (
     <>
