@@ -215,6 +215,61 @@
   resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.12.0.tgz#7b3365e1dfdc5cd957b45afe920b4ac06c7cd389"
   integrity sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==
 
+"@dnd-kit/abstract@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/abstract/-/abstract-0.4.0.tgz#5dd39a1f6a92604537e1384436813e18fa4d7831"
+  integrity sha512-loEEJxKT5oLOLeRBJVTO9qpgvvW/Qq902xO20v1JMbpANuN/NLurUdpxIwNpVz+RtOSyzznnbc7lO7psmOhc9A==
+  dependencies:
+    "@dnd-kit/geometry" "^0.4.0"
+    "@dnd-kit/state" "^0.4.0"
+    tslib "^2.6.2"
+
+"@dnd-kit/collision@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/collision/-/collision-0.4.0.tgz#b76f53301d41bd39d5fa7924ae0d994c9e1d3d1a"
+  integrity sha512-oOHHUkH1h9Vl2m8TwLw/mPHA7Blf+s0PYcRoLNWNBVxDzugJKZo8WdpU58EMu9qkqyQGrR/YTOozGiMPhlqZ5Q==
+  dependencies:
+    "@dnd-kit/abstract" "^0.4.0"
+    "@dnd-kit/geometry" "^0.4.0"
+    tslib "^2.6.2"
+
+"@dnd-kit/dom@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/dom/-/dom-0.4.0.tgz#3cf0d7983f51c6c82edc950aa418675f048fc3bb"
+  integrity sha512-mJDKt0BtlHXetZyrvZXh6++aycleIbYWH/OVC4nlszDh8NvW7q8dfsxFllR5RtLKLcykLaI4o545Figfks/HZQ==
+  dependencies:
+    "@dnd-kit/abstract" "^0.4.0"
+    "@dnd-kit/collision" "^0.4.0"
+    "@dnd-kit/geometry" "^0.4.0"
+    "@dnd-kit/state" "^0.4.0"
+    tslib "^2.6.2"
+
+"@dnd-kit/geometry@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/geometry/-/geometry-0.4.0.tgz#b24d4e08bdee8b1cba0f798732e399b4c47776a0"
+  integrity sha512-d1n+CU54V/qF/g792bmJK2oR4f5jOL7Pls2IfC+j9f5UBECpjsYbcPZ/krom/z8LgieqvMh1qrUkdcBjJJ7vpg==
+  dependencies:
+    "@dnd-kit/state" "^0.4.0"
+    tslib "^2.6.2"
+
+"@dnd-kit/react@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/react/-/react-0.4.0.tgz#2b90de9edee228c7fbe71bbddfedf36dff17bef6"
+  integrity sha512-J2/N4CpQf98zJBZhMljDNsc+QR4VtUKU9BRO1+Di4OGaB1qafMC4qZ11xKXOkjw+d7h82FRSXmXCo0c8+VWaWg==
+  dependencies:
+    "@dnd-kit/abstract" "^0.4.0"
+    "@dnd-kit/dom" "^0.4.0"
+    "@dnd-kit/state" "^0.4.0"
+    tslib "^2.6.2"
+
+"@dnd-kit/state@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@dnd-kit/state/-/state-0.4.0.tgz#9c8b2c587eda75b98514beec450ed47ffd0441bd"
+  integrity sha512-vVdwOY9VsYdMNa7Z0xQhTXlzHqCcCugGuoM1kzvZhnZ0tYVPRdmIhWfeO6Y2ZoN92JwYAyJRRNl4ICkEe2mneg==
+  dependencies:
+    "@preact/signals-core" "^1.10.0"
+    tslib "^2.6.2"
+
 "@emnapi/runtime@^1.7.0":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@emnapi/runtime/-/runtime-1.8.1.tgz#550fa7e3c0d49c5fb175a116e8cd70614f9a22a5"
@@ -1263,6 +1318,11 @@
   resolved "https://registry.npmjs.org/@pkgr/core/-/core-0.1.1.tgz"
   integrity sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==
 
+"@preact/signals-core@^1.10.0":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@preact/signals-core/-/signals-core-1.14.1.tgz#2a5739381eca3d730519d2d447ceb8110508d0bc"
+  integrity sha512-vxPpfXqrwUe9lpjqfYNjAF/0RF/eFGeLgdJzdmIIZjpOnTmGmAB4BjWone562mJGMRP4frU6iZ6ei3PDsu52Ng==
+
 "@probe.gl/env@4.0.9", "@probe.gl/env@^4.0.2", "@probe.gl/env@^4.0.9":
   version "4.0.9"
   resolved "https://registry.npmjs.org/@probe.gl/env/-/env-4.0.9.tgz"
@@ -2208,10 +2268,10 @@
   resolved "https://registry.npmjs.org/@rushstack/eslint-patch/-/eslint-patch-1.10.5.tgz"
   integrity sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==
 
-"@space-df/sdk@0.0.1-dev.46":
-  version "0.0.1-dev.46"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.46.tgz#e74c82c055add10b231221fedf2bba3ccea58aa2"
-  integrity sha512-pBkRpDpsUoouz2dMi/gDhu51W0jBuoTgp+prLYRuXMrpRUe2v6Y7wzNivkqp2iS20GVJqyAMZmuaOwLcVu6f1A==
+"@space-df/sdk@0.0.1-dev.47":
+  version "0.0.1-dev.47"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.47.tgz#9f4c504fe7cb79102432a7dba80f0c260b31d044"
+  integrity sha512-Q8GLhgw25VaSIs4P4ZCzPUL1CxOVxbmYutV4Dd3xO/MWYOJHc8jywSCZHuCLTerAWU7/zLw4N2KXpHyZ7CmYHg==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

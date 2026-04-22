@@ -4,51 +4,34 @@ import { spaceClient } from '@/lib/spacedf'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const POST = withAuthApiRequired(async (request: NextRequest) => {
-  const formData = await request.formData()
-  const spacedfClient = await spaceClient()
   const searchParams = request.nextUrl.searchParams
   const spaceSlug = searchParams.get('spaceSlug')
-  const file = formData.get('model') as File | null
+  const formData = await request.formData()
   const name = formData.get('name') as string
-  const floorName = formData.get('floorName') as string
-  if (!file || !spaceSlug) {
-    return NextResponse.json(
-      { message: 'File and space slug are required' },
-      { status: 400 }
-    )
+  const description = formData.get('description') as string
+  const file = formData.get('model') as File
+  if (!file) {
+    return NextResponse.json({ message: 'File is required' }, { status: 400 })
   }
+  const spacedfClient = await spaceClient()
   const data = await spacedfClient.presignedUrl.get()
   const presignedUrl = data.presigned_url
   const fileBuffer = await file.arrayBuffer()
-  const responseModel = await fetch(presignedUrl, {
+  const response = await fetch(presignedUrl, {
     method: 'PUT',
     body: fileBuffer,
   })
-  if (!responseModel.ok) {
+  if (!response.ok) {
     return NextResponse.json(
-      { message: 'Presigned url is not valid' },
+      { message: 'Failed to upload file' },
       { status: 400 }
     )
   }
-  const newBuilding = await spacedfClient.buildings.create(
+  const facility = await spacedfClient.facilities.create(
     {
       name,
-      description: '',
+      description,
       location: {} as any,
-    },
-    {
-      headers: {
-        'X-Space': spaceSlug,
-      },
-    }
-  )
-
-  await spacedfClient.buildings.createFloor(
-    newBuilding.id,
-    {
-      name: floorName,
-      description: '',
-      level: 0,
       scene_asset: data.file_name,
     },
     {
@@ -57,10 +40,7 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
       },
     }
   )
-
-  return NextResponse.json({
-    success: true,
-  })
+  return NextResponse.json(facility)
 })
 
 export const GET = withAuthApiRequired(async (request: NextRequest) => {
@@ -69,7 +49,7 @@ export const GET = withAuthApiRequired(async (request: NextRequest) => {
   const limit = searchParams.get('limit') || DEFAULT_PAGE_SIZE
   const offset = searchParams.get('offset') || 0
   const spacedfClient = await spaceClient()
-  const buildings = await spacedfClient.buildings.list(
+  const facilities = await spacedfClient.facilities.list(
     {
       limit: +limit,
       offset: +offset,
@@ -80,5 +60,5 @@ export const GET = withAuthApiRequired(async (request: NextRequest) => {
       },
     }
   )
-  return NextResponse.json(buildings)
+  return NextResponse.json(facilities)
 })

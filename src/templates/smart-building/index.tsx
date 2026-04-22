@@ -1,12 +1,9 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { ImportThreeModel } from './components/import-file'
 import ThreeModel, { ModelFallback } from './components/three-glb-model'
-import { useModelGLB } from '@/stores/template/model-glb'
-import { useShallow } from 'zustand/react/shallow'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import SpacedfLogo from '@/components/common/spacedf-logo'
 import { ThreeModelControls } from './components/three-model-controls'
@@ -19,34 +16,29 @@ import {
 import Image from 'next/image'
 import { useDeviceModalStore } from '@/stores/template/device-modal'
 import { DropdownSwitchFloor } from './components/three-model-controls/components/dropdown-switch-floor'
+import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
+import { Building } from '@/types/building'
+import { Area } from '@/types/area'
+import { Floor } from '@/types/floor'
+import { useAreaAndBuilding } from './hooks/useAreaAndBuilding'
+import { getS3Url } from '@/utils'
 
 export default function SmartBuilding() {
-  const { setModelGLBUrl, modelGLBUrl, setDefaultModel, resetModel } =
-    useModelGLB(
-      useShallow((state) => ({
-        setModelGLBUrl: state.setModelGLBUrl,
-        modelGLBUrl: state.modelGLBUrl,
-        setDefaultModel: state.setDefaultModel,
-        resetModel: state.resetModel,
-      }))
-    )
-  const blobUrlRef = useRef<string | null>(null)
-  const currentSpace = useGlobalStore((state) => state.currentSpace)
-  const buildArtifact = currentSpace?.url_build_artifact
-
-  useEffect(
-    () => () => {
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current)
-      }
-    },
-    []
-  )
-
   const setIsOpenDeviceModal = useDeviceModalStore((state) => state.setIsOpen)
   const setDeviceModalPosition = useDeviceModalStore(
     (state) => state.setPosition
   )
+  const {
+    data: areaAndBuilding,
+    isLoading: isLoadingAreaAndBuilding,
+    mutate: mutateAreaAndBuilding,
+  } = useAreaAndBuilding()
+  const isFirstLoadRef = useRef(true)
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
+  const [activeBuildingArea, setActiveBuildingArea] = useState<
+    Building | Area | undefined
+  >(undefined)
+  const [activeFloor, setActiveFloor] = useState<Floor | undefined>(undefined)
 
   const [contextMenuPosition, setContextMenuPosition] = useState<{
     x: number
@@ -54,34 +46,43 @@ export default function SmartBuilding() {
     worldPoint: { x: number; y: number; z: number }
   } | null>(null)
 
-  useEffect(() => {
-    if (buildArtifact) {
-      setModelGLBUrl(buildArtifact)
-      return
-    }
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-      blobUrlRef.current = null
-    }
-    setModelGLBUrl(undefined)
-  }, [buildArtifact, setModelGLBUrl])
+  const isBuilding = activeBuildingArea?.type === 'building'
 
-  const showDummyData = useShowDummyData()
   const isAuthenticated = useAuthenticated()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      resetModel()
+    if (!isAuthenticated) return
+    if (isFirstLoadRef.current) {
+      if (!activeBuildingArea) {
+        setGlobalLoading(true)
+        return
+      }
+      if (isBuilding && !activeFloor) {
+        setGlobalLoading(true)
+      } else {
+        setGlobalLoading(false)
+        isFirstLoadRef.current = false
+      }
     }
-    if (!showDummyData) return
-    setDefaultModel()
-  }, [showDummyData])
+  }, [isBuilding, activeFloor, activeBuildingArea, isAuthenticated])
+
+  const isHiddenImport =
+    (isAuthenticated && (isBuilding ? !!activeFloor : !!activeBuildingArea)) ||
+    !isAuthenticated
+
+  const modelUrl = useMemo(() => {
+    if (!isAuthenticated) return getS3Url('glbs/spacedf/building.glb')
+    return isBuilding
+      ? activeFloor?.url_scene_asset
+      : (activeBuildingArea as Area)?.url_scene_asset
+  }, [isAuthenticated, isBuilding, activeFloor, activeBuildingArea])
 
   return (
     <>
       <ImportThreeModel
         className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-        isHidden={!!modelGLBUrl || (!currentSpace && isAuthenticated)}
+        isHidden={isHiddenImport}
+        refetch={mutateAreaAndBuilding}
       />
       <div className="absolute top-0 left-0 right-0 z-10">
         <div className="flex p-3 justify-between">
@@ -89,8 +90,29 @@ export default function SmartBuilding() {
             <SpacedfLogo />
           </div>
           <div className="flex space-x-3">
-            <DropdownSwitchFloor />
-            {modelGLBUrl ? <ThreeModelControls /> : <></>}
+            {isAuthenticated && (
+              <>
+                {isBuilding && (
+                  <DropdownSwitchFloor
+                    buildingId={activeBuildingArea?.id}
+                    activeFloor={activeFloor}
+                    setActiveFloor={setActiveFloor}
+                  />
+                )}
+                <DropdownSwitchBuilding
+                  activeBuildingArea={activeBuildingArea}
+                  setActiveBuildingArea={setActiveBuildingArea}
+                  isLoadingAreaAndBuilding={isLoadingAreaAndBuilding}
+                  areaAndBuilding={areaAndBuilding}
+                />
+              </>
+            )}
+            {modelUrl && (
+              <ThreeModelControls
+                refetch={mutateAreaAndBuilding}
+                activeBuildingArea={activeBuildingArea}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -102,7 +124,7 @@ export default function SmartBuilding() {
           }}
         >
           <div className="h-full w-full">
-            {modelGLBUrl ? (
+            {modelUrl ? (
               <Canvas
                 className="h-full w-full"
                 camera={{ position: [0, 0, 5], fov: 45, far: 1_000_000 }}
@@ -126,10 +148,10 @@ export default function SmartBuilding() {
                   shadow-mapSize-width={4096}
                   shadow-mapSize-height={4096}
                 />
-                {modelGLBUrl ? (
-                  <Suspense key={modelGLBUrl} fallback={<ModelFallback />}>
+                {modelUrl ? (
+                  <Suspense key={modelUrl} fallback={<ModelFallback />}>
                     <ThreeModel
-                      url={modelGLBUrl}
+                      url={modelUrl}
                       onModelContextMenu={({
                         clientX,
                         clientY,

@@ -18,6 +18,8 @@ export type CommonConfirmDialogProps = {
   description?: ReactNode
   cancelLabel?: ReactNode
   confirmLabel?: ReactNode
+  isConfirming?: boolean
+  destructive?: boolean
   onCancel: () => void
   onConfirm: () => void
 }
@@ -28,6 +30,8 @@ export function ConfirmDialog({
   description,
   cancelLabel = 'Cancel',
   confirmLabel = 'Confirm',
+  isConfirming = false,
+  destructive = false,
   onCancel,
   onConfirm,
 }: CommonConfirmDialogProps) {
@@ -49,12 +53,18 @@ export function ConfirmDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter className="flex gap-4">
-          <AlertDialogCancel className="h-12 flex-1 border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none">
+          <AlertDialogCancel
+            disabled={isConfirming}
+            className="h-12 flex-1 border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none"
+          >
             {cancelLabel}
           </AlertDialogCancel>
           <Button
             type="button"
-            className="h-12 flex-1 items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark font-semibold shadow-sm transition-all hover:opacity-70"
+            variant={destructive ? 'destructive' : 'default'}
+            className="h-12 flex-1 items-center gap-2 rounded-lg font-semibold shadow-sm transition-all hover:opacity-70"
+            loading={isConfirming}
+            disabled={isConfirming}
             onClick={onConfirm}
           >
             {confirmLabel}

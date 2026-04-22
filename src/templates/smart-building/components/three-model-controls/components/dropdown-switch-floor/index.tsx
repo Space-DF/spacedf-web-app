@@ -4,50 +4,83 @@ import { ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useMemo, useState } from 'react'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useEffect, useMemo } from 'react'
+import { useFloorBuilding } from '@/templates/smart-building/hooks/useFloorBuilding'
+import { EmptySelect } from '@/components/ui/empty-select'
+import { Floor } from '@/types/floor'
 
-export function DropdownSwitchFloor({ className }: { className?: string }) {
-  const floors = useMemo(() => ['1F', '2F', '3F'], [])
-  const [activeFloor, setActiveFloor] = useState<string>(floors[0] ?? '1F')
+interface DropdownSwitchFloorProps {
+  buildingId?: string
+  activeFloor?: Floor
+  setActiveFloor: (floor: Floor | undefined) => void
+}
+
+export function DropdownSwitchFloor({
+  buildingId,
+  activeFloor,
+  setActiveFloor,
+}: DropdownSwitchFloorProps) {
+  const { data: floors, isLoading: isLoadingFloors } =
+    useFloorBuilding(buildingId)
+  const floorsData = useMemo(() => {
+    if (isLoadingFloors || !floors) return []
+    return floors.results
+  }, [floors, isLoadingFloors])
+
+  useEffect(() => {
+    if (!floorsData.length) return
+    setActiveFloor(floorsData[0])
+  }, [floorsData])
+
+  if (isLoadingFloors || !floorsData.length) {
+    return (
+      <EmptySelect
+        ariaLabel="Switch floor"
+        placeholder={isLoadingFloors ? 'Loading...' : 'No Floor'}
+        triggerClassName="flex h-fit border-none items-center gap-2 py-2 w-32 rounded-lg bg-brand-component-hover-dark px-3 text-sm font-semibold text-white shadow-sm transition-colors"
+        contentClassName="min-w-32"
+      />
+    )
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label="Switch floor"
-          className={cn(
-            'flex h-fit items-center gap-2 py-2 rounded-lg bg-brand-component-fill-dark px-3 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-white/10 transition-colors hover:bg-brand-component-fill-dark/80',
-            className
-          )}
-        >
-          <span className="tabular-nums">{activeFloor}</span>
-          <ChevronDown className="size-4 opacity-80" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="min-w-[140px]">
-        {floors.map((floor) => (
-          <DropdownMenuItem
-            key={floor}
-            onSelect={() => {
-              setActiveFloor(floor)
-            }}
+    <Select
+      value={activeFloor?.id}
+      onValueChange={(value) =>
+        setActiveFloor(floorsData.find((floor) => floor.id === value))
+      }
+    >
+      <SelectTrigger
+        aria-label="Switch floor"
+        className="flex h-fit items-center gap-2 py-2 w-32 rounded-lg bg-brand-component-hover-dark px-3 text-sm font-semibold text-white shadow-sm transition-colors border-none"
+        icon={<ChevronDown className="size-4 opacity-80" />}
+      >
+        <SelectValue placeholder="Select Floor" />
+      </SelectTrigger>
+      <SelectContent className="min-w-32 bg-brand-component-fill-dark p-1">
+        {floorsData.map((floor) => (
+          <SelectItem
+            key={floor.id}
+            value={floor.id}
+            showCheckIcon={false}
             className={cn(
-              'flex items-center justify-between',
-              activeFloor === floor && 'bg-accent'
+              'flex items-center rounded-md p-2 cursor-pointer',
+              'text-brand-component-text-gray focus:bg-brand-component-hover-dark focus:text-white',
+              activeFloor?.id === floor.id &&
+                !!activeFloor &&
+                'text-white bg-brand-component-hover-dark'
             )}
           >
-            <span className="font-medium text-brand-component-text-dark">
-              {floor}
-            </span>
-          </DropdownMenuItem>
+            <span className="font-medium tabular-nums">{floor.name}</span>
+          </SelectItem>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SelectContent>
+    </Select>
   )
 }
