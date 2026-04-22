@@ -6,16 +6,18 @@ import { cn } from '@/lib/utils'
 import DrawSVG from '/public/images/draw.svg'
 import { useTranslations } from 'next-intl'
 import CloudArrowUp from '@/components/icons/cloud-arrow-up'
-import { DialogUpload } from './components/dialog-upload'
+import { DialogUpload } from '../dialog-upload'
 
 export type ImportThreeModelProps = {
   className?: string
   isHidden?: boolean
+  refetch: () => void
 }
 
 export function ImportThreeModel({
   className,
   isHidden,
+  refetch,
 }: ImportThreeModelProps) {
   const t = useTranslations('smartBuilding')
 
@@ -54,6 +56,7 @@ export function ImportThreeModel({
                   <CloudArrowUp />
                 </Button>
               }
+              refetch={refetch}
             />
             <span className="text-brand-component-text-gray">
               {t('glb_import_hint')}

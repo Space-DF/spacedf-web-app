@@ -1,4 +1,6 @@
 export const brandColors = {
+  'navy-blue': '#224B6C',
+  'dark-olive': '#53503C',
   'stroke-dark-soft': '#E0E2E7',
   'stroke-gray': '#667085',
   heading: '#090C18',

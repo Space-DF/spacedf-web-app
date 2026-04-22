@@ -2,12 +2,27 @@
 
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { Pause, Play, RotateCcw, Minus, Plus, Layers } from 'lucide-react'
+import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
-import { DialogFloor } from './components/dialog-floor'
+import { Building, SettingIcon } from '@/components/icons'
+import { DialogUpload } from '../dialog-upload'
+import { DialogBuildingManagement } from '../dialog-building-management'
+import { DialogAreaManagement } from '../dialog-area-management'
+import { Building as BuildingType } from '@/types/building'
+import { Area, Area as AreaType } from '@/types/area'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
-export function ThreeModelControls({ className }: { className?: string }) {
+interface ThreeModelControlsProps {
+  className?: string
+  refetch: () => void
+  activeBuildingArea?: BuildingType | AreaType
+}
+
+export function ThreeModelControls({
+  className,
+  refetch,
+  activeBuildingArea,
+}: ThreeModelControlsProps) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
     useThreeModelController((s) => ({
       zoomIn: s.zoomIn,
@@ -18,7 +33,9 @@ export function ThreeModelControls({ className }: { className?: string }) {
       hasControls: Boolean(s.controls),
     }))
 
-  const isShowDummyData = useShowDummyData()
+  const isArea = activeBuildingArea?.type === 'area'
+
+  const isAuthenticated = useAuthenticated()
 
   if (!hasControls) return null
 
@@ -52,16 +69,41 @@ export function ThreeModelControls({ className }: { className?: string }) {
         </ControlButton>
       </ControlGroup>
 
-      {!isShowDummyData && (
+      {activeBuildingArea && (
         <ControlGroup>
-          <DialogFloor>
-            <ControlButton label="Show floors" className="relative">
-              <Layers className="size-4 text-brand-icon-light-fixed" />
-              <div className="absolute bottom-0 right-0 text-white text-xs font-medium size-4 bg-brand-component-fill-secondary rounded-full">
-                1
-              </div>
-            </ControlButton>
-          </DialogFloor>
+          {isArea ? (
+            <DialogAreaManagement
+              area={activeBuildingArea as Area}
+              refetch={refetch}
+              trigger={
+                <ControlButton label="Settings">
+                  <SettingIcon className="size-4 text-brand-icon-light-fixed" />
+                </ControlButton>
+              }
+            />
+          ) : (
+            <DialogBuildingManagement
+              building={activeBuildingArea}
+              refetch={refetch}
+              trigger={
+                <ControlButton label="Settings">
+                  <SettingIcon className="size-4 text-brand-icon-light-fixed" />
+                </ControlButton>
+              }
+            />
+          )}
+        </ControlGroup>
+      )}
+      {isAuthenticated && (
+        <ControlGroup>
+          <DialogUpload
+            trigger={
+              <ControlButton label="Switch building">
+                <Building className="size-4 text-brand-icon-light-fixed" />
+              </ControlButton>
+            }
+            refetch={refetch}
+          />
         </ControlGroup>
       )}
     </div>
