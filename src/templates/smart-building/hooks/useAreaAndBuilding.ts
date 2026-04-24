@@ -42,7 +42,7 @@ export const useAreaAndBuilding = (params: UseAreaAndBuildingParams = {}) => {
   })
 
   return useSWR(
-    showDummyData ? null : ([areaKey, buildingKey] as const),
+    showDummyData || !spaceSlugName ? null : ([areaKey, buildingKey] as const),
     async ([areaUrl, buildingUrl]) => {
       const [area, building] = await Promise.all([
         fetcher<PaginationResponse<Area>>(areaUrl),

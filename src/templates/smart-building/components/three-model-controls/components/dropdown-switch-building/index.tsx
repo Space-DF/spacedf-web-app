@@ -48,9 +48,9 @@ export function DropdownSwitchBuilding({
   }, [areaAndBuilding, isLoadingAreaAndBuilding])
 
   useEffect(() => {
-    if (!areaBuildingData.length) return
+    if (!areaBuildingData.length || activeBuildingArea) return
     setActiveBuildingArea(areaBuildingData[0])
-  }, [areaBuildingData])
+  }, [areaBuildingData, activeBuildingArea])
 
   if (isLoadingAreaAndBuilding || !areaBuildingData.length) {
     return (
