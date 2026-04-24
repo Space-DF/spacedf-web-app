@@ -1,3 +1,4 @@
+import { useGlobalStore } from '@/stores'
 import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
@@ -32,8 +33,12 @@ type UploadArg = {
 
 export const useUploadModel = (isBuilding: boolean) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWRMutation<UploadModelResult, Error, string, UploadArg>(
-    `${isBuilding ? '/api/building' : '/api/area'}?spaceSlug=${spaceSlug}`,
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
+  const spaceSlugName = spaceSlug || currentSpace?.slug_name
+  return useSWRMutation<UploadModelResult, Error, string | null, UploadArg>(
+    spaceSlugName
+      ? `${isBuilding ? '/api/building' : '/api/area'}?spaceSlug=${spaceSlugName}`
+      : null,
     uploadModelFetcher
   )
 }

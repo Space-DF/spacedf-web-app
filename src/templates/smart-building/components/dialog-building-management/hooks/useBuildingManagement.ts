@@ -1,3 +1,4 @@
+import { useGlobalStore } from '@/stores'
 import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
@@ -135,8 +136,12 @@ const updateAreaFetcher = async (
 
 export const useUpdateArea = (areaId: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  const currentSpace = useGlobalStore((state) => state.currentSpace)
+  const spaceSlugName = spaceSlug || currentSpace?.slug_name
   return useSWRMutation(
-    areaId ? `/api/area/${areaId}?spaceSlug=${spaceSlug}` : null,
+    areaId && spaceSlugName
+      ? `/api/area/${areaId}?spaceSlug=${spaceSlugName}`
+      : null,
     updateAreaFetcher
   )
 }

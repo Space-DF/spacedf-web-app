@@ -29,6 +29,7 @@ import { useWindowSize } from '@/hooks/useWindowSize'
 import { useGeofenceStore } from '@/stores/geofence-store'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { FeatureId } from '@/types/geofence'
+import { useMounted } from '@/hooks'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -44,6 +45,24 @@ const calculateCollapsedLayout = () => {
     (maxLeftCollapsedSize / window.innerWidth) * 100
   const finalLeftSize = Math.min(percentMaxLeftCollapsedSize, 4)
   return [finalLeftSize, 100 - finalLeftSize]
+}
+
+interface DynamicLayoutContentProps {
+  panelType: string | null
+}
+
+const DynamicLayoutContent = ({ panelType }: DynamicLayoutContentProps) => {
+  switch (panelType) {
+    case NavigationEnums.GEOFENCES:
+      return <Geofences />
+    case NavigationEnums.DEVICES:
+      return <Devices />
+    case NavigationEnums.DASHBOARD:
+    case NavigationEnums.USER:
+      return <Dashboard />
+    default:
+      return null
+  }
 }
 
 const mapInstance = MapInstance.getInstance()
@@ -106,6 +125,8 @@ const DynamicLayout = ({
   const collapseThreshold = useResponsiveCollapseThreshold()
 
   const { width } = useWindowSize()
+
+  const { mounted } = useMounted()
 
   const handleSetDynamicLayout = () => {
     if (!prevLayouts.current.length && dynamicLayoutRight.length)
@@ -192,7 +213,7 @@ const DynamicLayout = ({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const isTablet = width > RESPONSIVE_BREAKPOINTS.TABLET
+  const isTablet = mounted && width > RESPONSIVE_BREAKPOINTS.TABLET
 
   //todo: need to refactor this code -> 36, 25 need to move to the constants
   const minRightSize = useMemo(() => {
@@ -227,20 +248,6 @@ const DynamicLayout = ({
 
     return (minLeftWidth / window.innerWidth) * 100
   }, [dynamicLayoutRight])
-
-  const renderDynamicPanel = (panelType: string | null) => {
-    switch (panelType) {
-      case NavigationEnums.GEOFENCES:
-        return <Geofences />
-      case NavigationEnums.DEVICES:
-        return <Devices />
-      case NavigationEnums.DASHBOARD:
-      case NavigationEnums.USER:
-        return <Dashboard />
-      default:
-        return null
-    }
-  }
 
   const isGeofencesActive = dynamicLayoutRight.includes(
     NavigationEnums.GEOFENCES
@@ -328,7 +335,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!first}
                   >
-                    {renderDynamicPanel(left)}
+                    <DynamicLayoutContent panelType={left} />
                   </ResizablePanel>
                   {isShowAll && <ResizableHandle />}
                   <ResizablePanel
@@ -342,7 +349,7 @@ const DynamicLayout = ({
                     )}
                     hidden={!second}
                   >
-                    {renderDynamicPanel(right)}
+                    <DynamicLayoutContent panelType={right} />
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>

@@ -105,10 +105,12 @@ export const WidgetList: React.FC<Props> = ({
   const [searchDashboard, setSearchDashboard] = useState('')
   const searchDashboardDebounced = useDebounce(searchDashboard, 300)
   const {
-    data: dashboards = [],
+    data: dashboardList,
     mutate,
     isLoading: isLoadingDashboard,
   } = useDashboard(searchDashboardDebounced)
+
+  const dashboards = useMemo(() => dashboardList || [], [dashboardList])
 
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)

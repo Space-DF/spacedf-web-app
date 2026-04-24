@@ -34,9 +34,9 @@ export function DropdownSwitchFloor({
   }, [floors, isLoadingFloors])
 
   useEffect(() => {
-    if (!floorsData.length) return
+    if (!floorsData.length || activeFloor) return
     setActiveFloor(floorsData[0])
-  }, [floorsData])
+  }, [floorsData, activeFloor])
 
   if (isLoadingFloors || !floorsData.length) {
     return (
