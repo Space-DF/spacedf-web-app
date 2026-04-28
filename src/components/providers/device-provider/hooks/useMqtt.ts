@@ -292,6 +292,7 @@ export const useMqtt = () => {
           })
         },
         onError: (err) => {
+          if (!isAuthenticated) return
           toast.error('MQTT error: ' + err.message, {
             position: 'bottom-right',
           })
