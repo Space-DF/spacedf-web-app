@@ -122,7 +122,8 @@ function FitOnRefocus({ children }: { children: React.ReactNode }) {
         })
       }
     }
-    run()
+
+    setTimeout(run, 400)
   }, [api, controls])
 
   return <group ref={objectRef as any}>{children}</group>
