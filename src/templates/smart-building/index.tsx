@@ -1,27 +1,26 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { ImportThreeModel } from './components/import-file'
-import ThreeModel, { ModelFallback } from './components/three-glb-model'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
 import SpacedfLogo from '@/components/common/spacedf-logo'
-import { ThreeModelControls } from './components/three-model-controls'
-import { useGlobalStore } from '@/stores'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import Image from 'next/image'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useDeviceModalStore } from '@/stores/template/device-modal'
-import { DropdownSwitchFloor } from './components/three-model-controls/components/dropdown-switch-floor'
-import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
-import { Building } from '@/types/building'
 import { Area } from '@/types/area'
+import { Building } from '@/types/building'
 import { Floor } from '@/types/floor'
-import { useAreaAndBuilding } from './hooks/useAreaAndBuilding'
 import { getS3Url } from '@/utils'
+import { Canvas } from '@react-three/fiber'
+import Image from 'next/image'
+import { Suspense, useMemo, useState } from 'react'
+import { ImportThreeModel } from './components/import-file'
+import ThreeModel, { ModelFallback } from './components/three-glb-model'
+import { ThreeModelControls } from './components/three-model-controls'
+import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
+import { DropdownSwitchFloor } from './components/three-model-controls/components/dropdown-switch-floor'
+import { useAreaAndBuilding } from './hooks/useAreaAndBuilding'
 
 export default function SmartBuilding() {
   const setIsOpenDeviceModal = useDeviceModalStore((state) => state.setIsOpen)
@@ -33,11 +32,12 @@ export default function SmartBuilding() {
     isLoading: isLoadingAreaAndBuilding,
     mutate: mutateAreaAndBuilding,
   } = useAreaAndBuilding()
-  const isFirstLoadRef = useRef(true)
-  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
+  // const isFirstLoadRef = useRef(true)
+  // const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
   const [activeBuildingArea, setActiveBuildingArea] = useState<
     Building | Area | undefined
   >(undefined)
+
   const [activeFloor, setActiveFloor] = useState<Floor | undefined>(undefined)
 
   const [contextMenuPosition, setContextMenuPosition] = useState<{
@@ -50,21 +50,21 @@ export default function SmartBuilding() {
 
   const isAuthenticated = useAuthenticated()
 
-  useEffect(() => {
-    if (!isAuthenticated) return
-    if (isFirstLoadRef.current) {
-      if (!activeBuildingArea) {
-        setGlobalLoading(true)
-        return
-      }
-      if (isBuilding && !activeFloor) {
-        setGlobalLoading(true)
-      } else {
-        setGlobalLoading(false)
-        isFirstLoadRef.current = false
-      }
-    }
-  }, [isBuilding, activeFloor, activeBuildingArea, isAuthenticated])
+  // useEffect(() => {
+  //   if (!isAuthenticated) return
+  //   if (isFirstLoadRef.current) {
+  //     if (!activeBuildingArea) {
+  //       setGlobalLoading(true)
+  //       return
+  //     }
+  //     if (isBuilding && !activeFloor) {
+  //       setGlobalLoading(true)
+  //     } else {
+  //       setGlobalLoading(false)
+  //       isFirstLoadRef.current = false
+  //     }
+  //   }
+  // }, [isBuilding, activeFloor, activeBuildingArea, isAuthenticated])
 
   const isHiddenImport =
     (isAuthenticated && (isBuilding ? !!activeFloor : !!activeBuildingArea)) ||

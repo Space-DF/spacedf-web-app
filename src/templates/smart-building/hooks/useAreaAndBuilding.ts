@@ -1,9 +1,5 @@
 import { useShowDummyData } from '@/hooks/useShowDummyData'
 import { useGlobalStore } from '@/stores'
-import { Area } from '@/types/area'
-import { Building } from '@/types/building'
-import { PaginationResponse } from '@/types/global'
-import { fetcher } from '@/utils'
 import { useParams } from 'next/navigation'
 import queryString from 'query-string'
 import useSWR from 'swr'
@@ -43,13 +39,16 @@ export const useAreaAndBuilding = (params: UseAreaAndBuildingParams = {}) => {
 
   return useSWR(
     showDummyData || !spaceSlugName ? null : ([areaKey, buildingKey] as const),
-    async ([areaUrl, buildingUrl]) => {
-      const [area, building] = await Promise.all([
-        fetcher<PaginationResponse<Area>>(areaUrl),
-        fetcher<PaginationResponse<Building>>(buildingUrl),
-      ])
+    async () => {
+      // const [area, building] = await Promise.all([
+      //   fetcher<PaginationResponse<Area>>(areaUrl),
+      //   fetcher<PaginationResponse<Building>>(buildingUrl),
+      // ])
 
-      return { area, building }
+      return {
+        area: { results: [], count: 0 },
+        building: { results: [], count: 0 },
+      }
     }
   )
 }
