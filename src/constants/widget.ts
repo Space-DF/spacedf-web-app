@@ -404,6 +404,9 @@ export const DEMO_WIDGET_DASHBOARD = [
   {
     id: uuidv4(),
     dashboard: '1',
+    data: {
+      value: 'on',
+    },
     configuration: {
       id: '14',
       widget_info: {
