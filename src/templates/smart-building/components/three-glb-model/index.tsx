@@ -19,7 +19,7 @@ type ModelProps = ThreeElements['group'] & {
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
 const FORMAT_PROBE_BYTES = 12
-// const DEFAULT_MODEL_OPACITY = 0.35
+const DEFAULT_MODEL_OPACITY = 0.35
 
 async function detect3DFormatFromUrl(
   url: string,
@@ -81,24 +81,24 @@ function disposeObject(root: Object3D) {
   })
 }
 
-// function setObjectOpacity(root: Object3D, opacity: number) {
-//   root.traverse((obj) => {
-//     const anyObj = obj as any
-//     const materials = anyObj.material
-//       ? Array.isArray(anyObj.material)
-//         ? anyObj.material
-//         : [anyObj.material]
-//       : []
+function setObjectOpacity(root: Object3D, opacity: number) {
+  root.traverse((obj) => {
+    const anyObj = obj as any
+    const materials = anyObj.material
+      ? Array.isArray(anyObj.material)
+        ? anyObj.material
+        : [anyObj.material]
+      : []
 
-//     for (const mat of materials) {
-//       if (!mat) continue
-//       mat.transparent = opacity < 1
-//       mat.opacity = opacity
-//       if ('depthWrite' in mat) mat.depthWrite = false
-//       mat.needsUpdate = true
-//     }
-//   })
-// }
+    for (const mat of materials) {
+      if (!mat) continue
+      mat.transparent = opacity < 1
+      mat.opacity = opacity
+      if ('depthWrite' in mat) mat.depthWrite = false
+      mat.needsUpdate = true
+    }
+  })
+}
 
 function FitOnRefocus({ children }: { children: React.ReactNode }) {
   const api = useBounds()
@@ -136,8 +136,8 @@ function GlbScene({
   const invalidate = useThree((s) => s.invalidate)
 
   useEffect(() => {
-    // setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
-    // invalidate()
+    setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
+    invalidate()
 
     return () => {
       disposeObject(scene)
@@ -167,8 +167,8 @@ function UsdzModel({
   const invalidate = useThree((s) => s.invalidate)
 
   useEffect(() => {
-    // setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
-    // invalidate()
+    setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
+    invalidate()
 
     return () => {
       disposeObject(object)
