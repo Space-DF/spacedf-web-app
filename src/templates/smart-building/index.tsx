@@ -71,7 +71,7 @@ export default function SmartBuilding() {
     !isAuthenticated
 
   const modelUrl = useMemo(() => {
-    if (!isAuthenticated) return getS3Url('glbs/spacedf/building.glb')
+    if (!isAuthenticated) return getS3Url('glbs/spacedf/building-view.glb')
     return isBuilding
       ? activeFloor?.url_scene_asset
       : (activeBuildingArea as Area)?.url_scene_asset
