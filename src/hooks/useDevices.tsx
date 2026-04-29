@@ -28,7 +28,7 @@ const getKey = (
   if (previousPageData && !previousPageData.length) return null
   const offset = pageIndex * DEFAULT_PAGE_SIZE
   return spaceSlug
-    ? `${SWR_GET_DEVICE_ENDPOINT}${`/${spaceSlug}`}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${query?.deviceName || ''}&bbox=${query?.bbox || ''}`
+    ? `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${query?.deviceName || ''}&bbox=${query?.bbox || ''}`
     : null
 }
 
