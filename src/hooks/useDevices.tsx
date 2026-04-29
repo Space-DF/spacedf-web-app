@@ -27,7 +27,9 @@ const getKey = (
   // Stop fetching if there is no more data
   if (previousPageData && !previousPageData.length) return null
   const offset = pageIndex * DEFAULT_PAGE_SIZE
-  return `${SWR_GET_DEVICE_ENDPOINT}${spaceSlug ? `/${spaceSlug}` : ''}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${query?.deviceName || ''}&bbox=${query?.bbox || ''}`
+  return spaceSlug
+    ? `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}?offset=${offset}&limit=${DEFAULT_PAGE_SIZE}&search=${query?.deviceName || ''}&bbox=${query?.bbox || ''}`
+    : null
 }
 
 export function useGetDevices(
