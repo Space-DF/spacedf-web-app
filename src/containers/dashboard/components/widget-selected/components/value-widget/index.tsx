@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import dayjs from 'dayjs'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -64,8 +65,6 @@ const ValueWidget: React.FC<Props> = ({
 
   const value = 0
 
-  const formValue = form.getValues()
-
   const [decimal, unit, widgetName, color, entityId] = useWatch({
     control,
     name: [
@@ -119,6 +118,7 @@ const ValueWidget: React.FC<Props> = ({
 
   const handleSaveValueWidget = async () => {
     await trigger()
+    const formValue = form.getValues()
     const newWidgetData = {
       display_type: 'value',
       entity_id: formValue.source?.entity_id,
@@ -128,6 +128,15 @@ const ValueWidget: React.FC<Props> = ({
       height: 0,
       configuration: {
         ...formValue,
+        timeframe: {
+          ...formValue.timeframe,
+          from: formValue.timeframe.from
+            ? dayjs(formValue.timeframe.from).startOf('day').toISOString()
+            : undefined,
+          until: formValue.timeframe.until
+            ? dayjs(formValue.timeframe.until).endOf('day').toISOString()
+            : undefined,
+        },
         id: uuidv4(),
         type: selectedWidget,
         x: 0,

@@ -154,8 +154,12 @@ const ChartWidget: React.FC<Props> = ({
               period: chartValue.timeframe.type,
             }
           : {
-              start_time: dayjs(chartValue.timeframe.from).format('YYYY-MM-DD'),
-              end_time: dayjs(chartValue.timeframe.until).format('YYYY-MM-DD'),
+              start_time: dayjs(chartValue.timeframe.from)
+                .startOf('day')
+                .toISOString(),
+              end_time: dayjs(chartValue.timeframe.until)
+                .endOf('day')
+                .toISOString(),
             }),
         type: selectedWidget,
         x: 0,

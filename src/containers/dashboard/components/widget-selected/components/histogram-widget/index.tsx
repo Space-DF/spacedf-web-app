@@ -1,7 +1,8 @@
 import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
-import { WidgetType } from '@/widget-models/widget'
+import { TimeFrameTab, WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
+import dayjs from 'dayjs'
 import { useTranslations } from 'next-intl'
 import React, { memo } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
@@ -146,6 +147,18 @@ const HistogramWidget: React.FC<Props> = ({
       height: 0,
       configuration: {
         ...chartValue,
+        ...(chartValue.timeframe.type !== TimeFrameTab.Custom
+          ? {
+              period: chartValue.timeframe.type,
+            }
+          : {
+              start_time: dayjs(chartValue.timeframe.from)
+                .startOf('day')
+                .toISOString(),
+              end_time: dayjs(chartValue.timeframe.until)
+                .endOf('day')
+                .toISOString(),
+            }),
         id: uuidv4(),
         type: selectedWidget,
         x: 0,

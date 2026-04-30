@@ -1,4 +1,5 @@
 import React from 'react'
+import dayjs from 'dayjs'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -114,6 +115,15 @@ const GaugeWidget: React.FC<Props> = ({
       height: 0,
       configuration: {
         ...gaugeValue,
+        timeframe: {
+          ...gaugeValue.timeframe,
+          from: gaugeValue.timeframe.from
+            ? dayjs(gaugeValue.timeframe.from).startOf('day').toISOString()
+            : undefined,
+          until: gaugeValue.timeframe.until
+            ? dayjs(gaugeValue.timeframe.until).endOf('day').toISOString()
+            : undefined,
+        },
         id: uuidv4(),
         type: selectedWidget,
         x: 0,
