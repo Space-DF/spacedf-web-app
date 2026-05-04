@@ -1,6 +1,6 @@
 import { RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
-import { WidgetType } from '@/widget-models/widget'
+import { TimeFrameTab, WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { memo, useEffect } from 'react'
@@ -30,6 +30,7 @@ import {
   dailyOrders,
   generateData,
 } from '../chart-widget/components/preview-chart'
+import dayjs from 'dayjs'
 
 interface Props {
   selectedWidget: WidgetType
@@ -160,6 +161,12 @@ const HistogramWidget: React.FC<Props> = ({
       const newConfiguration = {
         ...prev,
         ...values,
+        ...(values.timeframe?.type !== TimeFrameTab.Custom
+          ? { period: values.timeframe?.type }
+          : {
+              start_time: dayjs(values.timeframe?.from).format('YYYY-MM-DD'),
+              end_time: dayjs(values.timeframe?.until).format('YYYY-MM-DD'),
+            }),
       }
       updateWidgets(
         [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
@@ -185,6 +192,14 @@ const HistogramWidget: React.FC<Props> = ({
       height: 0,
       configuration: {
         ...values,
+        ...(values.timeframe?.type !== TimeFrameTab.Custom
+          ? {
+              period: values.timeframe?.type,
+            }
+          : {
+              start_time: dayjs(values.timeframe?.from).format('YYYY-MM-DD'),
+              end_time: dayjs(values.timeframe?.until).format('YYYY-MM-DD'),
+            }),
         id: uuidv4(),
         type: selectedWidget,
         x: 0,

@@ -186,7 +186,7 @@ const ChartWidget: React.FC<Props> = ({
 
     const newWidgetData = {
       display_type: 'chart',
-      entity_id: values.sources[0].entity_id,
+      entity_id: values.sources?.[0]?.entity_id,
       x: 0,
       y: 0,
       width: 0,
