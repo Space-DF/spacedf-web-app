@@ -11,6 +11,7 @@ interface Props extends mapPayload {
   }
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const MapWidget = ({
@@ -19,6 +20,7 @@ export const MapWidget = ({
   data,
   isEdit,
   onDelete,
+  onEdit,
 }: Props) => {
   const { theme } = useTheme()
   const isDarkMode = theme === 'dark'
@@ -28,6 +30,7 @@ export const MapWidget = ({
       className="flex flex-col"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <iframe

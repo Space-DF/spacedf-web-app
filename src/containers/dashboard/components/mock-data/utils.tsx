@@ -1,8 +1,12 @@
 import {
   Widget,
   WidgetChart,
+  WidgetChartData,
+  WidgetLayout,
   WidgetProgress,
   WidgetTable,
+  WidgetMapData,
+  WidgetValueData,
 } from '@/types/widget'
 import { WidgetType } from '@/widget-models/widget'
 import { TextWidget } from './components/widget-text'
@@ -32,11 +36,13 @@ const getSwitchValue = (value: any) => {
 
 export const getWidgetByType = (
   widget: Widget,
-  data: any,
+  data: WidgetLayout,
   onDelete: (id: string) => void,
+  onEdit: (layout: WidgetLayout) => void,
   isEdit?: boolean
 ) => {
   const handleDelete = () => onDelete(widget.widgetId)
+  const handleEdit = () => onEdit(data)
 
   switch (widget.type) {
     case WidgetType.Text:
@@ -46,6 +52,7 @@ export const getWidgetByType = (
             content={widget.content || ''}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -54,9 +61,14 @@ export const getWidgetByType = (
         <div key={widget.id}>
           <MapWidget
             {...(widget as mapPayload)}
-            data={data.data}
+            data={
+              (data?.data as WidgetMapData | undefined) ?? {
+                coordinate: { latitude: 0, longitude: 0 },
+              }
+            }
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -65,9 +77,15 @@ export const getWidgetByType = (
         <div key={widget.id}>
           <ValueWidget
             widget={widget}
-            data={data.data}
+            data={
+              (data?.data as WidgetValueData | undefined) ?? {
+                value: 0,
+                unit_of_measurement: '',
+              }
+            }
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -78,6 +96,7 @@ export const getWidgetByType = (
             {...(widget as MakeRequired<WidgetTable>)}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -88,9 +107,10 @@ export const getWidgetByType = (
             {...(widget as WidgetChart)}
             isShowFullChart
             id={widget.id}
-            data={data.data}
+            data={(data?.data as WidgetChartData | undefined) ?? { data: [] }}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -99,9 +119,15 @@ export const getWidgetByType = (
         <div key={widget.id}>
           <GaugeWidget
             widget={widget}
-            data={data.data}
+            data={
+              (data?.data as WidgetValueData | undefined) ?? {
+                value: 0,
+                unit_of_measurement: '',
+              }
+            }
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -112,6 +138,7 @@ export const getWidgetByType = (
             widget_info={widget.widget_info!}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -122,6 +149,7 @@ export const getWidgetByType = (
             {...(widget as MakeRequired<Widget>)}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -132,6 +160,7 @@ export const getWidgetByType = (
             {...(widget as WidgetProgress)}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -141,9 +170,10 @@ export const getWidgetByType = (
           <WidgetSwitch
             widget_info={widget.widget_info!}
             color={widget.color!}
-            checked={getSwitchValue(data.data.value)}
+            checked={getSwitchValue(data?.data?.value)}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -157,6 +187,7 @@ export const getWidgetByType = (
             color={widget.color}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -166,9 +197,15 @@ export const getWidgetByType = (
           <WidgetSlider
             widget_info={widget.widget_info!}
             source={widget.source as unknown as MakeRequired<SliderSource>}
-            data={data.data}
+            data={
+              (data?.data as WidgetValueData | undefined) ?? {
+                value: 0,
+                unit_of_measurement: '',
+              }
+            }
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )
@@ -180,6 +217,7 @@ export const getWidgetByType = (
             id={widget.id}
             isEdit={isEdit}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       )

@@ -8,7 +8,7 @@ import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import GridLayout from '../grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import { Widget } from '@/types/widget'
+import { Widget, WidgetLayout } from '@/types/widget'
 import { getWidgetByType } from './utils'
 import { useShallow } from 'zustand/react/shallow'
 import { useDashboardStore } from '@/stores/dashboard-store'
@@ -32,6 +32,7 @@ interface Props {
   widgets: Widget[]
   onChangeWidgets: (widgets: any[]) => void
   onDeleteSuccess: () => void
+  onEditWidget: (layout: WidgetLayout) => void
 }
 
 export const MockData: React.FC<Props> = ({
@@ -39,6 +40,7 @@ export const MockData: React.FC<Props> = ({
   widgets,
   onChangeWidgets,
   onDeleteSuccess,
+  onEditWidget,
 }) => {
   const { mounted } = useMounted()
   const [currentBreakpoint, setCurrentBreakpoint] = useState<string>('')
@@ -109,6 +111,7 @@ export const MockData: React.FC<Props> = ({
           />
         )}
         <ResponsiveReactGridLayout
+          className="my-grid"
           layouts={layouts}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 18, md: 16, sm: 13, xs: 8, xxs: 6 }}
@@ -130,6 +133,7 @@ export const MockData: React.FC<Props> = ({
               widget,
               widgetList[index],
               handleDeleteRequest,
+              onEditWidget,
               isEdit
             )
           })}

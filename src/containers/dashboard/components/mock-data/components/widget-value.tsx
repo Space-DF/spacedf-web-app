@@ -7,9 +7,16 @@ interface Props {
   data: { value: number; unit_of_measurement: string }
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
-export const ValueWidget = ({ widget, data, isEdit, onDelete }: Props) => {
+export const ValueWidget = ({
+  widget,
+  data,
+  isEdit,
+  onDelete,
+  onEdit,
+}: Props) => {
   const t = useTranslations('dashboard')
   const { source, widget_info } = widget
   const { decimal, unit } = source
@@ -21,7 +28,7 @@ export const ValueWidget = ({ widget, data, isEdit, onDelete }: Props) => {
   }, [value, decimal])
 
   return (
-    <WidgetContainer isEdit={isEdit} onDelete={onDelete}>
+    <WidgetContainer isEdit={isEdit} onDelete={onDelete} onEdit={onEdit}>
       <div className="rounded-lg size-full p-2">
         <div className="flex gap-2 flex-col size-full">
           <div className="w-full">

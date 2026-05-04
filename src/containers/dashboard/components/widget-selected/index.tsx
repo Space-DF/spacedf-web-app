@@ -10,8 +10,11 @@ import ValueWidget from './components/value-widget'
 import SwitchWidget from './components/switch-widget'
 import SliderWidget from './components/slider-widget'
 import HistogramWidget from './components/histogram-widget'
+import { WidgetLayout } from '@/types/widget'
+
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onClose: () => void
   onBack: () => void
@@ -19,6 +22,7 @@ interface Props {
 
 const WidgetSelected: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -28,6 +32,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <ChartWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -37,6 +42,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <GaugeWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -46,6 +52,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <MapWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -55,6 +62,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <TableWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -64,6 +72,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <ValueWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -73,6 +82,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <SwitchWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -82,6 +92,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <SliderWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}
@@ -91,6 +102,7 @@ const WidgetSelected: React.FC<Props> = ({
       return (
         <HistogramWidget
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onClose}
           onSaveWidget={onSaveWidget}
           onBack={onBack}

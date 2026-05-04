@@ -3,12 +3,15 @@ import { Button } from '@/components/ui/button'
 import { WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
 import { TabsContent } from '@/components/ui/tabs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
+import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
+import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
+import { WidgetLayout } from '@/types/widget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import SliderSource from './components/source'
@@ -18,6 +21,7 @@ import SliderPreview from './components/preview'
 
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onBack: () => void
   onClose: () => void
@@ -43,6 +47,7 @@ const TabContents = () => {
 
 const SliderWidget: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -53,6 +58,20 @@ const SliderWidget: React.FC<Props> = ({
     defaultValues: defaultSliderValues,
     mode: 'onChange',
   })
+
+  useEffect(() => {
+    if (!editingWidgetLayout?.configuration) return
+    const cfg = editingWidgetLayout.configuration as unknown as Record<
+      string,
+      unknown
+    >
+    form.reset(
+      mergeFormDefaults(
+        defaultSliderValues as unknown as Record<string, unknown>,
+        cfg
+      ) as SliderPayload
+    )
+  }, [editingWidgetLayout?.id])
 
   const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
@@ -65,15 +84,40 @@ const SliderWidget: React.FC<Props> = ({
     },
   })
 
+  const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
+    useUpdateWidgets()
+
   const [widgetName, unit] = useWatch({
     control: form.control,
     name: ['widget_info.name', 'source.unit'],
   })
 
-  const handleAddWidget = async () => {
+  const handleSaveWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
     const sliderValue = form.getValues()
+
+    if (editingWidgetLayout) {
+      const prev = editingWidgetLayout.configuration
+      const newConfiguration = {
+        ...prev,
+        ...sliderValue,
+      }
+      updateWidgets(
+        [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
+        {
+          onSuccess: () => {
+            toast.success(t('widgets_updated_successfully'))
+            onSaveWidget()
+          },
+          onError: () => {
+            toast.error(t('widgets_update_failed'))
+          },
+        }
+      )
+      return
+    }
+
     const newWidgetData = {
       display_type: 'slider',
       entity_id: sliderValue.source?.entity_id,
@@ -103,11 +147,18 @@ const SliderWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_slider_widget`)}</div>
+          <div>
+            {t(
+              editingWidgetLayout ? 'edit_slider_widget' : 'add_slider_widget'
+            )}
+          </div>
         </div>
       }
       externalButton={
-        <Button onClick={handleAddWidget} loading={isMutating}>
+        <Button
+          onClick={handleSaveWidget}
+          loading={isMutating || isUpdatingWidgets}
+        >
           {t('save')}
         </Button>
       }
