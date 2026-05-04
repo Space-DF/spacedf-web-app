@@ -17,13 +17,13 @@ Sentry.init({
 
   tracesSampleRate: isProd ? 0.1 : 1.0,
 
-  enableLogs: true,
+  enableLogs: false,
 
   replaysSessionSampleRate: isProd ? 0.1 : 1.0,
 
   replaysOnErrorSampleRate: 1.0,
 
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 })
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

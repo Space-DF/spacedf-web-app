@@ -4,18 +4,14 @@
 
 import * as Sentry from '@sentry/nextjs'
 
-const isProd = process.env.NODE_ENV === 'production'
-
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: 'https://6a43f70a0bcd973292b586c8769ce1bf@o4511329794457600.ingest.us.sentry.io/4511329815166976',
 
-  environment: process.env.NODE_ENV,
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
 
-  enabled: process.env.NODE_ENV !== 'development',
-
-  tracesSampleRate: isProd ? 0.1 : 1.0,
-
+  // Enable logs to be sent to Sentry
   enableLogs: true,
 
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 })
