@@ -5,9 +5,11 @@ import { WidgetContainer } from '.'
 interface Props {
   widget: any
   data: { value: number; unit_of_measurement: string }
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
-export const ValueWidget = ({ widget, data }: Props) => {
+export const ValueWidget = ({ widget, data, isEdit, onDelete }: Props) => {
   const t = useTranslations('dashboard')
   const { source, widget_info } = widget
   const { decimal, unit } = source
@@ -19,7 +21,7 @@ export const ValueWidget = ({ widget, data }: Props) => {
   }, [value, decimal])
 
   return (
-    <WidgetContainer>
+    <WidgetContainer isEdit={isEdit} onDelete={onDelete}>
       <div className="rounded-lg size-full p-2">
         <div className="flex gap-2 flex-col size-full">
           <div className="w-full">
