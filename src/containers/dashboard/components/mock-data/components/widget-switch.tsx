@@ -9,6 +9,7 @@ interface WidgetSwitchProps {
   checked?: boolean
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const WidgetSwitch = ({
@@ -18,12 +19,14 @@ export const WidgetSwitch = ({
   checked = true,
   isEdit,
   onDelete,
+  onEdit,
 }: WidgetSwitchProps) => {
   return (
     <WidgetContainer
       className="flex flex-col gap-1"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <Switch

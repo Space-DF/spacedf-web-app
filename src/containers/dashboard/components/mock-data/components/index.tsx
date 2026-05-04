@@ -8,6 +8,7 @@ interface WidgetProp {
   className?: string
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const WidgetContainer = ({
@@ -15,10 +16,15 @@ export const WidgetContainer = ({
   className,
   isEdit,
   onDelete,
+  onEdit,
 }: WidgetProp) => {
   const handleDelete = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     onDelete?.()
+  }
+  const handleEdit = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    onEdit?.()
   }
   return (
     <div
@@ -34,6 +40,7 @@ export const WidgetContainer = ({
               type="button"
               className="rounded p-0.5 hover:opacity-80"
               aria-label="Edit widget"
+              onClick={handleEdit}
             >
               <Pen width={16} height={16} />
             </button>

@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import { TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -20,6 +20,9 @@ import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
+import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
+import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
+import { WidgetLayout } from '@/types/widget'
 import { toast } from 'sonner'
 
 const TABLE_TABS_KEY = [
@@ -50,6 +53,7 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onBack: () => void
   onClose: () => void
@@ -57,6 +61,7 @@ interface Props {
 
 const TableWidget: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -68,12 +73,24 @@ const TableWidget: React.FC<Props> = ({
     mode: 'onChange',
   })
 
+  useEffect(() => {
+    if (!editingWidgetLayout?.configuration) return
+    const cfg = editingWidgetLayout.configuration as unknown as Record<
+      string,
+      unknown
+    >
+    form.reset(
+      mergeFormDefaults(
+        dataTableDefault as unknown as Record<string, unknown>,
+        cfg
+      ) as dataTablePayload
+    )
+  }, [editingWidgetLayout?.id])
+
   const columns = form.watch('columns')
   const source = form.watch('source.entities')
   const widget_info = form.watch('widget_info')
   const conditionals = form.watch('conditionals')
-
-  const tableValue = form.getValues()
 
   const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
@@ -101,18 +118,44 @@ const TableWidget: React.FC<Props> = ({
     },
   })
 
-  const handleAddTableWidget = async () => {
+  const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
+    useUpdateWidgets()
+
+  const handleSaveTableWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
+    const values = form.getValues()
+
+    if (editingWidgetLayout) {
+      const prev = editingWidgetLayout.configuration
+      const newConfiguration = {
+        ...prev,
+        ...values,
+      }
+      updateWidgets(
+        [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
+        {
+          onSuccess: () => {
+            toast.success(t('widgets_updated_successfully'))
+            onSaveWidget()
+          },
+          onError: () => {
+            toast.error(t('widgets_update_failed'))
+          },
+        }
+      )
+      return
+    }
+
     const newWidgetData = {
       display_type: 'table',
-      entity_id: tableValue.source?.entities[0].entity_id,
+      entity_id: values.source?.entities?.[0]?.entity_id,
       x: 0,
       y: 0,
       width: 0,
       height: 0,
       configuration: {
-        ...tableValue,
+        ...values,
         id: uuidv4(),
         type: selectedWidget,
         x: 0,
@@ -131,11 +174,16 @@ const TableWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_table_widget`)}</div>
+          <div>
+            {t(editingWidgetLayout ? 'edit_table_widget' : 'add_table_widget')}
+          </div>
         </div>
       }
       externalButton={
-        <Button onClick={handleAddTableWidget} loading={isMutating}>
+        <Button
+          onClick={handleSaveTableWidget}
+          loading={isMutating || isUpdatingWidgets}
+        >
           {t('save')}
         </Button>
       }

@@ -13,11 +13,16 @@ import WidgetSelected from './components/widget-selected'
 import { WidgetType } from '@/widget-models/widget'
 import { useGetWidgets } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useGetWidget'
 import { WidgetList } from './components/widget-list'
+import { WidgetLayout } from '@/types/widget'
+
+const WIDGET_TYPES_WITH_DETAIL_EDITOR: WidgetType[] = Object.values(WidgetType)
 
 const Dashboard = () => {
   const t = useTranslations()
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
   const [selectedWidget, setSelectedWidget] = useState<WidgetType | ''>('')
+  const [editingWidgetLayout, setEditingWidgetLayout] =
+    useState<WidgetLayout | null>(null)
 
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
@@ -52,13 +57,34 @@ const Dashboard = () => {
     setCookieDirty(true)
     toggleDynamicLayout('dashboard')
     setSelectedWidget('')
+    setEditingWidgetLayout(null)
   }
 
   const onSaveWidget = () => {
     setIsAddWidgetOpen(false)
     setEdit(true)
     setSelectedWidget('')
+    setEditingWidgetLayout(null)
     mutateWidgets()
+  }
+
+  const onEditWidget = (layout: WidgetLayout) => {
+    const widgetType = layout.configuration?.type as WidgetType | undefined
+    if (!widgetType || !WIDGET_TYPES_WITH_DETAIL_EDITOR.includes(widgetType)) {
+      return
+    }
+    setEditingWidgetLayout(layout)
+    setSelectedWidget(widgetType)
+    setIsAddWidgetOpen(true)
+  }
+
+  const handleGoBack = () => {
+    if (editingWidgetLayout) {
+      setEditingWidgetLayout(null)
+      setIsAddWidgetOpen(false)
+    }
+    setSelectedWidget('')
+    setEditingWidgetLayout(null)
   }
 
   return (
@@ -68,12 +94,14 @@ const Dashboard = () => {
           onCloseSideBar={onCloseSideBar}
           setIsAddWidgetOpen={setIsAddWidgetOpen}
           mutateWidgets={mutateWidgets}
+          onEditWidget={onEditWidget}
         />
       ) : selectedWidget ? (
         <WidgetSelected
           selectedWidget={selectedWidget}
+          editingWidgetLayout={editingWidgetLayout}
           onClose={onCloseSideBar}
-          onBack={() => setSelectedWidget('')}
+          onBack={handleGoBack}
           onSaveWidget={onSaveWidget}
         />
       ) : (
@@ -88,6 +116,7 @@ const Dashboard = () => {
                   if (selectedWidget) {
                     setSelectedWidget('')
                   }
+                  setEditingWidgetLayout(null)
                   setIsAddWidgetOpen(false)
                 }}
                 className="cursor-pointer"

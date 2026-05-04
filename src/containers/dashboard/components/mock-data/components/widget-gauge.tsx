@@ -1,7 +1,13 @@
 import { WidgetContainer, WidgetTitle } from '.'
 import PreviewGauge from '../../widget-selected/components/gauge-widget/components/preview-gauge'
 
-export const GaugeWidget = ({ widget, data, isEdit, onDelete }: any) => {
+export const GaugeWidget = ({
+  widget,
+  data,
+  isEdit,
+  onDelete,
+  onEdit,
+}: any) => {
   const { source, widget_info } = widget
   const value = data.value || 0
 
@@ -10,6 +16,7 @@ export const GaugeWidget = ({ widget, data, isEdit, onDelete }: any) => {
       className="flex flex-col"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <WidgetTitle>{widget_info?.name}</WidgetTitle>
       <div className="flex-1 min-h-0">

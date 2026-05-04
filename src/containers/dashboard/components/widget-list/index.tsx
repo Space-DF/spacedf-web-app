@@ -35,7 +35,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { useTranslations } from 'next-intl'
 import { Separator } from '@/components/ui/separator'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Widget } from '@/types/widget'
+import { Widget, WidgetLayout } from '@/types/widget'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { MockData } from '../mock-data/mock-data'
 import { useDeleteDashboard } from '../../hooks/useDeleteDashboard'
@@ -58,6 +58,7 @@ interface Props {
   onCloseSideBar: () => void
   setIsAddWidgetOpen: (open: boolean) => void
   mutateWidgets: () => void
+  onEditWidget: (layout: WidgetLayout) => void
 }
 
 const getLayouts = (widgets: Widget[]) => {
@@ -75,6 +76,7 @@ export const WidgetList: React.FC<Props> = ({
   onCloseSideBar,
   setIsAddWidgetOpen,
   mutateWidgets,
+  onEditWidget,
 }) => {
   const {
     isViewAllDashboard,
@@ -365,6 +367,7 @@ export const WidgetList: React.FC<Props> = ({
                 widgets={currentWidgetLayout}
                 onChangeWidgets={handleChangeWidgets}
                 onDeleteSuccess={mutateWidgets}
+                onEditWidget={onEditWidget}
               />
             </>
           )}
