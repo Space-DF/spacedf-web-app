@@ -125,7 +125,11 @@ export const WidgetList: React.FC<Props> = ({
   }
 
   const currentWidgetLayout = useMemo(() => {
-    const widgets = widgetList.map((widget) => widget.configuration) || []
+    const widgets =
+      widgetList.map((widget) => ({
+        ...widget.configuration,
+        widgetId: widget.id,
+      })) || []
     setWidgets(widgets)
     return widgets
   }, [widgetList])
@@ -360,6 +364,7 @@ export const WidgetList: React.FC<Props> = ({
                 isEdit={isEdit}
                 widgets={currentWidgetLayout}
                 onChangeWidgets={handleChangeWidgets}
+                onDeleteSuccess={mutateWidgets}
               />
             </>
           )}

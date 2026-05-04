@@ -4,11 +4,21 @@ import { WidgetInfo } from '@/widget-models/widget'
 
 interface WidgetCameraProps {
   widget_info: WidgetInfo
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
-export const WidgetCamera = ({ widget_info }: WidgetCameraProps) => {
+export const WidgetCamera = ({
+  widget_info,
+  isEdit,
+  onDelete,
+}: WidgetCameraProps) => {
   return (
-    <WidgetContainer className="flex flex-col">
+    <WidgetContainer
+      className="flex flex-col"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       {/* <StreamVideo autoPlay={false} /> */}
     </WidgetContainer>
