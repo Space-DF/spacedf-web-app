@@ -6,6 +6,8 @@ import { generateData } from '../../widget-selected/components/chart-widget/comp
 
 interface Props extends WidgetChart {
   id?: string
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 export const WidgetHistogram = ({
@@ -16,9 +18,15 @@ export const WidgetHistogram = ({
   format,
   hideAxis,
   showXGrid,
+  isEdit,
+  onDelete,
 }: Props) => {
   return (
-    <WidgetContainer className="flex flex-col justify-center">
+    <WidgetContainer
+      className="flex flex-col justify-center"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <PreviewChart
         sources={sources}

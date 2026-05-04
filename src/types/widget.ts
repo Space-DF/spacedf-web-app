@@ -58,6 +58,7 @@ export interface WidgetSensor {
 export type Widget = {
   id: string
   type: WidgetType
+  widgetId: string
   enabled?: boolean
   data: any
 } & Partial<WidgetUnit> &

@@ -142,5 +142,9 @@
   "select_entity": "Chọn thực thể của thiết bị",
   "entity": "Thực thể của thiết bị",
   "search_entity": "Tìm kiếm thực thể của thiết bị...",
-  "add_histogram_widget": "Thêm tiện ích biểu đồ cột"
+  "add_histogram_widget": "Thêm tiện ích biểu đồ cột",
+  "widget_deleted_successfully": "Xóa tiện ích thành công",
+  "widget_delete_failed": "Xóa tiện ích thất bại",
+  "delete_widget_confirm_title": "Xóa tiện ích này?",
+  "delete_widget_confirm_description": "Tiện ích sẽ bị gỡ khỏi bảng điều khiển. Bạn không thể hoàn tác thao tác này."
 }

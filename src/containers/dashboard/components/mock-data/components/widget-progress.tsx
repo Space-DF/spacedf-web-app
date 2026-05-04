@@ -10,6 +10,8 @@ interface ProgressWidgetProps {
   min: number
   max: number
   color: string
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 export const ProgressWidget = ({
@@ -19,12 +21,14 @@ export const ProgressWidget = ({
   min,
   max,
   color,
+  isEdit,
+  onDelete,
 }: ProgressWidgetProps) => {
   const progressValue = useMemo(() => {
     return ((value - min) / (max - min)) * 100
   }, [value, min, max])
   return (
-    <WidgetContainer>
+    <WidgetContainer isEdit={isEdit} onDelete={onDelete}>
       <div className="flex justify-between items-center">
         <WidgetTitle>{widget_info.name}</WidgetTitle>
         <p className="font-semibold">{unit}</p>
