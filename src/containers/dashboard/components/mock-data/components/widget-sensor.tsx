@@ -24,6 +24,8 @@ interface WidgetSensorProps {
   value: string
   sensorType?: string
   color?: string
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 export const WidgetSensor = ({
@@ -32,11 +34,13 @@ export const WidgetSensor = ({
   value,
   sensorType,
   color,
+  isEdit,
+  onDelete,
 }: WidgetSensorProps) => {
   const Icon = getIconBySensorType(sensorType)
 
   return (
-    <WidgetContainer className="flex gap-3">
+    <WidgetContainer className="flex gap-3" isEdit={isEdit} onDelete={onDelete}>
       <div className="relative flex size-7 items-center justify-center rounded-full">
         <div
           className="absolute inset-0 rounded-full opacity-20"

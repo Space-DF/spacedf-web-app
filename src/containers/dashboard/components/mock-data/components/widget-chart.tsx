@@ -11,6 +11,8 @@ interface Props extends WidgetChart {
   data: {
     data: Record<string, any>
   }
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 interface DataPoint {
@@ -46,6 +48,8 @@ export const ChartWidget = ({
   showXGrid,
   isShowFullChart,
   data,
+  isEdit,
+  onDelete,
 }: Props) => {
   const isSingleSource = isShowFullChart
     ? false
@@ -63,7 +67,11 @@ export const ChartWidget = ({
   )
 
   return (
-    <WidgetContainer className="flex flex-col justify-center">
+    <WidgetContainer
+      className="flex flex-col justify-center"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <PreviewChart
         sources={sources}
