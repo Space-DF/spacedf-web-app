@@ -37,7 +37,7 @@ export const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({
       'dev_eui',
       formatValueEUI(response.lorawan_device?.dev_eui || '').toUpperCase()
     )
-    setStep('add_device_manual')
+    setStep('add_device_auto')
   }
 
   const handleError = () => {
