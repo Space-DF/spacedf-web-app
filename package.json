@@ -52,7 +52,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "8.18.0",
     "@sentry/nextjs": "^10",
-    "@space-df/sdk": "0.0.1-dev.47",
+    "@space-df/sdk": "0.0.1-dev.49",
     "@tanstack/react-table": "^8.20.6",
     "@tanstack/react-virtual": "^3.13.12",
     "@turf/turf": "^7.3.1",
