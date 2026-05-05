@@ -59,7 +59,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
   const hasLoadError =
     missingFromList &&
     !isLoading &&
-    Boolean(fetchError || (deviceFromApi && !mappedFromApi))
+    Boolean(fetchError || !deviceFromApi || (deviceFromApi && !mappedFromApi))
 
   const selectedDevice = !open ? undefined : (deviceDataSelected || mappedFromApi)
 
