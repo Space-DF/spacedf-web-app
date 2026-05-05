@@ -41,7 +41,7 @@ export const useSubscribeNotification = () => {
     setSupported('serviceWorker' in navigator && 'PushManager' in window)
   }, [])
   const registerServiceWorker = useCallback(async () => {
-    if (!supported) return
+    if (!supported || !vapidPublicKey) return
 
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') return
