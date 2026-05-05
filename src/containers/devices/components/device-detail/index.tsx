@@ -61,7 +61,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
     !isLoading &&
     Boolean(fetchError || (deviceFromApi && !mappedFromApi))
 
-  const selectedDevice = !open ? undefined : deviceDataSelected
+  const selectedDevice = !open ? undefined : (deviceDataSelected || mappedFromApi)
 
   const isWlb = selectedDevice?.type === 'wlb'
 
