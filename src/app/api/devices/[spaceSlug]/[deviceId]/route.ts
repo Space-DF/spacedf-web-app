@@ -24,3 +24,19 @@ export const DELETE = withAuthApiRequired(
     }
   }
 )
+
+export const GET = withAuthApiRequired(
+  async (
+    _,
+    { params }: { params: { spaceSlug: string; deviceId: string } }
+  ) => {
+    const { spaceSlug, deviceId } = params
+    const client = await spaceClient()
+    const device = await client.deviceSpaces.retrieveByDeviceId(deviceId, {
+      headers: {
+        'X-Space': spaceSlug,
+      },
+    })
+    return NextResponse.json(device)
+  }
+)
