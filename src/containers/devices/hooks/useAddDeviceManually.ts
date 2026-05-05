@@ -1,7 +1,7 @@
 import { useParams } from 'next/navigation'
-import { AddDeviceSchema } from '..'
 import useSWRMutation from 'swr/mutation'
 import api from '@/lib/api'
+import { AddDeviceSchema } from '../components/add-device-dialog/schema'
 
 const addDeviceManual = async (
   url: string,
