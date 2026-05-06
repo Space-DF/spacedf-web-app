@@ -31,14 +31,12 @@ type UploadArg = {
   floorName?: string
 }
 
-export const useUploadModel = (isBuilding: boolean) => {
+export const useUploadModel = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const spaceSlugName = spaceSlug || currentSpace?.slug_name
   return useSWRMutation<UploadModelResult, Error, string | null, UploadArg>(
-    spaceSlugName
-      ? `${isBuilding ? '/api/building' : '/api/area'}?spaceSlug=${spaceSlugName}`
-      : null,
+    spaceSlugName ? `/api/building?spaceSlug=${spaceSlugName}` : null,
     uploadModelFetcher
   )
 }

@@ -1,6 +1,6 @@
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useDeviceModalStore } from '@/stores/template/device-modal'
+import { useAddDeviceStore } from '@/stores/template/add-device'
 import { DeviceDataOriginal } from '@/types/device'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
@@ -42,7 +42,7 @@ export const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
   const { setIsOpenDeviceModal, isOpenDeviceModal, resetDeviceModal } =
-    useDeviceModalStore(
+    useAddDeviceStore(
       useShallow((state) => ({
         setIsOpenDeviceModal: state.setIsOpen,
         isOpenDeviceModal: state.isOpen,
