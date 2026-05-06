@@ -1,5 +1,6 @@
 'use client'
 
+import { LOCAL_STORAGE_KEYS } from '@/constants'
 import { useCallback, useEffect, useState } from 'react'
 
 const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
@@ -52,6 +53,7 @@ export const useSubscribeNotification = () => {
     const existing = await registration.pushManager.getSubscription()
     if (existing) {
       await subscribeNotification(existing)
+      localStorage.setItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY, '1')
       return
     }
 
@@ -61,6 +63,7 @@ export const useSubscribeNotification = () => {
     })
 
     await subscribeNotification(subscription)
+    localStorage.setItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY, '1')
   }, [supported])
 
   return { supported, registerServiceWorker }
