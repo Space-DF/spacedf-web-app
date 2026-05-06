@@ -10,20 +10,20 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import useJoinSpace from '@/containers/identity/auth/hooks/useJoinSpace'
 import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
-
-const NOTIF_PERMISSION_KEY = 'spacedf.notifications.permissionRequested.v1'
+import { useMounted } from '@/hooks'
+import { LOCAL_STORAGE_KEYS } from '@/constants'
 
 function NotificationPermissionOnEnter() {
   const isAuthenticated = useAuthenticated()
   const { registerServiceWorker } = useSubscribeNotification()
+  const mounted = useMounted()
 
   useEffect(() => {
     if (!isAuthenticated) return
-    if (localStorage.getItem(NOTIF_PERMISSION_KEY) === '1') return
-    registerServiceWorker().then(() => {
-      localStorage.setItem(NOTIF_PERMISSION_KEY, '1')
-    })
-  }, [isAuthenticated, registerServiceWorker])
+    if (localStorage.getItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY) === '1')
+      return
+    registerServiceWorker()
+  }, [isAuthenticated, registerServiceWorker, mounted])
 
   return null
 }
