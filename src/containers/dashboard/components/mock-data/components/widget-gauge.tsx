@@ -3,7 +3,7 @@ import PreviewGauge from '../../widget-selected/components/gauge-widget/componen
 
 export const GaugeWidget = ({ widget, data, isEdit, onDelete }: any) => {
   const { source, widget_info } = widget
-  const value = data.value || 0
+  const value = data?.value || 0
 
   return (
     <WidgetContainer

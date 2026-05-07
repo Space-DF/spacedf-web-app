@@ -55,7 +55,7 @@ export const ChartWidget = ({
     ? false
     : Array.isArray(sources) && sources.length === 1
 
-  const newData = data.data || []
+  const newData = data?.data || []
   const timeFormat = (format as TimeFormat) || TimeFormat.FULL_DATE_MONTH_YEAR
 
   const chartData = useMemo(
