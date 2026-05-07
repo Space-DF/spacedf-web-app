@@ -47,23 +47,40 @@ export const useSubscribeNotification = () => {
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') return
 
-    await navigator.serviceWorker.register('/sw.js')
-    const registration = await navigator.serviceWorker.ready
+    try {
+      await navigator.serviceWorker.register('/sw.js')
+      const registration = await navigator.serviceWorker.ready
 
-    const existing = await registration.pushManager.getSubscription()
-    if (existing) {
-      await subscribeNotification(existing)
-      localStorage.setItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY, '1')
-      return
+      const existing = await registration.pushManager.getSubscription()
+      const storedEndpoint = localStorage.getItem(
+        LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY
+      )
+
+      if (existing) {
+        if (existing.endpoint === storedEndpoint) {
+          return
+        }
+        await subscribeNotification(existing)
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY,
+          existing.endpoint
+        )
+        return
+      }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey!),
+      })
+
+      await subscribeNotification(subscription)
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY,
+        subscription.endpoint
+      )
+    } catch (error) {
+      console.error('Failed to register service worker or subscribe:', error)
     }
-
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey!),
-    })
-
-    await subscribeNotification(subscription)
-    localStorage.setItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY, '1')
   }, [supported])
 
   return { supported, registerServiceWorker }

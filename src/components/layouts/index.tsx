@@ -30,6 +30,9 @@ import { useGeofenceStore } from '@/stores/geofence-store'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { FeatureId } from '@/types/geofence'
 import { useMounted } from '@/hooks'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useDeviceStore } from '@/stores/device-store'
+import { getNewLayouts } from '@/stores'
 
 type DynamicLayoutProps = {
   defaultLayout: number[]
@@ -82,6 +85,48 @@ const DynamicLayout = ({
   const cookieDirty = useLayout((state) => state.cookieDirty)
 
   const resetGeofenceStore = useGeofenceStore((state) => state.reset)
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+  const { toggleDynamicLayout, isAlreadySetLayout } = useLayout(
+    useShallow((state) => ({
+      toggleDynamicLayout: state.toggleDynamicLayout,
+      isAlreadySetLayout: state.isAlreadySetLayout,
+    }))
+  )
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const deviceId = searchParams.get('device_id')
+  const isFirstTimeRef = useRef(true)
+  useEffect(() => {
+    if (!isAlreadySetLayout || !isFirstTimeRef.current) return
+    if (!deviceId) return
+
+    setDeviceSelected(deviceId)
+
+    const isDeviceShow = dynamicLayouts.includes(NavigationEnums.DEVICES)
+    if (!isDeviceShow) {
+      const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+      setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+      toggleDynamicLayout(NavigationEnums.DEVICES)
+    }
+
+    isFirstTimeRef.current = false
+    const nextSearchParams = new URLSearchParams(searchParams.toString())
+    nextSearchParams.delete('device_id')
+    const nextQuery = nextSearchParams.toString()
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    })
+  }, [
+    deviceId,
+    dynamicLayouts,
+    isAlreadySetLayout,
+    pathname,
+    router,
+    searchParams,
+    setDeviceSelected,
+    toggleDynamicLayout,
+  ])
 
   useEffect(() => {
     setCollapsed(defaultCollapsed)

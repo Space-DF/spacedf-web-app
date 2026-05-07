@@ -11,7 +11,6 @@ import useJoinSpace from '@/containers/identity/auth/hooks/useJoinSpace'
 import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useMounted } from '@/hooks'
-import { LOCAL_STORAGE_KEYS } from '@/constants'
 
 function NotificationPermissionOnEnter() {
   const isAuthenticated = useAuthenticated()
@@ -19,9 +18,13 @@ function NotificationPermissionOnEnter() {
   const mounted = useMounted()
 
   useEffect(() => {
-    if (!isAuthenticated) return
-    if (localStorage.getItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY) === '1')
-      return
+    if (!isAuthenticated || !mounted) return
+
+    const permission =
+      typeof Notification !== 'undefined' ? Notification.permission : 'default'
+
+    if (permission === 'denied') return
+
     registerServiceWorker()
   }, [isAuthenticated, registerServiceWorker, mounted])
 
