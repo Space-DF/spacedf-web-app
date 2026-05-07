@@ -30,30 +30,55 @@ const getSwitchValue = (value: any) => {
   return !!value
 }
 
-export const getWidgetByType = (widget: Widget, data: any) => {
+export const getWidgetByType = (
+  widget: Widget,
+  data: any,
+  onDelete: (id: string) => void,
+  isEdit?: boolean
+) => {
+  const handleDelete = () => onDelete(widget.widgetId)
+
   switch (widget.type) {
     case WidgetType.Text:
       return (
         <div key={widget.id}>
-          <TextWidget content={widget.content || ''} />
+          <TextWidget
+            content={widget.content || ''}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Map:
       return (
         <div key={widget.id}>
-          <MapWidget {...(widget as mapPayload)} data={data.data} />
+          <MapWidget
+            {...(widget as mapPayload)}
+            data={data.data}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Value:
       return (
         <div key={widget.id}>
-          <ValueWidget widget={widget} data={data.data} />
+          <ValueWidget
+            widget={widget}
+            data={data.data}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Table:
       return (
         <div key={widget.id}>
-          <TableWidget {...(widget as MakeRequired<WidgetTable>)} />
+          <TableWidget
+            {...(widget as MakeRequired<WidgetTable>)}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Chart:
@@ -64,31 +89,50 @@ export const getWidgetByType = (widget: Widget, data: any) => {
             isShowFullChart
             id={widget.id}
             data={data.data}
+            isEdit={isEdit}
+            onDelete={handleDelete}
           />
         </div>
       )
     case WidgetType.Gauge:
       return (
         <div key={widget.id}>
-          <GaugeWidget widget={widget} data={data.data} />
+          <GaugeWidget
+            widget={widget}
+            data={data.data}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Camera:
       return (
         <div key={widget.id}>
-          <WidgetCamera widget_info={widget.widget_info!} />
+          <WidgetCamera
+            widget_info={widget.widget_info!}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Unit:
       return (
         <div key={widget.id}>
-          <WidgetUnit {...(widget as MakeRequired<Widget>)} />
+          <WidgetUnit
+            {...(widget as MakeRequired<Widget>)}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Progress:
       return (
         <div key={widget.id}>
-          <ProgressWidget {...(widget as WidgetProgress)} />
+          <ProgressWidget
+            {...(widget as WidgetProgress)}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     case WidgetType.Switch:
@@ -98,6 +142,8 @@ export const getWidgetByType = (widget: Widget, data: any) => {
             widget_info={widget.widget_info!}
             color={widget.color!}
             checked={getSwitchValue(data.data.value)}
+            isEdit={isEdit}
+            onDelete={handleDelete}
           />
         </div>
       )
@@ -109,6 +155,8 @@ export const getWidgetByType = (widget: Widget, data: any) => {
             value={widget.value!}
             sensorType={widget.sensor_type}
             color={widget.color}
+            isEdit={isEdit}
+            onDelete={handleDelete}
           />
         </div>
       )
@@ -119,13 +167,20 @@ export const getWidgetByType = (widget: Widget, data: any) => {
             widget_info={widget.widget_info!}
             source={widget.source as unknown as MakeRequired<SliderSource>}
             data={data.data}
+            isEdit={isEdit}
+            onDelete={handleDelete}
           />
         </div>
       )
     case WidgetType.Histogram:
       return (
         <div key={widget.id}>
-          <WidgetHistogram {...(widget as WidgetChart)} id={widget.id} />
+          <WidgetHistogram
+            {...(widget as WidgetChart)}
+            id={widget.id}
+            isEdit={isEdit}
+            onDelete={handleDelete}
+          />
         </div>
       )
     default:

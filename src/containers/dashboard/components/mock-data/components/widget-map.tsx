@@ -9,14 +9,26 @@ interface Props extends mapPayload {
       longitude: number
     }
   }
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
-export const MapWidget = ({ sources, widget_info, data }: Props) => {
+export const MapWidget = ({
+  sources,
+  widget_info,
+  data,
+  isEdit,
+  onDelete,
+}: Props) => {
   const { theme } = useTheme()
   const isDarkMode = theme === 'dark'
   const { latitude, longitude } = data?.coordinate || {}
   return (
-    <WidgetContainer className="flex flex-col ">
+    <WidgetContainer
+      className="flex flex-col"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <iframe
         style={{

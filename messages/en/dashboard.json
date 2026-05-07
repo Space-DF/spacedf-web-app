@@ -142,5 +142,9 @@
   "select_entity": "Select Entity",
   "entity": "Entity",
   "search_entity": "Search entity...",
-  "add_histogram_widget": "Add Histogram Widget"
+  "add_histogram_widget": "Add Histogram Widget",
+  "widget_deleted_successfully": "Widget deleted successfully",
+  "widget_delete_failed": "Widget delete failed",
+  "delete_widget_confirm_title": "Delete this widget?",
+  "delete_widget_confirm_description": "This widget will be removed from your dashboard. This action cannot be undone."
 }

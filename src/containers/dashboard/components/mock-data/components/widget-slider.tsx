@@ -12,6 +12,8 @@ interface WidgetSliderProps {
     value: number
     unit_of_measurement: string
   }
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 function smoothValue(from: number, to: number, cb: (v: number) => void) {
@@ -28,7 +30,13 @@ function smoothValue(from: number, to: number, cb: (v: number) => void) {
   requestAnimationFrame(animate)
 }
 
-const WidgetSlider = ({ widget_info, source, data }: WidgetSliderProps) => {
+const WidgetSlider = ({
+  widget_info,
+  source,
+  data,
+  isEdit,
+  onDelete,
+}: WidgetSliderProps) => {
   const { max, min, step, unit } = source
   const { name } = widget_info
   const { value, unit_of_measurement } = data || {}
@@ -37,7 +45,11 @@ const WidgetSlider = ({ widget_info, source, data }: WidgetSliderProps) => {
     smoothValue(sliderValue[0], value, (v) => setSliderValue([v]))
   }, [value])
   return (
-    <WidgetContainer className="flex flex-col gap-1">
+    <WidgetContainer
+      className="flex flex-col gap-1"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <WidgetTitle className="flex justify-between">
         <p className="truncate font-semibold text-brand-component-text-dark">
           {name}

@@ -6,6 +6,8 @@ interface WidgetUnitProps {
   status?: string
   value: number
   unit: string
+  isEdit?: boolean
+  onDelete?: () => void
 }
 
 export const WidgetUnit = ({
@@ -13,9 +15,15 @@ export const WidgetUnit = ({
   status,
   value,
   unit,
+  isEdit,
+  onDelete,
 }: WidgetUnitProps) => {
   return (
-    <WidgetContainer className="flex flex-col justify-between">
+    <WidgetContainer
+      className="flex flex-col justify-between"
+      isEdit={isEdit}
+      onDelete={onDelete}
+    >
       <div>
         <WidgetTitle className="font-semibold">{widget_info.name}</WidgetTitle>
         <p>{status}</p>
