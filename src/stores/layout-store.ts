@@ -7,6 +7,7 @@ type LayoutStore = {
   isCollapsed: boolean
   dynamicLayouts: DynamicLayout[]
   cookieDirty: boolean
+  isAlreadySetLayout: boolean
 }
 
 type LayoutStoreFunc = {
@@ -20,6 +21,7 @@ export const useLayout = create<LayoutStore & LayoutStoreFunc>((set) => ({
   isCollapsed: false,
   dynamicLayouts: [],
   cookieDirty: false,
+  isAlreadySetLayout: false,
 
   setCookieDirty: (newState) =>
     set(() => ({
@@ -34,6 +36,7 @@ export const useLayout = create<LayoutStore & LayoutStoreFunc>((set) => ({
   setDynamicLayouts: (newLayout) =>
     set(() => ({
       dynamicLayouts: newLayout,
+      isAlreadySetLayout: true,
     })),
 
   toggleDynamicLayout: (layoutKey) =>

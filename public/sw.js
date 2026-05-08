@@ -48,7 +48,6 @@ self.addEventListener('push', (event) => {
       }
 
       const title = data.title || 'New notification'
-      const body = data.message ?? data.body ?? ''
       const { deviceId, spaceSlug } = extractDeviceAndSpace(data)
 
       let notificationData = {}
@@ -59,7 +58,7 @@ self.addEventListener('push', (event) => {
       }
 
       const options = {
-        body,
+        body: '',
         icon: data.icon || '/favicon.ico',
         badge: data.badge || '/favicon.ico',
         data: notificationData,
@@ -106,18 +105,33 @@ self.addEventListener('notificationclick', (event) => {
       }
 
       const scopeOrigin = new URL(self.registration.scope).origin
+      const candidates = []
       for (const client of clientList) {
         if (!('focus' in client)) continue
         try {
           if (new URL(client.url).origin !== scopeOrigin) continue
-          if ('navigate' in client) {
-            await client.navigate(url)
-            return client.focus()
-          }
+          candidates.push(client)
         } catch {
           continue
         }
       }
+
+      const preferredClient =
+        candidates.find((c) => c.visibilityState === 'visible' && c.focused) ||
+        candidates.find((c) => c.visibilityState === 'visible') ||
+        candidates.find((c) => c.focused) ||
+        candidates[0]
+
+      if (preferredClient) {
+        try {
+          await preferredClient.focus()
+          if ('navigate' in preferredClient) await preferredClient.navigate(url)
+          return await preferredClient.focus()
+        } catch {
+          return clients.openWindow(url)
+        }
+      }
+
       return clients.openWindow(url)
     })()
   )

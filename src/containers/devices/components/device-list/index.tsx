@@ -18,7 +18,6 @@ import ImageWithBlur from '@/components/ui/image-blur'
 import DeviceIcon from '/public/images/device-icon.webp'
 import { Map } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSearchParams } from 'next/navigation'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -33,9 +32,6 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
     isLoading,
     setSize,
   } = useGetDevices({ deviceName: debouncedDeviceName })
-
-  const searchParams = useSearchParams()
-  const deviceId = searchParams.get('device_id')
 
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
@@ -120,11 +116,6 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
       mapInstance.onZoomToDevice(deviceData)
     }
   }
-
-  useEffect(() => {
-    if (!deviceId) return
-    setDeviceSelected(deviceId)
-  }, [deviceId])
 
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
