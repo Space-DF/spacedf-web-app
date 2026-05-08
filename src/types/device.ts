@@ -16,6 +16,7 @@ type LorawanDevice = {
 type Checkpoint = {
   latitude: number
   longitude: number
+  bearing?: number
 }
 
 type DeviceProfile = {

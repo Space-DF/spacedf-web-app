@@ -144,13 +144,17 @@ export const useMqtt = () => {
             const newLng = (data.entityUpdate as any)?.entity?.attributes
               ?.longitude
 
+            const bearing = (data.entityUpdate as any)?.entity?.attributes
+              ?.bearing
+
             if (newLat && newLng) {
               dataUpdatesRef.current[data.entityUpdate.device_id] = {
                 ...dataUpdatesRef.current[data.entityUpdate.device_id],
-                latest_checkpoint_arr: [newLng, newLat],
+                latest_checkpoint_arr: [newLng, newLat, bearing],
                 latest_checkpoint: {
                   latitude: newLat,
                   longitude: newLng,
+                  bearing,
                 },
               }
             }
