@@ -67,9 +67,15 @@ export class LocationMarker {
     for (const device of this.devices) {
       if (this.locationMarkers?.[device.id]) continue
 
-      const position = device.deviceProperties?.latest_checkpoint_arr ?? [0, 0]
+      const position = device.deviceProperties?.latest_checkpoint_arr ?? [
+        0, 0, 0,
+      ]
+      const [lng, lat, bearing] = position
       const el = document.createElement('div')
-      el.className = `location-marker`
+      const isHaveDirection = position.length > 2 && !!bearing && bearing !== 0
+      el.className = isHaveDirection
+        ? `location-marker-direction`
+        : `location-marker`
       el.id = `location-marker-${device.id}`
 
       el.setAttribute('data-device-id', device.id)
@@ -97,8 +103,8 @@ export class LocationMarker {
         pitchAlignment: 'viewport',
         rotationAlignment: 'map',
       })
-        // .setRotation(device.deviceProperties?.direction ?? 0)
-        .setLngLat(position)
+        .setRotation(bearing)
+        .setLngLat([lng, lat])
         .addTo(this.map)
 
       this.locationMarkers[device.id] = marker
@@ -142,8 +148,9 @@ export class LocationMarker {
 
   private _updateMarkers() {
     for (const marker of Object.values(this.locationMarkers)) {
-      const detectDeviceId =
-        marker.getElement().getAttribute('data-device-id') || ''
+      const el = marker.getElement()
+      if (!el) continue
+      const detectDeviceId = el.getAttribute('data-device-id') || ''
 
       const prevData = this.previousDevices.find(
         (device) => device.id === detectDeviceId
@@ -156,14 +163,17 @@ export class LocationMarker {
 
       if (isEqualData || !prevData || !newData) continue
 
-      if (
-        prevData?.deviceProperties?.direction !==
-        newData?.deviceProperties?.direction
-      ) {
-        const newDirection = newData.deviceProperties?.direction ?? 0
+      const prevBearing =
+        prevData?.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
+      const newBearing =
+        newData?.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
+
+      if (prevBearing !== newBearing) {
+        el.classList.remove('location-marker')
+        el.classList.add('location-marker-direction')
         const prevDirection = marker.getRotation() ?? 0
-        smoothRotateMarker(marker, prevDirection, newDirection)
-        marker.setRotation(newData.deviceProperties?.direction ?? 0)
+        smoothRotateMarker(marker, prevDirection, newBearing)
+        marker.setRotation(newBearing)
       }
 
       if (
@@ -354,9 +364,11 @@ export class LocationMarker {
     this.focusedMarker = deviceId
     this._ensurePulseAssets()
 
-    const coordinates = device.deviceProperties?.latest_checkpoint_arr ?? [0, 0]
+    const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr ?? [
+      0, 0, 0,
+    ]
 
-    this._updateFocusDeviceSource(deviceId, coordinates)
+    this._updateFocusDeviceSource(deviceId, [lng, lat])
   }
 
   syncDeviceSelected(id: string) {

@@ -14,23 +14,44 @@ import { getS3Url } from '@/utils'
 
 type LayerResource = {
   id: string
-  position: [number, number]
+  position: [number, number, number]
   direction: number
 }
 
-const MODEL_URLS = {
+function deviceShowsDirectionPointer(device: Device): boolean {
+  const arr = device.deviceProperties?.latest_checkpoint_arr
+  return !!arr && arr.length > 2 && arr[2] !== 0
+}
+
+const LOGO_MODEL_URLS = {
   light: getS3Url('glbs/spacedf/location-model-logo-grey.glb'),
   dark: getS3Url('glbs/spacedf/location-model-logo-purple.glb'),
 }
 
+const POINTER_MODEL_URLS = {
+  light: getS3Url('glbs/spacedf/location-model-grey.glb'),
+  dark: getS3Url('glbs/spacedf/location-model-purple.glb'),
+}
+
 const modelCache: Record<string, any> = {}
 
-async function preloadModel(theme: 'dark' | 'light') {
-  if (!modelCache[theme]) {
-    modelCache[theme] = await load(MODEL_URLS[theme], GLTFLoader)
-  }
+function logoCacheKey(theme: 'dark' | 'light') {
+  return `logo-${theme}`
+}
 
-  return modelCache[theme]
+function pointerCacheKey(theme: 'dark' | 'light') {
+  return `pointer-${theme}`
+}
+
+async function preloadModelsForTheme(theme: 'dark' | 'light') {
+  const lk = logoCacheKey(theme)
+  const pk = pointerCacheKey(theme)
+  if (!modelCache[lk]) {
+    modelCache[lk] = await load(LOGO_MODEL_URLS[theme], GLTFLoader)
+  }
+  if (!modelCache[pk]) {
+    modelCache[pk] = await load(POINTER_MODEL_URLS[theme], GLTFLoader)
+  }
 }
 
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
@@ -184,8 +205,9 @@ export class LocationDeckGLInstance {
 
     if (isEqual(prevCheckpoint, currentCheckpoint)) return
 
+    const [lng, lat] = currentCheckpoint || [0, 0]
     this.map.easeTo({
-      center: currentCheckpoint,
+      center: [lng, lat],
       zoom: 18,
       duration: 500,
       pitch: MAP_PITCH['3d'],
@@ -193,9 +215,9 @@ export class LocationDeckGLInstance {
   }
 
   private _buildLayer() {
-    const layerResource: LayerResource[] = this.devices.map((deviceData) => {
-      const coordinates = deviceData.deviceProperties
-        ?.latest_checkpoint_arr ?? [0, 0]
+    const toResource = (deviceData: Device): LayerResource => {
+      const coordinates = (deviceData.deviceProperties
+        ?.latest_checkpoint_arr ?? [0, 0, 0]) as [number, number, number]
 
       const direction = deviceData.deviceProperties?.direction ?? 0
       return {
@@ -203,13 +225,24 @@ export class LocationDeckGLInstance {
         position: coordinates,
         direction,
       }
-    })
+    }
 
+    const layerResource = this.devices.map(toResource)
     this.layerSource = layerResource
+
+    const logoData = this.devices
+      .filter((d) => !deviceShowsDirectionPointer(d))
+      .map(toResource)
+    const pointerData = this.devices
+      .filter((d) => deviceShowsDirectionPointer(d))
+      .map(toResource)
+
+    const logoScenegraph = modelCache[logoCacheKey(this.theme)]
+    const pointerScenegraph = modelCache[pointerCacheKey(this.theme)]
 
     const locationDeckGLLayer = new ScenegraphLayer<LayerResource>({
       id: LAYER_IDS.LOCATION_DECKGL_LAYER,
-      data: layerResource,
+      data: logoData,
       getPosition: (d) => [d.position[0], d.position[1], 0],
 
       getColor: (d) => {
@@ -221,7 +254,7 @@ export class LocationDeckGLInstance {
 
       sizeScale: this._getPixelConstantScale(),
       pickable: true,
-      scenegraph: modelCache[this.theme],
+      scenegraph: logoScenegraph,
       transitions: this._deviceSetChanged
         ? {}
         : { getPosition: { duration: 300, easing: linear } },
@@ -244,16 +277,60 @@ export class LocationDeckGLInstance {
       } as any,
     })
 
+    const locationDeckGLPointerLayer = new ScenegraphLayer<LayerResource>({
+      id: LAYER_IDS.LOCATION_DECKGL_POINTER_LAYER,
+      data: pointerData,
+      getPosition: (d) => [d.position[0], d.position[1], 0],
+
+      getColor: (d) => {
+        const isVisible = this.ungroupedDeviceIds.includes(d.id)
+
+        return isVisible ? [255, 255, 255, 255] : [255, 255, 255, 0]
+      },
+      getOrientation: (d) => [0, -d.position[2] || 0, 0],
+
+      sizeScale: this._getPixelConstantScale(),
+      pickable: true,
+      scenegraph: pointerScenegraph,
+      transitions: this._deviceSetChanged
+        ? {}
+        : {
+            getPosition: { duration: 300, easing: linear },
+            getOrientation: { duration: 300, easing: linear },
+          },
+
+      onClick: ({ object }) => {
+        if (!this.ungroupedDeviceIds.includes(object.id)) return
+
+        this.emitter.emit('location-device-selected', {
+          deviceId: object.id,
+          deviceData: this.devices.find((device) => device.id === object.id),
+        })
+      },
+
+      updateTriggers: {
+        getPosition: this.devices,
+        getOrientation: this.devices,
+      },
+
+      parameters: {
+        blend: true,
+      } as any,
+    })
+
     this._build3DOutlineLayer()
 
-    const alreadyHasLayer = !!globalDeckGLInstance.getLayers(
-      LAYER_IDS.LOCATION_DECKGL_LAYER
-    )
-
-    if (alreadyHasLayer) {
-      globalDeckGLInstance.updateLayer(locationDeckGLLayer)
+    const deck = globalDeckGLInstance
+    if (deck.getLayers(LAYER_IDS.LOCATION_DECKGL_LAYER)) {
+      deck.updateLayer(locationDeckGLLayer)
     } else {
-      globalDeckGLInstance.appendLayer(locationDeckGLLayer)
+      deck.appendLayer(locationDeckGLLayer)
+    }
+
+    if (deck.getLayers(LAYER_IDS.LOCATION_DECKGL_POINTER_LAYER)) {
+      deck.updateLayer(locationDeckGLPointerLayer)
+    } else {
+      deck.appendLayer(locationDeckGLPointerLayer)
     }
   }
 
@@ -275,6 +352,8 @@ export class LocationDeckGLInstance {
     )
 
     if (!this.initialized && !ungroupedDeviceIds.length) return
+
+    await preloadModelsForTheme(this.theme)
 
     this.ungroupedDeviceIds = ungroupedDeviceIds
     this.hasVisibleBefore = !!ungroupedDeviceIds.length
@@ -323,7 +402,7 @@ export class LocationDeckGLInstance {
   async syncTheme(theme: 'dark' | 'light') {
     this.theme = theme
 
-    await preloadModel(theme)
+    await preloadModelsForTheme(theme)
     if (this.hasVisibleBefore) {
       this._buildLayer()
     }

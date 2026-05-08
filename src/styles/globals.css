@@ -123,9 +123,19 @@
     background-image: url('/images/3d-preview/location-marker.png');
   }
 
+  .location-marker-direction {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-direction.svg');
+  }
+
   .dark .location-marker {
     @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
     background-image: url('/images/3d-preview/location-marker-dark.png');
+  }
+
+  .dark .location-marker-direction {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-direction-dark.svg');
   }
 }
 

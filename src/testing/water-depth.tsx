@@ -38,8 +38,6 @@ export const useWaterDepthTesting = () => {
   const addDevice = () => {
     if (testDevice.current || !firstDevice) return
 
-    console.log({ firstDevice })
-
     const deviceClone: Device = {
       ...firstDevice,
       name: 'Test Device',
@@ -52,11 +50,13 @@ export const useWaterDepthTesting = () => {
       latestLocation: [
         TEST_DEVICE_LOCATION.longitude,
         TEST_DEVICE_LOCATION.latitude,
+        0,
       ],
       deviceProperties: {
         latest_checkpoint_arr: [
           TEST_DEVICE_LOCATION.longitude,
           TEST_DEVICE_LOCATION.latitude,
+          0,
         ],
         latest_checkpoint: TEST_DEVICE_LOCATION,
         water_depth: 0,
@@ -80,7 +80,10 @@ export const useWaterDepthTesting = () => {
     }
 
     map.flyTo({
-      center: testDevice.current!.latestLocation,
+      center: [
+        testDevice.current!.latestLocation?.[0] ?? 0,
+        testDevice.current!.latestLocation?.[1] ?? 0,
+      ],
       zoom: 15,
       duration: 500,
       pitch: MAP_PITCH['3d'],
@@ -104,7 +107,7 @@ export const useWaterDepthTesting = () => {
       ...testDevice.current!,
       deviceProperties: {
         latest_checkpoint: newLocation,
-        latest_checkpoint_arr: [newLocation.longitude, newLocation.latitude],
+        latest_checkpoint_arr: [newLocation.longitude, newLocation.latitude, 0],
         water_depth: 0,
         water_level_name: getWaterDepthLevelName(0),
       },

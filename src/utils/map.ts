@@ -11,12 +11,16 @@ type MapType = 'default' | '3D_map' | 'street'
 
 const formatCheckpoint = (
   latestCheckpoint?: DeviceDataOriginal['latest_checkpoint']
-): [number, number] => {
+): [number, number, number] => {
   if (!latestCheckpoint) {
-    return [0, 0]
+    return [0, 0, 0]
   }
 
-  return [latestCheckpoint.longitude, latestCheckpoint.latitude]
+  return [
+    latestCheckpoint.longitude,
+    latestCheckpoint.latitude,
+    latestCheckpoint.bearing ?? 0,
+  ]
 }
 
 const detectDeviceType = (deviceModelName: string): SupportedModels => {
@@ -41,6 +45,8 @@ export const transformDeviceData = (
       device.device.device_profile?.device_type.toLowerCase() || ''
     )
 
+    const historyLngLat: [number, number] = [checkpoint[0], checkpoint[1]]
+
     return {
       name: device.name,
       status: device.device.status as 'active' | 'inactive',
@@ -53,8 +59,8 @@ export const transformDeviceData = (
       deviceInformation: device.device,
       type: deviceType,
       histories: {
-        end: checkpoint,
-        start: checkpoint,
+        end: historyLngLat,
+        start: historyLngLat,
       },
       deviceProperties: {
         latest_checkpoint_arr: checkpoint,

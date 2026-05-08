@@ -27,12 +27,12 @@ export type Device<T = {}> = {
     start: [number, number]
   }
   deviceProperties?: DeviceDataOriginal['device_properties'] & {
-    latest_checkpoint_arr?: [number, number]
+    latest_checkpoint_arr?: [number, number, number]
     water_level_name?: WaterDepthLevelName
     battery?: number
   }
   deviceInformation?: DeviceDataOriginal['device']
-  latestLocation?: [number, number]
+  latestLocation?: [number, number, number]
   realtimeTrip?: [number, number][]
   origin?: string
   deviceId: string
@@ -90,8 +90,14 @@ const reduceDevices = (data: Device[]) => {
 
 const reduceDeviceFleetTracking = (data: Device[]) => {
   return data
-    .filter((device) =>
-      device.deviceProperties?.latest_checkpoint_arr?.every((loc) => loc)
+    .filter(
+      (device) =>
+        device.deviceProperties?.latest_checkpoint_arr &&
+        device.deviceProperties?.latest_checkpoint_arr?.length >= 2 &&
+        //lng
+        device.deviceProperties?.latest_checkpoint_arr?.[0] &&
+        //lat
+        device.deviceProperties?.latest_checkpoint_arr?.[1]
     )
     .reduce(
       (acc, device) => ({
@@ -193,16 +199,17 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
         )
         const newLat = data.deviceProperties?.latest_checkpoint_arr?.[1]
         const newLng = data.deviceProperties?.latest_checkpoint_arr?.[0]
-
+        const newBear = data.deviceProperties?.latest_checkpoint_arr?.[2]
         if (!newLat || !newLng) return
 
         if (currentDevice) {
           const newDeviceProperties = {
             ...currentDevice?.deviceProperties,
-            latest_checkpoint_arr: [newLng, newLat],
+            latest_checkpoint_arr: [newLng, newLat, newBear],
             latest_checkpoint: {
               latitude: newLat,
               longitude: newLng,
+              bearing: newBear,
             },
           } as Device['deviceProperties']
           state.devices[deviceId].deviceProperties = newDeviceProperties
@@ -221,10 +228,11 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
               end: [0, 0],
             },
             deviceProperties: {
-              latest_checkpoint_arr: [newLng, newLat],
+              latest_checkpoint_arr: [newLng, newLat, newBear],
               latest_checkpoint: {
                 latitude: newLat,
                 longitude: newLng,
+                bearing: newBear,
               },
             },
             deviceId: deviceId,
