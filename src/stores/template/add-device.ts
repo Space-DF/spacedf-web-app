@@ -20,7 +20,7 @@ export const useAddDeviceStore = create<AddDeviceStore>((set) => ({
   position: undefined,
   setIsOpen: (isOpen) => set({ isOpen }),
   setPosition: (position) => set({ position }),
-  reset: () => set({ isOpen: false, position: undefined }),
+  reset: () => set({ isOpen: false, position: undefined, building: undefined }),
   building: undefined,
   setBuilding: (building) => set({ building }),
 }))
