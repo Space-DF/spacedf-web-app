@@ -26,6 +26,9 @@
   "upload_3d_model": "Upload 3D Model",
   "upload_3d_model_required": "Please upload a 3D model.",
   "upload_3d_model_success": "3D model uploaded successfully.",
+  "edit_upload_3d_building_area_dialog_title": "Edit building model",
+  "upload_3d_model_optional_replace_hint": "Optional: upload a new file to replace the current 3D model.",
+  "edit_building_success": "Building updated successfully.",
   "add_new_model": "Add new model",
   "no_buildings": "No buildings yet",
   "add_devices": "Add devices",
@@ -49,6 +52,10 @@
   "delete_floor_description": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
   "delete_floor_success": "Floor deleted successfully.",
   "delete_floor_error": "Failed to delete floor.",
+  "delete_building_title": "Delete Building",
+  "delete_building_description": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+  "delete_building_success": "Building deleted successfully.",
+  "delete_building_error": "Failed to delete building.",
   "delete": "Delete",
   "floor_name": "Floor Name",
   "add_floor_success": "Floor added successfully.",
@@ -57,5 +64,8 @@
   "edit_floor_error": "Failed to update floor.",
   "save": "Save",
   "building_management_save_success": "Building saved successfully.",
-  "building_management_save_error": "Failed to save building."
+  "building_management_save_error": "Failed to save building.",
+  "delete_building_last_building_error": "You cannot delete the last building.",
+  "assign_device_success": "Device assigned successfully.",
+  "assign_device_error": "Failed to assign device."
 }

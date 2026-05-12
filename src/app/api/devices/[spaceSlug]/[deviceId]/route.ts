@@ -1,7 +1,7 @@
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const DELETE = withAuthApiRequired(
   async (
@@ -33,6 +33,23 @@ export const GET = withAuthApiRequired(
     const { spaceSlug, deviceId } = params
     const client = await spaceClient()
     const device = await client.deviceSpaces.retrieveByDeviceId(deviceId, {
+      headers: {
+        'X-Space': spaceSlug,
+      },
+    })
+    return NextResponse.json(device)
+  }
+)
+
+export const PATCH = withAuthApiRequired(
+  async (
+    request: NextRequest,
+    { params }: { params: { spaceSlug: string; deviceId: string } }
+  ) => {
+    const { spaceSlug, deviceId } = params
+    const body = await request.json()
+    const client = await spaceClient()
+    const device = await client.deviceSpaces.partialUpdate(deviceId, body, {
       headers: {
         'X-Space': spaceSlug,
       },

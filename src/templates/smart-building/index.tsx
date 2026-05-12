@@ -38,7 +38,7 @@ export default function SmartBuilding() {
   const [contextMenuPosition, setContextMenuPosition] = useState<{
     x: number
     y: number
-    worldPoint: { x: number; y: number; z: number }
+    modelPoint: { x: number; y: number; z: number }
   } | null>(null)
   const [selectDeviceDialogOpen, setSelectDeviceDialogOpen] = useState(false)
 
@@ -110,15 +110,16 @@ export default function SmartBuilding() {
                   <Suspense key={modelUrl} fallback={<ModelFallback />}>
                     <ThreeModel
                       url={modelUrl}
+                      previewPoint={contextMenuPosition?.modelPoint ?? null}
                       onModelContextMenu={({
                         clientX,
                         clientY,
-                        worldPoint,
+                        modelPoint,
                       }) => {
                         setContextMenuPosition({
                           x: clientX,
                           y: clientY,
-                          worldPoint,
+                          modelPoint,
                         })
                       }}
                     />
@@ -142,9 +143,9 @@ export default function SmartBuilding() {
                   event.preventDefault()
                   setIsOpenDeviceModal(true)
                   setDeviceModalPosition({
-                    x: contextMenuPosition.worldPoint.x,
-                    y: contextMenuPosition.worldPoint.y,
-                    z: contextMenuPosition.worldPoint.z,
+                    x: contextMenuPosition.modelPoint.x,
+                    y: contextMenuPosition.modelPoint.y,
+                    z: contextMenuPosition.modelPoint.z,
                   })
                   setContextMenuPosition(null)
                 }}
@@ -163,9 +164,9 @@ export default function SmartBuilding() {
                 onSelect={(event) => {
                   event.preventDefault()
                   setDeviceModalPosition({
-                    x: contextMenuPosition.worldPoint.x,
-                    y: contextMenuPosition.worldPoint.y,
-                    z: contextMenuPosition.worldPoint.z,
+                    x: contextMenuPosition.modelPoint.x,
+                    y: contextMenuPosition.modelPoint.y,
+                    z: contextMenuPosition.modelPoint.z,
                   })
                   setSelectDeviceDialogOpen(true)
                   setContextMenuPosition(null)

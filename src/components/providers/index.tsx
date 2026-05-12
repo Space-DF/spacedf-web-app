@@ -9,6 +9,10 @@ import { NextAuthSessionProvider } from './session-provider'
 import SWRProvider from './swr-provider'
 import { AuthDemoProvider } from './authdemo-provider'
 import { DeviceProvider } from './device-provider'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient()
 
 const AppProvider = ({
   children,
@@ -18,16 +22,19 @@ const AppProvider = ({
 }) => {
   return (
     <SWRDevTools>
-      <NextThemeProvider>
-        <NextAuthSessionProvider session={session}>
-          <SWRProvider>
-            <AuthDemoProvider>
-              <DeviceProvider>{children}</DeviceProvider>
-            </AuthDemoProvider>
-          </SWRProvider>
-          <Toaster position="top-right" richColors />
-        </NextAuthSessionProvider>
-      </NextThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools />
+        <NextThemeProvider>
+          <NextAuthSessionProvider session={session}>
+            <SWRProvider>
+              <AuthDemoProvider>
+                <DeviceProvider>{children}</DeviceProvider>
+              </AuthDemoProvider>
+            </SWRProvider>
+            <Toaster position="top-right" richColors />
+          </NextAuthSessionProvider>
+        </NextThemeProvider>
+      </QueryClientProvider>
     </SWRDevTools>
   )
 }

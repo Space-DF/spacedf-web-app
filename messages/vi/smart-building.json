@@ -26,6 +26,9 @@
   "upload_3d_model": "Tải lên mô hình 3D",
   "upload_3d_model_required": "Vui lòng tải lên mô hình 3D.",
   "upload_3d_model_success": "Mô hình 3D đã được tải lên thành công.",
+  "edit_upload_3d_building_area_dialog_title": "Chỉnh sửa mô hình tòa nhà",
+  "upload_3d_model_optional_replace_hint": "Tùy chọn: tải tệp mới để thay thế mô hình 3D hiện tại.",
+  "edit_building_success": "Đã cập nhật tòa nhà thành công.",
   "add_new_model": "Thêm mô hình mới",
   "no_buildings": "Chưa có tòa nhà nào",
   "building_management_title": "Quản lý {name}",
@@ -44,6 +47,10 @@
   "delete_floor_description": "Bạn có chắc chắn muốn xóa \"{name}\" không? Hành động này không thể hoàn tác.",
   "delete_floor_success": "Xóa tầng thành công.",
   "delete_floor_error": "Xóa tầng thất bại.",
+  "delete_building_title": "Xóa tòa nhà",
+  "delete_building_description": "Bạn có chắc chắn muốn xóa \"{name}\" không? Hành động này không thể hoàn tác.",
+  "delete_building_success": "Xóa tòa nhà thành công.",
+  "delete_building_error": "Xóa tòa nhà thất bại.",
   "delete": "Xóa",
   "add_devices": "Thêm thiết bị",
   "select_device": "Chọn thiết bị",
@@ -57,5 +64,8 @@
   "edit_floor_error": "Cập nhật tầng thất bại.",
   "save": "Lưu",
   "building_management_save_success": "Lưu tòa nhà thành công.",
-  "building_management_save_error": "Lưu tòa nhà thất bại."
+  "building_management_save_error": "Lưu tòa nhà thất bại.",
+  "delete_building_last_building_error": "Bạn không thể xóa tòa nhà cuối cùng.",
+  "assign_device_success": "Gán thiết bị thành công.",
+  "assign_device_error": "Gán thiết bị thất bại."
 }

@@ -14,12 +14,13 @@ import ImageWithBlur from '@/components/ui/image-blur'
 import { useDebounce } from '@/hooks'
 import { useGetDevices } from '@/hooks/useDevices'
 import { cn } from '@/lib/utils'
-import { useDeviceStore } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { Ellipsis, LoaderCircle, Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import DeviceIcon from '/public/images/device-icon.webp'
+import { useAssignDeviceModel } from './hooks/useAssignDeviceModel'
+import { useAddDeviceStore } from '@/stores/template/add-device'
 
 type Props = {
   open: boolean
@@ -32,15 +33,15 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
   const [deviceName, setDeviceName] = useState('')
   const debouncedDeviceName = useDebounce(deviceName)
   const [selected, setSelected] = useState<DeviceDataOriginal | null>(null)
-
+  const { mutateAsync: assignDevice, isPending: isAssigningDevice } =
+    useAssignDeviceModel()
   const {
     data: devices = [],
-    isReachingEnd,
     isLoading,
-    setSize,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
   } = useGetDevices({ deviceName: debouncedDeviceName })
-
-  const setDeviceSelected = useDeviceStore((s) => s.setDeviceSelected)
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   const fetchingRef = useRef(false)
@@ -62,11 +63,12 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
         if (
           entry.isIntersecting &&
           !isLoading &&
-          !isReachingEnd &&
+          hasNextPage &&
+          !isFetchingNextPage &&
           !fetchingRef.current
         ) {
           fetchingRef.current = true
-          setSize((prev) => prev + 1)
+          fetchNextPage()
         }
       },
       { threshold: 0.1 }
@@ -74,15 +76,24 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [isLoading, isReachingEnd, setSize])
+  }, [isLoading, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   useEffect(() => {
-    if (!isLoading) fetchingRef.current = false
-  }, [isLoading])
+    if (!isFetchingNextPage) fetchingRef.current = false
+  }, [isFetchingNextPage])
 
-  const handleConfirm = () => {
-    if (!selected) return
-    setDeviceSelected(selected.device.id)
+  const { buildingId, position } = useAddDeviceStore((s) => ({
+    buildingId: s.building?.id,
+    position: s.position,
+  }))
+
+  const handleConfirm = async () => {
+    if (!selected || !buildingId || !position) return
+    await assignDevice({
+      deviceId: selected.id,
+      buildingId,
+      position,
+    })
     onOpenChange(false)
   }
 
@@ -125,13 +136,20 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
                       className={cn(
                         'flex cursor-pointer flex-col rounded-md border bg-brand-component-fill-gray-soft p-2 text-left text-brand-component-text-dark transition-colors',
                         isCardSelected
-                          ? 'border-brand-component-stroke-dark ring-1 ring-brand-bright-lavender'
+                          ? 'border-brand-component-stroke-dark'
                           : 'border-transparent hover:border-brand-stroke-dark-soft'
                       )}
                     >
                       <div className="mb-2 flex items-start justify-between">
-                        <div className="size-8 shrink-0">
-                          <ImageWithBlur src={DeviceIcon} alt={device.name} />
+                        <div className="size-10 shrink-0">
+                          <ImageWithBlur
+                            src={
+                              device.device.device_profile?.logo || DeviceIcon
+                            }
+                            alt={device.name}
+                            width={70}
+                            height={70}
+                          />
                         </div>
                         <Ellipsis
                           size={16}
@@ -146,12 +164,12 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
                 })}
 
                 {/* Sentinel for infinite scroll */}
-                {!isReachingEnd && (
+                {hasNextPage && (
                   <div ref={sentinelRef} className="col-span-4" />
                 )}
 
                 {/* Loading indicator */}
-                {isLoading && (
+                {(isLoading || isFetchingNextPage) && (
                   <div className="col-span-4 flex items-center justify-center py-4">
                     <LoaderCircle className="size-6 animate-spin text-brand-bright-lavender" />
                   </div>
@@ -169,7 +187,12 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
           >
             {tSmart('cancel')}
           </Button>
-          <Button type="button" disabled={!selected} onClick={handleConfirm}>
+          <Button
+            type="button"
+            disabled={!selected}
+            onClick={handleConfirm}
+            loading={isAssigningDevice}
+          >
             {tSmart('select_device_confirm')}
           </Button>
         </DialogFooter>

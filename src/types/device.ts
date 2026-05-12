@@ -2,6 +2,7 @@ import {
   DEVICE_MODEL,
   DeviceFeatureSupported,
 } from '@/constants/device-property'
+import { Entity } from './entity'
 
 type LorawanDevice = {
   join_eui?: string
@@ -25,6 +26,7 @@ type DeviceProfile = {
   updated_at: string
   name: string
   image_url: string
+  logo?: string
   device_type: string
   default_config: Record<string, any>
   key_feature: DeviceFeatureSupported
@@ -40,7 +42,7 @@ type DeviceData = {
   is_published: boolean
 }
 
-type DeviceProperties = {
+export type DeviceProperties = {
   water_depth?: number
   latest_checkpoint?: Checkpoint
   direction?: number
@@ -55,6 +57,8 @@ type DeviceDataOriginal = {
   description: string | null
   device: DeviceData
   device_properties?: DeviceProperties
+  entities?: Entity[]
+  position?: { x: number; y: number; z: number }
 
   //*TODO: Remove this after all devices have device_properties
   latest_checkpoint?: Checkpoint | null

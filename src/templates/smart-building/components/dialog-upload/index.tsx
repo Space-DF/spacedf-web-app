@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/form'
 import { dialogUploadSchema } from './schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { DarkCloudUpload, FileArrowUp, Swap, Trash2 } from '@/components/icons'
+import { DarkCloudUpload, FileArrowUp, Swap } from '@/components/icons'
 import CloudArrowUp from '@/components/icons/cloud-arrow-up'
 import { FileRejection, useDropzone } from 'react-dropzone'
 import { toast } from 'sonner'
@@ -36,12 +36,15 @@ import {
   validatorFile,
 } from './utils'
 import { useUploadModel } from './hooks/useUploadModel'
+import type { Building } from '@/types/building'
 
 export type DialogUploadProps = {
   trigger?: ReactNode
   refetch: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  buildingToEdit?: Building | null
+  onSaved?: (building: Building) => void
 }
 
 export type DialogUploadValues = z.infer<typeof dialogUploadSchema>
@@ -51,9 +54,12 @@ export function DialogUpload({
   refetch,
   open: openProp,
   onOpenChange: onOpenChangeProp,
+  buildingToEdit = null,
+  onSaved,
 }: DialogUploadProps) {
   const t = useTranslations('smartBuilding')
   const open = openProp
+  const isEditMode = !!buildingToEdit
 
   const setOpen = (next: boolean) => {
     onOpenChangeProp?.(next)
@@ -98,6 +104,19 @@ export function DialogUpload({
   const { trigger: uploadModel, isMutating: isUploadingModel } =
     useUploadModel()
 
+  const existingModel = isEditMode ? buildingToEdit?.scene_asset : undefined
+  const displayedModel = selectedFile?.name ?? existingModel
+
+  useEffect(() => {
+    if (!open) return
+    if (buildingToEdit) {
+      form.reset({ name: buildingToEdit.name })
+    } else {
+      form.reset(DEFAULT_VALUES)
+    }
+    setSelectedFile(undefined)
+  }, [open, buildingToEdit?.id, form])
+
   const {
     getRootProps,
     getInputProps,
@@ -122,21 +141,47 @@ export function DialogUpload({
   })
 
   async function handleSubmit(values: DialogUploadValues) {
-    if (!selectedFile) {
+    if (!isEditMode && !selectedFile) {
       toast.error(t('upload_3d_model_required'))
       return
     }
+    if (isEditMode && buildingToEdit) {
+      uploadModel(
+        {
+          mode: 'edit',
+          buildingId: buildingToEdit.id,
+          name: values.name,
+          model: selectedFile,
+        },
+        {
+          onSuccess: (saved) => {
+            toast.success(t('edit_building_success'))
+            setOpen(false)
+            resetDialogState()
+            refetch()
+            onSaved?.(saved)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      )
+      return
+    }
+
     uploadModel(
       {
-        model: selectedFile,
+        mode: 'create',
+        model: selectedFile!,
         name: values.name,
       },
       {
-        onSuccess: () => {
+        onSuccess: (saved) => {
           toast.success(t('upload_3d_model_success'))
           setOpen(false)
           resetDialogState()
           refetch()
+          onSaved?.(saved)
         },
         onError: (error) => {
           toast.error(error.message)
@@ -157,7 +202,9 @@ export function DialogUpload({
   }
 
   const isFormDisabled =
-    !form.formState.isValid || isUploadingModel || !selectedFile
+    !form.formState.isValid ||
+    isUploadingModel ||
+    (!isEditMode && !selectedFile)
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -165,7 +212,9 @@ export function DialogUpload({
       <DialogContent className="p-4">
         <DialogHeader className="border-b-0 p-0 pb-4">
           <DialogTitle className="text-[16px] font-semibold leading-6 text-brand-component-text-dark dark:text-white">
-            {t('upload_3d_building_area_dialog_title')}
+            {isEditMode
+              ? t('edit_upload_3d_building_area_dialog_title')
+              : t('upload_3d_building_area_dialog_title')}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -199,23 +248,15 @@ export function DialogUpload({
                 </FormItem>
               )}
             />
-            {selectedFile ? (
+            {displayedModel ? (
               <div className="p-2 rounded-lg flex items-center justify-between bg-brand-component-fill-dark-soft">
                 <div className="flex items-center space-x-1 text-brand-component-text-gray font-medium text-sm">
                   <FileArrowUp />
-                  {selectedFile.name}
+                  {displayedModel}
                 </div>
                 <div className="flex items-center space-x-1">
                   <Button size="icon" type="button" onClick={openUpload}>
                     <Swap />
-                  </Button>
-                  <Button
-                    size="icon"
-                    type="button"
-                    variant="destructive"
-                    onClick={() => setSelectedFile(undefined)}
-                  >
-                    <Trash2 fill="#FFFFFF" />
                   </Button>
                 </div>
               </div>
@@ -237,7 +278,9 @@ export function DialogUpload({
                   <CloudArrowUp />
                 </Button>
                 <div className="text-xs text-brand-component-text-gray">
-                  {t('glb_import_hint')}
+                  {isEditMode
+                    ? t('upload_3d_model_optional_replace_hint')
+                    : t('glb_import_hint')}
                 </div>
               </div>
             )}
@@ -258,7 +301,7 @@ export function DialogUpload({
                 className="h-12 rounded-lg"
                 loading={isUploadingModel}
               >
-                {t('create')}
+                {isEditMode ? t('save') : t('create')}
               </Button>
             </div>
           </form>
