@@ -61,6 +61,46 @@ export default function SmartBuilding() {
     return building?.url_scene_asset
   }, [building, isAuthenticated])
 
+  const handleAddDevice = (event: Event) => {
+    if (!contextMenuPosition) return
+    event.preventDefault()
+    setIsOpenDeviceModal(true)
+    setDeviceModalPosition({
+      x: contextMenuPosition.modelPoint.x,
+      y: contextMenuPosition.modelPoint.y,
+      z: contextMenuPosition.modelPoint.z,
+    })
+    setContextMenuPosition(null)
+  }
+
+  const handleSelectDevice = (event: Event) => {
+    if (!contextMenuPosition) return
+    event.preventDefault()
+    setDeviceModalPosition({
+      x: contextMenuPosition.modelPoint.x,
+      y: contextMenuPosition.modelPoint.y,
+      z: contextMenuPosition.modelPoint.z,
+    })
+    setSelectDeviceDialogOpen(true)
+    setContextMenuPosition(null)
+  }
+
+  const handleRightClick = ({
+    clientX,
+    clientY,
+    modelPoint,
+  }: {
+    clientX: number
+    clientY: number
+    modelPoint: { x: number; y: number; z: number }
+  }) => {
+    setContextMenuPosition({
+      x: clientX,
+      y: clientY,
+      modelPoint,
+    })
+  }
+
   return (
     <>
       <div className="absolute top-0 left-0 right-0 z-10">
@@ -111,17 +151,7 @@ export default function SmartBuilding() {
                     <ThreeModel
                       url={modelUrl}
                       previewPoint={contextMenuPosition?.modelPoint ?? null}
-                      onModelContextMenu={({
-                        clientX,
-                        clientY,
-                        modelPoint,
-                      }) => {
-                        setContextMenuPosition({
-                          x: clientX,
-                          y: clientY,
-                          modelPoint,
-                        })
-                      }}
+                      onModelContextMenu={handleRightClick}
                     />
                   </Suspense>
                 ) : null}
@@ -139,16 +169,7 @@ export default function SmartBuilding() {
               className="w-36"
             >
               <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault()
-                  setIsOpenDeviceModal(true)
-                  setDeviceModalPosition({
-                    x: contextMenuPosition.modelPoint.x,
-                    y: contextMenuPosition.modelPoint.y,
-                    z: contextMenuPosition.modelPoint.z,
-                  })
-                  setContextMenuPosition(null)
-                }}
+                onSelect={handleAddDevice}
                 className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
               >
                 <Image
@@ -161,16 +182,7 @@ export default function SmartBuilding() {
                 <span>{t('add_devices')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault()
-                  setDeviceModalPosition({
-                    x: contextMenuPosition.modelPoint.x,
-                    y: contextMenuPosition.modelPoint.y,
-                    z: contextMenuPosition.modelPoint.z,
-                  })
-                  setSelectDeviceDialogOpen(true)
-                  setContextMenuPosition(null)
-                }}
+                onSelect={handleSelectDevice}
                 className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
               >
                 <List
