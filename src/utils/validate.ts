@@ -14,17 +14,11 @@ export const firstNameSchema = z
   .max(50, {
     message: 'First Name must not exceed 50 characters',
   })
-  .regex(/^[A-Za-z\s]*$/, {
-    message: 'Only alphabetic characters and spaces are accepted',
-  })
 
 export const lastNameSchema = z
   .string({ message: 'Last Name cannot be empty' })
   .max(50, {
     message: 'Last Name must not exceed 50 characters',
-  })
-  .regex(/^[A-Za-z\s]*$/, {
-    message: 'Only alphabetic characters and spaces are accepted',
   })
 
 export const currentPasswordSchema = z
