@@ -13,7 +13,7 @@ import { Canvas } from '@react-three/fiber'
 import Image from 'next/image'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { DialogSelectDeviceFromList } from './components/dialog-select-device-from-list'
-import ThreeModel, { ModelFallback } from './components/three-glb-model'
+import ThreeModel from './components/three-glb-model'
 import { ThreeModelControls } from './components/three-model-controls'
 import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
 import { getNewLayouts, useGlobalStore, useLayout } from '@/stores'
@@ -21,6 +21,7 @@ import { List } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useShallow } from 'zustand/react/shallow'
 import { COOKIES, NavigationEnums } from '@/constants'
+import { ModelFallback } from './components/model-fallback'
 
 export default function SmartBuilding() {
   const t = useTranslations('smartBuilding')
