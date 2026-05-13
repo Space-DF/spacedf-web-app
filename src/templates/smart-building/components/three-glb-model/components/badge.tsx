@@ -9,8 +9,9 @@ import {
 import { DeviceProperties } from '@/types/device'
 import { Entity } from '@/types/entity'
 import Image from 'next/image'
+import { useMetricBadgePalette } from '../hooks/useMetricBadgePalette'
 
-const BADGE_SIZE = 30
+const BADGE_SIZE = 50
 
 function getPropertyValue(
   device_properties: DeviceProperties | undefined,
@@ -37,104 +38,53 @@ function getEntityTooltipLabel(
   return segments.join(': ')
 }
 
-function renderEntityContent(entity: Entity) {
+function renderEntityContent(
+  entity: Entity,
+  device_properties?: DeviceProperties
+) {
   if (!entity.icon) return <></>
+  const value = device_properties
+    ? getPropertyValue(device_properties, entity.category)
+    : undefined
   return (
-    <Image
-      src={entity.icon}
-      alt={entity.name}
-      width={BADGE_SIZE}
-      height={BADGE_SIZE}
+    <MetricBadge
+      value={value}
+      unit_of_measurement={entity.unit_of_measurement}
+      icon={entity.icon}
     />
   )
 }
 
 type MetricBadgeProps = {
-  value: string
+  value: string | undefined
   unit_of_measurement: string
-  paletteClassName: string
+  icon?: string
 }
 
-function MetricBadge({
-  value,
-  unit_of_measurement,
-  paletteClassName,
-}: MetricBadgeProps) {
-  const compact = `${value}${unit_of_measurement}`
-
+function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
+  const compact = value ? `${value}${unit_of_measurement}` : ''
+  const colors = useMetricBadgePalette(icon)
   return (
     <div
-      className={`drop-shadow-lg flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-full px-1.5 font-semibold tabular-nums ${paletteClassName}`}
-      style={{ width: BADGE_SIZE, height: BADGE_SIZE }}
+      className={`drop-shadow-lg flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-full font-semibold tabular-nums`}
+      style={{ width: BADGE_SIZE, height: BADGE_SIZE, ...colors }}
     >
-      <span className="min-w-0 max-w-full break-words text-center text-xs leading-tight line-clamp-2">
-        {compact}
-      </span>
+      <div className="flex flex-col items-center">
+        {icon && (
+          <Image
+            src={icon}
+            alt={value || ''}
+            width={16}
+            height={16}
+            className="shrink-0"
+            decoding="async"
+          />
+        )}
+        <span className="min-w-0 max-w-10 break-words text-center text-xs leading-tight line-clamp-1">
+          {compact}
+        </span>
+      </div>
     </div>
-  )
-}
-
-export function TemperatureBadge({
-  value,
-  unit_of_measurement,
-}: {
-  value: string
-  unit_of_measurement: string
-}) {
-  return (
-    <MetricBadge
-      value={value}
-      unit_of_measurement={unit_of_measurement}
-      paletteClassName="bg-[#FCCBCB] text-[#E5372B]"
-    />
-  )
-}
-
-export function HumidityBadge({
-  value,
-  unit_of_measurement,
-}: {
-  value: string
-  unit_of_measurement: string
-}) {
-  return (
-    <MetricBadge
-      value={value}
-      unit_of_measurement={unit_of_measurement}
-      paletteClassName="bg-[#D9EFFC] text-[#2B8AC1]"
-    />
-  )
-}
-
-export function PressureBadge({
-  value,
-  unit_of_measurement,
-}: {
-  value: string
-  unit_of_measurement: string
-}) {
-  return (
-    <MetricBadge
-      value={value}
-      unit_of_measurement={unit_of_measurement}
-      paletteClassName="bg-[#F7E6D8] text-[#A35515]"
-    />
-  )
-}
-
-export function ElectricityBadge({
-  value,
-  unit_of_measurement,
-}: {
-  value: string
-  unit_of_measurement: string
-}) {
-  return (
-    <MetricBadge
-      value={value}
-      unit_of_measurement={unit_of_measurement}
-      paletteClassName="bg-[#DFF6E2] text-[#34B941]"
-    />
   )
 }
 
@@ -162,7 +112,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
         <TooltipTrigger asChild>
           <div className="flex size-12 items-center justify-center">
             <div className={badgeHoverClassName}>
-              {renderEntityContent(entity)}
+              {renderEntityContent(entity, device_properties)}
             </div>
           </div>
         </TooltipTrigger>
@@ -194,7 +144,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={badgeHoverClassName}>
-                    {renderEntityContent(entity)}
+                    {renderEntityContent(entity, device_properties)}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs">

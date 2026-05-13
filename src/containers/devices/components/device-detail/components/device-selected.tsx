@@ -60,8 +60,8 @@ const DeviceSelected = () => {
                 ''
               }
               alt="rak"
-              width={28}
-              height={32}
+              width={42}
+              height={42}
               quality={100}
             />
           </div>
