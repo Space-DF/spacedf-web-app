@@ -6,5 +6,6 @@ export type Building = {
     latitude?: number
     longitude?: number
   }
-  type?: string
+  scene_asset?: string
+  url_scene_asset?: string
 }

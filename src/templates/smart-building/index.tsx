@@ -7,112 +7,125 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useDeviceModalStore } from '@/stores/template/device-modal'
-import { Area } from '@/types/area'
-import { Building } from '@/types/building'
-import { Floor } from '@/types/floor'
-import { getS3Url } from '@/utils'
+import { useAddDeviceStore } from '@/stores/template/add-device'
+import { getS3Url, setCookie } from '@/utils'
 import { Canvas } from '@react-three/fiber'
 import Image from 'next/image'
-import { Suspense, useMemo, useState } from 'react'
-import { ImportThreeModel } from './components/import-file'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { DialogSelectDeviceFromList } from './components/dialog-select-device-from-list'
 import ThreeModel, { ModelFallback } from './components/three-glb-model'
 import { ThreeModelControls } from './components/three-model-controls'
 import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
-import { DropdownSwitchFloor } from './components/three-model-controls/components/dropdown-switch-floor'
-import { useAreaAndBuilding } from './hooks/useAreaAndBuilding'
+import { getNewLayouts, useGlobalStore, useLayout } from '@/stores'
+import { List } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useShallow } from 'zustand/react/shallow'
+import { COOKIES, NavigationEnums } from '@/constants'
 
 export default function SmartBuilding() {
-  const setIsOpenDeviceModal = useDeviceModalStore((state) => state.setIsOpen)
-  const setDeviceModalPosition = useDeviceModalStore(
-    (state) => state.setPosition
-  )
-  const {
-    data: areaAndBuilding,
-    isLoading: isLoadingAreaAndBuilding,
-    mutate: mutateAreaAndBuilding,
-  } = useAreaAndBuilding()
-  // const isFirstLoadRef = useRef(true)
-  // const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
-  const [activeBuildingArea, setActiveBuildingArea] = useState<
-    Building | Area | undefined
-  >(undefined)
+  const t = useTranslations('smartBuilding')
 
-  const [activeFloor, setActiveFloor] = useState<Floor | undefined>(undefined)
+  const isFirstLoadRef = useRef(true)
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
+  const { building, setIsOpenDeviceModal, setDeviceModalPosition } =
+    useAddDeviceStore(
+      useShallow((state) => ({
+        building: state.building,
+        setIsOpenDeviceModal: state.setIsOpen,
+        setDeviceModalPosition: state.setPosition,
+      }))
+    )
 
   const [contextMenuPosition, setContextMenuPosition] = useState<{
     x: number
     y: number
-    worldPoint: { x: number; y: number; z: number }
+    modelPoint: { x: number; y: number; z: number }
   } | null>(null)
+  const [selectDeviceDialogOpen, setSelectDeviceDialogOpen] = useState(false)
+  const { toggleDynamicLayout, dynamicLayouts } = useLayout(
+    useShallow((state) => ({
+      toggleDynamicLayout: state.toggleDynamicLayout,
+      dynamicLayouts: state.dynamicLayouts,
+      setCookieDirty: state.setCookieDirty,
+    }))
+  )
 
-  const isBuilding = activeBuildingArea?.type === 'building'
+  const isDeviceTabVisible = dynamicLayouts.includes(NavigationEnums.DEVICES)
 
   const isAuthenticated = useAuthenticated()
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) return
-  //   if (isFirstLoadRef.current) {
-  //     if (!activeBuildingArea) {
-  //       setGlobalLoading(true)
-  //       return
-  //     }
-  //     if (isBuilding && !activeFloor) {
-  //       setGlobalLoading(true)
-  //     } else {
-  //       setGlobalLoading(false)
-  //       isFirstLoadRef.current = false
-  //     }
-  //   }
-  // }, [isBuilding, activeFloor, activeBuildingArea, isAuthenticated])
-
-  const isHiddenImport =
-    (isAuthenticated && (isBuilding ? !!activeFloor : !!activeBuildingArea)) ||
-    !isAuthenticated
+  useEffect(() => {
+    if (!isAuthenticated) return
+    if (isFirstLoadRef.current) {
+      if (!building) {
+        setGlobalLoading(true)
+        return
+      }
+      setGlobalLoading(false)
+      isFirstLoadRef.current = false
+    }
+  }, [isAuthenticated, building])
 
   const modelUrl = useMemo(() => {
     if (!isAuthenticated) return getS3Url('glbs/spacedf/building-view.glb')
-    return isBuilding
-      ? activeFloor?.url_scene_asset
-      : (activeBuildingArea as Area)?.url_scene_asset
-  }, [isAuthenticated, isBuilding, activeFloor, activeBuildingArea])
+    return building?.url_scene_asset
+  }, [building, isAuthenticated])
+
+  const handleAddDevice = (event: Event) => {
+    if (!contextMenuPosition) return
+    event.preventDefault()
+    if (!isDeviceTabVisible) {
+      const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+      setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+      toggleDynamicLayout(NavigationEnums.DEVICES)
+    }
+    setIsOpenDeviceModal(true)
+    setDeviceModalPosition({
+      x: contextMenuPosition.modelPoint.x,
+      y: contextMenuPosition.modelPoint.y,
+      z: contextMenuPosition.modelPoint.z,
+    })
+    setContextMenuPosition(null)
+  }
+
+  const handleSelectDevice = (event: Event) => {
+    if (!contextMenuPosition) return
+    event.preventDefault()
+    setDeviceModalPosition({
+      x: contextMenuPosition.modelPoint.x,
+      y: contextMenuPosition.modelPoint.y,
+      z: contextMenuPosition.modelPoint.z,
+    })
+    setSelectDeviceDialogOpen(true)
+    setContextMenuPosition(null)
+  }
+
+  const handleRightClick = ({
+    clientX,
+    clientY,
+    modelPoint,
+  }: {
+    clientX: number
+    clientY: number
+    modelPoint: { x: number; y: number; z: number }
+  }) => {
+    setContextMenuPosition({
+      x: clientX,
+      y: clientY,
+      modelPoint,
+    })
+  }
 
   return (
     <>
-      <ImportThreeModel
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-        isHidden={isHiddenImport}
-        refetch={mutateAreaAndBuilding}
-      />
       <div className="absolute top-0 left-0 right-0 z-10">
         <div className="flex p-3 justify-between">
           <div className="w-fit">
             <SpacedfLogo />
           </div>
           <div className="flex space-x-3">
-            {isAuthenticated && (
-              <>
-                {isBuilding && (
-                  <DropdownSwitchFloor
-                    buildingId={activeBuildingArea?.id}
-                    activeFloor={activeFloor}
-                    setActiveFloor={setActiveFloor}
-                  />
-                )}
-                <DropdownSwitchBuilding
-                  activeBuildingArea={activeBuildingArea}
-                  setActiveBuildingArea={setActiveBuildingArea}
-                  isLoadingAreaAndBuilding={isLoadingAreaAndBuilding}
-                  areaAndBuilding={areaAndBuilding}
-                />
-              </>
-            )}
-            {modelUrl && (
-              <ThreeModelControls
-                refetch={mutateAreaAndBuilding}
-                activeBuildingArea={activeBuildingArea}
-              />
-            )}
+            {isAuthenticated && <DropdownSwitchBuilding />}
+            {modelUrl && <ThreeModelControls />}
           </div>
         </div>
       </div>
@@ -152,17 +165,8 @@ export default function SmartBuilding() {
                   <Suspense key={modelUrl} fallback={<ModelFallback />}>
                     <ThreeModel
                       url={modelUrl}
-                      onModelContextMenu={({
-                        clientX,
-                        clientY,
-                        worldPoint,
-                      }) => {
-                        setContextMenuPosition({
-                          x: clientX,
-                          y: clientY,
-                          worldPoint,
-                        })
-                      }}
+                      previewPoint={contextMenuPosition?.modelPoint ?? null}
+                      onModelContextMenu={handleRightClick}
                     />
                   </Suspense>
                 ) : null}
@@ -177,34 +181,40 @@ export default function SmartBuilding() {
                 left: contextMenuPosition.x,
                 top: contextMenuPosition.y,
               }}
+              className="w-36"
             >
               <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault()
-                  setIsOpenDeviceModal(true)
-                  setDeviceModalPosition({
-                    x: contextMenuPosition.worldPoint.x,
-                    y: contextMenuPosition.worldPoint.y,
-                    z: contextMenuPosition.worldPoint.z,
-                  })
-                  setContextMenuPosition(null)
-                }}
-                className="flex items-center gap-2"
+                onSelect={handleAddDevice}
+                className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
               >
                 <Image
                   src="/images/plus-circle.svg"
-                  alt="Reset view"
+                  alt="Add devices"
                   width={16}
                   height={16}
+                  className="group-hover:text-brand-component-text-dark stroke-brand-component-text-gray"
                 />
-                <span className="text-sm font-medium text-brand-component-text-dark">
-                  Add devices
-                </span>
+                <span>{t('add_devices')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={handleSelectDevice}
+                className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
+              >
+                <List
+                  size={16}
+                  className="text-brand-component-text-gray group-hover:text-brand-component-text-dark"
+                  aria-hidden
+                />
+                <span>{t('select_device')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           ) : null}
         </DropdownMenu>
       </div>
+      <DialogSelectDeviceFromList
+        open={selectDeviceDialogOpen}
+        onOpenChange={setSelectDeviceDialogOpen}
+      />
     </>
   )
 }

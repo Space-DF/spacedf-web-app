@@ -29,8 +29,5 @@
   "add_device_successfully": "Add device successfully",
   "failed_to_add_device": "Failed to add device",
   "failed_to_scan_qr_code": "Failed to scan QR code",
-  "asset_coordinates": "Asset Coordinates",
-  "x_axis": "X-AXIS",
-  "y_axis": "Y-AXIS",
-  "z_height": "Z-Height"
+  "asset_coordinates": "Asset Coordinates"
 }

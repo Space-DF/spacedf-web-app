@@ -61,7 +61,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
     !isLoading &&
     Boolean(fetchError || !deviceFromApi || (deviceFromApi && !mappedFromApi))
 
-  const selectedDevice = !open ? undefined : (deviceDataSelected || mappedFromApi)
+  const selectedDevice = !open ? undefined : deviceDataSelected || mappedFromApi
 
   const isWlb = selectedDevice?.type === 'wlb'
 
@@ -174,7 +174,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         >
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
-              <DeviceSelected isWlb={isWlb} />
+              <DeviceSelected />
               <ListEvent deviceId={selectedDevice.id} />
               {isWlb ? <ListAlert /> : <TripHistory />}
             </div>

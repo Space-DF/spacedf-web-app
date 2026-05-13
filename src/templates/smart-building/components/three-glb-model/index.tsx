@@ -15,14 +15,18 @@ import { useLoader } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
 import { useBounds } from '@react-three/drei'
-import Image from 'next/image'
+import { useGetDevices } from '@/hooks/useDevices'
+import { useAddDeviceStore } from '@/stores/template/add-device'
+import { DeviceDataOriginal } from '@/types/device'
+import EntityBadge from './components/badge'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
+  previewPoint?: { x: number; y: number; z: number } | null
   onModelContextMenu?: (payload: {
     clientX: number
     clientY: number
-    worldPoint: { x: number; y: number; z: number }
+    modelPoint: { x: number; y: number; z: number }
   }) => void
 }
 
@@ -31,45 +35,8 @@ type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 const FORMAT_PROBE_BYTES = 12
 const DEFAULT_MODEL_OPACITY = 0.35
 
-type MockDevice = {
-  id: string
-  name: string
-  type: 'electricity' | 'humidity' | 'temperature'
-  position: { x: number; y: number; z: number }
-  value: string
-}
-
-const MOCK_DEVICES: MockDevice[] = [
-  {
-    id: 'device-1',
-    name: 'Temperature Sensor',
-    type: 'temperature',
-    position: { x: 5.46, y: 1.27, z: -1.58 },
-    value: '24°C',
-  },
-  {
-    id: 'device-2',
-    name: 'Humidity Monitor',
-    type: 'humidity',
-    position: { x: -1.2, y: 0.5, z: 1.8 },
-    value: '65%',
-  },
-  {
-    id: 'device-3',
-    name: 'Power Meter',
-    type: 'electricity',
-    position: { x: 0.8, y: 0.2, z: -0.5 },
-    value: '2.4kW',
-  },
-]
-
-const DEVICE_ICONS = {
-  electricity: '/images/electricity.svg',
-  humidity: '/images/humidity.svg',
-  temperature: '/images/temperature.svg',
-}
-
-function DeviceMarker({ device }: { device: MockDevice }) {
+function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
+  if (!device.position) return <></>
   return (
     <Html
       position={[device.position.x, device.position.y, device.position.z]}
@@ -77,22 +44,34 @@ function DeviceMarker({ device }: { device: MockDevice }) {
       distanceFactor={10}
       zIndexRange={[0, 0]}
     >
-      <div className="flex flex-col items-center cursor-pointer group">
-        <div className="relative transition-transform group-hover:scale-110">
-          <Image
-            src={DEVICE_ICONS[device.type]}
-            alt={device.name}
-            width={48}
-            height={48}
-            className="drop-shadow-lg"
+      <div className="flex flex-col items-center cursor-pointer">
+        <div className="relative">
+          <EntityBadge
+            entities={device.entities ?? []}
+            device_properties={device.device_properties}
           />
-        </div>
-        <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap backdrop-blur-sm">
-          <div className="font-semibold">{device.name}</div>
-          <div className="text-gray-300">{device.value}</div>
         </div>
       </div>
     </Html>
+  )
+}
+
+function PreviewPointMarker({
+  point,
+}: {
+  point: { x: number; y: number; z: number }
+}) {
+  return (
+    <group position={[point.x, point.y, point.z]}>
+      <mesh>
+        <sphereGeometry args={[0.06, 18, 18]} />
+        <meshStandardMaterial
+          color="#60A5FA"
+          emissive="#60A5FA"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+    </group>
   )
 }
 
@@ -175,12 +154,21 @@ function setObjectOpacity(root: Object3D, opacity: number) {
   })
 }
 
-function FitOnRefocus({ children }: { children: React.ReactNode }) {
+function FitOnRefocus({
+  children,
+  previewPoint,
+}: {
+  children: React.ReactNode
+  previewPoint?: { x: number; y: number; z: number } | null
+}) {
   const api = useBounds()
   const objectRef = useRef<Object3D | null>(null)
   const controls = useThreeModelController((s) => s.controls)
   const hasSavedInitialRef = useRef(false)
-
+  const buildingId = useAddDeviceStore((state) => state.building?.id)
+  const { data: devices } = useGetDevices({
+    buildingId,
+  })
   useEffect(() => {
     const run = () => {
       const obj = objectRef.current
@@ -204,7 +192,8 @@ function FitOnRefocus({ children }: { children: React.ReactNode }) {
   return (
     <group ref={objectRef as any}>
       {children}
-      {MOCK_DEVICES.map((device) => (
+      {previewPoint ? <PreviewPointMarker point={previewPoint} /> : null}
+      {devices.map((device) => (
         <DeviceMarker key={device.id} device={device} />
       ))}
     </group>
@@ -214,9 +203,11 @@ function FitOnRefocus({ children }: { children: React.ReactNode }) {
 function GlbScene({
   url,
   onModelContextMenu,
+  previewPoint,
   ...props
 }: Required<Pick<ModelProps, 'url'>> &
   Pick<ModelProps, 'onModelContextMenu'> &
+  Pick<ModelProps, 'previewPoint'> &
   ThreeElements['group']) {
   const { scene } = useGLTF(url)
   const invalidate = useThree((s) => s.invalidate)
@@ -224,13 +215,15 @@ function GlbScene({
   const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
     event.nativeEvent.preventDefault()
     event.stopPropagation()
+    const world = event.point.clone()
+    const model = scene.worldToLocal(world.clone())
     onModelContextMenu?.({
       clientX: event.nativeEvent.clientX,
       clientY: event.nativeEvent.clientY,
-      worldPoint: {
-        x: event.point.x,
-        y: event.point.y,
-        z: event.point.z,
+      modelPoint: {
+        x: model.x,
+        y: model.y,
+        z: model.z,
       },
     })
   }
@@ -250,7 +243,7 @@ function GlbScene({
     <group {...props}>
       <Bounds fit observe margin={1.15}>
         <Center>
-          <FitOnRefocus>
+          <FitOnRefocus previewPoint={previewPoint}>
             <primitive object={scene} onContextMenu={handleContextMenu} />
           </FitOnRefocus>
         </Center>
@@ -262,9 +255,11 @@ function GlbScene({
 function UsdzModel({
   url,
   onModelContextMenu,
+  previewPoint,
   ...props
 }: Required<Pick<ModelProps, 'url'>> &
   Pick<ModelProps, 'onModelContextMenu'> &
+  Pick<ModelProps, 'previewPoint'> &
   ThreeElements['group']) {
   const object = useLoader(USDLoader, url)
   const invalidate = useThree((s) => s.invalidate)
@@ -272,13 +267,15 @@ function UsdzModel({
   const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
     event.nativeEvent.preventDefault()
     event.stopPropagation()
+    const world = event.point.clone()
+    const model = object.worldToLocal(world.clone())
     onModelContextMenu?.({
       clientX: event.nativeEvent.clientX,
       clientY: event.nativeEvent.clientY,
-      worldPoint: {
-        x: event.point.x,
-        y: event.point.y,
-        z: event.point.z,
+      modelPoint: {
+        x: model.x,
+        y: model.y,
+        z: model.z,
       },
     })
   }
@@ -298,7 +295,7 @@ function UsdzModel({
     <group {...props}>
       <Bounds fit observe margin={1.15}>
         <Center>
-          <FitOnRefocus>
+          <FitOnRefocus previewPoint={previewPoint}>
             <primitive object={object} onContextMenu={handleContextMenu} />
           </FitOnRefocus>
         </Center>

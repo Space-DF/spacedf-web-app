@@ -1,17 +1,10 @@
 'use client'
 
-import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Dialog,
   DialogClose,
@@ -28,10 +21,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { dialogUploadSchemaWithFloor, TAG_OPTIONS } from './schema'
+import { dialogUploadSchema } from './schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronDown } from 'lucide-react'
-import { DarkCloudUpload, FileArrowUp, Swap, Trash2 } from '@/components/icons'
+import { DarkCloudUpload, FileArrowUp, Swap } from '@/components/icons'
 import CloudArrowUp from '@/components/icons/cloud-arrow-up'
 import { FileRejection, useDropzone } from 'react-dropzone'
 import { toast } from 'sonner'
@@ -43,20 +35,35 @@ import {
   threeModelAccept,
   validatorFile,
 } from './utils'
-import TagValue from './components/tag-value'
 import { useUploadModel } from './hooks/useUploadModel'
+import type { Building } from '@/types/building'
 
 export type DialogUploadProps = {
   trigger?: ReactNode
   refetch: () => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  buildingToEdit?: Building | null
+  onSaved?: (building: Building) => void
 }
 
-export type DialogUploadValues = z.infer<typeof dialogUploadSchemaWithFloor>
+export type DialogUploadValues = z.infer<typeof dialogUploadSchema>
 
-export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
+export function DialogUpload({
+  trigger,
+  refetch,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  buildingToEdit = null,
+  onSaved,
+}: DialogUploadProps) {
   const t = useTranslations('smartBuilding')
-  const [open, setOpen] = useState(false)
-  const dialogContentRef = useRef<HTMLDivElement | null>(null)
+  const open = openProp
+  const isEditMode = !!buildingToEdit
+
+  const setOpen = (next: boolean) => {
+    onOpenChangeProp?.(next)
+  }
 
   const [selectedFile, setSelectedFile] = useState<File>()
 
@@ -91,16 +98,24 @@ export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
 
   const form = useForm<DialogUploadValues>({
     defaultValues: DEFAULT_VALUES,
-    resolver: zodResolver(dialogUploadSchemaWithFloor),
+    resolver: zodResolver(dialogUploadSchema),
   })
 
-  const tag = form.watch('tag')
-  const isSelectTag = !!tag
-
-  const isBuilding = tag === 'building'
-
   const { trigger: uploadModel, isMutating: isUploadingModel } =
-    useUploadModel(isBuilding)
+    useUploadModel()
+
+  const existingModel = isEditMode ? buildingToEdit?.scene_asset : undefined
+  const displayedModel = selectedFile?.name ?? existingModel
+
+  useEffect(() => {
+    if (!open) return
+    if (buildingToEdit) {
+      form.reset({ name: buildingToEdit.name })
+    } else {
+      form.reset(DEFAULT_VALUES)
+    }
+    setSelectedFile(undefined)
+  }, [open, buildingToEdit?.id, form])
 
   const {
     getRootProps,
@@ -126,32 +141,56 @@ export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
   })
 
   async function handleSubmit(values: DialogUploadValues) {
-    if (!selectedFile) {
+    if (!isEditMode && !selectedFile) {
       toast.error(t('upload_3d_model_required'))
       return
     }
+    if (isEditMode && buildingToEdit) {
+      uploadModel(
+        {
+          mode: 'edit',
+          buildingId: buildingToEdit.id,
+          name: values.name,
+          model: selectedFile,
+        },
+        {
+          onSuccess: (saved) => {
+            toast.success(t('edit_building_success'))
+            setOpen(false)
+            resetDialogState()
+            refetch()
+            onSaved?.(saved)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      )
+      return
+    }
+
     uploadModel(
       {
-        model: selectedFile,
+        mode: 'create',
+        model: selectedFile!,
         name: values.name,
-        floorName: values.floorName,
       },
       {
-        onSuccess: () => {
+        onSuccess: (saved) => {
           toast.success(t('upload_3d_model_success'))
-          handleCancel()
+          setOpen(false)
+          resetDialogState()
           refetch()
+          onSaved?.(saved)
         },
         onError: (error) => {
-          console.log({ error })
           toast.error(error.message)
         },
       }
     )
   }
 
-  const handleCancel = () => {
-    setOpen(false)
+  const resetDialogState = () => {
     form.reset()
     setSelectedFile(undefined)
   }
@@ -159,20 +198,23 @@ export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
   const handleOpenChange = (next: boolean) => {
     if (isUploadingModel) return
     setOpen(next)
-    if (!next) handleCancel()
+    if (!next) resetDialogState()
   }
 
   const isFormDisabled =
-    !form.formState.isValid || isUploadingModel || !selectedFile
+    !form.formState.isValid ||
+    isUploadingModel ||
+    (!isEditMode && !selectedFile)
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-
-      <DialogContent ref={dialogContentRef} className="p-4">
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+      <DialogContent className="p-4">
         <DialogHeader className="border-b-0 p-0 pb-4">
           <DialogTitle className="text-[16px] font-semibold leading-6 text-brand-component-text-dark dark:text-white">
-            {t('upload_3d_building_area_dialog_title')}
+            {isEditMode
+              ? t('edit_upload_3d_building_area_dialog_title')
+              : t('upload_3d_building_area_dialog_title')}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -206,115 +248,41 @@ export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="tag"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-semibold text-brand-component-text-dark dark:text-white">
-                    {t('upload_3d_building_area_dialog_tag')}
-                  </FormLabel>
-                  <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        icon={
-                          <ChevronDown className="w-3 text-brand-icon-gray" />
-                        }
-                        className="text-brand-component-text-gray font-medium bg-brand-component-fill-dark-soft"
-                      >
-                        {!field.value ? (
-                          <SelectValue
-                            placeholder={t(
-                              'upload_3d_building_area_dialog_tag_placeholder'
-                            )}
-                          />
-                        ) : (
-                          <TagValue value={field.value} />
-                        )}
-                      </SelectTrigger>
-                      <SelectContent container={dialogContentRef.current}>
-                        {TAG_OPTIONS.map((o) => (
-                          <SelectItem key={o.value} value={o.value}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            {isSelectTag && (
-              <>
-                {isBuilding && (
-                  <div className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name="floorName"
-                      render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs font-semibold text-brand-component-text-dark dark:text-white">
-                            {t('upload_floor_3d_model')}
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder={t('floor_name_placeholder')}
-                              className="placeholder:text-brand-component-text-gray placeholder:font-medium"
-                              isError={fieldState.invalid}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {selectedFile ? (
-                  <div className="p-2 rounded-lg flex items-center justify-between bg-brand-component-fill-dark-soft">
-                    <div className="flex items-center space-x-1 text-brand-component-text-gray font-medium text-sm">
-                      <FileArrowUp />
-                      {selectedFile.name}
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Button size="icon" type="button" onClick={openUpload}>
-                        <Swap />
-                      </Button>
-                      <Button
-                        size="icon"
-                        type="button"
-                        variant="destructive"
-                        onClick={() => setSelectedFile(undefined)}
-                      >
-                        <Trash2 fill="#FFFFFF" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    {...getRootProps({
-                      className:
-                        'flex w-full flex-col items-center justify-center gap-2 rounded-xl bg-brand-component-fill-dark-soft p-6 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-brand-stroke-outermost disabled:cursor-not-allowed disabled:opacity-50',
-                    })}
-                  >
-                    <DarkCloudUpload />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={openUpload}
-                    >
-                      {t('upload_3d_model')}
-                      <CloudArrowUp />
-                    </Button>
-                    <div className="text-xs text-brand-component-text-gray">
-                      {t('glb_import_hint')}
-                    </div>
-                  </div>
-                )}
-              </>
+            {displayedModel ? (
+              <div className="p-2 rounded-lg flex items-center justify-between bg-brand-component-fill-dark-soft">
+                <div className="flex items-center space-x-1 text-brand-component-text-gray font-medium text-sm">
+                  <FileArrowUp />
+                  {displayedModel}
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Button size="icon" type="button" onClick={openUpload}>
+                    <Swap />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div
+                {...getRootProps({
+                  className:
+                    'flex w-full flex-col items-center justify-center gap-2 rounded-xl bg-brand-component-fill-dark-soft p-6 text-center outline-none transition focus-visible:ring-2 focus-visible:ring-brand-stroke-outermost disabled:cursor-not-allowed disabled:opacity-50',
+                })}
+              >
+                <DarkCloudUpload />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={openUpload}
+                >
+                  {t('upload_3d_model')}
+                  <CloudArrowUp />
+                </Button>
+                <div className="text-xs text-brand-component-text-gray">
+                  {isEditMode
+                    ? t('upload_3d_model_optional_replace_hint')
+                    : t('glb_import_hint')}
+                </div>
+              </div>
             )}
             <div className="grid grid-cols-2 gap-4 pt-2">
               <DialogClose asChild>
@@ -333,7 +301,7 @@ export function DialogUpload({ trigger, refetch }: DialogUploadProps) {
                 className="h-12 rounded-lg"
                 loading={isUploadingModel}
               >
-                {t('create')}
+                {isEditMode ? t('save') : t('create')}
               </Button>
             </div>
           </form>

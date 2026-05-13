@@ -1,9 +1,9 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useState } from 'react'
 
-import { cn } from '@/lib/utils'
-import { EmptySelect } from '@/components/ui/empty-select'
 import {
   Select,
   SelectContent,
@@ -11,115 +11,217 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useEffect, useMemo } from 'react'
-import { Building } from '@/types/building'
-import { Area } from '@/types/area'
-import { PaginationResponse } from '@/types/global'
+import { useBuilding } from '@/templates/smart-building/hooks/useBuilding'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { BuildingPlus, Trash2 } from '@/components/icons'
+import { DialogUpload } from '../../../dialog-upload'
+import { useAddDeviceStore } from '@/stores/template/add-device'
+import { useShallow } from 'zustand/react/shallow'
+import Pen from '@/components/icons/pen'
+import type { Building } from '@/types/building'
+import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { useDeleteBuilding } from '@/templates/smart-building/hooks/useDeleteBuilding'
+import { toast } from 'sonner'
 
-interface DropdownSwitchBuildingProps {
-  activeBuildingArea: Building | Area | undefined
-  setActiveBuildingArea: (buildingArea: Building | Area | undefined) => void
-  isLoadingAreaAndBuilding: boolean
-  areaAndBuilding?: {
-    area: PaginationResponse<Area>
-    building: PaginationResponse<Building>
-  }
-}
-
-export function DropdownSwitchBuilding({
-  activeBuildingArea,
-  setActiveBuildingArea,
-  isLoadingAreaAndBuilding,
-  areaAndBuilding,
-}: DropdownSwitchBuildingProps) {
-  const areaBuildingData = useMemo(() => {
-    if (isLoadingAreaAndBuilding || !areaAndBuilding) return []
-    const areas = (areaAndBuilding?.area.results || []).map((area) => ({
-      ...area,
-      type: 'area',
+export function DropdownSwitchBuilding() {
+  const t = useTranslations('smartBuilding')
+  const [selectOpen, setSelectOpen] = useState(false)
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [buildingToEdit, setBuildingToEdit] = useState<Building | null>(null)
+  const [buildingToDelete, setBuildingToDelete] = useState<Building | null>(
+    null
+  )
+  const { data: buildings, mutate: mutateBuildings } = useBuilding()
+  const { trigger: deleteBuilding, isMutating: isDeleting } = useDeleteBuilding(
+    buildingToDelete?.id
+  )
+  const { building, setBuilding } = useAddDeviceStore(
+    useShallow((state) => ({
+      building: state.building,
+      setBuilding: state.setBuilding,
     }))
-    const buildings = (areaAndBuilding?.building.results || []).map(
-      (building) => ({
-        ...building,
-        type: 'building',
-      })
-    )
-    return [...buildings, ...areas]
-  }, [areaAndBuilding, isLoadingAreaAndBuilding])
+  )
+  const buildingsData = useMemo(() => {
+    return buildings?.results || []
+  }, [buildings])
 
   useEffect(() => {
-    if (!areaBuildingData.length || activeBuildingArea) return
-    setActiveBuildingArea(areaBuildingData[0])
-  }, [areaBuildingData, activeBuildingArea])
+    if (!buildingsData.length || building) return
+    setBuilding(buildingsData[0])
+  }, [buildingsData, building])
 
-  if (isLoadingAreaAndBuilding || !areaBuildingData.length) {
-    return (
-      <EmptySelect
-        ariaLabel="Switch building/area"
-        placeholder={
-          isLoadingAreaAndBuilding ? 'Loading...' : 'No Building/Area'
-        }
-        triggerClassName="flex h-fit border-none items-center gap-2 py-2 rounded-lg bg-brand-component-hover-dark px-3 text-sm font-semibold text-white shadow-sm transition-colors"
-        contentClassName="min-w-36"
-      />
+  const handleOpenChange = (next: boolean) => {
+    setUploadOpen(next)
+    if (!next) setBuildingToEdit(null)
+  }
+  const handleSaved = (saved: Building) => {
+    if (building?.id === saved.id) {
+      setBuilding(saved)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!buildingToDelete?.id) return
+    if (buildingsData.length === 1) {
+      toast.error(t('delete_building_last_building_error'))
+      return
+    }
+    await deleteBuilding()
+
+    const nextBuildings = buildingsData.filter(
+      (item) => item.id !== buildingToDelete.id
     )
+    if (building?.id === buildingToDelete.id) {
+      setBuilding(nextBuildings[0])
+    }
+
+    setBuildingToDelete(null)
+    mutateBuildings()
+  }
+
+  const handleCancel = () => {
+    if (isDeleting) return
+    setBuildingToDelete(null)
+  }
+
+  const handleAddBuilding = () => {
+    setBuildingToEdit(null)
+    setSelectOpen(false)
+    setUploadOpen(true)
+  }
+
+  const handleDeleteBuilding = (build: Building) => {
+    setBuildingToDelete(build)
+    setSelectOpen(false)
+  }
+
+  const handleEditBuilding = (build: Building) => {
+    setBuildingToEdit(build)
+    setSelectOpen(false)
+    setUploadOpen(true)
+  }
+
+  const handleSelectBuilding = (value: string) => {
+    setBuilding(buildingsData.find((item) => item.id === value))
+    setSelectOpen(false)
   }
 
   return (
-    <Select
-      value={activeBuildingArea?.id}
-      onValueChange={(value) => {
-        setActiveBuildingArea(
-          areaBuildingData.find((item) => item.id === value)
-        )
-      }}
-    >
-      <SelectTrigger
-        aria-label="Switch floor"
-        className="flex h-fit w-48 items-center rounded-lg bg-brand-component-hover-dark font-medium text-sm text-white shadow-sm transition-colors border-none"
-        icon={<ChevronDown className="size-4 opacity-80" />}
-      >
-        {activeBuildingArea ? (
-          <span className="truncate">{activeBuildingArea.name}</span>
-        ) : (
-          <SelectValue placeholder="Select Building/Area" />
-        )}
-      </SelectTrigger>
-      <SelectContent className="min-w-52 bg-brand-component-fill-dark p-1">
-        {areaBuildingData.map((areaBuilding) => {
-          const isArea = areaBuilding.type === 'area'
-          const value = areaBuilding.id
-          const isActive = activeBuildingArea?.id === value
-
-          return (
-            <SelectItem
-              key={areaBuilding.id}
-              value={value}
-              showCheckIcon={false}
-              customRightIcon={
-                <span
-                  className={cn(
-                    'shrink-0 rounded px-2 py-0.5 text-xs font-semibold',
-                    isArea
-                      ? 'bg-brand-dark-olive text-brand-component-text-warning'
-                      : 'bg-brand-navy-blue text-brand-component-text-info'
-                  )}
-                >
-                  {isArea ? 'Area' : 'Building'}
-                </span>
-              }
-              className={cn(
-                'flex items-center justify-between rounded-md p-2 cursor-pointer',
-                'text-brand-component-text-gray focus:bg-brand-component-hover-dark focus:text-white',
-                isActive && 'text-white bg-brand-component-hover-dark'
-              )}
-              itemTextClassName="flex justify-between w-full"
-            >
-              <span className="font-medium">{areaBuilding.name}</span>
-            </SelectItem>
-          )
+    <>
+      <ConfirmDialog
+        open={!!buildingToDelete}
+        title={t('delete_building_title')}
+        description={t('delete_building_description', {
+          name: buildingToDelete?.name ?? '',
         })}
-      </SelectContent>
-    </Select>
+        cancelLabel={t('cancel')}
+        confirmLabel={t('delete')}
+        destructive
+        isConfirming={isDeleting}
+        onCancel={handleCancel}
+        onConfirm={handleConfirmDelete}
+      />
+      <DialogUpload
+        open={uploadOpen}
+        onOpenChange={handleOpenChange}
+        buildingToEdit={buildingToEdit}
+        refetch={mutateBuildings}
+        onSaved={handleSaved}
+      />
+      <Select
+        open={selectOpen}
+        onOpenChange={setSelectOpen}
+        value={building?.id}
+        onValueChange={handleSelectBuilding}
+      >
+        <SelectTrigger
+          aria-label="Switch floor"
+          className="flex h-fit w-48 items-center rounded-lg bg-brand-component-hover-dark font-medium text-sm text-white shadow-sm transition-colors border-none"
+          icon={<ChevronDown className="size-4 opacity-80" />}
+        >
+          {building ? (
+            <span className="truncate">{building.name}</span>
+          ) : (
+            <SelectValue placeholder="Select Building" />
+          )}
+        </SelectTrigger>
+        <SelectContent className="min-w-52 overflow-hidden bg-brand-component-fill-dark p-0">
+          <div className="flex max-h-96 flex-col">
+            <div className="flex min-h-40 max-h-72 flex-col overflow-y-auto p-1">
+              {buildingsData.length ? (
+                buildingsData.map((build) => {
+                  const value = build.id
+                  const isActive = building?.id === value
+
+                  return (
+                    <SelectItem
+                      key={build.id}
+                      value={value}
+                      showCheckIcon={false}
+                      className={cn(
+                        'flex cursor-pointer items-center justify-between rounded-md p-2 py-4',
+                        'text-brand-component-text-gray focus:bg-brand-component-hover-dark focus:text-white',
+                        isActive && 'bg-brand-component-hover-dark text-white'
+                      )}
+                      itemTextClassName="flex w-full justify-between"
+                      customRightIcon={
+                        <div
+                          className="flex space-x-1"
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onPointerUp={(e) => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            size="icon"
+                            type="button"
+                            aria-label={t(
+                              'edit_upload_3d_building_area_dialog_title'
+                            )}
+                            onClick={() => handleEditBuilding(build)}
+                          >
+                            <Pen />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            type="button"
+                            aria-label={t('delete_building_title')}
+                            onClick={() => handleDeleteBuilding(build)}
+                          >
+                            <Trash2 fill="#FFFFFF" />
+                          </Button>
+                        </div>
+                      }
+                    >
+                      <span className="truncate font-medium">{build.name}</span>
+                    </SelectItem>
+                  )
+                })
+              ) : (
+                <div className="flex flex-1 items-center justify-center px-2 text-center">
+                  <span className="text-sm text-brand-component-text-gray">
+                    {t('no_buildings')}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="shrink-0 bg-brand-component-fill-dark p-1">
+              <Button
+                type="button"
+                onPointerDown={(e) => e.preventDefault()}
+                onClick={handleAddBuilding}
+                className="gap-2 w-full"
+              >
+                <span className="size-4 shrink-0">
+                  <BuildingPlus width={22} height={22} />
+                </span>
+                {t('add_new_model')}
+              </Button>
+            </div>
+          </div>
+        </SelectContent>
+      </Select>
+    </>
   )
 }

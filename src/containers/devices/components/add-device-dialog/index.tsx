@@ -1,12 +1,10 @@
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useDeviceModalStore } from '@/stores/template/device-modal'
-import { DeviceDataOriginal } from '@/types/device'
+import { useAddDeviceStore } from '@/stores/template/add-device'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { KeyedMutator } from 'swr'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -26,23 +24,21 @@ import { AddDeviceManual } from '@/components/icons/add-device-manual'
 import { AddDeviceScanQR, Step } from './components/add-device-scan-qr'
 import { AddDeviceForm, Mode } from './components/add-device-form'
 import { AddDeviceSuccess } from './components/add-device-success'
-
-interface Props {
-  mutate: KeyedMutator<DeviceDataOriginal[]>
-}
+import { useQueryClient } from '@tanstack/react-query'
 
 interface Steps {
   label: string
   component: React.ReactNode
 }
 
-export const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
+export const AddDeviceDialog = () => {
+  const queryClient = useQueryClient()
   const tCommon = useTranslations('common')
   const tAddNewDevice = useTranslations('addNewDevice')
   const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
   const { setIsOpenDeviceModal, isOpenDeviceModal, resetDeviceModal } =
-    useDeviceModalStore(
+    useAddDeviceStore(
       useShallow((state) => ({
         setIsOpenDeviceModal: state.setIsOpen,
         isOpenDeviceModal: state.isOpen,
@@ -67,7 +63,7 @@ export const AddDeviceDialog: React.FC<Props> = ({ mutate }) => {
   }
 
   const handleAddDeviceSuccess = async () => {
-    await mutate()
+    await queryClient.invalidateQueries({ queryKey: ['devices'] })
     setStep('add_device_success')
   }
 

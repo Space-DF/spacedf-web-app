@@ -4,25 +4,12 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
-import { Building, SettingIcon } from '@/components/icons'
-import { DialogUpload } from '../dialog-upload'
-import { DialogBuildingManagement } from '../dialog-building-management'
-import { DialogAreaManagement } from '../dialog-area-management'
-import { Building as BuildingType } from '@/types/building'
-import { Area, Area as AreaType } from '@/types/area'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 interface ThreeModelControlsProps {
   className?: string
-  refetch: () => void
-  activeBuildingArea?: BuildingType | AreaType
 }
 
-export function ThreeModelControls({
-  className,
-  refetch,
-  activeBuildingArea,
-}: ThreeModelControlsProps) {
+export function ThreeModelControls({ className }: ThreeModelControlsProps) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
     useThreeModelController((s) => ({
       zoomIn: s.zoomIn,
@@ -32,10 +19,6 @@ export function ThreeModelControls({
       setAutoRotate: s.setAutoRotate,
       hasControls: Boolean(s.controls),
     }))
-
-  const isArea = activeBuildingArea?.type === 'area'
-
-  const isAuthenticated = useAuthenticated()
 
   if (!hasControls) return null
 
@@ -68,44 +51,6 @@ export function ThreeModelControls({
           )}
         </ControlButton>
       </ControlGroup>
-
-      {activeBuildingArea && (
-        <ControlGroup>
-          {isArea ? (
-            <DialogAreaManagement
-              area={activeBuildingArea as Area}
-              refetch={refetch}
-              trigger={
-                <ControlButton label="Settings">
-                  <SettingIcon className="size-4 text-brand-icon-light-fixed" />
-                </ControlButton>
-              }
-            />
-          ) : (
-            <DialogBuildingManagement
-              building={activeBuildingArea}
-              refetch={refetch}
-              trigger={
-                <ControlButton label="Settings">
-                  <SettingIcon className="size-4 text-brand-icon-light-fixed" />
-                </ControlButton>
-              }
-            />
-          )}
-        </ControlGroup>
-      )}
-      {isAuthenticated && (
-        <ControlGroup>
-          <DialogUpload
-            trigger={
-              <ControlButton label="Switch building">
-                <Building className="size-4 text-brand-icon-light-fixed" />
-              </ControlButton>
-            }
-            refetch={refetch}
-          />
-        </ControlGroup>
-      )}
     </div>
   )
 }

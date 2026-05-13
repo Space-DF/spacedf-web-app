@@ -27,10 +27,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const debouncedDeviceName = useDebounce(deviceName)
   const {
     data: devices = [],
-    mutate,
-    isReachingEnd,
     isLoading,
-    setSize,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
   } = useGetDevices({ deviceName: debouncedDeviceName })
 
   const { locations, deviceHasLocation } = useMemo(() => {
@@ -73,7 +73,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const rowCount = Math.ceil(devices.length / 2)
 
   const rowVirtualizer = useVirtualizer({
-    count: isReachingEnd ? rowCount : rowCount + 1,
+    count: hasNextPage ? rowCount + 1 : rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 106,
     overscan: 5,
@@ -89,20 +89,28 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
     if (
       lastItem.index >= rowCount - 1 &&
       !isLoading &&
-      !isReachingEnd &&
+      hasNextPage &&
+      !isFetchingNextPage &&
       !fetchingRef.current
     ) {
       fetchingRef.current = true
-      setSize((prevSize) => prevSize + 1)
+      fetchNextPage()
     }
-  }, [virtualItems.length, rowCount, isLoading, isReachingEnd, setSize])
+  }, [
+    virtualItems.length,
+    rowCount,
+    isLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ])
 
   // Reset fetching ref when loading completes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isFetchingNextPage) {
       fetchingRef.current = false
     }
-  }, [isLoading])
+  }, [isFetchingNextPage])
 
   useEffect(() => {
     const newDevices: Device[] = transformDeviceData(devices)
@@ -124,7 +132,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
           {t('devices_list')}
         </div>
         <div className="flex space-x-1 items-center">
-          <AddDeviceDialog mutate={mutate} />
+          <AddDeviceDialog />
           <div
             className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
             onClick={onClose}
@@ -164,7 +172,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                 const rowDevices = devices.slice(startIndex, endIndex)
 
                 // Show loading indicator for the last row when loading more
-                if (virtualRow.index === rowCount && isLoading) {
+                if (
+                  virtualRow.index === rowCount &&
+                  (isLoading || isFetchingNextPage)
+                ) {
                   return (
                     <div
                       key={virtualRow.key}
@@ -215,8 +226,13 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                             <div className="flex items-start justify-between">
                               <div className="size-8">
                                 <ImageWithBlur
-                                  src={DeviceIcon}
+                                  src={
+                                    device.device.device_profile?.logo ||
+                                    DeviceIcon
+                                  }
                                   alt="DMZ 01 -1511-M01"
+                                  width={70}
+                                  height={70}
                                 />
                               </div>
                               <Ellipsis

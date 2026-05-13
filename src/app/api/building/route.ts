@@ -10,7 +10,6 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
   const spaceSlug = searchParams.get('spaceSlug')
   const file = formData.get('model') as File | null
   const name = formData.get('name') as string
-  const floorName = formData.get('floorName') as string
   if (!file || !spaceSlug) {
     return NextResponse.json(
       { message: 'File and space slug are required' },
@@ -30,37 +29,21 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
       { status: 400 }
     )
   }
-  const newBuilding = await spacedfClient.buildings.create(
-    {
-      name,
-      description: '',
-      location: {} as any,
-    },
-    {
-      headers: {
-        'X-Space': spaceSlug,
-      },
-    }
-  )
 
-  await spacedfClient.buildings.createFloor(
-    newBuilding.id,
-    {
-      name: floorName,
-      description: '',
-      level: 0,
-      scene_asset: data.file_name,
-    },
-    {
-      headers: {
-        'X-Space': spaceSlug,
-      },
-    }
-  )
+  const body = {
+    name,
+    description: '',
+    location: {},
+    scene_asset: data.file_name,
+  }
 
-  return NextResponse.json({
-    success: true,
+  const newBuilding = await spacedfClient.buildings.create(body, {
+    headers: {
+      'X-Space': spaceSlug,
+    },
   })
+
+  return NextResponse.json(newBuilding)
 })
 
 export const GET = withAuthApiRequired(async (request: NextRequest) => {
