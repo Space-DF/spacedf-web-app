@@ -99,7 +99,9 @@ const badgeHoverClassName =
   'flex size-full cursor-default items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
 
 const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
-  const listEntities = (entities ?? []).filter((entity) => entity.icon)
+  const listEntities = (entities ?? []).filter(
+    (entity) => entity.icon && entity.is_enabled
+  )
   if (listEntities.length === 0) {
     return null
   }
@@ -110,7 +112,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
     body = (
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex size-12 items-center justify-center">
+          <div className="relative z-0 flex size-12 items-center justify-center hover:z-10 focus-within:z-10">
             <div className={badgeHoverClassName}>
               {renderEntityContent(entity, device_properties)}
             </div>
@@ -133,7 +135,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
           return (
             <div
               key={entity.id}
-              className="absolute flex items-center justify-center overflow-visible"
+              className="absolute z-0 flex items-center justify-center overflow-visible hover:z-10 focus-within:z-10"
               style={{
                 left: cx - BADGE_SIZE / 2,
                 top: cy - BADGE_SIZE / 2,

@@ -68,9 +68,10 @@ export default function SmartBuilding() {
   }, [isAuthenticated, building])
 
   const modelUrl = useMemo(() => {
-    if (!isAuthenticated) return getS3Url('glbs/spacedf/building-view.glb')
+    if (!isAuthenticated || !building?.url_scene_asset)
+      return getS3Url('glbs/spacedf/building-view.glb')
     return building?.url_scene_asset
-  }, [building, isAuthenticated])
+  }, [building?.url_scene_asset, isAuthenticated])
 
   const handleAddDevice = (event: Event) => {
     if (!contextMenuPosition) return

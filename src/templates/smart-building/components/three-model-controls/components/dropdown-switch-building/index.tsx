@@ -56,9 +56,7 @@ export function DropdownSwitchBuilding() {
     if (!next) setBuildingToEdit(null)
   }
   const handleSaved = (saved: Building) => {
-    if (building?.id === saved.id) {
-      setBuilding(saved)
-    }
+    setBuilding(saved)
   }
 
   const handleConfirmDelete = async () => {
@@ -137,16 +135,19 @@ export function DropdownSwitchBuilding() {
       >
         <SelectTrigger
           aria-label="Switch floor"
-          className="flex h-fit w-48 items-center rounded-lg bg-brand-component-hover-dark font-medium text-sm text-white shadow-sm transition-colors border-none"
+          className="flex h-fit w-56 items-center rounded-lg bg-brand-component-hover-dark dark:bg-brand-component-fill-gray-soft font-medium text-sm text-white shadow-sm transition-colors border-none"
           icon={<ChevronDown className="size-4 opacity-80" />}
         >
           {building ? (
-            <span className="truncate">{building.name}</span>
+            <span className="truncate max-w-32">{building.name}</span>
           ) : (
             <SelectValue placeholder="Select Building" />
           )}
         </SelectTrigger>
-        <SelectContent className="min-w-52 overflow-hidden bg-brand-component-fill-dark p-0">
+        <SelectContent
+          className="min-w-72 overflow-hidden bg-brand-component-fill-light dark:bg-brand-component-fill-gray-soft p-0 border-none"
+          side="bottom"
+        >
           <div className="flex max-h-96 flex-col">
             <div className="flex min-h-40 max-h-72 flex-col overflow-y-auto p-1">
               {buildingsData.length ? (
@@ -161,8 +162,8 @@ export function DropdownSwitchBuilding() {
                       showCheckIcon={false}
                       className={cn(
                         'flex cursor-pointer items-center justify-between rounded-md p-2 py-4',
-                        'text-brand-component-text-gray focus:bg-brand-component-hover-dark focus:text-white',
-                        isActive && 'bg-brand-component-hover-dark text-white'
+                        'text-brand-component-text-dark',
+                        isActive && 'bg-brand-component-fill-dark-soft'
                       )}
                       itemTextClassName="flex w-full justify-between"
                       customRightIcon={
@@ -206,7 +207,7 @@ export function DropdownSwitchBuilding() {
                 </div>
               )}
             </div>
-            <div className="shrink-0 bg-brand-component-fill-dark p-1">
+            <div className="shrink-0 bg-brand-component-fill-light dark:bg-brand-component-fill-gray-soft p-1">
               <Button
                 type="button"
                 onPointerDown={(e) => e.preventDefault()}

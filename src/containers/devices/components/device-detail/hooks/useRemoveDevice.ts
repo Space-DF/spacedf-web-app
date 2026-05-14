@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { queryKeys } from '@/lib/query-keys'
 import api from '@/lib/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -17,7 +18,7 @@ export const useRemoveDevice = (deviceId?: string) => {
       return removeDevice(`/api/devices/${spaceSlug}/${deviceId}`)
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['devices'] })
+      await queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
       toast.success(t('device_removed_successfully'))
     },
     onError: () => {

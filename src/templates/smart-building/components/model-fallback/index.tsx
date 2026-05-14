@@ -19,7 +19,7 @@ export function ModelFallback() {
 
   return (
     <Html center>
-      <div className="w-[240px] rounded-lg bg-black/40 px-4 py-3 text-white shadow-sm ring-1 ring-white/10 backdrop-blur-md">
+      <div className="w-60 rounded-lg bg-black/40 px-4 py-3 text-white shadow-sm ring-1 ring-white/10 backdrop-blur-md">
         <div className="text-sm font-medium opacity-90 text-brand-component-text-gray">
           {t('loading_model')}
         </div>

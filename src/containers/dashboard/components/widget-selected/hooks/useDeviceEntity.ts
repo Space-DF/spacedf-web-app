@@ -1,23 +1,33 @@
+'use client'
+
 import { DEFAULT_PAGE_SIZE } from '@/constants'
+import { queryKeys } from '@/lib/query-keys'
 import { Entity } from '@/types/entity'
 import { PaginationResponse } from '@/types/global'
 import { fetcher } from '@/utils'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
-import { useMemo } from 'react'
-import useSWRInfinite from 'swr/infinite'
+import queryString from 'query-string'
+import { useCallback, useMemo } from 'react'
 
-const getEntityKey = (
-  pageIndex: number,
-  previousPageData: PaginationResponse<Entity> | null,
+const buildEntitiesUrl = (
   spaceSlug: string,
+  offset: number,
   entityType?: string,
   search?: string,
   deviceId?: string
-) => {
-  if (previousPageData && !previousPageData.next) return null
-  const page = pageIndex + 1
-  return `/api/spaces/entities?type=${entityType ?? ''}&spaceSlug=${spaceSlug}&search=${search ?? ''}&deviceId=${deviceId ?? ''}&offset=${page - 1}&limit=${DEFAULT_PAGE_SIZE}`
-}
+) =>
+  queryString.stringifyUrl({
+    url: '/api/spaces/entities',
+    query: {
+      type: entityType,
+      spaceSlug,
+      search,
+      deviceId,
+      offset,
+      limit: DEFAULT_PAGE_SIZE,
+    },
+  })
 
 export const useDeviceEntity = (
   entityType?: string,
@@ -25,42 +35,99 @@ export const useDeviceEntity = (
   deviceId?: string
 ) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  const { data, ...rest } = useSWRInfinite(
-    (pageIndex, previousPageData) =>
-      spaceSlug
-        ? getEntityKey(
-            pageIndex,
-            previousPageData,
-            spaceSlug,
-            entityType,
-            search,
-            deviceId
-          )
-        : null,
-    fetcher<PaginationResponse<Entity>>
+  const queryClient = useQueryClient()
+
+  const queryKey = useMemo(
+    () =>
+      [
+        queryKeys.deviceEntities.all,
+        spaceSlug,
+        entityType ?? '',
+        search ?? '',
+        deviceId ?? '',
+      ] as const,
+    [spaceSlug, entityType, search, deviceId]
   )
 
+  const {
+    data,
+    error,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey,
+    enabled: Boolean(spaceSlug),
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) =>
+      fetcher<PaginationResponse<Entity>>(
+        buildEntitiesUrl(spaceSlug, pageParam, entityType, search, deviceId)
+      ),
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.next ? allPages.length : undefined,
+  })
+
   const mergedEntities = useMemo(() => {
-    if (!data) return []
+    if (!data?.pages.length) return []
     const map = new Map<string, Entity>()
-    for (const page of data) {
+    for (const page of data.pages) {
       for (const entity of page.results ?? []) {
         map.set(entity.id, entity)
       }
     }
     return Array.from(map.values())
-  }, [data])
+  }, [data?.pages])
 
-  const lastPage = data?.[data.length - 1]
+  const lastPage = data?.pages[data.pages.length - 1]
+
+  const mergedData = useMemo((): PaginationResponse<Entity> | undefined => {
+    if (!lastPage) return undefined
+    return {
+      ...lastPage,
+      results: mergedEntities,
+    }
+  }, [lastPage, mergedEntities])
+
+  const setSize = useCallback(
+    (sizeOrUpdater: number | ((prevSize: number) => number)) => {
+      const prevSize = Math.max(1, data?.pages.length ?? 0)
+      const nextSize =
+        typeof sizeOrUpdater === 'function'
+          ? sizeOrUpdater(prevSize)
+          : sizeOrUpdater
+
+      if (nextSize <= 1) {
+        const loadedPages = data?.pages.length ?? 0
+        if (loadedPages > 1) {
+          void queryClient.resetQueries({ queryKey, exact: true })
+        }
+        return
+      }
+
+      if (nextSize > prevSize && hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage()
+      }
+    },
+    [
+      data?.pages.length,
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+      queryClient,
+      queryKey,
+    ]
+  )
 
   return {
-    data: lastPage
-      ? {
-          ...lastPage,
-          results: mergedEntities,
-        }
-      : undefined,
-    isReachingEnd: Boolean(data && !lastPage?.next),
-    ...rest,
+    data: mergedData,
+    isReachingEnd: Boolean(mergedData && !mergedData.next),
+    isLoading,
+    isValidating: isFetching,
+    setSize,
+    error,
+    refetch,
   }
 }

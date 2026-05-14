@@ -11,6 +11,7 @@ import { LoaderCircle } from 'lucide-react'
 export type Step =
   | 'select_mode'
   | 'scan_qr'
+  | 'select_entity'
   | 'add_device_auto'
   | 'add_device_manual'
   | 'add_device_success'

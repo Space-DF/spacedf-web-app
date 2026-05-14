@@ -28,5 +28,21 @@
   "add_device_successfully": "Thêm thiết bị thành công",
   "failed_to_add_device": "Thêm thiết bị thất bại",
   "failed_to_scan_qr_code": "Quét QR Code thất bại",
-  "asset_coordinates": "Tọa độ tài sản"
+  "asset_coordinates": "Tọa độ tài sản",
+  "continue": "Tiếp tục",
+  "select_entity": "Chọn đối tượng",
+  "select_entity_description": "Chọn các đối tượng để hiển thị trên Digital Twin cho thiết bị này.",
+  "entity_available": "Đối tượng có sẵn",
+  "select_all": "Chọn tất cả",
+  "available_entity": "Đối tượng khả dụng",
+  "entity_count": "{count} đối tượng",
+  "entity_list_help_label": "Giới thiệu đối tượng khả dụng",
+  "entity_list_help": "Bạn có thể thay đổi tính nhìn thấy của đối tượng của thiết bị trên Digital Twin bằng cách chọn hoặc bỏ chọn danh sách đối tượng dưới đây.",
+  "entity_temperature": "Nhiệt độ",
+  "entity_humidity": "Độ ẩm",
+  "entity_weight": "Khối lượng",
+  "entity_id_temperature": "sensor.temp_01",
+  "entity_id_humidity": "sensor.humidity_01",
+  "entities_saved_successfully": "Đã cập nhật hiển thị đối tượng",
+  "entities_save_failed": "Không thể cập nhật hiển thị đối tượng"
 }

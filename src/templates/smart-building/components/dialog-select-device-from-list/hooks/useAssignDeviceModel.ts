@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
+import { queryKeys } from '@/lib/query-keys'
 import api from '@/lib/api'
 import { useGlobalStore } from '@/stores'
 
@@ -47,7 +48,7 @@ export function useAssignDeviceModel() {
     },
     onSuccess: async () => {
       toast.success(t('assign_device_success'))
-      queryClient.invalidateQueries({ queryKey: ['devices'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
     },
     onError: (error) => {
       toast.error(error?.message || t('assign_device_error'))
