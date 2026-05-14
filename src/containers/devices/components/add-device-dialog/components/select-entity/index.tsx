@@ -4,55 +4,41 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Droplets, LucideIcon, Thermometer } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Step } from '../add-device-scan-qr'
+import Image from 'next/image'
+import { Entity } from '@/types/entity'
+import { useBulkUpdateDeviceEntities } from '../../../device-detail/hooks/useBulkUpdateDeviceEntities'
 
-const ENTITY_ICONS: Record<string, LucideIcon> = {
-  thermometer: Thermometer,
-  droplets: Droplets,
-}
-
-export interface SelectEntityOption {
-  id: string
-  titleKey: string
-  subtitle: string
-  iconKey: keyof typeof ENTITY_ICONS
-}
-
-const DEFAULT_ENTITIES: SelectEntityOption[] = [
-  {
-    id: 'temp',
-    titleKey: 'entity_temperature',
-    subtitle: 'entity_id_temperature',
-    iconKey: 'thermometer',
-  },
-  {
-    id: 'humidity',
-    titleKey: 'entity_humidity',
-    subtitle: 'entity_id_humidity',
-    iconKey: 'droplets',
-  },
-]
+const entityRowClassName = cn(
+  'flex items-center gap-3 rounded-lg bg-brand-component-fill-gray-soft px-3 py-2.5 dark:bg-brand-component-fill-light'
+)
 
 export interface SelectEntityProps {
   setStep: (step: Step) => void
   isAutoMode: boolean
-  entities?: SelectEntityOption[]
+  entities: Entity[]
 }
 
 export const SelectEntity = ({
   setStep,
   isAutoMode,
-  entities = DEFAULT_ENTITIES,
+  entities,
 }: SelectEntityProps) => {
   const t = useTranslations('addNewDevice')
   const [selected, setSelected] = useState<Set<string>>(() => new Set())
+  const { mutateAsync: bulkUpdateEntities, isPending: isSavingEntities } =
+    useBulkUpdateDeviceEntities()
 
-  const allIds = useMemo(() => entities.map((e) => e.id), [entities])
+  const allEntities = entities.filter(
+    (entity) => entity.category !== 'location'
+  )
+  const allIds = useMemo(() => allEntities.map((e) => e.id), [allEntities])
+
   const allSelected =
     allIds.length > 0 && allIds.every((id) => selected.has(id))
+
   const noneSelected = selected.size === 0
 
   const selectAllState = useMemo(() => {
@@ -61,14 +47,14 @@ export const SelectEntity = ({
     return 'indeterminate' as const
   }, [allSelected, noneSelected])
 
-  const toggleId = useCallback((id: string) => {
+  const toggleId = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }, [])
+  }
 
   const handleSelectAll = useCallback(
     (checked: boolean | 'indeterminate') => {
@@ -81,7 +67,13 @@ export const SelectEntity = ({
     [allIds]
   )
 
-  const handleContinue = () => {}
+  const handleContinue = useCallback(async () => {
+    if (!allIds.length) return
+    const visible_entity_ids = allIds.filter((id) => selected.has(id))
+    const hidden_entity_ids = allIds.filter((id) => !selected.has(id))
+    await bulkUpdateEntities({ visible_entity_ids, hidden_entity_ids })
+    setStep('add_device_success')
+  }, [allIds, bulkUpdateEntities, selected, setStep])
 
   const handleCancel = () => {
     if (isAutoMode) {
@@ -90,6 +82,24 @@ export const SelectEntity = ({
       setStep('add_device_manual')
     }
   }
+
+  const isDirty = useMemo(
+    () =>
+      allEntities.some(
+        (entity) => selected.has(entity.id) !== entity.is_enabled
+      ),
+    [entities, selected]
+  )
+
+  useEffect(() => {
+    if (!allEntities.length) return
+    setSelected(
+      allEntities.reduce((ids, entity) => {
+        if (entity.is_enabled) ids.add(entity.id)
+        return ids
+      }, new Set<string>())
+    )
+  }, [entities])
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -116,30 +126,26 @@ export const SelectEntity = ({
       </div>
 
       <ul className="flex flex-col gap-2">
-        {entities.map((entity) => {
-          const Icon = ENTITY_ICONS[entity.iconKey] ?? Thermometer
-          const rowId = `entity-${entity.id}`
+        {allEntities.map((entity) => {
           const isChecked = selected.has(entity.id)
+          const rowId = `select-entity-row-${entity.id}`
 
           return (
-            <li
-              key={entity.id}
-              className={cn(
-                'flex items-center gap-3 rounded-lg bg-brand-component-fill-gray-soft px-3 py-2.5 dark:bg-brand-component-fill-light'
-              )}
-            >
+            <li key={entity.id} className={entityRowClassName}>
               <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-brand-component-fill-dark-soft">
-                <Icon
-                  className="size-5 text-brand-component-text-dark"
-                  aria-hidden
+                <Image
+                  src={entity.icon}
+                  alt={entity.name}
+                  width={20}
+                  height={20}
                 />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-brand-component-text-dark">
-                  {t(entity.titleKey as Parameters<typeof t>[0])}
+                  {entity.name}
                 </p>
                 <p className="truncate text-xs text-brand-component-text-gray">
-                  {t(entity.subtitle as Parameters<typeof t>[0])}
+                  {entity.unique_key}
                 </p>
               </div>
               <Checkbox
@@ -147,7 +153,7 @@ export const SelectEntity = ({
                 checked={isChecked}
                 onCheckedChange={() => toggleId(entity.id)}
                 className="shrink-0"
-                aria-label={t(entity.titleKey as Parameters<typeof t>[0])}
+                aria-label={entity.name}
               />
             </li>
           )
@@ -158,7 +164,12 @@ export const SelectEntity = ({
         <Button type="button" variant="outline" onClick={handleCancel}>
           {t('cancel')}
         </Button>
-        <Button type="button" onClick={handleContinue}>
+        <Button
+          type="button"
+          onClick={handleContinue}
+          disabled={!isDirty || isSavingEntities}
+          loading={isSavingEntities}
+        >
           {t('add_device')}
         </Button>
       </div>

@@ -44,5 +44,6 @@
   "entity_weight": "Weight",
   "entity_id_temperature": "sensor.temp_01",
   "entity_id_humidity": "sensor.humidity_01",
-  "entity_id_weight": "sensor.weight_01"
+  "entities_saved_successfully": "Entity visibility updated",
+  "entities_save_failed": "Could not update entity visibility"
 }

@@ -99,7 +99,9 @@ const badgeHoverClassName =
   'flex size-full cursor-default items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
 
 const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
-  const listEntities = (entities ?? []).filter((entity) => entity.icon)
+  const listEntities = (entities ?? []).filter(
+    (entity) => entity.icon && entity.is_enabled
+  )
   if (listEntities.length === 0) {
     return null
   }

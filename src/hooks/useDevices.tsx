@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import queryString from 'query-string'
 
 import { useInfiniteQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 
 export const SWR_GET_DEVICE_ENDPOINT = '/api/devices'
 
@@ -41,7 +42,7 @@ function buildDevicesUrl(
 export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const queryKey = [
-    'devices',
+    queryKeys.devices.all,
     spaceSlug,
     query?.deviceName ?? '',
     query?.bbox ?? '',

@@ -28,6 +28,8 @@ import { AddDeviceForm, Mode } from './components/add-device-form'
 import { AddDeviceSuccess } from './components/add-device-success'
 import { useQueryClient } from '@tanstack/react-query'
 import { SelectEntity } from './components/select-entity'
+import { useOrganizationValidationStore } from '@/stores'
+import { Entity } from '@/types/entity'
 
 interface Steps {
   label: string
@@ -41,6 +43,7 @@ export const AddDeviceDialog = () => {
   const tAddNewDevice = useTranslations('addNewDevice')
   const [step, setStep] = useState<Step>('select_mode')
   const [mode, setMode] = useState<Mode>('auto')
+  const [entities, setEntities] = useState<Entity[]>([])
   const { setIsOpenDeviceModal, isOpenDeviceModal, resetDeviceModal } =
     useAddDeviceStore(
       useShallow((state) => ({
@@ -66,8 +69,17 @@ export const AddDeviceDialog = () => {
     resetDeviceModal()
   }
 
-  const handleAddDeviceSuccess = async () => {
+  const isSmartBuildingTemplate = useOrganizationValidationStore(
+    (state) => state.isSmartBuilding
+  )
+
+  const handleAddDeviceSuccess = async (entities: Entity[]) => {
+    setEntities(entities)
     await queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
+    if (isSmartBuildingTemplate) {
+      setStep('select_entity')
+      return
+    }
     setStep('add_device_success')
   }
 
@@ -131,7 +143,13 @@ export const AddDeviceDialog = () => {
     select_entity: {
       label: tAddNewDevice('select_entity'),
       description: tAddNewDevice('select_entity_description'),
-      component: <SelectEntity setStep={setStep} isAutoMode={isAutoMode} />,
+      component: (
+        <SelectEntity
+          setStep={setStep}
+          isAutoMode={isAutoMode}
+          entities={entities}
+        />
+      ),
     },
     add_device_success: {
       label: '',

@@ -3008,10 +3008,10 @@
   dependencies:
     "@sentry/bundler-plugin-core" "5.2.1"
 
-"@space-df/sdk@0.0.1-dev.50":
-  version "0.0.1-dev.50"
-  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.50.tgz#cdf19ca5624039f71087666089896f4ceab0ef95"
-  integrity sha512-3ERdL8OyX/STmhWRyOMyru3yURpRcdqXhEWiYt3oJc2KYLlAn6w+WYrX2h2a3GTWquwKKpJZQQbFUJaGOeGNRQ==
+"@space-df/sdk@0.0.1-dev.51":
+  version "0.0.1-dev.51"
+  resolved "https://registry.yarnpkg.com/@space-df/sdk/-/sdk-0.0.1-dev.51.tgz#8b9e3970e2739f2ca3ba46648724430787c85e99"
+  integrity sha512-eNjuZo7NyjAB9vQKJxZ0ZL7W3IQGGaG4qa1O0PKOqORJCkabAF2Y4osqciFsb1jyb2j2GmOGkVG5Ns3udYdY4g==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

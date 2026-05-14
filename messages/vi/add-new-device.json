@@ -43,5 +43,6 @@
   "entity_weight": "Khối lượng",
   "entity_id_temperature": "sensor.temp_01",
   "entity_id_humidity": "sensor.humidity_01",
-  "entity_id_weight": "sensor.weight_01"
+  "entities_saved_successfully": "Đã cập nhật hiển thị đối tượng",
+  "entities_save_failed": "Không thể cập nhật hiển thị đối tượng"
 }

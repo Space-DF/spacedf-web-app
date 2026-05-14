@@ -8,4 +8,7 @@ export const queryKeys = {
   devices: {
     all: ['devices'] as const,
   },
+  deviceEntities: {
+    all: ['device-entities'] as const,
+  },
 } as const

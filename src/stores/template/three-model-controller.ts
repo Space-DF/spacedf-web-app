@@ -176,7 +176,7 @@ export const useThreeModelController = create<ThreeModelControllerState>()(
         controls,
         worldTarget,
         opts?.durationMs ?? 1100,
-        opts?.zoomInFactor ?? 0.35,
+        opts?.zoomInFactor ?? 0.4,
         focusBaseRadius
       )
     },

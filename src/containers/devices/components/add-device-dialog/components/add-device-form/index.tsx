@@ -23,12 +23,14 @@ import { Button } from '@/components/ui/button'
 import { useShallow } from 'zustand/react/shallow'
 import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
 import { Template } from '@/types/template'
+import { DeviceDataOriginal } from '@/types/device'
+import { Entity } from '@/types/entity'
 
 export type Mode = 'auto' | 'manual'
 
 interface AddDeviceFormProps {
   mode: Mode
-  onSuccess: () => Promise<void>
+  onSuccess: (entities: Entity[]) => Promise<void>
   onClose: () => void
 }
 
@@ -65,8 +67,8 @@ export const AddDeviceForm = ({
         building: building?.id,
       },
       {
-        onSuccess: async () => {
-          await onSuccess()
+        onSuccess: async (device: DeviceDataOriginal) => {
+          await onSuccess(device.entities ?? [])
           toast.success(t('add_device_successfully'))
         },
         onError: (error) =>
