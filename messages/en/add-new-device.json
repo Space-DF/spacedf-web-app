@@ -29,5 +29,20 @@
   "add_device_successfully": "Add device successfully",
   "failed_to_add_device": "Failed to add device",
   "failed_to_scan_qr_code": "Failed to scan QR code",
-  "asset_coordinates": "Asset Coordinates"
+  "asset_coordinates": "Asset Coordinates",
+  "continue": "Continue",
+  "select_entity": "Select Entity",
+  "select_entity_description": "Choose which entities to display on the Digital Twin for this device.",
+  "entity_available": "Entity Available",
+  "select_all": "Select All",
+  "available_entity": "Available Entity",
+  "entity_count": "{count} entities",
+  "entity_list_help_label": "About available entities",
+  "entity_list_help": "You can change the visibility of a device's entity on digital twins by checking or unchecking the entity list below.",
+  "entity_temperature": "Temperature",
+  "entity_humidity": "Humidity",
+  "entity_weight": "Weight",
+  "entity_id_temperature": "sensor.temp_01",
+  "entity_id_humidity": "sensor.humidity_01",
+  "entity_id_weight": "sensor.weight_01"
 }

@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import ListAlert from './components/list-alert'
 import { useDeviceStore } from '@/stores/device-store'
 import ListEvent from './components/list-event'
+import ListEntity from './components/list-entity'
 import { transformDeviceData } from '@/utils/map'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { useParams } from 'next/navigation'
@@ -16,6 +17,7 @@ import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGetDeviceByDeviceId } from './hooks/useGetDeviceByDeviceId'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
+import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -33,7 +35,9 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
       deviceDataSelected: state.devices[state.deviceSelected],
     }))
   )
-
+  const isSmartBuildingTemplate = useOrganizationValidationStore(
+    (state) => state.isSmartBuilding
+  )
   const isMapReady = useFleetTrackingMapStore((state) => state.isMapReady)
 
   const missingFromList =
@@ -175,8 +179,10 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
               <DeviceSelected />
+              {isSmartBuildingTemplate && <ListEntity />}
               <ListEvent deviceId={selectedDevice.id} />
-              {isWlb ? <ListAlert /> : <TripHistory />}
+              {!isSmartBuildingTemplate &&
+                (isWlb ? <ListAlert /> : <TripHistory />)}
             </div>
           </div>
         </RightSideBarLayout>

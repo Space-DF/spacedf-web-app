@@ -21,6 +21,8 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useShallow } from 'zustand/react/shallow'
+import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
+import { Template } from '@/types/template'
 
 export type Mode = 'auto' | 'manual'
 
@@ -44,6 +46,15 @@ export const AddDeviceForm = ({
       building: state.building,
     }))
   )
+
+  const { hasHydrated, template } = useOrganizationValidationStore(
+    useShallow((s) => ({
+      hasHydrated: s.hasHydrated,
+      template: s.template,
+    }))
+  )
+
+  const isSmartBuilding = template === Template.SMART_BUILDING && hasHydrated
 
   async function onSubmit(values: AddDeviceSchema) {
     await addDevice(
@@ -158,7 +169,7 @@ export const AddDeviceForm = ({
             {t('cancel')}
           </Button>
           <Button type="submit" loading={isMutating}>
-            {t('add_device')}
+            {t(isSmartBuilding ? 'continue' : 'add_device')}
           </Button>
         </div>
       </form>

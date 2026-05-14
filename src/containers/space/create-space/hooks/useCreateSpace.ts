@@ -1,16 +1,20 @@
 import { api } from '@/lib/api'
 import { Space } from '@/types/space'
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 
-const createSpace = (
-  url: string,
-  { arg }: { arg: Partial<Omit<Space, 'logo'> & { logo: File }> }
+const createSpace = async (
+  arg: Partial<Omit<Space, 'logo'> & { logo: File }>
 ) => {
   const formData = new FormData()
-  formData.append('logo', arg.logo as File)
+  if (arg.logo) {
+    formData.append('logo', arg.logo)
+  }
   formData.append('name', arg.name as string)
   formData.append('slug_name', arg.slug_name as string)
-  return api.post<Space>(url, formData)
+  return api.post<Space>('/api/spaces', formData)
 }
 
-export const useCreateSpace = () => useSWRMutation('/api/spaces', createSpace)
+export const useCreateSpace = () =>
+  useMutation({
+    mutationFn: createSpace,
+  })

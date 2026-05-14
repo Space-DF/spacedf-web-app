@@ -110,7 +110,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
     body = (
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex size-12 items-center justify-center">
+          <div className="relative z-0 flex size-12 items-center justify-center hover:z-10 focus-within:z-10">
             <div className={badgeHoverClassName}>
               {renderEntityContent(entity, device_properties)}
             </div>
@@ -133,7 +133,7 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
           return (
             <div
               key={entity.id}
-              className="absolute flex items-center justify-center overflow-visible"
+              className="absolute z-0 flex items-center justify-center overflow-visible hover:z-10 focus-within:z-10"
               style={{
                 left: cx - BADGE_SIZE / 2,
                 top: cy - BADGE_SIZE / 2,

@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useShallow } from 'zustand/react/shallow'
 import { addDeviceSchema, AddDeviceSchema } from './schema'
+import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
@@ -25,9 +27,11 @@ import { AddDeviceScanQR, Step } from './components/add-device-scan-qr'
 import { AddDeviceForm, Mode } from './components/add-device-form'
 import { AddDeviceSuccess } from './components/add-device-success'
 import { useQueryClient } from '@tanstack/react-query'
+import { SelectEntity } from './components/select-entity'
 
 interface Steps {
   label: string
+  description?: string
   component: React.ReactNode
 }
 
@@ -63,7 +67,7 @@ export const AddDeviceDialog = () => {
   }
 
   const handleAddDeviceSuccess = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['devices'] })
+    await queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
     setStep('add_device_success')
   }
 
@@ -124,6 +128,11 @@ export const AddDeviceDialog = () => {
         />
       ),
     },
+    select_entity: {
+      label: tAddNewDevice('select_entity'),
+      description: tAddNewDevice('select_entity_description'),
+      component: <SelectEntity setStep={setStep} isAutoMode={isAutoMode} />,
+    },
     add_device_success: {
       label: '',
       component: <AddDeviceSuccess onReset={handleReset} />,
@@ -134,6 +143,14 @@ export const AddDeviceDialog = () => {
   const isShowHeader = step !== 'add_device_success'
 
   const handleBackButton = () => {
+    if (step === 'select_entity') {
+      if (isAutoMode) {
+        setStep('add_device_auto')
+      } else {
+        setStep('add_device_manual')
+      }
+      return
+    }
     const prevStep = step === 'add_device_auto' ? 'scan_qr' : 'select_mode'
     setStep(prevStep)
   }
@@ -169,6 +186,9 @@ export const AddDeviceDialog = () => {
                 )}
                 {steps[step].label}
               </DialogTitle>
+              {steps[step].description && (
+                <DialogDescription>{steps[step].description}</DialogDescription>
+              )}
             </DialogHeader>
           )}
           <div

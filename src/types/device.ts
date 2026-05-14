@@ -3,6 +3,7 @@ import {
   DeviceFeatureSupported,
 } from '@/constants/device-property'
 import { Entity } from './entity'
+import { Building } from './building'
 
 type LorawanDevice = {
   join_eui?: string
@@ -60,7 +61,7 @@ type DeviceDataOriginal = {
   device_properties?: DeviceProperties
   entities?: Entity[]
   position?: { x: number; y: number; z: number }
-
+  building?: Building
   //*TODO: Remove this after all devices have device_properties
   latest_checkpoint?: Checkpoint | null
 }

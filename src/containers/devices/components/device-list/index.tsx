@@ -18,6 +18,7 @@ import ImageWithBlur from '@/components/ui/image-blur'
 import DeviceIcon from '/public/images/device-icon.webp'
 import { Map } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAddDeviceStore } from '@/stores/template/add-device'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -64,6 +65,13 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
       deviceSelected: state.deviceSelected,
       setDeviceSelected: state.setDeviceSelected,
       setDevices: state.setDevices,
+    }))
+  )
+
+  const { buildingId, setBuilding } = useAddDeviceStore(
+    useShallow((state) => ({
+      buildingId: state.building?.id,
+      setBuilding: state.setBuilding,
     }))
   )
 
@@ -119,6 +127,9 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
 
   const handleSelectDevice = (device: DeviceDataOriginal) => {
     setDeviceSelected(device.device.id)
+    if (buildingId && device.building?.id !== buildingId) {
+      setBuilding(device.building)
+    }
     const deviceData = transformDeviceData([device])[0]
     if (deviceData) {
       mapInstance.onZoomToDevice(deviceData)

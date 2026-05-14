@@ -114,9 +114,10 @@ function FitOnRefocus({
     buildingId,
   })
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+  const [isModelReady, setIsModelReady] = useState(false)
 
   useEffect(() => {
-    if (!deviceSelected || !controls) return
+    if (!deviceSelected || !controls || !isModelReady) return
     const row = devices.find((d) => d.device.id === deviceSelected)
     if (!row?.position) return
 
@@ -149,23 +150,32 @@ function FitOnRefocus({
       cancelled = true
       cancelAnimationFrame(outer)
     }
-  }, [deviceSelected, devices, controls, focusOnWorldPoint, camera])
+  }, [
+    deviceSelected,
+    devices,
+    controls,
+    focusOnWorldPoint,
+    camera,
+    isModelReady,
+  ])
 
   useEffect(() => {
+    setIsModelReady(false)
     const run = () => {
       const obj = objectRef.current
       if (!obj) return
       api.refresh(obj).fit()
 
-      if (controls && !hasSavedInitialRef.current) {
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
+          setIsModelReady(true)
+          if (controls && !hasSavedInitialRef.current) {
             controls.update()
             controls.saveState()
             hasSavedInitialRef.current = true
-          })
+          }
         })
-      }
+      })
     }
 
     setTimeout(run, 400)
