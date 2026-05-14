@@ -4,7 +4,7 @@ import { create } from 'zustand'
 export type OrganizationValidationSnapshot = {
   isValid: boolean
   template: string
-  isSmartBuilding: boolean
+  isSmartBuilding?: boolean
 }
 
 type OrganizationValidationStore = OrganizationValidationSnapshot & {
