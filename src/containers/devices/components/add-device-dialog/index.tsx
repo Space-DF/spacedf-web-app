@@ -161,14 +161,6 @@ export const AddDeviceDialog = () => {
   const isShowHeader = step !== 'add_device_success'
 
   const handleBackButton = () => {
-    if (step === 'select_entity') {
-      if (isAutoMode) {
-        setStep('add_device_auto')
-      } else {
-        setStep('add_device_manual')
-      }
-      return
-    }
     const prevStep = step === 'add_device_auto' ? 'scan_qr' : 'select_mode'
     setStep(prevStep)
   }

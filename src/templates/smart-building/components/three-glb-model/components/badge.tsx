@@ -85,7 +85,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
 
   const badgeValue = entityRealtimeValue ?? staticValue
   const tooltipText =
-    `${entity.name}: ${badgeValue ?? '0'}${entity.unit_of_measurement ?? ''}`.trim()
+    `${entity.name}: ${badgeValue ?? '--'}${entity.unit_of_measurement ?? ''}`.trim()
 
   const badge = (
     <MetricBadge
