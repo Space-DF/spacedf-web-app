@@ -36,9 +36,14 @@ export function useBulkUpdateDeviceEntities() {
       return bulkUpdateEntities(spaceSlug, payload)
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.deviceEntities.all,
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [...queryKeys.deviceEntities.all, spaceSlug],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.devices.all,
+        }),
+      ])
       toast.success(t('entities_saved_successfully'))
     },
     onError: (error: Error) => {

@@ -42,7 +42,7 @@ function buildDevicesUrl(
 export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const queryKey = [
-    queryKeys.devices.all,
+    ...queryKeys.devices.all,
     spaceSlug,
     query?.deviceName ?? '',
     query?.bbox ?? '',

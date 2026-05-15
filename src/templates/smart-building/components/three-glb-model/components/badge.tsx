@@ -10,6 +10,7 @@ import { DeviceProperties } from '@/types/device'
 import { Entity } from '@/types/entity'
 import Image from 'next/image'
 import { useMetricBadgePalette } from '../hooks/useMetricBadgePalette'
+import { useDashboardStore } from '@/stores/dashboard-store'
 
 const BADGE_SIZE = 50
 
@@ -25,30 +26,37 @@ function getPropertyValue(
 
 function getEntityTooltipLabel(
   entity: Entity,
+  dashboardEntities: Record<string, string>,
   device_properties?: DeviceProperties
 ): string {
+  const entityRealtimeValue = dashboardEntities[entity.unique_key]
+
   const segments: string[] = []
   if (entity.name?.trim()) segments.push(entity.name.trim())
   const value = device_properties
     ? getPropertyValue(device_properties, entity.category)
     : undefined
   if (value !== undefined) {
-    segments.push(`${value}${entity.unit_of_measurement ?? ''}`.trim())
+    segments.push(
+      `${entityRealtimeValue ?? value}${entity.unit_of_measurement ?? ''}`.trim()
+    )
   }
   return segments.join(': ')
 }
 
 function renderEntityContent(
   entity: Entity,
+  dashboardEntities: Record<string, string>,
   device_properties?: DeviceProperties
 ) {
   if (!entity.icon) return <></>
   const value = device_properties
     ? getPropertyValue(device_properties, entity.category)
     : undefined
+  const entityRealtimeValue = dashboardEntities[entity.unique_key]
   return (
     <MetricBadge
-      value={value}
+      value={entityRealtimeValue || value}
       unit_of_measurement={entity.unit_of_measurement}
       icon={entity.icon}
     />
@@ -99,6 +107,7 @@ const badgeHoverClassName =
   'flex size-full cursor-default items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
 
 const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
+  const dashboardEntities = useDashboardStore((state) => state.entities)
   const listEntities = (entities ?? []).filter(
     (entity) => entity.icon && entity.is_enabled
   )
@@ -114,12 +123,16 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
         <TooltipTrigger asChild>
           <div className="relative z-0 flex size-12 items-center justify-center hover:z-10 focus-within:z-10">
             <div className={badgeHoverClassName}>
-              {renderEntityContent(entity, device_properties)}
+              {renderEntityContent(
+                entity,
+                dashboardEntities,
+                device_properties
+              )}
             </div>
           </div>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs text-xs border-none">
-          {getEntityTooltipLabel(entity, device_properties)}
+          {getEntityTooltipLabel(entity, dashboardEntities, device_properties)}
         </TooltipContent>
       </Tooltip>
     )
@@ -146,11 +159,19 @@ const EntityBadge = ({ entities, device_properties }: EntityBadgeProps) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className={badgeHoverClassName}>
-                    {renderEntityContent(entity, device_properties)}
+                    {renderEntityContent(
+                      entity,
+                      dashboardEntities,
+                      device_properties
+                    )}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-xs text-xs">
-                  {getEntityTooltipLabel(entity, device_properties)}
+                  {getEntityTooltipLabel(
+                    entity,
+                    dashboardEntities,
+                    device_properties
+                  )}
                 </TooltipContent>
               </Tooltip>
             </div>
