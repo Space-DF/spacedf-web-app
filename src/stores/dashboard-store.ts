@@ -30,8 +30,8 @@ export const useDashboardStore = create<IdentityState & IdentityAction>(
     setViewAllDashboard: (open) => set(() => ({ isViewAllDashboard: open })),
     setEdit: (edit) => set(() => ({ isEdit: edit })),
     setDashboard: (dashboard) => set(() => ({ dashboard })),
-    setEntities: (entityId, entityType) =>
-      set(() => ({ entities: { ...get().entities, [entityId]: entityType } })),
+    setEntities: (entityId, value) =>
+      set((state) => ({ entities: { ...state.entities, [entityId]: value } })),
     entities: {},
   })
 )
