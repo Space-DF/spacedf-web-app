@@ -158,8 +158,8 @@ export function DialogUpload({
             toast.success(t('edit_building_success'))
             setOpen(false)
             resetDialogState()
-            refetch()
             onSaved?.(saved)
+            refetch()
           },
           onError: (error) => {
             toast.error(error.message)
@@ -180,8 +180,8 @@ export function DialogUpload({
           toast.success(t('upload_3d_model_success'))
           setOpen(false)
           resetDialogState()
-          refetch()
           onSaved?.(saved)
+          refetch()
         },
         onError: (error) => {
           toast.error(error.message)

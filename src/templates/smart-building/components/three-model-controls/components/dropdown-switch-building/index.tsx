@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   Select,
@@ -45,19 +45,36 @@ export function DropdownSwitchBuilding() {
   const buildingsData = useMemo(() => {
     return buildings?.results || []
   }, [buildings])
+  const pendingSelectionIdRef = useRef<string | null>(null)
+
+  const selectedBuilding = useMemo(() => {
+    if (!building?.id) return undefined
+    return buildingsData.find((item) => item.id === building.id)
+  }, [buildingsData, building])
 
   useEffect(() => {
     if (!buildingsData.length) {
+      pendingSelectionIdRef.current = null
       if (building) setBuilding(undefined)
       return
     }
 
-    const selectionStillValid = buildingsData.some(
-      (item) => item.id === building?.id
-    )
-    if (!selectionStillValid) {
+    if (!building) {
       setBuilding(buildingsData[0])
+      return
     }
+
+    const match = buildingsData.find((item) => item.id === building.id)
+    if (match) {
+      pendingSelectionIdRef.current = null
+      return
+    }
+
+    if (pendingSelectionIdRef.current === building.id) {
+      return
+    }
+
+    setBuilding(buildingsData[0])
   }, [buildingsData, building, setBuilding])
 
   const handleOpenChange = (next: boolean) => {
@@ -65,6 +82,7 @@ export function DropdownSwitchBuilding() {
     if (!next) setBuildingToEdit(null)
   }
   const handleSaved = (saved: Building) => {
+    pendingSelectionIdRef.current = saved.id
     setBuilding(saved)
   }
 
@@ -80,6 +98,7 @@ export function DropdownSwitchBuilding() {
       (item) => item.id !== buildingToDelete.id
     )
     if (building?.id === buildingToDelete.id) {
+      pendingSelectionIdRef.current = null
       setBuilding(nextBuildings[0])
     }
 
@@ -110,6 +129,7 @@ export function DropdownSwitchBuilding() {
   }
 
   const handleSelectBuilding = (value: string) => {
+    pendingSelectionIdRef.current = null
     setBuilding(buildingsData.find((item) => item.id === value))
     setSelectOpen(false)
   }
@@ -139,7 +159,7 @@ export function DropdownSwitchBuilding() {
       <Select
         open={selectOpen}
         onOpenChange={setSelectOpen}
-        value={building?.id}
+        value={selectedBuilding?.id}
         onValueChange={handleSelectBuilding}
       >
         <SelectTrigger
@@ -147,8 +167,8 @@ export function DropdownSwitchBuilding() {
           className="flex h-fit w-56 items-center rounded-lg bg-brand-component-hover-dark dark:bg-brand-component-fill-gray-soft font-medium text-sm text-white shadow-sm transition-colors border-none"
           icon={<ChevronDown className="size-4 opacity-80" />}
         >
-          {building ? (
-            <span className="truncate max-w-32">{building.name}</span>
+          {selectedBuilding ? (
+            <span className="truncate max-w-32">{selectedBuilding.name}</span>
           ) : (
             <SelectValue placeholder="Select Building" />
           )}
@@ -158,11 +178,11 @@ export function DropdownSwitchBuilding() {
           side="bottom"
         >
           <div className="flex max-h-96 flex-col">
-            <div className="flex min-h-40 max-h-72 flex-col overflow-y-auto p-1">
+            <div className="flex max-h-72 flex-col overflow-y-auto p-1">
               {buildingsData.length ? (
                 buildingsData.map((build) => {
                   const value = build.id
-                  const isActive = building?.id === value
+                  const isActive = selectedBuilding?.id === value
 
                   return (
                     <SelectItem
