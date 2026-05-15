@@ -22,8 +22,6 @@ import { useGetSpaces } from '@/app/[locale]/[organization]/(dev-protected)/(wit
 import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToken'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
-import { useAddDeviceStore } from '@/stores/template/add-device'
-import { useShallow } from 'zustand/react/shallow'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
@@ -48,12 +46,10 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const token = searchParams.get('token')
   const { data: decodedToken, isLoading: isDecodedTokenLoading } =
     useDecodedToken(token)
-  const resetBuilding = useAddDeviceStore(useShallow((state) => state.reset))
 
   const handleGoToSpace = useCallback(
     async (spaceSlug: string) => {
       if (!params.spaceSlug || params.spaceSlug === spaceSlug) return
-      resetBuilding()
       router.push(`/spaces/${spaceSlug}`)
     },
     [router, params.spaceSlug]

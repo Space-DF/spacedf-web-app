@@ -17,14 +17,14 @@ const entityRowClassName = cn(
 
 export interface SelectEntityProps {
   setStep: (step: Step) => void
-  isAutoMode: boolean
   entities: Entity[]
+  onClose: () => void
 }
 
 export const SelectEntity = ({
   setStep,
-  isAutoMode,
   entities,
+  onClose,
 }: SelectEntityProps) => {
   const t = useTranslations('addNewDevice')
   const [selected, setSelected] = useState<Set<string>>(() => new Set())
@@ -74,22 +74,6 @@ export const SelectEntity = ({
     await bulkUpdateEntities({ visible_entity_ids, hidden_entity_ids })
     setStep('add_device_success')
   }, [allIds, bulkUpdateEntities, selected, setStep])
-
-  const handleCancel = () => {
-    if (isAutoMode) {
-      setStep('add_device_auto')
-    } else {
-      setStep('add_device_manual')
-    }
-  }
-
-  const isDirty = useMemo(
-    () =>
-      allEntities.some(
-        (entity) => selected.has(entity.id) !== entity.is_enabled
-      ),
-    [entities, selected]
-  )
 
   useEffect(() => {
     if (!allEntities.length) return
@@ -161,13 +145,13 @@ export const SelectEntity = ({
       </ul>
 
       <div className="flex justify-end gap-4 pt-1">
-        <Button type="button" variant="outline" onClick={handleCancel}>
+        <Button type="button" variant="outline" onClick={onClose}>
           {t('cancel')}
         </Button>
         <Button
           type="button"
           onClick={handleContinue}
-          disabled={!isDirty || isSavingEntities}
+          disabled={isSavingEntities}
           loading={isSavingEntities}
         >
           {t('add_device')}

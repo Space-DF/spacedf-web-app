@@ -47,9 +47,18 @@ export function DropdownSwitchBuilding() {
   }, [buildings])
 
   useEffect(() => {
-    if (!buildingsData.length || building) return
-    setBuilding(buildingsData[0])
-  }, [buildingsData, building])
+    if (!buildingsData.length) {
+      if (building) setBuilding(undefined)
+      return
+    }
+
+    const selectionStillValid = buildingsData.some(
+      (item) => item.id === building?.id
+    )
+    if (!selectionStillValid) {
+      setBuilding(buildingsData[0])
+    }
+  }, [buildingsData, building, setBuilding])
 
   const handleOpenChange = (next: boolean) => {
     setUploadOpen(next)

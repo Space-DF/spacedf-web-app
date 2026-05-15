@@ -146,8 +146,8 @@ export const AddDeviceDialog = () => {
       component: (
         <SelectEntity
           setStep={setStep}
-          isAutoMode={isAutoMode}
           entities={entities}
+          onClose={handleReset}
         />
       ),
     },
