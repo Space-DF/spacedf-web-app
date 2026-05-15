@@ -59,10 +59,11 @@ export const useMqtt = () => {
     setDeviceAlerts: state.setDeviceAlerts,
   }))
 
-  const { setWidgetList, widgetList } = useDashboardStore(
+  const { setWidgetList, widgetList, setEntities } = useDashboardStore(
     useShallow((state) => ({
       widgetList: state.widgetList,
       setWidgetList: state.setWidgetList,
+      setEntities: state.setEntities,
     }))
   )
 
@@ -119,6 +120,7 @@ export const useMqtt = () => {
         }
         return widget
       })
+      setEntities(data.entityId, data.entityUpdate.state)
       setWidgetList(newWidgetList)
 
       if (data.entityUpdate.device_id) {

@@ -6,6 +6,7 @@ type IdentityState = {
   deleteId?: string
   dashboard?: Dashboard
   widgetList: any[]
+  entities: Record<string, string>
 }
 
 type IdentityAction = {
@@ -14,6 +15,7 @@ type IdentityAction = {
   setDeleteId: (id?: string) => void
   setDashboard: (dashboard?: Dashboard) => void
   setWidgetList: (widgetList: any) => void
+  setEntities: (entityId: string, entityType: string) => void
 }
 
 export const useDashboardStore = create<IdentityState & IdentityAction>(
@@ -28,5 +30,8 @@ export const useDashboardStore = create<IdentityState & IdentityAction>(
     setViewAllDashboard: (open) => set(() => ({ isViewAllDashboard: open })),
     setEdit: (edit) => set(() => ({ isEdit: edit })),
     setDashboard: (dashboard) => set(() => ({ dashboard })),
+    setEntities: (entityId, value) =>
+      set((state) => ({ entities: { ...state.entities, [entityId]: value } })),
+    entities: {},
   })
 )

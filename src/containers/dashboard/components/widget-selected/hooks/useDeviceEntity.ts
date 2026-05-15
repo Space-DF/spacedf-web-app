@@ -40,7 +40,7 @@ export const useDeviceEntity = (
   const queryKey = useMemo(
     () =>
       [
-        queryKeys.deviceEntities.all,
+        ...queryKeys.deviceEntities.all,
         spaceSlug,
         entityType ?? '',
         search ?? '',
