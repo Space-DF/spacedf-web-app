@@ -56,7 +56,7 @@ function renderEntityContent(
   const entityRealtimeValue = dashboardEntities[entity.unique_key]
   return (
     <MetricBadge
-      value={entityRealtimeValue || value}
+      value={entityRealtimeValue ?? value}
       unit_of_measurement={entity.unit_of_measurement}
       icon={entity.icon}
     />
