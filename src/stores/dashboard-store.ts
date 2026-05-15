@@ -19,7 +19,7 @@ type IdentityAction = {
 }
 
 export const useDashboardStore = create<IdentityState & IdentityAction>(
-  (set, get) => ({
+  (set) => ({
     isViewAllDashboard: false,
     deleteId: undefined,
     isEdit: false,
