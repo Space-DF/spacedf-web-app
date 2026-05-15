@@ -8,19 +8,17 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useAddDeviceStore } from '@/stores/template/add-device'
-import { getS3Url, setCookie } from '@/utils'
+import { getS3Url } from '@/utils'
 import { Canvas } from '@react-three/fiber'
-import Image from 'next/image'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { DialogSelectDeviceFromList } from './components/dialog-select-device-from-list'
 import ThreeModel from './components/three-glb-model'
 import { ThreeModelControls } from './components/three-model-controls'
 import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
-import { getNewLayouts, useGlobalStore, useLayout } from '@/stores'
+import { useGlobalStore } from '@/stores'
 import { List } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useShallow } from 'zustand/react/shallow'
-import { COOKIES, NavigationEnums } from '@/constants'
 import { ModelFallback } from './components/model-fallback'
 
 export default function SmartBuilding() {
@@ -28,14 +26,12 @@ export default function SmartBuilding() {
 
   const isFirstLoadRef = useRef(true)
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
-  const { building, setIsOpenDeviceModal, setDeviceModalPosition } =
-    useAddDeviceStore(
-      useShallow((state) => ({
-        building: state.building,
-        setIsOpenDeviceModal: state.setIsOpen,
-        setDeviceModalPosition: state.setPosition,
-      }))
-    )
+  const { building, setDeviceModalPosition } = useAddDeviceStore(
+    useShallow((state) => ({
+      building: state.building,
+      setDeviceModalPosition: state.setPosition,
+    }))
+  )
 
   const [contextMenuPosition, setContextMenuPosition] = useState<{
     x: number
@@ -43,15 +39,6 @@ export default function SmartBuilding() {
     modelPoint: { x: number; y: number; z: number }
   } | null>(null)
   const [selectDeviceDialogOpen, setSelectDeviceDialogOpen] = useState(false)
-  const { toggleDynamicLayout, dynamicLayouts } = useLayout(
-    useShallow((state) => ({
-      toggleDynamicLayout: state.toggleDynamicLayout,
-      dynamicLayouts: state.dynamicLayouts,
-      setCookieDirty: state.setCookieDirty,
-    }))
-  )
-
-  const isDeviceTabVisible = dynamicLayouts.includes(NavigationEnums.DEVICES)
 
   const isAuthenticated = useAuthenticated()
 
@@ -72,23 +59,6 @@ export default function SmartBuilding() {
       return getS3Url('glbs/spacedf/building-view.glb')
     return building?.url_scene_asset
   }, [building?.url_scene_asset, isAuthenticated])
-
-  const handleAddDevice = (event: Event) => {
-    if (!contextMenuPosition) return
-    event.preventDefault()
-    if (!isDeviceTabVisible) {
-      const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
-      setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
-      toggleDynamicLayout(NavigationEnums.DEVICES)
-    }
-    setIsOpenDeviceModal(true)
-    setDeviceModalPosition({
-      x: contextMenuPosition.modelPoint.x,
-      y: contextMenuPosition.modelPoint.y,
-      z: contextMenuPosition.modelPoint.z,
-    })
-    setContextMenuPosition(null)
-  }
 
   const handleSelectDevice = (event: Event) => {
     if (!contextMenuPosition) return
@@ -185,19 +155,6 @@ export default function SmartBuilding() {
               }}
               className="w-36"
             >
-              <DropdownMenuItem
-                onSelect={handleAddDevice}
-                className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
-              >
-                <Image
-                  src="/images/plus-circle.svg"
-                  alt="Add devices"
-                  width={16}
-                  height={16}
-                  className="group-hover:text-brand-component-text-dark stroke-brand-component-text-gray"
-                />
-                <span>{t('add_devices')}</span>
-              </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={handleSelectDevice}
                 className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"

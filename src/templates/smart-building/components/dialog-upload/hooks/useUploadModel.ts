@@ -1,29 +1,25 @@
-import { useGlobalStore } from '@/stores'
-import type { Building } from '@/types/building'
-import { useParams } from 'next/navigation'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import queryString from 'query-string'
-import useSWRMutation from 'swr/mutation'
+
+import { useSpaceSlug } from '@/hooks'
+import { queryKeys } from '@/lib/query-keys'
+import { patchBuildingsListCache } from '@/templates/smart-building/hooks/useBuilding'
+import type { Building } from '@/types/building'
+import type { PaginationResponse } from '@/types/global'
 
 export type SaveBuildingArg =
   | { mode: 'create'; model: File; name: string; floorName?: string }
   | { mode: 'edit'; buildingId: string; name: string; model?: File }
 
-function getSpaceSlugFromMutationKey(url: string): string | null {
-  const { query } = queryString.parseUrl(url)
-  const slug = query.spaceSlug
-  return typeof slug === 'string' ? slug : null
-}
-
-async function saveBuildingFetcher(
-  url: string,
-  { arg }: { arg: SaveBuildingArg }
+async function saveBuilding(
+  spaceSlug: string,
+  arg: SaveBuildingArg
 ): Promise<Building> {
-  const spaceSlug = getSpaceSlugFromMutationKey(url)
-  if (!spaceSlug) {
-    throw new Error('Missing space slug')
-  }
-
   if (arg.mode === 'create') {
+    const url = queryString.stringifyUrl({
+      url: '/api/building',
+      query: { spaceSlug },
+    })
     const formData = new FormData()
     formData.set('model', arg.model)
     formData.set('name', arg.name)
@@ -71,17 +67,28 @@ async function saveBuildingFetcher(
 }
 
 export function useUploadModel() {
-  const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  const currentSpace = useGlobalStore((state) => state.currentSpace)
-  const spaceSlugName = spaceSlug || currentSpace?.slug_name
+  const queryClient = useQueryClient()
+  const spaceSlugName = useSpaceSlug()
 
-  return useSWRMutation<Building, Error, string | null, SaveBuildingArg>(
-    spaceSlugName
-      ? queryString.stringifyUrl({
-          url: '/api/building',
-          query: { spaceSlug: spaceSlugName },
-        })
-      : null,
-    saveBuildingFetcher
-  )
+  return useMutation({
+    mutationFn: (arg: SaveBuildingArg) => {
+      if (!spaceSlugName) {
+        throw new Error('Missing space slug')
+      }
+      return saveBuilding(spaceSlugName, arg)
+    },
+    onSuccess: (saved, arg) => {
+      if (!spaceSlugName) return
+
+      queryClient.setQueryData<PaginationResponse<Building>>(
+        queryKeys.buildings.list(spaceSlugName),
+        (current) =>
+          patchBuildingsListCache(
+            current,
+            saved,
+            arg.mode === 'create' ? 'create' : 'edit'
+          )
+      )
+    },
+  })
 }

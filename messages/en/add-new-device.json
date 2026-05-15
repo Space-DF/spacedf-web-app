@@ -31,8 +31,6 @@
   "failed_to_scan_qr_code": "Failed to scan QR code",
   "asset_coordinates": "Asset Coordinates",
   "continue": "Continue",
-  "select_entity": "Select Entity",
-  "select_entity_description": "Choose which entities to display on the Digital Twin for this device.",
   "entity_available": "Entity Available",
   "select_all": "Select All",
   "available_entity": "Available Entity",

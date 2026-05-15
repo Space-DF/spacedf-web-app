@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   Select,
@@ -23,7 +23,6 @@ import type { Building } from '@/types/building'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { useDeleteBuilding } from '@/templates/smart-building/hooks/useDeleteBuilding'
 import { toast } from 'sonner'
-
 export function DropdownSwitchBuilding() {
   const t = useTranslations('smartBuilding')
   const [selectOpen, setSelectOpen] = useState(false)
@@ -32,10 +31,9 @@ export function DropdownSwitchBuilding() {
   const [buildingToDelete, setBuildingToDelete] = useState<Building | null>(
     null
   )
-  const { data: buildings, mutate: mutateBuildings } = useBuilding()
-  const { trigger: deleteBuilding, isMutating: isDeleting } = useDeleteBuilding(
-    buildingToDelete?.id
-  )
+  const { data: buildings } = useBuilding()
+  const { mutateAsync: deleteBuilding, isPending: isDeleting } =
+    useDeleteBuilding(buildingToDelete?.id)
   const { building, setBuilding } = useAddDeviceStore(
     useShallow((state) => ({
       building: state.building,
@@ -45,36 +43,18 @@ export function DropdownSwitchBuilding() {
   const buildingsData = useMemo(() => {
     return buildings?.results || []
   }, [buildings])
-  const pendingSelectionIdRef = useRef<string | null>(null)
-
-  const selectedBuilding = useMemo(() => {
-    if (!building?.id) return undefined
-    return buildingsData.find((item) => item.id === building.id)
-  }, [buildingsData, building])
 
   useEffect(() => {
-    if (!buildingsData.length) {
-      pendingSelectionIdRef.current = null
-      if (building) setBuilding(undefined)
-      return
-    }
+    if (!buildingsData.length) return
 
-    if (!building) {
-      setBuilding(buildingsData[0])
-      return
-    }
+    const matched = building
+      ? buildingsData.find((item) => item.id === building.id)
+      : undefined
+    const next = matched ?? buildingsData[0]
 
-    const match = buildingsData.find((item) => item.id === building.id)
-    if (match) {
-      pendingSelectionIdRef.current = null
-      return
+    if (building?.id !== next.id) {
+      setBuilding(next)
     }
-
-    if (pendingSelectionIdRef.current === building.id) {
-      return
-    }
-
-    setBuilding(buildingsData[0])
   }, [buildingsData, building, setBuilding])
 
   const handleOpenChange = (next: boolean) => {
@@ -82,7 +62,6 @@ export function DropdownSwitchBuilding() {
     if (!next) setBuildingToEdit(null)
   }
   const handleSaved = (saved: Building) => {
-    pendingSelectionIdRef.current = saved.id
     setBuilding(saved)
   }
 
@@ -98,12 +77,9 @@ export function DropdownSwitchBuilding() {
       (item) => item.id !== buildingToDelete.id
     )
     if (building?.id === buildingToDelete.id) {
-      pendingSelectionIdRef.current = null
       setBuilding(nextBuildings[0])
     }
-
     setBuildingToDelete(null)
-    mutateBuildings()
   }
 
   const handleCancel = () => {
@@ -129,7 +105,6 @@ export function DropdownSwitchBuilding() {
   }
 
   const handleSelectBuilding = (value: string) => {
-    pendingSelectionIdRef.current = null
     setBuilding(buildingsData.find((item) => item.id === value))
     setSelectOpen(false)
   }
@@ -153,13 +128,12 @@ export function DropdownSwitchBuilding() {
         open={uploadOpen}
         onOpenChange={handleOpenChange}
         buildingToEdit={buildingToEdit}
-        refetch={mutateBuildings}
         onSaved={handleSaved}
       />
       <Select
         open={selectOpen}
         onOpenChange={setSelectOpen}
-        value={selectedBuilding?.id}
+        value={building?.id}
         onValueChange={handleSelectBuilding}
       >
         <SelectTrigger
@@ -167,8 +141,8 @@ export function DropdownSwitchBuilding() {
           className="flex h-fit w-56 items-center rounded-lg bg-brand-component-hover-dark dark:bg-brand-component-fill-gray-soft font-medium text-sm text-white shadow-sm transition-colors border-none"
           icon={<ChevronDown className="size-4 opacity-80" />}
         >
-          {selectedBuilding ? (
-            <span className="truncate max-w-32">{selectedBuilding.name}</span>
+          {building ? (
+            <span className="truncate max-w-32">{building.name}</span>
           ) : (
             <SelectValue placeholder="Select Building" />
           )}
@@ -182,7 +156,7 @@ export function DropdownSwitchBuilding() {
               {buildingsData.length ? (
                 buildingsData.map((build) => {
                   const value = build.id
-                  const isActive = selectedBuilding?.id === value
+                  const isActive = building?.id === value
 
                   return (
                     <SelectItem
