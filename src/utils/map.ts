@@ -57,6 +57,7 @@ export const transformDeviceData = (
       latestLocation: checkpoint,
       lorawan_device: device.device.lorawan_device,
       deviceInformation: device.device,
+      entities: device.entities ?? [],
       type: deviceType,
       histories: {
         end: historyLngLat,

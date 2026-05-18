@@ -30,8 +30,6 @@
   "failed_to_scan_qr_code": "Quét QR Code thất bại",
   "asset_coordinates": "Tọa độ tài sản",
   "continue": "Tiếp tục",
-  "select_entity": "Chọn đối tượng",
-  "select_entity_description": "Chọn các đối tượng để hiển thị trên Digital Twin cho thiết bị này.",
   "entity_available": "Đối tượng có sẵn",
   "select_all": "Chọn tất cả",
   "available_entity": "Đối tượng khả dụng",

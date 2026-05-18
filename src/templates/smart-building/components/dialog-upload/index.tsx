@@ -35,12 +35,11 @@ import {
   threeModelAccept,
   validatorFile,
 } from './utils'
-import { useUploadModel } from './hooks/useUploadModel'
 import type { Building } from '@/types/building'
+import { useUploadModel } from './hooks/useUploadModel'
 
 export type DialogUploadProps = {
   trigger?: ReactNode
-  refetch: () => void
   open?: boolean
   onOpenChange?: (open: boolean) => void
   buildingToEdit?: Building | null
@@ -51,7 +50,6 @@ export type DialogUploadValues = z.infer<typeof dialogUploadSchema>
 
 export function DialogUpload({
   trigger,
-  refetch,
   open: openProp,
   onOpenChange: onOpenChangeProp,
   buildingToEdit = null,
@@ -101,8 +99,7 @@ export function DialogUpload({
     resolver: zodResolver(dialogUploadSchema),
   })
 
-  const { trigger: uploadModel, isMutating: isUploadingModel } =
-    useUploadModel()
+  const { mutate: uploadModel, isPending: isUploadingModel } = useUploadModel()
 
   const existingModel = isEditMode ? buildingToEdit?.scene_asset : undefined
   const displayedModel = selectedFile?.name ?? existingModel
@@ -159,7 +156,6 @@ export function DialogUpload({
             setOpen(false)
             resetDialogState()
             onSaved?.(saved)
-            refetch()
           },
           onError: (error) => {
             toast.error(error.message)
@@ -181,7 +177,6 @@ export function DialogUpload({
           setOpen(false)
           resetDialogState()
           onSaved?.(saved)
-          refetch()
         },
         onError: (error) => {
           toast.error(error.message)

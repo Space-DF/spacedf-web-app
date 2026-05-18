@@ -6,6 +6,7 @@ import {
 } from '@/constants/device-property'
 import { Alert } from '@/types/alert'
 import { DeviceDataOriginal, LorawanDevice } from '@/types/device'
+import { Entity } from '@/types/entity'
 import { Checkpoint } from '@/types/trip'
 import { WaterDepthLevelName } from '@/utils/water-depth'
 import { GLTFWithBuffers } from '@loaders.gl/gltf'
@@ -36,6 +37,7 @@ export type Device<T = {}> = {
   realtimeTrip?: [number, number][]
   origin?: string
   deviceId: string
+  entities?: Entity[]
 } & T
 
 type DeviceModelState = {

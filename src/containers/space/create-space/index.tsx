@@ -12,12 +12,9 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
-import { queryKeys } from '@/lib/query-keys'
-import { useQueryClient } from '@tanstack/react-query'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useRefreshToken } from '../space-settings/hooks/useRefreshToken'
 import { useCreateSpace } from './hooks/useCreateSpace'
-import { useAddDeviceStore } from '@/stores/template/add-device'
 
 const formSchema = z.object({
   space_name: z
@@ -39,13 +36,12 @@ const OrganizationSetting = () => {
   const router = useRouter()
   const setLoadingText = useGlobalStore((state) => state.setLoadingText)
   const t = useTranslations('space')
-  const queryClient = useQueryClient()
   const { mutateAsync: createSpace, isPending: isCreating } = useCreateSpace()
   const [isLoading, setIsLoading] = useState(false)
   const isDemo = useIsDemo()
   const { trigger: refreshToken } = useRefreshToken()
   const setCurrentSpace = useGlobalStore((state) => state.setCurrentSpace)
-  const resetBuilding = useAddDeviceStore((state) => state.reset)
+
   async function onSubmit(values: SpaceFormValues) {
     setIsLoading(true)
     await createSpace(
@@ -69,11 +65,7 @@ const OrganizationSetting = () => {
           }
           if (data) {
             await refreshToken()
-            await queryClient.invalidateQueries({
-              queryKey: queryKeys.spaces.list(),
-            })
             setCurrentSpace(data)
-            resetBuilding()
             router.push(`/spaces/${data.slug_name}`)
           }
         },

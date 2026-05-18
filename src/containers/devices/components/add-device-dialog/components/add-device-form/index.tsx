@@ -21,16 +21,12 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useShallow } from 'zustand/react/shallow'
-import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
-import { Template } from '@/types/template'
-import { DeviceDataOriginal } from '@/types/device'
-import { Entity } from '@/types/entity'
 
 export type Mode = 'auto' | 'manual'
 
 interface AddDeviceFormProps {
   mode: Mode
-  onSuccess: (entities: Entity[]) => Promise<void>
+  onSuccess: () => Promise<void>
   onClose: () => void
 }
 
@@ -49,15 +45,6 @@ export const AddDeviceForm = ({
     }))
   )
 
-  const { hasHydrated, template } = useOrganizationValidationStore(
-    useShallow((s) => ({
-      hasHydrated: s.hasHydrated,
-      template: s.template,
-    }))
-  )
-
-  const isSmartBuilding = template === Template.SMART_BUILDING && hasHydrated
-
   async function onSubmit(values: AddDeviceSchema) {
     await addDevice(
       {
@@ -67,8 +54,8 @@ export const AddDeviceForm = ({
         building: building?.id,
       },
       {
-        onSuccess: async (device: DeviceDataOriginal) => {
-          await onSuccess(device.entities ?? [])
+        onSuccess: async () => {
+          await onSuccess()
           toast.success(t('add_device_successfully'))
         },
         onError: (error) =>
@@ -171,7 +158,7 @@ export const AddDeviceForm = ({
             {t('cancel')}
           </Button>
           <Button type="submit" loading={isMutating}>
-            {t(isSmartBuilding ? 'continue' : 'add_device')}
+            {t('add_device')}
           </Button>
         </div>
       </form>

@@ -11,4 +11,11 @@ export const queryKeys = {
   deviceEntities: {
     all: ['device-entities'] as const,
   },
+  buildings: {
+    all: ['buildings'] as const,
+    list: (
+      spaceSlug: string,
+      params: { limit?: number; offset?: number } = {}
+    ) => [...queryKeys.buildings.all, 'list', spaceSlug, params] as const,
+  },
 } as const
