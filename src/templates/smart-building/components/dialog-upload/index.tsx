@@ -37,6 +37,11 @@ import {
 } from './utils'
 import type { Building } from '@/types/building'
 import { useUploadModel } from './hooks/useUploadModel'
+import { queryKeys } from '@/lib/query-keys'
+import { patchBuildingsListCache } from '../../hooks/useBuilding'
+import { useQueryClient } from '@tanstack/react-query'
+import { useSpaceSlug } from '@/hooks'
+import { PaginationResponse } from '@/types/global'
 
 export type DialogUploadProps = {
   trigger?: ReactNode
@@ -62,6 +67,9 @@ export function DialogUpload({
   const setOpen = (next: boolean) => {
     onOpenChangeProp?.(next)
   }
+
+  const queryClient = useQueryClient()
+  const spaceSlugName = useSpaceSlug()
 
   const [selectedFile, setSelectedFile] = useState<File>()
 
@@ -137,6 +145,27 @@ export function DialogUpload({
     },
   })
 
+  const handleUploadSuccess = (saved: Building, mode: 'create' | 'edit') => {
+    setOpen(false)
+    resetDialogState()
+    const newData = {
+      ...saved,
+      url_scene_asset: selectedFile
+        ? URL.createObjectURL(selectedFile)
+        : saved.url_scene_asset,
+    }
+    onSaved?.(newData)
+    queryClient.setQueryData<PaginationResponse<Building>>(
+      queryKeys.buildings.list(spaceSlugName),
+      (current) =>
+        patchBuildingsListCache(
+          current,
+          newData,
+          mode === 'create' ? 'create' : 'edit'
+        )
+    )
+  }
+
   async function handleSubmit(values: DialogUploadValues) {
     if (!isEditMode && !selectedFile) {
       toast.error(t('upload_3d_model_required'))
@@ -153,9 +182,7 @@ export function DialogUpload({
         {
           onSuccess: (saved) => {
             toast.success(t('edit_building_success'))
-            setOpen(false)
-            resetDialogState()
-            onSaved?.(saved)
+            handleUploadSuccess(saved, 'edit')
           },
           onError: (error) => {
             toast.error(error.message)
@@ -174,9 +201,7 @@ export function DialogUpload({
       {
         onSuccess: (saved) => {
           toast.success(t('upload_3d_model_success'))
-          setOpen(false)
-          resetDialogState()
-          onSaved?.(saved)
+          handleUploadSuccess(saved, 'create')
         },
         onError: (error) => {
           toast.error(error.message)

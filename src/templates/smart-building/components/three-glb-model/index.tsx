@@ -36,6 +36,11 @@ type ModelProps = ThreeElements['group'] & {
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
 const DEFAULT_MODEL_OPACITY = 0.35
+const DISPOSE_DELAY_MS = 120_000
+
+const pendingDisposals = new Map<string, ReturnType<typeof setTimeout>>()
+
+const formatCache = new Map<string, Detected3DFormat>()
 
 function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
   if (!device.position) return <></>
@@ -221,13 +226,23 @@ function GlbScene({
   }
 
   useEffect(() => {
+    const pending = pendingDisposals.get(url)
+    if (pending) {
+      clearTimeout(pending)
+      pendingDisposals.delete(url)
+    }
+
     setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
     invalidate()
 
     return () => {
-      disposeThreeObject(scene)
-      useGLTF.clear(url)
-      invalidate()
+      const timer = setTimeout(() => {
+        pendingDisposals.delete(url)
+        disposeThreeObject(scene)
+        useGLTF.clear(url)
+        invalidate()
+      }, DISPOSE_DELAY_MS)
+      pendingDisposals.set(url, timer)
     }
   }, [scene, url, invalidate])
 
@@ -273,13 +288,23 @@ function UsdzModel({
   }
 
   useEffect(() => {
+    const pending = pendingDisposals.get(url)
+    if (pending) {
+      clearTimeout(pending)
+      pendingDisposals.delete(url)
+    }
+
     setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
     invalidate()
 
     return () => {
-      disposeThreeObject(object)
-      useLoader.clear(USDLoader, url)
-      invalidate()
+      const timer = setTimeout(() => {
+        pendingDisposals.delete(url)
+        disposeThreeObject(object)
+        useLoader.clear(USDLoader, url)
+        invalidate()
+      }, DISPOSE_DELAY_MS)
+      pendingDisposals.set(url, timer)
     }
   }, [object, url, invalidate])
 
@@ -312,9 +337,6 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
     () => (url.toLowerCase().endsWith('.usdz') ? 'usdz' : 'glb'),
     [url]
   )
-  const [detectedFormat, setDetectedFormat] = useState<
-    Detected3DFormat | 'detecting'
-  >('detecting')
   const [retryKey, setRetryKey] = useState(0)
 
   const loadUrl = useMemo(() => {
@@ -329,14 +351,28 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
     }
   }, [url, retryKey])
 
+  const [detectedFormat, setDetectedFormat] = useState<
+    Detected3DFormat | 'detecting'
+  >(() => formatCache.get(loadUrl) ?? 'detecting')
+
   useEffect(() => {
+    const cached = formatCache.get(loadUrl)
+    if (cached) {
+      setDetectedFormat(cached)
+      return
+    }
+
     const ac = new AbortController()
     setDetectedFormat('detecting')
 
     detect3DFormatFromUrl(loadUrl, ac.signal)
-      .then((fmt) => setDetectedFormat(fmt))
+      .then((fmt) => {
+        formatCache.set(loadUrl, fmt)
+        setDetectedFormat(fmt)
+      })
       .catch((err) => {
         if (err.name === 'AbortError') return
+        formatCache.set(loadUrl, extensionHint)
         setDetectedFormat(extensionHint)
       })
 

@@ -1,11 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import queryString from 'query-string'
 
 import { useSpaceSlug } from '@/hooks'
-import { queryKeys } from '@/lib/query-keys'
-import { patchBuildingsListCache } from '@/templates/smart-building/hooks/useBuilding'
 import type { Building } from '@/types/building'
-import type { PaginationResponse } from '@/types/global'
 
 export type SaveBuildingArg =
   | { mode: 'create'; model: File; name: string; floorName?: string }
@@ -67,7 +64,6 @@ async function saveBuilding(
 }
 
 export function useUploadModel() {
-  const queryClient = useQueryClient()
   const spaceSlugName = useSpaceSlug()
 
   return useMutation({
@@ -76,19 +72,6 @@ export function useUploadModel() {
         throw new Error('Missing space slug')
       }
       return saveBuilding(spaceSlugName, arg)
-    },
-    onSuccess: (saved, arg) => {
-      if (!spaceSlugName) return
-
-      queryClient.setQueryData<PaginationResponse<Building>>(
-        queryKeys.buildings.list(spaceSlugName),
-        (current) =>
-          patchBuildingsListCache(
-            current,
-            saved,
-            arg.mode === 'create' ? 'create' : 'edit'
-          )
-      )
     },
   })
 }
