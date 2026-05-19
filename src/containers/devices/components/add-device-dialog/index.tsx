@@ -66,8 +66,8 @@ export const AddDeviceDialog = () => {
   }
 
   const handleAddDeviceSuccess = async () => {
-    await queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
     setStep('add_device_success')
+    await queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
   }
 
   const isAutoMode = mode === 'auto'
