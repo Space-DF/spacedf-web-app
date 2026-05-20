@@ -70,7 +70,8 @@ export const transformDeviceData = (
         ),
         ...device.device_properties,
       },
-
+      position: device.position,
+      building: device.building,
       layerProps:
         (DEVICE_LAYER_PROPERTIES[deviceType] as LayerProperties) ||
         ({} as LayerProperties),

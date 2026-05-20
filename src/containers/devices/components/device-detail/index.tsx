@@ -181,7 +181,9 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
               <DeviceSelected />
-              {isSmartBuildingTemplate && <ListEntity entities={entities} />}
+              {isSmartBuildingTemplate &&
+                selectedDevice.position &&
+                selectedDevice.building && <ListEntity entities={entities} />}
               <ListEvent deviceId={selectedDevice.id} />
               {!isSmartBuildingTemplate &&
                 (isWlb ? <ListAlert /> : <TripHistory />)}
