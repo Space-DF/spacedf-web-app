@@ -5,6 +5,7 @@ import useSWRMutation from 'swr/mutation'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { useCache } from '@/hooks/useCache'
+import { LOCAL_STORAGE_KEYS } from '@/constants'
 
 const deleteAccount = async (url: string) => {
   return api.delete(url)
@@ -18,6 +19,7 @@ export const useDeleteAccount = () => {
     onSuccess: async () => {
       toast.success(t('delete_account_success'))
       await signOut({ redirect: false })
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
       router.replace('/')
       clearAllCache()
     },

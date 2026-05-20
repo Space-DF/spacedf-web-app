@@ -5,7 +5,7 @@ import { signOut } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 import { Drawer, DrawerContent } from '@/components/ui/drawer'
-import { IdentityStepEnum } from '@/constants'
+import { IdentityStepEnum, LOCAL_STORAGE_KEYS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useIdentityStore } from '@/stores/identity-store'
 import Authentication from './auth'
@@ -151,6 +151,7 @@ const Identity = () => {
     await signOut({
       redirect: false,
     })
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
     setIsDifferentUser(false)
     setOpenDrawer(true)
     setFormType('signUp')

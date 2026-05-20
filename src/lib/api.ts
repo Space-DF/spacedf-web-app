@@ -2,6 +2,7 @@ import { signOut } from 'next-auth/react'
 import MqttService from './mqtt'
 import { getClientOrganization } from '@/utils'
 import { toast } from 'sonner'
+import { LOCAL_STORAGE_KEYS } from '@/constants'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -68,6 +69,7 @@ class FetchInstance {
 
     if (typeof window !== 'undefined') {
       await signOut({ redirect: false })
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
       window.location.href = '/'
     }
   }
