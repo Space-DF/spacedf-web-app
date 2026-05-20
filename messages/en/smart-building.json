@@ -34,6 +34,7 @@
   "add_devices": "Add devices",
   "select_device": "Select device",
   "select_device_from_list_title": "Select Device",
+  "select_device_from_list_description": "Select a device to display all of its entities on the 3D model. You can manage entity visibility later in Device Details.",
   "select_device_confirm": "Select",
   "select_device_no_results": "No devices found",
   "building_management_title": "{name} Management",

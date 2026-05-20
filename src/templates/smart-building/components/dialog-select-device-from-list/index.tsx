@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -107,6 +108,9 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
           <DialogTitle className="text-brand-component-text-dark text-[16px] font-semibold leading-none tracking-tight">
             {tSmart('select_device_from_list_title')}
           </DialogTitle>
+          <DialogDescription className="font-medium">
+            {tSmart('select_device_from_list_description')}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-3 px-4 pb-2 pt-2">
@@ -189,7 +193,7 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
           </Button>
           <Button
             type="button"
-            disabled={!selected}
+            disabled={!selected || isAssigningDevice}
             onClick={handleConfirm}
             loading={isAssigningDevice}
           >

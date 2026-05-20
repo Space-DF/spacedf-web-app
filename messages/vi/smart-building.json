@@ -55,6 +55,7 @@
   "add_devices": "Thêm thiết bị",
   "select_device": "Chọn thiết bị",
   "select_device_from_list_title": "Chọn thiết bị",
+  "select_device_from_list_description": "Chọn một thiết bị để hiển thị tất cả các thực thể của nó trên mô hình 3D. Bạn có thể quản lý khả năng hiển thị thực thể sau trong Chi tiết thiết bị.",
   "select_device_confirm": "Chọn",
   "select_device_no_results": "Không tìm thấy thiết bị",
   "floor_name": "Tên tầng",
