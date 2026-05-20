@@ -35,6 +35,7 @@ export const useDeleteBuilding = (buildingId?: string) => {
         queryKeys.buildings.list(spaceSlugName),
         (current) => removeBuildingFromListCache(current, buildingId)
       )
+      queryClient.invalidateQueries({ queryKey: queryKeys.devices.all })
       toast.success(t('delete_building_success'))
     },
     onError: (error: Error) => {

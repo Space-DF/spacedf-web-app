@@ -5,6 +5,7 @@ import {
   SupportedModels,
 } from '@/constants/device-property'
 import { Alert } from '@/types/alert'
+import { Building } from '@/types/building'
 import { DeviceDataOriginal, LorawanDevice } from '@/types/device'
 import { Entity } from '@/types/entity'
 import { Checkpoint } from '@/types/trip'
@@ -38,6 +39,12 @@ export type Device<T = {}> = {
   origin?: string
   deviceId: string
   entities?: Entity[]
+  position?: {
+    x: number
+    y: number
+    z: number
+  }
+  building?: Building
 } & T
 
 type DeviceModelState = {
