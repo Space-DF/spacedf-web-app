@@ -2,7 +2,6 @@ import { useTranslations } from 'next-intl'
 import { useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 import { AddDeviceSchema } from '../../schema'
-import { useAddDeviceStore } from '@/stores/template/add-device'
 import { useAddDeviceManually } from '@/containers/devices/hooks/useAddDeviceManually'
 import {
   Form,
@@ -20,7 +19,6 @@ import {
 } from '@/containers/devices/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { useShallow } from 'zustand/react/shallow'
 
 export type Mode = 'auto' | 'manual'
 
@@ -38,20 +36,12 @@ export const AddDeviceForm = ({
   const t = useTranslations('addNewDevice')
   const form = useFormContext<AddDeviceSchema>()
   const { trigger: addDevice, isMutating } = useAddDeviceManually()
-  const { position, building } = useAddDeviceStore(
-    useShallow((state) => ({
-      position: state.position,
-      building: state.building,
-    }))
-  )
 
   async function onSubmit(values: AddDeviceSchema) {
     await addDevice(
       {
         ...values,
         dev_eui: values.dev_eui.replace(/\s+/g, ''),
-        position,
-        building: building?.id,
       },
       {
         onSuccess: async () => {

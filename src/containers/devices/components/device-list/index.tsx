@@ -127,7 +127,8 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
 
   const handleSelectDevice = (device: DeviceDataOriginal) => {
     setDeviceSelected(device.device.id)
-    if (buildingId && device.building?.id !== buildingId) {
+    const deviceBuildingId = device.building?.id
+    if (buildingId && deviceBuildingId && deviceBuildingId !== buildingId) {
       setBuilding(device.building)
     }
     const deviceData = transformDeviceData([device])[0]
