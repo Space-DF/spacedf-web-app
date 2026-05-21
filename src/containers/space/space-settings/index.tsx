@@ -12,7 +12,7 @@ export default function WorkspaceSettings() {
   const params = useParams()
   const {
     data: spaces,
-    mutate: mutateSpaceDetails,
+    refetch: mutateSpaceDetails,
     isLoading,
   } = useGetSpaceDetails(params.spaceSlug as string)
   const spaceDetail = spaces?.data.results?.find(

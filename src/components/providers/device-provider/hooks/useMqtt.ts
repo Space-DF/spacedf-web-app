@@ -59,10 +59,11 @@ export const useMqtt = () => {
     setDeviceAlerts: state.setDeviceAlerts,
   }))
 
-  const { setWidgetList, widgetList } = useDashboardStore(
+  const { setWidgetList, widgetList, setEntities } = useDashboardStore(
     useShallow((state) => ({
       widgetList: state.widgetList,
       setWidgetList: state.setWidgetList,
+      setEntities: state.setEntities,
     }))
   )
 
@@ -119,6 +120,7 @@ export const useMqtt = () => {
         }
         return widget
       })
+      setEntities(data.entityId, data.entityUpdate.state)
       setWidgetList(newWidgetList)
 
       if (data.entityUpdate.device_id) {
@@ -144,13 +146,17 @@ export const useMqtt = () => {
             const newLng = (data.entityUpdate as any)?.entity?.attributes
               ?.longitude
 
+            const bearing = (data.entityUpdate as any)?.entity?.attributes
+              ?.bearing
+
             if (newLat && newLng) {
               dataUpdatesRef.current[data.entityUpdate.device_id] = {
                 ...dataUpdatesRef.current[data.entityUpdate.device_id],
-                latest_checkpoint_arr: [newLng, newLat],
+                latest_checkpoint_arr: [newLng, newLat, bearing],
                 latest_checkpoint: {
                   latitude: newLat,
                   longitude: newLng,
+                  bearing,
                 },
               }
             }

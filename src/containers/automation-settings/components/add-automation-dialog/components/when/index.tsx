@@ -49,9 +49,10 @@ export const When = ({ isEditable }: WhenProps) => {
   const {
     data: devices,
     isLoading,
-    isValidating,
-    isReachingEnd,
-    setSize,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
   } = useGetDevices({ deviceName: debouncedSearch })
   const { data: deviceDetail } = useDeviceDetail(deviceId)
   const deviceOptions = useMemo(() => {
@@ -83,7 +84,7 @@ export const When = ({ isEditable }: WhenProps) => {
   )
 
   useEffect(() => {
-    setSize(1)
+    refetch()
   }, [debouncedSearch])
 
   useEffect(() => {
@@ -92,13 +93,13 @@ export const When = ({ isEditable }: WhenProps) => {
 
   const handleScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
-      if (isValidating || isReachingEnd) return
+      if (isFetchingNextPage || !hasNextPage) return
       const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
       if (scrollHeight - (scrollTop + clientHeight) <= 40) {
-        setSize((prev) => prev + 1)
+        fetchNextPage()
       }
     },
-    [isReachingEnd, isValidating, setSize]
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
   )
 
   const handleWheel = useCallback((event: WheelEvent<HTMLDivElement>) => {
@@ -251,7 +252,7 @@ export const When = ({ isEditable }: WhenProps) => {
                           </button>
                         ))}
 
-                        {isValidating && deviceOptions.length > 0 && (
+                        {isFetchingNextPage && deviceOptions.length > 0 && (
                           <div className="flex items-center justify-center gap-2 px-2 py-3 text-xs text-brand-component-text-gray">
                             <Loader2 className="size-4 animate-spin" />
                             <span>{t('loading_more_devices')}</span>

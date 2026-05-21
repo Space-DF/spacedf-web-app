@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import { TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -13,6 +13,9 @@ import MapPreview from './components/map-preview'
 import TableWidgetInfo from './components/widget-info'
 import { defaultMapValues, mapPayload, mapSchema } from '@/validator'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
+import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
+import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
+import { WidgetLayout } from '@/types/widget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 
@@ -33,6 +36,7 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onBack: () => void
   onClose: () => void
@@ -40,6 +44,7 @@ interface Props {
 
 const TableWidget: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -51,9 +56,16 @@ const TableWidget: React.FC<Props> = ({
     mode: 'onChange',
   })
 
-  const { control, trigger } = form
+  useEffect(() => {
+    if (!editingWidgetLayout?.configuration) return
+    const cfg = editingWidgetLayout.configuration as unknown as Record<
+      string,
+      unknown
+    >
+    form.reset(mergeFormDefaults(defaultMapValues, cfg))
+  }, [editingWidgetLayout?.id])
 
-  const mapValue = form.getValues()
+  const { control, trigger } = form
 
   const [source, widget_info] = useWatch({
     control,
@@ -86,18 +98,45 @@ const TableWidget: React.FC<Props> = ({
     },
   })
 
-  const handleAddMapWidget = async () => {
-    await trigger()
+  const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
+    useUpdateWidgets()
+
+  const handleSaveMapWidget = async () => {
+    const isValid = await trigger()
+    if (!isValid) return
+    const values = form.getValues()
+
+    if (editingWidgetLayout) {
+      const prev = editingWidgetLayout.configuration
+      const newConfiguration = {
+        ...prev,
+        ...values,
+      }
+      updateWidgets(
+        [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
+        {
+          onSuccess: () => {
+            toast.success(t('widgets_updated_successfully'))
+            onSaveWidget()
+          },
+          onError: () => {
+            toast.error(t('widgets_update_failed'))
+          },
+        }
+      )
+      return
+    }
+
     const newWidgetData = {
       display_type: 'map',
-      entity_id: source?.entity_id,
+      entity_id: values.sources[0]?.entity_id,
       x: 0,
       y: 0,
       width: 0,
       height: 0,
       configuration: {
         id: uuidv4(),
-        ...mapValue,
+        ...values,
         type: selectedWidget,
         x: 0,
         y: 0,
@@ -115,11 +154,16 @@ const TableWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t('add_map_widget')}</div>
+          <div>
+            {t(editingWidgetLayout ? 'edit_map_widget' : 'add_map_widget')}
+          </div>
         </div>
       }
       externalButton={
-        <Button onClick={handleAddMapWidget} loading={isMutating}>
+        <Button
+          onClick={handleSaveMapWidget}
+          loading={isMutating || isUpdatingWidgets}
+        >
           {t('save')}
         </Button>
       }

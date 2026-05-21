@@ -1,48 +1,46 @@
-import useSWRMutation from 'swr/mutation'
+import { queryKeys } from '@/lib/query-keys'
 import { SWR_GET_SPACE_ENDPOINT, UseGetSpaceResponse } from './useGetSpaces'
 import { toast } from 'sonner'
 import api from '@/lib/api'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 type UseDeleteSpaceParams = {
   slug_name: string
   name: string
 }
 
-export async function deleteSpace(
-  url: string,
-  { arg }: { arg: UseDeleteSpaceParams }
-) {
-  await api.delete(`${url}/${arg.slug_name}`)
-  return arg
-}
-
 export const useDeleteSpace = () => {
-  return useSWRMutation(SWR_GET_SPACE_ENDPOINT, deleteSpace, {
-    optimisticData: (
-      currentData?: UseGetSpaceResponse
-    ): UseGetSpaceResponse => {
-      return currentData as UseGetSpaceResponse
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ slug_name }: UseDeleteSpaceParams) => {
+      await api.delete(`${SWR_GET_SPACE_ENDPOINT}/${slug_name}`)
     },
-    populateCache: (result, currentData) => {
-      const newSpaces = (currentData?.data?.results || []).filter(
-        (space) => space.slug_name !== result.slug_name
+    onSuccess: (_data, variables) => {
+      queryClient.setQueryData<UseGetSpaceResponse>(
+        queryKeys.spaces.list(),
+        (currentData) => {
+          if (!currentData?.data?.results) return currentData
+          const newSpaces = currentData.data.results.filter(
+            (space) => space.slug_name !== variables.slug_name
+          )
+          return {
+            ...currentData,
+            data: {
+              ...currentData.data,
+              count: newSpaces.length,
+              results: newSpaces,
+            },
+          }
+        }
       )
-      return {
-        ...currentData,
-        data: {
-          ...currentData?.data,
-          count: newSpaces.length,
-          results: newSpaces,
-        },
-      } as UseGetSpaceResponse
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.spaces.detail(variables.slug_name),
+      })
+      toast.success(`Space ${variables.name} deleted successfully`)
     },
-    onSuccess: (data) => {
-      toast.success(`Space ${data.name} deleted successfully`)
-    },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(error.message)
     },
-    rollbackOnError: true,
-    revalidate: false,
   })
 }

@@ -8,9 +8,10 @@ export const TableWidget = ({
   conditionals,
   isEdit,
   onDelete,
+  onEdit,
 }: any) => {
   return (
-    <WidgetContainer isEdit={isEdit} onDelete={onDelete}>
+    <WidgetContainer isEdit={isEdit} onDelete={onDelete} onEdit={onEdit}>
       <WidgetTitle>{widget_info?.name}</WidgetTitle>
       <TablePreview
         source={source.entities}

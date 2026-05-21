@@ -10,19 +10,21 @@ export function isJsonString(str: string) {
 }
 
 export const firstNameSchema = z
-  .string({ message: 'First Name cannot be empty' })
+  .string({ required_error: 'First Name cannot be empty' })
+  .min(1, { message: 'First Name cannot be empty' })
   .max(50, {
     message: 'First Name must not exceed 50 characters',
   })
 
 export const lastNameSchema = z
-  .string({ message: 'Last Name cannot be empty' })
+  .string({ required_error: 'Last Name cannot be empty' })
+  .min(1, { message: 'Last Name cannot be empty' })
   .max(50, {
     message: 'Last Name must not exceed 50 characters',
   })
 
 export const currentPasswordSchema = z
-  .string({ message: 'This field cannot be empty.' })
+  .string({ required_error: 'This field cannot be empty.' })
   .min(8, { message: 'Must be at least 8 characters long.' })
   .max(150, {
     message: 'Password must be less than or equal to 150 characters',

@@ -1,4 +1,6 @@
 export const brandColors = {
+  'navy-blue': '#224B6C',
+  'dark-olive': '#53503C',
   'stroke-dark-soft': '#E0E2E7',
   'stroke-gray': '#667085',
   heading: '#090C18',
@@ -14,6 +16,8 @@ export const brandColors = {
   'dark-fill-secondary': '#4006AA',
   'dark-bg-space': '#202431',
   'very-light-blue': '#6E4AFF',
+  'light-blue-100': '#CCE9FF',
+  'light-yellow-100': '#FFFBDF',
   'bright-lavender': '#A78BF6',
   'semantic-accent-light': '#FFF8F7',
   'semantic-accent': '#D73E3D',

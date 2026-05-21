@@ -130,6 +130,8 @@ const SelectItem = React.forwardRef<
     shortCut?: string | React.ReactNode
     shortCutClassName?: string
     showCheckIcon?: boolean
+    itemTextClassName?: string
+    customRightIcon?: React.ReactNode
   }
 >(
   (
@@ -140,6 +142,8 @@ const SelectItem = React.forwardRef<
       shortCutClassName,
       children,
       showCheckIcon = true,
+      itemTextClassName,
+      customRightIcon,
       ...props
     },
     ref
@@ -169,8 +173,12 @@ const SelectItem = React.forwardRef<
             {shortCut}
           </span>
         )}
+
+        {customRightIcon}
       </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      <SelectPrimitive.ItemText className={itemTextClassName}>
+        {children}
+      </SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   )
 )

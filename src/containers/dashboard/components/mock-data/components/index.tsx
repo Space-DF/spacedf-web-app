@@ -8,6 +8,7 @@ interface WidgetProp {
   className?: string
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const WidgetContainer = ({
@@ -15,11 +16,16 @@ export const WidgetContainer = ({
   className,
   isEdit,
   onDelete,
+  // onEdit,
 }: WidgetProp) => {
   const handleDelete = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
     onDelete?.()
   }
+  // const handleEdit = (e: MouseEvent<HTMLButtonElement>) => {
+  //   e.stopPropagation()
+  //   onEdit?.()
+  // }
   return (
     <div
       className={cn(
@@ -30,13 +36,19 @@ export const WidgetContainer = ({
       {isEdit && (
         <div className="dashboard-widget-toolbar absolute top-0 right-0 z-20">
           <div className="bg-brand-component-fill-secondary-soft flex items-center space-x-1 rounded-l-md rounded-tr-md p-0.5">
-            {/* <button type="button" className="rounded p-0.5 hover:opacity-80">
+            {/* <button
+              type="button"
+              className="rounded p-0.5 hover:opacity-80"
+              aria-label="Edit widget"
+              onClick={handleEdit}
+            >
               <Pen width={16} height={16} />
             </button> */}
             <button
               type="button"
               className="rounded hover:opacity-80"
               onClick={handleDelete}
+              aria-label="Delete widget"
             >
               <X size={16} />
             </button>

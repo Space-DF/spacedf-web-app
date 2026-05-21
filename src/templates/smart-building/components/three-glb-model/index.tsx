@@ -1,84 +1,85 @@
 'use client'
 
 import { Bounds, Center, Html, OrbitControls, useGLTF } from '@react-three/drei'
-import { useThree, type ThreeElements } from '@react-three/fiber'
-import { Progress } from '@/components/ui/progress'
-import { useTranslations } from 'next-intl'
-import { Component, useEffect, useMemo, useRef, useState } from 'react'
-import type { Object3D, Texture } from 'three'
+import {
+  useThree,
+  type ThreeElements,
+  type ThreeEvent,
+} from '@react-three/fiber'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Vector3, type Object3D } from 'three'
 import { USDLoader } from 'three/addons/loaders/USDLoader.js'
 import { useLoader } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
 import { useBounds } from '@react-three/drei'
+import { useGetDevices } from '@/hooks/useDevices'
+import { useAddDeviceStore } from '@/stores/template/add-device'
+import { DeviceDataOriginal } from '@/types/device'
+import EntityBadge from './components/badge'
+import { useDeviceStore } from '@/stores/device-store'
+import ThreeModelErrorBoundary from './components/three-error-boundary'
+import { ModelFallback } from '../model-fallback'
+import { ModelLoadError } from './components/model-load-error'
+import { detect3DFormatFromUrl, disposeThreeObject } from './utils'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
+  previewPoint?: { x: number; y: number; z: number } | null
+  onModelContextMenu?: (payload: {
+    clientX: number
+    clientY: number
+    modelPoint: { x: number; y: number; z: number }
+  }) => void
 }
 
 type Detected3DFormat = 'glb' | 'usdz' | 'unknown'
 
-const FORMAT_PROBE_BYTES = 12
 const DEFAULT_MODEL_OPACITY = 0.35
+const DISPOSE_DELAY_MS = 120_000
 
-async function detect3DFormatFromUrl(
-  url: string,
-  signal?: AbortSignal
-): Promise<Detected3DFormat> {
-  const res = await fetch(url, {
-    signal,
-    cache: 'no-store',
-    headers: { Range: `bytes=0-${FORMAT_PROBE_BYTES - 1}` },
-  })
-  if (!res.ok) {
-    throw new Error(`Model probe failed: ${res.status} ${res.statusText}`)
-  }
-  const buf = await res.arrayBuffer()
-  const bytes = new Uint8Array(buf.slice(0, FORMAT_PROBE_BYTES))
+const pendingDisposals = new Map<string, ReturnType<typeof setTimeout>>()
 
-  if (
-    bytes.length >= 4 &&
-    bytes[0] === 0x67 && // g
-    bytes[1] === 0x6c && // l
-    bytes[2] === 0x54 && // T
-    bytes[3] === 0x46 // F
-  ) {
-    return 'glb'
-  }
+const formatCache = new Map<string, Detected3DFormat>()
 
-  if (bytes.length >= 2 && bytes[0] === 0x50 && bytes[1] === 0x4b) {
-    return 'usdz'
-  }
-
-  return 'unknown'
+function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
+  if (!device.position) return <></>
+  return (
+    <Html
+      position={[device.position.x, device.position.y, device.position.z]}
+      center
+      distanceFactor={10}
+      zIndexRange={[0, 0]}
+    >
+      <div className="flex flex-col items-center cursor-pointer">
+        <div className="relative">
+          <EntityBadge
+            entities={device.entities ?? []}
+            device_properties={device.device_properties}
+          />
+        </div>
+      </div>
+    </Html>
+  )
 }
 
-function disposeObject(root: Object3D) {
-  root.traverse((obj) => {
-    const anyObj = obj as any
-    if (anyObj.geometry?.dispose) anyObj.geometry.dispose()
-
-    const materials = anyObj.material
-      ? Array.isArray(anyObj.material)
-        ? anyObj.material
-        : [anyObj.material]
-      : []
-
-    for (const mat of materials) {
-      if (!mat) continue
-      for (const key of Object.keys(mat)) {
-        const value = mat[key]
-        if (
-          value &&
-          (value as Texture).isTexture &&
-          (value as Texture).dispose
-        ) {
-          ;(value as Texture).dispose()
-        }
-      }
-      if (mat.dispose) mat.dispose()
-    }
-  })
+function PreviewPointMarker({
+  point,
+}: {
+  point: { x: number; y: number; z: number }
+}) {
+  return (
+    <group position={[point.x, point.y, point.z]}>
+      <mesh>
+        <sphereGeometry args={[0.06, 18, 18]} />
+        <meshStandardMaterial
+          color="#60A5FA"
+          emissive="#60A5FA"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+    </group>
+  )
 }
 
 function setObjectOpacity(root: Object3D, opacity: number) {
@@ -100,49 +101,148 @@ function setObjectOpacity(root: Object3D, opacity: number) {
   })
 }
 
-function FitOnRefocus({ children }: { children: React.ReactNode }) {
+function FitOnRefocus({
+  children,
+  previewPoint,
+}: {
+  children: React.ReactNode
+  previewPoint?: { x: number; y: number; z: number } | null
+}) {
   const api = useBounds()
   const objectRef = useRef<Object3D | null>(null)
+  const camera = useThree((s) => s.camera)
   const controls = useThreeModelController((s) => s.controls)
+  const focusOnWorldPoint = useThreeModelController((s) => s.focusOnWorldPoint)
   const hasSavedInitialRef = useRef(false)
+  const buildingId = useAddDeviceStore((state) => state.building?.id)
+  const { data: devices } = useGetDevices({
+    buildingId,
+  })
+  const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+  const [isModelReady, setIsModelReady] = useState(false)
 
   useEffect(() => {
+    if (!deviceSelected || !controls || !isModelReady) return
+    const row = devices.find((d) => d.device.id === deviceSelected)
+    if (!row?.position) return
+
+    let cancelled = false
+    const run = () => {
+      if (cancelled) return
+      const obj = objectRef.current
+      if (!obj || !row.position) return
+      const { x, y, z } = row.position
+      const world = new Vector3(x, y, z).applyMatrix4(obj.matrixWorld)
+      const toward = world.clone().sub(camera.position)
+      if (toward.lengthSq() > 1e-12) {
+        toward.normalize()
+        const perp = new Vector3().crossVectors(toward, camera.up)
+        if (perp.lengthSq() < 1e-12)
+          perp.crossVectors(toward, new Vector3(1, 0, 0))
+        perp.normalize()
+        const dist = world.distanceTo(camera.position)
+        world.addScaledVector(perp, Math.max(1e-4, dist * 1e-4))
+      }
+      focusOnWorldPoint(world)
+    }
+
+    const outer = requestAnimationFrame(() => {
+      if (cancelled) return
+      requestAnimationFrame(run)
+    })
+
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(outer)
+    }
+  }, [
+    deviceSelected,
+    devices,
+    controls,
+    focusOnWorldPoint,
+    camera,
+    isModelReady,
+  ])
+
+  useEffect(() => {
+    setIsModelReady(false)
     const run = () => {
       const obj = objectRef.current
       if (!obj) return
       api.refresh(obj).fit()
 
-      if (controls && !hasSavedInitialRef.current) {
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
+          setIsModelReady(true)
+          if (controls && !hasSavedInitialRef.current) {
             controls.update()
             controls.saveState()
             hasSavedInitialRef.current = true
-          })
+          }
         })
-      }
+      })
     }
-    run()
+
+    setTimeout(run, 400)
   }, [api, controls])
 
-  return <group ref={objectRef as any}>{children}</group>
+  return (
+    <group ref={objectRef as any}>
+      {children}
+      {previewPoint ? <PreviewPointMarker point={previewPoint} /> : null}
+      {devices.map((device) => (
+        <DeviceMarker key={device.id} device={device} />
+      ))}
+    </group>
+  )
 }
 
 function GlbScene({
   url,
+  onModelContextMenu,
+  previewPoint,
   ...props
-}: Required<Pick<ModelProps, 'url'>> & ThreeElements['group']) {
+}: Required<Pick<ModelProps, 'url'>> &
+  Pick<ModelProps, 'onModelContextMenu'> &
+  Pick<ModelProps, 'previewPoint'> &
+  ThreeElements['group']) {
   const { scene } = useGLTF(url)
   const invalidate = useThree((s) => s.invalidate)
 
+  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
+    event.nativeEvent.preventDefault()
+    event.stopPropagation()
+    const world = event.point.clone()
+    const model = scene.worldToLocal(world.clone())
+    onModelContextMenu?.({
+      clientX: event.nativeEvent.clientX,
+      clientY: event.nativeEvent.clientY,
+      modelPoint: {
+        x: model.x,
+        y: model.y,
+        z: model.z,
+      },
+    })
+  }
+
   useEffect(() => {
+    const pending = pendingDisposals.get(url)
+    if (pending) {
+      clearTimeout(pending)
+      pendingDisposals.delete(url)
+    }
+
     setObjectOpacity(scene, DEFAULT_MODEL_OPACITY)
     invalidate()
 
     return () => {
-      disposeObject(scene)
-      useGLTF.clear(url)
-      invalidate()
+      const timer = setTimeout(() => {
+        pendingDisposals.delete(url)
+        disposeThreeObject(scene)
+        useGLTF.clear(url)
+        invalidate()
+      }, DISPOSE_DELAY_MS)
+      pendingDisposals.set(url, timer)
     }
   }, [scene, url, invalidate])
 
@@ -150,8 +250,8 @@ function GlbScene({
     <group {...props}>
       <Bounds fit observe margin={1.15}>
         <Center>
-          <FitOnRefocus>
-            <primitive object={scene} />
+          <FitOnRefocus previewPoint={previewPoint}>
+            <primitive object={scene} onContextMenu={handleContextMenu} />
           </FitOnRefocus>
         </Center>
       </Bounds>
@@ -161,19 +261,50 @@ function GlbScene({
 
 function UsdzModel({
   url,
+  onModelContextMenu,
+  previewPoint,
   ...props
-}: Required<Pick<ModelProps, 'url'>> & ThreeElements['group']) {
+}: Required<Pick<ModelProps, 'url'>> &
+  Pick<ModelProps, 'onModelContextMenu'> &
+  Pick<ModelProps, 'previewPoint'> &
+  ThreeElements['group']) {
   const object = useLoader(USDLoader, url)
   const invalidate = useThree((s) => s.invalidate)
 
+  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
+    event.nativeEvent.preventDefault()
+    event.stopPropagation()
+    const world = event.point.clone()
+    const model = object.worldToLocal(world.clone())
+    onModelContextMenu?.({
+      clientX: event.nativeEvent.clientX,
+      clientY: event.nativeEvent.clientY,
+      modelPoint: {
+        x: model.x,
+        y: model.y,
+        z: model.z,
+      },
+    })
+  }
+
   useEffect(() => {
+    const pending = pendingDisposals.get(url)
+    if (pending) {
+      clearTimeout(pending)
+      pendingDisposals.delete(url)
+    }
+
     setObjectOpacity(object, DEFAULT_MODEL_OPACITY)
     invalidate()
 
     return () => {
-      disposeObject(object)
-      useLoader.clear(USDLoader, url)
-      invalidate()
+      const timer = setTimeout(() => {
+        pendingDisposals.delete(url)
+        disposeThreeObject(object)
+        useLoader.clear(USDLoader, url)
+        invalidate()
+      }, DISPOSE_DELAY_MS)
+      pendingDisposals.set(url, timer)
     }
   }, [object, url, invalidate])
 
@@ -181,74 +312,12 @@ function UsdzModel({
     <group {...props}>
       <Bounds fit observe margin={1.15}>
         <Center>
-          <FitOnRefocus>
-            <primitive object={object} />
+          <FitOnRefocus previewPoint={previewPoint}>
+            <primitive object={object} onContextMenu={handleContextMenu} />
           </FitOnRefocus>
         </Center>
       </Bounds>
     </group>
-  )
-}
-
-class ThreeModelErrorBoundary extends Component<
-  {
-    children: React.ReactNode
-    fallback: React.ReactNode
-    resetKey?: string | number
-  },
-  { hasError: boolean }
-> {
-  constructor(props: ThreeModelErrorBoundary['props']) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(): { hasError: boolean } {
-    return { hasError: true }
-  }
-
-  componentDidUpdate(prevProps: ThreeModelErrorBoundary['props']) {
-    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
-      this.setState({ hasError: false })
-    }
-  }
-
-  render() {
-    if (this.state.hasError) return this.props.fallback
-    return this.props.children
-  }
-}
-
-function ModelLoadError({ onRetry }: { onRetry?: () => void }) {
-  const t = useTranslations('smartBuilding')
-  return (
-    <Html center>
-      <div className="w-72 overflow-hidden rounded-xl bg-gradient-to-b from-black/55 to-black/35 text-white shadow-lg ring-1 ring-white/10 backdrop-blur-md">
-        <div className="px-4 py-3">
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 grid size-8 place-items-center rounded-lg bg-white/10 ring-1 ring-white/10">
-              <span aria-hidden className="text-base leading-none">
-                !
-              </span>
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold tracking-tight text-brand-component-text-gray">
-                {t('model_load_error')}
-              </div>
-            </div>
-          </div>
-
-          {onRetry && (
-            <button
-              onClick={onRetry}
-              className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white ring-1 ring-white/15 transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-            >
-              {t('model_load_retry')}
-            </button>
-          )}
-        </div>
-      </div>
-    </Html>
   )
 }
 
@@ -268,9 +337,6 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
     () => (url.toLowerCase().endsWith('.usdz') ? 'usdz' : 'glb'),
     [url]
   )
-  const [detectedFormat, setDetectedFormat] = useState<
-    Detected3DFormat | 'detecting'
-  >('detecting')
   const [retryKey, setRetryKey] = useState(0)
 
   const loadUrl = useMemo(() => {
@@ -285,14 +351,28 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
     }
   }, [url, retryKey])
 
+  const [detectedFormat, setDetectedFormat] = useState<
+    Detected3DFormat | 'detecting'
+  >(() => formatCache.get(loadUrl) ?? 'detecting')
+
   useEffect(() => {
+    const cached = formatCache.get(loadUrl)
+    if (cached) {
+      setDetectedFormat(cached)
+      return
+    }
+
     const ac = new AbortController()
     setDetectedFormat('detecting')
 
     detect3DFormatFromUrl(loadUrl, ac.signal)
-      .then((fmt) => setDetectedFormat(fmt))
+      .then((fmt) => {
+        formatCache.set(loadUrl, fmt)
+        setDetectedFormat(fmt)
+      })
       .catch((err) => {
         if (err.name === 'AbortError') return
+        formatCache.set(loadUrl, extensionHint)
         setDetectedFormat(extensionHint)
       })
 
@@ -351,37 +431,5 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
         onChange={() => invalidate()}
       />
     </>
-  )
-}
-
-export function ModelFallback() {
-  const t = useTranslations('smartBuilding')
-  const [value, setValue] = useState(10)
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setValue((v) => {
-        const next = v + 7
-        return next >= 90 ? 20 : next
-      })
-    }, 250)
-    return () => window.clearInterval(id)
-  }, [])
-
-  return (
-    <Html center>
-      <div className="w-[240px] rounded-lg bg-black/40 px-4 py-3 text-white shadow-sm ring-1 ring-white/10 backdrop-blur-md">
-        <div className="text-sm font-medium opacity-90 text-brand-component-text-gray">
-          {t('loading_model')}
-        </div>
-        <div className="mt-2">
-          <Progress
-            value={value}
-            className="h-2 bg-white/20"
-            indicatorStyle={{ backgroundColor: '#D9D9D9' }}
-          />
-        </div>
-      </div>
-    </Html>
   )
 }

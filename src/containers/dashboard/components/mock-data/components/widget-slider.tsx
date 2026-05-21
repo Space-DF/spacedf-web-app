@@ -14,6 +14,7 @@ interface WidgetSliderProps {
   }
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 function smoothValue(from: number, to: number, cb: (v: number) => void) {
@@ -36,6 +37,7 @@ const WidgetSlider = ({
   data,
   isEdit,
   onDelete,
+  onEdit,
 }: WidgetSliderProps) => {
   const { max, min, step, unit } = source
   const { name } = widget_info
@@ -49,6 +51,7 @@ const WidgetSlider = ({
       className="flex flex-col gap-1"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <WidgetTitle className="flex justify-between">
         <p className="truncate font-semibold text-brand-component-text-dark">

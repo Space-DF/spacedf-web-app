@@ -8,6 +8,28 @@ import { PropsWithChildren, useCallback, useEffect } from 'react'
 import LoadingFullScreen from '../ui/loading-fullscreen'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useJoinSpace from '@/containers/identity/auth/hooks/useJoinSpace'
+import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useMounted } from '@/hooks'
+
+function NotificationPermissionOnEnter() {
+  const isAuthenticated = useAuthenticated()
+  const { registerServiceWorker } = useSubscribeNotification()
+  const mounted = useMounted()
+
+  useEffect(() => {
+    if (!isAuthenticated || !mounted) return
+
+    const permission =
+      typeof Notification !== 'undefined' ? Notification.permission : 'default'
+
+    if (permission === 'denied') return
+
+    registerServiceWorker()
+  }, [isAuthenticated, registerServiceWorker, mounted])
+
+  return null
+}
 
 function SessionReconnectGuard() {
   const { update } = useSession()
@@ -28,6 +50,7 @@ export const NextAuthSessionProvider = ({
   session: Session | null
 }) => {
   const searchParams = useSearchParams()
+  const { registerServiceWorker } = useSubscribeNotification()
   const code = searchParams.get('code')
   const { trigger: joinSpace } = useJoinSpace()
   const token = searchParams.get('token')
@@ -42,9 +65,10 @@ export const NextAuthSessionProvider = ({
       })
       if (!result?.ok) return
       if (token) return await joinSpace(token)
+      await registerServiceWorker()
       router.push('/')
     }
-  }, [googleSignInData, token, joinSpace, router])
+  }, [googleSignInData, token, joinSpace, router, registerServiceWorker])
 
   useEffect(() => {
     handleSignIn()
@@ -57,6 +81,7 @@ export const NextAuthSessionProvider = ({
   return (
     <SessionProvider session={session}>
       <SessionReconnectGuard />
+      <NotificationPermissionOnEnter />
       {children}
       <Identity />
     </SessionProvider>

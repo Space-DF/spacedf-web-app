@@ -1,138 +1,179 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useCallback, useEffect, useRef } from 'react'
-import { ImportThreeModel } from './components/import-file'
-import ThreeModel, { ModelFallback } from './components/three-glb-model'
-import { useModelGLB } from '@/stores/template/model-glb'
-import { useShallow } from 'zustand/react/shallow'
-import { useShowDummyData } from '@/hooks/useShowDummyData'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
 import SpacedfLogo from '@/components/common/spacedf-logo'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useAddDeviceStore } from '@/stores/template/add-device'
+import { getS3Url } from '@/utils'
+import { Canvas } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { DialogSelectDeviceFromList } from './components/dialog-select-device-from-list'
+import ThreeModel from './components/three-glb-model'
 import { ThreeModelControls } from './components/three-model-controls'
+import { DropdownSwitchBuilding } from './components/three-model-controls/components/dropdown-switch-building'
 import { useGlobalStore } from '@/stores'
-import { useUploadModel } from './components/import-file/hooks/useUploadGlb'
+import { List } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { useShallow } from 'zustand/react/shallow'
+import { ModelFallback } from './components/model-fallback'
 
 export default function SmartBuilding() {
-  const { setModelGLBUrl, modelGLBUrl, setDefaultModel, resetModel } =
-    useModelGLB(
-      useShallow((state) => ({
-        setModelGLBUrl: state.setModelGLBUrl,
-        modelGLBUrl: state.modelGLBUrl,
-        setDefaultModel: state.setDefaultModel,
-        resetModel: state.resetModel,
-      }))
-    )
-  const blobUrlRef = useRef<string | null>(null)
-  const currentSpace = useGlobalStore((state) => state.currentSpace)
-  const buildArtifact = currentSpace?.url_build_artifact
+  const t = useTranslations('smartBuilding')
 
-  const handleImport = useCallback((objectUrl: string) => {
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-    }
-    blobUrlRef.current = objectUrl
-    setModelGLBUrl(objectUrl)
-  }, [])
-
-  useEffect(
-    () => () => {
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current)
-      }
-    },
-    []
+  const isFirstLoadRef = useRef(true)
+  const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
+  const { building, setDeviceModalPosition } = useAddDeviceStore(
+    useShallow((state) => ({
+      building: state.building,
+      setDeviceModalPosition: state.setPosition,
+    }))
   )
 
-  const {
-    uploadModel,
-    isUploading,
-    progress: uploadProgress,
-  } = useUploadModel()
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    x: number
+    y: number
+    modelPoint: { x: number; y: number; z: number }
+  } | null>(null)
+  const [selectDeviceDialogOpen, setSelectDeviceDialogOpen] = useState(false)
 
-  useEffect(() => {
-    if (buildArtifact) {
-      setModelGLBUrl(buildArtifact)
-      return
-    }
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current)
-      blobUrlRef.current = null
-    }
-    setModelGLBUrl(undefined)
-  }, [buildArtifact, setModelGLBUrl])
-
-  const showDummyData = useShowDummyData()
   const isAuthenticated = useAuthenticated()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      resetModel()
+    if (!isAuthenticated) return
+    if (isFirstLoadRef.current) {
+      if (!building) {
+        setGlobalLoading(true)
+        return
+      }
+      setGlobalLoading(false)
+      isFirstLoadRef.current = false
     }
-    if (!showDummyData) return
-    setDefaultModel()
-  }, [showDummyData])
+  }, [isAuthenticated, building])
+
+  const modelUrl = useMemo(() => {
+    if (!isAuthenticated || !building?.url_scene_asset)
+      return getS3Url('glbs/spacedf/building-view.glb')
+    return building?.url_scene_asset
+  }, [building?.url_scene_asset, isAuthenticated])
+
+  const handleSelectDevice = (event: Event) => {
+    if (!contextMenuPosition) return
+    event.preventDefault()
+    setDeviceModalPosition({
+      x: contextMenuPosition.modelPoint.x,
+      y: contextMenuPosition.modelPoint.y,
+      z: contextMenuPosition.modelPoint.z,
+    })
+    setSelectDeviceDialogOpen(true)
+    setContextMenuPosition(null)
+  }
+
+  const handleRightClick = ({
+    clientX,
+    clientY,
+    modelPoint,
+  }: {
+    clientX: number
+    clientY: number
+    modelPoint: { x: number; y: number; z: number }
+  }) => {
+    setContextMenuPosition({
+      x: clientX,
+      y: clientY,
+      modelPoint,
+    })
+  }
 
   return (
     <>
-      <ImportThreeModel
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-        onImport={handleImport}
-        isHidden={
-          (!!modelGLBUrl && !isUploading) || (!currentSpace && isAuthenticated)
-        }
-        isUploading={isUploading}
-        progress={uploadProgress}
-        uploadModel={uploadModel}
-      />
       <div className="absolute top-0 left-0 right-0 z-10">
         <div className="flex p-3 justify-between">
           <div className="w-fit">
             <SpacedfLogo />
           </div>
           <div className="flex space-x-3">
-            {/* <DropdownSwitchFloor /> */}
-            {modelGLBUrl ? <ThreeModelControls /> : <></>}
+            {isAuthenticated && <DropdownSwitchBuilding />}
+            {modelUrl && <ThreeModelControls />}
           </div>
         </div>
       </div>
-      <div className="relative h-full bg-brand-component-fill-dark w-full">
-        {modelGLBUrl ? (
-          <Canvas
-            className="h-full w-full"
-            camera={{ position: [0, 0, 5], fov: 45, far: 1_000_000 }}
-            dpr={[1, 2]}
-            frameloop="always"
-            gl={{
-              powerPreference: 'high-performance',
-              antialias: true,
-              alpha: true,
-              depth: true,
-              stencil: false,
-            }}
-            shadows
-          >
-            <color attach="background" args={['#171A28']} />
-            <ambientLight intensity={0.6} />
-            <directionalLight
-              position={[5, 8, 5]}
-              intensity={2.2}
-              castShadow
-              shadow-mapSize-width={4096}
-              shadow-mapSize-height={4096}
-            />
-            {modelGLBUrl && !isUploading ? (
-              <Suspense key={modelGLBUrl} fallback={<ModelFallback />}>
-                <ThreeModel url={modelGLBUrl} />
-              </Suspense>
-            ) : (
-              <></>
-            )}
-          </Canvas>
-        ) : (
-          <></>
-        )}
+      <div className="relative h-full bg-brand-component-fill-smart-building-canvas w-full">
+        <DropdownMenu
+          open={contextMenuPosition !== null}
+          onOpenChange={(open) => {
+            if (!open) setContextMenuPosition(null)
+          }}
+        >
+          <div className="h-full w-full">
+            {modelUrl ? (
+              <Canvas
+                className="h-full w-full"
+                camera={{ position: [0, 0, 5], fov: 45, far: 1_000_000 }}
+                dpr={[1, 2]}
+                frameloop="always"
+                gl={{
+                  powerPreference: 'high-performance',
+                  antialias: true,
+                  alpha: true,
+                  depth: true,
+                  stencil: false,
+                }}
+                shadows
+              >
+                <color attach="background" args={['#2A2A2A']} />
+                <ambientLight intensity={0.6} />
+                <directionalLight
+                  position={[5, 8, 5]}
+                  intensity={2.2}
+                  castShadow
+                  shadow-mapSize-width={4096}
+                  shadow-mapSize-height={4096}
+                />
+                {modelUrl ? (
+                  <Suspense key={modelUrl} fallback={<ModelFallback />}>
+                    <ThreeModel
+                      url={modelUrl}
+                      previewPoint={contextMenuPosition?.modelPoint ?? null}
+                      onModelContextMenu={handleRightClick}
+                    />
+                  </Suspense>
+                ) : null}
+              </Canvas>
+            ) : null}
+          </div>
+          {contextMenuPosition ? (
+            <DropdownMenuContent
+              sideOffset={0}
+              style={{
+                position: 'fixed',
+                left: contextMenuPosition.x,
+                top: contextMenuPosition.y,
+              }}
+              className="w-36"
+            >
+              <DropdownMenuItem
+                onSelect={handleSelectDevice}
+                className="group flex items-center gap-2 text-sm font-medium text-brand-component-text-gray group-hover:text-brand-component-text-dark"
+              >
+                <List
+                  size={16}
+                  className="text-brand-component-text-gray group-hover:text-brand-component-text-dark"
+                  aria-hidden
+                />
+                <span>{t('select_device')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          ) : null}
+        </DropdownMenu>
       </div>
+      <DialogSelectDeviceFromList
+        open={selectDeviceDialogOpen}
+        onOpenChange={setSelectDeviceDialogOpen}
+      />
     </>
   )
 }

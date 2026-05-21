@@ -79,11 +79,12 @@ class MapInstance {
     if (!this.map) return
     const firstDevice = Object.values(this.devices)[0]
 
+    const [lng, lat] = firstDevice.deviceProperties?.latest_checkpoint_arr ?? [
+      0, 0,
+    ]
+
     this.map.flyTo({
-      center: firstDevice.deviceProperties?.latest_checkpoint_arr as [
-        number,
-        number,
-      ],
+      center: [lng, lat],
       zoom: 17,
       duration: 5000,
       padding: {
@@ -137,7 +138,8 @@ class MapInstance {
     const coordinates = devicesArr
       .map((d) => d.deviceProperties?.latest_checkpoint_arr)
       .filter(
-        (loc): loc is [number, number] => Array.isArray(loc) && loc.length === 2
+        (loc): loc is [number, number, number] =>
+          Array.isArray(loc) && loc.length >= 2
       )
 
     if (!coordinates.length) return
@@ -482,25 +484,21 @@ class MapInstance {
 
     const location = device.deviceProperties?.latest_checkpoint_arr
 
-    if (
-      !location ||
-      location.length !== 2 ||
-      location.every((loc) => loc === 0)
-    )
+    if (!location || location.length < 2 || location.every((loc) => loc === 0))
       return
-
+    const [lng, lat] = location
     const bounds = this.map.getBounds()
-    const isInView = bounds.contains(location)
+    const isInView = bounds.contains([lng, lat])
 
     if (isInView) {
       this.map.easeTo({
-        center: location,
+        center: [lng, lat],
         zoom: 18,
         duration: 500,
       })
     } else {
       this.map.flyTo({
-        center: location,
+        center: [lng, lat],
         zoom: 18,
         duration: 500,
       })

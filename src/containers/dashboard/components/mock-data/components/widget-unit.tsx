@@ -8,6 +8,7 @@ interface WidgetUnitProps {
   unit: string
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const WidgetUnit = ({
@@ -17,12 +18,14 @@ export const WidgetUnit = ({
   unit,
   isEdit,
   onDelete,
+  onEdit,
 }: WidgetUnitProps) => {
   return (
     <WidgetContainer
       className="flex flex-col justify-between"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <div>
         <WidgetTitle className="font-semibold">{widget_info.name}</WidgetTitle>

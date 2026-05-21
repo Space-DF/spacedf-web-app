@@ -30,3 +30,25 @@ export const GET = withAuthApiRequired(async (req: NextRequest) => {
     return handleError(error)
   }
 })
+
+export const PUT = withAuthApiRequired(async (req: NextRequest) => {
+  try {
+    const body = await req.json()
+    const spaceSlug = req.nextUrl.searchParams.get('spaceSlug')
+    if (!spaceSlug) {
+      return NextResponse.json(
+        { detail: 'spaceSlug is required' },
+        { status: 400 }
+      )
+    }
+    const spacedfClient = await spaceClient()
+    await spacedfClient.telemetry.entities.bulkUpdate(body, {
+      headers: {
+        'X-Space': spaceSlug,
+      },
+    })
+    return NextResponse.json({ message: 'Entity updated successfully' })
+  } catch (error) {
+    return handleError(error)
+  }
+})
