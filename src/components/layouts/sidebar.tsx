@@ -2,6 +2,7 @@
 
 import {
   COOKIES,
+  LOCAL_STORAGE_KEYS,
   NavigationData,
   NavigationEnums,
   RESPONSIVE_BREAKPOINTS,
@@ -137,6 +138,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const handleSignOut = async () => {
     if (isDemo) return
     await signOut({ redirect: false })
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
     window.history.replaceState({}, '', window.location.pathname)
     router.push('/', { scroll: false })
     clearAllCache()
@@ -236,6 +238,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false })
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
     window.history.replaceState({}, '', window.location.pathname)
     clearAllCache()
     router.push('/')
