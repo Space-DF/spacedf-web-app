@@ -78,5 +78,8 @@ export const useBuilding = (params: BuildingsListParams = {}) => {
         getBuildingsListUrl(spaceSlugName, params)
       ),
     enabled: !!spaceSlugName,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 }
