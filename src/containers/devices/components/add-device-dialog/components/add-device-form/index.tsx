@@ -114,7 +114,7 @@ export const AddDeviceForm = ({
               </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Device 1"
+                  placeholder={t('enter_device_name')}
                   {...field}
                   isError={!!fieldState.error}
                 />

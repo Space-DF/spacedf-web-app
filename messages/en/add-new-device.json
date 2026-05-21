@@ -2,6 +2,7 @@
   "add_device": "Add Device",
   "cancel": "Cancel",
   "enter_description": "Enter Description",
+  "enter_device_name": "Enter Device Name",
   "description": "Description",
   "deveui": "DevEUI",
   "joineui": "JoinEUI",
