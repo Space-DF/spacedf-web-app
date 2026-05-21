@@ -23,7 +23,7 @@ export const DELETE = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (req, { params }: { params: { spaceSlug: string; id: number } }) => {
+  async (req, { params }: { params: { spaceSlug: string; id: string } }) => {
     try {
       const body = await req.json()
       const spacedfClient = await spaceClient()

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { TabsContent } from '@/components/ui/tabs'
 import TabWidget, { TabKey } from '../tab-widget'
 import { RightSideBarLayout } from '@/components/ui'
@@ -18,6 +18,9 @@ import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
+import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
+import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
+import { WidgetLayout } from '@/types/widget'
 import { WidgetType } from '@/widget-models/widget'
 import { toast } from 'sonner'
 
@@ -42,6 +45,7 @@ const TabContents = () => {
 
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onBack: () => void
   onClose: () => void
@@ -49,6 +53,7 @@ interface Props {
 
 const ValueWidget: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -60,12 +65,18 @@ const ValueWidget: React.FC<Props> = ({
     mode: 'onChange',
   })
 
+  useEffect(() => {
+    if (!editingWidgetLayout?.configuration) return
+    const cfg = editingWidgetLayout.configuration as unknown as Record<
+      string,
+      unknown
+    >
+    form.reset(mergeFormDefaults(defaultValueWidgetValues, cfg))
+  }, [editingWidgetLayout?.id])
+
   const { control, trigger } = form
 
   const value = 0
-
-  const formValue = form.getValues()
-
   const [decimal, unit, widgetName, color, entityId] = useWatch({
     control,
     name: [
@@ -117,17 +128,44 @@ const ValueWidget: React.FC<Props> = ({
     },
   })
 
+  const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
+    useUpdateWidgets()
+
   const handleSaveValueWidget = async () => {
-    await trigger()
+    const isValid = await trigger()
+    if (!isValid) return
+    const values = form.getValues()
+
+    if (editingWidgetLayout) {
+      const prev = editingWidgetLayout.configuration
+      const newConfiguration = {
+        ...prev,
+        ...values,
+      }
+      updateWidgets(
+        [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
+        {
+          onSuccess: () => {
+            toast.success(t('widgets_updated_successfully'))
+            onSaveWidget()
+          },
+          onError: () => {
+            toast.error(t('widgets_update_failed'))
+          },
+        }
+      )
+      return
+    }
+
     const newWidgetData = {
       display_type: 'value',
-      entity_id: formValue.source?.entity_id,
+      entity_id: values.source?.entity_id,
       x: 0,
       y: 0,
       width: 0,
       height: 0,
       configuration: {
-        ...formValue,
+        ...values,
         id: uuidv4(),
         type: selectedWidget,
         x: 0,
@@ -147,11 +185,16 @@ const ValueWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_value_widget`)}</div>
+          <div>
+            {t(editingWidgetLayout ? 'edit_value_widget' : 'add_value_widget')}
+          </div>
         </div>
       }
       externalButton={
-        <Button onClick={handleSaveValueWidget} loading={isMutating}>
+        <Button
+          onClick={handleSaveValueWidget}
+          loading={isMutating || isUpdatingWidgets}
+        >
           {t('save')}
         </Button>
       }

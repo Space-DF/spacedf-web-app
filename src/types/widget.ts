@@ -55,6 +55,27 @@ export interface WidgetSensor {
   sensor_type?: string
 }
 
+export interface WidgetValueData {
+  value: number
+  unit_of_measurement: string
+}
+
+export interface WidgetMapData {
+  coordinate: {
+    latitude: number
+    longitude: number
+  }
+}
+
+export interface WidgetChartDataPoint {
+  timestamp: string
+  value: number
+}
+
+export interface WidgetChartData {
+  data: WidgetChartDataPoint[]
+}
+
 export type Widget = {
   id: string
   type: WidgetType
@@ -74,4 +95,5 @@ export interface WidgetLayout {
   id: string
   dashboard: string
   configuration: Widget & Layout
+  data?: Record<string, unknown>
 }

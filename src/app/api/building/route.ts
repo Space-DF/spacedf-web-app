@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE_SIZE } from '@/constants'
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
 import { NextRequest, NextResponse } from 'next/server'
@@ -8,6 +9,7 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams
   const spaceSlug = searchParams.get('spaceSlug')
   const file = formData.get('model') as File | null
+  const name = formData.get('name') as string
   if (!file || !spaceSlug) {
     return NextResponse.json(
       { message: 'File and space slug are required' },
@@ -27,13 +29,39 @@ export const POST = withAuthApiRequired(async (request: NextRequest) => {
       { status: 400 }
     )
   }
-  const updateSpaceData = {
-    build_artifact: data.file_name,
-    'X-Space': spaceSlug,
-  } as any
-  await spacedfClient.spaces.partialUpdate(updateSpaceData)
-  return NextResponse.json({
-    success: true,
-    build_artifact: data.file_name,
+
+  const body = {
+    name,
+    description: '',
+    location: {},
+    scene_asset: data.file_name,
+  }
+
+  const newBuilding = await spacedfClient.buildings.create(body, {
+    headers: {
+      'X-Space': spaceSlug,
+    },
   })
+
+  return NextResponse.json(newBuilding)
+})
+
+export const GET = withAuthApiRequired(async (request: NextRequest) => {
+  const searchParams = request.nextUrl.searchParams
+  const spaceSlug = searchParams.get('spaceSlug')
+  const limit = searchParams.get('limit') || DEFAULT_PAGE_SIZE
+  const offset = searchParams.get('offset') || 0
+  const spacedfClient = await spaceClient()
+  const buildings = await spacedfClient.buildings.list(
+    {
+      limit: +limit,
+      offset: +offset,
+    },
+    {
+      headers: {
+        'X-Space': spaceSlug,
+      },
+    }
+  )
+  return NextResponse.json(buildings)
 })

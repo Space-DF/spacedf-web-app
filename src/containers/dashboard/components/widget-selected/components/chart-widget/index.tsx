@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { TimeFrameTab, WidgetType } from '@/widget-models/widget'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import TabWidget, { TabKey } from '../tab-widget'
 
 import { TabsContent } from '@/components/ui/tabs'
@@ -21,6 +21,9 @@ import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
+import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
+import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
+import { WidgetLayout } from '@/types/widget'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
@@ -28,6 +31,7 @@ import dayjs from 'dayjs'
 
 interface Props {
   selectedWidget: WidgetType
+  editingWidgetLayout?: WidgetLayout | null
   onSaveWidget: () => void
   onBack: () => void
   onClose: () => void
@@ -64,6 +68,7 @@ const TabContents = () => {
 
 const ChartWidget: React.FC<Props> = ({
   selectedWidget,
+  editingWidgetLayout,
   onSaveWidget,
   onClose,
   onBack,
@@ -74,6 +79,16 @@ const ChartWidget: React.FC<Props> = ({
     defaultValues: defaultChartValues,
     mode: 'onChange',
   })
+
+  useEffect(() => {
+    if (!editingWidgetLayout?.configuration) return
+    const cfg = editingWidgetLayout.configuration as unknown as Record<
+      string,
+      unknown
+    >
+    const merged = mergeFormDefaults(defaultChartValues, cfg)
+    form.reset(merged)
+  }, [editingWidgetLayout?.id])
 
   const { createWidget, isMutating } = useCreateWidget({
     onSuccess: () => {
@@ -101,9 +116,10 @@ const ChartWidget: React.FC<Props> = ({
     },
   })
 
-  const { control } = form
+  const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
+    useUpdateWidgets()
 
-  const chartValue = form.getValues()
+  const { control } = form
 
   const [
     showData,
@@ -136,26 +152,55 @@ const ChartWidget: React.FC<Props> = ({
 
   const showDummyData = useShowDummyData()
 
-  const handleAddChartWidget = async () => {
+  const handleSaveChartWidget = async () => {
     const isValid = await form.trigger()
     if (!isValid) return
+    const values = form.getValues()
+
+    if (editingWidgetLayout) {
+      const prev = editingWidgetLayout.configuration
+      const newConfiguration = {
+        ...prev,
+        ...values,
+        ...(values.timeframe.type !== TimeFrameTab.Custom
+          ? { period: values.timeframe.type }
+          : {
+              start_time: dayjs(values.timeframe.from).format('YYYY-MM-DD'),
+              end_time: dayjs(values.timeframe.until).format('YYYY-MM-DD'),
+            }),
+      }
+      updateWidgets(
+        [{ id: editingWidgetLayout.id, configuration: newConfiguration }],
+        {
+          onSuccess: () => {
+            toast.success(t('widgets_updated_successfully'))
+            onSaveWidget()
+          },
+          onError: () => {
+            toast.error(t('widgets_update_failed'))
+          },
+        }
+      )
+      return
+    }
+
     const newWidgetData = {
       display_type: 'chart',
-      entity_id: sourcesData[0].entity_id,
+      entity_id: values.sources?.[0]?.entity_id,
       x: 0,
       y: 0,
       width: 0,
       height: 0,
       configuration: {
-        ...chartValue,
+        ...values,
         id: uuidv4(),
-        ...(chartValue.timeframe.type !== TimeFrameTab.Custom
+        ...(values.timeframe.type !== TimeFrameTab.Custom
           ? {
-              period: chartValue.timeframe.type,
+              period: values.timeframe.type,
             }
           : {
-              start_time: dayjs(chartValue.timeframe.from).format('YYYY-MM-DD'),
-              end_time: dayjs(chartValue.timeframe.until).format('YYYY-MM-DD'),
+              start_time: dayjs(values.timeframe.from).format('YYYY-MM-DD'),
+              end_time: dayjs(values.timeframe.until).format('YYYY-MM-DD'),
             }),
         type: selectedWidget,
         x: 0,
@@ -175,11 +220,16 @@ const ChartWidget: React.FC<Props> = ({
       title={
         <div className="flex items-center gap-2">
           <ArrowLeft size={20} className="cursor-pointer" onClick={onBack} />
-          <div>{t(`add_chart_widget`)}</div>
+          <div>
+            {t(editingWidgetLayout ? 'edit_chart_widget' : 'add_chart_widget')}
+          </div>
         </div>
       }
       externalButton={
-        <Button onClick={handleAddChartWidget} loading={isMutating}>
+        <Button
+          onClick={handleSaveChartWidget}
+          loading={isMutating || isUpdatingWidgets}
+        >
           {t('save')}
         </Button>
       }

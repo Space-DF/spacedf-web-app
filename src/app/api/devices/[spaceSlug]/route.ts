@@ -16,6 +16,7 @@ const GET = async (
   const search = searchParams.get('search') || ''
   const bbox = searchParams.get('bbox') || ''
   const device_id = searchParams.get('device_id') || ''
+  const buildingId = searchParams.get('buildingId') || ''
   try {
     const session = await readSession()
     if (!session || !spaceSlug)
@@ -41,6 +42,7 @@ const GET = async (
       search,
       bbox,
       device_id,
+      building_id: buildingId,
     }
     const devices = await client.deviceSpaces.list(params, {
       headers: {

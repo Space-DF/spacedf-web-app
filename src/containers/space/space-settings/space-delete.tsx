@@ -52,7 +52,7 @@ export function SpaceDelete({ space }: { space: Space }) {
       return
     }
     if (!isDemo) {
-      await deleteSpace.trigger({
+      await deleteSpace.mutateAsync({
         slug_name: space.slug_name,
         name: space.name,
       })
@@ -107,7 +107,7 @@ export function SpaceDelete({ space }: { space: Space }) {
                 )}
               />
               <Button
-                disabled={deleteSpace.isMutating}
+                disabled={deleteSpace.isPending}
                 type="submit"
                 variant="destructive"
                 className="h-12 w-full rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative text-base font-semibold text-brand-component-text-light-fixed dark:border-brand-component-stroke-light"

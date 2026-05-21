@@ -589,6 +589,7 @@ export const dummyEntities: PaginationResponse<Entity> = {
       is_enabled: true,
       created_at: '2025-11-01T08:00:00Z',
       updated_at: '2025-12-05T09:10:00Z',
+      icon: 'https://cdn.app.com/icons/temperature.png',
     },
     {
       id: 'a13f503b-82c2-42e0-a5cc-3e7f38cd6621',
@@ -611,6 +612,7 @@ export const dummyEntities: PaginationResponse<Entity> = {
       is_enabled: false,
       created_at: '2025-11-01T08:30:00Z',
       updated_at: '2025-12-05T09:20:00Z',
+      icon: 'https://cdn.app.com/icons/humidity.png',
     },
     {
       id: 'b3c8cb9e-c590-4a69-b3ef-42d27042d44d',
@@ -633,6 +635,7 @@ export const dummyEntities: PaginationResponse<Entity> = {
       is_enabled: true,
       created_at: '2025-10-01T10:00:00Z',
       updated_at: '2025-12-05T07:40:00Z',
+      icon: 'https://cdn.app.com/icons/voltage.png',
     },
   ],
 }

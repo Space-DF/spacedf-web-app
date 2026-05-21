@@ -28,11 +28,7 @@ const InformationItem = (props: { label: string; content: string }) => {
   )
 }
 
-interface DeviceSelectedProps {
-  isWlb: boolean
-}
-
-const DeviceSelected = ({ isWlb }: DeviceSelectedProps) => {
+const DeviceSelected = () => {
   const t = useTranslations('addNewDevice')
 
   const { deviceDataSelected, setDeviceSelected } = useDeviceStore(
@@ -44,9 +40,8 @@ const DeviceSelected = ({ isWlb }: DeviceSelectedProps) => {
 
   const [openDialog, setOpenDialog] = useState(false)
 
-  const { trigger: deleteDevice, isMutating } = useRemoveDevice(
-    deviceDataSelected?.deviceSpaceId
-  )
+  const { mutateAsync: deleteDevice, isPending: isDeletingDevice } =
+    useRemoveDevice(deviceDataSelected?.deviceSpaceId)
 
   const handleDeleteDevice = async () => {
     await deleteDevice()
@@ -60,10 +55,13 @@ const DeviceSelected = ({ isWlb }: DeviceSelectedProps) => {
         <div className="flex items-center gap-1">
           <div className="px-1">
             <Image
-              src={`/images/${!isWlb ? 'rak-image' : 'water-sensor'}.webp`}
+              src={
+                deviceDataSelected?.deviceInformation?.device_profile?.logo ||
+                ''
+              }
               alt="rak"
-              width={28}
-              height={32}
+              width={42}
+              height={42}
               quality={100}
             />
           </div>
@@ -102,7 +100,7 @@ const DeviceSelected = ({ isWlb }: DeviceSelectedProps) => {
                 <Button
                   className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   onClick={handleDeleteDevice}
-                  loading={isMutating}
+                  loading={isDeletingDevice}
                 >
                   {t('delete')}
                 </Button>

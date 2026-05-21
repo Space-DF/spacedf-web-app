@@ -12,11 +12,9 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import CreateSpace from './create-space'
 import PreviewSpaceName from './preview-space-name'
-import { useGetSpaces } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/spaces/hooks'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { useRefreshToken } from '../space-settings/hooks/useRefreshToken'
 import { useCreateSpace } from './hooks/useCreateSpace'
-import { useModelGLB } from '@/stores/template/model-glb'
 
 const formSchema = z.object({
   space_name: z
@@ -38,14 +36,13 @@ const OrganizationSetting = () => {
   const router = useRouter()
   const setLoadingText = useGlobalStore((state) => state.setLoadingText)
   const t = useTranslations('space')
-  const { mutate: getSpaces } = useGetSpaces()
-  const { trigger: createSpace, isMutating: isCreating } = useCreateSpace()
+  const { mutateAsync: createSpace, isPending: isCreating } = useCreateSpace()
   const [isLoading, setIsLoading] = useState(false)
-  const resetModel = useModelGLB((state) => state.resetModel)
   const isDemo = useIsDemo()
   const { trigger: refreshToken } = useRefreshToken()
   const setCurrentSpace = useGlobalStore((state) => state.setCurrentSpace)
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+
+  async function onSubmit(values: SpaceFormValues) {
     setIsLoading(true)
     await createSpace(
       {
@@ -68,9 +65,7 @@ const OrganizationSetting = () => {
           }
           if (data) {
             await refreshToken()
-            await getSpaces()
             setCurrentSpace(data)
-            resetModel()
             router.push(`/spaces/${data.slug_name}`)
           }
         },

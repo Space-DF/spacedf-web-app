@@ -75,6 +75,7 @@ export class DeviceTelemetryHandler extends BaseMQTTHandler {
         latest_checkpoint_arr: [
           payload.location.longitude,
           payload.location.latitude,
+          payload.location.bearing,
         ],
       }
     }

@@ -97,5 +97,7 @@
   "edit_yaml": "Chỉnh sửa YAML",
   "automation_settings": "Cài đặt tự động",
   "please_try_again_or_go_back_to_space_df": "Vui lòng thử lại, hoặc trở về SpaceDF.",
-  "try_again": "Thử lại"
+  "try_again": "Thử lại",
+  "device_not_found": "Không thể tải thiết bị",
+  "device_not_found_description": "Có thể do lỗi kết nối mạng, hoặc thiết bị không tồn tại trong không gian này. Hãy thử lại hoặc nhấn mũi tên quay lại danh sách thiết bị."
 }

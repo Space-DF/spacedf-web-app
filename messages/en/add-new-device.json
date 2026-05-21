@@ -28,5 +28,15 @@
   "device": "Device",
   "add_device_successfully": "Add device successfully",
   "failed_to_add_device": "Failed to add device",
-  "failed_to_scan_qr_code": "Failed to scan QR code"
+  "failed_to_scan_qr_code": "Failed to scan QR code",
+  "asset_coordinates": "Asset Coordinates",
+  "continue": "Continue",
+  "entity_available": "Entity Available",
+  "select_all": "Select All",
+  "available_entity": "Available Entity",
+  "entity_count": "{count} entities",
+  "entity_list_help_label": "About available entities",
+  "entity_list_help": "You can change the visibility of a device's entity on digital twins by checking or unchecking the entity list below.",
+  "entities_saved_successfully": "Entity visibility updated",
+  "entities_save_failed": "Could not update entity visibility"
 }

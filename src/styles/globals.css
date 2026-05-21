@@ -123,9 +123,19 @@
     background-image: url('/images/3d-preview/location-marker.png');
   }
 
+  .location-marker-direction {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-direction.svg');
+  }
+
   .dark .location-marker {
     @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
     background-image: url('/images/3d-preview/location-marker-dark.png');
+  }
+
+  .dark .location-marker-direction {
+    @apply w-[50px] h-[50px] cursor-pointer bg-contain bg-no-repeat;
+    background-image: url('/images/3d-preview/location-marker-direction-dark.svg');
   }
 }
 
@@ -424,6 +434,14 @@ video::-webkit-media-controls-start-playback-button {
   [data-rich-colors='true'][data-sonner-toast][data-type='warning']
     [data-close-button] {
     @apply !border-brand-component-stroke-warning !bg-brand-component-fill-warning-soft;
+  }
+
+  .my-grid .react-grid-item.react-draggable-dragging {
+    @apply bg-brand-component-hover-secondary-light;
+  }
+
+  .my-grid .react-grid-item.react-grid-placeholder {
+    @apply bg-brand-component-hover-secondary-light;
   }
 }
 

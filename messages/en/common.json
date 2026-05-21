@@ -104,5 +104,7 @@
   "edit_yaml": "Edit YAML",
   "automation_settings": "Automation Settings",
   "please_try_again_or_go_back_to_space_df": "Please try again, or go back to SpaceDF.",
-  "try_again": "Try again"
+  "try_again": "Try again",
+  "device_not_found": "Couldn't load this device",
+  "device_not_found_description": "This might be a connection issue, or the device may not exist in this space. Try again, or use the back arrow to return to the device list."
 }

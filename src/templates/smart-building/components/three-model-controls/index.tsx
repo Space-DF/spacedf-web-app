@@ -5,7 +5,11 @@ import { cn } from '@/lib/utils'
 import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
 
-export function ThreeModelControls({ className }: { className?: string }) {
+interface ThreeModelControlsProps {
+  className?: string
+}
+
+export function ThreeModelControls({ className }: ThreeModelControlsProps) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
     useThreeModelController((s) => ({
       zoomIn: s.zoomIn,

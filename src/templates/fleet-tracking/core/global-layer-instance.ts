@@ -4,6 +4,7 @@ import MapLibreGL, { IControl } from 'maplibre-gl'
 
 export const LAYER_IDS = {
   LOCATION_DECKGL_LAYER: 'location-deckgl-layer',
+  LOCATION_DECKGL_POINTER_LAYER: 'location-deckgl-pointer-layer',
   LOCATION_OUTLINE_PULSE: 'location-outline-pulse',
   WATER_DEPTH_POLYGON: 'water-depth-polygon',
   WATER_DEPTH_COLUMN: 'water-depth-column',

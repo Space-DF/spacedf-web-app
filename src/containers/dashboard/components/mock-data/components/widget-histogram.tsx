@@ -8,6 +8,7 @@ interface Props extends WidgetChart {
   id?: string
   isEdit?: boolean
   onDelete?: () => void
+  onEdit?: () => void
 }
 
 export const WidgetHistogram = ({
@@ -20,12 +21,14 @@ export const WidgetHistogram = ({
   showXGrid,
   isEdit,
   onDelete,
+  onEdit,
 }: Props) => {
   return (
     <WidgetContainer
       className="flex flex-col justify-center"
       isEdit={isEdit}
       onDelete={onDelete}
+      onEdit={onEdit}
     >
       <WidgetTitle>{widget_info.name}</WidgetTitle>
       <PreviewChart
