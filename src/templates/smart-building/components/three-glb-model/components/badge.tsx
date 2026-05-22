@@ -118,6 +118,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
 interface EntityBadgeProps {
   entities: Entity[]
   device_properties?: DeviceProperties
+  onSelectDevice: () => void
 }
 
 const ENTITY_ORBIT_RADIUS = 40
@@ -125,6 +126,7 @@ const ENTITY_ORBIT_RADIUS = 40
 const EntityBadge = memo(function EntityBadge({
   entities,
   device_properties,
+  onSelectDevice,
 }: EntityBadgeProps) {
   const listEntities = (entities ?? []).filter(
     (entity) => entity.icon && entity.is_enabled
@@ -163,6 +165,7 @@ const EntityBadge = memo(function EntityBadge({
                 width: BADGE_SIZE,
                 height: BADGE_SIZE,
               }}
+              onClick={onSelectDevice}
             >
               <EntityBadgeWithTooltip
                 entity={entity}
