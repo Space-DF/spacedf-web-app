@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Vector3, type Camera } from 'three'
+import { Vector3, type Camera, Box3 } from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 type DollyDirection = 'in' | 'out'
@@ -18,6 +18,10 @@ type ThreeModelControllerState = {
   focusOnWorldPoint: (
     worldTarget: Vector3,
     opts?: { zoomInFactor?: number; durationMs?: number }
+  ) => void
+  fitToBox: (
+    box: Box3,
+    opts?: { durationMs?: number; margin?: number; onComplete?: () => void }
   ) => void
 }
 
@@ -179,6 +183,70 @@ export const useThreeModelController = create<ThreeModelControllerState>()(
         opts?.zoomInFactor ?? 0.4,
         focusBaseRadius
       )
+    },
+    fitToBox: (box, opts) => {
+      const controls = get().controls
+      const camera = get().camera
+      if (!controls || !camera) return
+
+      cancelActiveZoom()
+      cancelActiveFocus()
+
+      const durationMs = opts?.durationMs ?? 1000
+      const margin = opts?.margin ?? 1.15
+
+      const start = performance.now()
+      const startTarget = controls.target.clone()
+      const startCam = camera.position.clone()
+
+      const center = new Vector3()
+      box.getCenter(center)
+      const boxSize = new Vector3()
+      box.getSize(boxSize)
+      const maxSize = Math.max(boxSize.x, boxSize.y, boxSize.z)
+
+      let distance = maxSize * 1.5
+      if ((camera as any).isPerspectiveCamera) {
+        const pCam = camera as any
+        const fovRad = (pCam.fov * Math.PI) / 180
+        const fitHeightDistance = maxSize / (2 * Math.tan(fovRad / 2))
+        const fitWidthDistance = fitHeightDistance / pCam.aspect
+        distance = margin * Math.max(fitHeightDistance, fitWidthDistance)
+      }
+
+      const dir = startCam.clone().sub(startTarget)
+      if (dir.lengthSq() < 1e-12) {
+        dir.set(0, 0, 1)
+      } else {
+        dir.normalize()
+      }
+
+      const startRadius = startCam.distanceTo(startTarget)
+      const endRadius = distance
+
+      const tick = () => {
+        const now = performance.now()
+        const t = Math.min(1, (now - start) / durationMs)
+        const eased = 1 - Math.pow(1 - t, 3)
+
+        controls.target.copy(startTarget).lerp(center, eased)
+        const radius = startRadius + (endRadius - startRadius) * eased
+        camera.position.copy(controls.target).addScaledVector(dir, radius)
+
+        controls.update()
+
+        if (t < 1) {
+          activeFocusRaf = requestAnimationFrame(tick)
+          return
+        }
+
+        activeFocusRaf = null
+        if (opts?.onComplete) {
+          opts.onComplete()
+        }
+      }
+
+      activeFocusRaf = requestAnimationFrame(tick)
     },
   })
 )
