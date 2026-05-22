@@ -6,7 +6,7 @@ import {
   type ThreeElements,
   type ThreeEvent,
 } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Vector3, type Object3D } from 'three'
 import { USDLoader } from 'three/addons/loaders/USDLoader.js'
 import { useLoader } from '@react-three/fiber'
@@ -43,6 +43,12 @@ const pendingDisposals = new Map<string, ReturnType<typeof setTimeout>>()
 const formatCache = new Map<string, Detected3DFormat>()
 
 function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
+
+  const handleSelectEntity = useCallback(() => {
+    setDeviceSelected(device.device.id)
+  }, [device.device.id])
+
   if (!device.position) return <></>
   return (
     <Html
@@ -56,6 +62,7 @@ function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
           <EntityBadge
             entities={device.entities ?? []}
             device_properties={device.device_properties}
+            onSelectDevice={handleSelectEntity}
           />
         </div>
       </div>
