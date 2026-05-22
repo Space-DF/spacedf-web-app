@@ -6,13 +6,12 @@ import {
   type ThreeElements,
   type ThreeEvent,
 } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Vector3, type Object3D } from 'three'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Vector3, type Object3D, Box3 } from 'three'
 import { USDLoader } from 'three/addons/loaders/USDLoader.js'
 import { useLoader } from '@react-three/fiber'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
-import { useBounds } from '@react-three/drei'
 import { useGetDevices } from '@/hooks/useDevices'
 import { useAddDeviceStore } from '@/stores/template/add-device'
 import { DeviceDataOriginal } from '@/types/device'
@@ -22,6 +21,7 @@ import ThreeModelErrorBoundary from './components/three-error-boundary'
 import { ModelFallback } from '../model-fallback'
 import { ModelLoadError } from './components/model-load-error'
 import { detect3DFormatFromUrl, disposeThreeObject } from './utils'
+import { useShallow } from 'zustand/react/shallow'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
@@ -42,7 +42,7 @@ const pendingDisposals = new Map<string, ReturnType<typeof setTimeout>>()
 
 const formatCache = new Map<string, Detected3DFormat>()
 
-function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
+const DeviceMarker = memo(({ device }: { device: DeviceDataOriginal }) => {
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
 
   const handleSelectEntity = useCallback(() => {
@@ -68,7 +68,9 @@ function DeviceMarker({ device }: { device: DeviceDataOriginal }) {
       </div>
     </Html>
   )
-}
+})
+
+DeviceMarker.displayName = 'DeviceMarker'
 
 function PreviewPointMarker({
   point,
@@ -115,83 +117,81 @@ function FitOnRefocus({
   children: React.ReactNode
   previewPoint?: { x: number; y: number; z: number } | null
 }) {
-  const api = useBounds()
   const objectRef = useRef<Object3D | null>(null)
   const camera = useThree((s) => s.camera)
-  const controls = useThreeModelController((s) => s.controls)
-  const focusOnWorldPoint = useThreeModelController((s) => s.focusOnWorldPoint)
+  const { controls, focusOnWorldPoint, fitToBox } = useThreeModelController(
+    useShallow((s) => ({
+      controls: s.controls,
+      focusOnWorldPoint: s.focusOnWorldPoint,
+      fitToBox: s.fitToBox,
+    }))
+  )
   const hasSavedInitialRef = useRef(false)
   const buildingId = useAddDeviceStore((state) => state.building?.id)
   const { data: devices } = useGetDevices({
     buildingId,
   })
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
-  const [isModelReady, setIsModelReady] = useState(false)
 
   useEffect(() => {
-    if (!deviceSelected || !controls || !isModelReady) return
-    const row = devices.find((d) => d.device.id === deviceSelected)
-    if (!row?.position) return
+    if (!controls) return
 
-    let cancelled = false
-    const run = () => {
-      if (cancelled) return
-      const obj = objectRef.current
-      if (!obj || !row.position) return
-      const { x, y, z } = row.position
-      const world = new Vector3(x, y, z).applyMatrix4(obj.matrixWorld)
-      const toward = world.clone().sub(camera.position)
-      if (toward.lengthSq() > 1e-12) {
-        toward.normalize()
-        const perp = new Vector3().crossVectors(toward, camera.up)
-        if (perp.lengthSq() < 1e-12)
-          perp.crossVectors(toward, new Vector3(1, 0, 0))
-        perp.normalize()
-        const dist = world.distanceTo(camera.position)
-        world.addScaledVector(perp, Math.max(1e-4, dist * 1e-4))
+    if (deviceSelected) {
+      const row = devices.find((d) => d.device.id === deviceSelected)
+      if (!row?.position) return
+
+      let cancelled = false
+      const run = () => {
+        if (cancelled) return
+        const obj = objectRef.current
+        if (!obj || !row.position) return
+        const { x, y, z } = row.position
+        const world = new Vector3(x, y, z).applyMatrix4(obj.matrixWorld)
+        const toward = world.clone().sub(camera.position)
+        if (toward.lengthSq() > 1e-12) {
+          toward.normalize()
+          const perp = new Vector3().crossVectors(toward, camera.up)
+          if (perp.lengthSq() < 1e-12)
+            perp.crossVectors(toward, new Vector3(1, 0, 0))
+          perp.normalize()
+          const dist = world.distanceTo(camera.position)
+          world.addScaledVector(perp, Math.max(1e-4, dist * 1e-4))
+        }
+        focusOnWorldPoint(world)
       }
-      focusOnWorldPoint(world)
-    }
 
-    const outer = requestAnimationFrame(() => {
-      if (cancelled) return
-      requestAnimationFrame(run)
-    })
+      const outer = requestAnimationFrame(() => {
+        if (cancelled) return
+        requestAnimationFrame(run)
+      })
 
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(outer)
-    }
-  }, [
-    deviceSelected,
-    devices,
-    controls,
-    focusOnWorldPoint,
-    camera,
-    isModelReady,
-  ])
-
-  useEffect(() => {
-    setIsModelReady(false)
-    const run = () => {
+      return () => {
+        cancelled = true
+        cancelAnimationFrame(outer)
+      }
+    } else {
       const obj = objectRef.current
       if (!obj) return
-      api.refresh(obj).fit()
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsModelReady(true)
-          if (controls && !hasSavedInitialRef.current) {
-            controls.update()
-            controls.saveState()
-            hasSavedInitialRef.current = true
-          }
+      const run = () => {
+        const box = new Box3().setFromObject(obj)
+        fitToBox(box, {
+          durationMs: 800,
+          onComplete: () => {
+            if (!hasSavedInitialRef.current) {
+              controls.saveState()
+              hasSavedInitialRef.current = true
+            }
+          },
         })
-      })
-    }
+      }
 
-    setTimeout(run, 400)
-  }, [api, controls])
+      const outer = requestAnimationFrame(run)
+      return () => {
+        cancelAnimationFrame(outer)
+      }
+    }
+  }, [deviceSelected, devices, controls, focusOnWorldPoint, fitToBox, camera])
 
   return (
     <group ref={objectRef as any}>
@@ -255,7 +255,7 @@ function GlbScene({
 
   return (
     <group {...props}>
-      <Bounds fit observe margin={1.15}>
+      <Bounds observe margin={1.15}>
         <Center>
           <FitOnRefocus previewPoint={previewPoint}>
             <primitive object={scene} onContextMenu={handleContextMenu} />
@@ -317,7 +317,7 @@ function UsdzModel({
 
   return (
     <group {...props}>
-      <Bounds fit observe margin={1.15}>
+      <Bounds observe margin={1.15}>
         <Center>
           <FitOnRefocus previewPoint={previewPoint}>
             <primitive object={object} onContextMenu={handleContextMenu} />
