@@ -26,7 +26,7 @@ function getPropertyValue(
 }
 
 const badgeHoverClassName =
-  'flex size-full cursor-default items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
+  'flex size-full cursor-pointer items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
 
 type MetricBadgeProps = {
   value: string | undefined
@@ -66,11 +66,13 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
   device_properties,
   tooltipContentClassName,
   centeredTrigger,
+  onClick,
 }: {
   entity: Entity
   device_properties?: DeviceProperties
   tooltipContentClassName: string
   centeredTrigger?: boolean
+  onClick?: () => void
 }) {
   const entityRealtimeValue = useDashboardStore(
     (state) => state.entities[entity.unique_key]
@@ -95,13 +97,23 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
     />
   )
 
-  const triggerInner = <div className={badgeHoverClassName}>{badge}</div>
+  const triggerInner = (
+    <div
+      className={badgeHoverClassName}
+      onClick={centeredTrigger ? undefined : onClick}
+    >
+      {badge}
+    </div>
+  )
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         {centeredTrigger ? (
-          <div className="relative z-0 flex size-12 items-center justify-center hover:z-10 focus-within:z-10">
+          <div
+            className="relative z-0 flex size-12 items-center justify-center hover:z-10 focus-within:z-10 cursor-pointer"
+            onClick={onClick}
+          >
             {triggerInner}
           </div>
         ) : (
@@ -118,6 +130,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
 interface EntityBadgeProps {
   entities: Entity[]
   device_properties?: DeviceProperties
+  onSelectDevice: () => void
 }
 
 const ENTITY_ORBIT_RADIUS = 40
@@ -125,6 +138,7 @@ const ENTITY_ORBIT_RADIUS = 40
 const EntityBadge = memo(function EntityBadge({
   entities,
   device_properties,
+  onSelectDevice,
 }: EntityBadgeProps) {
   const listEntities = (entities ?? []).filter(
     (entity) => entity.icon && entity.is_enabled
@@ -142,6 +156,7 @@ const EntityBadge = memo(function EntityBadge({
         device_properties={device_properties}
         tooltipContentClassName="max-w-xs text-xs border-none"
         centeredTrigger
+        onClick={onSelectDevice}
       />
     )
   } else {
@@ -156,13 +171,14 @@ const EntityBadge = memo(function EntityBadge({
           return (
             <div
               key={entity.id}
-              className="absolute z-0 flex items-center justify-center overflow-visible hover:z-10 focus-within:z-10"
+              className="absolute cursor-pointer z-0 flex items-center justify-center overflow-visible hover:z-10 focus-within:z-10"
               style={{
                 left: cx - BADGE_SIZE / 2,
                 top: cy - BADGE_SIZE / 2,
                 width: BADGE_SIZE,
                 height: BADGE_SIZE,
               }}
+              onClick={onSelectDevice}
             >
               <EntityBadgeWithTooltip
                 entity={entity}
