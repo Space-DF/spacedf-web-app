@@ -22,6 +22,8 @@ import { ModelFallback } from '../model-fallback'
 import { ModelLoadError } from './components/model-load-error'
 import { detect3DFormatFromUrl, disposeThreeObject } from './utils'
 import { useShallow } from 'zustand/react/shallow'
+import { useLayout } from '@/stores'
+import { NavigationEnums } from '@/constants'
 
 type ModelProps = ThreeElements['group'] & {
   url: string
@@ -42,12 +44,32 @@ const pendingDisposals = new Map<string, ReturnType<typeof setTimeout>>()
 
 const formatCache = new Map<string, Detected3DFormat>()
 
+const DRAG_THRESHOLD_PX = 3
+
+const RIGHT_CLICK_BUTTON_CODE = 2
+
 const DeviceMarker = memo(({ device }: { device: DeviceDataOriginal }) => {
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
-
+  const { toggleDynamicLayout, dynamicLayouts, setCookieDirty } = useLayout(
+    useShallow((state) => ({
+      toggleDynamicLayout: state.toggleDynamicLayout,
+      dynamicLayouts: state.dynamicLayouts,
+      setCookieDirty: state.setCookieDirty,
+    }))
+  )
   const handleSelectEntity = useCallback(() => {
     setDeviceSelected(device.device.id)
-  }, [device.device.id])
+    if (!dynamicLayouts.includes(NavigationEnums.DEVICES)) {
+      toggleDynamicLayout(NavigationEnums.DEVICES)
+      setCookieDirty(true)
+    }
+  }, [
+    device.device.id,
+    dynamicLayouts,
+    toggleDynamicLayout,
+    setDeviceSelected,
+    setCookieDirty,
+  ])
 
   if (!device.position) return <></>
   return (
@@ -215,22 +237,49 @@ function GlbScene({
   ThreeElements['group']) {
   const { scene } = useGLTF(url)
   const invalidate = useThree((s) => s.invalidate)
+  const pointerDownPosRef = useRef<{ x: number; y: number } | null>(null)
 
-  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
-    event.nativeEvent.preventDefault()
-    event.stopPropagation()
-    const world = event.point.clone()
-    const model = scene.worldToLocal(world.clone())
-    onModelContextMenu?.({
-      clientX: event.nativeEvent.clientX,
-      clientY: event.nativeEvent.clientY,
-      modelPoint: {
-        x: model.x,
-        y: model.y,
-        z: model.z,
-      },
-    })
-  }
+  const handlePointerDown = useCallback((event: ThreeEvent<PointerEvent>) => {
+    if (event.nativeEvent.button === RIGHT_CLICK_BUTTON_CODE) {
+      pointerDownPosRef.current = {
+        x: event.nativeEvent.clientX,
+        y: event.nativeEvent.clientY,
+      }
+    }
+  }, [])
+
+  const handlePointerUp = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      if (event.nativeEvent.button === RIGHT_CLICK_BUTTON_CODE) {
+        const downPos = pointerDownPosRef.current
+        pointerDownPosRef.current = null
+
+        if (!downPos) return
+
+        const dx = event.nativeEvent.clientX - downPos.x
+        const dy = event.nativeEvent.clientY - downPos.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        if (dist > DRAG_THRESHOLD_PX) return
+
+        event.nativeEvent.preventDefault()
+        event.stopPropagation()
+
+        const world = event.point.clone()
+        const model = scene.worldToLocal(world.clone())
+        onModelContextMenu?.({
+          clientX: event.nativeEvent.clientX,
+          clientY: event.nativeEvent.clientY,
+          modelPoint: {
+            x: model.x,
+            y: model.y,
+            z: model.z,
+          },
+        })
+      }
+    },
+    [onModelContextMenu, scene]
+  )
 
   useEffect(() => {
     const pending = pendingDisposals.get(url)
@@ -258,7 +307,11 @@ function GlbScene({
       <Bounds observe margin={1.15}>
         <Center>
           <FitOnRefocus previewPoint={previewPoint}>
-            <primitive object={scene} onContextMenu={handleContextMenu} />
+            <primitive
+              object={scene}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+            />
           </FitOnRefocus>
         </Center>
       </Bounds>
@@ -277,22 +330,49 @@ function UsdzModel({
   ThreeElements['group']) {
   const object = useLoader(USDLoader, url)
   const invalidate = useThree((s) => s.invalidate)
+  const pointerDownPosRef = useRef<{ x: number; y: number } | null>(null)
 
-  const handleContextMenu = (event: ThreeEvent<PointerEvent>) => {
-    event.nativeEvent.preventDefault()
-    event.stopPropagation()
-    const world = event.point.clone()
-    const model = object.worldToLocal(world.clone())
-    onModelContextMenu?.({
-      clientX: event.nativeEvent.clientX,
-      clientY: event.nativeEvent.clientY,
-      modelPoint: {
-        x: model.x,
-        y: model.y,
-        z: model.z,
-      },
-    })
-  }
+  const handlePointerDown = useCallback((event: ThreeEvent<PointerEvent>) => {
+    if (event.nativeEvent.button === RIGHT_CLICK_BUTTON_CODE) {
+      pointerDownPosRef.current = {
+        x: event.nativeEvent.clientX,
+        y: event.nativeEvent.clientY,
+      }
+    }
+  }, [])
+
+  const handlePointerUp = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      if (event.nativeEvent.button === RIGHT_CLICK_BUTTON_CODE) {
+        const downPos = pointerDownPosRef.current
+        pointerDownPosRef.current = null
+
+        if (!downPos) return
+
+        const dx = event.nativeEvent.clientX - downPos.x
+        const dy = event.nativeEvent.clientY - downPos.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        if (dist > DRAG_THRESHOLD_PX) return
+
+        event.nativeEvent.preventDefault()
+        event.stopPropagation()
+
+        const world = event.point.clone()
+        const model = object.worldToLocal(world.clone())
+        onModelContextMenu?.({
+          clientX: event.nativeEvent.clientX,
+          clientY: event.nativeEvent.clientY,
+          modelPoint: {
+            x: model.x,
+            y: model.y,
+            z: model.z,
+          },
+        })
+      }
+    },
+    [onModelContextMenu, object]
+  )
 
   useEffect(() => {
     const pending = pendingDisposals.get(url)
@@ -320,7 +400,11 @@ function UsdzModel({
       <Bounds observe margin={1.15}>
         <Center>
           <FitOnRefocus previewPoint={previewPoint}>
-            <primitive object={object} onContextMenu={handleContextMenu} />
+            <primitive
+              object={object}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+            />
           </FitOnRefocus>
         </Center>
       </Bounds>
