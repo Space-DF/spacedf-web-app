@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { memo } from 'react'
 import { useMetricBadgePalette } from '../hooks/useMetricBadgePalette'
 import { useDashboardStore } from '@/stores/dashboard-store'
+import { useMoveDeviceStore } from '@/stores/template/move-device'
 
 const BADGE_SIZE = 50
 
@@ -49,7 +50,7 @@ function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
             alt={value || ''}
             width={16}
             height={16}
-            className="shrink-0"
+            className="shrink-0 pointer-events-none"
             decoding="async"
           />
         )}
@@ -61,22 +62,25 @@ function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
   )
 }
 
+interface EntityBadgeWithTooltipProps {
+  entity: Entity
+  device_properties?: DeviceProperties
+  tooltipContentClassName: string
+  centeredTrigger?: boolean
+  onClick?: () => void
+}
+
 const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
   entity,
   device_properties,
   tooltipContentClassName,
   centeredTrigger,
   onClick,
-}: {
-  entity: Entity
-  device_properties?: DeviceProperties
-  tooltipContentClassName: string
-  centeredTrigger?: boolean
-  onClick?: () => void
-}) {
+}: EntityBadgeWithTooltipProps) {
   const entityRealtimeValue = useDashboardStore(
     (state) => state.entities[entity.unique_key]
   )
+  const isMovingEntity = useMoveDeviceStore((state) => state.deviceId !== null)
   const staticValue = device_properties
     ? getPropertyValue(device_properties, entity.category)
     : undefined
@@ -107,7 +111,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
   )
 
   return (
-    <Tooltip>
+    <Tooltip open={isMovingEntity ? false : undefined}>
       <TooltipTrigger asChild>
         {centeredTrigger ? (
           <div
@@ -130,7 +134,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
 interface EntityBadgeProps {
   entities: Entity[]
   device_properties?: DeviceProperties
-  onSelectDevice: () => void
+  onSelectDevice?: () => void
 }
 
 const ENTITY_ORBIT_RADIUS = 40
