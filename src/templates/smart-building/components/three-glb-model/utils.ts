@@ -1,8 +1,9 @@
-import { Texture } from 'three'
-import { Object3D } from 'three'
+import { Mesh, Object3D, Texture } from 'three'
 import { Detected3DFormat } from './types'
 
 const FORMAT_PROBE_BYTES = 12
+
+const DEFAULT_MODEL_OPACITY = 0.35
 
 export async function detect3DFormatFromUrl(
   url: string,
@@ -60,6 +61,31 @@ export function disposeThreeObject(root: Object3D) {
         }
       }
       if (mat.dispose) mat.dispose()
+    }
+  })
+}
+
+export function updateModelOpacity(root: Object3D, activeMeshes: Object3D[]) {
+  const activeSet = new Set<Object3D>(activeMeshes)
+
+  root.updateMatrixWorld(true)
+
+  root.traverse((obj) => {
+    if (!(obj instanceof Mesh)) return
+
+    const isOccupied = activeSet.has(obj)
+    const opacity = isOccupied ? 1.0 : DEFAULT_MODEL_OPACITY
+
+    const materials = Array.isArray(obj.material)
+      ? obj.material
+      : [obj.material]
+
+    for (const mat of materials) {
+      if (!mat) continue
+      mat.transparent = opacity < 1
+      mat.opacity = opacity
+      if ('depthWrite' in mat) mat.depthWrite = !mat.transparent
+      mat.needsUpdate = true
     }
   })
 }
