@@ -11,30 +11,63 @@ import { notFound } from 'next/navigation'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
-import { getS3Url } from '@/utils'
+import { buildMetadata } from '@/utils'
+import { headers } from 'next/headers'
+import { getValidSubdomain } from '@/utils/subdomain'
+import { checkSlugName } from '@/lib/organizations'
+export async function generateMetadata(): Promise<Metadata> {
+  const host = headers().get('host') || 'localhost'
+  const org = await getValidSubdomain(host)
 
-export const metadata: Metadata = {
-  title: 'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
-  description:
-    'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
-  openGraph: {
-    images: [getS3Url('images/spacedf-og.jpg')],
+  const defaultMetadata = {
+    title:
+      'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
+    description:
+      'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
     siteName: 'SpaceDF Digital Twin Dashboard',
-  },
-  twitter: {
-    images: [getS3Url('images/spacedf-og.jpg')],
-  },
-  keywords: [
-    'IoT dashboard',
-    'Real-time GPS tracking',
-    'GPS tracking dashboard',
-    'Device monitoring dashboard',
-    'Centralized dashboard',
-    'all-in-one dashboard',
-    'Device tracking platform',
-    'Device data monitoring',
-    'Digital Twins dashboard',
-  ],
+  }
+
+  const defaultFavicon = {
+    light: '/favicon.ico',
+    dark: '/favicon-dark.ico',
+  }
+
+  if (!org) {
+    return buildMetadata(defaultMetadata, defaultFavicon)
+  }
+
+  const orgResult = await checkSlugName(org)
+
+  if (!orgResult.isValid || !orgResult.setting) {
+    return buildMetadata(defaultMetadata, defaultFavicon)
+  }
+
+  const { site_title, site_description, brand_name, themes } = orgResult.setting
+
+  const lightTheme = themes?.find((t) => t.theme_key === 'light') || themes?.[0]
+  const darkTheme = themes?.find((t) => t.theme_key === 'dark')
+
+  const favicon = {
+    light:
+      lightTheme?.url_favicon || darkTheme?.url_favicon || defaultFavicon.light,
+    dark:
+      darkTheme?.url_favicon || lightTheme?.url_favicon || defaultFavicon.dark,
+  }
+
+  return buildMetadata(
+    {
+      title:
+        site_title ||
+        (brand_name
+          ? `${brand_name} - SpaceDF Dashboard`
+          : defaultMetadata.title),
+
+      description: site_description || defaultMetadata.description,
+
+      siteName: brand_name || defaultMetadata.siteName,
+    },
+    favicon
+  )
 }
 export default async function RootLayout({
   children,
