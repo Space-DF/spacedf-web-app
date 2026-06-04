@@ -1,10 +1,12 @@
 import { Template } from '@/types/template'
 import { create } from 'zustand'
+import { OrganizationSetting } from '@/types/organization'
 
 export type OrganizationValidationSnapshot = {
   isValid: boolean
   template: string
   isSmartBuilding?: boolean
+  setting?: OrganizationSetting
 }
 
 type OrganizationValidationStore = OrganizationValidationSnapshot & {
@@ -19,6 +21,7 @@ const initial: OrganizationValidationSnapshot & { hasHydrated: boolean } = {
   template: '',
   hasHydrated: false,
   isSmartBuilding: false,
+  setting: undefined,
 }
 
 export const useOrganizationValidationStore =

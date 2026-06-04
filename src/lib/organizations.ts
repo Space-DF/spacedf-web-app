@@ -1,6 +1,7 @@
 'use server'
 
 import { SpaceDFClient } from '@/lib/spacedf'
+import { OrganizationSetting } from '@/types/organization'
 
 /**
  * Validates if an organization slug exists using the SpaceDF SDK
@@ -10,19 +11,23 @@ import { SpaceDFClient } from '@/lib/spacedf'
 export async function checkSlugName(slugName: string): Promise<{
   isValid: boolean
   template: string
+  setting?: OrganizationSetting
 }> {
   try {
     const spaceDFInstance = await SpaceDFClient.getInstance()
     const client = spaceDFInstance.getClient()
 
-    const result = (await client.organizations.checkSlugName(slugName)) as {
+    const { result, ...rest } = (await client.organizations.checkSlugName(
+      slugName
+    )) as {
       result: string
       template: string
+      setting?: OrganizationSetting
     }
     // API returns { result: "The organization is valid." } for valid orgs
     return {
-      isValid: result?.result === 'The organization is valid.',
-      template: result?.template,
+      isValid: result === 'The organization is valid.',
+      ...rest,
     }
   } catch (error) {
     console.error('Error validating organization slug:', error)
