@@ -22,7 +22,7 @@ export async function checkSlugName(slugName: string): Promise<{
     )) as {
       result: string
       template: string
-      setting: OrganizationSetting
+      setting?: OrganizationSetting
     }
     // API returns { result: "The organization is valid." } for valid orgs
     return {
