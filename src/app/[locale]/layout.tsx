@@ -81,9 +81,7 @@ export default async function RootLayout({
     notFound()
   }
 
-  const messages = await getMessages()
-
-  const session = await readSession()
+  const [messages, session] = await Promise.all([getMessages(), readSession()])
 
   const host = headers().get('host') || 'localhost'
   const org = await getValidSubdomain(host)

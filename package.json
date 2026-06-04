@@ -51,7 +51,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "8.18.0",
     "@sentry/nextjs": "^10",
-    "@space-df/sdk": "0.0.1-dev.51",
+    "@space-df/sdk": "0.0.1-dev.52",
     "@tanstack/react-query": "^5.100.10",
     "@tanstack/react-query-devtools": "^5.100.10",
     "@tanstack/react-table": "^8.20.6",
