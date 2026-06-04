@@ -129,7 +129,7 @@ export function ApiDataTable<TData, TValue>({
         <div className="flex items-center justify-between border-t p-2">
           <Button
             variant="outline"
-            className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
+            className="gap-2 bg-transparent text-sm font-semibold"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -141,7 +141,7 @@ export function ApiDataTable<TData, TValue>({
           </div>
           <Button
             variant="outline"
-            className="gap-2 border-brand-component-stroke-dark-soft bg-transparent text-sm font-semibold text-brand-component-text-dark"
+            className="gap-2 bg-transparent text-sm font-semibold"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

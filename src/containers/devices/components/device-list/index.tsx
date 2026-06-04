@@ -140,9 +140,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center justify-between">
-        <div className="font-semibold text-brand-component-text-dark">
-          {t('devices_list')}
-        </div>
+        <div className="font-semibold text-foreground">{t('devices_list')}</div>
         <div className="flex space-x-1 items-center">
           <AddDeviceDialog />
           <div
@@ -158,9 +156,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
         </div>
       </div>
       <InputWithIcon
-        prefixCpn={
-          <Search size={18} className="text-brand-component-text-gray" />
-        }
+        prefixCpn={<Search size={18} className="text-muted-foreground" />}
         placeholder={t('device')}
         wrapperClass="w-full"
         value={deviceName}
@@ -197,7 +193,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
-                      <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
+                      <LoaderCircle className="text-primary size-6 animate-spin" />
                     </div>
                   )
                 }
@@ -226,7 +222,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         <div
                           key={device.id}
                           className={cn(
-                            'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                            'cursor-pointer h-fit rounded-card border border-transparent bg-brand-background-fill-surface p-2 text-brand-component-text-dark',
                             {
                               'border-brand-component-stroke-dark':
                                 device?.device.id === deviceSelected,
@@ -247,13 +243,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                   height={70}
                                 />
                               </div>
-                              <Ellipsis
-                                size={16}
-                                className="text-brand-component-text-gray"
-                              />
+                              <Ellipsis size={16} className="text-foreground" />
                             </div>
                             <div className="text-xs font-medium">
-                              <span className="leading-[18px] line-clamp-1">
+                              <span className="leading-[18px] line-clamp-1 text-foreground">
                                 {device.name}
                               </span>
                             </div>
@@ -261,10 +254,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                           <div className="flex items-center gap-2 text-xs font-medium ">
                             <Map
                               size={16}
-                              className="text-brand-text-gray w-max"
+                              className="text-muted-foreground w-max"
                             />
                             <span
-                              className="leading-[18px] line-clamp-1 flex-1 truncate"
+                              className="leading-[18px] line-clamp-1 flex-1 truncate text-muted-foreground"
                               title={
                                 (isHasLocation && locationName) || undefined
                               }

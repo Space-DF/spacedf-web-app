@@ -26,10 +26,7 @@ export const OrgNotExist = () => {
             </span>
           </div>
           <div className="grid grid-cols-2 gap-x-3 w-full">
-            <Button
-              variant="outline"
-              className="border-2 border-brand-component-stroke-dark h-12"
-            >
+            <Button variant="outline" className="border-2 h-12">
               <Link href={ADMIN_SITE_URL}>{t('go_to_space_df')}</Link>
             </Button>
             <Button className="h-12">

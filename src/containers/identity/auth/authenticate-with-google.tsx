@@ -20,7 +20,7 @@ const AuthenticateWithGoogle = () => {
       </p>
       <Button
         variant="outline"
-        className="h-12 w-full items-center gap-2 rounded-lg border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
+        className="h-12 w-full items-center gap-2"
         onClick={handleSocialAuth}
         loading={isMutating}
       >

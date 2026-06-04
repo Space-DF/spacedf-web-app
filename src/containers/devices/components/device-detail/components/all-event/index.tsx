@@ -139,7 +139,7 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
         placeholder="Search for events"
-        prefixCpn={<Search size={14} />}
+        prefixCpn={<Search size={14} className="text-muted-foreground" />}
         wrapperClass="w-full"
       />
 

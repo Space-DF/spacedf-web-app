@@ -11,7 +11,7 @@ import { notFound } from 'next/navigation'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
-import { buildMetadata } from '@/utils'
+import { buildMetadata, generateThemeStyles } from '@/utils'
 import { headers } from 'next/headers'
 import { getValidSubdomain } from '@/utils/subdomain'
 import { checkSlugName } from '@/lib/organizations'
@@ -85,8 +85,24 @@ export default async function RootLayout({
 
   const session = await readSession()
 
+  const host = headers().get('host') || 'localhost'
+  const org = await getValidSubdomain(host)
+
+  let themeStyles = ''
+  if (org) {
+    const orgResult = await checkSlugName(org)
+    if (orgResult.isValid && orgResult.setting) {
+      themeStyles = generateThemeStyles(orgResult.setting)
+    }
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {themeStyles && (
+          <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
+        )}
+      </head>
       <body>
         <NextIntlClientProvider messages={messages}>
           <AppProvider session={session}>

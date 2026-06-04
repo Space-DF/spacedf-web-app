@@ -248,7 +248,7 @@ export const WidgetList: React.FC<Props> = ({
                   role="combobox"
                   aria-expanded={open}
                   className={cn(
-                    'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark bg-brand-component-fill-dark-soft dark:bg-brand-background-fill-surface',
+                    'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
                     {
                       'border-brand-component-stroke-dark shadow-dashboard':
                         open,
@@ -312,7 +312,7 @@ export const WidgetList: React.FC<Props> = ({
                     </CommandGroup>
                     <Separator className="my-3" />
                     <Button
-                      className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
+                      className="mb-3 h-8 w-full gap-2 text-sm font-semibold text-brand-text-gray"
                       variant="outline"
                       onClick={handleViewAllDashboard}
                     >
@@ -321,7 +321,7 @@ export const WidgetList: React.FC<Props> = ({
                     </Button>
 
                     <Button
-                      className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
+                      className="h-8 w-full gap-2 text-sm font-semibold"
                       onClick={handleOpenDashboardDialog}
                     >
                       {t('dashboard.create_new_dashboard')}
@@ -353,7 +353,7 @@ export const WidgetList: React.FC<Props> = ({
               {isEdit && (
                 <div className="mb-6 flex flex-col items-center gap-3">
                   <Button
-                    className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white dark:border-brand-component-stroke-light"
+                    className="h-12 w-full items-center gap-2"
                     onClick={() => setIsAddWidgetOpen(true)}
                   >
                     {t('dashboard.add_widget')}

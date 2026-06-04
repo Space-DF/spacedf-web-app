@@ -41,10 +41,7 @@ export const ResetPasswordSuccessful = () => {
           {t('awesome_you_have_successfully_updated_your_password')}
         </p>
       </div>
-      <Button
-        className="w-56 h-12 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm"
-        onClick={handleLogin}
-      >
+      <Button className="w-56 h-12 border-4 shadow-sm" onClick={handleLogin}>
         {t('login_now')}
       </Button>
     </div>

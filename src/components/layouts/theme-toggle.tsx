@@ -26,7 +26,7 @@ const ExpandedToggle = () => {
   if (!mounted) return null
 
   return (
-    <div className="flex w-full rounded-lg bg-brand-fill-dark-soft p-1 dark:bg-brand-heading">
+    <div className="flex w-full rounded-button bg-brand-fill-dark-soft p-1 dark:bg-brand-heading">
       {themesWithOutSystem.map((theme) => {
         const isActive = theme === (resolvedTheme as 'dark' | 'light')
 
@@ -47,10 +47,10 @@ const ExpandedToggle = () => {
               setTheme(theme)
             }}
             className={cn(
-              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[6px] p-1 capitalize duration-300',
+              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-button p-1 capitalize duration-300',
               isActive
-                ? 'bg-white text-brand-component-text-dark dark:bg-brand-fill-outermost dark:text-white'
-                : 'bg-transparent text-brand-text-gray dark:text-brand-dark-text-gray'
+                ? 'bg-white text-foreground dark:bg-brand-fill-outermost dark:text-white'
+                : 'bg-transparent text-muted-foreground dark:text-brand-dark-text-gray'
             )}
           >
             {theme === 'light' ? (
@@ -59,7 +59,7 @@ const ExpandedToggle = () => {
                 className={cn(
                   'duration-300',
                   isActive
-                    ? 'fill-brand-text-dark dark:fill-white'
+                    ? 'fill-foreground dark:fill-white'
                     : 'bg-transparent'
                 )}
               />

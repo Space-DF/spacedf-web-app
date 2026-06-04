@@ -88,7 +88,7 @@ export const ForgotPasswordForm = () => {
               <div className="space-y-2">
                 <Button
                   type="submit"
-                  className="mb-2 h-11 w-full rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm"
+                  className="mb-2 h-11 w-full border-4 shadow-sm"
                   loading={isMutating}
                 >
                   {t('continue')}
@@ -97,7 +97,7 @@ export const ForgotPasswordForm = () => {
                   <span className="text-sm text-brand-component-text-dark text-center">
                     {t('never_mind')},{' '}
                     <span
-                      className="text-brand-component-text-dark hover:underline cursor-pointer font-semibold"
+                      className="text-foreground hover:underline cursor-pointer font-semibold"
                       onClick={() => setFormType('signIn')}
                     >
                       {t('back_to_sign_in')}

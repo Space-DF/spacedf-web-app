@@ -223,7 +223,7 @@ export function MemberTab() {
               {t('space.clear_all')}
             </Button>
             <Button
-              className="h-10 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-semibold text-white shadow-sm dark:border-brand-component-stroke-light"
+              className="h-10 w-full items-center gap-2 font-semibold"
               size="lg"
               disabled={inviteMembers.length === 0}
               onClick={handleInviteAll}

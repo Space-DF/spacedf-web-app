@@ -174,14 +174,14 @@ const Identity = () => {
       <Drawer open={openDrawer} onOpenChange={handleOpenChangeDrawer}>
         <DrawerContent className="h-[95vh] text-brand-component-text-dark dark:bg-brand-fill-outermost">
           <div className="flex size-full flex-col overflow-auto">
-            <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-white px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
+            <div className="sticky top-0 z-40 flex items-center justify-between border-b border-b-brand-stroke-dark-soft bg-background px-4 pb-4 dark:border-b-brand-stroke-outermost dark:bg-brand-fill-outermost">
               <p className="text-base font-semibold">
                 {isOtp ? (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-12 w-full items-center gap-2 rounded-lg border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost text-brand-component-text-gray"
+                        className="h-12 w-full items-center gap-2 font-medium "
                       >
                         <ArrowLeftIcon className="size-4" />
                         {t('back')}
@@ -198,12 +198,7 @@ const Identity = () => {
                       </AlertDialogHeader>
                       <AlertDialogFooter className="grid grid-cols-2 gap-2">
                         <AlertDialogCancel asChild>
-                          <Button
-                            variant="outline"
-                            className="text-brand-text-gray"
-                          >
-                            {t('cancel')}
-                          </Button>
+                          <Button variant="outline">{t('cancel')}</Button>
                         </AlertDialogCancel>
                         <AlertDialogAction asChild>
                           <Button onClick={() => setFormType('signUp')}>

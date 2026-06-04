@@ -37,7 +37,7 @@ export const WidgetAction: React.FC<Props> = ({
           </Button>
           <Button
             onClick={handleSaveDashboard}
-            className="border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost"
+            className="font-medium"
             loading={isUpdatingWidgets}
           >
             {t('dashboard.save')}

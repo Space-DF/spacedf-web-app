@@ -68,7 +68,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   )
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 bg-background">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <Label className="text-brand-component-text-dark text-sm font-semibold">
@@ -94,7 +94,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
         placeholder="Search for events"
-        prefixCpn={<Search size={14} />}
+        prefixCpn={<Search size={14} className="text-muted-foreground" />}
         wrapperClass="w-full"
       />
       <div className="space-y-1">
@@ -114,7 +114,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
       </div>
 
       <Slide
-        className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0"
+        className="w-full bg-background p-0"
         open={openAllEvent}
         direction="right"
         size="100%"
