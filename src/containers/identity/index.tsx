@@ -181,7 +181,7 @@ const Identity = () => {
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-12 w-full items-center gap-2 rounded-lg border-brand-stroke-dark-soft font-medium dark:border-brand-stroke-outermost text-brand-component-text-gray"
+                        className="h-12 w-full items-center gap-2 font-medium "
                       >
                         <ArrowLeftIcon className="size-4" />
                         {t('back')}
@@ -198,12 +198,7 @@ const Identity = () => {
                       </AlertDialogHeader>
                       <AlertDialogFooter className="grid grid-cols-2 gap-2">
                         <AlertDialogCancel asChild>
-                          <Button
-                            variant="outline"
-                            className="text-brand-text-gray"
-                          >
-                            {t('cancel')}
-                          </Button>
+                          <Button variant="outline">{t('cancel')}</Button>
                         </AlertDialogCancel>
                         <AlertDialogAction asChild>
                           <Button onClick={() => setFormType('signUp')}>

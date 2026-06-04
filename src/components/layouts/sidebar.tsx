@@ -289,7 +289,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="!rounded-lg border-none shadow-none dark:text-brand-dark-text-gray hover:dark:text-white"
+                className="border-none shadow-none"
               >
                 <SettingIcon />
               </Button>
@@ -299,7 +299,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="!rounded-lg border-none text-destructive shadow-none hover:bg-red-200 hover:text-destructive/80"
+                className="border-none text-destructive shadow-none hover:bg-red-200 hover:text-destructive/80"
                 onClick={handleSignOut}
               >
                 <LogOut size={16} />

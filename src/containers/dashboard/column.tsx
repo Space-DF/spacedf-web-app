@@ -33,7 +33,7 @@ export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
           <Button
             size="icon"
             variant="outline"
-            className="size-8 border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
+            className="size-8 shadow-none"
             onClick={() => handleSelectDashboard(original)}
           >
             <Pencil size={16} />
@@ -42,7 +42,7 @@ export const getColumns = (props: ColumnProps): ColumnDef<Dashboard>[] => {
           <Button
             size="icon"
             variant="outline"
-            className="size-8 border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
+            className="size-8 shadow-none"
             onClick={() => handleDeleteSpace(original.id)}
           >
             <Trash size={16} />
