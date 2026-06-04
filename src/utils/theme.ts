@@ -16,8 +16,8 @@ export function hexToHslComponents(hex: string): string {
       .join('')
   }
 
-  if (cleanHex.length !== 6) {
-    if (/^\d+(\.\d+)?\s+\d+%\s+\d+%$/.test(cleanHex)) {
+  if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+    if (/^\\d+(\\.\\d+)?\\s+\\d+%\\s+\\d+%$/.test(cleanHex)) {
       return cleanHex
     }
     return ''
