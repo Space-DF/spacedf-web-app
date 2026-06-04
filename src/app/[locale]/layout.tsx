@@ -88,7 +88,7 @@ export default async function RootLayout({
   const host = headers().get('host') || 'localhost'
   const org = await getValidSubdomain(host)
 
-  let themeStyles = {}
+  let themeStyles = ''
   if (org) {
     const orgResult = await checkSlugName(org)
     if (orgResult.isValid && orgResult.setting) {
