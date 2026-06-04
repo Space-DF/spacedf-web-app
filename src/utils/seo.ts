@@ -1,6 +1,18 @@
 import { Metadata } from 'next'
 import { getS3Url } from './s3'
 
+const formatFavicon = (favicon: string | { light?: string; dark?: string }) => {
+  if (typeof favicon === 'string') return favicon
+  const icons = []
+  if (favicon.light) {
+    icons.push({ url: favicon.light, media: '(prefers-color-scheme: light)' })
+  }
+  if (favicon.dark) {
+    icons.push({ url: favicon.dark, media: '(prefers-color-scheme: dark)' })
+  }
+  return icons
+}
+
 export function buildMetadata(
   metadata: {
     title: string
@@ -43,69 +55,9 @@ export function buildMetadata(
 
     ...(favicon && {
       icons: {
-        icon:
-          typeof favicon === 'string'
-            ? favicon
-            : [
-                ...(favicon.light
-                  ? [
-                      {
-                        url: favicon.light,
-                        media: '(prefers-color-scheme: light)',
-                      },
-                    ]
-                  : []),
-                ...(favicon.dark
-                  ? [
-                      {
-                        url: favicon.dark,
-                        media: '(prefers-color-scheme: dark)',
-                      },
-                    ]
-                  : []),
-              ],
-        shortcut:
-          typeof favicon === 'string'
-            ? favicon
-            : [
-                ...(favicon.light
-                  ? [
-                      {
-                        url: favicon.light,
-                        media: '(prefers-color-scheme: light)',
-                      },
-                    ]
-                  : []),
-                ...(favicon.dark
-                  ? [
-                      {
-                        url: favicon.dark,
-                        media: '(prefers-color-scheme: dark)',
-                      },
-                    ]
-                  : []),
-              ],
-        apple:
-          typeof favicon === 'string'
-            ? favicon
-            : [
-                ...(favicon.light
-                  ? [
-                      {
-                        url: favicon.light,
-                        media: '(prefers-color-scheme: light)',
-                      },
-                    ]
-                  : []),
-                ...(favicon.dark
-                  ? [
-                      {
-                        url: favicon.dark,
-                        media: '(prefers-color-scheme: dark)',
-                      },
-                    ]
-                  : []),
-              ],
+        icon: formatFavicon(favicon),
+        shortcut: formatFavicon(favicon),
+        apple: formatFavicon(favicon),
       },
     }),
   }
