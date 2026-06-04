@@ -99,7 +99,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost`
+          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost bg-background`
         )}
         id="sidebar-id"
       >
@@ -162,7 +162,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
             {!isAuth && mounted && <IdentityButton isCollapsed={isCollapsed} />}
           </div>
           <SidebarSimpleIcon
-            className="cursor-pointer justify-self-end text-brand-text-gray"
+            className="cursor-pointer justify-self-end text-muted-foreground"
             onClick={handleCollapsedChange}
           />
         </div>
@@ -175,7 +175,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="h-8 justify-start gap-2 p-0 text-muted-foreground duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
           >
             <SettingIcon />
             <p className="text-sm">{t('general_settings')}</p>
@@ -185,7 +185,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
         {isAuth && (
           <Button
             variant="ghost"
-            className="h-8 justify-start gap-2 p-0 text-brand-text-gray duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="h-8 justify-start gap-2 p-0 text-muted-foreground duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
             onClick={handleSignOut}
           >
             <LogOut size={16} />
@@ -377,9 +377,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
       <label
         className={cn(
           'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
-          isDisplayed
-            ? 'text-brand-component-text-dark dark:text-white'
-            : 'text-brand-text-gray dark:text-brand-dark-text-gray'
+          isDisplayed ? 'text-foreground' : 'text-muted-foreground'
         )}
         htmlFor={navigation.href}
         onClick={navigation?.onClick}

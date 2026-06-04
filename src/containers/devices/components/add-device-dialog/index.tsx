@@ -156,7 +156,13 @@ export const AddDeviceDialog = () => {
         <span className="text-xs font-semibold leading-4">
           {uppercaseFirstLetter(tCommon('add'))} {tCommon('devices')}{' '}
         </span>
-        <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
+        <Image
+          src={'/images/plus.svg'}
+          alt="plus"
+          width={16}
+          height={16}
+          className="text-primary-foreground"
+        />
       </Button>
       <Dialog open={isOpenDeviceModal} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">

@@ -91,8 +91,7 @@ export function SearchLocation({ map, className }: SearchLocationProps) {
       <PopoverAnchor asChild>
         <div
           className={cn(
-            'flex min-w-72 max-w-96 outline-none items-center gap-2 rounded-sm bg-white px-3 shadow-sm transition-colors',
-            'dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost',
+            'flex min-w-72 max-w-96 outline-none items-center gap-2 bg-input rounded-input px-3 shadow-sm transition-colors',
             className
           )}
         >
@@ -104,7 +103,7 @@ export function SearchLocation({ map, className }: SearchLocationProps) {
             onFocus={handleFocus}
             placeholder="Search Location"
             className={cn(
-              'h-10 flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground dark:text-white'
+              'h-10 flex-1 min-w-0 text-sm outline-none placeholder:text-brand-component-text-gray bg-input text-input-foreground'
             )}
             aria-label="Search location"
             aria-autocomplete="list"

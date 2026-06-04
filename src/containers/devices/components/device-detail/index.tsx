@@ -80,7 +80,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
 
   return (
     <Slide
-      className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0 overflow-y-auto"
+      className="w-full bg-background p-0 overflow-y-auto"
       open={open}
       showCloseButton={false}
       direction="right"

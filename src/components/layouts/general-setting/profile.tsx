@@ -254,12 +254,7 @@ const Profile = () => {
         </div>
         <div className="mt-4 flex gap-2">
           <DialogClose asChild>
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="h-12 rounded-lg border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
-            >
+            <Button type="button" size="lg" variant="outline" className="h-12">
               {t('cancel')}
             </Button>
           </DialogClose>
@@ -267,7 +262,7 @@ const Profile = () => {
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full items-center gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
+            className="h-12 w-full items-center gap-2 font-medium text-white shadow-sm"
             loading={isUpdatingProfile}
             disabled={!isDirty}
           >

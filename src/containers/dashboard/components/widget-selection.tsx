@@ -120,8 +120,10 @@ const WidgetSelection = ({
       <div className="flex size-full animate-opacity-display-effect flex-col items-center justify-center gap-4">
         <div className="px-2 w-full">
           <InputWithIcon
-            wrapperClass="w-full h-fit rounded-lg bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
-            prefixCpn={<SearchIcon size={18} />}
+            wrapperClass="w-full h-fit bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
+            prefixCpn={
+              <SearchIcon size={18} className="text-muted-foreground" />
+            }
             value={searchTerm}
             placeholder={t('dashboard.search_for_widget')}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -149,7 +151,7 @@ const WidgetSelection = ({
               <div key={`${index + 1}`} className="h-full overflow-visible">
                 <div
                   onClick={() => onSelectWidget(widget.value)}
-                  className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-lg bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
+                  className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-card bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
                 >
                   <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
                     {widget.icon}

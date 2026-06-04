@@ -56,7 +56,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             <p
               className={cn(
                 'text-sm font-semibold w-full wrap-anywhere line-clamp-1',
-                isSelected ? 'text-brand-heading dark:text-white' : 'text-white'
+                isSelected ? 'text-foreground dark:text-white' : 'text-white'
               )}
             >
               {name}
@@ -68,7 +68,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
         )}
       </div>
       {!hiddenOption && (
-        <ChevronsUpDown size={20} className="text-brand-text-gray" />
+        <ChevronsUpDown size={20} className="text-muted-foreground" />
       )}
     </div>
   )
