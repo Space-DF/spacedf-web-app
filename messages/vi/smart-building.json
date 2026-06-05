@@ -71,5 +71,6 @@
   "assign_device_error": "Gán thiết bị thất bại.",
   "confirm_move_device_title": "Lưu vị trí thiết bị?",
   "confirm_move_device_description": "Bạn có chắc chắn muốn lưu vị trí mới cho thiết bị này không?",
-  "move_entities": "Di chuyển thiết bị"
+  "move_entities": "Di chuyển thiết bị",
+  "turn_on_edit_mode_digital_twins": "Bật chế độ chỉnh sửa cho Digital Twins"
 }
