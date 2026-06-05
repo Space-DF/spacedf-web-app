@@ -5,17 +5,37 @@ interface MoveDeviceStore {
   isDragging: boolean
   setDeviceId: (id: string | null) => void
   setIsDragging: (isDragging: boolean) => void
-  position?: { x: number; y: number; z: number }
   setPosition: (position?: { x: number; y: number; z: number }) => void
+  movedPositions: Record<string, { x: number; y: number; z: number }>
   reset: () => void
+  isEditMode: boolean
+  setIsEditMode: (isEditMode: boolean) => void
 }
 
 export const useMoveDeviceStore = create<MoveDeviceStore>((set) => ({
   deviceId: null,
   isDragging: false,
-  position: undefined,
+  movedPositions: {},
+  isEditMode: false,
   setDeviceId: (deviceId) => set({ deviceId }),
   setIsDragging: (isDragging) => set({ isDragging }),
-  setPosition: (position) => set({ position }),
-  reset: () => set({ deviceId: null, isDragging: false, position: undefined }),
+  setPosition: (position) =>
+    set((state) => {
+      if (state.deviceId && position) {
+        return {
+          movedPositions: {
+            ...state.movedPositions,
+            [state.deviceId]: position,
+          },
+        }
+      }
+      return {}
+    }),
+  setIsEditMode: (isEditMode) => set({ isEditMode }),
+  reset: () =>
+    set({
+      deviceId: null,
+      isDragging: false,
+      movedPositions: {},
+    }),
 }))

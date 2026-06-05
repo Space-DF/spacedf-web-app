@@ -10,7 +10,14 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useAddDeviceStore } from '@/stores/template/add-device'
 import { getS3Url } from '@/utils'
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { DialogSelectDeviceFromList } from './components/dialog-select-device-from-list'
 import ThreeModel from './components/three-glb-model'
 import { ThreeModelControls } from './components/three-model-controls'
@@ -20,6 +27,16 @@ import { List } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useShallow } from 'zustand/react/shallow'
 import { ModelFallback } from './components/model-fallback'
+import { Switch } from '@/components/ui/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { useMoveDeviceStore } from '@/stores/template/move-device'
+import { useBulkUpdateDevicePositions } from './components/dialog-select-device-from-list/hooks/useBulkUpdateDevicePositions'
+import { toast } from 'sonner'
+import Pen from '@/components/icons/pen'
 
 export default function SmartBuilding() {
   const t = useTranslations('smartBuilding')
@@ -32,6 +49,33 @@ export default function SmartBuilding() {
       setDeviceModalPosition: state.setPosition,
     }))
   )
+
+  const { mutateAsync: bulkUpdatePositions, isPending: isUpdating } =
+    useBulkUpdateDevicePositions()
+  const { isEditMode, setIsEditMode } = useMoveDeviceStore(
+    useShallow((state) => ({
+      isEditMode: state.isEditMode,
+      setIsEditMode: state.setIsEditMode,
+    }))
+  )
+
+  const handleSaveAllPositions = useCallback(async () => {
+    const moved = useMoveDeviceStore.getState().movedPositions
+    const deviceIds = Object.keys(moved)
+    const buildingId = building?.id
+    if (deviceIds.length === 0 || !buildingId) {
+      setIsEditMode(false)
+      return
+    }
+
+    const payload = deviceIds.map((deviceId) => ({
+      id: deviceId,
+      position: moved[deviceId],
+    }))
+    await bulkUpdatePositions(payload)
+    toast.success(t('assign_device_success'))
+    setIsEditMode(false)
+  }, [bulkUpdatePositions, building?.id, t, setIsEditMode])
 
   const [contextMenuPosition, setContextMenuPosition] = useState<{
     x: number
@@ -95,8 +139,41 @@ export default function SmartBuilding() {
           <div className="w-fit">
             <SpacedfLogo />
           </div>
-          <div className="flex space-x-3">
-            {isAuthenticated && <DropdownSwitchBuilding />}
+          <div className="flex space-x-3 items-start">
+            <div className="flex space-x-3 items-center">
+              {isAuthenticated && (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex">
+                        <Switch
+                          checked={isEditMode}
+                          onCheckedChange={(checked) => {
+                            if (!checked) {
+                              handleSaveAllPositions()
+                            } else {
+                              setIsEditMode(checked)
+                            }
+                          }}
+                          disabled={isUpdating}
+                          className="h-8 w-14"
+                          thumbClassName="h-7 w-7 data-[state=checked]:translate-x-6 data-[state=unchecked]:translate-x-0"
+                          thumbIcon={<Pen className="text-foreground" />}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="bottom"
+                      align="center"
+                      className="text-xs border-none"
+                    >
+                      {t('turn_on_edit_mode_digital_twins')}
+                    </TooltipContent>
+                  </Tooltip>
+                  <DropdownSwitchBuilding />
+                </>
+              )}
+            </div>
             {modelUrl && <ThreeModelControls />}
           </div>
         </div>
@@ -124,7 +201,7 @@ export default function SmartBuilding() {
                 }}
                 shadows
               >
-                <color attach="background" args={['#2A2A2A']} />
+                <color attach="background" args={['#323337']} />
                 <ambientLight intensity={0.6} />
                 <directionalLight
                   position={[5, 8, 5]}
