@@ -75,4 +75,20 @@ export const POST = withAuthApiRequired(
   }
 )
 
+export const PUT = withAuthApiRequired(
+  async (request, { params }: { params: { spaceSlug: string } }) => {
+    try {
+      const body = await request.json()
+      const client = await spaceClient()
+      const device = await client.deviceSpaces.bulkUpdatePosition(body, {
+        headers: {
+          'X-Space': params.spaceSlug,
+        },
+      })
+      return NextResponse.json(device)
+    } catch (error) {
+      return handleError(error)
+    }
+  }
+)
 export { GET }

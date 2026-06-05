@@ -71,5 +71,6 @@
   "assign_device_error": "Failed to assign device.",
   "confirm_move_device_title": "Save device position?",
   "confirm_move_device_description": "Are you sure you want to save the new position for this device?",
-  "move_entities": "Move entities"
+  "move_entities": "Move entities",
+  "turn_on_edit_mode_digital_twins": "Turn on Edit Mode for Digital Twins"
 }

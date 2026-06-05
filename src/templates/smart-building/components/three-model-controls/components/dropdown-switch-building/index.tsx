@@ -210,7 +210,7 @@ export function DropdownSwitchBuilding() {
                 </div>
               )}
             </div>
-            <div className="shrink-0 bg-brand-component-fill-light dark:bg-brand-component-fill-gray-soft p-1">
+            <div className="shrink-0 p-1">
               <Button
                 type="button"
                 onPointerDown={(e) => e.preventDefault()}
