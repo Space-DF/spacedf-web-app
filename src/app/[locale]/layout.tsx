@@ -96,12 +96,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <body>
         {themeStyles && (
           <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
         )}
-      </head>
-      <body>
         <NextIntlClientProvider messages={messages}>
           <AppProvider session={session}>
             <TooltipProvider>{children}</TooltipProvider>
