@@ -107,11 +107,7 @@ const MapControls = ({ map }: MapControlsProps) => {
 }
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="shadow-sm overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
-      {children}
-    </div>
-  )
+  return <div className="grid grid-cols-1 gap-y-0.5 p-0.5">{children}</div>
 }
 
 function ControlButton({
