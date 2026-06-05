@@ -20,7 +20,7 @@ import { SpaceDFLogoFull } from '@/components/icons'
 import { TypographySecondary } from '@/components/ui/typography'
 import { useRouter } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useOrganization } from '@/hooks/useOrganization'
 import { PRODUCTION_SITE_URL } from '@/shared/env'
 
 const passwordSchema = z.object({
@@ -36,7 +36,7 @@ export default function ProtectedPage() {
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
   })
-  const { organization } = useParams()
+  const { organization } = useOrganization()
   const t = useTranslations('common')
 
   const onSubmit = (value: PasswordFormValues) => {

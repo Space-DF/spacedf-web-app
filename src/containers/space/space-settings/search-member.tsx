@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { type KeyboardEvent, useCallback, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { isEmail } from '@/utils/common'
-import { useParams } from 'next/navigation'
+import { useOrganization } from '@/hooks/useOrganization'
 export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
 
@@ -38,7 +38,7 @@ export const SearchMember = ({
 
   const [isOpen, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState<string>('')
-  const { organization } = useParams()
+  const { organization } = useOrganization()
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {

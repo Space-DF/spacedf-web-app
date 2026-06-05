@@ -1,7 +1,7 @@
 import { DEMO_SUBDOMAIN } from '@/constants'
-import { useParams } from 'next/navigation'
+import { useOrganization } from './useOrganization'
 
 export const useIsDemo = () => {
-  const { organization } = useParams()
+  const { organization } = useOrganization()
   return organization === DEMO_SUBDOMAIN
 }

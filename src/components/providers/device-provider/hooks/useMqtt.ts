@@ -18,6 +18,7 @@ import { getWidgetRealtime } from '../utils'
 import { useDevAuthentication } from '@/hooks/useDevAuthentication'
 import MqttService from '@/lib/mqtt'
 import { useParams } from 'next/navigation'
+import { useOrganization } from '@/hooks/useOrganization'
 import { useGlobalStore } from '@/stores'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { toast } from 'sonner'
@@ -69,8 +70,8 @@ export const useMqtt = () => {
 
   const insertDeviceEvents = useEventStore((state) => state.insertDeviceEvents)
 
-  const { organization, spaceSlug } = useParams<{
-    organization: string
+  const { organization } = useOrganization()
+  const { spaceSlug } = useParams<{
     spaceSlug: string
   }>()
 
@@ -237,7 +238,7 @@ export const useMqtt = () => {
   }
 
   useEffect(() => {
-    if (isDemo || isDevLoading || !isDevVerified) return
+    if (isDemo || isDevLoading || !isDevVerified || !organization) return
     mqttRouterRef.current = new MQTTRouter()
 
     // Register device telemetry handler (no store dependency)
