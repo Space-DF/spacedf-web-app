@@ -37,6 +37,7 @@ import { useMoveDeviceStore } from '@/stores/template/move-device'
 import { useBulkUpdateDevicePositions } from './components/dialog-select-device-from-list/hooks/useBulkUpdateDevicePositions'
 import { toast } from 'sonner'
 import Pen from '@/components/icons/pen'
+import { useParams } from 'next/navigation'
 
 export default function SmartBuilding() {
   const t = useTranslations('smartBuilding')
@@ -86,17 +87,19 @@ export default function SmartBuilding() {
 
   const isAuthenticated = useAuthenticated()
 
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
+
   useEffect(() => {
     if (!isAuthenticated) return
     if (isFirstLoadRef.current) {
-      if (!building) {
+      if (!building || !spaceSlug) {
         setGlobalLoading(true)
         return
       }
       setGlobalLoading(false)
       isFirstLoadRef.current = false
     }
-  }, [isAuthenticated, building])
+  }, [isAuthenticated, building, spaceSlug])
 
   const modelUrl = useMemo(() => {
     if (!isAuthenticated || !building?.url_scene_asset)

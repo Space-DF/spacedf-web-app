@@ -18,7 +18,6 @@ import {
 } from '@/utils'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
-import EffectLayout from '../ui/effect-layout'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -314,95 +313,93 @@ const DynamicLayout = ({
   }, [isGeofencesActive])
 
   return (
-    <EffectLayout>
-      <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
-        <ResizablePanelGroup
-          onLayout={handleMainLayoutChanges}
-          direction="horizontal"
-          ref={mainLayoutRefs}
+    <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
+      <ResizablePanelGroup
+        onLayout={handleMainLayoutChanges}
+        direction="horizontal"
+        ref={mainLayoutRefs}
+      >
+        <ResizablePanel
+          minSize={minLeftSize}
+          maxSize={maxLeftSize}
+          defaultSize={sidebarWidth}
+          className="duration-200"
         >
-          <ResizablePanel
-            minSize={minLeftSize}
-            maxSize={maxLeftSize}
-            defaultSize={sidebarWidth}
-            className="duration-200"
+          <Sidebar ref={mainLayoutRefs} />
+        </ResizablePanel>
+        <ResizableHandle disabled={!isTablet} />
+        <ResizablePanel>
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="min-h-screen w-full overflow-auto"
+            onLayout={handleDynamicLayoutChanges}
+            ref={refs}
+            id="group"
           >
-            <Sidebar ref={mainLayoutRefs} />
-          </ResizablePanel>
-          <ResizableHandle disabled={!isTablet} />
-          <ResizablePanel>
-            <ResizablePanelGroup
-              direction="horizontal"
-              className="min-h-screen w-full overflow-auto"
-              onLayout={handleDynamicLayoutChanges}
-              ref={refs}
-              id="group"
-            >
-              <ResizablePanel defaultSize={mainWidth} minSize={40}>
-                <div
-                  className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
-                  id="ele-main-content"
-                >
-                  {children}
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle
-                className={cn(
-                  'duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
-                )}
-              />
-
-              <ResizablePanel
-                defaultSize={sidebarWidth}
-                className={cn(
-                  'transition-all duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
-                )}
-                minSize={minRightSize}
-                maxSize={maxRightSize}
+            <ResizablePanel defaultSize={mainWidth} minSize={40}>
+              <div
+                className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
+                id="ele-main-content"
               >
-                <ResizablePanelGroup
-                  direction="horizontal"
-                  ref={rightLayoutRefs}
-                  onLayout={handleRightLayoutChange}
-                  id="region-dynamic-layout"
+                {children}
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle
+              className={cn(
+                'duration-300',
+                isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
+              )}
+            />
+
+            <ResizablePanel
+              defaultSize={sidebarWidth}
+              className={cn(
+                'transition-all duration-300',
+                isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
+              )}
+              minSize={minRightSize}
+              maxSize={maxRightSize}
+            >
+              <ResizablePanelGroup
+                direction="horizontal"
+                ref={rightLayoutRefs}
+                onLayout={handleRightLayoutChange}
+                id="region-dynamic-layout"
+              >
+                <ResizablePanel
+                  defaultSize={mainWidth}
+                  minSize={first ? 45 : 0}
+                  className={cn(
+                    'bg-background',
+                    first
+                      ? 'animate-opacity-display-effect'
+                      : 'animate-opacity-hide-effect'
+                  )}
+                  hidden={!first}
                 >
-                  <ResizablePanel
-                    defaultSize={mainWidth}
-                    minSize={first ? 45 : 0}
-                    className={cn(
-                      'bg-background',
-                      first
-                        ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect'
-                    )}
-                    hidden={!first}
-                  >
-                    <DynamicLayoutContent panelType={left} />
-                  </ResizablePanel>
-                  {isShowAll && <ResizableHandle />}
-                  <ResizablePanel
-                    defaultSize={mainWidth}
-                    minSize={second ? 45 : 0}
-                    className={cn(
-                      'bg-background',
-                      second
-                        ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect'
-                    )}
-                    hidden={!second}
-                  >
-                    <DynamicLayoutContent panelType={right} />
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-    </EffectLayout>
+                  <DynamicLayoutContent panelType={left} />
+                </ResizablePanel>
+                {isShowAll && <ResizableHandle />}
+                <ResizablePanel
+                  defaultSize={mainWidth}
+                  minSize={second ? 45 : 0}
+                  className={cn(
+                    'bg-background',
+                    second
+                      ? 'animate-opacity-display-effect'
+                      : 'animate-opacity-hide-effect'
+                  )}
+                  hidden={!second}
+                >
+                  <DynamicLayoutContent panelType={right} />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   )
 }
 
