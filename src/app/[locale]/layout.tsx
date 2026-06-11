@@ -49,9 +49,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const favicon = {
     light:
-      lightTheme?.url_favicon || darkTheme?.url_favicon || defaultFavicon.light,
+      lightTheme?.url_favicon ||
+      darkTheme?.url_favicon ||
+      lightTheme?.url_logo ||
+      darkTheme?.url_logo ||
+      defaultFavicon.light,
     dark:
-      darkTheme?.url_favicon || lightTheme?.url_favicon || defaultFavicon.dark,
+      darkTheme?.url_favicon ||
+      lightTheme?.url_favicon ||
+      darkTheme?.url_logo ||
+      lightTheme?.url_logo ||
+      defaultFavicon.dark,
   }
 
   return buildMetadata(
