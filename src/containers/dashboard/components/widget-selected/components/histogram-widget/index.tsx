@@ -23,7 +23,6 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(
 import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
 import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
 import { WidgetLayout } from '@/types/widget'
-import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
 import {
@@ -31,6 +30,7 @@ import {
   generateData,
 } from '../chart-widget/components/preview-chart'
 import dayjs from 'dayjs'
+import { uuidv4 } from '@/utils'
 
 interface Props {
   selectedWidget: WidgetType

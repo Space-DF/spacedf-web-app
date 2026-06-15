@@ -99,7 +99,7 @@ export default function SmartBuilding() {
       setGlobalLoading(false)
       isFirstLoadRef.current = false
     }
-  }, [isAuthenticated, building, spaceSlug])
+  }, [isAuthenticated, building, spaceSlug, setGlobalLoading])
 
   const modelUrl = useMemo(() => {
     if (!isAuthenticated || !building?.url_scene_asset)

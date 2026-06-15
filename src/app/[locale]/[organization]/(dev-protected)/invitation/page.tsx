@@ -1,11 +1,11 @@
 'use client'
-import { Player } from '@lottiefiles/react-lottie-player'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { Button } from '@/components/ui/button'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-const invitationAcceptedAnimation = '/animations/invitation-accepted.json'
-const invitationRejectedAnimation = '/animations/invitation-failed.json'
+const invitationAcceptedAnimation = '/animations/invitation-accepted.lottie'
+const invitationRejectedAnimation = '/animations/invitation-failed.lottie'
 
 export default function InvitationPage() {
   const searchParams = useSearchParams()
@@ -16,11 +16,11 @@ export default function InvitationPage() {
       <div className="flex flex-col gap-4">
         {isInvitationAccepted ? (
           <>
-            <Player
+            <DotLottieReact
               autoplay
               loop
               src={invitationAcceptedAnimation}
-              className="w-80"
+              width={320}
             />
             <h1 className="text-4xl font-semibold text-center">
               {t('invitation_accepted')}
@@ -36,11 +36,11 @@ export default function InvitationPage() {
           </>
         ) : (
           <>
-            <Player
+            <DotLottieReact
               autoplay
               loop
               src={invitationRejectedAnimation}
-              className="w-80"
+              width={320}
             />
             <h1 className="text-4xl font-semibold text-center">
               {t('invitation_failed')}

@@ -9,16 +9,16 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { geocodingService } from '@/utils/map-geocoding'
-import type { GeocodingFeature } from '@maptiler/sdk'
+import type { GeocodingFeature } from '@maptiler/client'
 import { MapPin, Search } from 'lucide-react'
-import MapLibreGL from 'maplibre-gl'
+import type { Map } from 'maplibre-gl'
 import useSWR from 'swr'
 import { useCallback, useState } from 'react'
 import { useDebounce } from '@/hooks'
 import { cn } from '@/lib/utils'
 
 type SearchLocationProps = {
-  map: MapLibreGL.Map | null
+  map: Map | null
   className?: string
 }
 

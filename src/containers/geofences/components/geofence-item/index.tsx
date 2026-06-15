@@ -99,7 +99,7 @@ export const GeofenceItem: React.FC<Props> = ({
       <div className="flex min-w-0 items-center gap-3">
         <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft bg-brand-fill-surface">
           <Image
-            src="/images/map.svg"
+            src="/images/map.webp"
             alt="geofence"
             fill
             className="object-cover opacity-60"

@@ -18,4 +18,7 @@ export const queryKeys = {
       params: { limit?: number; offset?: number } = {}
     ) => [...queryKeys.buildings.all, 'list', spaceSlug, params] as const,
   },
+  devVerification: {
+    check: () => ['check-dev-verification'] as const,
+  },
 } as const

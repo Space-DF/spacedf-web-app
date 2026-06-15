@@ -16,13 +16,13 @@ import Source from './components/source'
 import Timeframe from './components/timeframe'
 import WidgetInfo from './components/widget-info'
 import { brandColors } from '@/configs'
-import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
 import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
 import { WidgetLayout } from '@/types/widget'
 import { WidgetType } from '@/widget-models/widget'
 import { toast } from 'sonner'
+import { uuidv4 } from '@/utils'
 
 const TabContents = () => {
   return (

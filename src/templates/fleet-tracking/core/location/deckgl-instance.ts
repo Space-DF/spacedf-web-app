@@ -6,11 +6,10 @@ import { GLTFLoader } from '@loaders.gl/gltf'
 import { ScatterplotLayer, ScenegraphLayer } from 'deck.gl'
 import isEqual from 'fast-deep-equal'
 import MapLibreGL from 'maplibre-gl'
-import { linear } from 'popmotion'
 import { MAP_PITCH } from '../../constant'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import { pulseController } from '../pulse-controller'
-import { getS3Url } from '@/utils'
+import { getS3Url, linear } from '@/utils'
 
 type LayerResource = {
   id: string

@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { useTranslations } from 'next-intl'
 import { useForm, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -38,6 +37,7 @@ import {
   PopoverPortalAnchor,
 } from './automation-dialog-popover-portal-context'
 import Info from '@/components/icons/info'
+import { uuidv4 } from '@/utils'
 
 interface Props {
   isOpen: boolean
