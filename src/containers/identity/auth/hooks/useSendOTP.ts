@@ -1,15 +1,14 @@
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import api from '@/lib/api'
 
-const fetcher = async (url: string, { arg }: { arg: string }) => {
-  return api.post(url, { email: arg })
-}
-
 const useSendOTP = () => {
   const t = useTranslations('signUp')
-  return useSWRMutation('/api/auth/send-otp', fetcher, {
+  const { mutateAsync, isPending } = useMutation<any, Error, string>({
+    mutationFn: async (arg) => {
+      return api.post('/api/auth/send-otp', { email: arg })
+    },
     onSuccess: () => {
       toast.success(t('send_otp_success'))
     },
@@ -17,6 +16,8 @@ const useSendOTP = () => {
       toast.error(t('send_otp_error'))
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }
 
 export default useSendOTP

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Editor, { loader, type OnMount } from '@monaco-editor/react'
-import YAML from 'yaml'
+import { stringify } from 'yaml'
 import { Undo2, Redo2, Copy, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -114,7 +114,7 @@ export const EditYamlPanel = ({
   const [error, setError] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const initialYaml = YAML.stringify(stripInternalFields(condition))
+  const initialYaml = stringify(stripInternalFields(condition))
 
   const handleEditorMount: OnMount = (editor) => {
     editorRef.current = editor

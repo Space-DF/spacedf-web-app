@@ -14,8 +14,15 @@ import {
 } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import dynamic from 'next/dynamic'
 import Axes from './components/axes'
-import { PreviewChart } from './components/preview-chart'
+
+const PreviewChart = dynamic(
+  () => import('./components/preview-chart').then((mod) => mod.PreviewChart),
+  {
+    ssr: false,
+  }
+)
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'

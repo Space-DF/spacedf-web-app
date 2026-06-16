@@ -19,7 +19,8 @@ import { useIsDemo } from '@/hooks/useIsDemo'
 import { useCreateDashboard } from '@/containers/dashboard/hooks/useCreateDashboard'
 import { Dashboard } from '@/types/dashboard'
 import { useUpdateDashboard } from './hooks/useUpdateDashboard'
-import { useSWRConfig } from 'swr'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 
 interface DashboardDialogProps {
   setDashboard?: (dashboard: Dashboard) => void
@@ -57,7 +58,7 @@ export const DashboardDialog = ({
   const { trigger: updateDashboard, isMutating: isUpdatingDashboard } =
     useUpdateDashboard()
 
-  const { mutate: mutateGlobal } = useSWRConfig()
+  const queryClient = useQueryClient()
 
   const handleClose = async () => {
     await closePopover?.()
@@ -78,9 +79,9 @@ export const DashboardDialog = ({
         name: data.name,
         id: selectedDashboard.id,
       })
-      mutateGlobal(
-        (key) => typeof key === 'string' && key.startsWith('/api/dashboard')
-      )
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboards.all,
+      })
       if (newDashboard.name !== selectedDashboard.name) {
         setDashboard?.(newDashboard)
       }
@@ -88,9 +89,9 @@ export const DashboardDialog = ({
       return
     }
     const newDashboard = await createDashboard({ name: data.name })
-    mutateGlobal(
-      (key) => typeof key === 'string' && key.startsWith('/api/dashboard')
-    )
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboards.all,
+    })
     handleClose()
     setDashboard?.(newDashboard)
   }

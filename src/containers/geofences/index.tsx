@@ -265,7 +265,6 @@ export const Geofences = () => {
                     virtualRow={virtualRow}
                     item={item}
                     onSelectGeofence={handleSelectGeofence}
-                    mutate={mutate}
                   />
                 )
               })}

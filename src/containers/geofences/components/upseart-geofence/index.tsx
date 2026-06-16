@@ -28,7 +28,8 @@ import { toast } from 'sonner'
 import { FeatureId } from '@/types/geofence'
 import { useUpdateGeofence } from '../hooks/useUpdateGeofence'
 import { useShallow } from 'zustand/react/shallow'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 
 interface UpsertGeofenceProps {
@@ -72,7 +73,7 @@ const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
     }))
   )
 
-  const { clearCacheStartsWith } = useCache()
+  const queryClient = useQueryClient()
 
   const form = useForm<GeofenceForm>({
     resolver: zodResolver(addGeofenceSchema),
@@ -180,7 +181,7 @@ const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
     }
     setDraftGeoFencesIds([])
     setOriginalGeoFencesIds([])
-    clearCacheStartsWith('/api/geofence')
+    queryClient.invalidateQueries({ queryKey: queryKeys.geofences.all })
     mutate()
     handleClose()
   }
