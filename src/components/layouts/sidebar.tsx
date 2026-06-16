@@ -393,6 +393,8 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           key={String(isDisplayed)}
           id={navigation.href}
           defaultChecked={isDisplayed}
+          aria-label={navigation.title}
+          aria-labelledby={`${navigation.href}-label`}
           checked={navigation.isAlwayEnabled}
           onCheckedChange={() => {
             if (!navigation.isAlwayEnabled) {

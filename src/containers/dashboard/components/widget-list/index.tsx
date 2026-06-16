@@ -247,6 +247,8 @@ export const WidgetList: React.FC<Props> = ({
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
+                  aria-labelledby="dashboard-combobox"
+                  aria-label="dashboard-label"
                   className={cn(
                     'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
                     {

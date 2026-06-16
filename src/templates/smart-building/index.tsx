@@ -162,6 +162,8 @@ export default function SmartBuilding() {
                           className="h-8 w-14"
                           thumbClassName="h-7 w-7 data-[state=checked]:translate-x-6 data-[state=unchecked]:translate-x-0"
                           thumbIcon={<Pen className="text-foreground" />}
+                          aria-label={t('turn_on_edit_mode_digital_twins')}
+                          aria-labelledby="digital-twins-tooltip"
                         />
                       </div>
                     </TooltipTrigger>

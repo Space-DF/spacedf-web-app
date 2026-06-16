@@ -1,5 +1,12 @@
 import { AUTH_API } from '@/shared/env'
 
+// In-memory cache for cross-request and client-side caching (5 minutes TTL)
+const subdomainCache = new Map<
+  string,
+  { subdomain: string | null; expiry: number }
+>()
+const CACHE_TTL = 5 * 60 * 1000
+
 export const getValidSubdomain = async (host?: string | null) => {
   let subdomain: string | null = null
   const [, rootDomain] = (process.env.NEXTAUTH_URL || '').split('://')
@@ -10,6 +17,12 @@ export const getValidSubdomain = async (host?: string | null) => {
   }
 
   if (host) {
+    // Check in-memory cache
+    const cached = subdomainCache.get(host)
+    if (cached && Date.now() < cached.expiry) {
+      return cached.subdomain
+    }
+
     // If it's a local/development host or includes the default domain 'myspacedf'
     if (['localhost', 'myspacedf'].some((domain) => host.includes(domain))) {
       if (host.includes('.')) {
@@ -33,6 +46,12 @@ export const getValidSubdomain = async (host?: string | null) => {
         console.error('Error resolving custom domain:', error)
       }
     }
+
+    // Cache the result
+    subdomainCache.set(host, {
+      subdomain,
+      expiry: Date.now() + CACHE_TTL,
+    })
   }
 
   if (rootDomain === host) return ''

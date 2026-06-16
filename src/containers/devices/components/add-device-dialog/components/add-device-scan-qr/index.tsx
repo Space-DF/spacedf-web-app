@@ -3,10 +3,16 @@ import { Dispatch, SetStateAction } from 'react'
 import { AddDeviceSchema } from '../../schema'
 import { useFormContext } from 'react-hook-form'
 import { useCheckClaimCode } from '@/containers/devices/hooks/useCheckClaimCode'
-import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
+import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
 import { formatValueEUI } from '@/containers/devices/utils'
 import { LoaderCircle } from 'lucide-react'
+import type { IDetectedBarcode } from '@yudiel/react-qr-scanner'
+
+const Scanner = dynamic(
+  () => import('@yudiel/react-qr-scanner').then((m) => m.Scanner),
+  { ssr: false }
+)
 
 export type Step =
   | 'select_mode'

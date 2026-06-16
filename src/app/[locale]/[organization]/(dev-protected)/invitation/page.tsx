@@ -1,5 +1,16 @@
 'use client'
-import { DotLottieReact } from '@lottiefiles/dotlottie-react'
+import dynamic from 'next/dynamic'
+
+const DotLottieReact = dynamic(
+  () =>
+    import('@lottiefiles/dotlottie-react').then((mod) => mod.DotLottieReact),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-80 h-80 bg-slate-100 animate-pulse rounded-lg" />
+    ),
+  }
+)
 import { Button } from '@/components/ui/button'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
