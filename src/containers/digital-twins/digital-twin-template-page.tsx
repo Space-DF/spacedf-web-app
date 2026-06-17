@@ -3,10 +3,13 @@ import { getValidSubdomain } from '@/utils/subdomain'
 import dynamic from 'next/dynamic'
 import { headers } from 'next/headers'
 
-const templateImporters = {
-  smart_fleet_monitor: () => import('@/templates/fleet-tracking'),
-  smart_building: () => import('@/templates/smart-building'),
-} as const
+const SmartFleetMonitor = dynamic(() => import('@/templates/fleet-tracking'), {
+  ssr: false,
+})
+
+const SmartBuilding = dynamic(() => import('@/templates/smart-building'), {
+  ssr: false,
+})
 
 export default async function DigitalTwinTemplatePage() {
   const headersList = headers()
@@ -15,11 +18,9 @@ export default async function DigitalTwinTemplatePage() {
   const org = await getValidSubdomain(host)
   const { template } = await checkSlugName(org || '')
 
-  const importer =
-    templateImporters[template as keyof typeof templateImporters] ||
-    templateImporters['smart_fleet_monitor']
-  const Template = dynamic(importer, {
-    ssr: false,
-  })
-  return <Template />
+  if (template === 'smart_building') {
+    return <SmartBuilding />
+  }
+
+  return <SmartFleetMonitor />
 }

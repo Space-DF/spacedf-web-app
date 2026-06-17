@@ -1,4 +1,4 @@
-import MapLibreGL from 'maplibre-gl'
+import type { Map as MapType } from 'maplibre-gl'
 
 const defaultStyles = {
   dark: [0, '#1f1f1f', 200, '#4b5cff', 400, '#7dd3fc'],
@@ -7,7 +7,7 @@ const defaultStyles = {
 
 class BuildingInstance {
   private static instance: BuildingInstance | undefined
-  private map: MapLibreGL.Map | null = null
+  private map: MapType | null = null
 
   private sourceId = 'building-source'
 
@@ -81,7 +81,7 @@ class BuildingInstance {
     )
   }
 
-  init(map: MapLibreGL.Map, theme: 'dark' | 'light') {
+  init(map: MapType, theme: 'dark' | 'light') {
     this.map = map
     this.createBuildingLayer(theme)
   }

@@ -1,5 +1,10 @@
 import { Device } from '@/stores/device-store'
-import MapLibreGL from 'maplibre-gl'
+import type {
+  GeoJSONSource,
+  Map as MapType,
+  MapMouseEvent,
+  MapGeoJSONFeature,
+} from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
 import MapInstance from './map-instance'
@@ -14,7 +19,7 @@ export const CLUSTER_EVENTS = {
 export type ClusterEvent = (typeof CLUSTER_EVENTS)[keyof typeof CLUSTER_EVENTS]
 class ClusterInstance {
   private static instance: ClusterInstance | undefined
-  private map: MapLibreGL.Map | null = null
+  private map: MapType | null = null
   private emitter = new EventEmitter()
 
   private originalDevices: Record<string, Device> = {}
@@ -133,8 +138,8 @@ class ClusterInstance {
   }
 
   private _handleClusterClick = async (
-    e: MapLibreGL.MapMouseEvent & {
-      features?: MapLibreGL.MapGeoJSONFeature[]
+    e: MapMouseEvent & {
+      features?: MapGeoJSONFeature[]
     }
   ) => {
     if (!this.map) return
@@ -151,7 +156,7 @@ class ClusterInstance {
       number,
     ]
 
-    const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
+    const source = this.map.getSource(this.sourceId) as GeoJSONSource
     const zoom = await source.getClusterExpansionZoom(clusterId)
 
     this.map.easeTo({
@@ -206,7 +211,7 @@ class ClusterInstance {
     this.map.getCanvas().style.cursor = ''
   }
 
-  public init(map: MapLibreGL.Map) {
+  public init(map: MapType) {
     if (!map) return
     this.map = map
 
@@ -241,7 +246,7 @@ class ClusterInstance {
   updateClusterData() {
     if (!this.map) return
 
-    const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
+    const source = this.map.getSource(this.sourceId) as GeoJSONSource
 
     if (!source) {
       this.createClusterLayer()
@@ -277,7 +282,7 @@ class ClusterInstance {
     })
 
     this.clusterData.features = features
-    const source = this.map.getSource(this.sourceId) as MapLibreGL.GeoJSONSource
+    const source = this.map.getSource(this.sourceId) as GeoJSONSource
 
     if (source) {
       source.setData(this.clusterData)

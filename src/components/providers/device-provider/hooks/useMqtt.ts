@@ -48,25 +48,14 @@ const isDeviceEventResult = (
   isRecord(value) && typeof value.deviceId === 'string' && 'event' in value
 
 export const useMqtt = () => {
-  const {
-    setDeviceState,
-    devicesFleetTracking,
-    setDeviceProperties,
-    setDeviceAlerts,
-  } = useDeviceStore((state) => ({
-    setDeviceState: state.setDeviceState,
-    devicesFleetTracking: state.devicesFleetTracking,
-    setDeviceProperties: state.setDeviceProperties,
-    setDeviceAlerts: state.setDeviceAlerts,
-  }))
-
-  const { setWidgetList, widgetList, setEntities } = useDashboardStore(
-    useShallow((state) => ({
-      widgetList: state.widgetList,
-      setWidgetList: state.setWidgetList,
-      setEntities: state.setEntities,
-    }))
-  )
+  const { setDeviceState, setDeviceProperties, setDeviceAlerts } =
+    useDeviceStore(
+      useShallow((state) => ({
+        setDeviceState: state.setDeviceState,
+        setDeviceProperties: state.setDeviceProperties,
+        setDeviceAlerts: state.setDeviceAlerts,
+      }))
+    )
 
   const insertDeviceEvents = useEventStore((state) => state.insertDeviceEvents)
 
@@ -108,81 +97,82 @@ export const useMqtt = () => {
   }
 
   // Handler for processed entity telemetry data
-  const handleEntityTelemetry = useCallback(
-    (data: EntityTelemetryData) => {
-      // TODO: Update entity store when created
-      console.log(
-        `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
-        data.entityUpdate
-      )
-      const newWidgetList = widgetList.map((widget) => {
-        if (widget.entity_id === data.entityId) {
-          return getWidgetRealtime(widget, data)
-        }
-        return widget
-      })
-      setEntities(data.entityId, data.entityUpdate.state)
-      setWidgetList(newWidgetList)
+  const handleEntityTelemetry = useCallback((data: EntityTelemetryData) => {
+    // TODO: Update entity store when created
+    console.log(
+      `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
+      data.entityUpdate
+    )
+    const { widgetList, setWidgetList, setEntities } =
+      useDashboardStore.getState()
+    const { devicesFleetTracking } = useDeviceStore.getState()
 
-      if (data.entityUpdate.device_id) {
-        switch (data.entityType) {
-          case 'water_depth':
-            entityKeyRef.current.add('water_depth')
-            const newWaterDepth =
-              typeof data.entityUpdate.state === 'number'
-                ? data.entityUpdate.state
-                : devicesFleetTracking[data.entityUpdate.device_id]
-                    ?.deviceProperties?.water_depth || 0
+    const newWidgetList = widgetList.map((widget) => {
+      if (widget.entity_id === data.entityId) {
+        return getWidgetRealtime(widget, data)
+      }
+      return widget
+    })
+    setEntities(data.entityId, data.entityUpdate.state)
+    setWidgetList(newWidgetList)
 
+    if (data.entityUpdate.device_id) {
+      switch (data.entityType) {
+        case 'water_depth':
+          entityKeyRef.current.add('water_depth')
+          const newWaterDepth =
+            typeof data.entityUpdate.state === 'number'
+              ? data.entityUpdate.state
+              : devicesFleetTracking[data.entityUpdate.device_id]
+                  ?.deviceProperties?.water_depth || 0
+
+          dataUpdatesRef.current[data.entityUpdate.device_id] = {
+            ...dataUpdatesRef.current[data.entityUpdate.device_id],
+            water_depth: newWaterDepth,
+            water_level_name: getWaterDepthLevelName(newWaterDepth),
+          }
+
+        case 'location':
+          entityKeyRef.current.add('location')
+          const newLat = (data.entityUpdate as any)?.entity?.attributes
+            ?.latitude
+          const newLng = (data.entityUpdate as any)?.entity?.attributes
+            ?.longitude
+
+          const bearing = (data.entityUpdate as any)?.entity?.attributes
+            ?.bearing
+
+          if (newLat && newLng) {
             dataUpdatesRef.current[data.entityUpdate.device_id] = {
               ...dataUpdatesRef.current[data.entityUpdate.device_id],
-              water_depth: newWaterDepth,
-              water_level_name: getWaterDepthLevelName(newWaterDepth),
+              latest_checkpoint_arr: [newLng, newLat, bearing],
+              latest_checkpoint: {
+                latitude: newLat,
+                longitude: newLng,
+                bearing,
+              },
             }
+          }
+          break
 
-          case 'location':
-            entityKeyRef.current.add('location')
-            const newLat = (data.entityUpdate as any)?.entity?.attributes
-              ?.latitude
-            const newLng = (data.entityUpdate as any)?.entity?.attributes
-              ?.longitude
+        // case 'battery':
+        //   const newBattery =
+        //     typeof data.entityUpdate?.entity?.state === 'number'
+        //       ? data.entityUpdate.entity?.state
+        //       : devicesFleetTracking[data.entityUpdate.device_id]
+        //           ?.deviceProperties?.battery || 0
 
-            const bearing = (data.entityUpdate as any)?.entity?.attributes
-              ?.bearing
-
-            if (newLat && newLng) {
-              dataUpdatesRef.current[data.entityUpdate.device_id] = {
-                ...dataUpdatesRef.current[data.entityUpdate.device_id],
-                latest_checkpoint_arr: [newLng, newLat, bearing],
-                latest_checkpoint: {
-                  latitude: newLat,
-                  longitude: newLng,
-                  bearing,
-                },
-              }
-            }
-            break
-
-          // case 'battery':
-          //   const newBattery =
-          //     typeof data.entityUpdate?.entity?.state === 'number'
-          //       ? data.entityUpdate.entity?.state
-          //       : devicesFleetTracking[data.entityUpdate.device_id]
-          //           ?.deviceProperties?.battery || 0
-
-          //   dataUpdatesRef.current[data.entityUpdate.device_id] = {
-          //     ...dataUpdatesRef.current[data.entityUpdate.device_id],
-          //     battery: newBattery,
-          //   }
-          //   break
-          // default:
-        }
-
-        handleEntityTelemetryFlush()
+        //   dataUpdatesRef.current[data.entityUpdate.device_id] = {
+        //     ...dataUpdatesRef.current[data.entityUpdate.device_id],
+        //     battery: newBattery,
+        //   }
+        //   break
+        // default:
       }
-    },
-    [devicesFleetTracking, widgetList]
-  )
+
+      handleEntityTelemetryFlush()
+    }
+  }, [])
 
   const handleEntityTelemetryFlush = () => {
     if (flushTimeoutRef.current) {
@@ -303,6 +293,26 @@ export const useMqtt = () => {
             position: 'bottom-right',
           })
         },
+        onMessage: (topic: string, payload: Buffer) => {
+          const results =
+            mqttRouterRef.current?.routeMessage(topic, payload) || []
+
+          results.forEach((result) => {
+            if (isDeviceTelemetryResult(result)) {
+              handleDeviceTelemetry(result)
+              return
+            }
+
+            if (isEntityTelemetryResult(result)) {
+              handleEntityTelemetry(result)
+              return
+            }
+
+            if (isDeviceEventResult(result)) {
+              insertDeviceEvents(result.deviceId, result.event)
+            }
+          })
+        },
       })
     }
 
@@ -316,44 +326,13 @@ export const useMqtt = () => {
         mqttRouterRef.current = null
       }
     }
-  }, [organization, spaceSlugName, isAuthorized, isDevVerified, isDevLoading])
-
-  useEffect(() => {
-    if (
-      isDemo ||
-      !mqttServiceRef.current ||
-      !mqttRouterRef.current ||
-      isDevLoading ||
-      !isDevVerified
-    )
-      return
-    mqttServiceRef.current?.setEventCallbacks({
-      onMessage: (topic: string, payload: Buffer) => {
-        const results =
-          mqttRouterRef.current?.routeMessage(topic, payload) || []
-
-        results.forEach((result) => {
-          if (isDeviceTelemetryResult(result)) {
-            handleDeviceTelemetry(result)
-            return
-          }
-
-          if (isEntityTelemetryResult(result)) {
-            handleEntityTelemetry(result)
-            return
-          }
-
-          if (isDeviceEventResult(result)) {
-            insertDeviceEvents(result.deviceId, result.event)
-          }
-        })
-      },
-    })
   }, [
-    devicesFleetTracking,
-    isDemo,
-    isDevLoading,
+    organization,
+    spaceSlugName,
+    isAuthorized,
     isDevVerified,
+    isDevLoading,
+    isDemo,
     handleEntityTelemetry,
     insertDeviceEvents,
   ])

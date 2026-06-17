@@ -2,12 +2,11 @@
 
 import { useIdentityStore } from '@/stores/identity-store'
 import { LogIn } from 'lucide-react'
-import { useShallow } from 'zustand/react/shallow'
 import { useTranslations } from 'next-intl'
 
 const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const setOpenDrawerIdentity = useIdentityStore(
-    useShallow((state) => state.setOpenDrawerIdentity)
+    (state) => state.setOpenDrawerIdentity
   )
   const t = useTranslations('common')
   return (

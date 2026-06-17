@@ -117,6 +117,10 @@ export default withBundle(
       treeshake: {
         // Automatically tree-shake Sentry logger statements to reduce bundle size
         removeDebugLogging: true,
+        removeTracing: true,
+        excludeReplayIframe: true,
+        excludeReplayShadowDOM: true,
+        excludeReplayCompressionWorker: true,
       },
     },
   })

@@ -8,7 +8,6 @@ import { routing } from '@/i18n/routing'
 
 import { notFound } from 'next/navigation'
 
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
 import { buildMetadata, generateThemeStyles } from '@/utils'

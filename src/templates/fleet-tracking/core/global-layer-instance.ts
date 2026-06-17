@@ -1,6 +1,6 @@
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { MapView, PickingInfo } from 'deck.gl'
-import MapLibreGL, { IControl } from 'maplibre-gl'
+import type { IControl, Map as MapType } from 'maplibre-gl'
 
 export const LAYER_IDS = {
   LOCATION_DECKGL_LAYER: 'location-deckgl-layer',
@@ -15,7 +15,7 @@ export const LAYER_IDS = {
 
 export class GlobalDeckGLInstance {
   private static instance: GlobalDeckGLInstance | undefined
-  private map: MapLibreGL.Map | null = null
+  private map: MapType | null = null
   private globalOverlay: MapboxOverlay | null = null
   private layerMap = new Map<string, any>()
 
@@ -35,7 +35,7 @@ export class GlobalDeckGLInstance {
     this.globalOverlay.setProps({ layers })
   }
 
-  init(map: MapLibreGL.Map) {
+  init(map: MapType) {
     if (!map || this.globalOverlay || this.map) return
     this.map = map
 

@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from 'react'
 import DeviceIcon from '/public/images/device-icon.webp'
 import { useAssignDeviceModel } from './hooks/useAssignDeviceModel'
 import { useAddDeviceStore } from '@/stores/template/add-device'
+import { useShallow } from 'zustand/react/shallow'
 
 type Props = {
   open: boolean
@@ -83,10 +84,12 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
     if (!isFetchingNextPage) fetchingRef.current = false
   }, [isFetchingNextPage])
 
-  const { buildingId, position } = useAddDeviceStore((s) => ({
-    buildingId: s.building?.id,
-    position: s.position,
-  }))
+  const { buildingId, position } = useAddDeviceStore(
+    useShallow((s) => ({
+      buildingId: s.building?.id,
+      position: s.position,
+    }))
+  )
 
   const handleConfirm = async () => {
     if (!selected || !buildingId || !position) return

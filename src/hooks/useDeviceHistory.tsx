@@ -9,10 +9,16 @@ import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-deckgl-instance'
 import { Checkpoint } from '@/types/trip'
 import { groupDeviceByFeature } from '@/utils/map'
-import { MapboxOverlay } from '@deck.gl/mapbox'
-import { IconLayer, ScenegraphLayer } from 'deck.gl'
-import { IControl, LngLatBoundsLike, Popup } from 'maplibre-gl'
-import { useEffect, useRef } from 'react'
+import type {
+  IconLayer as IconLayerType,
+  ScenegraphLayer as ScenegraphLayerType,
+} from 'deck.gl'
+import type {
+  IControl,
+  LngLatBoundsLike,
+  Popup as PopupType,
+} from 'maplibre-gl'
+import { useEffect, useMemo, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 const markerInstance = LocationMarker.getInstance()
@@ -30,26 +36,21 @@ export const useDeviceHistory = () => {
     useShallow((state) => state.deviceHistory)
   )
 
-  const {
-    locationDevices = [],
-    waterLevelDevices = [],
-    deviceSelected,
-  } = useDeviceStore(
-    useShallow((state) => {
-      const deviceGroup = groupDeviceByFeature(
-        Object.values(state.devicesFleetTracking)
-      )
-
-      return {
-        initializedSuccess: state.initializedSuccess,
-        devices: state.devicesFleetTracking,
-        locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION],
-        waterLevelDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH],
-        deviceSelected: state.deviceSelected,
-        setDeviceSelected: state.setDeviceSelected,
-      }
-    })
+  const { deviceSelected, devices } = useDeviceStore(
+    useShallow((state) => ({
+      deviceSelected: state.deviceSelected,
+      devices: state.devicesFleetTracking,
+    }))
   )
+  const { locationDevices, waterLevelDevices } = useMemo(() => {
+    const deviceGroup = groupDeviceByFeature(Object.values(devices))
+    return {
+      locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION] || [],
+      waterLevelDevices:
+        deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH] || [],
+    }
+  }, [devices])
+
   const deviceModels = useDeviceStore(useShallow((state) => state.models))
   const setDeviceHistory = useDeviceStore((state) => state.setDeviceHistory)
 
@@ -70,7 +71,9 @@ export const useDeviceHistory = () => {
   }, [viewMode])
 
   useEffect(() => {
-    const handleMouseEnter = (e: any) => {
+    let popupInstance: PopupType | null = null
+
+    const handleMouseEnter = async (e: any) => {
       if (!map) return
       map.getCanvas().style.cursor = 'pointer'
 
@@ -82,7 +85,9 @@ export const useDeviceHistory = () => {
       const coordinates = (e.features?.[0]?.geometry as any).coordinates.slice()
       const { title } = e.features?.[0]?.properties || {}
 
-      const popup = new Popup({
+      const { Popup } = await import('maplibre-gl')
+
+      popupInstance = new Popup({
         closeButton: false,
         closeOnClick: false,
         className: 'route-point-popup',
@@ -94,8 +99,7 @@ export const useDeviceHistory = () => {
           `<div class="font-semibold text-black text-base">${title}</div>`
         )
         .addTo(map)
-
-      ;(map as any)._routePointPopup = popup
+      ;(map as any)._routePointPopup = popupInstance
       ;(map as any)._routePointPopupActive = true
     }
 
@@ -112,6 +116,7 @@ export const useDeviceHistory = () => {
         ) {
           ;(map as any)._routePointPopup.remove()
           ;(map as any)._routePointPopup = null
+          popupInstance = null
         }
       }, 50)
     }
@@ -122,8 +127,11 @@ export const useDeviceHistory = () => {
     return () => {
       map?.off('mouseenter', 'route-points-inner', handleMouseEnter)
       map?.off('mouseleave', 'route-points-inner', handleMouseLeave)
+      if (popupInstance) {
+        popupInstance.remove()
+      }
     }
-  }, [])
+  }, [map])
 
   const isMapInitialized = useGlobalStore((state) => state.isMapInitialized)
 
@@ -146,10 +154,14 @@ export const useDeviceHistory = () => {
     handleStyleChange()
   }, [deviceSelected, isMapInitialized, deviceHistory, viewMode])
 
-  const getIconLayer = (coordinates: number[] = []) => {
+  const getIconLayer = (
+    coordinates: number[] = [],
+    IconLayerClass: typeof IconLayerType,
+    ScenegraphLayerClass: typeof ScenegraphLayerType
+  ) => {
     // For 3D models, use ScenegraphLayer
     if (is3DModel && deviceModels?.rak) {
-      const layer = new ScenegraphLayer({
+      const layer = new ScenegraphLayerClass({
         id: 'device-history-3d',
         data: [
           {
@@ -169,7 +181,7 @@ export const useDeviceHistory = () => {
       return layer
     }
 
-    const layer = new IconLayer({
+    const layer = new IconLayerClass({
       id: 'device-history-2d',
       data: [
         {
@@ -202,6 +214,9 @@ export const useDeviceHistory = () => {
       checkpoint.latitude,
     ])
     if (!map) return
+
+    const [{ MapboxOverlay }, { IconLayer, ScenegraphLayer }] =
+      await Promise.all([import('@deck.gl/mapbox'), import('deck.gl')])
 
     if (is3DModel) {
       deckGLInstance.syncDevices(locationDevices, [])
@@ -312,7 +327,7 @@ export const useDeviceHistory = () => {
       })
     }
 
-    const icon = getIconLayer(coordinates[0])
+    const icon = getIconLayer(coordinates[0], IconLayer, ScenegraphLayer)
 
     if (controlRef.current) {
       try {

@@ -19,7 +19,7 @@ type GeocodingReverseResult<T extends GeocodingReturnType> = T extends 'obj'
 
 class MapGeocodingService {
   private static instance: MapGeocodingService
-  private static initPromise: Promise<void> | null = null
+  private initPromise: Promise<void> | null = null
 
   private initialized = false
   private reverseCache = new Map<string, GeocodingSearchResult>()
@@ -29,7 +29,6 @@ class MapGeocodingService {
   static getInstance(): MapGeocodingService {
     if (!this.instance) {
       this.instance = new MapGeocodingService()
-      this.initPromise = this.instance.init()
     }
     return this.instance
   }
@@ -61,10 +60,19 @@ class MapGeocodingService {
     }
   }
 
+  private async ensureInitialized() {
+    if (this.initialized) return
+    if (!this.initPromise) {
+      this.initPromise = this.init()
+    }
+    await this.initPromise
+  }
+
   public batchReverse = async <T extends GeocodingReturnType>(
     coords: [number, number][],
     options?: GeocodingReverseOptions<T>
   ): Promise<GeocodingReverseResult<T>> => {
+    await this.ensureInitialized()
     if (!this.initialized) {
       return (
         options?.returnType === 'obj' ? {} : []
@@ -117,6 +125,7 @@ class MapGeocodingService {
     query: string,
     options?: { limit?: number }
   ): Promise<GeocodingFeature[]> => {
+    await this.ensureInitialized()
     if (!this.initialized || !query?.trim()) {
       return []
     }

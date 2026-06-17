@@ -1,7 +1,7 @@
 'use client'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { RightSideBarLayout } from '@/components/ui'
 import { getNewLayouts, useLayout } from '@/stores'
@@ -28,7 +28,13 @@ const Dashboard = () => {
   const dynamicLayouts = useLayout(useShallow((state) => state.dynamicLayouts))
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
 
-  const { setEdit, dashboard, setWidgetList } = useDashboardStore()
+  const { setEdit, dashboard, setWidgetList } = useDashboardStore(
+    useShallow((state) => ({
+      setEdit: state.setEdit,
+      dashboard: state.dashboard,
+      setWidgetList: state.setWidgetList,
+    }))
+  )
 
   const { data: widgetLayout, mutate: mutateWidgets } = useGetWidgets(
     dashboard?.id
@@ -49,7 +55,7 @@ const Dashboard = () => {
   const onSelectWidget = (widgetTitle: WidgetType) => {
     setSelectedWidget(widgetTitle)
   }
-  const onCloseSideBar = () => {
+  const onCloseSideBar = useCallback(() => {
     const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DASHBOARD)
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
     setIsAddWidgetOpen(false)
@@ -58,17 +64,17 @@ const Dashboard = () => {
     toggleDynamicLayout('dashboard')
     setSelectedWidget('')
     setEditingWidgetLayout(null)
-  }
+  }, [])
 
-  const onSaveWidget = () => {
+  const onSaveWidget = useCallback(() => {
     setIsAddWidgetOpen(false)
     setEdit(true)
     setSelectedWidget('')
     setEditingWidgetLayout(null)
     mutateWidgets()
-  }
+  }, [])
 
-  const onEditWidget = (layout: WidgetLayout) => {
+  const onEditWidget = useCallback((layout: WidgetLayout) => {
     const widgetType = layout.configuration?.type as WidgetType | undefined
     if (!widgetType || !WIDGET_TYPES_WITH_DETAIL_EDITOR.includes(widgetType)) {
       return
@@ -76,16 +82,16 @@ const Dashboard = () => {
     setEditingWidgetLayout(layout)
     setSelectedWidget(widgetType)
     setIsAddWidgetOpen(true)
-  }
+  }, [])
 
-  const handleGoBack = () => {
+  const handleGoBack = useCallback(() => {
     if (editingWidgetLayout) {
       setEditingWidgetLayout(null)
       setIsAddWidgetOpen(false)
     }
     setSelectedWidget('')
     setEditingWidgetLayout(null)
-  }
+  }, [])
 
   return (
     <>

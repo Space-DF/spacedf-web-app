@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 
 import { InputWithIcon } from '@/components/ui/input'
 import { LoaderCircle, PlusIcon, Search } from 'lucide-react'
-import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import { Nodata } from '@/components/ui'
@@ -204,7 +203,7 @@ export const Geofences = () => {
               <span className="text-xs font-semibold leading-4">
                 {tCommon('add_geofence')}
               </span>
-              <Image src="/images/plus.svg" alt="plus" width={16} height={16} />
+              <PlusIcon size={16} />
             </Button>
             <div
               className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
