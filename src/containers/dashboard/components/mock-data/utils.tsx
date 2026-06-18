@@ -9,21 +9,33 @@ import {
   WidgetValueData,
 } from '@/types/widget'
 import { WidgetType } from '@/widget-models/widget'
+import dynamic from 'next/dynamic'
+import { MakeRequired } from '@/types/common'
+import { mapPayload, SliderSource } from '@/validator'
+
 import { TextWidget } from './components/widget-text'
 import { MapWidget } from './components/widget-map'
 import { TableWidget } from './components/widget-table'
 import { ValueWidget } from './components/widget-value'
-import { MakeRequired } from '@/types/common'
-import { ChartWidget } from './components/widget-chart'
-import { GaugeWidget } from './components/widget-gauge'
 import { WidgetCamera } from './components/widget-camera'
 import { WidgetUnit } from './components/widget-unit'
 import { WidgetSwitch } from './components/widget-switch'
 import { ProgressWidget } from './components/widget-progress'
 import { WidgetSensor } from './components/widget-sensor'
-import { mapPayload, SliderSource } from '@/validator'
 import WidgetSlider from './components/widget-slider'
-import { WidgetHistogram } from './components/widget-histogram'
+
+const ChartWidget = dynamic(
+  () => import('./components/widget-chart').then((m) => m.ChartWidget),
+  { ssr: false }
+)
+const GaugeWidget = dynamic(
+  () => import('./components/widget-gauge').then((m) => m.GaugeWidget),
+  { ssr: false }
+)
+const WidgetHistogram = dynamic(
+  () => import('./components/widget-histogram').then((m) => m.WidgetHistogram),
+  { ssr: false }
+)
 
 const getSwitchValue = (value: any) => {
   if (typeof value === 'string') {

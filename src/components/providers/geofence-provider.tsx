@@ -8,7 +8,8 @@ import type { PaginationResponse } from '@/types/global'
 import { fetcher } from '@/utils'
 import { useParams } from 'next/navigation'
 import { PropsWithChildren, useEffect, useMemo } from 'react'
-import useSWR from 'swr'
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 import { useShallow } from 'zustand/react/shallow'
 import { useBBoxDebounce } from '@/hooks/useBBoxDebounce'
 import { useGeofenceMapStore } from '@/stores/geofence-map-store'
@@ -21,16 +22,22 @@ export const GeofenceProvider = ({ children }: PropsWithChildren) => {
   const isGeofencesActive = dynamicLayouts.includes(NavigationEnums.GEOFENCES)
 
   const bboxDebounced = useBBoxDebounce()
-  const swrKey = useMemo(() => {
-    if (!spaceSlug || !isGeofencesActive || !bboxDebounced) return null
-    const base = `/api/geofence?spaceSlug=${spaceSlug}&offset=0&limit=200`
-    return `${base}&bbox=${encodeURIComponent(bboxDebounced)}`
-  }, [bboxDebounced, isGeofencesActive, spaceSlug])
 
-  const { data, isLoading } = useSWR<PaginationResponse<Geofence>>(
-    swrKey,
-    fetcher
-  )
+  const { data, isLoading } = useQuery<PaginationResponse<Geofence>>({
+    queryKey: [
+      ...queryKeys.geofences.all,
+      'provider',
+      spaceSlug,
+      bboxDebounced,
+    ] as const,
+    queryFn: () => {
+      const base = `/api/geofence?spaceSlug=${spaceSlug}&offset=0&limit=200`
+      const url = `${base}&bbox=${encodeURIComponent(bboxDebounced ?? '')}`
+      return fetcher<PaginationResponse<Geofence>>(url)
+    },
+    enabled: !!spaceSlug && !!isGeofencesActive && !!bboxDebounced,
+  })
+
   const geofences = useMemo(() => data?.results ?? [], [data?.results])
 
   const { setGeofences, syncGeofencesToMap, clearRendered } =

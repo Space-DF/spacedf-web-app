@@ -1,11 +1,15 @@
 import { geocodingService } from '@/utils/map-geocoding'
-import useSWR from 'swr'
+import { useQuery } from '@tanstack/react-query'
 
 export const useTripAddress = (locations: [number, number][]) => {
-  return useSWR(
-    locations.length > 0
-      ? `geocoding-${locations.map((location) => `${location[0]},${location[1]}`).join(';')}`
-      : null,
-    () => geocodingService.batchReverse(locations, { returnType: 'array' })
-  )
+  const serializedLocations = locations
+    .map((location) => `${location[0]},${location[1]}`)
+    .join(';')
+
+  return useQuery({
+    queryKey: ['geocoding', serializedLocations],
+    queryFn: () =>
+      geocodingService.batchReverse(locations, { returnType: 'array' }),
+    enabled: locations.length > 0,
+  })
 }

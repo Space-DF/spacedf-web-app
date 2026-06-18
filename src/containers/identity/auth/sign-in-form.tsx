@@ -24,7 +24,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
 import { useAuthForm } from './stores/useAuthForm'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
 
 const singInSchema = z.object({
@@ -51,7 +51,7 @@ const SignInForm = () => {
   const { registerServiceWorker } = useSubscribeNotification()
   const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
 
-  const { clearAllCache } = useCache()
+  const queryClient = useQueryClient()
 
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
@@ -62,7 +62,7 @@ const SignInForm = () => {
         } else {
           await registerServiceWorker()
           setOpenDrawer(false)
-          clearAllCache()
+          queryClient.clear()
         }
       } catch (error) {
         console.error({ error })

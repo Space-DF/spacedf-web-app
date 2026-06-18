@@ -2,11 +2,11 @@ import React from 'react'
 
 import ImageWithBlur from '@/components/ui/image-blur'
 
-import Warehouse from '/public/images/warehouse-tracking.svg'
-import SmartOffice from '/public/images/smart-office.svg'
-import IndoorTracking from '/public/images/indoor-tracking.svg'
-import FleetTracking from '/public/images/fleet-tracking.svg'
-import WaterManagement from '/public/images/water-management.svg'
+import Warehouse from '/public/images/warehouse-tracking.webp'
+import SmartOffice from '/public/images/smart-office.webp'
+import IndoorTracking from '/public/images/indoor-tracking.webp'
+import FleetTracking from '/public/images/fleet-tracking.webp'
+import WaterManagement from '/public/images/water-management.webp'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
 

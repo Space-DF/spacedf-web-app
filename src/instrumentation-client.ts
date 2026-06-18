@@ -13,7 +13,7 @@ Sentry.init({
 
   enabled: process.env.NODE_ENV !== 'development',
 
-  integrations: [Sentry.replayIntegration()],
+  integrations: [],
 
   tracesSampleRate: isProd ? 0.1 : 1.0,
 

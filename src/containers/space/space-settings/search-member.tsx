@@ -9,8 +9,7 @@ import {
 } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
 import { type KeyboardEvent, useCallback, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { isEmail } from '@/utils/common'
+import { isEmail, uuidv4 } from '@/utils/common'
 import { useOrganization } from '@/hooks/useOrganization'
 export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>

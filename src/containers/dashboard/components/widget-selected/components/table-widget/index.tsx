@@ -18,12 +18,12 @@ import TablePreview from './components/table-preview'
 import TableWidgetInfo from './components/widget-info'
 import ColumnForm from './components/columns'
 import Conditionals from './components/conditionals'
-import { v4 as uuidv4 } from 'uuid'
 import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/test-api/hooks/useCreateWidget'
 import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
 import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
 import { WidgetLayout } from '@/types/widget'
 import { toast } from 'sonner'
+import { uuidv4 } from '@/utils'
 
 const TABLE_TABS_KEY = [
   TabKey.Sources,

@@ -50,6 +50,7 @@ export const WidgetAction: React.FC<Props> = ({
           }}
           size="icon"
           className="size-8 gap-2 rounded-lg"
+          aria-label="Edit"
         >
           <Pencil size={16} />
         </Button>

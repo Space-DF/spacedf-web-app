@@ -1,5 +1,5 @@
 import { useParams } from 'next/navigation'
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { AddDeviceSchema } from '../components/add-device-dialog/schema'
 import { DeviceDataOriginal } from '@/types/device'
@@ -13,14 +13,22 @@ interface AddDeviceManualPayload extends AddDeviceSchema {
   building?: string
 }
 
-const addDeviceManual = async (
-  url: string,
-  { arg }: { arg: AddDeviceManualPayload }
-) => {
-  return api.post<DeviceDataOriginal>(url, arg)
-}
-
 export const useAddDeviceManually = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWRMutation(`/api/devices/${spaceSlug}`, addDeviceManual)
+
+  const mutation = useMutation<
+    DeviceDataOriginal,
+    Error,
+    AddDeviceManualPayload
+  >({
+    mutationFn: (arg: AddDeviceManualPayload) =>
+      api.post<DeviceDataOriginal>(`/api/devices/${spaceSlug}`, arg),
+  })
+
+  return {
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+  }
 }

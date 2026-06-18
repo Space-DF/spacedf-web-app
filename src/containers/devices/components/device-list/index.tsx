@@ -239,8 +239,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                     DeviceIcon
                                   }
                                   alt="DMZ 01 -1511-M01"
-                                  width={70}
-                                  height={70}
+                                  width={32}
+                                  height={32}
+                                  className="size-8"
+                                  sizes="32px"
                                 />
                               </div>
                               <Ellipsis size={16} className="text-foreground" />

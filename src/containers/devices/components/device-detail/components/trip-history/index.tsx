@@ -106,11 +106,11 @@ const TripHistory = () => {
         >
           <div className="flex items-start gap-x-2">
             <Image
-              src={'/images/map.svg'}
+              src="/images/map.webp"
               alt="map-pin"
               width={73}
               height={73}
-              className="rounded-md"
+              className="rounded-md h-20 object-cover"
             />
             <div className="flex flex-col gap-y-3">
               <div className="flex flex-col gap-y-1">

@@ -1,9 +1,9 @@
 import { DeviceDataOriginal } from '@/types/device'
 import { Entity } from '@/types/entity'
 import { Trip } from '@/types/trip'
-import { v4 as uuidv4 } from 'uuid'
 import { PaginationResponse } from './../types/global.d'
 import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
+import { uuidv4 } from '@/utils'
 
 export const deviceSpaces: DeviceDataOriginal[] = [
   {

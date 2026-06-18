@@ -4,7 +4,7 @@ import {
   TimeFrameTab,
   WidgetType,
 } from '@/widget-models/widget'
-import { v4 as uuidv4 } from 'uuid'
+import { uuidv4 } from '@/utils'
 import { TimeFormat } from './date-format'
 import { GaugeType } from '@/widget-models/gauge'
 import { OPERATORS } from '@/containers/dashboard/components/widget-selected/components/table-widget/table.const'

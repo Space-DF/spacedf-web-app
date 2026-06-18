@@ -1,23 +1,26 @@
-import useSWRMutation from 'swr/mutation'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { mutate } from 'swr'
+import { queryKeys } from '@/lib/query-keys'
 import api from '@/lib/api'
-
-const fetcher = async (url: string, { arg }: { arg: string }) => {
-  return api.post(url, { token: arg })
-}
 
 const useJoinSpace = () => {
   const router = useRouter()
-  return useSWRMutation('/api/spaces/join-space', fetcher, {
+  const queryClient = useQueryClient()
+
+  const { mutateAsync, isPending } = useMutation<void, Error, string>({
+    mutationFn: async (arg) => {
+      return api.post('/api/spaces/join-space', { token: arg })
+    },
     onSuccess: () => {
-      mutate('/api/spaces')
+      queryClient.invalidateQueries({ queryKey: queryKeys.spaces.list() })
       router.replace('/invitation?status=success')
     },
     onError: () => {
       router.replace('/invitation?status=failed')
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }
 
 export default useJoinSpace

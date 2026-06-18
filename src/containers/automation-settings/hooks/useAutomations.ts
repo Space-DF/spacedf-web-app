@@ -6,8 +6,7 @@ import {
 } from '@/types/automation'
 import { fetcher } from '@/utils'
 import api from '@/lib/api'
-import useSWR from 'swr'
-import useSWRInfinite from 'swr/infinite'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import { PaginationResponse } from '@/types/global'
 
 const AUTOMATIONS_ENDPOINT = '/api/automations'
@@ -19,47 +18,56 @@ type UseAutomationsParams = {
   status?: AutomationStatus
 }
 
-const getKey = (
-  pageIndex: number,
-  previousPageData: PaginationResponse<Automation> | null,
-  params: UseAutomationsParams
-) => {
-  if (previousPageData && !previousPageData.results.length) return null
-  const offset = pageIndex * (params.limit ?? DEFAULT_PAGE_SIZE)
-  const searchParams = new URLSearchParams({
-    offset: String(offset),
-    limit: String(params.limit ?? DEFAULT_PAGE_SIZE),
-    search: params.search ?? '',
-    spaceSlug: params.spaceSlug ?? '',
-    status: params.status ?? '',
-  })
-  return `${AUTOMATIONS_ENDPOINT}?${searchParams.toString()}`
-}
-
 export const useAutomations = (params: UseAutomationsParams = {}) => {
-  const { data, isLoading, mutate, ...rest } = useSWRInfinite(
-    (pageIndex, previousPageData) =>
-      getKey(pageIndex, previousPageData, params),
-    fetcher<PaginationResponse<Automation>>
-  )
+  const { data, isLoading, refetch, hasNextPage, fetchNextPage, ...rest } =
+    useInfiniteQuery<PaginationResponse<Automation>>({
+      queryKey: ['automations', 'list', params],
+      queryFn: ({ pageParam = 0 }) => {
+        const offset =
+          (pageParam as number) * (params.limit ?? DEFAULT_PAGE_SIZE)
+        const searchParams = new URLSearchParams({
+          offset: String(offset),
+          limit: String(params.limit ?? DEFAULT_PAGE_SIZE),
+          search: params.search ?? '',
+          spaceSlug: params.spaceSlug ?? '',
+          status: params.status ?? '',
+        })
+        return fetcher<PaginationResponse<Automation>>(
+          `${AUTOMATIONS_ENDPOINT}?${searchParams.toString()}`
+        )
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.next ? allPages.length : undefined
+      },
+    })
 
   const automations: Automation[] = data
-    ? data.flatMap((page) => page.results)
+    ? data.pages.flatMap((page) => page.results ?? [])
     : []
-  const totalCount = data?.[0]?.count ?? 0
-  const isReachingEnd = data
-    ? (data[data.length - 1]?.results.length ?? 0) <
-      (params.limit ?? DEFAULT_PAGE_SIZE)
-    : false
+  const totalCount = data?.pages[0]?.count ?? 0
+  const isReachingEnd = !hasNextPage
 
-  return { automations, totalCount, isLoading, isReachingEnd, mutate, ...rest }
+  return {
+    automations,
+    totalCount,
+    isLoading,
+    isReachingEnd,
+    mutate: refetch,
+    loadMore: () => (hasNextPage ? fetchNextPage() : Promise.resolve()),
+    ...rest,
+  }
 }
 
 export const useAutomation = (id: string, spaceSlug?: string) => {
-  const key = id
-    ? `${AUTOMATIONS_ENDPOINT}/${id}${spaceSlug ? `?spaceSlug=${spaceSlug}` : ''}`
-    : null
-  return useSWR<Automation>(key, fetcher<Automation>)
+  return useQuery<Automation>({
+    queryKey: ['automations', 'detail', id, spaceSlug],
+    queryFn: () =>
+      fetcher<Automation>(
+        `${AUTOMATIONS_ENDPOINT}/${id}${spaceSlug ? `?spaceSlug=${spaceSlug}` : ''}`
+      ),
+    enabled: !!id,
+  })
 }
 
 export const createAutomation = (

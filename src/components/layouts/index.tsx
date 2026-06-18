@@ -3,9 +3,35 @@
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
 import { COOKIES, NavigationEnums, RESPONSIVE_BREAKPOINTS } from '@/constants'
-import Dashboard from '@/containers/dashboard'
-import Devices from '@/containers/devices'
-import { Geofences } from '@/containers/geofences'
+import dynamic from 'next/dynamic'
+
+const Dashboard = dynamic(() => import('@/containers/dashboard'), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 flex items-center justify-center">
+      Loading Dashboard...
+    </div>
+  ),
+})
+const Devices = dynamic(() => import('@/containers/devices'), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 flex items-center justify-center">
+      Loading Devices...
+    </div>
+  ),
+})
+const Geofences = dynamic(
+  () => import('@/containers/geofences').then((mod) => mod.Geofences),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-4 flex items-center justify-center">
+        Loading Geofences...
+      </div>
+    ),
+  }
+)
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'

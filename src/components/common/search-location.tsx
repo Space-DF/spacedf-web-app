@@ -9,16 +9,16 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { geocodingService } from '@/utils/map-geocoding'
-import type { GeocodingFeature } from '@maptiler/sdk'
+import type { GeocodingFeature } from '@maptiler/client'
 import { MapPin, Search } from 'lucide-react'
-import MapLibreGL from 'maplibre-gl'
-import useSWR from 'swr'
+import type { Map } from 'maplibre-gl'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import { useDebounce } from '@/hooks'
 import { cn } from '@/lib/utils'
 
 type SearchLocationProps = {
-  map: MapLibreGL.Map | null
+  map: Map | null
   className?: string
 }
 
@@ -48,10 +48,12 @@ export function SearchLocation({ map, className }: SearchLocationProps) {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 300)
 
-  const { data: results = [], isValidating: loading } = useSWR(
-    debouncedQuery.trim() ? `geocoding-forward-${debouncedQuery.trim()}` : null,
-    () => geocodingService.forward(debouncedQuery.trim(), { limit: 8 })
-  )
+  const { data: results = [], isFetching: loading } = useQuery({
+    queryKey: ['geocoding-forward', debouncedQuery.trim()],
+    queryFn: () =>
+      geocodingService.forward(debouncedQuery.trim(), { limit: 8 }),
+    enabled: !!debouncedQuery.trim(),
+  })
 
   const handleSelect = useCallback(
     (feature: GeocodingFeature) => {

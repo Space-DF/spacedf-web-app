@@ -43,7 +43,7 @@ import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import { useDeviceStore } from '@/stores/device-store'
 
@@ -125,7 +125,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isAuth = useAuthenticated()
   const isDemo = useIsDemo()
 
-  const { clearAllCache } = useCache()
+  const queryClient = useQueryClient()
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -141,7 +141,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
     window.history.replaceState({}, '', window.location.pathname)
     router.push('/', { scroll: false })
-    clearAllCache()
+    queryClient.clear()
   }
 
   return (
@@ -220,7 +220,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
 const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const isCollapsed = useLayout((state) => state.isCollapsed)
   const setCollapsed = useLayout((state) => state.setCollapsed)
-  const { clearAllCache } = useCache()
+  const queryClient = useQueryClient()
   const router = useRouter()
 
   const { width } = useWindowSize()
@@ -240,7 +240,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     await signOut({ redirect: false })
     localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
     window.history.replaceState({}, '', window.location.pathname)
-    clearAllCache()
+    queryClient.clear()
     router.push('/')
   }
 
@@ -393,6 +393,8 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           key={String(isDisplayed)}
           id={navigation.href}
           defaultChecked={isDisplayed}
+          aria-label={navigation.title}
+          aria-labelledby={`${navigation.href}-label`}
           checked={navigation.isAlwayEnabled}
           onCheckedChange={() => {
             if (!navigation.isAlwayEnabled) {
