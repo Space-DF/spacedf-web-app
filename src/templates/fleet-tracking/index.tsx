@@ -212,12 +212,16 @@ export default function FleetTrackingMap() {
           className="size-full overflow-hidden relative bg-transparent z-[1]"
           ref={wrapperRef}
         >
-          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
-            <SpacedfLogo />
-            <div className="pointer-events-auto">
-              <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+          <div className="absolute top-0 left-0 right-0 z-10 pl-3 pr-14 pt-3 pointer-events-none">
+            <div className="flex items-start justify-between ">
+              <SpacedfLogo />
+              <div className="pointer-events-auto">
+                <SearchLocation
+                  map={isMapReady ? mapInstance.getMap() : null}
+                />
+              </div>
+              <ViewModeToggle />
             </div>
-            <ViewModeToggle />
           </div>
 
           <div

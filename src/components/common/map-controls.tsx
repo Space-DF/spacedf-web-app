@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Globe, Loader2, Locate, Minus, Plus } from 'lucide-react'
+import { Globe, Loader2, Locate, Map, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import MapLibreGL from 'maplibre-gl'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
@@ -92,16 +92,16 @@ const MapControls = ({ map }: MapControlsProps) => {
         </ControlButton>
       </ControlGroup>
 
-      <ControlGroup>
-        <ControlButton onClick={handleGlobeSwitch} label="Reset pitch">
-          <Globe
-            className={cn(
-              'size-4 text-brand-icon-light-fixed',
-              globeActive && 'text-brand-dark-fill-secondary'
-            )}
-          />
-        </ControlButton>
-      </ControlGroup>
+      <ControlButton
+        onClick={handleGlobeSwitch}
+        label={globeActive ? 'Switch to map' : 'Switch to globe'}
+      >
+        {globeActive ? (
+          <Map className="size-4 text-brand-icon-light-fixed" />
+        ) : (
+          <Globe className="size-4 text-brand-icon-light-fixed" />
+        )}
+      </ControlButton>
     </div>
   )
 }
