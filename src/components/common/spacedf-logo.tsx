@@ -29,7 +29,7 @@ const SpacedfLogo = () => {
       {logoUrl ? (
         <Image
           width={114}
-          height={24}
+          height={64}
           src={logoUrl}
           alt={setting?.brand_name || 'spacedf-logo'}
           className="max-w-full max-h-full object-contain"

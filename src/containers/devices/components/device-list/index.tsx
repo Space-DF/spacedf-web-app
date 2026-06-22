@@ -1,17 +1,16 @@
-import { useDebounce } from '@/hooks'
 import { useGetDevices } from '@/hooks/useDevices'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useTripAddress } from '../device-detail/components/trip-history/hooks/useTripAddress'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { transformDeviceData } from '@/utils/map'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { AddDeviceDialog } from '../add-device-dialog'
-import { Ellipsis, LoaderCircle, PlusIcon, Search } from 'lucide-react'
-import { InputWithIcon } from '@/components/ui/input'
+import { Ellipsis, LoaderCircle, PlusIcon } from 'lucide-react'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { Nodata } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import ImageWithBlur from '@/components/ui/image-blur'
@@ -24,8 +23,11 @@ const mapInstance = MapInstance.getInstance()
 
 export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
-  const [deviceName, setDeviceName] = useState('')
-  const debouncedDeviceName = useDebounce(deviceName)
+  const [debouncedDeviceName, setDebouncedDeviceName] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedDeviceName(value),
+    []
+  )
   const {
     data: devices = [],
     isLoading,
@@ -155,13 +157,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
       </div>
-      <InputWithIcon
-        prefixCpn={<Search size={18} className="text-muted-foreground" />}
-        placeholder={t('device')}
-        wrapperClass="w-full"
-        value={deviceName}
-        onChange={(e) => setDeviceName(e.target.value)}
-      />
+      <DebouncedSearchInput onSearch={handleSearch} placeholder={t('device')} />
       <div
         className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
         ref={parentRef}

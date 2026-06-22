@@ -1,6 +1,6 @@
 'use client'
 
-import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
+import { memo, PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
 import { COOKIES, NavigationEnums, RESPONSIVE_BREAKPOINTS } from '@/constants'
 import dynamic from 'next/dynamic'
@@ -11,12 +11,9 @@ const Dashboard = dynamic(() => import('@/containers/dashboard'), {
 const Devices = dynamic(() => import('@/containers/devices'), {
   ssr: false,
 })
-const Geofences = dynamic(
-  () => import('@/containers/geofences').then((mod) => mod.Geofences),
-  {
-    ssr: false,
-  }
-)
+const Geofences = dynamic(() => import('@/containers/geofences'), {
+  ssr: false,
+})
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
@@ -420,4 +417,4 @@ const DynamicLayout = ({
   )
 }
 
-export default DynamicLayout
+export default memo(DynamicLayout)

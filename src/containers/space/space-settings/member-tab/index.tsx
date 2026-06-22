@@ -1,9 +1,8 @@
-import { Search } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { InputWithIcon } from '@/components/ui/input'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { Label } from '@/components/ui/label'
 
 import {
@@ -31,7 +30,6 @@ import { useUpdateRoleMember } from '../hooks/useUpdateRoleMember'
 import { toast } from 'sonner'
 import { PaginationState } from '@tanstack/react-table'
 import { ApiDataTable } from '@/components/ui/api-data-table'
-import { useDebounce } from '@/hooks/useDebounce'
 export interface ColumnProps {
   onRemoveMember: (id: string) => void
   spaceRoles: SpaceRole[]
@@ -56,9 +54,11 @@ export function MemberTab() {
   const [paginatedState, setPaginatedState] = useState<PaginationState>(
     INITIAL_PAGINATION_STATE
   )
-  const [searchMember, setSearchMember] = useState('')
-
-  const searchMemberDebounced = useDebounce(searchMember, 500)
+  const [searchMemberDebounced, setSearchMemberDebounced] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setSearchMemberDebounced(value),
+    []
+  )
   const {
     data: paginatedMembers,
     isLoading: isLoadingMembers,
@@ -241,11 +241,12 @@ export function MemberTab() {
           {t('space.space_members')}
         </div>
         <div>
-          <InputWithIcon
-            prefixCpn={<Search size={18} />}
+          <DebouncedSearchInput
+            onSearch={handleSearch}
             placeholder={t('common.search')}
-            value={searchMember}
-            onChange={(e) => setSearchMember(e.target.value)}
+            delay={500}
+            wrapperClass=""
+            iconClassName=""
           />
         </div>
       </div>

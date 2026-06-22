@@ -23,10 +23,9 @@ import {
   useState,
 } from 'react'
 import { useGetDevices } from '@/hooks/useDevices'
-import { useDebounce } from '@/hooks'
 import { Button } from '@/components/ui/button'
-import { InputWithIcon } from '@/components/ui/input'
-import { ChevronDown, Check, Loader2, Search } from 'lucide-react'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
+import { ChevronDown, Check, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ConfirmDialog } from './components/confirm-dialog'
 import { useDeviceDetail } from '../../hooks/useDeviceDetail'
@@ -43,8 +42,11 @@ export const When = ({ isEditable }: WhenProps) => {
   const [currentTempDeviceId, setCurrentTempDeviceId] = useState<string>()
   const deviceId = useWatch({ control, name: 'device_id' })
   const [isOpen, setIsOpen] = useState(false)
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useDebounce(search, 300)
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedSearch(value),
+    []
+  )
   const popoverPortal = useAutomationDialogPopoverPortal()
   const {
     data: devices,
@@ -88,7 +90,7 @@ export const When = ({ isEditable }: WhenProps) => {
   }, [debouncedSearch])
 
   useEffect(() => {
-    if (!isOpen) setSearch('')
+    if (!isOpen) setDebouncedSearch('')
   }, [isOpen])
 
   const handleScroll = useCallback(
@@ -203,11 +205,14 @@ export const When = ({ isEditable }: WhenProps) => {
                       }}
                     >
                       <div className="border-b p-2">
-                        <InputWithIcon
-                          prefixCpn={<Search size={16} />}
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
+                        <DebouncedSearchInput
+                          key={isOpen ? 'open' : 'closed'}
+                          onSearch={handleSearch}
                           placeholder={t('search_device_placeholder')}
+                          delay={300}
+                          iconSize={16}
+                          iconClassName=""
+                          wrapperClass=""
                           className="h-8 text-sm bg-brand-component-fill-dark-soft"
                         />
                       </div>

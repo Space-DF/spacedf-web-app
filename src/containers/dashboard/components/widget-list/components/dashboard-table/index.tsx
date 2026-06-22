@@ -5,9 +5,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { Dashboard } from '@/types/dashboard'
 import { useTranslations } from 'next-intl'
 import { useCallback, useMemo, useState } from 'react'
-import { useDebounce } from '@/hooks/useDebounce'
-import { InputWithIcon } from '@/components/ui/input'
-import { SearchIcon } from 'lucide-react'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 
 interface Props {
   onSelectDashboard: (dashboard: Dashboard) => void
@@ -16,8 +14,11 @@ interface Props {
 const DashboardTable: React.FC<Props> = ({ onSelectDashboard }) => {
   const t = useTranslations()
   const setDeleteId = useDashboardStore((state) => state.setDeleteId)
-  const [searchDashboard, setSearchDashboard] = useState('')
-  const searchDashboardDebounced = useDebounce(searchDashboard, 300)
+  const [searchDashboardDebounced, setSearchDashboardDebounced] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setSearchDashboardDebounced(value),
+    []
+  )
   const { data: dashboards = [], isLoading: isLoadingDashboard } = useDashboard(
     searchDashboardDebounced
   )
@@ -35,11 +36,12 @@ const DashboardTable: React.FC<Props> = ({ onSelectDashboard }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <InputWithIcon
-        prefixCpn={<SearchIcon size={18} />}
+      <DebouncedSearchInput
+        onSearch={handleSearch}
         placeholder={t('dashboard.search')}
-        value={searchDashboard}
-        onChange={(e) => setSearchDashboard(e.target.value)}
+        delay={300}
+        wrapperClass=""
+        iconClassName=""
       />
       <DataTable
         columns={columns}
