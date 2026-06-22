@@ -10,7 +10,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { Alert } from '@/types/alert'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { getWidgetRealtime } from '../utils'
@@ -48,21 +48,17 @@ const isDeviceEventResult = (
   isRecord(value) && typeof value.deviceId === 'string' && 'event' in value
 
 export const useMqtt = () => {
-  const {
-    setDeviceState,
-    devicesFleetTracking,
-    setDeviceProperties,
-    setDeviceAlerts,
-  } = useDeviceStore((state) => ({
-    setDeviceState: state.setDeviceState,
-    devicesFleetTracking: state.devicesFleetTracking,
-    setDeviceProperties: state.setDeviceProperties,
-    setDeviceAlerts: state.setDeviceAlerts,
-  }))
+  const { setDeviceState, setDeviceProperties, setDeviceAlerts } =
+    useDeviceStore(
+      useShallow((state) => ({
+        setDeviceState: state.setDeviceState,
+        setDeviceProperties: state.setDeviceProperties,
+        setDeviceAlerts: state.setDeviceAlerts,
+      }))
+    )
 
-  const { setWidgetList, widgetList, setEntities } = useDashboardStore(
+  const { setWidgetList, setEntities } = useDashboardStore(
     useShallow((state) => ({
-      widgetList: state.widgetList,
       setWidgetList: state.setWidgetList,
       setEntities: state.setEntities,
     }))
@@ -90,31 +86,19 @@ export const useMqtt = () => {
   const flushTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const mqttRouterRef = useRef<MQTTRouter | null>(null)
   const mqttServiceRef = useRef<MqttService | null>(null)
+  const [isMqttReady, setIsMqttReady] = useState(false)
 
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
     // Business logic: Update device store with parsed telemetry data
     setDeviceState(data.deviceId, data.deviceUpdate)
-
-    // Additional business logic can be added here:
-    // - Check for alerts (low battery, geofence violations)
-    // - Log device activity
-    // - Trigger notifications
-    // TODO: Please remove this console.log after testing
-    console.log(
-      `📍 Device ${data.deviceId} telemetry updated:`,
-      data.deviceUpdate
-    )
   }
 
   // Handler for processed entity telemetry data
   const handleEntityTelemetry = useCallback(
     (data: EntityTelemetryData) => {
-      // TODO: Update entity store when created
-      console.log(
-        `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
-        data.entityUpdate
-      )
+      const { widgetList } = useDashboardStore.getState()
+      const { devicesFleetTracking } = useDeviceStore.getState()
       const newWidgetList = widgetList.map((widget) => {
         if (widget.entity_id === data.entityId) {
           return getWidgetRealtime(widget, data)
@@ -181,7 +165,7 @@ export const useMqtt = () => {
         handleEntityTelemetryFlush()
       }
     },
-    [devicesFleetTracking, widgetList]
+    [setEntities, setWidgetList]
   )
 
   const handleEntityTelemetryFlush = () => {
@@ -256,6 +240,7 @@ export const useMqtt = () => {
     const handleMqttConnect = async () => {
       mqttServiceRef.current = MqttService.getInstance(organization)
       await mqttServiceRef.current.initialize()
+      setIsMqttReady(true)
       mqttServiceRef.current?.setEventCallbacks({
         onReconnect: () => {
           toast.info('MQTT reconnecting...', {
@@ -311,6 +296,7 @@ export const useMqtt = () => {
     return () => {
       mqttServiceRef.current?.disconnect()
       mqttServiceRef.current = null
+      setIsMqttReady(false)
       if (mqttRouterRef.current) {
         mqttRouterRef.current.cleanup()
         mqttRouterRef.current = null
@@ -350,7 +336,7 @@ export const useMqtt = () => {
       },
     })
   }, [
-    devicesFleetTracking,
+    isMqttReady,
     isDemo,
     isDevLoading,
     isDevVerified,

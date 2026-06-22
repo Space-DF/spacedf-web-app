@@ -1,15 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ChevronLeft, Search } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Label } from '@/components/ui/label'
-import { InputWithIcon } from '@/components/ui/input'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EventItem, EventItemSkeleton } from '../event-item'
 import { useEvents } from '../../hooks/useEvents'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { useEventStore } from '../../stores/event'
-import { useDebounce } from '@/hooks'
 import { mergeEvents } from '@/containers/devices/utils'
 
 interface AllEventProps {
@@ -21,8 +20,11 @@ const NEAR_BOTTOM_ROW_THRESHOLD = 8
 
 export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
   const t = useTranslations('event')
-  const [searchValue, setSearchValue] = useState('')
-  const debouncedSearchValue = useDebounce(searchValue, 500)
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedSearchValue(value),
+    []
+  )
   const {
     data: events,
     isLoading,
@@ -134,13 +136,11 @@ export const AllEvent = ({ deviceId, onClose }: AllEventProps) => {
         </div>
       </div>
 
-      <InputWithIcon
-        type="text"
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
+      <DebouncedSearchInput
+        onSearch={handleSearch}
         placeholder="Search for events"
-        prefixCpn={<Search size={14} className="text-muted-foreground" />}
-        wrapperClass="w-full"
+        delay={500}
+        iconSize={14}
       />
 
       {isLoading ? (

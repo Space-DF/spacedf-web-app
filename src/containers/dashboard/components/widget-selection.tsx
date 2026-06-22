@@ -1,6 +1,6 @@
 'use client'
-import React, { useMemo, useState } from 'react'
-import { InputWithIcon } from '@/components/ui/input'
+import React, { useCallback, useMemo, useState } from 'react'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { useTranslations } from 'next-intl'
 import {
   ChartWidgetIcon,
@@ -11,9 +11,7 @@ import {
   SwitchWidgetIcon,
   HistogramIcon,
 } from '@/components/icons'
-import { useDebounce } from '@/hooks'
 import { WidgetType } from '@/widget-models/widget'
-import { SearchIcon } from 'lucide-react'
 import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout'
 
 import 'react-grid-layout/css/styles.css'
@@ -99,8 +97,11 @@ const WidgetSelection = ({
 }) => {
   const t = useTranslations()
   const { mounted } = useMounted()
-  const [searchTerm, setSearchTerm] = useState('')
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedSearchTerm(value),
+    []
+  )
   const [layouts, setLayouts] = useState<Layouts>(screenLayout)
 
   const handleLayoutChange = (_: Layout[], layouts: Layouts) => {
@@ -119,14 +120,11 @@ const WidgetSelection = ({
     <div className="block size-full animate-opacity-display-effect">
       <div className="flex size-full animate-opacity-display-effect flex-col items-center justify-center gap-4">
         <div className="px-2 w-full">
-          <InputWithIcon
+          <DebouncedSearchInput
             wrapperClass="w-full h-fit bg-brand-component-fill-gray-soft outline-none dark:border-brand-component-stroke-secondary-soft"
-            prefixCpn={
-              <SearchIcon size={18} className="text-muted-foreground" />
-            }
-            value={searchTerm}
+            onSearch={handleSearch}
             placeholder={t('dashboard.search_for_widget')}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            delay={300}
           />
         </div>
         <div className="w-full flex-1 overflow-y-scroll mb-6 scroll-smooth [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F] px-2  pt-2">

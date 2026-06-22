@@ -2,15 +2,13 @@
 
 import { Button } from '@/components/ui/button'
 
-import { InputWithIcon } from '@/components/ui/input'
-import { LoaderCircle, PlusIcon, Search } from 'lucide-react'
-import Image from 'next/image'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
+import { LoaderCircle, PlusIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Nodata } from '@/components/ui'
 import UpsertGeofence from './components/upseart-geofence'
 import { useGeofenceStore } from '@/stores/geofence-store'
-import { useDebounce } from '@/hooks'
 import { useGeofences } from './hooks/useGeofences'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { GeofenceItem, GeofenceRowSkeleton } from './components/geofence-item'
@@ -29,11 +27,15 @@ const SKELETON_COUNT = 5
 
 const mapInstance = MapInstance.getInstance()
 
-export const Geofences = () => {
+const Geofences = () => {
   const t = useTranslations('geofence')
   const tCommon = useTranslations('common')
-  const [geofenceName, setGeofenceName] = useState('')
-  const geofenceDebounce = useDebounce(geofenceName, 500)
+  const [geofenceDebounce, setGeofenceDebounce] = useState('')
+  const [searchKey, setSearchKey] = useState(0)
+  const handleSearch = useCallback(
+    (value: string) => setGeofenceDebounce(value),
+    []
+  )
   const {
     data: geofencesList,
     isLoading,
@@ -42,7 +44,7 @@ export const Geofences = () => {
     mutate,
   } = useGeofences(geofenceDebounce)
   const parentRef = useRef<HTMLDivElement>(null)
-  const fetchingRef = useRef(false)
+  const observerRef = useRef<IntersectionObserver | null>(null)
 
   const { dynamicLayouts, setCookieDirty, toggleDynamicLayout } = useLayout(
     useShallow((state) => ({
@@ -95,7 +97,8 @@ export const Geofences = () => {
   }
 
   const handleClose = () => {
-    setGeofenceName('')
+    setGeofenceDebounce('')
+    setSearchKey((k) => k + 1)
     const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.GEOFENCES)
     setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
     setCookieDirty(true)
@@ -114,23 +117,25 @@ export const Geofences = () => {
 
   const virtualItems = rowVirtualizer.getVirtualItems()
 
-  useEffect(() => {
-    const [lastItem] = [...virtualItems].reverse()
-    if (!lastItem) return
-    if (
-      lastItem.index >= count - 1 &&
-      !isLoading &&
-      !isReachingEnd &&
-      !fetchingRef.current
-    ) {
-      fetchingRef.current = true
-      setSize((prev) => prev + 1)
-    }
-  }, [virtualItems.length, count, isLoading, isReachingEnd, setSize])
+  const loadMoreRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      observerRef.current?.disconnect()
+      if (!node) return
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setSize((prev) => prev + 1)
+          }
+        },
+        { root: parentRef.current, rootMargin: '120px' }
+      )
+      observer.observe(node)
+      observerRef.current = observer
+    },
+    [setSize]
+  )
 
-  useEffect(() => {
-    if (!isLoading) fetchingRef.current = false
-  }, [isLoading])
+  useEffect(() => () => observerRef.current?.disconnect(), [])
 
   const handleSetDetailGeofence = (geofence: Geofence) => {
     const draw = mapInstance.getTerraDraw()
@@ -164,11 +169,14 @@ export const Geofences = () => {
     })
   }
 
-  const handleSelectGeofence = (geofence: Geofence) => {
-    mapInstance.flyToBoundary(geofence.features)
-    setSelectedGeofence(geofence)
-    setIsShowGeofenceControls(true)
-  }
+  const handleSelectGeofence = useCallback(
+    (geofence: Geofence) => {
+      mapInstance.flyToBoundary(geofence.features)
+      setSelectedGeofence(geofence)
+      setIsShowGeofenceControls(true)
+    },
+    [setSelectedGeofence, setIsShowGeofenceControls]
+  )
 
   useEffect(() => {
     if (!selectedGeofence || !geofences) return
@@ -204,7 +212,7 @@ export const Geofences = () => {
               <span className="text-xs font-semibold leading-4">
                 {tCommon('add_geofence')}
               </span>
-              <Image src="/images/plus.svg" alt="plus" width={16} height={16} />
+              <PlusIcon size={16} />
             </Button>
             <div
               className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
@@ -218,14 +226,12 @@ export const Geofences = () => {
             </div>
           </div>
         </div>
-        <InputWithIcon
-          prefixCpn={
-            <Search size={18} className="text-brand-component-text-gray" />
-          }
+        <DebouncedSearchInput
+          key={searchKey}
+          onSearch={handleSearch}
           placeholder={t('geofence_name')}
-          wrapperClass="w-full"
-          value={geofenceName}
-          onChange={(e) => setGeofenceName(e.target.value)}
+          delay={500}
+          iconClassName="text-brand-component-text-gray"
         />
 
         <div className="flex-1 min-h-0 overflow-y-auto pb-4" ref={parentRef}>
@@ -247,6 +253,7 @@ export const Geofences = () => {
                   return (
                     <div
                       key={virtualRow.key}
+                      ref={loadMoreRef}
                       className="absolute left-0 flex w-full items-center justify-center"
                       style={{
                         height: `${ROW_ESTIMATE}px`,
@@ -262,7 +269,7 @@ export const Geofences = () => {
                 return (
                   <GeofenceItem
                     key={virtualRow.key}
-                    virtualRow={virtualRow}
+                    start={virtualRow.start}
                     item={item}
                     onSelectGeofence={handleSelectGeofence}
                   />
@@ -275,3 +282,5 @@ export const Geofences = () => {
     </div>
   )
 }
+
+export default memo(Geofences)
