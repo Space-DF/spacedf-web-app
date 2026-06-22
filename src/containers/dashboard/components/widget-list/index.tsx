@@ -47,12 +47,20 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useDebounce } from '@/hooks/useDebounce'
-import DashboardTable from './components/dashboard-table'
-import { DashboardDialog } from './components/dashboard-dialog'
 import { Dashboard } from '@/types/dashboard'
 import { sleep } from '@/utils'
 import { useGlobalStore } from '@/stores'
 import { useParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+const DashboardTable = dynamic(() => import('./components/dashboard-table'), {
+  ssr: false,
+})
+
+const DashboardDialog = dynamic(
+  () => import('./components/dashboard-dialog').then((m) => m.DashboardDialog),
+  { ssr: false }
+)
 
 interface Props {
   onCloseSideBar: () => void
@@ -87,7 +95,19 @@ export const WidgetList: React.FC<Props> = ({
     setEdit,
     dashboard,
     setDashboard,
-  } = useDashboardStore()
+  } = useDashboardStore(
+    useShallow((state) => ({
+      isViewAllDashboard: state.isViewAllDashboard,
+      setViewAllDashboard: state.setViewAllDashboard,
+      deleteId: state.deleteId,
+      setDeleteId: state.setDeleteId,
+      isEdit: state.isEdit,
+      setEdit: state.setEdit,
+      dashboard: state.dashboard,
+      setDashboard: state.setDashboard,
+    }))
+  )
+
   const t = useTranslations()
   const setOpenDrawerIdentity = useIdentityStore(
     (state) => state.setOpenDrawerIdentity
@@ -127,14 +147,17 @@ export const WidgetList: React.FC<Props> = ({
   }
 
   const currentWidgetLayout = useMemo(() => {
-    const widgets =
+    return (
       widgetList.map((widget) => ({
         ...widget.configuration,
         widgetId: widget.id,
       })) || []
-    setWidgets(widgets)
-    return widgets
+    )
   }, [widgetList])
+
+  useEffect(() => {
+    setWidgets(currentWidgetLayout)
+  }, [currentWidgetLayout])
 
   const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
 
@@ -207,10 +230,10 @@ export const WidgetList: React.FC<Props> = ({
     }
   }
 
-  const handleSelectDashboard = (dashboard: Dashboard) => {
+  const handleSelectDashboard = useCallback((dashboard: Dashboard) => {
     setSelectedDashboard(dashboard)
     setIsOpenDashboardDialog(true)
-  }
+  }, [])
 
   const handleCloseDashboardDialog = async () => {
     setOpen(false)

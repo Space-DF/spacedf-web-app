@@ -4,6 +4,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
+import { useShallow } from 'zustand/react/shallow'
 
 interface ThreeModelControlsProps {
   className?: string
@@ -11,14 +12,16 @@ interface ThreeModelControlsProps {
 
 export function ThreeModelControls({ className }: ThreeModelControlsProps) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
-    useThreeModelController((s) => ({
-      zoomIn: s.zoomIn,
-      zoomOut: s.zoomOut,
-      resetView: s.resetView,
-      autoRotate: s.autoRotate,
-      setAutoRotate: s.setAutoRotate,
-      hasControls: Boolean(s.controls),
-    }))
+    useThreeModelController(
+      useShallow((s) => ({
+        zoomIn: s.zoomIn,
+        zoomOut: s.zoomOut,
+        resetView: s.resetView,
+        autoRotate: s.autoRotate,
+        setAutoRotate: s.setAutoRotate,
+        hasControls: Boolean(s.controls),
+      }))
+    )
 
   if (!hasControls) return null
 

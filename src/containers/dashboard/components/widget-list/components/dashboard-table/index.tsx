@@ -4,8 +4,7 @@ import { useDashboard } from '@/containers/dashboard/hooks/useDashboard'
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { Dashboard } from '@/types/dashboard'
 import { useTranslations } from 'next-intl'
-import { useMemo, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
+import { useCallback, useMemo, useState } from 'react'
 import { useDebounce } from '@/hooks/useDebounce'
 import { InputWithIcon } from '@/components/ui/input'
 import { SearchIcon } from 'lucide-react'
@@ -16,19 +15,15 @@ interface Props {
 
 const DashboardTable: React.FC<Props> = ({ onSelectDashboard }) => {
   const t = useTranslations()
-  const { setDeleteId } = useDashboardStore(
-    useShallow((state) => ({
-      setDeleteId: state.setDeleteId,
-    }))
-  )
+  const setDeleteId = useDashboardStore((state) => state.setDeleteId)
   const [searchDashboard, setSearchDashboard] = useState('')
   const searchDashboardDebounced = useDebounce(searchDashboard, 300)
   const { data: dashboards = [], isLoading: isLoadingDashboard } = useDashboard(
     searchDashboardDebounced
   )
-  const handleDeleteSpace = (id: string) => {
+  const handleDeleteSpace = useCallback((id: string) => {
     setDeleteId(id)
-  }
+  }, [])
 
   const columns = useMemo(() => {
     return getColumns({

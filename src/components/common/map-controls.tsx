@@ -1,11 +1,14 @@
 import { cn } from '@/lib/utils'
 import { Globe, Loader2, Locate, Map, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import MapLibreGL from 'maplibre-gl'
+import type {
+  GlobeControl as GlobeControlType,
+  Map as MapType,
+} from 'maplibre-gl'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 type MapControlsProps = {
-  map: MapLibreGL.Map
+  map: MapType
 }
 
 const mapInstance = MapInstance.getInstance()
@@ -13,17 +16,28 @@ const mapInstance = MapInstance.getInstance()
 const MapControls = ({ map }: MapControlsProps) => {
   const [globeActive, setGlobeActive] = useState(false)
   const [waitingForLocation, setWaitingForLocation] = useState(false)
-  const globeControlRef = useRef<MapLibreGL.GlobeControl | null>(null)
+  const globeControlRef = useRef<GlobeControlType | null>(null)
 
   const latestUserLocationRef = useRef<[number, number] | null>(null)
 
   useEffect(() => {
     if (!map) return
-    const globe = new MapLibreGL.GlobeControl()
+    let globeControl: GlobeControlType | null = null
 
-    map.addControl(globe)
+    const initGlobe = async () => {
+      const { GlobeControl } = await import('maplibre-gl')
+      globeControl = new GlobeControl()
+      map.addControl(globeControl)
+      globeControlRef.current = globeControl
+    }
 
-    globeControlRef.current = globe
+    initGlobe()
+
+    return () => {
+      if (globeControl) {
+        map.removeControl(globeControl)
+      }
+    }
   }, [map])
 
   const handleZoomIn = useCallback(() => {

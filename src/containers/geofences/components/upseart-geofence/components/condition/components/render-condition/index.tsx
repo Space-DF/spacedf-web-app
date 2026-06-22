@@ -22,8 +22,13 @@ import { And, Graph, Calendar, NumberIcon } from '@/components/icons'
 import { EqualNot, ChevronDown } from 'lucide-react'
 import { AddCondition } from '../add-condition'
 import { ConditionOptions } from '../condition-options'
-import { EditYamlPanel } from '../edit-yaml-dialog'
 import { useGeofenceStore } from '@/stores/geofence-store'
+import dynamic from 'next/dynamic'
+
+const EditYamlPanel = dynamic(
+  () => import('../edit-yaml-dialog').then((m) => m.EditYamlPanel),
+  { ssr: false }
+)
 import { useTestCondition } from './hooks/useTestCondition'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { featuresToGeometries, transformConditions } from '../../../../utils'
