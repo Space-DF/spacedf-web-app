@@ -131,6 +131,7 @@ export const useMqtt = () => {
             water_depth: newWaterDepth,
             water_level_name: getWaterDepthLevelName(newWaterDepth),
           }
+          break
 
         case 'location':
           entityKeyRef.current.add('location')
