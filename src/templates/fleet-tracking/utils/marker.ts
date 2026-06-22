@@ -1,10 +1,14 @@
-import MapLibreGL from 'maplibre-gl'
+import type {
+  Map as MapType,
+  GeoJSONSource as GeoJSONSourceType,
+  Marker as MarkerType,
+} from 'maplibre-gl'
 
 type SmoothUpdateFocusDeviceProps = {
   from: [number, number]
   to: [number, number]
   duration?: number
-  map: MapLibreGL.Map
+  map: MapType
   deviceId: string
 }
 
@@ -18,7 +22,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 function smoothMoveMarker(
-  marker: MapLibreGL.Marker,
+  marker: MarkerType,
   from: [number, number],
   to: [number, number],
   duration = 500
@@ -57,7 +61,7 @@ function smoothUpdateFocusDeviceSource({
     const lng = lerp(from[0], to[0], t)
     const lat = lerp(from[1], to[1], t)
 
-    const source = map.getSource('focused-device') as MapLibreGL.GeoJSONSource
+    const source = map.getSource('focused-device') as GeoJSONSourceType
 
     source.setData({
       type: 'FeatureCollection',
@@ -82,7 +86,7 @@ function smoothUpdateFocusDeviceSource({
 }
 
 function smoothRotateMarker(
-  marker: MapLibreGL.Marker,
+  marker: MarkerType,
   from: number,
   to: number,
   duration = 200

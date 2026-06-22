@@ -34,7 +34,6 @@ import {
 import Sidebar from './sidebar'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import { useGeofenceStore } from '@/stores/geofence-store'
-import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { FeatureId } from '@/types/geofence'
 import { useMounted } from '@/hooks'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -74,8 +73,6 @@ const DynamicLayoutContent = ({ panelType }: DynamicLayoutContentProps) => {
       return null
   }
 }
-
-const mapInstance = MapInstance.getInstance()
 
 const DynamicLayout = ({
   children,
@@ -306,17 +303,26 @@ const DynamicLayout = ({
   )
 
   useEffect(() => {
-    const draw = mapInstance.getTerraDraw()
     if (!isGeofencesActive) {
       resetGeofenceStore()
-      const snapshot = draw?.getSnapshot()
-      if (!snapshot?.length) return
-      const features = snapshot.reduce<FeatureId[]>((acc, f) => {
-        if (f.properties?.mode !== 'select') acc.push(f.id as FeatureId)
-        return acc
-      }, [])
-      draw?.removeFeatures(features)
-      draw?.setMode('render')
+
+      const cleanDraw = async () => {
+        const { default: MapInstance } = await import(
+          '@/templates/fleet-tracking/core/map-instance'
+        )
+        const mapInstance = MapInstance.getInstance()
+        const draw = mapInstance.getTerraDraw()
+        const snapshot = draw?.getSnapshot()
+        if (!snapshot?.length) return
+        const features = snapshot.reduce<FeatureId[]>((acc, f) => {
+          if (f.properties?.mode !== 'select') acc.push(f.id as FeatureId)
+          return acc
+        }, [])
+        draw?.removeFeatures(features)
+        draw?.setMode('render')
+      }
+
+      cleanDraw()
     }
   }, [isGeofencesActive])
 

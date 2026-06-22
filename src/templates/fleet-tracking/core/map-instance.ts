@@ -1,28 +1,15 @@
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
-import MapLibreGL from 'maplibre-gl'
-import { TerraDrawMapLibreGLAdapter } from 'terra-draw-maplibre-gl-adapter'
-import {
-  TerraDraw,
-  TerraDrawAngledRectangleMode,
-  TerraDrawCircleMode,
-  TerraDrawFreehandMode,
-  TerraDrawPointMode,
-  TerraDrawPolygonMode,
-  TerraDrawRectangleMode,
-  TerraDrawSectorMode,
-  TerraDrawSelectMode,
-  TerraDrawSensorMode,
-  TerraDrawRenderMode,
-  ValidateNotSelfIntersecting,
-} from 'terra-draw'
+import { Map, GeolocateControl } from 'maplibre-gl'
+import type { MapOptions, MapEventType } from 'maplibre-gl'
+import type { TerraDraw } from 'terra-draw'
 import { PolygonGeometry } from '@/types/geofence'
 import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
 
 type MapProps = {
   container: HTMLElement
   theme: 'dark' | 'light'
-  options?: Omit<MapLibreGL.MapOptions, 'container' | 'style'>
+  options?: Omit<MapOptions, 'container' | 'style'>
 }
 
 type UpdateMapPitchProps = {
@@ -30,11 +17,7 @@ type UpdateMapPitchProps = {
   duration?: number
 }
 
-type MapEvent =
-  | keyof MapLibreGL.MapEventType
-  | 'style.load'
-  | 'reattach'
-  | 'ready'
+type MapEvent = keyof MapEventType | 'style.load' | 'reattach' | 'ready'
 
 const defaultStyles = {
   dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
@@ -52,8 +35,8 @@ type Bounds = {
 
 class MapInstance {
   private static instance: MapInstance | undefined
-  private map: MapLibreGL.Map | null = null
-  private geoLocate: MapLibreGL.GeolocateControl | null = null
+  private map: Map | null = null
+  private geoLocate: GeolocateControl | null = null
   private devices: Record<string, Device> = {}
   private emitter = new EventEmitter()
   private isReady = false
@@ -210,13 +193,78 @@ class MapInstance {
     }
     this.theme = theme
 
-    const map = new MapLibreGL.Map({
+    const map = new Map({
       container: container,
       center: [0, 0],
       style: defaultStyles[theme],
       canvasContextAttributes: { antialias: true },
       ...(options || {}),
     })
+
+    map.on('load', () => {
+      if (!this.readyEmitted && map.isStyleLoaded()) {
+        this.geoLocate = new GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        })
+
+        map.addControl(this.geoLocate)
+
+        this.readyEmitted = true
+        this.emitter.emit('ready', map)
+      }
+      map.resize()
+    })
+
+    map.on('style.load', (map: Map) => {
+      this._reregisterTerraDrawAfterStyleLoad()
+      this.emitter.emit('style.load', map)
+    })
+
+    map.on('styledata', (map: Map) => {
+      this.emitter.emit('styledata', map)
+    })
+
+    this.map = map
+
+    this.initialized = true
+
+    this._prefetchStyles()
+
+    return this.map
+  }
+
+  private _prefetchStyles() {
+    Object.values(defaultStyles).forEach((url) => {
+      fetch(url).catch(() => {})
+    })
+  }
+
+  public async initTerraDraw() {
+    if (this.draw || !this.map) return this.draw
+
+    const [
+      {
+        TerraDraw,
+        TerraDrawAngledRectangleMode,
+        TerraDrawCircleMode,
+        TerraDrawFreehandMode,
+        TerraDrawPointMode,
+        TerraDrawPolygonMode,
+        TerraDrawRectangleMode,
+        TerraDrawSectorMode,
+        TerraDrawSelectMode,
+        TerraDrawSensorMode,
+        TerraDrawRenderMode,
+        ValidateNotSelfIntersecting,
+      },
+      { TerraDrawMapLibreGLAdapter },
+    ] = await Promise.all([
+      import('terra-draw'),
+      import('terra-draw-maplibre-gl-adapter'),
+    ])
 
     const fillColor = (feature: {
       properties: { color?: string; disabled?: boolean }
@@ -232,7 +280,7 @@ class MapInstance {
         : (feature.properties.color as `#${string}`) || '#000000'
 
     this.draw = new TerraDraw({
-      adapter: new TerraDrawMapLibreGLAdapter({ map }),
+      adapter: new TerraDrawMapLibreGLAdapter({ map: this.map }),
       modes: [
         new TerraDrawRectangleMode({
           styles: { fillColor, outlineColor },
@@ -333,45 +381,8 @@ class MapInstance {
       ],
     })
 
-    map.on('load', () => {
-      if (!this.readyEmitted && map.isStyleLoaded()) {
-        this.geoLocate = new MapLibreGL.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-          trackUserLocation: true,
-        })
-
-        map.addControl(this.geoLocate)
-
-        this.readyEmitted = true
-        this.emitter.emit('ready', map)
-      }
-      map.resize()
-    })
-
-    map.on('style.load', (map: maplibregl.Map) => {
-      this._reregisterTerraDrawAfterStyleLoad()
-      this.emitter.emit('style.load', map)
-    })
-
-    map.on('styledata', (map: maplibregl.Map) => {
-      this.emitter.emit('styledata', map)
-    })
-
-    this.map = map
-
-    this.initialized = true
-
-    this._prefetchStyles()
-
-    return this.map
-  }
-
-  private _prefetchStyles() {
-    Object.values(defaultStyles).forEach((url) => {
-      fetch(url).catch(() => {})
-    })
+    this._reregisterTerraDrawAfterStyleLoad()
+    return this.draw
   }
 
   public getTerraDraw() {

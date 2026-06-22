@@ -32,11 +32,11 @@ export default function ThreeModel({ url, ...props }: ModelProps) {
   const camera = useThree((s) => s.camera)
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
   const { setControls, setCamera, autoRotate } = useThreeModelController(
-    (s) => ({
+    useShallow((s) => ({
       setControls: s.setControls,
       setCamera: s.setCamera,
       autoRotate: s.autoRotate,
-    })
+    }))
   )
   const { isMovingDevice, isDragging, setIsDragging } = useMoveDeviceStore(
     useShallow((s) => ({

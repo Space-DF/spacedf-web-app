@@ -10,7 +10,7 @@ import { useDashboardStore } from '@/stores/dashboard-store'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { Alert } from '@/types/alert'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { getWidgetRealtime } from '../utils'
@@ -86,7 +86,6 @@ export const useMqtt = () => {
   const flushTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const mqttRouterRef = useRef<MQTTRouter | null>(null)
   const mqttServiceRef = useRef<MqttService | null>(null)
-  const [isMqttReady, setIsMqttReady] = useState(false)
 
   // Handler for processed telemetry data
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
@@ -123,6 +122,7 @@ export const useMqtt = () => {
               water_depth: newWaterDepth,
               water_level_name: getWaterDepthLevelName(newWaterDepth),
             }
+            break
 
           case 'location':
             entityKeyRef.current.add('location')
@@ -240,7 +240,6 @@ export const useMqtt = () => {
     const handleMqttConnect = async () => {
       mqttServiceRef.current = MqttService.getInstance(organization)
       await mqttServiceRef.current.initialize()
-      setIsMqttReady(true)
       mqttServiceRef.current?.setEventCallbacks({
         onReconnect: () => {
           toast.info('MQTT reconnecting...', {
@@ -288,6 +287,26 @@ export const useMqtt = () => {
             position: 'bottom-right',
           })
         },
+        onMessage: (topic: string, payload: Buffer) => {
+          const results =
+            mqttRouterRef.current?.routeMessage(topic, payload) || []
+
+          results.forEach((result) => {
+            if (isDeviceTelemetryResult(result)) {
+              handleDeviceTelemetry(result)
+              return
+            }
+
+            if (isEntityTelemetryResult(result)) {
+              handleEntityTelemetry(result)
+              return
+            }
+
+            if (isDeviceEventResult(result)) {
+              insertDeviceEvents(result.deviceId, result.event)
+            }
+          })
+        },
       })
     }
 
@@ -296,47 +315,15 @@ export const useMqtt = () => {
     return () => {
       mqttServiceRef.current?.disconnect()
       mqttServiceRef.current = null
-      setIsMqttReady(false)
       if (mqttRouterRef.current) {
         mqttRouterRef.current.cleanup()
         mqttRouterRef.current = null
       }
     }
-  }, [organization, spaceSlugName, isAuthorized, isDevVerified, isDevLoading])
-
-  useEffect(() => {
-    if (
-      isDemo ||
-      !mqttServiceRef.current ||
-      !mqttRouterRef.current ||
-      isDevLoading ||
-      !isDevVerified
-    )
-      return
-    mqttServiceRef.current?.setEventCallbacks({
-      onMessage: (topic: string, payload: Buffer) => {
-        const results =
-          mqttRouterRef.current?.routeMessage(topic, payload) || []
-
-        results.forEach((result) => {
-          if (isDeviceTelemetryResult(result)) {
-            handleDeviceTelemetry(result)
-            return
-          }
-
-          if (isEntityTelemetryResult(result)) {
-            handleEntityTelemetry(result)
-            return
-          }
-
-          if (isDeviceEventResult(result)) {
-            insertDeviceEvents(result.deviceId, result.event)
-          }
-        })
-      },
-    })
   }, [
-    isMqttReady,
+    organization,
+    spaceSlugName,
+    isAuthorized,
     isDemo,
     isDevLoading,
     isDevVerified,

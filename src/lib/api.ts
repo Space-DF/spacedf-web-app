@@ -1,5 +1,4 @@
 import { signOut } from 'next-auth/react'
-import MqttService from './mqtt'
 import { getClientOrganization } from '@/utils'
 import { toast } from 'sonner'
 import { LOCAL_STORAGE_KEYS } from '@/constants'
@@ -231,6 +230,7 @@ api.setInterceptors({
           if (refreshResponse.ok) {
             api.refreshAttempts = 0
             api.processQueue(null, 'refreshed')
+            const { default: MqttService } = await import('./mqtt')
             MqttService.getInstance(getClientOrganization()).reconnect()
             return api.request(originalEndpoint, originalConfig)
           } else {

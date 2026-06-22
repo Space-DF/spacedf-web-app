@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { SVGProps } from '@/types/global'
 import { generateOrganizationDomain } from '@/utils'
+import { useMounted } from '@/hooks'
 
 //TODO: add validate organization name: no special characters, replace whitespace
 
@@ -18,11 +19,7 @@ export const AppWireFrameSpaceDark = ({
   spaceName = 'Space Name',
   ...resSVGProps
 }: AppWireFrameProps) => {
-  const [mounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const { mounted } = useMounted()
 
   const spaceNameTruncated = useMemo(() => {
     if (spaceName.length <= MAX_SPACE_LENGTH) return spaceName
