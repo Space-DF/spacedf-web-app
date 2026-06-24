@@ -139,7 +139,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
           <AccordionTrigger
             className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
             dropdownIcon={
-              <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+              <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
             }
           >
             <div className="mr-2 flex w-full items-center justify-between">
@@ -151,6 +151,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                   e.stopPropagation()
                   setOpenDialog(true)
                 }}
+                className="text-muted-foreground"
               />
             </div>
           </AccordionTrigger>
@@ -178,7 +179,7 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                               variant="outline"
                               role="combobox"
                               aria-expanded={openCombobox}
-                              className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                              className="font-normal text-sm w-full justify-between border border-border bg-input outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0"
                             >
                               <p className="truncate w-5/6 text-start">
                                 {currentEntity
@@ -277,7 +278,6 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                     <FormControl>
                       <Input
                         {...field}
-                        className="border-none outline-none ring-0 focus:outline-none focus:ring-0"
                         onChange={handleLegendManualChange}
                         isError={!!fieldState.error}
                       />
@@ -301,9 +301,9 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                       >
                         <SelectTrigger
                           icon={
-                            <ChevronDown className="w-3 text-brand-icon-gray" />
+                            <ChevronDown className="w-3 text-muted-foreground" />
                           }
-                          className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                          className="border border-border bg-input outline-none ring-0 focus:ring-0"
                         >
                           <SelectValue
                             placeholder={
@@ -336,8 +336,8 @@ const SingleSource: React.FC<Props> = ({ index, field, onRemove }) => {
                             )}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)] bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-                          <SelectGroup className="flex flex-wrap gap-2">
+                        <SelectContent className="w-fit bg-input">
+                          <SelectGroup className="grid grid-cols-10 gap-2">
                             <SelectItem
                               showCheckIcon={false}
                               value="default"

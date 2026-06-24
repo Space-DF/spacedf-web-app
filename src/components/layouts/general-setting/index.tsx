@@ -126,7 +126,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
                       className={cn(
                         'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',
                         isActive
-                          ? 'border-r-2 border-black bg-brand-fill-dark-soft dark:border-brand-heading dark:bg-brand-text-dark dark:text-white'
+                          ? 'border-r-2 border-primary bg-accent text-primary'
                           : 'border-none bg-transparent text-brand-text-gray',
                         {
                           'text-brand-semantic-accent':

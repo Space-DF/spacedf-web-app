@@ -273,7 +273,7 @@ export const WidgetList: React.FC<Props> = ({
                   aria-labelledby="dashboard-combobox"
                   aria-label="dashboard-label"
                   className={cn(
-                    'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
+                    'line-clamp-1 border flex h-8 border-border justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
                     {
                       'border-brand-component-stroke-dark shadow-dashboard':
                         open,
@@ -283,13 +283,13 @@ export const WidgetList: React.FC<Props> = ({
                   <div className="line-clamp-1 w-full flex-1 text-left">
                     {currentDashboardName}
                   </div>
-                  <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                  <ChevronsUpDown className="size-4 shrink-0 opacity-50 text-muted-foreground" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-60 rounded-lg p-2" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
-                    classNameContainer="border-0 rounded-lg bg-brand-fill-dark-soft"
+                    classNameContainer=""
                     placeholder={t('dashboard.search')}
                     onValueChange={setSearchDashboard}
                     value={searchDashboard}
@@ -337,7 +337,7 @@ export const WidgetList: React.FC<Props> = ({
                     </CommandGroup>
                     <Separator className="my-3" />
                     <Button
-                      className="mb-3 h-8 w-full gap-2 text-sm font-semibold text-brand-text-gray"
+                      className="mb-3 h-8 w-full gap-2 text-sm font-semibold"
                       variant="outline"
                       onClick={handleViewAllDashboard}
                     >

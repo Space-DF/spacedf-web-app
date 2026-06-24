@@ -1,13 +1,18 @@
 export interface ThemeColors {
+  card: string
   text: string
   input: string
-  outline: string
+  accent: string
+  border: string
   primary: string
+  secondary: string
   background: string
-  device_card: string
-  widget_card: string
+  accent_text: string
+  input_border: string
+  primary_text: string
   support_text: string
-  widget_border: string
+  secondary_text: string
+  switch_background: string
 }
 
 export interface OrganizationTheme {

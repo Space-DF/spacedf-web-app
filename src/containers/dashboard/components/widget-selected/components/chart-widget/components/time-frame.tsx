@@ -162,12 +162,12 @@ const TimeFrame = () => {
       onValueChange={(tab) => handleTabChange(tab as TimeFrameTab)}
       ref={containerRef}
     >
-      <TabsList className="m-0 grid h-fit w-full grid-cols-5 gap-0 divide-x overflow-hidden border border-brand-component-stroke-dark-soft bg-transparent p-0">
+      <TabsList className="m-0 grid h-fit w-full grid-cols-5 gap-0 divide-x overflow-hidden border border-border bg-transparent p-0">
         {TIME_FRAME_TABS.map((tab) => (
           <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="rounded-none text-brand-component-text-dark data-[state=active]:border-brand-component-stroke-dark data-[state=active]:bg-brand-component-fill-dark data-[state=active]:text-brand-component-text-light"
+            className="rounded-none text-brand-component-text-dark data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-brand-component-text-light"
           >
             {t(tab.label as any)}
           </TabsTrigger>
@@ -191,7 +191,7 @@ const TimeFrame = () => {
                         <Button
                           variant={'outline'}
                           className={cn(
-                            'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
+                            'bg-input pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                             !field.value && 'text-muted-foreground'
                           )}
                         >
@@ -200,14 +200,16 @@ const TimeFrame = () => {
                               TimeFormat.FULL_DATE_WITH_ORDINAL
                             )
                           ) : (
-                            <span>{t('pick_a_date')}</span>
+                            <span className="text-muted-foreground">
+                              {t('pick_a_date')}
+                            </span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto bg-brand-component-fill-dark-soft p-0 text-brand-component-text-dark"
+                      className="w-auto bg-input p-0 text-brand-component-text-dark"
                       align="start"
                     >
                       <Calendar
@@ -241,7 +243,7 @@ const TimeFrame = () => {
                         <Button
                           variant={'outline'}
                           className={cn(
-                            'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
+                            'bg-input pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                             !field.value && 'text-muted-foreground'
                           )}
                         >
@@ -250,7 +252,9 @@ const TimeFrame = () => {
                               TimeFormat.FULL_DATE_WITH_ORDINAL
                             )
                           ) : (
-                            <span>{t('pick_a_date')}</span>
+                            <span className="text-muted-foreground">
+                              {t('pick_a_date')}
+                            </span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -288,7 +292,7 @@ const TimeFrame = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="border-input"
+                        className="border-border border"
                         {...field}
                         onChange={handleResolutionChange}
                         isError={!!fieldState.error}
@@ -306,12 +310,12 @@ const TimeFrame = () => {
                           >
                             <FormControl>
                               <SelectTrigger
-                                className="border-none shadow-none bg-brand-fill-dark-soft border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 dark:bg-brand-heading "
+                                className="border-none shadow-none bg-input border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 dark:bg-brand-heading "
                                 icon={
-                                  <ChevronDown className="w-3 text-brand-icon-gray" />
+                                  <ChevronDown className="w-3 text-muted-foreground" />
                                 }
                               >
-                                <SelectValue />
+                                <SelectValue className="text-muted-foreground" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -346,7 +350,7 @@ const TimeFrame = () => {
                   >
                     <FormControl>
                       <SelectTrigger
-                        className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                        className="border bg-input border-border"
                         icon={
                           <ChevronDown className="w-3 text-brand-icon-gray" />
                         }

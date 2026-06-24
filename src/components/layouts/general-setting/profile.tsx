@@ -158,7 +158,7 @@ const Profile = () => {
                   <FormLabel>{t('first_name')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      className="h-10 border-none bg-brand-fill-dark-soft shadow-none"
+                      className="h-10"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('first_name')}
                       disabled={isLoading}
@@ -178,7 +178,7 @@ const Profile = () => {
                   <FormLabel>{t('last_name')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      className="h-10 border-none bg-brand-fill-dark-soft shadow-none"
+                      className="h-10"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('last_name')}
                       disabled={isLoading}
@@ -199,7 +199,7 @@ const Profile = () => {
                 <FormLabel>{t('location')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<MapPin size={16} />}
                     placeholder={t('location')}
                     disabled={isLoading}
@@ -219,7 +219,7 @@ const Profile = () => {
                 <FormLabel>{t('company_name')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<Building />}
                     placeholder={t('company_name')}
                     {...field}
@@ -239,7 +239,7 @@ const Profile = () => {
                 <FormLabel>{t('title')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<UserList />}
                     placeholder={t('title')}
                     disabled={isLoading}

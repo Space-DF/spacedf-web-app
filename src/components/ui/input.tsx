@@ -43,7 +43,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <input
               type={type}
               className={cn(
-                'flex h-full w-full text-input-foreground rounded-input border-none py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium placeholder:text-brand-component-text-gray focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-input',
+                'flex h-full w-full text-input-foreground rounded-input border-none py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-input placeholder:text-muted-foreground',
                 isError &&
                   '!ring-red-600 ring-2 ring-offset-2 bg-brand-component-fill-negative-soft'
               )}
@@ -58,7 +58,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              'flex h-9 w-full bg-input rounded-input text-input-foreground border border-brand-stroke-dark-soft bg-brand-fill-dark-soft px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-brand-component-text-gray focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:ring-brand-stroke-outermost focus-visible:ring-0 focus-visible:ring-offset-0',
+              'flex h-9 w-full rounded-input text-input-foreground border border-border bg-input px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-brand-component-text-gray focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:ring-brand-stroke-outermost',
               className,
               isError &&
                 'ring-red-600 ring-1 ring-offset-1 focus-visible:ring-red-600 focus-visible:ring-1 focus-visible:ring-offset-1 bg-brand-component-fill-negative-soft'
@@ -96,7 +96,7 @@ const InputWithIcon = React.forwardRef<
     return (
       <div
         className={cn(
-          'relative flex max-w-2xl items-center rounded-input bg-input',
+          'relative flex max-w-2xl items-center border-border border rounded-input bg-input transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-0',
           wrapperClass
         )}
       >
@@ -105,7 +105,7 @@ const InputWithIcon = React.forwardRef<
         </div>
         <Input
           className={cn(
-            'h-10 border-none bg-input pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0',
+            'h-10 border-none bg-input pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-secondary-foreground',
             {
               'pr-8': !!suffixCpn,
             },

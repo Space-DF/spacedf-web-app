@@ -27,7 +27,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-input bg-input border border-input px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost focus:dark:ring-brand-stroke-outermost [&>span]:line-clamp-1',
+      'flex h-9 w-full items-center border-border justify-between whitespace-nowrap rounded-input bg-input border px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:border-brand-stroke-outermost dark:bg-brand-fill-outermost focus:dark:ring-brand-stroke-outermost [&>span]:line-clamp-1',
       className,
       isError && 'ring-red-600 ring-1 bg-brand-component-fill-negative-soft'
     )}
@@ -35,7 +35,9 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      {icon || <CaretSortIcon className="size-6 opacity-50" />}
+      {icon || (
+        <CaretSortIcon className="size-6 opacity-50 text-muted-foreground" />
+      )}
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))

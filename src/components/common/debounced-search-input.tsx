@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
 import { InputWithIcon } from '@/components/ui/input'
 import { useDebounce } from '@/hooks'
+import { cn } from '@/lib/utils'
 
 interface DebouncedSearchInputProps {
   /** Called with the debounced value whenever it changes. Must be stable (useCallback). */
@@ -46,8 +47,16 @@ export const DebouncedSearchInput = memo(
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        prefixCpn={<Search size={iconSize} className={iconClassName} />}
-        wrapperClass={wrapperClass}
+        prefixCpn={
+          <Search
+            size={iconSize}
+            className={cn('text-secondary-foreground', iconClassName)}
+          />
+        }
+        wrapperClass={cn(
+          'border border-border transition-shadow focus-within:border-[hsl(var(--primary))] focus-within:ring-2 focus-within:!ring-offset-0 focus-within:ring-[color:color-mix(in_srgb,hsl(var(--primary))_40%,transparent)]',
+          wrapperClass
+        )}
         className={className}
       />
     )

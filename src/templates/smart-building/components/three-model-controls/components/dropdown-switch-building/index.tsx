@@ -139,7 +139,9 @@ export function DropdownSwitchBuilding() {
         <SelectTrigger
           aria-label="Switch floor"
           className="flex h-fit w-56 items-center rounded-input bg-input font-medium text-sm text-input-foreground shadow-sm transition-colors border-none"
-          icon={<ChevronDown className="size-4 opacity-80" />}
+          icon={
+            <ChevronDown className="size-4 opacity-80 text-muted-foreground" />
+          }
         >
           {building ? (
             <span className="truncate max-w-32">{building.name}</span>

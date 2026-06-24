@@ -140,7 +140,7 @@ const Source = () => {
                       variant="outline"
                       role="combobox"
                       aria-expanded={openCombobox}
-                      className=" w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading font-normal text-sm"
+                      className=" w-full justify-between border border-border bg-input font-normal text-sm"
                     >
                       <p className="truncate w-5/6 text-start">
                         {currentEntity

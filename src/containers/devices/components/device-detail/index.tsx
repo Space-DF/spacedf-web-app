@@ -145,7 +145,7 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         >
           <div className="flex min-h-[min(420px,70vh)] flex-col items-center justify-center gap-4 px-6 py-10 text-center">
             <div
-              className="flex size-14 items-center justify-center rounded-full bg-brand-component-fill-gray-soft dark:bg-brand-stroke-outermost"
+              className="flex size-14 items-center justify-center rounded-full bg-card"
               aria-hidden
             >
               <AlertCircle

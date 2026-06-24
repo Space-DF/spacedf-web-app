@@ -63,6 +63,10 @@ const config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        org: {
+          'switch-background': 'hsl(var(--org-switch-background))',
+          'input-border': 'hsl(var(--org-input-border))',
+        },
         brand: brandColors,
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',

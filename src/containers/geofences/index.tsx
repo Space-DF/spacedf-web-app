@@ -215,13 +215,13 @@ const Geofences = () => {
               <PlusIcon size={16} />
             </Button>
             <div
-              className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
+              className="group h-max cursor-pointer rounded-sm p-1"
               onClick={handleClose}
             >
               <PlusIcon
                 width={24}
                 height={24}
-                className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 dark:text-brand-dark-text-gray"
+                className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 text-muted-foreground"
               />
             </div>
           </div>
