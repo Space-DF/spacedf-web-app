@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
-
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { notFound } from 'next/navigation'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
@@ -75,6 +75,9 @@ export async function generateMetadata(): Promise<Metadata> {
     favicon
   )
 }
+
+const GA_ID = process.env.GA_ID
+
 export default async function RootLayout({
   children,
   params: { locale },
@@ -112,6 +115,7 @@ export default async function RootLayout({
           </AppProvider>
         </NextIntlClientProvider>
       </body>
+      {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
     </html>
   )
 }
