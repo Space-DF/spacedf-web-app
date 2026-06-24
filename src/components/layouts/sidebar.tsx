@@ -422,6 +422,7 @@ const CollapsedNavigation = () => {
     useShallow((state) => state.toggleDynamicLayout)
   )
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
 
   const isAuth = useAuthenticated()
 
@@ -436,8 +437,13 @@ const CollapsedNavigation = () => {
         const handleDynamicLayoutChange = () => {
           if (!navigation.isDynamic) return
 
-          toggleDynamicLayout(navigation.href)
           const newLayout = getNewLayouts(dynamicLayouts, navigation.href)
+
+          if (!newLayout.includes(NavigationEnums.DEVICES)) {
+            setDeviceSelected('')
+          }
+
+          toggleDynamicLayout(navigation.href)
 
           setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
           setCookieDirty(true)

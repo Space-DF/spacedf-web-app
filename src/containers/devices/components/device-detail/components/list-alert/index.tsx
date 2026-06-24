@@ -141,7 +141,7 @@ export default function ListAlert() {
   } = useGetAlert(
     deviceSelected,
     getDateByDateType(selectedDate),
-    getDateByDateType('today')
+    getDateByDateType(selectedDate === 'yesterday' ? 'yesterday' : 'today')
   )
   const t = useTranslations('common')
   const deviceAlerts = useDeviceStore(
