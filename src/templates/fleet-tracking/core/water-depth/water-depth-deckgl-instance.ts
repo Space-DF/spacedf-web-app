@@ -346,7 +346,7 @@ class WaterDepthDeckInstance {
       diskResolution: 8,
       elevationScale: elevationScaleByZoom,
       getElevation: (d) => d.waterLevel,
-      getPosition: (d) => d.location,
+      getPosition: (d) => [d.location[0], d.location[1]],
       getFillColor: (d) => d.color,
       transitions: {
         ...(this.hasAnimated && {
@@ -376,11 +376,9 @@ class WaterDepthDeckInstance {
 
   private _buildWaterDepthWrapper() {
     const { visibleDevices } = this.getVisibleDevicesAndGroups(this.devices)
-
     const dataLayer: LayerDataSource<MainColumData> = visibleDevices.map(
       (device) => {
         const isSelected = device.id === this.focusedDevice
-
         const waterDepth = device.deviceProperties?.water_depth
           ? device.deviceProperties?.water_depth
           : 0
@@ -421,7 +419,7 @@ class WaterDepthDeckInstance {
       diskResolution: 8,
       elevationScale: elevationScaleByZoom,
       getElevation: () => COLUMN_MAXIMUM_LEVEL,
-      getPosition: (d) => d.location,
+      getPosition: (d) => [d.location[0], d.location[1]],
       getFillColor: (d) => d.color,
       pickable: true,
 
@@ -607,15 +605,13 @@ const getPolygonData = (
   const polygonData: LayerDataSource<PolygonData> = devices
     .map((device) => {
       if (!ungroupedDeviceIds.includes(device.id)) return null
-
-      const circle = turf.circle(
-        device.deviceProperties?.latest_checkpoint_arr || [0, 0],
-        radiusKm,
-        {
-          steps: 64,
-          units: 'kilometers',
-        }
-      )
+      const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [
+        0, 0,
+      ]
+      const circle = turf.circle([lng, lat], radiusKm, {
+        steps: 64,
+        units: 'kilometers',
+      })
 
       const color = getLevelColor(
         device.deviceProperties?.water_level_name as WaterDepthLevelName
