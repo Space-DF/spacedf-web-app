@@ -16,7 +16,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { getWaterDepthLevelName } from '@/utils/water-depth'
-import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import { COOKIES, NavigationEnums, WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import { getNewLayouts, useLayout } from '@/stores'
+import { setCookie } from '@/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
@@ -81,6 +83,13 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   const handleWaterDepthSelected = useCallback(
     ({ deviceId }: { deviceId: string; deviceData: Device }) => {
       setDeviceSelected(deviceId)
+
+      const { dynamicLayouts, toggleDynamicLayout } = useLayout.getState()
+      if (!dynamicLayouts.includes(NavigationEnums.DEVICES)) {
+        const newLayout = getNewLayouts(dynamicLayouts, NavigationEnums.DEVICES)
+        setCookie(COOKIES.DYNAMIC_LAYOUTS, newLayout)
+        toggleDynamicLayout(NavigationEnums.DEVICES)
+      }
     },
     []
   )
