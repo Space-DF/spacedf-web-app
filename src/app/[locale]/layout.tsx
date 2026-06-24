@@ -115,7 +115,7 @@ export default async function RootLayout({
           </AppProvider>
         </NextIntlClientProvider>
       </body>
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+      {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
     </html>
   )
 }
