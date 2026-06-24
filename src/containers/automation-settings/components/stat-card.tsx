@@ -8,7 +8,7 @@ export function StatCard({
   value: number
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-brand-stroke-dark-soft p-4 dark:border-brand-stroke-outermost">
+    <div className="flex items-center gap-3 rounded-lg border border-border p-4 dark:border-brand-stroke-outermost bg-card">
       {icon}
       <div>
         <p className="text-xs text-brand-text-gray">{label}</p>

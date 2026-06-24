@@ -99,7 +99,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
     <>
       <div
         className={cn(
-          `flex h-dvh border-r border-brand-stroke-dark-soft p-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost bg-background`
+          `flex h-dvh border-r border-brand-stroke-dark-soft py-4 text-sm text-brand-component-text-dark shadow-md transition-all duration-300 dark:border-brand-stroke-outermost bg-background`
         )}
         id="sidebar-id"
       >
@@ -148,14 +148,14 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     <div
       ref={containerRef}
       className={cn(
-        'flex grow flex-col transition-all duration-300',
+        'flex grow flex-col transition-all duration-300 px-4',
         isCollapsed
-          ? '-translate-x- !h-0 !w-0 animate-opacity-hide-effect overflow-hidden opacity-0'
+          ? '-translate-x- !h-0 !w-0 !px-0 animate-opacity-hide-effect overflow-hidden opacity-0'
           : 'w-full translate-x-0 animate-opacity-display-effect opacity-100'
       )}
     >
       <div className="flex-1">
-        <div className={cn('flex items-center justify-between gap-3')}>
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-14 flex-1">
             {/* <IdentityButton isCollapsed={isCollapsed} /> */}
             {isAuth && mounted && <SwitchSpace isCollapsed={isCollapsed} />}
@@ -175,7 +175,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
         <GeneralSetting>
           <Button
             variant="ghost"
-            className="h-8 justify-start gap-2 p-0 text-muted-foreground duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="h-8 justify-start gap-2 p-0 text-accent-foreground duration-300 hover:bg-transparent "
           >
             <SettingIcon />
             <p className="text-sm">{t('general_settings')}</p>
@@ -185,7 +185,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
         {isAuth && (
           <Button
             variant="ghost"
-            className="h-8 justify-start gap-2 p-0 text-muted-foreground duration-300 hover:bg-transparent dark:text-brand-dark-text-gray dark:hover:text-white"
+            className="h-8 justify-start gap-2 p-0 text-accent-foreground duration-300 hover:bg-transparent"
             onClick={handleSignOut}
           >
             <LogOut size={16} />
@@ -266,7 +266,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               {isTablet && (
                 <div className="flex items-center justify-center">
                   <SidebarCollapsedSimple
-                    className="col-span-1 cursor-pointer justify-self-end text-brand-text-gray"
+                    className="col-span-1 cursor-pointer justify-self-end text-muted-foreground"
                     onClick={handleCollapsedChange}
                   />
                 </div>
@@ -289,7 +289,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-none shadow-none"
+                className="border-none text-accent-foreground shadow-none hover:bg-transparent"
               >
                 <SettingIcon />
               </Button>
@@ -299,7 +299,7 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-none text-destructive shadow-none hover:bg-red-200 hover:text-destructive/80"
+                className="border-none text-accent-foreground shadow-none hover:bg-transparent"
                 onClick={handleSignOut}
               >
                 <LogOut size={16} />
@@ -371,18 +371,18 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
 
   return (
     <div
-      className={cn('flex w-full items-center justify-between py-[2px]')}
+      className={cn(
+        'flex w-full items-center justify-between py-[2px] px-2 rounded-full',
+        isDisplayed || navigation.isAlwayEnabled ? 'bg-accent ' : ''
+      )}
       // onClick={onSelect}
     >
       <label
-        className={cn(
-          'flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300',
-          isDisplayed ? 'text-foreground' : 'text-muted-foreground'
-        )}
+        className="flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300 text-accent-foreground font-medium"
         htmlFor={navigation.href}
         onClick={navigation?.onClick}
       >
-        <div className={cn('duration-200')}>{navigation.icon}</div>
+        <div className="duration-200 font-bold">{navigation.icon}</div>
         <div className="max-w-[90%] flex-1 truncate p-1">
           {uppercaseFirstLetter(navigation.title)}
         </div>
@@ -452,10 +452,8 @@ const CollapsedNavigation = () => {
               <div
                 onClick={handleDynamicLayoutChange}
                 className={cn(
-                  'cursor-pointer rounded-lg p-2 duration-300',
-                  isDisplayed
-                    ? 'bg-brand-heading text-white dark:bg-brand-dark-fill-secondary'
-                    : 'bg-transparent hover:bg-slate-500/20 dark:text-brand-dark-text-gray hover:dark:bg-slate-500/40 hover:dark:!text-white'
+                  'cursor-pointer rounded-lg p-2 duration-300 text-accent-foreground',
+                  isDisplayed ? 'bg-accent' : 'bg-transparent hover:bg-accent'
                 )}
               >
                 {navigation.icon}

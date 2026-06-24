@@ -112,10 +112,10 @@ const ConditionTime = ({
     >
       <AccordionItem
         value={path}
-        className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+        className="overflow-hidden rounded-sm border border-border"
       >
         <AccordionTrigger
-          className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
+          className="border-b border-border bg-card p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
             <ConditionOptions
               onTest={handleTest}
@@ -127,10 +127,10 @@ const ConditionTime = ({
             />
           }
         >
-          <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+          <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
           <div className="mr-2 flex w-full items-center">
             <div className="flex space-x-1 items-center text-brand-component-text-dark">
-              <Calendar className="size-5" />
+              <Calendar className="size-5 text-muted-foreground" />
               <p className="text-sm font-semibold">{t('time')}</p>
             </div>
           </div>
@@ -172,9 +172,9 @@ const ConditionTime = ({
                         defaultValue="am"
                       >
                         <SelectTrigger
-                          className="h-9 bg-brand-component-fill-dark-soft"
+                          className="h-9"
                           icon={
-                            <ChevronDown className="w-3 text-brand-icon-gray" />
+                            <ChevronDown className="w-3 text-muted-foreground" />
                           }
                         >
                           <SelectValue />
@@ -225,9 +225,9 @@ const ConditionTime = ({
                         defaultValue="am"
                       >
                         <SelectTrigger
-                          className="h-9 bg-brand-component-fill-dark-soft"
+                          className="h-9"
                           icon={
-                            <ChevronDown className="w-3 text-brand-icon-gray" />
+                            <ChevronDown className="w-3 text-muted-foreground" />
                           }
                         >
                           <SelectValue />

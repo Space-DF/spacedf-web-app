@@ -40,7 +40,7 @@ import ColorSelect from '../../color-select'
 import { FIELD_DISPLAY_NAME, OPERATORS } from '../table.const'
 
 const getAllColumnNames = (columns: any[]) =>
-  columns.map((column) => column.field)
+  columns.map((column) => column.field).filter(Boolean)
 
 interface ConditionalProps {
   index: number
@@ -128,7 +128,7 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
             <AccordionTrigger
               className="p-3 pl-2 text-sm font-semibold hover:no-underline"
               dropdownIcon={
-                <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+                <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
               }
             />
           </div>
@@ -141,12 +141,15 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Select onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger
                           icon={
-                            <ChevronDown className="w-3 text-brand-icon-gray" />
+                            <ChevronDown className="w-3 text-muted-foreground" />
                           }
-                          className="border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                          className="border border-border bg-input p-2 px-2 outline-none ring-0 focus:ring-0"
                         >
                           <SelectValue placeholder={t('select_column')} />
                         </SelectTrigger>
@@ -167,9 +170,9 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                       <Select onValueChange={field.onChange}>
                         <SelectTrigger
                           icon={
-                            <ChevronDown className="w-3 text-brand-icon-gray" />
+                            <ChevronDown className="w-3 text-muted-foreground" />
                           }
-                          className="text-brand-component-text-gray border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                          className="text-brand-component-text-gray border border-border bg-input p-2 px-2 outline-none ring-0 focus:ring-0"
                         >
                           <SelectValue placeholder={t('select_operator')} />
                         </SelectTrigger>
@@ -207,9 +210,9 @@ const Conditional: React.FC<ConditionalProps> = ({ index, onRemove }) => {
                           >
                             <SelectTrigger
                               icon={
-                                <ChevronDown className="w-3 text-brand-icon-gray" />
+                                <ChevronDown className="w-3 text-muted-foreground" />
                               }
-                              className="text-brand-component-text-gray border-none bg-brand-component-fill-dark-soft p-2 px-2 outline-none"
+                              className="text-brand-component-text-gray border border-border bg-input p-2 px-2 outline-none"
                             >
                               <SelectValue placeholder={t('select_value')} />
                             </SelectTrigger>

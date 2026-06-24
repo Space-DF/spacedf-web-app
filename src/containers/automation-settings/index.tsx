@@ -24,7 +24,7 @@ import { FilterAutomation } from './components/filter-automation'
 import { useAutomationSummary } from './hooks/useAutomationSummary'
 
 const StatCardSkeleton = ({ iconBgClass }: { iconBgClass: string }) => (
-  <div className="flex items-center gap-3 rounded-lg border border-brand-stroke-dark-soft p-4 dark:border-brand-stroke-outermost">
+  <div className="flex items-center gap-3 rounded-lg border border-border p-4 bg-card">
     <div
       className={`flex size-10 items-center justify-center rounded-full ${iconBgClass}`}
       aria-hidden="true"

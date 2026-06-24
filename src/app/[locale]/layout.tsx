@@ -95,7 +95,7 @@ export default async function RootLayout({
   let themeStyles = ''
   if (org) {
     const orgResult = await checkSlugName(org)
-    if (orgResult.isValid && orgResult.setting) {
+    if (orgResult.isValid) {
       themeStyles = generateThemeStyles(orgResult.setting)
     }
   }

@@ -108,7 +108,6 @@ const GeofenceInfo = () => {
               <FormLabel>{t('geofence_name')}</FormLabel>
               <FormControl>
                 <Input
-                  className="border-none"
                   placeholder={t('geofence_name')}
                   {...field}
                   isError={!!fieldState.error}

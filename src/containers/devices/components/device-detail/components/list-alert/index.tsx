@@ -317,7 +317,7 @@ export default function ListAlert() {
           <Select defaultValue="today" onValueChange={setSelectedDate}>
             <SelectTrigger
               icon={<ChevronDown className="size-4" />}
-              className="bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light rounded-lg border-none outline-none focus:ring-0 min-w-28 h-6"
+              className="min-w-28 h-6"
             >
               <SelectValue placeholder="Select date" className="min-w-30 h-6" />
             </SelectTrigger>

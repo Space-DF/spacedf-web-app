@@ -125,19 +125,19 @@ const Timeframe = () => {
                   >
                     <SelectTrigger
                       icon={
-                        <ChevronDown className="w-3 text-brand-icon-gray" />
+                        <ChevronDown className="w-3 text-muted-foreground" />
                       }
-                      className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
+                      className="w-full bg-input ring-0 focus:ring-0 border border-border"
                     >
                       <SelectValue
                         placeholder={
-                          <span className="text-brand-component-text-gray">
+                          <span className="text-muted-foreground">
                             {t('none_select')}
                           </span>
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
+                    <SelectContent className="bg-input">
                       <SelectGroup>
                         {mockOperationTimeFrame.map((operation) => (
                           <SelectItem value={operation.id} key={operation.id}>
@@ -166,7 +166,7 @@ const Timeframe = () => {
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
+                          'bg-input pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
@@ -175,14 +175,16 @@ const Timeframe = () => {
                             TimeFormat.FULL_DATE_WITH_ORDINAL
                           )
                         ) : (
-                          <span>{t('pick_a_date')}</span>
+                          <span className="text-muted-foreground">
+                            {t('pick_a_date')}
+                          </span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-auto bg-brand-component-fill-dark-soft p-0 text-brand-component-text-dark"
+                    className="w-auto bg-input p-0 text-brand-component-text-dark"
                     align="start"
                   >
                     <Calendar
@@ -216,7 +218,7 @@ const Timeframe = () => {
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'bg-brand-component-fill-dark-soft pl-3 text-left text-sm font-medium text-brand-component-text-dark',
+                          'bg-input pl-3 text-left text-sm font-medium text-brand-component-text-dark',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
@@ -225,14 +227,16 @@ const Timeframe = () => {
                             TimeFormat.FULL_DATE_WITH_ORDINAL
                           )
                         ) : (
-                          <span>{t('pick_a_date')}</span>
+                          <span className="text-muted-foreground">
+                            {t('pick_a_date')}
+                          </span>
                         )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-auto bg-brand-component-fill-dark-soft p-0 text-brand-component-text-dark"
+                    className="w-auto bg-input p-0 text-brand-component-text-dark"
                     align="start"
                   >
                     <Calendar
@@ -265,14 +269,14 @@ const Timeframe = () => {
                 >
                   <FormControl>
                     <SelectTrigger
-                      className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+                      className="border bg-input border-border"
                       icon={
-                        <ChevronDown className="w-3 text-brand-icon-gray" />
+                        <ChevronDown className="w-3 text-muted-foreground" />
                       }
                     >
                       <SelectValue
                         placeholder={
-                          <span className="text-brand-component-text-gray">
+                          <span className="text-muted-foreground">
                             {t('none_select')}
                           </span>
                         }

@@ -60,7 +60,7 @@ export const NavigationData = (
       key: 'digital_twin',
       href: NavigationEnums.DIGITAL_TWIN,
       title: translateFn('digital_twin'),
-      icon: <CubeFocus />,
+      icon: <CubeFocus className="font-bold" />,
       isDynamic: true,
       isAlwayEnabled: true,
     },
@@ -68,21 +68,21 @@ export const NavigationData = (
       key: 'devices',
       href: NavigationEnums.DEVICES,
       title: translateFn('devices'),
-      icon: <Devices />,
+      icon: <Devices className="font-bold" />,
       isDynamic: true,
     },
     {
       key: 'dashboard',
       href: NavigationEnums.DASHBOARD,
       title: translateFn('dashboard'),
-      icon: <CodeSandbox />,
+      icon: <CodeSandbox className="font-bold" />,
       isDynamic: true,
     },
     {
       key: 'geofences',
       href: NavigationEnums.GEOFENCES,
       title: translateFn('geofences'),
-      icon: <Square />,
+      icon: <Square className="font-bold" />,
       isDynamic: true,
     },
     // {
@@ -101,7 +101,7 @@ export const NavigationData = (
       key: 'workspace_settings',
       href: NavigationEnums.WORKSPACE_SETTINGS,
       title: translateFn('workspace_settings'),
-      icon: <Warehouse />,
+      icon: <Warehouse className="font-bold" />,
       onClick: () =>
         router.push(
           `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.WORKSPACE_SETTINGS}`
@@ -111,7 +111,7 @@ export const NavigationData = (
       key: 'automation_settings',
       href: NavigationEnums.AUTOMATION_SETTINGS,
       title: translateFn('automation_settings'),
-      icon: <AutomationSettings />,
+      icon: <AutomationSettings className="font-bold" />,
       onClick: () =>
         router.push(
           `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.AUTOMATION_SETTINGS}`

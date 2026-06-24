@@ -146,13 +146,13 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
         <div className="flex space-x-1 items-center">
           <AddDeviceDialog />
           <div
-            className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
+            className="group h-max cursor-pointer rounded-sm p-1"
             onClick={onClose}
           >
             <PlusIcon
               width={24}
               height={24}
-              className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 dark:text-brand-dark-text-gray"
+              className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 text-muted-foreground"
             />
           </div>
         </div>
@@ -218,7 +218,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         <div
                           key={device.id}
                           className={cn(
-                            'cursor-pointer h-fit rounded-card border border-transparent bg-brand-background-fill-surface p-2 text-brand-component-text-dark',
+                            'cursor-pointer h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
                             {
                               'border-brand-component-stroke-dark':
                                 device?.device.id === deviceSelected,
@@ -241,10 +241,13 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                   sizes="32px"
                                 />
                               </div>
-                              <Ellipsis size={16} className="text-foreground" />
+                              <Ellipsis
+                                size={16}
+                                className="text-muted-foreground"
+                              />
                             </div>
                             <div className="text-xs font-medium">
-                              <span className="leading-[18px] line-clamp-1 text-foreground">
+                              <span className="leading-[18px] line-clamp-1 text-brand-component-text-dark">
                                 {device.name}
                               </span>
                             </div>

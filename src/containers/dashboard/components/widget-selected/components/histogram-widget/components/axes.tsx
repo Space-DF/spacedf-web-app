@@ -179,8 +179,8 @@ const Axes: React.FC<Props> = () => {
                   defaultValue={field.value}
                 >
                   <SelectTrigger
-                    icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-                    className="w-full border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:bg-brand-heading"
+                    icon={<ChevronDown className="w-3 text-muted-foreground" />}
+                    className="w-full t bg-input ring-0 focus:ring-0 border border-border"
                   >
                     <SelectValue
                       placeholder={
@@ -190,7 +190,7 @@ const Axes: React.FC<Props> = () => {
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-brand-component-fill-dark-soft dark:bg-brand-heading">
+                  <SelectContent className="bg-input">
                     <SelectGroup>
                       {DATE_FORMAT.map((date) => (
                         <SelectItem value={date.value} key={date.value}>

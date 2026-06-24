@@ -22,8 +22,8 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
   return (
     <>
       <SelectTrigger
-        icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
-        className="border-none bg-brand-component-fill-dark-soft outline-none ring-0 focus:ring-0 dark:dark:bg-brand-heading"
+        icon={<ChevronDown className="w-3 text-muted-foreground" />}
+        className="border border-border bg-input"
       >
         <SelectValue placeholder={<span>{t('select_color')}</span>}>
           {fieldValue && fieldValue !== 'default' ? (
@@ -46,8 +46,8 @@ const ColorSelect = ({ fieldValue, color_codes = SourceColor }: Props) => {
           )}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)] bg-brand-component-fill-dark-soft dark:bg-brand-heading">
-        <SelectGroup className="flex flex-wrap gap-2">
+      <SelectContent className="w-fit bg-input h-fit">
+        <SelectGroup className="grid grid-cols-10 gap-2">
           <SelectItem
             showCheckIcon={false}
             value="default"

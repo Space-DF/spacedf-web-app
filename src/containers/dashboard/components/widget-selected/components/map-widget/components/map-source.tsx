@@ -106,7 +106,7 @@ const MapSource: React.FC = () => {
                   variant="outline"
                   role="combobox"
                   aria-expanded={openCombobox}
-                  className="font-normal text-sm w-full justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
+                  className="font-normal text-sm w-full justify-between border border-border bg-input outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0"
                 >
                   <p className="truncate w-5/6 text-start">
                     {currentEntity
@@ -187,8 +187,8 @@ const MapSource: React.FC = () => {
             </p>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <SelectTrigger
-                className="w-full font-normal text-sm justify-between border-none bg-brand-component-fill-dark-soft outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0 dark:bg-brand-heading dark:hover:bg-brand-heading"
-                icon={<ChevronDown className="w-3 text-brand-icon-gray" />}
+                className="w-full font-normal text-sm justify-between border border-border bg-input outline-none ring-0 hover:bg-brand-component-fill-dark-soft focus:ring-0"
+                icon={<ChevronDown className="w-3 text-muted-foreground" />}
               >
                 {mapTypeLabels[field.value as MapType] || t('select_map_type')}
               </SelectTrigger>

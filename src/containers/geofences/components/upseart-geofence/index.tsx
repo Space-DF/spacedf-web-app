@@ -197,7 +197,7 @@ const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
 
   return (
     <Slide
-      className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0"
+      className="w-full bg-background p-0"
       open={isOpen}
       showCloseButton={false}
       direction="right"

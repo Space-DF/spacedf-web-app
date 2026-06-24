@@ -50,8 +50,13 @@ export const FilterAutomation = () => {
       />
       <Select value={statusFilter} onValueChange={handleStatusFilter}>
         <SelectTrigger
-          className="w-40 bg-brand-component-fill-dark-soft"
-          icon={<ChevronDown size={16} className="opacity-50" />}
+          className="w-40 bg-input border border-border"
+          icon={
+            <ChevronDown
+              size={16}
+              className="opacity-50 text-muted-foreground"
+            />
+          }
         >
           <SelectValue />
         </SelectTrigger>
