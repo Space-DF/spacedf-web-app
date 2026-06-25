@@ -163,9 +163,16 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
     },
 
     setDevicesFleetTracking: (data) => {
-      return set(() => ({
-        devicesFleetTracking: reduceDeviceFleetTracking(data),
-      }))
+      set((state) => {
+        const incoming = reduceDeviceFleetTracking(data)
+
+        return {
+          devicesFleetTracking: {
+            ...incoming,
+            ...state.devicesFleetTracking,
+          },
+        }
+      })
     },
 
     setDeviceProperties: (deviceId, data) => {
