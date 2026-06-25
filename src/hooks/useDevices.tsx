@@ -31,7 +31,7 @@ function buildDevicesUrl(
     url: `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}`,
     query: {
       offset,
-      limit: DEFAULT_PAGE_SIZE,
+      limit: 50,
       search: query?.deviceName,
       bbox: query?.bbox,
       buildingId: query?.buildingId,
