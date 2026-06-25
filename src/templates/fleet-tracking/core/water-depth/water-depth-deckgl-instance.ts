@@ -73,8 +73,6 @@ class WaterDepthDeckInstance {
 
     this.mapZoom = zoom
 
-    this.hasAnimated = false
-
     this._buildWaterDepthLayer()
   }
 
@@ -351,7 +349,7 @@ class WaterDepthDeckInstance {
       transitions: {
         ...(this.hasAnimated && {
           getElevation: {
-            duration: 500,
+            duration: 300,
             easing: linear,
           },
         }),
