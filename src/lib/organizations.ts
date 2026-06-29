@@ -2,6 +2,12 @@ import { cache } from 'react'
 import { SpaceDFClient } from '@/lib/spacedf'
 import { OrganizationSetting } from '@/types/organization'
 
+interface OrgResponse {
+  result: string
+  template: string
+  setting?: OrganizationSetting
+}
+
 /**
  * Validates if an organization slug exists using the SpaceDF SDK
  * @param slugName - The organization slug to validate
@@ -10,22 +16,14 @@ import { OrganizationSetting } from '@/types/organization'
 export const checkSlugName = cache(
   async (
     slugName: string
-  ): Promise<{
-    isValid: boolean
-    template: string
-    setting?: OrganizationSetting
-  }> => {
+  ): Promise<Omit<OrgResponse, 'result'> & { isValid: boolean }> => {
     try {
       const spaceDFInstance = await SpaceDFClient.getInstance()
       const client = spaceDFInstance.getClient()
 
       const { result, ...rest } = (await client.organizations.checkSlugName(
         slugName
-      )) as {
-        result: string
-        template: string
-        setting?: OrganizationSetting
-      }
+      )) as OrgResponse
       // API returns { result: "The organization is valid." } for valid orgs
       return {
         isValid: result === 'The organization is valid.',

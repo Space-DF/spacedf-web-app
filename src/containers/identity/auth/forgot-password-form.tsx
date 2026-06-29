@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { forgotPasswordSchema } from './validator/forgotPasswordSchema'
 import { useSendEmail } from './hooks/useSendEmail'
+import { useCustomPage } from './hooks/useCustomPage'
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
 
@@ -25,6 +26,8 @@ export const ForgotPasswordForm = () => {
   const [isSubmit, setIsSubmit] = useState(false)
 
   const { trigger: sendEmail, isMutating } = useSendEmail()
+
+  const customPage = useCustomPage('forget_password')
 
   const setFormType = useAuthForm((state) => state.setFormType)
 
@@ -41,13 +44,16 @@ export const ForgotPasswordForm = () => {
     <div className="mt-6">
       <div className="space-y-6 w-full animate-opacity-display-effect self-start">
         <div className="space-y-2 text-center">
-          <p className="text-3xl font-semibold">{t('forgot_your_password')}</p>
-          <p className="text-brand-component-text-gray text-sm">
-            {t(
-              isSubmit
-                ? 'reset_password_has_been_sent'
-                : 'enter_email_address_and_will_send_you_a_link_to_reset_your_password'
-            )}
+          <p className="text-3xl font-semibold">
+            {customPage?.title || t('forgot_your_password')}
+          </p>
+          <p className="text-muted-foreground text-sm">
+            {isSubmit
+              ? t('reset_password_has_been_sent')
+              : customPage?.subtitle ||
+                t(
+                  'enter_email_address_and_will_send_you_a_link_to_reset_your_password'
+                )}
           </p>
         </div>
         {isSubmit ? (

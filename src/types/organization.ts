@@ -29,6 +29,25 @@ export interface BorderRadiusSetting {
   button: number
 }
 
+export type CustomPageType =
+  | 'sign_in'
+  | 'sign_up'
+  | 'forget_password'
+  | 'change_password'
+
+export interface CustomPage {
+  id: string
+  page_type: CustomPageType
+  title: string
+  subtitle: string
+  metadata: Record<string, unknown>
+  theme_colors: Partial<ThemeColors>
+  show_logo: boolean
+  url_background_image?: string
+  created_at: string
+  updated_at: string
+}
+
 export interface OrganizationSetting {
   id: string
   site_title: string
@@ -36,4 +55,5 @@ export interface OrganizationSetting {
   border_radius: BorderRadiusSetting
   themes: OrganizationTheme[]
   brand_name: string
+  custom_pages?: CustomPage[]
 }

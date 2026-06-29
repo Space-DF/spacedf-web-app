@@ -15,8 +15,18 @@ import { useAuthForm } from './stores/useAuthForm'
 import { ForgotPasswordForm } from './forgot-password-form'
 import { CreateNewPasswordForm } from './create-new-password-form'
 import { ResetPasswordSuccessful } from './reset-password-successful'
+import { useCustomPage } from './hooks/useCustomPage'
+import type { CustomPageType } from '@/types/organization'
+import { cn } from '@/lib/utils'
 
 export type SignUpFormCredentials = z.infer<typeof signUpSchema>
+
+const FORM_TYPE_TO_PAGE_TYPE: Record<string, CustomPageType> = {
+  signIn: 'sign_in',
+  signUp: 'sign_up',
+  forgotPassword: 'forget_password',
+  createNewPassword: 'change_password',
+}
 
 const SignForm = () => {
   const formType = useAuthForm((state) => state.formType)
@@ -28,11 +38,17 @@ const SignForm = () => {
 
   const isSignIn = formType !== 'signUp' && formType !== 'otp'
   const t = useTranslations('signUp')
+  const customPage = useCustomPage(isSignIn ? 'sign_in' : 'sign_up')
   return (
     <>
-      <p className="my-6 text-3xl font-semibold">
-        {!isSignIn ? t('sign_up') : t('sign_in')}
-      </p>
+      <div className="my-6 space-y-2 text-center">
+        <p className="text-3xl font-semibold">
+          {customPage?.title || (isSignIn ? t('sign_in') : t('sign_up'))}
+        </p>
+        {customPage?.subtitle && (
+          <p className="text-sm text-muted-foreground">{customPage.subtitle}</p>
+        )}
+      </div>
       <FormProvider {...signUpForm}>
         {isOtp ? (
           <OTPForm />
@@ -68,16 +84,34 @@ const AuthForm = () => {
 
 const Authentication = () => {
   const formType = useAuthForm((state) => state.formType)
+  const customPage = useCustomPage(FORM_TYPE_TO_PAGE_TYPE[formType])
+  const showLogo = customPage?.show_logo ?? true
+  const backgroundImage = customPage?.url_background_image
   return (
-    <div className="my-10 flex size-full flex-col items-center justify-center md:max-w-md">
-      {formType === 'resetPasswordSuccessful' ? (
-        <ResetPasswordSuccessful />
-      ) : (
-        <>
-          <SpaceDFLogoFull />
-          <AuthForm />
-        </>
-      )}
+    <div
+      className="flex size-full items-center justify-center bg-cover bg-center bg-no-repeat"
+      style={
+        backgroundImage
+          ? { backgroundImage: `url(${backgroundImage})` }
+          : undefined
+      }
+    >
+      <div
+        className={cn(
+          'my-10 flex size-full flex-col items-center justify-center md:max-w-md',
+          backgroundImage &&
+            'size-auto w-full max-w-md rounded-2xl bg-background px-6 py-8 shadow-xl'
+        )}
+      >
+        {formType === 'resetPasswordSuccessful' ? (
+          <ResetPasswordSuccessful />
+        ) : (
+          <>
+            {showLogo && <SpaceDFLogoFull />}
+            <AuthForm />
+          </>
+        )}
+      </div>
     </div>
   )
 }
