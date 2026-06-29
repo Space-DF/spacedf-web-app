@@ -8,7 +8,7 @@ export function useGetDeviceByDeviceId(deviceId?: string, enabled?: boolean) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
 
   const query = useQuery<DeviceDataOriginal>({
-    queryKey: [...queryKeys.devices.all, 'detail', spaceSlug, deviceId],
+    queryKey: [...queryKeys.devices.detail(), spaceSlug, deviceId],
     queryFn: () =>
       fetcher<DeviceDataOriginal>(`/api/devices/${spaceSlug}/${deviceId}`),
     enabled: !!enabled && !!deviceId && !!spaceSlug,

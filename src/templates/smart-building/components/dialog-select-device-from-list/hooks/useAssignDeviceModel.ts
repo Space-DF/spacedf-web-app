@@ -51,12 +51,12 @@ export function useAssignDeviceModel() {
     mutationFn: async (arg: AssignDeviceModelArg) => {
       return assignDeviceToBuilding(spaceSlugName, arg)
     },
-    onSuccess: async (data, variables) => {
+    onSuccess: async (_, variables) => {
       toast.success(t('assign_device_success'))
       queryClient.setQueriesData<InfiniteData<DeviceDataOriginal[]>>(
-        { queryKey: queryKeys.devices.all },
+        { queryKey: queryKeys.devices.list() },
         (oldData) => {
-          if (!oldData) return oldData
+          if (!oldData || !oldData.pages) return oldData
           return {
             ...oldData,
             pages: oldData.pages.map((page) =>
