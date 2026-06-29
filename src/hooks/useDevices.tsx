@@ -31,7 +31,7 @@ function buildDevicesUrl(
     url: `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}`,
     query: {
       offset,
-      limit: 50,
+      limit: DEFAULT_PAGE_SIZE,
       search: query?.deviceName,
       bbox: query?.bbox,
       buildingId: query?.buildingId,
@@ -42,7 +42,7 @@ function buildDevicesUrl(
 export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const queryKey = [
-    ...queryKeys.devices.all,
+    ...queryKeys.devices.list(),
     spaceSlug,
     query?.deviceName ?? '',
     query?.bbox ?? '',

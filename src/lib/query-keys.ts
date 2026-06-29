@@ -13,6 +13,8 @@ export const queryKeys = {
   },
   devices: {
     all: ['devices'] as const,
+    list: () => [...queryKeys.devices.all, 'list'] as const,
+    detail: () => [...queryKeys.devices.all, 'detail'] as const,
   },
   deviceEntities: {
     all: ['device-entities'] as const,

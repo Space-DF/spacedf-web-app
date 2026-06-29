@@ -42,9 +42,9 @@ export function useBulkUpdateDevicePositions() {
     },
     onSuccess: async (data) => {
       queryClient.setQueriesData<InfiniteData<DeviceDataOriginal[]>>(
-        { queryKey: queryKeys.devices.all },
+        { queryKey: queryKeys.devices.list() },
         (oldData) => {
-          if (!oldData) return oldData
+          if (!oldData || !oldData.pages) return oldData
           const positionMap = new Map<
             string,
             { x: number; y: number; z: number }
