@@ -195,7 +195,7 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
 
         <ThemeToggle isCollapsed={isCollapsed} />
         {!isAuth && (
-          <Button className="flex items-center space-x-2 bg-[#6E4AFF33] border-none hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary py-0">
+          <Button className="flex items-center space-x-2 border-none text-sm font-semibold py-0 bg-accent text-primary">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -372,7 +372,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   return (
     <div
       className={cn(
-        'flex w-full items-center justify-between py-[2px] px-2 rounded-full',
+        'flex w-full items-center justify-between py-[2px] px-2 rounded-input',
         isDisplayed || navigation.isAlwayEnabled ? 'bg-accent ' : ''
       )}
       // onClick={onSelect}

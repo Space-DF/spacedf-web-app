@@ -54,7 +54,7 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             >
               {name}
             </p>
-            <span className="rounded bg-secondary px-2 text-xs font-semibold leading-normal text-primary">
+            <span className="rounded border border-border bg-accent px-2 text-xs font-semibold leading-normal text-primary">
               Admin
             </span>
           </div>

@@ -50,12 +50,10 @@ export async function generateMetadata(): Promise<Metadata> {
       lightTheme?.url_favicon ||
       darkTheme?.url_favicon ||
       lightTheme?.url_logo ||
-      darkTheme?.url_logo ||
       defaultFavicon.light,
     dark:
       darkTheme?.url_favicon ||
       lightTheme?.url_favicon ||
-      darkTheme?.url_logo ||
       lightTheme?.url_logo ||
       defaultFavicon.dark,
   }
