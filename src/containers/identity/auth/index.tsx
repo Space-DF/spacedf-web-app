@@ -18,6 +18,8 @@ import { ResetPasswordSuccessful } from './reset-password-successful'
 import { useCustomPage } from './hooks/useCustomPage'
 import type { CustomPageType } from '@/types/organization'
 import { cn } from '@/lib/utils'
+import { useOrganizationValidationStore } from '@/stores'
+import Image from 'next/image'
 
 export type SignUpFormCredentials = z.infer<typeof signUpSchema>
 
@@ -85,6 +87,9 @@ const AuthForm = () => {
 const Authentication = () => {
   const formType = useAuthForm((state) => state.formType)
   const customPage = useCustomPage(FORM_TYPE_TO_PAGE_TYPE[formType])
+  const logo = useOrganizationValidationStore(
+    (state) => state.setting?.themes[0]?.url_logo
+  )
   const showLogo = customPage?.show_logo ?? true
   const backgroundImage = customPage?.url_background_image
   return (
@@ -107,7 +112,11 @@ const Authentication = () => {
           <ResetPasswordSuccessful />
         ) : (
           <>
-            {showLogo && <SpaceDFLogoFull />}
+            {showLogo && logo ? (
+              <Image src={logo} alt="logo" width={188} height={41} />
+            ) : (
+              <SpaceDFLogoFull />
+            )}
             <AuthForm />
           </>
         )}
