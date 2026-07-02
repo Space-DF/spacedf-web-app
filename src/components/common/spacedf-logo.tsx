@@ -1,20 +1,41 @@
+'use client'
+
 import Image from 'next/image'
+import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
 
 const SpacedfLogo = () => {
+  const setting = useOrganizationValidationStore((state) => state.setting)
+
+  const logoUrl = (() => {
+    if (!setting?.themes || setting.themes.length === 0) {
+      return null
+    }
+
+    const matchedTheme =
+      setting.themes.find((t) => t.theme_key === 'light') || setting.themes[0]
+
+    return matchedTheme?.url_logo || null
+  })()
+
   return (
     <div className="pointer-events-auto">
-      <div className="bg-gradient-to-r from-[#6E4AFF] to-[#CCBFFF] p-[1px] rounded-lg">
-        <div className="w-32 h-[38px] p-2 rounded-lg bg-gradient-to-b from-[#171a28b3] to-[#1f2336b3] bg-white dark:bg-brand-fill-outermost backdrop-blur-xs pointer-events-none">
-          <div className="flex items-center justify-center h-full">
-            <Image
-              src="/images/spacedf-logo.svg"
-              alt="spacedf-logo"
-              width={114}
-              height={24}
-            />
-          </div>
-        </div>
-      </div>
+      {logoUrl ? (
+        <Image
+          width={114}
+          height={64}
+          src={logoUrl}
+          alt={setting?.brand_name || 'spacedf-logo'}
+          className="max-w-full max-h-full object-contain"
+        />
+      ) : (
+        <Image
+          src="/images/spacedf-logo.svg"
+          alt="spacedf-logo"
+          width={114}
+          height={24}
+          priority
+        />
+      )}
     </div>
   )
 }

@@ -1,17 +1,23 @@
 import { api } from '@/lib/api'
 import { RefreshTokenResponse } from '@/types/auth'
 import { useSession } from 'next-auth/react'
-import useSWRMutation from 'swr/mutation'
-
-const refreshToken = async (url: string): Promise<RefreshTokenResponse> => {
-  return api.post(url)
-}
+import { useMutation } from '@tanstack/react-query'
 
 export const useRefreshToken = () => {
   const { update } = useSession()
-  return useSWRMutation('/api/auth/refresh-token', (url) => refreshToken(url), {
+
+  const { mutateAsync, isPending } = useMutation<
+    RefreshTokenResponse,
+    Error,
+    void
+  >({
+    mutationFn: async () => {
+      return api.post('/api/auth/refresh-token')
+    },
     onSuccess: (data) => {
       update({ user: data })
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }

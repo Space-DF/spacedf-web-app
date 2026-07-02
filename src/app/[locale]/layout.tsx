@@ -5,37 +5,77 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
-
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { notFound } from 'next/navigation'
-
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { readSession } from '@/utils/server-actions'
-import { getS3Url } from '@/utils'
+import { buildMetadata, generateThemeStyles } from '@/utils'
+import { headers } from 'next/headers'
+import { getValidSubdomain } from '@/utils/subdomain'
+import { checkSlugName } from '@/lib/organizations'
+export async function generateMetadata(): Promise<Metadata> {
+  const host = headers().get('host') || 'localhost'
+  const org = await getValidSubdomain(host)
 
-export const metadata: Metadata = {
-  title: 'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
-  description:
-    'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
-  openGraph: {
-    images: [getS3Url('images/spacedf-og.jpg')],
+  const defaultMetadata = {
+    title:
+      'SpaceDF Dashboard - Monitor Real-Time GPS & Device Data in one place',
+    description:
+      'Manage and monitor all IoT devices in one centralized dashboard. Get real-time data, device status, GPS tracking, digital twins, and more',
     siteName: 'SpaceDF Digital Twin Dashboard',
-  },
-  twitter: {
-    images: [getS3Url('images/spacedf-og.jpg')],
-  },
-  keywords: [
-    'IoT dashboard',
-    'Real-time GPS tracking',
-    'GPS tracking dashboard',
-    'Device monitoring dashboard',
-    'Centralized dashboard',
-    'all-in-one dashboard',
-    'Device tracking platform',
-    'Device data monitoring',
-    'Digital Twins dashboard',
-  ],
+  }
+
+  const defaultFavicon = {
+    light: '/favicon.ico',
+    dark: '/favicon-dark.ico',
+  }
+
+  if (!org) {
+    return buildMetadata(defaultMetadata, defaultFavicon)
+  }
+
+  const orgResult = await checkSlugName(org)
+
+  if (!orgResult.isValid || !orgResult.setting) {
+    return buildMetadata(defaultMetadata, defaultFavicon)
+  }
+
+  const { site_title, site_description, brand_name, themes } = orgResult.setting
+
+  const lightTheme = themes?.find((t) => t.theme_key === 'light') || themes?.[0]
+  const darkTheme = themes?.find((t) => t.theme_key === 'dark')
+
+  const favicon = {
+    light:
+      lightTheme?.url_favicon ||
+      darkTheme?.url_favicon ||
+      lightTheme?.url_logo ||
+      defaultFavicon.light,
+    dark:
+      darkTheme?.url_favicon ||
+      lightTheme?.url_favicon ||
+      lightTheme?.url_logo ||
+      defaultFavicon.dark,
+  }
+
+  return buildMetadata(
+    {
+      title:
+        site_title ||
+        (brand_name
+          ? `${brand_name} - SpaceDF Dashboard`
+          : defaultMetadata.title),
+
+      description: site_description || defaultMetadata.description,
+
+      siteName: brand_name || defaultMetadata.siteName,
+    },
+    favicon
+  )
 }
+
+const GA_ID = process.env.GA_ID
+
 export default async function RootLayout({
   children,
   params: { locale },
@@ -48,19 +88,32 @@ export default async function RootLayout({
     notFound()
   }
 
-  const messages = await getMessages()
+  const [messages, session] = await Promise.all([getMessages(), readSession()])
 
-  const session = await readSession()
+  const host = headers().get('host') || 'localhost'
+  const org = await getValidSubdomain(host)
+
+  let themeStyles = ''
+  if (org) {
+    const orgResult = await checkSlugName(org)
+    if (orgResult.isValid) {
+      themeStyles = generateThemeStyles(orgResult.setting)
+    }
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        {themeStyles && (
+          <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
+        )}
         <NextIntlClientProvider messages={messages}>
           <AppProvider session={session}>
             <TooltipProvider>{children}</TooltipProvider>
           </AppProvider>
         </NextIntlClientProvider>
       </body>
+      {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
     </html>
   )
 }

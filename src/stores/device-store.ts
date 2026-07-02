@@ -88,33 +88,22 @@ type DeviceModelAction = {
 }
 
 const reduceDevices = (data: Device[]) => {
-  return data.reduce(
-    (acc, device) => ({
-      ...acc,
-      [device.id]: device,
-    }),
-    {} as Record<string, Device>
-  )
+  const acc: Record<string, Device> = {}
+  for (const device of data) {
+    acc[device.id] = device
+  }
+  return acc
 }
 
 const reduceDeviceFleetTracking = (data: Device[]) => {
-  return data
-    .filter(
-      (device) =>
-        device.deviceProperties?.latest_checkpoint_arr &&
-        device.deviceProperties?.latest_checkpoint_arr?.length >= 2 &&
-        //lng
-        device.deviceProperties?.latest_checkpoint_arr?.[0] &&
-        //lat
-        device.deviceProperties?.latest_checkpoint_arr?.[1]
-    )
-    .reduce(
-      (acc, device) => ({
-        ...acc,
-        [device.id]: device,
-      }),
-      {} as Record<string, Device>
-    )
+  const acc: Record<string, Device> = {}
+  for (const device of data) {
+    const latLng = device.deviceProperties?.latest_checkpoint_arr
+    if (latLng && latLng.length >= 2 && latLng[0] && latLng[1]) {
+      acc[device.id] = device
+    }
+  }
+  return acc
 }
 
 export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
@@ -177,21 +166,23 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceProperties: (deviceId, data) => {
       return set((state) => {
-        const newDevices = Object.values(state.devices).map((device) => {
-          if (device.deviceId === deviceId) {
-            return {
-              ...device,
-              deviceProperties: {
-                ...device.deviceProperties,
-                ...data,
-              } as Device['deviceProperties'],
-            }
-          }
-          return device
-        })
+        const device = state.devices[deviceId]
+        if (device) {
+          device.deviceProperties = {
+            ...device.deviceProperties,
+            ...data,
+          } as Device['deviceProperties']
 
-        state.devices = reduceDevices(newDevices)
-        state.devicesFleetTracking = reduceDeviceFleetTracking(newDevices)
+          const latLng = device.deviceProperties?.latest_checkpoint_arr
+          const isEligibleForFleetTracking =
+            latLng && latLng.length >= 2 && latLng[0] && latLng[1]
+
+          if (isEligibleForFleetTracking) {
+            state.devicesFleetTracking[deviceId] = device
+          } else {
+            delete state.devicesFleetTracking[deviceId]
+          }
+        }
       })
     },
 
@@ -210,9 +201,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
 
     setDeviceState: (deviceId, data) => {
       return set((state) => {
-        const currentDevice = Object.values(state.devices)?.find(
-          (d) => d.deviceId === deviceId
-        )
+        const currentDevice = state.devices[deviceId]
         const newLat = data.deviceProperties?.latest_checkpoint_arr?.[1]
         const newLng = data.deviceProperties?.latest_checkpoint_arr?.[0]
         const newBear = data.deviceProperties?.latest_checkpoint_arr?.[2]

@@ -1,29 +1,34 @@
-import * as maptilersdk from '@maptiler/sdk'
+import {
+  type GeocodingOptions,
+  type GeocodingSearchResult,
+  config,
+  geocoding,
+  type GeocodingFeature,
+} from '@maptiler/client'
 
 type GeocodingReturnType = 'array' | 'obj'
 
 interface GeocodingReverseOptions<T extends GeocodingReturnType = 'array'>
-  extends maptilersdk.GeocodingOptions {
+  extends GeocodingOptions {
   returnType?: T
 }
 
 type GeocodingReverseResult<T extends GeocodingReturnType> = T extends 'obj'
-  ? Record<string, maptilersdk.GeocodingSearchResult>
-  : maptilersdk.GeocodingSearchResult[]
+  ? Record<string, GeocodingSearchResult>
+  : GeocodingSearchResult[]
 
 class MapGeocodingService {
   private static instance: MapGeocodingService
-  private static initPromise: Promise<void> | null = null
+  private initPromise: Promise<void> | null = null
 
   private initialized = false
-  private reverseCache = new Map<string, maptilersdk.GeocodingSearchResult>()
+  private reverseCache = new Map<string, GeocodingSearchResult>()
 
   private constructor() {}
 
   static getInstance(): MapGeocodingService {
     if (!this.instance) {
       this.instance = new MapGeocodingService()
-      this.initPromise = this.instance.init()
     }
     return this.instance
   }
@@ -47,7 +52,7 @@ class MapGeocodingService {
       }
 
       if (apiKey) {
-        maptilersdk.config.apiKey = apiKey
+        config.apiKey = apiKey
         this.initialized = true
       }
     } catch (error) {
@@ -55,10 +60,19 @@ class MapGeocodingService {
     }
   }
 
+  private async ensureInitialized() {
+    if (this.initialized) return
+    if (!this.initPromise) {
+      this.initPromise = this.init()
+    }
+    await this.initPromise
+  }
+
   public batchReverse = async <T extends GeocodingReturnType>(
     coords: [number, number][],
     options?: GeocodingReverseOptions<T>
   ): Promise<GeocodingReverseResult<T>> => {
+    await this.ensureInitialized()
     if (!this.initialized) {
       return (
         options?.returnType === 'obj' ? {} : []
@@ -66,7 +80,7 @@ class MapGeocodingService {
     }
 
     const coordsNeedToQuery: string[] = []
-    const resultMap = new Map<string, maptilersdk.GeocodingSearchResult>()
+    const resultMap = new Map<string, GeocodingSearchResult>()
 
     for (const [lng, lat] of coords) {
       const key = `${lng},${lat}`
@@ -80,13 +94,10 @@ class MapGeocodingService {
 
     if (coordsNeedToQuery.length > 0) {
       try {
-        const queryResults = await maptilersdk.geocoding.batch(
-          coordsNeedToQuery,
-          {
-            types: options?.types ?? ['address'],
-            ...options,
-          }
-        )
+        const queryResults = await geocoding.batch(coordsNeedToQuery, {
+          types: options?.types ?? ['address'],
+          ...options,
+        })
 
         queryResults.forEach((result, index) => {
           const key = coordsNeedToQuery[index]
@@ -113,12 +124,13 @@ class MapGeocodingService {
   public forward = async (
     query: string,
     options?: { limit?: number }
-  ): Promise<maptilersdk.GeocodingFeature[]> => {
+  ): Promise<GeocodingFeature[]> => {
+    await this.ensureInitialized()
     if (!this.initialized || !query?.trim()) {
       return []
     }
     try {
-      const result = await maptilersdk.geocoding.forward(query, {
+      const result = await geocoding.forward(query, {
         limit: options?.limit ?? 8,
       })
       return result?.features ?? []

@@ -6,16 +6,16 @@ import { cn } from '@/lib/utils'
 import { LoadingDots } from './loading-dots'
 
 const buttonVariants = cva(
-  'text-[14px] inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  'text-[14px] inline-flex items-center justify-center whitespace-nowrap rounded-button font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-primary dark:bg-brand-dark-fill-secondary dark:text-white hover:dark:bg-opacity-80 text-primary-foreground shadow hover:bg-primary/90 border-[2px] shadow-inset-white border-brand-component-stroke-dark rounded-md',
+          'bg-primary text-primary-foreground shadow hover:bg-primary/90 border-[2px] border-primary',
         destructive:
           'bg-brand-component-fill-accent border-2 border-brand-component-stroke-negative-dark shadow-sm text-white',
         outline:
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+          'border bg-secondary border-border shadow-sm hover:bg-accent hover:text-accent-foreground text-ring text-secondary-foreground',
         secondary:
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
@@ -24,10 +24,10 @@ const buttonVariants = cva(
           'bg-brand-component-fill-light-fixed text-brand-component-text-dark',
       },
       size: {
-        default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
-        xl: 'h-14 rounded-lg px-8',
+        default: 'h-9 px-4 py-2 rounded-button',
+        sm: 'h-8 rounded-button px-3 text-xs',
+        lg: 'h-10 rounded-button px-8',
+        xl: 'h-14 rounded-button px-8',
         icon: 'h-9 w-9',
       },
     },

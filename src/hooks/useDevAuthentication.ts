@@ -1,15 +1,17 @@
+import { queryKeys } from '@/lib/query-keys'
 import { NEXT_PUBLIC_NODE_ENV } from '@/shared/env'
 import { fetcher } from '@/utils'
-import useSWR from 'swr'
+import { useQuery } from '@tanstack/react-query'
 
 const isDev = NEXT_PUBLIC_NODE_ENV === 'development'
 
 const useCheckDevVerification = () => {
-  return useSWR(
-    isDev ? '/api/check-dev-verification' : null,
-    fetcher<{ verified: boolean }>,
-    {}
-  )
+  return useQuery({
+    queryKey: queryKeys.devVerification.check(),
+    queryFn: () =>
+      fetcher<{ verified: boolean }>('/api/check-dev-verification'),
+    enabled: isDev,
+  })
 }
 
 export const useDevAuthentication = () => {

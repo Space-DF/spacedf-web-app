@@ -1,11 +1,11 @@
 import api from '@/lib/api'
-import useSWRMutation from 'swr/mutation'
-
-const changePassword = async (
-  url: string,
-  { arg }: { arg: { password?: string; new_password: string } }
-) => api.put(url, arg)
+import { useMutation } from '@tanstack/react-query'
 
 export const useChangePassword = () => {
-  return useSWRMutation('/api/auth/change-password', changePassword)
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (arg: { password?: string; new_password: string }) =>
+      api.put('/api/auth/change-password', arg),
+  })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }

@@ -1,11 +1,14 @@
 import { cn } from '@/lib/utils'
-import { Globe, Loader2, Locate, Minus, Plus } from 'lucide-react'
+import { Globe, Loader2, Locate, Map, Minus, Plus } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import MapLibreGL from 'maplibre-gl'
+import type {
+  GlobeControl as GlobeControlType,
+  Map as MapType,
+} from 'maplibre-gl'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
 type MapControlsProps = {
-  map: MapLibreGL.Map
+  map: MapType
 }
 
 const mapInstance = MapInstance.getInstance()
@@ -13,17 +16,28 @@ const mapInstance = MapInstance.getInstance()
 const MapControls = ({ map }: MapControlsProps) => {
   const [globeActive, setGlobeActive] = useState(false)
   const [waitingForLocation, setWaitingForLocation] = useState(false)
-  const globeControlRef = useRef<MapLibreGL.GlobeControl | null>(null)
+  const globeControlRef = useRef<GlobeControlType | null>(null)
 
   const latestUserLocationRef = useRef<[number, number] | null>(null)
 
   useEffect(() => {
     if (!map) return
-    const globe = new MapLibreGL.GlobeControl()
+    let globeControl: GlobeControlType | null = null
 
-    map.addControl(globe)
+    const initGlobe = async () => {
+      const { GlobeControl } = await import('maplibre-gl')
+      globeControl = new GlobeControl()
+      map.addControl(globeControl)
+      globeControlRef.current = globeControl
+    }
 
-    globeControlRef.current = globe
+    initGlobe()
+
+    return () => {
+      if (globeControl) {
+        map.removeControl(globeControl)
+      }
+    }
   }, [map])
 
   const handleZoomIn = useCallback(() => {
@@ -92,26 +106,22 @@ const MapControls = ({ map }: MapControlsProps) => {
         </ControlButton>
       </ControlGroup>
 
-      <ControlGroup>
-        <ControlButton onClick={handleGlobeSwitch} label="Reset pitch">
-          <Globe
-            className={cn(
-              'size-4 text-brand-icon-light-fixed',
-              globeActive && 'text-brand-dark-fill-secondary'
-            )}
-          />
-        </ControlButton>
-      </ControlGroup>
+      <ControlButton
+        onClick={handleGlobeSwitch}
+        label={globeActive ? 'Switch to map' : 'Switch to globe'}
+      >
+        {globeActive ? (
+          <Map className="size-4 text-brand-icon-light-fixed" />
+        ) : (
+          <Globe className="size-4 text-brand-icon-light-fixed" />
+        )}
+      </ControlButton>
     </div>
   )
 }
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-md bg-brand-component-stroke-dark shadow-sm overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
-      {children}
-    </div>
-  )
+  return <div className="grid grid-cols-1 gap-y-0.5 p-0.5">{children}</div>
 }
 
 function ControlButton({
@@ -131,7 +141,7 @@ function ControlButton({
       aria-label={label}
       type="button"
       className={cn(
-        'flex items-center rounded-md justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
+        'flex items-center rounded-button justify-center size-8 hover:bg-primary/40 transition-colors shadow-inset-white bg-primary',
         disabled && 'opacity-50 pointer-events-none cursor-not-allowed'
       )}
       disabled={disabled}

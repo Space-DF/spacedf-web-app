@@ -3,8 +3,8 @@ import { spaceClient } from '@/lib/spacedf'
 import { handleError } from '@/utils/error'
 import { isDemoSubdomain, readSession } from '@/utils/server-actions'
 import { NextResponse, NextRequest } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
 import { DEMO_WIDGET_DASHBOARD } from '@/constants/widget'
+import { uuidv4 } from '@/utils'
 
 export const POST = withAuthApiRequired(
   async (

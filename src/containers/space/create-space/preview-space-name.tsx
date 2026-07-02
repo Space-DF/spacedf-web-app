@@ -3,10 +3,24 @@ import React from 'react'
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { getCookie } from '@/utils'
-import { AppWireFrameSpace } from '@/components/ui/app-wire-frame-space'
 import { useFormContext } from 'react-hook-form'
 import { SpaceFormValues } from '.'
-import { AppWireFrameSpaceDark } from '@/components/ui/app-wire-frame-space-dark'
+import dynamic from 'next/dynamic'
+
+const AppWireFrameSpace = dynamic(
+  () =>
+    import('@/components/ui/app-wire-frame-space').then(
+      (m) => m.AppWireFrameSpace
+    ),
+  { ssr: false }
+)
+const AppWireFrameSpaceDark = dynamic(
+  () =>
+    import('@/components/ui/app-wire-frame-space-dark').then(
+      (m) => m.AppWireFrameSpaceDark
+    ),
+  { ssr: false }
+)
 
 const PreviewSpaceName = () => {
   const { startRender } = usePageTransition({ duration: 200 })

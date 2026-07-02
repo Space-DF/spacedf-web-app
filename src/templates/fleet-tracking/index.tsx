@@ -8,9 +8,8 @@ import { groupDeviceByFeature } from '@/utils/map'
 import isEqual from 'fast-deep-equal'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { useTheme } from 'next-themes'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { LocationLayer } from './components/device-layer/location'
 import WaterDepth from './components/device-layer/water-depth'
@@ -42,65 +41,41 @@ export default function FleetTrackingMap() {
   const mapReadyRef = useRef(false)
   const dataReadyRef = useRef(false)
 
-  const {
-    initializedSuccess,
-    devices,
-    locationDevices = [],
-    waterLevelDevices = [],
-  } = useDeviceStore(
-    useShallow((state) => {
-      const deviceGroup = groupDeviceByFeature(
-        Object.values(state.devicesFleetTracking)
-      )
+  const initializedSuccess = useDeviceStore((state) => state.initializedSuccess)
 
-      return {
-        initializedSuccess: state.initializedSuccess,
-        devices: state.devicesFleetTracking,
-        locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION],
-        waterLevelDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH],
-      }
-    })
-  )
-
-  const {
-    updateBooleanState,
-    isMapReady,
-    viewMode,
-    ungroupedDeviceIds,
-    setUngroupedDeviceIds,
-  } = useFleetTrackingMapStore(
-    useShallow((state) => ({
-      updateBooleanState: state.updateBooleanState,
-      setUngroupedDeviceIds: state.setUngroupedDeviceIds,
-      isMapReady: state.isMapReady,
-      viewMode: state.viewMode,
-      isAlreadyShowTripRoute: state.isAlreadyShowTripRoute,
-      isClusterVisible: state.isClusterVisible,
-      ungroupedDeviceIds: state.ungroupedDeviceIds,
-    }))
-  )
+  const { updateBooleanState, isMapReady, viewMode, setUngroupedDeviceIds } =
+    useFleetTrackingMapStore(
+      useShallow((state) => ({
+        updateBooleanState: state.updateBooleanState,
+        setUngroupedDeviceIds: state.setUngroupedDeviceIds,
+        isMapReady: state.isMapReady,
+        viewMode: state.viewMode,
+      }))
+    )
 
   const { wrapperRef, mapContainerRef } = useMapResize(isMapReady)
 
   const handleDataReady = useCallback(() => {
-    if (!mapReadyRef.current || !dataReadyRef.current || !initializedSuccess)
+    if (
+      !mapReadyRef.current ||
+      !dataReadyRef.current ||
+      !useDeviceStore.getState().initializedSuccess ||
+      !isFirstRun.current
+    )
       return
 
-    if (isFirstRun.current) {
-      // const pitch = MAP_PITCH[resolvedModelType]
+    mapInstance.onStrategyZoom(useDeviceStore.getState().devicesFleetTracking)
 
-      mapInstance.onStrategyZoom(devices)
-
-      if (mapInstance.getMap()) {
-        globalDeckGLInstance.init(mapInstance.getMap()!)
-      }
-
-      if (!isMapReady) {
-        updateBooleanState('isMapReady', true)
-      }
-      isFirstRun.current = false
+    const map = mapInstance.getMap()
+    if (map) {
+      globalDeckGLInstance.init(map)
     }
-  }, [devices, initializedSuccess])
+
+    if (!useFleetTrackingMapStore.getState().isMapReady) {
+      updateBooleanState('isMapReady', true)
+    }
+    isFirstRun.current = false
+  }, [updateBooleanState])
 
   useEffect(() => {
     if (mapContainerRef.current) {
@@ -157,11 +132,22 @@ export default function FleetTrackingMap() {
     }
   }, [isMapReady])
 
-  useEffect(() => {
-    if (devices && isMapReady) {
-      clusterInstance.syncClusterData(devices)
-    }
-  }, [devices, isMapReady])
+  const handleVisibilityChange = useCallback(
+    (isVisible: boolean) => {
+      updateBooleanState('isClusterVisible', isVisible)
+    },
+    [updateBooleanState]
+  )
+
+  const handleUngroupedDeviceChanges = useCallback(
+    (deviceIds: string[]) => {
+      const current = useFleetTrackingMapStore.getState().ungroupedDeviceIds
+      if (isEqual(current, deviceIds)) return
+
+      setUngroupedDeviceIds(deviceIds)
+    },
+    [setUngroupedDeviceIds]
+  )
 
   useEffect(() => {
     clusterInstance.on(CLUSTER_EVENTS.VISIBLE_CHANGE, handleVisibilityChange)
@@ -177,7 +163,7 @@ export default function FleetTrackingMap() {
         handleUngroupedDeviceChanges
       )
     }
-  }, [ungroupedDeviceIds])
+  }, [handleVisibilityChange, handleUngroupedDeviceChanges])
 
   useEffect(() => {
     mapInstance.syncMapPitch(MAP_PITCH[viewMode])
@@ -189,22 +175,6 @@ export default function FleetTrackingMap() {
     mapInstance.updateMapPitch({ pitch })
   }, [viewMode])
 
-  const handleVisibilityChange = useCallback(
-    (isVisible: boolean) => {
-      updateBooleanState('isClusterVisible', isVisible)
-    },
-    [updateBooleanState]
-  )
-
-  const handleUngroupedDeviceChanges = useCallback(
-    (deviceIds: string[]) => {
-      if (isEqual(ungroupedDeviceIds, deviceIds)) return
-
-      setUngroupedDeviceIds(deviceIds)
-    },
-    [setUngroupedDeviceIds, ungroupedDeviceIds]
-  )
-
   return (
     <FleetTrackingProvider>
       <GeofenceProvider>
@@ -212,12 +182,16 @@ export default function FleetTrackingMap() {
           className="size-full overflow-hidden relative bg-transparent z-[1]"
           ref={wrapperRef}
         >
-          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between pl-3 pr-14 pt-3 pointer-events-none">
-            <SpacedfLogo />
-            <div className="pointer-events-auto">
-              <SearchLocation map={isMapReady ? mapInstance.getMap() : null} />
+          <div className="absolute top-0 left-0 right-0 z-10 pl-3 pr-14 pt-3 pointer-events-none">
+            <div className="flex items-start justify-between ">
+              <SpacedfLogo />
+              <div className="pointer-events-auto">
+                <SearchLocation
+                  map={isMapReady ? mapInstance.getMap() : null}
+                />
+              </div>
+              <ViewModeToggle />
             </div>
-            <ViewModeToggle />
           </div>
 
           <div
@@ -240,15 +214,36 @@ export default function FleetTrackingMap() {
               )}
             </AnimatePresence>
 
-            {!!locationDevices.length && (
-              <LocationLayer devices={locationDevices || []} />
-            )}
-            {!!waterLevelDevices.length && (
-              <WaterDepth devices={waterLevelDevices || []} />
-            )}
+            {isMapReady && <DeviceLayers />}
           </div>
         </div>
       </GeofenceProvider>
     </FleetTrackingProvider>
   )
 }
+
+const DeviceLayers = memo(function DeviceLayers() {
+  const devices = useDeviceStore((state) => state.devicesFleetTracking)
+
+  const { locationDevices, waterLevelDevices } = useMemo(() => {
+    const deviceGroup = groupDeviceByFeature(Object.values(devices))
+    return {
+      locationDevices: deviceGroup[DEVICE_FEATURE_SUPPORTED.LOCATION] || [],
+      waterLevelDevices:
+        deviceGroup[DEVICE_FEATURE_SUPPORTED.WATER_DEPTH] || [],
+    }
+  }, [devices])
+
+  useEffect(() => {
+    if (devices) {
+      clusterInstance.syncClusterData(devices)
+    }
+  }, [devices])
+
+  return (
+    <>
+      {!!locationDevices.length && <LocationLayer devices={locationDevices} />}
+      {!!waterLevelDevices.length && <WaterDepth devices={waterLevelDevices} />}
+    </>
+  )
+})

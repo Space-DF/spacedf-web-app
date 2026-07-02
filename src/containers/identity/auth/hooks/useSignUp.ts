@@ -1,4 +1,4 @@
-import useSWRMutation, { SWRMutationResponse } from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { SignUpFormCredentials } from '..'
@@ -17,29 +17,25 @@ interface SignUpResponse {
   default_space: string
 }
 
-const fetcher = async (
-  url: string,
-  { arg }: { arg: SignUpFormCredentials & { otp: string } }
-): Promise<SignUpResponse> => {
-  return api.post(url, arg)
-}
-
-const useSignUp = (): SWRMutationResponse<
-  SignUpResponse,
-  Error,
-  string,
-  SignUpFormCredentials & { otp: string }
-> => {
+const useSignUp = () => {
   const t = useTranslations('signUp')
-  return useSWRMutation('/api/auth/register', fetcher, {
-    onSuccess: (data) => {
+  const { mutateAsync, isPending } = useMutation<
+    SignUpResponse,
+    Error,
+    SignUpFormCredentials & { otp: string }
+  >({
+    mutationFn: async (arg) => {
+      return api.post<SignUpResponse>('/api/auth/register', arg)
+    },
+    onSuccess: () => {
       toast.success(t('sign_up_success'))
-      return data
     },
     onError: () => {
       toast.error(t('sign_up_failed'))
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }
 
 export default useSignUp

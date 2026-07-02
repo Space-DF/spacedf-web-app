@@ -306,11 +306,7 @@ export function DialogUpload({
             )}
             <div className="grid grid-cols-2 gap-4 pt-2">
               <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 rounded-lg"
-                >
+                <Button type="button" variant="outline" className="h-12">
                   {t('cancel')}
                 </Button>
               </DialogClose>
@@ -318,7 +314,7 @@ export function DialogUpload({
               <Button
                 type="submit"
                 disabled={isFormDisabled}
-                className="h-12 rounded-lg"
+                className="h-12"
                 loading={isUploadingModel}
               >
                 {isEditMode ? t('save') : t('create')}

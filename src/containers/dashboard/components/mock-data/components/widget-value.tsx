@@ -33,7 +33,7 @@ export const ValueWidget = ({
         <div className="flex gap-2 flex-col size-full">
           <div className="w-full">
             <div className="h-5">
-              <p className="truncate font-semibold text-brand-component-text-dark">
+              <p className="truncate font-semibold text-foreground">
                 {widget_info?.name}
               </p>
             </div>

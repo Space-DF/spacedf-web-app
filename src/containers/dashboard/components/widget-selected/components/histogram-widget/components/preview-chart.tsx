@@ -9,7 +9,7 @@ import {
 import { TimeFormat } from '@/constants'
 import { Orientation } from '@/widget-models/chart'
 import { HistogramPayload } from '@/validator'
-import React from 'react'
+import { FC } from 'react'
 import {
   CartesianGrid,
   XAxis,
@@ -46,7 +46,7 @@ const getColor = (source: HistogramPayload['sources'][number]) => {
     : `#${source.color}`
 }
 
-const PreviewChart: React.FC<PreviewLineChartProps> = ({
+const PreviewChart: FC<PreviewLineChartProps> = ({
   sources,
   isSingleSource,
   showData,

@@ -7,6 +7,7 @@ import {
 } from '@/lib/organizations'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import EffectLayout from '@/components/ui/effect-layout'
 
 export default async function Layout({
   children,
@@ -37,7 +38,9 @@ export default async function Layout({
 
   return (
     <OrganizationValidationHydration value={isValidOrganization}>
-      <section>{children}</section>
+      <section>
+        <EffectLayout>{children}</EffectLayout>
+      </section>
     </OrganizationValidationHydration>
   )
 }

@@ -1,6 +1,16 @@
 import { WidgetChart } from '@/types/widget'
 import { WidgetContainer, WidgetTitle } from '.'
-import { PreviewChart } from '../../widget-selected/components/histogram-widget/components/preview-chart'
+import dynamic from 'next/dynamic'
+
+const PreviewChart = dynamic(
+  () =>
+    import(
+      '../../widget-selected/components/histogram-widget/components/preview-chart'
+    ).then((mod) => mod.PreviewChart),
+  {
+    ssr: false,
+  }
+)
 import { TimeFormat } from '@/constants'
 import { generateData } from '../../widget-selected/components/chart-widget/components/preview-chart'
 

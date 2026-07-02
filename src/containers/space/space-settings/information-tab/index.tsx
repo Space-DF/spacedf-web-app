@@ -173,16 +173,16 @@ export function InformationTab({
               name="name"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-brand-component-text-dark">
+                  <FormLabel
+                    className="text-brand-component-text-dark"
+                    required
+                  >
                     {t('space_name')}
-                    <span className="text-brand-component-text-negative">
-                      *
-                    </span>
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t('space_name')}
-                      className="h-10 border-0 shadow-none"
+                      className="h-10 shadow-none"
                       {...field}
                       isError={!!fieldState.error}
                     />
@@ -203,7 +203,7 @@ export function InformationTab({
                     <FormControl>
                       <Input
                         disabled
-                        className="h-10 border-0 shadow-none"
+                        className="h-10"
                         {...field}
                         isError={!!fieldState.error}
                       />
@@ -223,7 +223,7 @@ export function InformationTab({
                     <FormControl>
                       <Input
                         disabled
-                        className="h-10 border-0 shadow-none"
+                        className="h-10"
                         {...field}
                         isError={!!fieldState.error}
                       />
@@ -243,7 +243,7 @@ export function InformationTab({
                     <FormControl>
                       <Input
                         disabled
-                        className="h-10 border-0 shadow-none"
+                        className="h-10"
                         {...field}
                         isError={!!fieldState.error}
                       />
@@ -258,13 +258,13 @@ export function InformationTab({
               name="description"
               render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel className="text-brand-component-text-gray">
+                  <FormLabel className="text-brand-component-text-dark">
                     {t('description_of_the_space')}
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={t('enter_the_description')}
-                      className="resize-none border-0 shadow-none"
+                      className="resize-none shadow-none"
                       {...field}
                       isError={!!fieldState.error}
                     />
@@ -277,14 +277,14 @@ export function InformationTab({
               <Button
                 onClick={handleCancel}
                 type="button"
-                className="h-12 flex-1 rounded-lg border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none hover:text-brand-component-text-gray-hover dark:bg-transparent"
+                className="h-12 flex-1 text-base font-semibold  shadow-none"
                 variant="outline"
               >
                 {t('cancel')}
               </Button>
               <Button
                 type="submit"
-                className="h-12 flex-1 items-center rounded-lg border-4 border-brand-component-stroke-dark bg-brand-component-fill-dark text-base font-medium text-brand-component-text-light-fixed shadow-sm dark:border-brand-component-stroke-light dark:bg-brand-component-fill-secondary"
+                className="h-12 flex-1 items-center  border-4 text-base font-medium shadow-sm"
                 loading={isMutating}
                 disabled={!isDirty}
               >

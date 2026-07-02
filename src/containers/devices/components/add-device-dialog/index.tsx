@@ -17,8 +17,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { addDeviceSchema, AddDeviceSchema } from './schema'
 import { queryKeys } from '@/lib/query-keys'
 import { cn } from '@/lib/utils'
-import { ArrowLeft } from 'lucide-react'
-import Image from 'next/image'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { uppercaseFirstLetter } from '@/utils'
 import { AddDeviceContainer } from '../add-device-container'
 import { AddDeviceAuto } from '@/components/icons/add-device-auto'
@@ -156,7 +155,7 @@ export const AddDeviceDialog = () => {
         <span className="text-xs font-semibold leading-4">
           {uppercaseFirstLetter(tCommon('add'))} {tCommon('devices')}{' '}
         </span>
-        <Image src={'/images/plus.svg'} alt="plus" width={16} height={16} />
+        <Plus size={16} className="text-primary-foreground" />
       </Button>
       <Dialog open={isOpenDeviceModal} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">

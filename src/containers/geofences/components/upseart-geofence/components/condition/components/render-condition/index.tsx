@@ -22,8 +22,13 @@ import { And, Graph, Calendar, NumberIcon } from '@/components/icons'
 import { EqualNot, ChevronDown } from 'lucide-react'
 import { AddCondition } from '../add-condition'
 import { ConditionOptions } from '../condition-options'
-import { EditYamlPanel } from '../edit-yaml-dialog'
 import { useGeofenceStore } from '@/stores/geofence-store'
+import dynamic from 'next/dynamic'
+
+const EditYamlPanel = dynamic(
+  () => import('../edit-yaml-dialog').then((m) => m.EditYamlPanel),
+  { ssr: false }
+)
 import { useTestCondition } from './hooks/useTestCondition'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { featuresToGeometries, transformConditions } from '../../../../utils'
@@ -154,10 +159,10 @@ export const RenderCondition = ({
       >
         <AccordionItem
           value={path}
-          className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+          className="overflow-hidden rounded-sm border border-border"
         >
           <AccordionTrigger
-            className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
+            className="border-b border-border bg-card p-3 text-sm font-semibold hover:no-underline"
             dropdownIcon={
               <ConditionOptions
                 onDelete={() => onRemove(index)}
@@ -169,10 +174,10 @@ export const RenderCondition = ({
               />
             }
           >
-            <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+            <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
             <div className="mr-2 flex w-full items-center">
               <div className="flex items-center space-x-1">
-                <Icon className="h-5 w-5 shrink-0 text-brand-icon-gray" />
+                <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
                 <p className="text-sm font-semibold text-brand-component-text-dark">
                   {t(field.type as any)}
                 </p>
@@ -229,10 +234,10 @@ export const RenderCondition = ({
         >
           <AccordionItem
             value={path}
-            className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+            className="overflow-hidden rounded-sm border border-border"
           >
             <AccordionTrigger
-              className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
+              className="border-b border-border bg-card p-3 text-sm font-semibold hover:no-underline"
               dropdownIcon={
                 <ConditionOptions
                   onDelete={() => onRemove(index)}
@@ -244,10 +249,10 @@ export const RenderCondition = ({
                 />
               }
             >
-              <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+              <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
               <div className="mr-2 flex w-full items-center">
                 <div className="flex space-x-1 items-center">
-                  <Icon className="h-5 w-5 shrink-0 text-brand-icon-gray" />
+                  <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
                   <p className="text-sm font-semibold text-brand-component-text-dark">
                     {t(field.type)}
                   </p>

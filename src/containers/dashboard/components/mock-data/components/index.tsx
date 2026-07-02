@@ -29,13 +29,13 @@ export const WidgetContainer = ({
   return (
     <div
       className={cn(
-        'relative size-full rounded-md border border-brand-component-stroke-dark-soft bg-brand-background-fill-outermost p-2 dark:bg-brand-component-fill-gray-soft space-y-1 overflow-hidden',
+        'relative size-full rounded-card border border-background-stroke-middle bg-card p-2 space-y-1 overflow-hidden',
         className
       )}
     >
       {isEdit && (
         <div className="dashboard-widget-toolbar absolute top-0 right-0 z-20">
-          <div className="bg-brand-component-fill-secondary-soft flex items-center space-x-1 rounded-l-md rounded-tr-md p-0.5">
+          <div className="bg-brand-component-fill-secondary-soft flex items-center space-x-1 rounded-l-card rounded-tr-card p-0.5">
             {/* <button
               type="button"
               className="rounded p-0.5 hover:opacity-80"
@@ -63,7 +63,7 @@ export const WidgetContainer = ({
 export const WidgetTitle = ({ children, className }: WidgetProp) => (
   <div
     className={cn(
-      'line-clamp-1 text-sm font-medium text-brand-component-text-dark',
+      'line-clamp-1 text-sm font-medium text-foreground',
       className
     )}
   >

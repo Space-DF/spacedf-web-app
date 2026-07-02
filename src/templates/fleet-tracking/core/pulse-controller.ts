@@ -1,27 +1,24 @@
-import { animate, linear } from 'popmotion'
-
 class PulseController {
   time = 0
-  private stopFn?: () => void
+  private animationFrameId?: number
 
   start(onUpdate: () => void) {
     const start = performance.now()
 
-    this.stopFn = animate({
-      from: 0,
-      to: Infinity,
-      duration: Infinity,
-      ease: linear,
-      onUpdate: () => {
-        this.time = (performance.now() - start) / 1000
-        onUpdate()
-      },
-    }).stop
+    const loop = () => {
+      this.time = (performance.now() - start) / 1000
+      onUpdate()
+      this.animationFrameId = requestAnimationFrame(loop)
+    }
+
+    this.animationFrameId = requestAnimationFrame(loop)
   }
 
   stop() {
-    this.stopFn?.()
-    this.stopFn = undefined
+    if (this.animationFrameId !== undefined) {
+      cancelAnimationFrame(this.animationFrameId)
+      this.animationFrameId = undefined
+    }
     this.time = 0
   }
 }

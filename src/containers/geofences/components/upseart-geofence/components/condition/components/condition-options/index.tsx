@@ -38,28 +38,28 @@ export const ConditionOptions = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="cursor-pointer">
-          <Ellipsis className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+          <Ellipsis className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={withStopPropagation(onTest)}>
-          <TestTube className="mr-2 h-4 w-4 text-brand-component-text-dark" />
+          <TestTube className="mr-2 h-4 w-4 text-muted-foreground" />
           {t('test')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={withStopPropagation(onDuplicate)}>
-          <Duplicate className="mr-2 h-4 w-4 text-brand-component-text-dark" />
+          <Duplicate className="mr-2 h-4 w-4 text-muted-foreground" />
           {t('duplicate')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={withStopPropagation(onCopy)}>
-          <Copy className="mr-2 h-4 w-4 text-brand-component-text-dark" />
+          <Copy className="mr-2 h-4 w-4 text-muted-foreground" />
           {t('copy')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={withStopPropagation(onCut)}>
-          <Scissors className="mr-2 h-4 w-4 text-brand-component-text-dark" />
+          <Scissors className="mr-2 h-4 w-4 text-muted-foreground" />
           {t('cut')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={withStopPropagation(onEditInYAML)}>
-          <SquarePen className="mr-2 h-4 w-4 text-brand-component-text-dark" />
+          <SquarePen className="mr-2 h-4 w-4 text-muted-foreground" />
           {t('edit_in_yaml')}
         </DropdownMenuItem>
         <Separator className="" />

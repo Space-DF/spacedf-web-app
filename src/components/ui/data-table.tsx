@@ -136,10 +136,7 @@ export function DataTable<TData, TValue>({
       <div className={cn('w-full', scrollClassName)}>
         <Table>
           <TableHeader
-            className={cn(
-              'bg-brand-fill-dark-soft',
-              stickyHeader && 'sticky top-0 z-[1]'
-            )}
+            className={cn('bg-card', stickyHeader && 'sticky top-0 z-[1]')}
           >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

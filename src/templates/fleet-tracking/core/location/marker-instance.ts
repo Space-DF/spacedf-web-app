@@ -1,5 +1,10 @@
 import { Device } from '@/stores/device-store'
-import MapLibreGL from 'maplibre-gl'
+import { Marker } from 'maplibre-gl'
+import type {
+  Map as MapType,
+  Marker as MarkerType,
+  GeoJSONSource as GeoJSONSourceType,
+} from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import {
   smoothMoveMarker,
@@ -12,11 +17,11 @@ import MapInstance from '../map-instance'
 const mapInstance = MapInstance.getInstance()
 export class LocationMarker {
   private static instance: LocationMarker | undefined
-  private map: MapLibreGL.Map | null = null
+  private map: MapType | null = null
   private emitter: EventEmitter = new EventEmitter()
   private previousDevices: Device[] = []
   private devices: Device[] = []
-  private locationMarkers: Record<string, MapLibreGL.Marker> = {}
+  private locationMarkers: Record<string, MarkerType> = {}
   private visible = true
   private focusedMarker: string = ''
   private ungroupedDeviceIds: string[] = []
@@ -97,7 +102,7 @@ export class LocationMarker {
         el.style.display = 'none'
       }
 
-      const marker = new MapLibreGL.Marker({
+      const marker = new Marker({
         element: el,
         anchor: 'center',
         pitchAlignment: 'viewport',
@@ -147,26 +152,26 @@ export class LocationMarker {
   }
 
   private _updateMarkers() {
+    const prevDevicesMap = new Map(this.previousDevices.map((d) => [d.id, d]))
+    const newDevicesMap = new Map(this.devices.map((d) => [d.id, d]))
+
     for (const marker of Object.values(this.locationMarkers)) {
       const el = marker.getElement()
       if (!el) continue
       const detectDeviceId = el.getAttribute('data-device-id') || ''
 
-      const prevData = this.previousDevices.find(
-        (device) => device.id === detectDeviceId
-      )
-      const newData = this.devices.find(
-        (device) => device.id === detectDeviceId
-      )
+      const prevData = prevDevicesMap.get(detectDeviceId)
+      const newData = newDevicesMap.get(detectDeviceId)
+
+      if (!prevData || !newData) continue
 
       const isEqualData = isEqual(prevData, newData)
-
-      if (isEqualData || !prevData || !newData) continue
+      if (isEqualData) continue
 
       const prevBearing =
-        prevData?.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
+        prevData.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
       const newBearing =
-        newData?.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
+        newData.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
 
       if (prevBearing !== newBearing) {
         el.classList.remove('location-marker')
@@ -215,15 +220,13 @@ export class LocationMarker {
   }
 
   private _removeMarkers() {
+    const deviceIds = new Set(this.devices.map((device) => device.id))
+
     for (const marker of Object.values(this.locationMarkers)) {
       const detectDeviceId =
         marker.getElement().getAttribute('data-device-id') || ''
 
-      const deviceNotExists = !this.devices.find(
-        (device) => device.id === detectDeviceId
-      )
-
-      if (deviceNotExists) {
+      if (!deviceIds.has(detectDeviceId)) {
         marker.remove()
         delete this.locationMarkers[detectDeviceId]
       }
@@ -238,9 +241,9 @@ export class LocationMarker {
       height: size,
       data: new Uint8ClampedArray(size * size * 4),
       context: null as CanvasRenderingContext2D | null,
-      map: null as MapLibreGL.Map | null,
+      map: null as MapType | null,
 
-      onAdd(map: MapLibreGL.Map) {
+      onAdd(map: MapType) {
         this.map = map
         const canvas = document.createElement('canvas')
         canvas.width = this.width
@@ -314,7 +317,7 @@ export class LocationMarker {
     }
   }
 
-  init(map: MapLibreGL.Map) {
+  init(map: MapType) {
     if (!map) return
     this.map = map
   }
@@ -380,9 +383,7 @@ export class LocationMarker {
     coordinates: [number, number]
   ) {
     if (!this.map) return
-    const source = this.map.getSource(
-      'focused-device'
-    ) as MapLibreGL.GeoJSONSource
+    const source = this.map.getSource('focused-device') as GeoJSONSourceType
 
     source.setData({
       type: 'FeatureCollection',
@@ -401,9 +402,7 @@ export class LocationMarker {
 
   clearFocus() {
     if (!this.map) return
-    const source = this.map.getSource(
-      'focused-device'
-    ) as MapLibreGL.GeoJSONSource
+    const source = this.map.getSource('focused-device') as GeoJSONSourceType
 
     source?.setData({
       type: 'FeatureCollection',

@@ -50,7 +50,7 @@ const DeviceSelected = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-brand-component-fill-gray-soft p-4">
+    <div className="flex flex-col gap-2 rounded-xl bg-card p-4 border border-border">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <div className="px-1">

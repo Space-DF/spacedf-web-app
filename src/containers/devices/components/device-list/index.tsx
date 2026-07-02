@@ -1,17 +1,16 @@
-import { useDebounce } from '@/hooks'
 import { useGetDevices } from '@/hooks/useDevices'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
 import { useTranslations } from 'next-intl'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useTripAddress } from '../device-detail/components/trip-history/hooks/useTripAddress'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { transformDeviceData } from '@/utils/map'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { AddDeviceDialog } from '../add-device-dialog'
-import { Ellipsis, LoaderCircle, PlusIcon, Search } from 'lucide-react'
-import { InputWithIcon } from '@/components/ui/input'
+import { Ellipsis, LoaderCircle, PlusIcon } from 'lucide-react'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { Nodata } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import ImageWithBlur from '@/components/ui/image-blur'
@@ -24,8 +23,11 @@ const mapInstance = MapInstance.getInstance()
 
 export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   const t = useTranslations('addNewDevice')
-  const [deviceName, setDeviceName] = useState('')
-  const debouncedDeviceName = useDebounce(deviceName)
+  const [debouncedDeviceName, setDebouncedDeviceName] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedDeviceName(value),
+    []
+  )
   const {
     data: devices = [],
     isLoading,
@@ -140,32 +142,22 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center justify-between">
-        <div className="font-semibold text-brand-component-text-dark">
-          {t('devices_list')}
-        </div>
+        <div className="font-semibold text-foreground">{t('devices_list')}</div>
         <div className="flex space-x-1 items-center">
           <AddDeviceDialog />
           <div
-            className="group h-max cursor-pointer rounded-sm p-1 hover:bg-brand-fill-surface hover:dark:bg-brand-stroke-outermost"
+            className="group h-max cursor-pointer rounded-sm p-1"
             onClick={onClose}
           >
             <PlusIcon
               width={24}
               height={24}
-              className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 dark:text-brand-dark-text-gray"
+              className="rotate-45 duration-300 group-hover:-rotate-45 group-hover:scale-110 text-muted-foreground"
             />
           </div>
         </div>
       </div>
-      <InputWithIcon
-        prefixCpn={
-          <Search size={18} className="text-brand-component-text-gray" />
-        }
-        placeholder={t('device')}
-        wrapperClass="w-full"
-        value={deviceName}
-        onChange={(e) => setDeviceName(e.target.value)}
-      />
+      <DebouncedSearchInput onSearch={handleSearch} placeholder={t('device')} />
       <div
         className="flex overflow-y-auto h-dvh scroll-smooth [&::-webkit-scrollbar-thumb]:border-r-4 [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:hover:bg-[#282C3F]"
         ref={parentRef}
@@ -197,7 +189,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         transform: `translateY(${virtualRow.start}px)`,
                       }}
                     >
-                      <LoaderCircle className="text-brand-bright-lavender size-6 animate-spin" />
+                      <LoaderCircle className="text-primary size-6 animate-spin" />
                     </div>
                   )
                 }
@@ -226,7 +218,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         <div
                           key={device.id}
                           className={cn(
-                            'cursor-pointer h-fit rounded-md border border-transparent bg-brand-component-fill-gray-soft p-2 text-brand-component-text-dark',
+                            'cursor-pointer h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
                             {
                               'border-brand-component-stroke-dark':
                                 device?.device.id === deviceSelected,
@@ -243,17 +235,19 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                     DeviceIcon
                                   }
                                   alt="DMZ 01 -1511-M01"
-                                  width={70}
-                                  height={70}
+                                  width={32}
+                                  height={32}
+                                  className="size-8"
+                                  sizes="32px"
                                 />
                               </div>
                               <Ellipsis
                                 size={16}
-                                className="text-brand-component-text-gray"
+                                className="text-muted-foreground"
                               />
                             </div>
                             <div className="text-xs font-medium">
-                              <span className="leading-[18px] line-clamp-1">
+                              <span className="leading-[18px] line-clamp-1 text-brand-component-text-dark">
                                 {device.name}
                               </span>
                             </div>
@@ -261,10 +255,10 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                           <div className="flex items-center gap-2 text-xs font-medium ">
                             <Map
                               size={16}
-                              className="text-brand-text-gray w-max"
+                              className="text-muted-foreground w-max"
                             />
                             <span
-                              className="leading-[18px] line-clamp-1 flex-1 truncate"
+                              className="leading-[18px] line-clamp-1 flex-1 truncate text-muted-foreground"
                               title={
                                 (isHasLocation && locationName) || undefined
                               }

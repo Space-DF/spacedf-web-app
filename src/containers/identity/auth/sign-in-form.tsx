@@ -24,7 +24,7 @@ import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { passwordSchema } from '@/utils'
 import { useAuthForm } from './stores/useAuthForm'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
 
 const singInSchema = z.object({
@@ -51,7 +51,7 @@ const SignInForm = () => {
   const { registerServiceWorker } = useSubscribeNotification()
   const setOpenDrawer = useIdentityStore((state) => state.setOpenDrawerIdentity)
 
-  const { clearAllCache } = useCache()
+  const queryClient = useQueryClient()
 
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
@@ -62,7 +62,7 @@ const SignInForm = () => {
         } else {
           await registerServiceWorker()
           setOpenDrawer(false)
-          clearAllCache()
+          queryClient.clear()
         }
       } catch (error) {
         console.error({ error })
@@ -136,7 +136,7 @@ const SignInForm = () => {
           </div>
           <div className="mb-5 mt-4 flex items-center justify-end">
             <p
-              className="cursor-pointer text-xs font-semibold hover:underline"
+              className="cursor-pointer text-xs font-semibold hover:underline text-foreground"
               onClick={() => setFormType('forgotPassword')}
             >
               {t('forgot_password')}
@@ -144,7 +144,7 @@ const SignInForm = () => {
           </div>
           <Button
             type="submit"
-            className="mb-2 h-11 w-full rounded-lg border-4 border-brand-heading bg-brand-fill-outermost shadow-sm"
+            className="mb-2 h-11 w-full border-4 shadow-sm"
             loading={isAuthenticating}
           >
             {t('sign_in')}
@@ -152,11 +152,11 @@ const SignInForm = () => {
         </form>
       </Form>
       <div className="flex items-center justify-center gap-2 text-center text-xs">
-        <TypographySecondary className="font-semibold">
+        <TypographySecondary className="font-semibold text-brand-component-text-gray">
           {t('dont_have_an_account')}
         </TypographySecondary>
         <span
-          className="cursor-pointer font-semibold hover:underline"
+          className="cursor-pointer font-semibold hover:underline text-foreground"
           onClick={() => setFormType('signUp')}
         >
           {t('sign_up')}

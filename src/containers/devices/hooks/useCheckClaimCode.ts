@@ -1,18 +1,20 @@
 import api from '@/lib/api'
 import { Device } from '@/stores/device-store'
 import { useParams } from 'next/navigation'
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 
-const checkClaimCode = async (
-  url: string,
-  { arg }: { arg: string }
-): Promise<Device> => {
-  return api.post(url, { code: arg })
-}
 export const useCheckClaimCode = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWRMutation(
-    `/api/devices/${spaceSlug}/check-claim-code`,
-    checkClaimCode
-  )
+
+  const mutation = useMutation<Device, Error, string>({
+    mutationFn: (arg: string) =>
+      api.post(`/api/devices/${spaceSlug}/check-claim-code`, { code: arg }),
+  })
+
+  return {
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+  }
 }

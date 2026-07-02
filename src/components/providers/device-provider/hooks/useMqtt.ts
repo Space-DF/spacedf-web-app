@@ -12,17 +12,18 @@ import { Alert } from '@/types/alert'
 import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { v4 as uuidv4 } from 'uuid'
 import { useIsDemo } from '@/hooks/useIsDemo'
 import { getWidgetRealtime } from '../utils'
 import { useDevAuthentication } from '@/hooks/useDevAuthentication'
 import MqttService from '@/lib/mqtt'
 import { useParams } from 'next/navigation'
+import { useOrganization } from '@/hooks/useOrganization'
 import { useGlobalStore } from '@/stores'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { toast } from 'sonner'
 import { useEventStore } from '@/containers/devices/components/device-detail/stores/event'
 import { TelemetryEvent } from '@/types/event'
+import { uuidv4 } from '@/utils'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object'
@@ -47,21 +48,17 @@ const isDeviceEventResult = (
   isRecord(value) && typeof value.deviceId === 'string' && 'event' in value
 
 export const useMqtt = () => {
-  const {
-    setDeviceState,
-    devicesFleetTracking,
-    setDeviceProperties,
-    setDeviceAlerts,
-  } = useDeviceStore((state) => ({
-    setDeviceState: state.setDeviceState,
-    devicesFleetTracking: state.devicesFleetTracking,
-    setDeviceProperties: state.setDeviceProperties,
-    setDeviceAlerts: state.setDeviceAlerts,
-  }))
+  const { setDeviceState, setDeviceProperties, setDeviceAlerts } =
+    useDeviceStore(
+      useShallow((state) => ({
+        setDeviceState: state.setDeviceState,
+        setDeviceProperties: state.setDeviceProperties,
+        setDeviceAlerts: state.setDeviceAlerts,
+      }))
+    )
 
-  const { setWidgetList, widgetList, setEntities } = useDashboardStore(
+  const { setWidgetList, setEntities } = useDashboardStore(
     useShallow((state) => ({
-      widgetList: state.widgetList,
       setWidgetList: state.setWidgetList,
       setEntities: state.setEntities,
     }))
@@ -69,8 +66,8 @@ export const useMqtt = () => {
 
   const insertDeviceEvents = useEventStore((state) => state.insertDeviceEvents)
 
-  const { organization, spaceSlug } = useParams<{
-    organization: string
+  const { organization } = useOrganization()
+  const { spaceSlug } = useParams<{
     spaceSlug: string
   }>()
 
@@ -94,26 +91,13 @@ export const useMqtt = () => {
   const handleDeviceTelemetry = (data: DeviceTelemetryData) => {
     // Business logic: Update device store with parsed telemetry data
     setDeviceState(data.deviceId, data.deviceUpdate)
-
-    // Additional business logic can be added here:
-    // - Check for alerts (low battery, geofence violations)
-    // - Log device activity
-    // - Trigger notifications
-    // TODO: Please remove this console.log after testing
-    console.log(
-      `📍 Device ${data.deviceId} telemetry updated:`,
-      data.deviceUpdate
-    )
   }
 
   // Handler for processed entity telemetry data
   const handleEntityTelemetry = useCallback(
     (data: EntityTelemetryData) => {
-      // TODO: Update entity store when created
-      console.log(
-        `🌊 Entity ${data.entityId} (${data.entityType}) entity updated:`,
-        data.entityUpdate
-      )
+      const { widgetList } = useDashboardStore.getState()
+      const { devicesFleetTracking } = useDeviceStore.getState()
       const newWidgetList = widgetList.map((widget) => {
         if (widget.entity_id === data.entityId) {
           return getWidgetRealtime(widget, data)
@@ -138,6 +122,7 @@ export const useMqtt = () => {
               water_depth: newWaterDepth,
               water_level_name: getWaterDepthLevelName(newWaterDepth),
             }
+            break
 
           case 'location':
             entityKeyRef.current.add('location')
@@ -180,7 +165,7 @@ export const useMqtt = () => {
         handleEntityTelemetryFlush()
       }
     },
-    [devicesFleetTracking, widgetList]
+    [setEntities, setWidgetList]
   )
 
   const handleEntityTelemetryFlush = () => {
@@ -237,7 +222,7 @@ export const useMqtt = () => {
   }
 
   useEffect(() => {
-    if (isDemo || isDevLoading || !isDevVerified) return
+    if (isDemo || isDevLoading || !isDevVerified || !organization) return
     mqttRouterRef.current = new MQTTRouter()
 
     // Register device telemetry handler (no store dependency)
@@ -303,6 +288,26 @@ export const useMqtt = () => {
             position: 'bottom-right',
           })
         },
+        onMessage: (topic: string, payload: Buffer) => {
+          const results =
+            mqttRouterRef.current?.routeMessage(topic, payload) || []
+
+          results.forEach((result) => {
+            if (isDeviceTelemetryResult(result)) {
+              handleDeviceTelemetry(result)
+              return
+            }
+
+            if (isEntityTelemetryResult(result)) {
+              handleEntityTelemetry(result)
+              return
+            }
+
+            if (isDeviceEventResult(result)) {
+              insertDeviceEvents(result.deviceId, result.event)
+            }
+          })
+        },
       })
     }
 
@@ -316,41 +321,10 @@ export const useMqtt = () => {
         mqttRouterRef.current = null
       }
     }
-  }, [organization, spaceSlugName, isAuthorized, isDevVerified, isDevLoading])
-
-  useEffect(() => {
-    if (
-      isDemo ||
-      !mqttServiceRef.current ||
-      !mqttRouterRef.current ||
-      isDevLoading ||
-      !isDevVerified
-    )
-      return
-    mqttServiceRef.current?.setEventCallbacks({
-      onMessage: (topic: string, payload: Buffer) => {
-        const results =
-          mqttRouterRef.current?.routeMessage(topic, payload) || []
-
-        results.forEach((result) => {
-          if (isDeviceTelemetryResult(result)) {
-            handleDeviceTelemetry(result)
-            return
-          }
-
-          if (isEntityTelemetryResult(result)) {
-            handleEntityTelemetry(result)
-            return
-          }
-
-          if (isDeviceEventResult(result)) {
-            insertDeviceEvents(result.deviceId, result.event)
-          }
-        })
-      },
-    })
   }, [
-    devicesFleetTracking,
+    organization,
+    spaceSlugName,
+    isAuthorized,
     isDemo,
     isDevLoading,
     isDevVerified,

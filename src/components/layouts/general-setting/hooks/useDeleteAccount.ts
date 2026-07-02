@@ -1,28 +1,29 @@
 import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
-import useSWRMutation from 'swr/mutation'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
-import { useCache } from '@/hooks/useCache'
-
-const deleteAccount = async (url: string) => {
-  return api.delete(url)
-}
+import { LOCAL_STORAGE_KEYS } from '@/constants'
 
 export const useDeleteAccount = () => {
   const t = useTranslations('generalSettings')
-  const { clearAllCache } = useCache()
   const router = useRouter()
-  return useSWRMutation(`/api/me`, deleteAccount, {
+  const queryClient = useQueryClient()
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: () => api.delete('/api/me'),
     onSuccess: async () => {
       toast.success(t('delete_account_success'))
       await signOut({ redirect: false })
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
       router.replace('/')
-      clearAllCache()
+      queryClient.clear()
     },
     onError: () => {
       toast.error(t('delete_account_error'))
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }

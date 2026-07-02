@@ -6,6 +6,8 @@ import { transformDeviceData } from '@/utils/map'
 import { PropsWithChildren, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useLoadModel } from '../../hooks/useLoadModel'
+import { useParams } from 'next/navigation'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
 
 export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   const isFirstLoadRef = useRef(true)
@@ -22,6 +24,9 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   const { data: deviceSpaces, isLoading: isLoadingDevices } = useGetDevices({
     bbox: bBoxDebounce,
   })
+  const isAuthenticated = useAuthenticated()
+
+  const { spaceSlug } = useParams<{ spaceSlug: string }>()
 
   useEffect(() => {
     if (isLoadingDevices) return
@@ -30,8 +35,12 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   }, [deviceSpaces, isLoadingDevices])
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setInitializedSuccess(true)
+      return
+    }
     if (isFirstLoadRef.current) {
-      if (isLoadingDevices) {
+      if (isLoadingDevices || !spaceSlug) {
         setGlobalLoading(true)
       } else {
         setGlobalLoading(false)
@@ -40,7 +49,7 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
     }
 
     setInitializedSuccess(!isLoadingDevices)
-  }, [isLoadingDevices])
+  }, [isLoadingDevices, isAuthenticated, spaceSlug])
 
   useLoadModel()
 
