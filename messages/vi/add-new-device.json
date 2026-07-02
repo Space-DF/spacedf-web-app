@@ -37,6 +37,9 @@
   "entity_count": "{count} đối tượng",
   "entity_list_help_label": "Giới thiệu đối tượng khả dụng",
   "entity_list_help": "Bạn có thể thay đổi tính nhìn thấy của đối tượng của thiết bị trên Digital Twin bằng cách chọn hoặc bỏ chọn danh sách đối tượng dưới đây.",
+  "entity_temperature": "Nhiệt độ",
+  "entity_humidity": "Độ ẩm",
+  "entity_weight": "Khối lượng",
   "entities_saved_successfully": "Đã cập nhật hiển thị đối tượng",
   "entities_save_failed": "Không thể cập nhật hiển thị đối tượng"
 }

@@ -35,7 +35,7 @@ export const ViewModeToggle = memo(() => {
   return (
     <ToggleGroup
       type="single"
-      className="gap-0 view-mode-control pointer-events-auto bg-brand-component-stroke-dark backdrop-blur-sm p-1 rounded-lg shadow-sm"
+      className="gap-0 view-mode-control pointer-events-auto bg-background backdrop-blur-sm p-1 rounded-button shadow-sm"
       defaultValue={viewMode}
       onValueChange={handleViewModeChange}
       value={viewMode}
@@ -46,7 +46,7 @@ export const ViewModeToggle = memo(() => {
           disabled={value === viewMode}
           value={value}
           aria-label={label}
-          className="hover:bg-brand-component-stroke-dark-soft/50 data-[state=on]:dark:bg-brand-component-fill-secondary text-brand-component-text-gray data-[state=on]:bg-brand-component-fill-dark transition-colors data-[state=on]:shadow-inset-white data-[state=on]:text-white rounded-lg disabled:opacity-100 disabled:cursor-not-allowed"
+          className="hover:bg-brand-component-stroke-dark-soft/50 data-[state=on]:bg-primary !rounded-button text-brand-component-text-gray transition-colors data-[state=on]:shadow-inset-white data-[state=on]:text-primary-foreground disabled:opacity-100 disabled:cursor-not-allowed"
         >
           {label}
         </ToggleGroupItem>

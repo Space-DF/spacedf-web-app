@@ -27,7 +27,7 @@ const Appearance = () => {
               className={cn(
                 'flex-1 cursor-pointer rounded-xl border p-3 duration-300 hover:border-brand-text-dark dark:bg-brand-heading dark:text-white hover:dark:border-brand-dark-fill-secondary',
                 isLightMode
-                  ? 'border-brand-dark-fill-secondary'
+                  ? 'border-primary'
                   : 'border-transparent hover:scale-105'
               )}
               onClick={() => setTheme('light')}

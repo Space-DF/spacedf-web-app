@@ -1,4 +1,4 @@
-import mqtt, { IClientOptions, MqttClient } from 'mqtt'
+import type { IClientOptions, MqttClient } from 'mqtt'
 import api from './api'
 import { sleep } from '@/utils'
 
@@ -117,6 +117,7 @@ class MqttService {
       options.username = mqtt_token
       options.password = ''
     }
+    const { default: mqtt } = await import('mqtt')
     this.client = mqtt.connect(this.brokerUrl, options)
 
     this.client.on('connect', () => {

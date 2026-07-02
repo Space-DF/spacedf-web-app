@@ -1,4 +1,4 @@
-import { InputWithIcon } from '@/components/ui/input'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import {
   Select,
   SelectContent,
@@ -6,11 +6,10 @@ import {
   SelectValue,
   SelectTrigger,
 } from '@/components/ui/select'
-import { useDebounce } from '@/hooks'
-import { ChevronDown, Search } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { STATUS_FILTER } from '../contanst'
 import { Messages } from '@/types/global'
 
@@ -18,15 +17,15 @@ type StatusFilter = 'all' | 'active' | 'disabled'
 
 export const FilterAutomation = () => {
   const t = useTranslations('automation')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const debouncedSearch = useDebounce(searchQuery, 300)
   const pathname = usePathname()
   const router = useRouter()
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
+  const handleSearch = useCallback(
+    (value: string) => setDebouncedSearch(value),
+    []
+  )
   const handleStatusFilter = (v: StatusFilter) => {
     setStatusFilter(v)
   }
@@ -41,19 +40,23 @@ export const FilterAutomation = () => {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <InputWithIcon
-        prefixCpn={
-          <Search size={16} className="text-brand-component-text-gray" />
-        }
+      <DebouncedSearchInput
+        onSearch={handleSearch}
         placeholder={t('search_placeholder')}
         wrapperClass="w-full max-w-80"
-        value={searchQuery}
-        onChange={handleSearch}
+        delay={300}
+        iconSize={16}
+        iconClassName="text-brand-component-text-gray"
       />
       <Select value={statusFilter} onValueChange={handleStatusFilter}>
         <SelectTrigger
-          className="w-40 bg-brand-component-fill-dark-soft"
-          icon={<ChevronDown size={16} className="opacity-50" />}
+          className="w-40 bg-input border border-border"
+          icon={
+            <ChevronDown
+              size={16}
+              className="opacity-50 text-muted-foreground"
+            />
+          }
         >
           <SelectValue />
         </SelectTrigger>

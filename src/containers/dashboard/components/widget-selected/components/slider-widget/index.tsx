@@ -12,12 +12,12 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(
 import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
 import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
 import { WidgetLayout } from '@/types/widget'
-import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'sonner'
 import SliderSource from './components/source'
 import { defaultSliderValues, sliderSchema, SliderPayload } from '@/validator'
 import SliderWidgetInfo from './components/widget-info'
 import SliderPreview from './components/preview'
+import { uuidv4 } from '@/utils'
 
 interface Props {
   selectedWidget: WidgetType

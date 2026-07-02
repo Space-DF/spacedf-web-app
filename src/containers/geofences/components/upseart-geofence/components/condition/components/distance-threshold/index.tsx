@@ -128,10 +128,10 @@ const ConditionDistanceThreshold = ({
     >
       <AccordionItem
         value={path}
-        className="overflow-hidden rounded-sm border border-brand-component-stroke-dark-soft"
+        className="overflow-hidden rounded-sm border border-border-border"
       >
         <AccordionTrigger
-          className="border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft p-3 text-sm font-semibold hover:no-underline"
+          className="border-b border-border bg-card p-3 text-sm font-semibold hover:no-underline"
           dropdownIcon={
             <ConditionOptions
               onDelete={() => onRemove(index)}
@@ -143,10 +143,10 @@ const ConditionDistanceThreshold = ({
             />
           }
         >
-          <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+          <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
           <div className="mr-2 flex w-full items-center">
             <div className="flex space-x-1 items-center text-brand-component-text-dark">
-              <NumberIcon className="size-5" />
+              <NumberIcon className="size-5 text-muted-foreground" />
               <p className="text-sm font-semibold">{t('distance_threshold')}</p>
             </div>
           </div>
@@ -177,7 +177,7 @@ const ConditionDistanceThreshold = ({
                             : ''
                         }
                         onChange={handleThresholdChange}
-                        className="border-none bg-brand-component-fill-dark-soft"
+                        className="bg-input"
                         isError={!!fieldState.error}
                       />
                     </FormControl>
@@ -197,9 +197,9 @@ const ConditionDistanceThreshold = ({
                               defaultValue="km"
                             >
                               <SelectTrigger
-                                className={`border-none shadow-none border-brand-stroke-dark-soft border border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 ${fieldState.error ? 'bg-brand-component-fill-negative-soft' : 'bg-brand-fill-dark-soft dark:bg-brand-heading'}`}
+                                className={`border-none shadow-none border-l-0 p-0 focus:outline-none focus:ring-0 outline-none ring-0 h-7 ${fieldState.error ? 'bg-brand-component-fill-negative-soft' : 'bg-input'}`}
                                 icon={
-                                  <ChevronDown className="w-3 text-brand-icon-gray" />
+                                  <ChevronDown className="w-3 text-muted-foreground" />
                                 }
                               >
                                 <SelectValue />

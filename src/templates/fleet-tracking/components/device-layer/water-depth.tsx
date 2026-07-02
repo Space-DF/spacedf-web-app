@@ -62,7 +62,6 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   const { isMapReady, ungroupedDeviceIds } = useFleetTrackingMapStore(
     useShallow((state) => ({
       isMapReady: state.isMapReady,
-      viewMode: state.viewMode,
       ungroupedDeviceIds: state.ungroupedDeviceIds,
     }))
   )

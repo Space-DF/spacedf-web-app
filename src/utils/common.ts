@@ -49,3 +49,9 @@ export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
 export const fetcher = <T>(url: string) => api.get<T>(url)
+
+export const uuidv4 = (): string => crypto.randomUUID()
+
+export const linear = (t: number) => t
+
+export const easeOut = (t: number) => 1 - Math.pow(1 - t, 3) // Cubic ease-out

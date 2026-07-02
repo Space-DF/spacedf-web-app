@@ -12,6 +12,9 @@ import Image from 'next/image'
 import { memo } from 'react'
 import { useMetricBadgePalette } from '../hooks/useMetricBadgePalette'
 import { useDashboardStore } from '@/stores/dashboard-store'
+import { useMoveDeviceStore } from '@/stores/template/move-device'
+import { cn } from '@/lib/utils'
+import { Move } from 'lucide-react'
 
 const BADGE_SIZE = 50
 
@@ -25,21 +28,32 @@ function getPropertyValue(
   return String(raw)
 }
 
-const badgeHoverClassName =
-  'flex size-full cursor-pointer items-center justify-center rounded-full transition-transform duration-200 ease-out hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
-
 type MetricBadgeProps = {
   value: string | undefined
   unit_of_measurement: string
   icon?: string
+  isDraggingThis?: boolean
 }
 
-function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
+function MetricBadge({
+  value,
+  unit_of_measurement,
+  icon,
+  isDraggingThis,
+}: MetricBadgeProps) {
   const compact = value ? `${value}${unit_of_measurement}` : ''
   const colors = useMetricBadgePalette(icon)
+  const isEditMode = useMoveDeviceStore((state) => state.isEditMode)
   return (
     <div
-      className={`drop-shadow-lg flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-full font-semibold tabular-nums`}
+      className={cn(
+        'drop-shadow-lg flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-full font-semibold tabular-nums transition-all',
+        isDraggingThis
+          ? 'ring-[6px] ring-[#2196F399]'
+          : isEditMode
+            ? 'ring-[8px] ring-white/20'
+            : ''
+      )}
       style={{ width: BADGE_SIZE, height: BADGE_SIZE, ...colors }}
     >
       <div className="flex flex-col items-center">
@@ -49,7 +63,7 @@ function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
             alt={value || ''}
             width={16}
             height={16}
-            className="shrink-0"
+            className="shrink-0 pointer-events-none"
             decoding="async"
           />
         )}
@@ -61,22 +75,27 @@ function MetricBadge({ value, unit_of_measurement, icon }: MetricBadgeProps) {
   )
 }
 
+interface EntityBadgeWithTooltipProps {
+  entity: Entity
+  device_properties?: DeviceProperties
+  tooltipContentClassName: string
+  centeredTrigger?: boolean
+  onClick?: () => void
+  isDraggingThis?: boolean
+}
+
 const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
   entity,
   device_properties,
   tooltipContentClassName,
   centeredTrigger,
   onClick,
-}: {
-  entity: Entity
-  device_properties?: DeviceProperties
-  tooltipContentClassName: string
-  centeredTrigger?: boolean
-  onClick?: () => void
-}) {
+  isDraggingThis,
+}: EntityBadgeWithTooltipProps) {
   const entityRealtimeValue = useDashboardStore(
     (state) => state.entities[entity.unique_key]
   )
+  const isEditMode = useMoveDeviceStore((state) => state.isEditMode)
   const staticValue = device_properties
     ? getPropertyValue(device_properties, entity.category)
     : undefined
@@ -94,12 +113,16 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
       value={badgeValue}
       unit_of_measurement={entity.unit_of_measurement}
       icon={entity.icon}
+      isDraggingThis={isDraggingThis}
     />
   )
 
   const triggerInner = (
     <div
-      className={badgeHoverClassName}
+      className={cn(
+        'flex size-full cursor-pointer items-center justify-center rounded-full transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-component-text-light/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+        !isEditMode && 'hover:scale-110'
+      )}
       onClick={centeredTrigger ? undefined : onClick}
     >
       {badge}
@@ -107,7 +130,7 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
   )
 
   return (
-    <Tooltip>
+    <Tooltip open={!isEditMode ? undefined : false}>
       <TooltipTrigger asChild>
         {centeredTrigger ? (
           <div
@@ -130,7 +153,8 @@ const EntityBadgeWithTooltip = memo(function EntityBadgeWithTooltip({
 interface EntityBadgeProps {
   entities: Entity[]
   device_properties?: DeviceProperties
-  onSelectDevice: () => void
+  onSelectDevice?: () => void
+  isDraggingThis?: boolean
 }
 
 const ENTITY_ORBIT_RADIUS = 40
@@ -139,6 +163,7 @@ const EntityBadge = memo(function EntityBadge({
   entities,
   device_properties,
   onSelectDevice,
+  isDraggingThis,
 }: EntityBadgeProps) {
   const listEntities = (entities ?? []).filter(
     (entity) => entity.icon && entity.is_enabled
@@ -157,6 +182,7 @@ const EntityBadge = memo(function EntityBadge({
         tooltipContentClassName="max-w-xs text-xs border-none"
         centeredTrigger
         onClick={onSelectDevice}
+        isDraggingThis={isDraggingThis}
       />
     )
   } else {
@@ -184,10 +210,22 @@ const EntityBadge = memo(function EntityBadge({
                 entity={entity}
                 device_properties={device_properties}
                 tooltipContentClassName="max-w-xs text-xs"
+                isDraggingThis={isDraggingThis}
               />
             </div>
           )
         })}
+        {isDraggingThis && (
+          <div
+            className="absolute bg-background size-7 border rounded-lg p-1.5 flex items-center justify-center shadow-lg pointer-events-none"
+            style={{
+              left: extent - 18,
+              top: extent - 18,
+            }}
+          >
+            <Move className="size-4 text-brand-component-text-dark" />
+          </div>
+        )}
       </div>
     )
   }

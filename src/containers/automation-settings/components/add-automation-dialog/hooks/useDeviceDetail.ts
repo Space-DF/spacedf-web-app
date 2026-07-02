@@ -1,12 +1,18 @@
 import { DeviceDataOriginal } from '@/types/device'
 import { fetcher } from '@/utils'
 import { useParams } from 'next/navigation'
-import useSWR from 'swr'
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 
 export const useDeviceDetail = (id?: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWR(
-    id && spaceSlug ? `/api/devices/${spaceSlug}?device_id=${id}` : null,
-    fetcher<DeviceDataOriginal[]>
-  )
+
+  return useQuery<DeviceDataOriginal[]>({
+    queryKey: [...queryKeys.devices.detail(), spaceSlug, { deviceId: id }],
+    queryFn: () =>
+      fetcher<DeviceDataOriginal[]>(
+        `/api/devices/${spaceSlug}?device_id=${id}`
+      ),
+    enabled: !!id && !!spaceSlug,
+  })
 }

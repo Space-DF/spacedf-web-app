@@ -1,11 +1,19 @@
 'use client'
 
-import { PropsWithChildren, useEffect, useMemo, useRef } from 'react'
+import { memo, PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 
 import { COOKIES, NavigationEnums, RESPONSIVE_BREAKPOINTS } from '@/constants'
-import Dashboard from '@/containers/dashboard'
-import Devices from '@/containers/devices'
-import { Geofences } from '@/containers/geofences'
+import dynamic from 'next/dynamic'
+
+const Dashboard = dynamic(() => import('@/containers/dashboard'), {
+  ssr: false,
+})
+const Devices = dynamic(() => import('@/containers/devices'), {
+  ssr: false,
+})
+const Geofences = dynamic(() => import('@/containers/geofences'), {
+  ssr: false,
+})
 import { useResponsiveCollapseThreshold } from '@/hooks/use-responsive-collapse-threshold'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { cn } from '@/lib/utils'
@@ -18,7 +26,6 @@ import {
 } from '@/utils'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
-import EffectLayout from '../ui/effect-layout'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -27,7 +34,6 @@ import {
 import Sidebar from './sidebar'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import { useGeofenceStore } from '@/stores/geofence-store'
-import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 import { FeatureId } from '@/types/geofence'
 import { useMounted } from '@/hooks'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -67,8 +73,6 @@ const DynamicLayoutContent = ({ panelType }: DynamicLayoutContentProps) => {
       return null
   }
 }
-
-const mapInstance = MapInstance.getInstance()
 
 const DynamicLayout = ({
   children,
@@ -299,111 +303,118 @@ const DynamicLayout = ({
   )
 
   useEffect(() => {
-    const draw = mapInstance.getTerraDraw()
     if (!isGeofencesActive) {
       resetGeofenceStore()
-      const snapshot = draw?.getSnapshot()
-      if (!snapshot?.length) return
-      const features = snapshot.reduce<FeatureId[]>((acc, f) => {
-        if (f.properties?.mode !== 'select') acc.push(f.id as FeatureId)
-        return acc
-      }, [])
-      draw?.removeFeatures(features)
-      draw?.setMode('render')
+
+      const cleanDraw = async () => {
+        const { default: MapInstance } = await import(
+          '@/templates/fleet-tracking/core/map-instance'
+        )
+        const mapInstance = MapInstance.getInstance()
+        const draw = mapInstance.getTerraDraw()
+        const snapshot = draw?.getSnapshot()
+        if (!snapshot?.length) return
+        const features = snapshot.reduce<FeatureId[]>((acc, f) => {
+          if (f.properties?.mode !== 'select') acc.push(f.id as FeatureId)
+          return acc
+        }, [])
+        draw?.removeFeatures(features)
+        draw?.setMode('render')
+      }
+
+      cleanDraw()
     }
   }, [isGeofencesActive])
 
   return (
-    <EffectLayout>
-      <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
-        <ResizablePanelGroup
-          onLayout={handleMainLayoutChanges}
-          direction="horizontal"
-          ref={mainLayoutRefs}
+    <div className="flex h-dvh max-w-full min-h-0 overflow-hidden">
+      <ResizablePanelGroup
+        onLayout={handleMainLayoutChanges}
+        direction="horizontal"
+        ref={mainLayoutRefs}
+      >
+        <ResizablePanel
+          minSize={minLeftSize}
+          maxSize={maxLeftSize}
+          defaultSize={sidebarWidth}
+          className="duration-200"
         >
-          <ResizablePanel
-            minSize={minLeftSize}
-            maxSize={maxLeftSize}
-            defaultSize={sidebarWidth}
-            className="duration-200"
+          <Sidebar ref={mainLayoutRefs} />
+        </ResizablePanel>
+        <ResizableHandle disabled={!isTablet} />
+        <ResizablePanel>
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="min-h-screen w-full overflow-auto"
+            onLayout={handleDynamicLayoutChanges}
+            ref={refs}
+            id="group"
           >
-            <Sidebar ref={mainLayoutRefs} />
-          </ResizablePanel>
-          <ResizableHandle disabled={!isTablet} />
-          <ResizablePanel>
-            <ResizablePanelGroup
-              direction="horizontal"
-              className="min-h-screen w-full overflow-auto"
-              onLayout={handleDynamicLayoutChanges}
-              ref={refs}
-              id="group"
-            >
-              <ResizablePanel defaultSize={mainWidth} minSize={40}>
-                <div
-                  className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
-                  id="ele-main-content"
-                >
-                  {children}
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle
-                className={cn(
-                  'duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
-                )}
-              />
-
-              <ResizablePanel
-                defaultSize={sidebarWidth}
-                className={cn(
-                  'transition-all duration-300',
-                  isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
-                )}
-                minSize={minRightSize}
-                maxSize={maxRightSize}
+            <ResizablePanel defaultSize={mainWidth} minSize={40}>
+              <div
+                className="relative flex h-full max-h-screen overflow-auto bg-brand-fill-surface text-sm dark:bg-brand-heading"
+                id="ele-main-content"
               >
-                <ResizablePanelGroup
-                  direction="horizontal"
-                  ref={rightLayoutRefs}
-                  onLayout={handleRightLayoutChange}
-                  id="region-dynamic-layout"
+                {children}
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle
+              className={cn(
+                'duration-300',
+                isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
+              )}
+            />
+
+            <ResizablePanel
+              defaultSize={sidebarWidth}
+              className={cn(
+                'transition-all duration-300',
+                isDisplayDynamicLayout ? 'opacity-100' : 'h-0 w-0 opacity-0'
+              )}
+              minSize={minRightSize}
+              maxSize={maxRightSize}
+            >
+              <ResizablePanelGroup
+                direction="horizontal"
+                ref={rightLayoutRefs}
+                onLayout={handleRightLayoutChange}
+                id="region-dynamic-layout"
+              >
+                <ResizablePanel
+                  defaultSize={mainWidth}
+                  minSize={first ? 45 : 0}
+                  className={cn(
+                    'bg-background',
+                    first
+                      ? 'animate-opacity-display-effect'
+                      : 'animate-opacity-hide-effect'
+                  )}
+                  hidden={!first}
                 >
-                  <ResizablePanel
-                    defaultSize={mainWidth}
-                    minSize={first ? 45 : 0}
-                    className={cn(
-                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
-                      first
-                        ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect'
-                    )}
-                    hidden={!first}
-                  >
-                    <DynamicLayoutContent panelType={left} />
-                  </ResizablePanel>
-                  {isShowAll && <ResizableHandle />}
-                  <ResizablePanel
-                    defaultSize={mainWidth}
-                    minSize={second ? 45 : 0}
-                    className={cn(
-                      'bg-brand-fill-surface dark:bg-brand-fill-outermost',
-                      second
-                        ? 'animate-opacity-display-effect'
-                        : 'animate-opacity-hide-effect'
-                    )}
-                    hidden={!second}
-                  >
-                    <DynamicLayoutContent panelType={right} />
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-    </EffectLayout>
+                  <DynamicLayoutContent panelType={left} />
+                </ResizablePanel>
+                {isShowAll && <ResizableHandle />}
+                <ResizablePanel
+                  defaultSize={mainWidth}
+                  minSize={second ? 45 : 0}
+                  className={cn(
+                    'bg-background',
+                    second
+                      ? 'animate-opacity-display-effect'
+                      : 'animate-opacity-hide-effect'
+                  )}
+                  hidden={!second}
+                >
+                  <DynamicLayoutContent panelType={right} />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   )
 }
 
-export default DynamicLayout
+export default memo(DynamicLayout)

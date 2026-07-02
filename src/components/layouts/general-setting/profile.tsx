@@ -135,7 +135,7 @@ const Profile = () => {
           <div className="flex flex-col items-stretch justify-between py-3">
             <Button
               variant="outline"
-              className="w-max items-center gap-2 rounded-lg dark:text-white"
+              className="w-max items-center gap-2"
               size="lg"
               type="button"
               disabled={isLoading}
@@ -158,7 +158,7 @@ const Profile = () => {
                   <FormLabel>{t('first_name')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                      className="h-10"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('first_name')}
                       disabled={isLoading}
@@ -178,7 +178,7 @@ const Profile = () => {
                   <FormLabel>{t('last_name')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                      className="h-10"
                       prefixCpn={<UserRound size={16} />}
                       placeholder={t('last_name')}
                       disabled={isLoading}
@@ -199,7 +199,7 @@ const Profile = () => {
                 <FormLabel>{t('location')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<MapPin size={16} />}
                     placeholder={t('location')}
                     disabled={isLoading}
@@ -219,7 +219,7 @@ const Profile = () => {
                 <FormLabel>{t('company_name')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<Building />}
                     placeholder={t('company_name')}
                     {...field}
@@ -239,7 +239,7 @@ const Profile = () => {
                 <FormLabel>{t('title')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                    className="h-10"
                     prefixCpn={<UserList />}
                     placeholder={t('title')}
                     disabled={isLoading}
@@ -254,12 +254,7 @@ const Profile = () => {
         </div>
         <div className="mt-4 flex gap-2">
           <DialogClose asChild>
-            <Button
-              type="button"
-              size="lg"
-              variant="outline"
-              className="h-12 rounded-lg border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
-            >
+            <Button type="button" size="lg" variant="outline" className="h-12">
               {t('cancel')}
             </Button>
           </DialogClose>
@@ -267,7 +262,7 @@ const Profile = () => {
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full items-center gap-2 rounded-lg border-4 border-brand-heading bg-brand-fill-outermost font-medium text-white shadow-sm dark:border-brand-stroke-outermost"
+            className="h-12 w-full items-center gap-2 font-medium text-white shadow-sm"
             loading={isUpdatingProfile}
             disabled={!isDirty}
           >

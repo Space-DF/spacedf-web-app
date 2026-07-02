@@ -12,11 +12,15 @@ import { ChartPayload, chartSchema, defaultChartValues } from '@/validator'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Axes from './components/axes'
-import {
-  PreviewChart,
-  dailyOrders,
-  generateData,
-} from './components/preview-chart'
+import dynamic from 'next/dynamic'
+import { dailyOrders, generateData } from './components/preview-chart'
+
+const PreviewChart = dynamic(
+  () => import('./components/preview-chart').then((mod) => mod.PreviewChart),
+  {
+    ssr: false,
+  }
+)
 import ChartSource from './components/sources'
 import TimeFrame from './components/time-frame'
 import ChartWidgetInfo from './components/widget-info'
@@ -24,7 +28,7 @@ import { useCreateWidget } from '@/app/[locale]/[organization]/(dev-protected)/(
 import { useUpdateWidgets } from '@/containers/dashboard/components/widget-list/hooks/useUpdateWidgets'
 import { mergeFormDefaults } from '@/containers/dashboard/components/widget-selected/utils/merge-configuration'
 import { WidgetLayout } from '@/types/widget'
-import { v4 as uuidv4 } from 'uuid'
+import { uuidv4 } from '@/utils'
 import { toast } from 'sonner'
 import { useShowDummyData } from '@/hooks/useShowDummyData'
 import dayjs from 'dayjs'

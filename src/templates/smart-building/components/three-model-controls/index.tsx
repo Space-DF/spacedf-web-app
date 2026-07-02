@@ -4,6 +4,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Pause, Play, RotateCcw, Minus, Plus } from 'lucide-react'
 import { useThreeModelController } from '@/stores/template/three-model-controller'
+import { useShallow } from 'zustand/react/shallow'
 
 interface ThreeModelControlsProps {
   className?: string
@@ -11,14 +12,16 @@ interface ThreeModelControlsProps {
 
 export function ThreeModelControls({ className }: ThreeModelControlsProps) {
   const { zoomIn, zoomOut, resetView, autoRotate, setAutoRotate, hasControls } =
-    useThreeModelController((s) => ({
-      zoomIn: s.zoomIn,
-      zoomOut: s.zoomOut,
-      resetView: s.resetView,
-      autoRotate: s.autoRotate,
-      setAutoRotate: s.setAutoRotate,
-      hasControls: Boolean(s.controls),
-    }))
+    useThreeModelController(
+      useShallow((s) => ({
+        zoomIn: s.zoomIn,
+        zoomOut: s.zoomOut,
+        resetView: s.resetView,
+        autoRotate: s.autoRotate,
+        setAutoRotate: s.setAutoRotate,
+        hasControls: Boolean(s.controls),
+      }))
+    )
 
   if (!hasControls) return null
 
@@ -26,16 +29,16 @@ export function ThreeModelControls({ className }: ThreeModelControlsProps) {
     <div className={cn('flex flex-col gap-1.5', className)}>
       <ControlGroup>
         <ControlButton onClick={zoomIn} label="Zoom in">
-          <Plus className="size-4 text-brand-icon-light-fixed" />
+          <Plus className="size-4 text-primary-foreground" />
         </ControlButton>
         <ControlButton onClick={zoomOut} label="Zoom out">
-          <Minus className="size-4 text-brand-icon-light-fixed" />
+          <Minus className="size-4 text-primary-foreground" />
         </ControlButton>
       </ControlGroup>
 
       <ControlGroup>
         <ControlButton onClick={resetView} label="Reset view">
-          <RotateCcw className="size-4 text-brand-icon-light-fixed" />
+          <RotateCcw className="size-4 text-primary-foreground" />
         </ControlButton>
       </ControlGroup>
 
@@ -45,9 +48,9 @@ export function ThreeModelControls({ className }: ThreeModelControlsProps) {
           label={autoRotate ? 'Stop auto rotate' : 'Auto rotate'}
         >
           {autoRotate ? (
-            <Pause className="size-4 text-brand-icon-light-fixed" />
+            <Pause className="size-4 text-primary-foreground" />
           ) : (
-            <Play className="size-4 text-brand-icon-light-fixed" />
+            <Play className="size-4 text-primary-foreground" />
           )}
         </ControlButton>
       </ControlGroup>
@@ -56,11 +59,7 @@ export function ThreeModelControls({ className }: ThreeModelControlsProps) {
 }
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-md bg-brand-component-stroke-dark shadow-sm overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
-      {children}
-    </div>
-  )
+  return <div className="grid grid-cols-1 gap-y-0.5 p-0.5">{children}</div>
 }
 
 const ControlButton = React.forwardRef<
@@ -80,7 +79,7 @@ const ControlButton = React.forwardRef<
         aria-label={label}
         type="button"
         className={cn(
-          'flex items-center rounded-md justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
+          'flex items-center rounded-button justify-center size-8 hover:bg-primary/40 transition-colors shadow-inset-white border-primary bg-primary',
           disabled && 'opacity-50 pointer-events-none cursor-not-allowed',
           className
         )}

@@ -97,7 +97,7 @@ export function SpaceDelete({ space }: { space: Space }) {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="h-10 rounded-lg border-0 bg-brand-component-fill-dark-soft shadow-none"
+                        className="h-10"
                         {...field}
                         isError={!!fieldState.error}
                       />

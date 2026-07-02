@@ -9,9 +9,8 @@ import {
 } from '@/components/ui/command'
 import { cn } from '@/lib/utils'
 import { type KeyboardEvent, useCallback, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import { isEmail } from '@/utils/common'
-import { useParams } from 'next/navigation'
+import { isEmail, uuidv4 } from '@/utils/common'
+import { useOrganization } from '@/hooks/useOrganization'
 export type Option = Record<'name' | 'email' | 'id', string> &
   Record<string, string>
 
@@ -38,7 +37,7 @@ export const SearchMember = ({
 
   const [isOpen, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState<string>('')
-  const { organization } = useParams()
+  const { organization } = useOrganization()
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
@@ -113,7 +112,7 @@ export const SearchMember = ({
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border rounded-lg focus-within:border-brand-dark-fill-secondary h-10 bg-brand-fill-dark-soft"
+          classNameContainer="border h-10 border-border"
         />
       </div>
       <div className="relative">

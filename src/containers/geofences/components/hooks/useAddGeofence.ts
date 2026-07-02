@@ -3,7 +3,7 @@ import { EventRule, PolygonGeometry } from '@/types/geofence'
 import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
 
 export interface CreateGeofencePayload extends EventRule {
   features: PolygonGeometry[]
@@ -12,20 +12,20 @@ export interface CreateGeofencePayload extends EventRule {
   type_zone: 'safe' | 'danger'
 }
 
-const addGeofence = async (
-  url: string,
-  { arg }: { arg: CreateGeofencePayload }
-) => api.post(url, arg)
-
 export const useAddGeofence = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
   const t = useTranslations('geofence')
-  return useSWRMutation(`/api/geofence?spaceSlug=${spaceSlug}`, addGeofence, {
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (arg: CreateGeofencePayload) =>
+      api.post(`/api/geofence?spaceSlug=${spaceSlug}`, arg),
     onSuccess: () => {
       toast.success(t('geofence_added_successfully'))
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(error.message || t('geofence_added_error'))
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }

@@ -1,22 +1,22 @@
 'use client'
 
-import React from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 
 interface SearchContextType {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const SearchContext = React.createContext<SearchContextType | null>(null)
+const SearchContext = createContext<SearchContextType | null>(null)
 
 interface Props {
   children: React.ReactNode
 }
 
 export function SearchProvider({ children }: Props) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
@@ -35,7 +35,7 @@ export function SearchProvider({ children }: Props) {
 }
 
 export const useSearch = () => {
-  const searchContext = React.useContext(SearchContext)
+  const searchContext = useContext(SearchContext)
 
   if (!searchContext) {
     throw new Error('useSearch has to be used within <SearchContext.Provider>')

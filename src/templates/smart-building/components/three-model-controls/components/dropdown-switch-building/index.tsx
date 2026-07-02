@@ -138,8 +138,10 @@ export function DropdownSwitchBuilding() {
       >
         <SelectTrigger
           aria-label="Switch floor"
-          className="flex h-fit w-56 items-center rounded-lg bg-brand-component-hover-dark dark:bg-brand-component-fill-gray-soft font-medium text-sm text-white shadow-sm transition-colors border-none"
-          icon={<ChevronDown className="size-4 opacity-80" />}
+          className="flex h-fit w-56 items-center rounded-input bg-input font-medium text-sm text-input-foreground shadow-sm transition-colors border-none"
+          icon={
+            <ChevronDown className="size-4 opacity-80 text-muted-foreground" />
+          }
         >
           {building ? (
             <span className="truncate max-w-32">{building.name}</span>
@@ -148,7 +150,7 @@ export function DropdownSwitchBuilding() {
           )}
         </SelectTrigger>
         <SelectContent
-          className="min-w-72 overflow-hidden bg-brand-component-fill-light dark:bg-brand-component-fill-gray-soft p-0 border-none"
+          className="min-w-72 overflow-hidden bg-input p-0 border-none"
           side="bottom"
         >
           <div className="flex max-h-96 flex-col">
@@ -210,7 +212,7 @@ export function DropdownSwitchBuilding() {
                 </div>
               )}
             </div>
-            <div className="shrink-0 bg-brand-component-fill-light dark:bg-brand-component-fill-gray-soft p-1">
+            <div className="shrink-0 p-1">
               <Button
                 type="button"
                 onPointerDown={(e) => e.preventDefault()}

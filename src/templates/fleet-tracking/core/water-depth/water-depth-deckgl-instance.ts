@@ -1,13 +1,13 @@
 import { Device } from '@/stores/device-store'
 import { WaterDepthLevelName } from '@/utils/water-depth'
-import { LayerDataSource } from '@deck.gl/core'
-import { MapboxOverlay } from '@deck.gl/mapbox'
-import * as turf from '@turf/turf'
+import type { LayerDataSource } from '@deck.gl/core'
+import type { MapboxOverlay } from '@deck.gl/mapbox'
+import circleTurf from '@turf/circle'
 import { ColumnLayer, PolygonLayer, ScatterplotLayer, TextLayer } from 'deck.gl'
-import MapLibreGL from 'maplibre-gl'
-import { easeOut, linear } from 'popmotion'
+import type { Map as MapLibreGLMap } from 'maplibre-gl'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import EventEmitter from '@/utils/event'
+import { easeOut, linear } from '@/utils/common'
 
 type SyncDeviceFn = {
   devices: Device[]
@@ -39,7 +39,7 @@ class WaterDepthDeckInstance {
   private static instance: WaterDepthDeckInstance | undefined
 
   //other instance resource
-  private map: MapLibreGL.Map | null = null
+  private map: MapLibreGLMap | null = null
   private globalOverlay: MapboxOverlay | null = null
   private emitter: EventEmitter = new EventEmitter()
 
@@ -487,7 +487,7 @@ class WaterDepthDeckInstance {
     this.emitter.off(event, handler)
   }
 
-  public init(map: MapLibreGL.Map) {
+  public init(map: MapLibreGLMap) {
     if (!map || this.globalOverlay || this.map) return
 
     this.globalOverlay = globalDeckGLInstance.getGlobalOverlay()
@@ -606,7 +606,7 @@ const getPolygonData = (
       const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [
         0, 0,
       ]
-      const circle = turf.circle([lng, lat], radiusKm, {
+      const circle = circleTurf([lng, lat], radiusKm, {
         steps: 64,
         units: 'kilometers',
       })

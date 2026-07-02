@@ -1,20 +1,23 @@
-import useSWRMutation from 'swr/mutation'
 import { useParams } from 'next/navigation'
 import { AutomationParams } from '@/types/automation'
 import api from '@/lib/api'
 import { Automation } from '@/types/automation'
-
-const updateAutomation = (
-  url: string,
-  { arg }: { arg: AutomationParams }
-): Promise<Automation> => {
-  return api.patch(url, arg)
-}
+import { useMutation } from '@tanstack/react-query'
 
 export const useUpdateAutomation = (id?: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  return useSWRMutation(
-    id ? `/api/automations/${id}?spaceSlug=${spaceSlug}` : null,
-    updateAutomation
-  )
+
+  const mutation = useMutation<Automation, Error, AutomationParams>({
+    mutationFn: (arg: AutomationParams) => {
+      if (!id) return Promise.reject(new Error('No automation ID provided'))
+      return api.patch(`/api/automations/${id}?spaceSlug=${spaceSlug}`, arg)
+    },
+  })
+
+  return {
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+  }
 }

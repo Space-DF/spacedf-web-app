@@ -81,7 +81,7 @@ const SwitchSource = () => {
               <PopoverTrigger asChild>
                 <Button
                   className={cn(
-                    'w-full justify-between rounded-lg bg-brand-fill-dark-soft px-3 duration-200 dark:bg-brand-heading font-normal text-sm',
+                    'w-full justify-between rounded-lg border border-border bg-input px-3 duration-200 font-normal text-sm',
                     isError &&
                       'ring-red-600 ring-2 ring-offset-2 bg-brand-component-fill-negative-soft'
                   )}

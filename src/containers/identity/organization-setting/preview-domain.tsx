@@ -1,8 +1,19 @@
-import { AppWireFrame } from '@/components/ui/app-wire-frame'
-import { AppWireFrameDark } from '@/components/ui/app-wire-frame-dark'
 import { usePageTransition } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
+import dynamic from 'next/dynamic'
+
+const AppWireFrame = dynamic(
+  () => import('@/components/ui/app-wire-frame').then((m) => m.AppWireFrame),
+  { ssr: false }
+)
+const AppWireFrameDark = dynamic(
+  () =>
+    import('@/components/ui/app-wire-frame-dark').then(
+      (m) => m.AppWireFrameDark
+    ),
+  { ssr: false }
+)
 
 const PreviewDomain = () => {
   const organizationName = useIdentityStore((state) => state.organizationName)

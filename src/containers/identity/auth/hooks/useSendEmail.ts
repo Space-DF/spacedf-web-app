@@ -1,15 +1,18 @@
 import api from '@/lib/api'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
-import useSWRMutation from 'swr/mutation'
-
-const fetcher = async (url: string, { arg }: { arg: { email: string } }) => {
-  return api.post(url, arg)
-}
+import { useMutation } from '@tanstack/react-query'
 
 export const useSendEmail = () => {
   const t = useTranslations('signUp')
-  return useSWRMutation('/api/auth/confirm-email', fetcher, {
+  const { mutateAsync, isPending } = useMutation<
+    void,
+    Error,
+    { email: string }
+  >({
+    mutationFn: async (arg) => {
+      return api.post('/api/auth/confirm-email', arg)
+    },
     onSuccess: () => {
       toast.success(t('email_sent'))
     },
@@ -17,4 +20,6 @@ export const useSendEmail = () => {
       toast.error(t('email_not_sent'))
     },
   })
+
+  return { trigger: mutateAsync, isMutating: isPending }
 }

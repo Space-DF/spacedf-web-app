@@ -1,14 +1,22 @@
 import api from '@/lib/api'
 import { Automation, AutomationParams } from '@/types/automation'
 import { useParams } from 'next/navigation'
-import useSWRMutation from 'swr/mutation'
-
-const createAutomation = (url: string, { arg }: { arg: AutomationParams }) => {
-  return api.post<Automation>(url, arg)
-}
+import { useMutation } from '@tanstack/react-query'
 
 export const useCreateAutomation = () => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
-  const searchParams = spaceSlug ? `?spaceSlug=${spaceSlug}` : ''
-  return useSWRMutation(`/api/automations${searchParams}`, createAutomation, {})
+
+  const mutation = useMutation<Automation, Error, AutomationParams>({
+    mutationFn: (arg: AutomationParams) => {
+      const searchParams = spaceSlug ? `?spaceSlug=${spaceSlug}` : ''
+      return api.post<Automation>(`/api/automations${searchParams}`, arg)
+    },
+  })
+
+  return {
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+  }
 }

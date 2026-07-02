@@ -17,16 +17,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
-import { VirtualItem } from '@tanstack/react-virtual'
 import Image from 'next/image'
 import { Ellipsis, Trash2 } from 'lucide-react'
 import { Pencil } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import { useDeleteGeofence } from '../../hooks/useDeleteGeofence'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { FeatureId, Geofence } from '@/types/geofence'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 import { useGeofenceMapStore } from '@/stores/geofence-map-store'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
 
@@ -34,19 +34,17 @@ const ROW_HEIGHT = 72
 const ROW_GAP = 8
 
 interface Props {
-  virtualRow: VirtualItem
+  start: number
   item: Geofence
   onSelectGeofence: (geofence: Geofence) => void
-  mutate: () => void
 }
 
 const mapInstance = MapInstance.getInstance()
 
-export const GeofenceItem: React.FC<Props> = ({
-  virtualRow,
+const GeofenceItemComponent: React.FC<Props> = ({
+  start,
   item,
   onSelectGeofence,
-  mutate,
 }) => {
   const tCommon = useTranslations('common')
   const tGeofence = useTranslations('geofence')
@@ -54,13 +52,7 @@ export const GeofenceItem: React.FC<Props> = ({
     useDeleteGeofence(item.id)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  const syncGeofencesToMap = useGeofenceMapStore(
-    (state) => state.syncGeofencesToMap
-  )
-  const geofencesMap = useGeofenceMapStore((state) => state.geofences)
-  const setGeofencesMap = useGeofenceMapStore((state) => state.setGeofences)
-
-  const { clearCacheStartsWith } = useCache()
+  const queryClient = useQueryClient()
 
   const handleOpenDeleteDialog = () => {
     setIsDeleteDialogOpen(true)
@@ -69,10 +61,14 @@ export const GeofenceItem: React.FC<Props> = ({
   const handleConfirmDelete = async () => {
     await deleteGeofence()
     setIsDeleteDialogOpen(false)
+    const {
+      geofences: geofencesMap,
+      setGeofences: setGeofencesMap,
+      syncGeofencesToMap,
+    } = useGeofenceMapStore.getState()
     const newGeofences = geofencesMap.filter((g) => g.id !== item.id)
     setGeofencesMap(newGeofences)
-    clearCacheStartsWith('/api/geofence')
-    await mutate()
+    queryClient.invalidateQueries({ queryKey: queryKeys.geofences.all })
     const draw = mapInstance.getTerraDraw()
     if (draw) {
       const featureIds = draw
@@ -93,13 +89,13 @@ export const GeofenceItem: React.FC<Props> = ({
       style={{
         height: `${ROW_HEIGHT}px`,
         marginBottom: `${ROW_GAP}px`,
-        transform: `translateY(${virtualRow.start}px)`,
+        transform: `translateY(${start}px)`,
       }}
     >
       <div className="flex min-w-0 items-center gap-3">
         <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border border-brand-component-stroke-dark-soft bg-brand-fill-surface">
           <Image
-            src="/images/map.svg"
+            src="/images/map.webp"
             alt="geofence"
             fill
             className="object-cover opacity-60"
@@ -172,6 +168,9 @@ export const GeofenceItem: React.FC<Props> = ({
     </div>
   )
 }
+
+export const GeofenceItem = memo(GeofenceItemComponent)
+GeofenceItem.displayName = 'GeofenceItem'
 
 export const GeofenceRowSkeleton = () => (
   <div

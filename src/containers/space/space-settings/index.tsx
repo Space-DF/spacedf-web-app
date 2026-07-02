@@ -5,7 +5,6 @@ import { SpacePreviewImage } from './space-preview-image'
 import { SpaceSettings } from './space-settings'
 import { useParams } from 'next/navigation'
 
-import EffectLayout from '@/components/ui/effect-layout'
 import { useGetSpaceDetails } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/spaces/hooks'
 
 export default function WorkspaceSettings() {
@@ -23,16 +22,14 @@ export default function WorkspaceSettings() {
   }
 
   return (
-    <EffectLayout>
-      {spaceDetail && (
-        <div className="relative flex min-h-dvh bg-brand-background-fill-surface">
-          <SpacePreviewImage />
-          <SpaceSettings
-            spaceDetail={spaceDetail}
-            mutateSpaceDetails={mutateSpaceDetails}
-          />
-        </div>
-      )}
-    </EffectLayout>
+    spaceDetail && (
+      <div className="relative flex min-h-dvh bg-brand-background-fill-surface">
+        <SpacePreviewImage />
+        <SpaceSettings
+          spaceDetail={spaceDetail}
+          mutateSpaceDetails={mutateSpaceDetails}
+        />
+      </div>
+    )
   )
 }

@@ -5,7 +5,7 @@ import { GaugeType } from '@/widget-models/gauge'
 import { useAnimationFrame } from 'framer-motion'
 import { Triangle } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts'
 
 const GaugeComponent = dynamic(() => import('react-gauge-component'), {
@@ -37,7 +37,7 @@ interface LinearChartProps extends CircularChartProps {
   height: number
 }
 
-const CircularChart: React.FC<CircularChartProps> = ({
+const CircularChart: FC<CircularChartProps> = ({
   value,
   unit,
   decimal = 0,
@@ -141,7 +141,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
   )
 }
 
-const LinearChart: React.FC<LinearChartProps> = ({
+const LinearChart: FC<LinearChartProps> = ({
   value,
   min = 0,
   max = 100,
@@ -309,7 +309,7 @@ const formatRangesValue = (min: number, values: GaugeValue[]) => {
   return ranges
 }
 
-const PreviewGauge: React.FC<Props> = ({
+const PreviewGauge: FC<Props> = ({
   type,
   decimal,
   unit,

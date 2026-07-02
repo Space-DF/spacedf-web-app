@@ -14,7 +14,9 @@ interface GeofenceMapStore {
   started: boolean
   clearRendered: () => void
   setGeofences: (geofences: Geofence[]) => void
-  syncGeofencesToMap: (options?: { forceRedraw?: boolean }) => void
+  syncGeofencesToMap: (options?: {
+    forceRedraw?: boolean
+  }) => Promise<void> | void
   clearDirtyFeatureIds: () => void
   geofenceFeatureIds: FeatureId[]
   selectedGeofence?: Geofence
@@ -65,10 +67,10 @@ export const useGeofenceMapStore = create<GeofenceMapStore>((set, get) => ({
         .flatMap((g) => g.features.map((f) => String(f.properties.id ?? '')))
         .filter(Boolean),
     }),
-  syncGeofencesToMap: (options) => {
+  syncGeofencesToMap: async (options) => {
     const forceRedraw = options?.forceRedraw ?? false
     const map = mapInstance.getMap()
-    const draw = mapInstance.getTerraDraw()
+    const draw = await mapInstance.initTerraDraw()
     if (!draw || !map) return
 
     if (!map.isStyleLoaded()) {

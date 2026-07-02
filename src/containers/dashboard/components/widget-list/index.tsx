@@ -47,12 +47,20 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useDebounce } from '@/hooks/useDebounce'
-import DashboardTable from './components/dashboard-table'
-import { DashboardDialog } from './components/dashboard-dialog'
 import { Dashboard } from '@/types/dashboard'
 import { sleep } from '@/utils'
 import { useGlobalStore } from '@/stores'
 import { useParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+const DashboardTable = dynamic(() => import('./components/dashboard-table'), {
+  ssr: false,
+})
+
+const DashboardDialog = dynamic(
+  () => import('./components/dashboard-dialog').then((m) => m.DashboardDialog),
+  { ssr: false }
+)
 
 interface Props {
   onCloseSideBar: () => void
@@ -87,7 +95,19 @@ export const WidgetList: React.FC<Props> = ({
     setEdit,
     dashboard,
     setDashboard,
-  } = useDashboardStore()
+  } = useDashboardStore(
+    useShallow((state) => ({
+      isViewAllDashboard: state.isViewAllDashboard,
+      setViewAllDashboard: state.setViewAllDashboard,
+      deleteId: state.deleteId,
+      setDeleteId: state.setDeleteId,
+      isEdit: state.isEdit,
+      setEdit: state.setEdit,
+      dashboard: state.dashboard,
+      setDashboard: state.setDashboard,
+    }))
+  )
+
   const t = useTranslations()
   const setOpenDrawerIdentity = useIdentityStore(
     (state) => state.setOpenDrawerIdentity
@@ -127,14 +147,17 @@ export const WidgetList: React.FC<Props> = ({
   }
 
   const currentWidgetLayout = useMemo(() => {
-    const widgets =
+    return (
       widgetList.map((widget) => ({
         ...widget.configuration,
         widgetId: widget.id,
       })) || []
-    setWidgets(widgets)
-    return widgets
+    )
   }, [widgetList])
+
+  useEffect(() => {
+    setWidgets(currentWidgetLayout)
+  }, [currentWidgetLayout])
 
   const setLayouts = useScreenLayoutStore((state) => state.setLayouts)
 
@@ -207,10 +230,10 @@ export const WidgetList: React.FC<Props> = ({
     }
   }
 
-  const handleSelectDashboard = (dashboard: Dashboard) => {
+  const handleSelectDashboard = useCallback((dashboard: Dashboard) => {
     setSelectedDashboard(dashboard)
     setIsOpenDashboardDialog(true)
-  }
+  }, [])
 
   const handleCloseDashboardDialog = async () => {
     setOpen(false)
@@ -247,8 +270,10 @@ export const WidgetList: React.FC<Props> = ({
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
+                  aria-labelledby="dashboard-combobox"
+                  aria-label="dashboard-label"
                   className={cn(
-                    'line-clamp-1 border-none flex h-8 justify-between gap-2 whitespace-normal px-2 py-1 text-brand-component-text-dark bg-brand-component-fill-dark-soft dark:bg-brand-background-fill-surface',
+                    'line-clamp-1 border flex h-8 border-border justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
                     {
                       'border-brand-component-stroke-dark shadow-dashboard':
                         open,
@@ -258,13 +283,13 @@ export const WidgetList: React.FC<Props> = ({
                   <div className="line-clamp-1 w-full flex-1 text-left">
                     {currentDashboardName}
                   </div>
-                  <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                  <ChevronsUpDown className="size-4 shrink-0 opacity-50 text-muted-foreground" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-60 rounded-lg p-2" align="start">
                 <Command shouldFilter={false}>
                   <CommandInput
-                    classNameContainer="border-0 rounded-lg bg-brand-fill-dark-soft"
+                    classNameContainer=""
                     placeholder={t('dashboard.search')}
                     onValueChange={setSearchDashboard}
                     value={searchDashboard}
@@ -312,7 +337,7 @@ export const WidgetList: React.FC<Props> = ({
                     </CommandGroup>
                     <Separator className="my-3" />
                     <Button
-                      className="mb-3 h-8 w-full gap-2 rounded-lg text-sm font-semibold text-brand-text-gray"
+                      className="mb-3 h-8 w-full gap-2 text-sm font-semibold"
                       variant="outline"
                       onClick={handleViewAllDashboard}
                     >
@@ -321,7 +346,7 @@ export const WidgetList: React.FC<Props> = ({
                     </Button>
 
                     <Button
-                      className="h-8 w-full gap-2 rounded-lg text-sm font-semibold"
+                      className="h-8 w-full gap-2 text-sm font-semibold"
                       onClick={handleOpenDashboardDialog}
                     >
                       {t('dashboard.create_new_dashboard')}
@@ -353,7 +378,7 @@ export const WidgetList: React.FC<Props> = ({
               {isEdit && (
                 <div className="mb-6 flex flex-col items-center gap-3">
                   <Button
-                    className="h-12 w-full items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-dark font-semibold text-white dark:border-brand-component-stroke-light"
+                    className="h-12 w-full items-center gap-2"
                     onClick={() => setIsAddWidgetOpen(true)}
                   >
                     {t('dashboard.add_widget')}

@@ -1,32 +1,22 @@
-import useSWRMutation from 'swr/mutation'
+import { useMutation } from '@tanstack/react-query'
+import api from '@/lib/api'
 
 interface SocialAuthResponse {
   redirectUrl: string
 }
 
-const fetcher = async (
-  url: string,
-  {
-    arg,
-  }: {
-    arg: {
-      provider: 'google' | 'apple'
-    }
-  }
-): Promise<SocialAuthResponse> => {
-  const { provider } = arg
-  const response = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({
-      provider,
-      callback_url: window?.location.href || '',
-    }),
+export const useSocialAuth = () => {
+  const { mutateAsync, isPending } = useMutation<
+    SocialAuthResponse,
+    Error,
+    { provider: 'google' | 'apple' }
+  >({
+    mutationFn: (arg) =>
+      api.post<SocialAuthResponse>('/api/auth/social', {
+        provider: arg.provider,
+        callback_url: typeof window !== 'undefined' ? window.location.href : '',
+      }),
   })
-  const data = await response.json()
-  if (!response.ok) {
-    throw data
-  }
-  return data
-}
 
-export const useSocialAuth = () => useSWRMutation('/api/auth/social', fetcher)
+  return { trigger: mutateAsync, isMutating: isPending }
+}

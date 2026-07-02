@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { useAuthForm } from './stores/useAuthForm'
 import { useResetPassword } from './hooks/useResetPassword'
 import { useSearchParams } from 'next/navigation'
+import { useCustomPage } from './hooks/useCustomPage'
 
 type CreateNewPasswordFormValues = z.infer<typeof createNewPasswordSchema>
 
@@ -27,6 +28,8 @@ export const CreateNewPasswordForm = () => {
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
 
   const setFormType = useAuthForm((state) => state.setFormType)
+
+  const customPage = useCustomPage('change_password')
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -49,11 +52,14 @@ export const CreateNewPasswordForm = () => {
     <div className="mt-6">
       <div className="space-y-6 w-full animate-opacity-display-effect self-start">
         <div className="space-y-2 text-center">
-          <p className="text-3xl font-semibold">{t('create_new_password')}</p>
-          <p className="text-brand-component-text-gray text-[14px]">
-            {t(
-              'create_your_new_password_if_you_forget_it_then_you_have_to_do_forget_password'
-            )}
+          <p className="text-3xl font-semibold">
+            {customPage?.title || t('create_new_password')}
+          </p>
+          <p className="text-muted-foreground text-[14px]">
+            {customPage?.subtitle ||
+              t(
+                'create_your_new_password_if_you_forget_it_then_you_have_to_do_forget_password'
+              )}
           </p>
         </div>
         <Form {...form}>

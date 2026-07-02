@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { ChevronRight, Search } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { useTranslations } from 'next-intl'
-import { InputWithIcon } from '@/components/ui/input'
+import { DebouncedSearchInput } from '@/components/common/debounced-search-input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Nodata } from '@/components/ui/no-data'
@@ -13,7 +13,6 @@ import { useEvents } from '../hooks/useEvents'
 import { useTripAddress } from './trip-history/hooks/useTripAddress'
 import { useEventStore } from '../stores/event'
 import { mergeEvents } from '@/containers/devices/utils'
-import { useDebounce } from '@/hooks'
 
 interface ListEventProps {
   deviceId: string
@@ -21,8 +20,11 @@ interface ListEventProps {
 
 const ListEvent = ({ deviceId }: ListEventProps) => {
   const t = useTranslations('event')
-  const [searchValue, setSearchValue] = useState('')
-  const searchDebouncedValue = useDebounce(searchValue, 500)
+  const [searchDebouncedValue, setSearchDebouncedValue] = useState('')
+  const handleSearch = useCallback(
+    (value: string) => setSearchDebouncedValue(value),
+    []
+  )
   const [openAllEvent, setOpenAllEvent] = useState(false)
   const { data: events, isLoading } = useEvents(deviceId, searchDebouncedValue)
 
@@ -68,7 +70,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
   )
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 bg-background">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <Label className="text-brand-component-text-dark text-sm font-semibold">
@@ -89,13 +91,11 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
           {t('see_all')} <ChevronRight className="size-4 p-0" />
         </Button>
       </div>
-      <InputWithIcon
-        type="text"
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
+      <DebouncedSearchInput
+        onSearch={handleSearch}
         placeholder="Search for events"
-        prefixCpn={<Search size={14} />}
-        wrapperClass="w-full"
+        delay={500}
+        iconSize={14}
       />
       <div className="space-y-1">
         {isLoading ? (
@@ -114,7 +114,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
       </div>
 
       <Slide
-        className="w-full bg-brand-fill-surface dark:bg-brand-fill-outermost p-0"
+        className="w-full bg-background p-0"
         open={openAllEvent}
         direction="right"
         size="100%"

@@ -162,7 +162,7 @@ const Column: React.FC<ColumnProps> = ({
           <div className="flex items-center border-b border-brand-component-stroke-dark-soft bg-brand-component-fill-gray-soft">
             <div className="flex w-full items-center justify-between pl-3 text-sm font-semibold">
               <div className="flex items-center gap-2">
-                <Drag />
+                <Drag className="text-muted-foreground" />
                 <p>#{index + 1}</p>
               </div>
               <Trash
@@ -172,12 +172,13 @@ const Column: React.FC<ColumnProps> = ({
                   e.stopPropagation()
                   setOpenDialog(true)
                 }}
+                className="text-muted-foreground"
               />
             </div>
             <AccordionTrigger
               className="p-3 pl-2 text-sm font-semibold hover:no-underline"
               dropdownIcon={
-                <ChevronDown className="h-5 w-5 shrink-0 text-brand-icon-gray transition-transform duration-200" />
+                <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200" />
               }
             />
           </div>
@@ -267,7 +268,7 @@ const Column: React.FC<ColumnProps> = ({
                       value={field.value || ''}
                       onValueChange={(newValue) => handleFieldChange(newValue)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border border-border">
                         <SelectValue placeholder="Select Field" />
                       </SelectTrigger>
                       <SelectContent>{renderedFieldOptions}</SelectContent>

@@ -35,8 +35,13 @@ import {
   GROUP_LABEL,
 } from '@/containers/automation-settings/contanst'
 import { AddConditionDropdown } from './add-condition-dropdown'
-import { EditYamlPanel } from './edit-yaml-dialog'
 import { useTranslations } from 'next-intl'
+import dynamic from 'next/dynamic'
+
+const EditYamlPanel = dynamic(
+  () => import('./edit-yaml-dialog').then((m) => m.EditYamlPanel),
+  { ssr: false }
+)
 import { useAutomationStore } from '../stores/automation'
 import { useShallow } from 'zustand/react/shallow'
 import { RenderCondition } from './render-condition'

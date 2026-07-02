@@ -38,6 +38,9 @@
   "entity_count": "{count} entities",
   "entity_list_help_label": "About available entities",
   "entity_list_help": "You can change the visibility of a device's entity on digital twins by checking or unchecking the entity list below.",
+  "entity_temperature": "Temperature",
+  "entity_humidity": "Humidity",
+  "entity_weight": "Weight",
   "entities_saved_successfully": "Entity visibility updated",
   "entities_save_failed": "Could not update entity visibility"
 }

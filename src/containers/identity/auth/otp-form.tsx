@@ -28,7 +28,7 @@ import { useSearchParams } from 'next/navigation'
 import useSignUp from './hooks/useSignUp'
 import { signIn } from 'next-auth/react'
 import { cn } from '@/lib/utils'
-import { useCache } from '@/hooks/useCache'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const OTPSchema = z.object({
   otp: z.string().min(6, {
@@ -52,7 +52,7 @@ const OTPForm = () => {
     }))
   )
 
-  const { clearAllCache } = useCache()
+  const queryClient = useQueryClient()
 
   const { trigger: triggerSignUp, isMutating: isMutatingSignUp } = useSignUp()
 
@@ -102,7 +102,7 @@ const OTPForm = () => {
       signUpSuccessfully: true,
       dataUser: JSON.stringify(res),
     })
-    clearAllCache()
+    queryClient.clear()
     setOpenDrawer(false)
     if (!token) {
       setOpenGuideline(true)

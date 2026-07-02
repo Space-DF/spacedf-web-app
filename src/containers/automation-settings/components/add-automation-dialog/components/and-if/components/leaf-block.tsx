@@ -22,10 +22,14 @@ import {
 import { Copy, Duplicate } from '@/components/icons'
 import { Separator } from '@/components/ui/separator'
 import { useFormContext } from 'react-hook-form'
-import { EditYamlPanel } from './edit-yaml-dialog'
 import { useTranslations } from 'next-intl'
+import dynamic from 'next/dynamic'
+
+const EditYamlPanel = dynamic(
+  () => import('./edit-yaml-dialog').then((m) => m.EditYamlPanel),
+  { ssr: false }
+)
 import { useAutomationStore } from '../stores/automation'
-import { useShallow } from 'zustand/react/shallow'
 import { LeafRow } from './leaf-row'
 import { uppercaseFirstLetter } from '@/utils'
 import { useAutomationDialogPopoverPortal } from '../../../automation-dialog-popover-portal-context'
@@ -53,10 +57,8 @@ export const LeafBlock = ({
 }: LeafBlockProps) => {
   const [isEditingYaml, setIsEditingYaml] = useState(false)
   const { setValue } = useFormContext<AddAutomationFormValues>()
-  const { setCurrentCondition } = useAutomationStore(
-    useShallow((state) => ({
-      setCurrentCondition: state.setCurrentCondition,
-    }))
+  const setCurrentCondition = useAutomationStore(
+    (state) => state.setCurrentCondition
   )
   const t = useTranslations('automation')
   const popoverPortal = useAutomationDialogPopoverPortal()
