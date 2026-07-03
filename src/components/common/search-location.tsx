@@ -105,7 +105,7 @@ export function SearchLocation({ map, className }: SearchLocationProps) {
             onFocus={handleFocus}
             placeholder="Search Location"
             className={cn(
-              'h-10 flex-1 min-w-0 text-sm outline-none placeholder:text-brand-component-text-gray bg-input text-input-foreground'
+              'h-10 flex-1 min-w-0 text-sm outline-none placeholder:text-brand-component-text-gray rounded-button bg-input text-input-foreground'
             )}
             aria-label="Search location"
             aria-autocomplete="list"
