@@ -9,6 +9,8 @@ const withBundle = withBundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 
+const isHasAuthApi = !!process.env.AUTH_API
+
 const nextConfig = {
   reactStrictMode: false,
   output: 'standalone',
@@ -19,49 +21,52 @@ const nextConfig = {
     },
   ],
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 's3-alpha-sig.figma.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'my-bucketprofile.s3.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'my-bucketprofile.s3.us-east-1.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname:
-          'spacedf-s3-1f841081-c8e98ef7bb21.s3.ap-southeast-1.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'spacedf-s3-1f841081-c8e98ef7bb21.s3.amazonaws.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'flagcdn.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img.freepik.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'github.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'd3f53s68dquwpy.cloudfront.net',
-      },
-      {
-        protocol: 'https',
-        hostname: process.env.AUTH_API?.replace('https://', ''),
-      },
-    ],
+    remotePatterns: isHasAuthApi
+      ? [
+          {
+            protocol: 'https',
+            hostname: 's3-alpha-sig.figma.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'my-bucketprofile.s3.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'my-bucketprofile.s3.us-east-1.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname:
+              'spacedf-s3-1f841081-c8e98ef7bb21.s3.ap-southeast-1.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'spacedf-s3-1f841081-c8e98ef7bb21.s3.amazonaws.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'flagcdn.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'img.freepik.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'github.com',
+          },
+          {
+            protocol: 'https',
+            hostname: 'd3f53s68dquwpy.cloudfront.net',
+          },
+          {
+            protocol: 'https',
+            hostname: process.env.AUTH_API?.replace('https://', ''),
+          },
+        ]
+      : [],
+    unoptimized: !isHasAuthApi,
   },
   async headers() {
     return [
