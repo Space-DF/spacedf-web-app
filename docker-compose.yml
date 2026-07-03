@@ -11,6 +11,9 @@ services:
       #These variables for API endpoint
       AUTH_API: ${DASHBOARD_AUTH_API}
 
+      #These variables for Push Notifications
+      NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+
       #These variables for MQTT dashboard (optional)
       DASHBOARD_MQTT_USERNAME: ${DASHBOARD_MQTT_USERNAME}
       DASHBOARD_MQTT_PASSWORD: ${DASHBOARD_MQTT_PASSWORD}
