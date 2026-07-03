@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { BuildingPlus, Trash2 } from '@/components/icons'
 import { DialogUpload } from '../../../dialog-upload'
 import { useAddDeviceStore } from '@/stores/template/add-device'
+import { useDeviceStore } from '@/stores/device-store'
 import { useShallow } from 'zustand/react/shallow'
 import Pen from '@/components/icons/pen'
 import type { Building } from '@/types/building'
@@ -40,6 +41,7 @@ export function DropdownSwitchBuilding() {
       setBuilding: state.setBuilding,
     }))
   )
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
   const buildingsData = useMemo(() => {
     return buildings?.results || []
   }, [buildings])
@@ -105,6 +107,9 @@ export function DropdownSwitchBuilding() {
   }
 
   const handleSelectBuilding = (value: string) => {
+    if (value !== building?.id) {
+      setDeviceSelected('')
+    }
     setBuilding(buildingsData.find((item) => item.id === value))
     setSelectOpen(false)
   }
