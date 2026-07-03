@@ -92,10 +92,12 @@ export function FitOnRefocus({
 
       const run = () => {
         const box = new Box3().setFromObject(obj)
+        const isInitialFit = !hasSavedInitialRef.current
         fitToBox(box, {
           durationMs: 800,
+          resetOrientation: isInitialFit,
           onComplete: () => {
-            if (!hasSavedInitialRef.current) {
+            if (isInitialFit) {
               controls.saveState()
               hasSavedInitialRef.current = true
             }

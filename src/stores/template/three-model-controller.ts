@@ -21,7 +21,12 @@ type ThreeModelControllerState = {
   ) => void
   fitToBox: (
     box: Box3,
-    opts?: { durationMs?: number; margin?: number; onComplete?: () => void }
+    opts?: {
+      durationMs?: number
+      margin?: number
+      resetOrientation?: boolean
+      onComplete?: () => void
+    }
   ) => void
 }
 
@@ -214,7 +219,11 @@ export const useThreeModelController = create<ThreeModelControllerState>()(
         distance = margin * Math.max(fitHeightDistance, fitWidthDistance)
       }
 
-      const dir = startCam.clone().sub(startTarget)
+      // On a fresh model (switch/first load) snap back to the default
+      // front orientation instead of inheriting the user's rotated angle.
+      const dir = opts?.resetOrientation
+        ? new Vector3(0, 0, 1)
+        : startCam.clone().sub(startTarget)
       if (dir.lengthSq() < 1e-12) {
         dir.set(0, 0, 1)
       } else {
