@@ -12,6 +12,7 @@ import { useAuthenticated } from '@/hooks/useAuthenticated'
 export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   const isFirstLoadRef = useRef(true)
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
+  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading)
   const bBoxDebounce = useBBoxDebounce()
   const { setInitializedSuccess, clearDeviceModels, setDevicesFleetTracking } =
     useDeviceStore(
@@ -34,8 +35,14 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
     setDevicesFleetTracking(devices)
   }, [deviceSpaces, isLoadingDevices])
 
+  console.log({ isGlobalLoading })
+
   useEffect(() => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) {
+      setInitializedSuccess(true)
+      setGlobalLoading(false)
+      return
+    }
     if (isFirstLoadRef.current) {
       if (isLoadingDevices || !spaceSlug) {
         setGlobalLoading(true)
