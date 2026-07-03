@@ -37,6 +37,7 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (!isAuthenticated) {
       setInitializedSuccess(true)
+      setGlobalLoading(false)
       return
     }
     if (isFirstLoadRef.current) {
