@@ -59,7 +59,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: process.env.NEXT_PUBLIC_AUTH_API?.replace('https://', ''),
+        hostname: process.env.AUTH_API?.replace('https://', ''),
       },
     ],
   },
