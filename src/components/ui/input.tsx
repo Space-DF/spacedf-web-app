@@ -43,7 +43,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <input
               type={type}
               className={cn(
-                'flex h-full w-full text-input-foreground rounded-input border-none py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium focus-visible:border-none focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 bg-input placeholder:text-muted-foreground',
+                'flex h-full w-full text-input-foreground rounded-input border-none py-2 text-sm shadow-none outline-none file:bg-transparent file:text-sm file:font-medium focus-within:border-ring focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-0 bg-input placeholder:text-muted-foreground',
                 isError &&
                   '!ring-red-600 ring-2 ring-offset-2 bg-brand-component-fill-negative-soft'
               )}
@@ -58,10 +58,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              'flex h-9 w-full rounded-input text-input-foreground border border-border bg-input px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-brand-component-text-gray focus-visible:outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:ring-brand-stroke-outermost',
+              'flex h-9 w-full rounded-input text-input-foreground border border-border bg-input px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-brand-component-text-gray focus:outline-none focus:border-[hsl(var(--primary))] focus:ring-2 focus:!ring-offset-0 focus:ring-[color:color-mix(in_srgb,hsl(var(--primary))_40%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-brand-heading dark:ring-brand-stroke-outermost',
               className,
               isError &&
-                'ring-red-600 ring-1 ring-offset-1 focus-visible:ring-red-600 focus-visible:ring-1 focus-visible:ring-offset-1 bg-brand-component-fill-negative-soft'
+                'ring-red-600 ring-1 ring-offset-1 focus:ring-red-600 focus:ring-1 focus:ring-offset-1 bg-brand-component-fill-negative-soft'
             )}
             ref={ref}
             {...props}

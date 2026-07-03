@@ -10,6 +10,8 @@ import queryString from 'query-string'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/query-keys'
 
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+
 export const SWR_GET_DEVICE_ENDPOINT = '/api/devices'
 
 export function getDevices<T>(url: string): Promise<T> {
@@ -41,6 +43,7 @@ function buildDevicesUrl(
 
 export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
+  const isAuthenticated = useAuthenticated()
   const queryKey = [
     ...queryKeys.devices.list(),
     spaceSlug,
@@ -51,7 +54,7 @@ export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
 
   const infinite = useInfiniteQuery({
     queryKey,
-    enabled: Boolean(spaceSlug),
+    enabled: Boolean(spaceSlug) && isAuthenticated,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
       const offset = typeof pageParam === 'number' ? pageParam : 0

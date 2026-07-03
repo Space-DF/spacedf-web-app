@@ -270,7 +270,7 @@ const GeofenceControls = () => {
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-md bg-brand-component-stroke-dark shadow-sm overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
+    <div className="overflow-hidden grid grid-cols-1 gap-y-0.5 p-0.5">
       {children}
     </div>
   )
@@ -296,10 +296,10 @@ function ControlButton({
       aria-pressed={active}
       type="button"
       className={cn(
-        'rounded-md flex items-center justify-center size-8 hover:bg-brand-component-fill-dark/40 transition-colors shadow-inset-white border-brand-component-stroke-dark bg-brand-component-fill-dark dark:bg-brand-component-fill-secondary dark:hover:bg-brand-component-fill-secondary/40',
-        active && 'bg-brand-component-fill-gray',
+        'rounded-button flex items-center justify-center size-8 hover:bg-primary/40 transition-colors bg-primary',
+        active && 'bg-primary/80',
         disabled &&
-          'opacity-50 pointer-events-none cursor-not-allowed bg-brand-component-fill-gray'
+          'opacity-50 pointer-events-none cursor-not-allowed bg-primary/80'
       )}
       disabled={disabled}
     >
