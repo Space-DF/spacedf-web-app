@@ -8,11 +8,13 @@ import { useShallow } from 'zustand/react/shallow'
 import { useLoadModel } from '../../hooks/useLoadModel'
 import { useParams } from 'next/navigation'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { useGetSpaces } from '@/app/[locale]/[organization]/(dev-protected)/(withAuth)/spaces/hooks'
+
+const REDIRECT_FALLBACK_TIMEOUT = 5000
 
 export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
   const isFirstLoadRef = useRef(true)
   const setGlobalLoading = useGlobalStore((state) => state.setGlobalLoading)
-  const isGlobalLoading = useGlobalStore((state) => state.isGlobalLoading)
   const bBoxDebounce = useBBoxDebounce()
   const { setInitializedSuccess, clearDeviceModels, setDevicesFleetTracking } =
     useDeviceStore(
@@ -26,6 +28,8 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
     bbox: bBoxDebounce,
   })
   const isAuthenticated = useAuthenticated()
+  const { data: spaces, isLoading: isLoadingSpaces } = useGetSpaces()
+  const spaceList = spaces?.data?.results || []
 
   const { spaceSlug } = useParams<{ spaceSlug: string }>()
 
@@ -35,7 +39,9 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
     setDevicesFleetTracking(devices)
   }, [deviceSpaces, isLoadingDevices])
 
-  console.log({ isGlobalLoading })
+  const isLoadingFirstPaint = spaceSlug
+    ? isLoadingDevices
+    : isLoadingSpaces || spaceList.length > 0
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -44,16 +50,32 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
       return
     }
     if (isFirstLoadRef.current) {
-      if (isLoadingDevices || !spaceSlug) {
-        setGlobalLoading(true)
-      } else {
-        setGlobalLoading(false)
+      setGlobalLoading(isLoadingFirstPaint)
+      if (!isLoadingFirstPaint) {
         isFirstLoadRef.current = false
       }
     }
 
     setInitializedSuccess(!isLoadingDevices)
-  }, [isLoadingDevices, isAuthenticated, spaceSlug])
+  }, [isLoadingFirstPaint])
+
+  const isWaitingForRedirect =
+    isAuthenticated &&
+    isFirstLoadRef.current &&
+    !spaceSlug &&
+    !isLoadingSpaces &&
+    spaceList.length > 0
+
+  useEffect(() => {
+    if (!isWaitingForRedirect) return
+    const timeoutId = setTimeout(() => {
+      if (isFirstLoadRef.current) {
+        isFirstLoadRef.current = false
+        setGlobalLoading(false)
+      }
+    }, REDIRECT_FALLBACK_TIMEOUT)
+    return () => clearTimeout(timeoutId)
+  }, [isWaitingForRedirect, setGlobalLoading])
 
   useLoadModel()
 

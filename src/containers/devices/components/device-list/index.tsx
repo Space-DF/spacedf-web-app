@@ -140,7 +140,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 h-full overflow-hidden">
+    <div className="flex flex-1 flex-col gap-4 h-full">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-foreground">{t('devices_list')}</div>
         <div className="flex space-x-1 items-center">

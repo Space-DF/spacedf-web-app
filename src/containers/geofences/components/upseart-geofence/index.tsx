@@ -241,16 +241,10 @@ const UpsertGeofence = ({ isOpen, onClose, mutate }: UpsertGeofenceProps) => {
               onTabChange={(tab) => setCurrentTab(tab as 'info' | 'condition')}
               tabContents={
                 <>
-                  <TabsContent
-                    value="info"
-                    className="mt-4 flex-1 overflow-y-scroll px-4"
-                  >
+                  <TabsContent value="info" className="mt-4 flex-1 px-4">
                     <GeofenceInfo />
                   </TabsContent>
-                  <TabsContent
-                    value="condition"
-                    className="mt-4 flex-1 overflow-y-scroll px-4"
-                  >
+                  <TabsContent value="condition" className="mt-4 flex-1 px-4">
                     <GeofenceCondition />
                   </TabsContent>
                 </>
