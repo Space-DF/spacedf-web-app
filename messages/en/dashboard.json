@@ -4,6 +4,8 @@
   "view_all_dashboard": "View all dashboards",
   "all_dashboard": "All Dashboards",
   "create_new_dashboard": "Create new dashboard",
+  "dashboard_limit_reached": "Your organization has reached its current plan limit. Contact your organization administrator to upgrade the plan.",
+  "select_dashboard": "Select Dashboard",
   "name": "Name",
   "total_devices": "Total Devices",
   "total_members": "Total members",
