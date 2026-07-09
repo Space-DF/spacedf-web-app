@@ -69,7 +69,7 @@ export const DashboardList = ({
   const isPro = useOrganizationValidationStore((state) => state.isPro)
   const isAuthenticated = useAuthenticated()
 
-  const currentDashboardName = dashboard?.name || 'Select Dashboard'
+  const currentDashboardName = dashboard?.name || t('select_dashboard')
 
   const isReachDashboardLimit =
     !isPro && totalDashboardsCount >= MAX_DASHBOARD_FREE_LIMIT
