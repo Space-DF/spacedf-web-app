@@ -7,6 +7,7 @@ export type OrganizationValidationSnapshot = {
   template: string
   isSmartBuilding?: boolean
   setting?: OrganizationSetting
+  isPro?: boolean
 }
 
 type OrganizationValidationStore = OrganizationValidationSnapshot & {
@@ -22,6 +23,7 @@ const initial: OrganizationValidationSnapshot & { hasHydrated: boolean } = {
   hasHydrated: false,
   isSmartBuilding: false,
   setting: undefined,
+  isPro: false,
 }
 
 export const useOrganizationValidationStore =

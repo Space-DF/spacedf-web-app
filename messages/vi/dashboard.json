@@ -4,6 +4,7 @@
   "view_all_dashboard": "Xem toàn bộ Bảng điều khiển",
   "all_dashboard": "Toàn bộ Bảng điều khiển",
   "create_new_dashboard": "Tạo mẫu Bảng điều khiển",
+  "dashboard_limit_reached": "Tổ chức của bạn đã đạt giới hạn của gói hiện tại. Vui lòng liên hệ quản trị viên tổ chức để nâng cấp gói.",
   "name": "Tên",
   "total_devices": "Tổng số thiết bị",
   "total_members": "Tổng số người dùng",
