@@ -265,9 +265,9 @@ export function generateThemeStyles(setting?: OrganizationSetting): string {
 
     styles += `
 :root, .dark {
-  --radius: ${cardRadius}px;
   --button-radius: ${buttonRadius}px;
   --input-radius: ${inputRadius}px;
+  --radius-card: ${cardRadius}px;
 }
 `
   }

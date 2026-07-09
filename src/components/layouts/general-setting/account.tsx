@@ -90,7 +90,7 @@ const Account = () => {
           form.reset()
           toast.success(t('update_password_success'))
           closeDialog()
-          setCurrentSetting('profile')
+          setCurrentSetting('general')
         },
         onError: (error) => {
           toast.error(error.message || t('update_password_error'))

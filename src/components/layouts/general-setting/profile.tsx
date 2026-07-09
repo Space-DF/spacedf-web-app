@@ -1,22 +1,5 @@
-import { Building, UserList } from '@/components/icons'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import ImageWithBlur from '@/components/ui/image-blur'
-import { InputWithIcon } from '@/components/ui/input'
-import { CloudUpload, MapPin, UserRound } from 'lucide-react'
-import React, {
-  ChangeEvent,
-  Suspense,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import AvtUser from '/public/images/avt-user.svg'
-import { useTranslations } from 'next-intl'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { toast } from 'sonner'
 import {
   Form,
   FormControl,
@@ -25,32 +8,50 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import ImageWithBlur from '@/components/ui/image-blur'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { locales } from '@/i18n/request'
+import { usePathname, useRouter as useLocaleRouter } from '@/i18n/routing'
+import { Locale } from '@/types/global'
 import { firstNameSchema, lastNameSchema } from '@/utils'
-import { useUpdateProfile } from './hooks/useUpdateProfile'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CloudUpload } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import AvtUser from '/public/images/avt-user.svg'
 import { useProfile } from './hooks/useProfile'
-import { DialogClose } from '@/components/ui/dialog'
+import { useUpdateProfile } from './hooks/useUpdateProfile'
 
 const profileSchema = z.object({
   first_name: firstNameSchema,
   last_name: lastNameSchema,
-  location: z.string().optional(),
   avatar: z.any().optional(),
-  company_name: z
-    .string()
-    .max(100, {
-      message: 'Company name must not exceed 100 characters',
-    })
-    .optional(),
-  title: z
-    .string()
-    .max(100, {
-      message: 'Title must not exceed 100 characters',
-    })
-    .optional(),
+  // PUT /api/me writes every field it receives, so these are kept in the form and
+  // re-sent from the server values. Dropping them would clear them on save. They
+  // render no FormMessage, so they must accept whatever the API returns.
+  location: z.string().nullish(),
+  company_name: z.string().nullish(),
+  title: z.string().nullish(),
 })
 
 const Profile = () => {
   const t = useTranslations('generalSettings')
+  const tLanguage = useTranslations('languageName')
+
+  const locale = useLocale()
+  const pathname = usePathname()
+  const localeRouter = useLocaleRouter()
 
   const [previewImage, setPreviewImage] = useState<string>()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -67,6 +68,7 @@ const Profile = () => {
   } = form
 
   const { data: profile, isLoading, mutate } = useProfile()
+
   async function onSubmit(values: z.infer<typeof profileSchema>) {
     await updateProfile(
       { ...values, avatar: values.avatar as File },
@@ -102,8 +104,6 @@ const Profile = () => {
     fileRef.current?.click()
   }
 
-  const previewImageSize = previewImage ? 96 : 40
-
   return (
     <Form {...form}>
       <input
@@ -115,160 +115,111 @@ const Profile = () => {
       />
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="animate-opacity-display-effect"
+        className="animate-opacity-display-effect space-y-4"
       >
-        <p className="mb-3 font-semibold">{t('avatar')}</p>
-        <div className="mb-4 flex gap-3">
-          <Avatar className="flex h-24 w-24 items-center justify-center bg-purple-200 dark:bg-purple-600">
-            <Suspense fallback={<AvatarFallback>{t('avatar')}</AvatarFallback>}>
-              <div className="relative">
-                <ImageWithBlur
-                  src={previewImage || AvtUser}
-                  width={previewImageSize}
-                  height={previewImageSize}
-                  alt="space-df"
-                  className="size-full object-cover"
-                />
-              </div>
-            </Suspense>
-          </Avatar>
-          <div className="flex flex-col items-stretch justify-between py-3">
+        <div className="space-y-[6px]">
+          <Label>{t('avatar')}</Label>
+          <div className="flex items-center gap-2">
+            <Avatar className="size-9 bg-purple-200 dark:bg-purple-600">
+              <ImageWithBlur
+                src={previewImage || AvtUser}
+                width={36}
+                height={36}
+                alt={t('avatar')}
+                className="size-full object-cover"
+              />
+            </Avatar>
             <Button
-              variant="outline"
-              className="w-max items-center gap-2"
-              size="lg"
               type="button"
+              variant="outline"
               disabled={isLoading}
               onClick={handleSelectImage}
+              className="h-6 gap-2 rounded-lg px-2 py-1 text-xs font-semibold"
             >
-              {t('upload_new_image')} <CloudUpload size={16} />
+              <CloudUpload size={16} />
+              {t('upload_image')}
             </Button>
-            <p className="text-xs font-normal text-brand-text-gray">
-              {t('800x800_png_jpg_is_recommended_maximum_file_size_2mb')}
-            </p>
           </div>
         </div>
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field, fieldState }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>{t('first_name')}</FormLabel>
-                  <FormControl>
-                    <InputWithIcon
-                      className="h-10"
-                      prefixCpn={<UserRound size={16} />}
-                      placeholder={t('first_name')}
-                      disabled={isLoading}
-                      {...field}
-                      isError={!!fieldState.error}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field, fieldState }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>{t('last_name')}</FormLabel>
-                  <FormControl>
-                    <InputWithIcon
-                      className="h-10"
-                      prefixCpn={<UserRound size={16} />}
-                      placeholder={t('last_name')}
-                      disabled={isLoading}
-                      {...field}
-                      isError={!!fieldState.error}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>{t('location')}</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    className="h-10"
-                    prefixCpn={<MapPin size={16} />}
-                    placeholder={t('location')}
-                    disabled={isLoading}
-                    {...field}
-                    isError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="company_name"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>{t('company_name')}</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    className="h-10"
-                    prefixCpn={<Building />}
-                    placeholder={t('company_name')}
-                    {...field}
-                    disabled={isLoading}
-                    isError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>{t('title')}</FormLabel>
-                <FormControl>
-                  <InputWithIcon
-                    className="h-10"
-                    prefixCpn={<UserList />}
-                    placeholder={t('title')}
-                    disabled={isLoading}
-                    {...field}
-                    isError={!!fieldState.error}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="mt-4 flex gap-2">
-          <DialogClose asChild>
-            <Button type="button" size="lg" variant="outline" className="h-12">
-              {t('cancel')}
-            </Button>
-          </DialogClose>
 
-          <Button
-            type="submit"
-            size="lg"
-            className="h-12 w-full items-center gap-2 font-medium text-white shadow-sm"
-            loading={isUpdatingProfile}
-            disabled={!isDirty}
-          >
-            {t('save_changes')}
-          </Button>
+        <div className="flex gap-4">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field, fieldState }) => (
+              <FormItem className="flex-1">
+                <FormLabel>{t('first_name')}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t('first_name')}
+                    disabled={isLoading}
+                    {...field}
+                    isError={!!fieldState.error}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field, fieldState }) => (
+              <FormItem className="flex-1">
+                <FormLabel>{t('last_name')}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t('last_name')}
+                    disabled={isLoading}
+                    {...field}
+                    isError={!!fieldState.error}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
+        <div className="space-y-[6px]">
+          <Label htmlFor="profile-email">{t('email')}</Label>
+          <Input
+            id="profile-email"
+            value={profile?.email ?? ''}
+            readOnly
+            disabled
+          />
+        </div>
+
+        <div className="space-y-[6px]">
+          <Label htmlFor="profile-language">{t('language')}</Label>
+          <Select
+            value={locale}
+            onValueChange={(value) =>
+              localeRouter.push(pathname, { locale: value as Locale })
+            }
+          >
+            <SelectTrigger id="profile-language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {locales.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {tLanguage(item)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full shadow-sm"
+          loading={isUpdatingProfile}
+          disabled={!isDirty}
+        >
+          {t('save_changes')}
+        </Button>
       </form>
     </Form>
   )
