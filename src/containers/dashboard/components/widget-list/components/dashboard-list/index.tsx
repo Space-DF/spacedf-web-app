@@ -52,6 +52,7 @@ export const DashboardList = ({
   dashboards,
   isLoadingDashboard,
   onViewAllDashboard,
+  totalDashboardsCount,
 }: Props) => {
   const t = useTranslations('dashboard')
   const { dashboard, setDashboard, setEdit } = useDashboardStore(
