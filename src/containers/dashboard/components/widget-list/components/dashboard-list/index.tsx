@@ -38,6 +38,7 @@ interface Props {
   setIsOpenDashboardDialog: (open: boolean) => void
   searchDashboard: string
   setSearchDashboard: (value: string) => void
+  totalDashboardsCount: number
 }
 
 const MAX_DASHBOARD_FREE_LIMIT = 1
