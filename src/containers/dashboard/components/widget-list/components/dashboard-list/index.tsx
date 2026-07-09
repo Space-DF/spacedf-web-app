@@ -141,11 +141,8 @@ export const DashboardList = ({
                     <CommandItem
                       key={dashboardItem.id}
                       value={dashboardItem.id}
-                      onSelect={(currentValue) => {
-                        const itemSelect = dashboards.find(
-                          (dashboardItem) => dashboardItem.id === currentValue
-                        )
-                        setDashboard(itemSelect!)
+                      onSelect={() => {
+                        setDashboard(dashboardItem)
                         onOpenDashboardChange(false)
                         setEdit(false)
                       }}
