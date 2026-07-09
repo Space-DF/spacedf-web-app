@@ -22,6 +22,8 @@ import dynamic from 'next/dynamic'
 import { getLayouts } from './utils'
 import { ConfirmDeleteDashboard } from './components/delete-dialog'
 import { DashboardList } from './components/dashboard-list'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 
 const DashboardTable = dynamic(() => import('./components/dashboard-table'), {
   ssr: false,
@@ -81,19 +83,19 @@ export const WidgetList: React.FC<Props> = ({
   const widgetList = useDashboardStore(useShallow((state) => state.widgetList))
   const [searchDashboard, setSearchDashboard] = useState('')
   const searchDashboardDebounced = useDebounce(searchDashboard, 300)
-  const {
-    data: dashboardList,
-    refetch,
-    isLoading: isLoadingDashboard,
-  } = useDashboard(searchDashboardDebounced)
+  const { data: dashboardList, isLoading: isLoadingDashboard } = useDashboard(
+    searchDashboardDebounced
+  )
+  const { data: unfilteredDashboardList } = useDashboard()
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)
+  const queryClient = useQueryClient()
 
   const dashboards = useMemo(() => dashboardList || [], [dashboardList])
 
   const handleDeleteDashboard = async () => {
     await deleteDashboard()
-    await refetch()
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboards.all })
     if (dashboard?.id === deleteId) {
       setDashboard(undefined)
     }
@@ -215,6 +217,7 @@ export const WidgetList: React.FC<Props> = ({
               isLoadingDashboard={isLoadingDashboard}
               onViewAllDashboard={handleViewAllDashboard}
               setIsOpenDashboardDialog={setIsOpenDashboardDialog}
+              totalDashboardsCount={unfilteredDashboardList?.length || 0}
             />
           )
         }
