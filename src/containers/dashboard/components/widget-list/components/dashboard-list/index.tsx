@@ -71,7 +71,7 @@ export const DashboardList = ({
   const currentDashboardName = dashboard?.name || 'Select Dashboard'
 
   const isReachDashboardLimit =
-    !isPro && dashboards.length >= MAX_DASHBOARD_FREE_LIMIT
+    !isPro && totalDashboardsCount >= MAX_DASHBOARD_FREE_LIMIT
 
   const handleOpenDashboardDialog = () => {
     if (isAuthenticated) {
