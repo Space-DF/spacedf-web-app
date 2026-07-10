@@ -1,6 +1,6 @@
 {
   "automation_settings": "Cài đặt automation",
-  "manage_and_monitor": "Quản lý và giám sát các automation IoT của bạn",
+  "no_automation": "Chưa có automation",
   "add_automation": "Thêm automation",
   "search_placeholder": "Tìm kiếm tên automation, Thiết bị mục tiêu...",
   "all_status": "Tất cả trạng thái",

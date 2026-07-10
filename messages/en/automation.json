@@ -1,6 +1,6 @@
 {
   "automation_settings": "Automation Settings",
-  "manage_and_monitor": "Manage and monitor your IoT automations",
+  "no_automation": "No Automation",
   "add_automation": "Add Automation",
   "search_placeholder": "Search automation Name, Target Device...",
   "all_status": "All Status",

@@ -8,11 +8,13 @@ export function StatCard({
   value: number
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border p-4 dark:border-brand-stroke-outermost bg-card">
+    <div className="flex items-center gap-4 rounded-xl border border-border p-4 dark:border-brand-stroke-outermost bg-card">
       {icon}
       <div>
-        <p className="text-xs text-brand-text-gray">{label}</p>
-        <p className="text-xl font-bold text-brand-component-text-dark dark:text-white">
+        <p className="text-sm font-semibold leading-5 text-brand-text-gray">
+          {label}
+        </p>
+        <p className="text-2xl font-semibold leading-9 text-brand-component-text-dark dark:text-white">
           {value}
         </p>
       </div>
