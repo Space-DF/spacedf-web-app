@@ -37,13 +37,9 @@ const ThemeOption = ({
 )
 
 const Appearance = () => {
-  const { themes, theme, systemTheme, setTheme } = useTheme()
-  const themesWithOutSystem = themes.filter((theme) => theme !== 'system')
+  const { setTheme, resolvedTheme } = useTheme()
 
-  const currentTheme = themesWithOutSystem?.includes(theme as string)
-    ? theme
-    : systemTheme
-  const isLightMode = currentTheme === 'light'
+  const isLightMode = resolvedTheme === 'light'
 
   const t = useTranslations('generalSettings')
 
@@ -54,7 +50,7 @@ const Appearance = () => {
       </Label>
       <RadioGroup
         className="flex gap-4"
-        value={currentTheme}
+        value={resolvedTheme}
         onValueChange={setTheme}
       >
         <ThemeOption
