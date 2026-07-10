@@ -1,9 +1,17 @@
 'use client'
 
-import { ReactNode } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Fragment, ReactNode } from 'react'
+import { ChevronLeft } from 'lucide-react'
 import { Link } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
 
 export interface BreadcrumbHeaderItem {
   label: string
@@ -39,50 +47,59 @@ export const BreadcrumbHeader = ({
       >
         <ChevronLeft size={20} />
       </button>
-      <nav aria-label={backLabel}>
-        <ol className="flex items-center">
+      <Breadcrumb>
+        <BreadcrumbList className="flex-nowrap gap-0 sm:gap-0">
           {items.map((item, index) => {
             const isCurrent = index === items.length - 1
+            const leafClassName = 'inline-flex items-center gap-1 truncate'
             const content = (
-              <span className="flex items-center gap-1 truncate">
+              <>
                 {item.icon}
                 {item.label}
-              </span>
+              </>
             )
 
             return (
-              <li key={item.label} className="flex items-center">
+              <Fragment key={item.label}>
                 {index > 0 && (
-                  <ChevronRight
-                    size={16}
-                    className="text-brand-component-text-gray"
-                  />
+                  <BreadcrumbSeparator className="text-brand-component-text-gray [&>svg]:size-4" />
                 )}
-                {isCurrent || !item.href ? (
-                  <span
-                    aria-current={isCurrent ? 'page' : undefined}
-                    className={cn(
-                      'text-sm',
-                      isCurrent
-                        ? 'font-bold text-brand-component-text-dark dark:text-white'
-                        : 'font-medium text-brand-component-text-gray'
-                    )}
-                  >
-                    {content}
-                  </span>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="text-sm font-medium text-brand-component-text-gray transition-colors hover:text-brand-component-text-dark dark:hover:text-white"
-                  >
-                    {content}
-                  </Link>
-                )}
-              </li>
+                <BreadcrumbItem>
+                  {isCurrent ? (
+                    <BreadcrumbPage
+                      className={cn(
+                        leafClassName,
+                        'font-bold text-brand-component-text-dark dark:text-white'
+                      )}
+                    >
+                      {content}
+                    </BreadcrumbPage>
+                  ) : item.href ? (
+                    <BreadcrumbLink
+                      asChild
+                      className={cn(
+                        leafClassName,
+                        'font-medium text-brand-component-text-gray hover:text-brand-component-text-dark dark:hover:text-white'
+                      )}
+                    >
+                      <Link href={item.href}>{content}</Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <span
+                      className={cn(
+                        leafClassName,
+                        'font-medium text-brand-component-text-gray'
+                      )}
+                    >
+                      {content}
+                    </span>
+                  )}
+                </BreadcrumbItem>
+              </Fragment>
             )
           })}
-        </ol>
-      </nav>
+        </BreadcrumbList>
+      </Breadcrumb>
     </header>
   )
 }

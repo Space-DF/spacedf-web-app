@@ -52,6 +52,39 @@ const DEFAULT_SUMMARY: AutomationSummary = {
   disabled: 0,
 }
 
+const STAT_CARDS = [
+  {
+    key: 'total',
+    labelKey: 'total_automations',
+    iconBgClass: 'bg-blue-50',
+    icon: <Image src="/images/zap.svg" alt="zap" width={20} height={20} />,
+  },
+  {
+    key: 'active',
+    labelKey: 'active',
+    iconBgClass: 'bg-green-100',
+    icon: <Power size={20} className="text-brand-component-text-positive" />,
+  },
+  {
+    key: 'disabled',
+    labelKey: 'disabled',
+    iconBgClass: 'bg-gray-200',
+    icon: (
+      <Image
+        src="/images/disable-electricity.svg"
+        alt="power-off"
+        width={20}
+        height={20}
+      />
+    ),
+  },
+] as const satisfies readonly {
+  key: keyof AutomationSummary
+  labelKey: string
+  iconBgClass: string
+  icon: React.ReactNode
+}[]
+
 export const AutomationSettings = () => {
   const t = useTranslations('automation')
   const tCommon = useTranslations('common')
@@ -191,55 +224,23 @@ export const AutomationSettings = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-4">
-          {isLoadingSummary ? (
-            <>
-              <StatCardSkeleton iconBgClass="bg-blue-50" />
-              <StatCardSkeleton iconBgClass="bg-green-100" />
-              <StatCardSkeleton iconBgClass="bg-gray-200" />
-            </>
-          ) : (
-            <>
+          {STAT_CARDS.map(({ key, labelKey, iconBgClass, icon }) =>
+            isLoadingSummary ? (
+              <StatCardSkeleton key={key} iconBgClass={iconBgClass} />
+            ) : (
               <StatCard
+                key={key}
                 icon={
-                  <div className="flex size-10 items-center justify-center rounded-full bg-blue-50">
-                    <Image
-                      src="/images/zap.svg"
-                      alt="zap"
-                      width={20}
-                      height={20}
-                    />
+                  <div
+                    className={`flex size-10 items-center justify-center rounded-full ${iconBgClass}`}
+                  >
+                    {icon}
                   </div>
                 }
-                label={t('total_automations')}
-                value={stats.total}
+                label={t(labelKey)}
+                value={stats[key]}
               />
-              <StatCard
-                icon={
-                  <div className="bg-green-100 size-10 rounded-full flex items-center justify-center">
-                    <Power
-                      size={20}
-                      className="text-brand-component-text-positive"
-                    />
-                  </div>
-                }
-                label={t('active')}
-                value={stats.active}
-              />
-              <StatCard
-                icon={
-                  <div className="flex size-10 items-center justify-center rounded-full bg-gray-200">
-                    <Image
-                      src="/images/disable-electricity.svg"
-                      alt="power-off"
-                      width={20}
-                      height={20}
-                    />
-                  </div>
-                }
-                label={t('disabled')}
-                value={stats.disabled}
-              />
-            </>
+            )
           )}
         </div>
 
