@@ -48,7 +48,7 @@ const Appearance = () => {
   const t = useTranslations('generalSettings')
 
   return (
-    <div className="animate-opacity-display-effect space-y-[6px]">
+    <div className="animate-opacity-display-effect space-y-1.5">
       <Label className="font-semibold text-brand-component-text-dark">
         {t('preference_mode')}
       </Label>

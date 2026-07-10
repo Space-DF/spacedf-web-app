@@ -9,11 +9,8 @@ export const useUpdateProfile = () => {
   const { mutateAsync, isPending } = useMutation<
     any,
     Error,
-    Omit<Profile, 'id' | 'avatar' | 'company_name' | 'location' | 'title'> & {
+    Omit<Profile, 'id' | 'avatar'> & {
       avatar: File
-      company_name?: string | null
-      location?: string | null
-      title?: string | null
     }
   >({
     mutationFn: async (arg) => {
@@ -21,11 +18,6 @@ export const useUpdateProfile = () => {
       formData.append('avatar', arg.avatar)
       formData.append('first_name', arg.first_name)
       formData.append('last_name', arg.last_name)
-      // The route forwards these verbatim; a missing value must not be persisted
-      // as the string "undefined" or "null".
-      formData.append('company_name', arg.company_name ?? '')
-      formData.append('location', arg.location ?? '')
-      formData.append('title', arg.title ?? '')
       return api.put('/api/me', formData)
     },
     onSuccess: () => {

@@ -19,33 +19,30 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
   return (
     <div
       className={cn(
-        'flex cursor-pointer items-center justify-between gap-2 border border-border p-1 rounded-input',
+        '[--nest-r:var(--input-radius)]',
+        'flex cursor-pointer items-center justify-between gap-2 border border-border p-1 rounded-[var(--nest-r)]',
         {
-          'rounded-input border-border p-px': hiddenOption,
+          'border-border p-px': hiddenOption,
         }
       )}
     >
       <div className="flex gap-2">
         <Avatar
           className={cn(
-            'flex items-center justify-center rounded-lg bg-accent',
+            'flex items-center justify-center rounded-nested bg-accent',
             {
               'size-7': hiddenOption,
               'p-1': !url_logo,
             }
           )}
         >
-          <AvatarImage
-            src={url_logo}
-            alt={name}
-            className="size-full rounded-input"
-          />
+          <AvatarImage src={url_logo} alt={name} className="size-full" />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
             <OrganizationLogo className="text-primary" />
           </Suspense>
         </Avatar>
         {!hiddenOption && (
-          <div className="flex flex-col items-start justify-between font-medium">
+          <div className="flex flex-col items-start justify-center font-medium">
             <p
               className={cn(
                 'text-sm font-semibold w-full wrap-anywhere line-clamp-1',
@@ -54,9 +51,6 @@ const Space = ({ spaceData, isSelected, hiddenOption = false }: SpaceProps) => {
             >
               {name}
             </p>
-            <span className="rounded border border-border bg-accent px-2 text-xs font-semibold leading-normal text-primary">
-              Admin
-            </span>
           </div>
         )}
       </div>

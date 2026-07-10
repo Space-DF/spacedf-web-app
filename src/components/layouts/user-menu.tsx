@@ -5,6 +5,7 @@ import { useIsDemo } from '@/hooks/useIsDemo'
 import { locales } from '@/i18n/request'
 import { usePathname, useRouter as useLocaleRouter } from '@/i18n/routing'
 import { Locale } from '@/types/global'
+import { getInitials } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { Globe, LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
@@ -28,17 +29,6 @@ import {
 import { Skeleton } from '../ui/skeleton'
 import { useProfile } from './general-setting/hooks/useProfile'
 import { useGeneralSetting } from './general-setting/store/useGeneralSetting'
-
-const getInitials = (name: string, email?: string) => {
-  const initials = name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-
-  return initials || email?.[0] || ''
-}
 
 const UserMenu = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const t = useTranslations('common')

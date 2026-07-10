@@ -81,17 +81,10 @@ export const PUT = withAuthApiRequired(async (request: NextRequest) => {
     }
     const first_name = formData.get('first_name') as string
     const last_name = formData.get('last_name') as string
-    const company_name = formData.get('company_name') as string
-    const location = formData.get('location') as string
-    const title = formData.get('title') as string
-
     const response = await spacedfClient.users.updateMe({
       avatar,
       first_name,
       last_name,
-      company_name,
-      location,
-      title,
     })
     return NextResponse.json(response)
   } catch (error) {

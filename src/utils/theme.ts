@@ -257,11 +257,12 @@ export function generateThemeStyles(setting?: OrganizationSetting): string {
   styles += getThemeCss(darkColors, '.dark')
 
   if (radiusSetting) {
-    const cardRadius = radiusSetting.card !== undefined ? radiusSetting.card : 8
+    const cardRadius =
+      radiusSetting.card !== undefined ? radiusSetting.card : 12
     const inputRadius =
-      radiusSetting.input !== undefined ? radiusSetting.input : 6
+      radiusSetting.input !== undefined ? radiusSetting.input : 12
     const buttonRadius =
-      radiusSetting.button !== undefined ? radiusSetting.button : 8
+      radiusSetting.button !== undefined ? radiusSetting.button : 12
 
     styles += `
 :root, .dark {

@@ -1,4 +1,4 @@
-import { Avatar } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -8,7 +8,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import ImageWithBlur from '@/components/ui/image-blur'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -21,7 +20,7 @@ import {
 import { locales } from '@/i18n/request'
 import { usePathname, useRouter as useLocaleRouter } from '@/i18n/routing'
 import { Locale } from '@/types/global'
-import { firstNameSchema, lastNameSchema } from '@/utils'
+import { firstNameSchema, getInitials, lastNameSchema } from '@/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CloudUpload } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
@@ -29,7 +28,6 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import AvtUser from '/public/images/avt-user.svg'
 import { useProfile } from './hooks/useProfile'
 import { useUpdateProfile } from './hooks/useUpdateProfile'
 
@@ -37,12 +35,6 @@ const profileSchema = z.object({
   first_name: firstNameSchema,
   last_name: lastNameSchema,
   avatar: z.any().optional(),
-  // PUT /api/me writes every field it receives, so these are kept in the form and
-  // re-sent from the server values. Dropping them would clear them on save. They
-  // render no FormMessage, so they must accept whatever the API returns.
-  location: z.string().nullish(),
-  company_name: z.string().nullish(),
-  title: z.string().nullish(),
 })
 
 const Profile = () => {
@@ -61,6 +53,15 @@ const Profile = () => {
 
   const { trigger: updateProfile, isMutating: isUpdatingProfile } =
     useUpdateProfile()
+
+  useEffect(() => {
+    return () => {
+      if (previewImage && previewImage.startsWith('blob:')) {
+        URL.revokeObjectURL(previewImage)
+      }
+    }
+  }, [previewImage])
+
   const {
     setValue,
     reset,
@@ -68,6 +69,10 @@ const Profile = () => {
   } = form
 
   const { data: profile, isLoading, mutate } = useProfile()
+
+  const fullName = [profile?.first_name, profile?.last_name]
+    .filter(Boolean)
+    .join(' ')
 
   async function onSubmit(values: z.infer<typeof profileSchema>) {
     await updateProfile(
@@ -117,17 +122,14 @@ const Profile = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="animate-opacity-display-effect space-y-4"
       >
-        <div className="space-y-[6px]">
+        <div className="-space-y-1.5">
           <Label>{t('avatar')}</Label>
           <div className="flex items-center gap-2">
-            <Avatar className="size-9 bg-purple-200 dark:bg-purple-600">
-              <ImageWithBlur
-                src={previewImage || AvtUser}
-                width={36}
-                height={36}
-                alt={t('avatar')}
-                className="size-full object-cover"
-              />
+            <Avatar className="size-9">
+              <AvatarImage src={previewImage} alt={t('avatar')} />
+              <AvatarFallback className="text-xs font-medium uppercase">
+                {getInitials(fullName, profile?.email)}
+              </AvatarFallback>
             </Avatar>
             <Button
               type="button"
@@ -181,7 +183,7 @@ const Profile = () => {
           />
         </div>
 
-        <div className="space-y-[6px]">
+        <div className="space-y-1.5">
           <Label htmlFor="profile-email">{t('email')}</Label>
           <Input
             id="profile-email"
@@ -191,7 +193,7 @@ const Profile = () => {
           />
         </div>
 
-        <div className="space-y-[6px]">
+        <div className="space-y-1.5">
           <Label htmlFor="profile-language">{t('language')}</Label>
           <Select
             value={locale}

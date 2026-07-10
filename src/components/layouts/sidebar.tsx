@@ -62,7 +62,6 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   const setCollapsed = useLayout((state) => state.setCollapsed)
   const cookieDirty = useLayout((state) => state.cookieDirty)
   const isPro = useOrganizationValidationStore((state) => state.isPro)
-  const openGeneralSetting = useGeneralSetting((state) => state.openDialog)
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
@@ -99,11 +98,6 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   useKeyboardShortcut({
     keys: ['k'],
     onPress: handleCommandSearch,
-  })
-
-  useKeyboardShortcut({
-    keys: [','],
-    onPress: openGeneralSetting,
   })
 
   return (
@@ -150,7 +144,7 @@ const ExpandedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
     <div
       ref={containerRef}
       className={cn(
-        'flex grow flex-col transition-all duration-300 px-4',
+        'flex grow flex-col transition-all duration-300 px-2',
         isCollapsed
           ? '-translate-x- !h-0 !w-0 !px-0 animate-opacity-hide-effect overflow-hidden opacity-0'
           : 'w-full translate-x-0 animate-opacity-display-effect opacity-100'

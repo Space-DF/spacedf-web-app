@@ -86,6 +86,7 @@ const config = {
         card: 'var(--radius-card)',
         button: 'var(--button-radius)',
         input: 'var(--input-radius)',
+        nested: 'calc(var(--nest-r, 0px) * var(--nest-ratio, 2 / 3))',
       },
       keyframes,
       animation,

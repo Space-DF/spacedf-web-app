@@ -88,9 +88,7 @@ const GeneralSetting = () => {
   const isAuthenticated = useAuthenticated()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      setCurrentSetting('general')
-    }
+    setCurrentSetting(isAuthenticated ? 'general' : 'appearance')
   }, [isAuthenticated])
 
   const authSettings = useMemo(() => {

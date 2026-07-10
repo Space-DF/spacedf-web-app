@@ -77,6 +77,7 @@ const Plans = () => {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
+                        timeZone: 'UTC',
                       })}
                     </span>
                   </p>
