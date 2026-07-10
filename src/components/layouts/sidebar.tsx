@@ -2,7 +2,6 @@
 
 import {
   COOKIES,
-  LOCAL_STORAGE_KEYS,
   NavigationData,
   NavigationEnums,
   RESPONSIVE_BREAKPOINTS,
@@ -11,14 +10,16 @@ import {
 import { useKeyboardShortcut, useMounted } from '@/hooks'
 import { useResponsiveLayout } from '@/hooks/use-responsive-layout'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useIsDemo } from '@/hooks/useIsDemo'
 import { cn } from '@/lib/utils'
-import { DynamicLayout, getNewLayouts, useLayout } from '@/stores'
+import {
+  DynamicLayout,
+  getNewLayouts,
+  useLayout,
+  useOrganizationValidationStore,
+} from '@/stores'
 import { getCookie, setCookie, uppercaseFirstLetter } from '@/utils'
-import { LogOut } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { Gem } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { ImperativePanelGroupHandle } from 'react-resizable-panels'
 import { useShallow } from 'zustand/react/shallow'
@@ -28,6 +29,7 @@ import {
   SidebarCollapsedSimple,
   SidebarSimpleIcon,
 } from '../icons'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import { Separator } from '../ui/separator'
@@ -39,17 +41,19 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip'
 import GeneralSetting from './general-setting'
+import { useGeneralSetting } from './general-setting/store/useGeneralSetting'
 import IdentityButton from './identity-button'
 import ModalSearch from './modal-search'
 import SwitchSpace from './switch-space'
 import ThemeToggle from './theme-toggle'
-import { useQueryClient } from '@tanstack/react-query'
+import UserMenu from './user-menu'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import { useDeviceStore } from '@/stores/device-store'
 
 type SidebarChildProps = {
   onCollapseChanges?: () => void
   onChange3DBuildingFile?: () => void
+  isPro?: boolean
 }
 
 const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
@@ -57,6 +61,7 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
   const setDynamicLayouts = useLayout((state) => state.setDynamicLayouts)
   const setCollapsed = useLayout((state) => state.setCollapsed)
   const cookieDirty = useLayout((state) => state.cookieDirty)
+  const isPro = useOrganizationValidationStore((state) => state.isPro)
 
   const defaultCollapsed = getCookie<boolean>(COOKIES.SIDEBAR_COLLAPSED, false)
   const defaultDynamicLayouts = getCookie(
@@ -105,27 +110,27 @@ const Sidebar = forwardRef<ImperativePanelGroupHandle | null>((props, ref) => {
       >
         <ExpandedSidebar
           onCollapseChanges={() => handleCollapseChanges(true)}
+          isPro={isPro}
         />
         <CollapsedSidebar
           onCollapseChanges={() => handleCollapseChanges(false)}
+          isPro={isPro}
         />
       </div>
       <ModalSearch open={open} setOpen={setOpen} />
+      <GeneralSetting />
     </>
   )
 })
 
-const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
+const ExpandedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
   const isCollapsed = useLayout((state) => state.isCollapsed)
   const setCollapsed = useLayout((state) => state.setCollapsed)
-  const router = useRouter()
   const t = useTranslations('common')
   const { mounted } = useMounted()
 
   const isAuth = useAuthenticated()
-  const isDemo = useIsDemo()
-
-  const queryClient = useQueryClient()
+  const openGeneralSetting = useGeneralSetting((state) => state.openDialog)
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -135,20 +140,11 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
     onCollapseChanges?.()
   }
 
-  const handleSignOut = async () => {
-    if (isDemo) return
-    await signOut({ redirect: false })
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
-    window.history.replaceState({}, '', window.location.pathname)
-    router.push('/', { scroll: false })
-    queryClient.clear()
-  }
-
   return (
     <div
       ref={containerRef}
       className={cn(
-        'flex grow flex-col transition-all duration-300 px-4',
+        'flex grow flex-col transition-all duration-300 px-2',
         isCollapsed
           ? '-translate-x- !h-0 !w-0 !px-0 animate-opacity-hide-effect overflow-hidden opacity-0'
           : 'w-full translate-x-0 animate-opacity-display-effect opacity-100'
@@ -172,28 +168,34 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
       </div>
 
       <div className="flex flex-col gap-1">
-        <GeneralSetting>
+        {isAuth && mounted ? (
+          <UserMenu isCollapsed={isCollapsed} />
+        ) : (
           <Button
             variant="ghost"
             className="h-8 justify-start gap-2 p-0 text-accent-foreground duration-300 hover:bg-transparent "
+            onClick={openGeneralSetting}
           >
             <SettingIcon />
             <p className="text-sm">{t('general_settings')}</p>
           </Button>
-        </GeneralSetting>
-
-        {isAuth && (
-          <Button
-            variant="ghost"
-            className="h-8 justify-start gap-2 p-0 text-accent-foreground duration-300 hover:bg-transparent"
-            onClick={handleSignOut}
-          >
-            <LogOut size={16} />
-            <p className="text-sm">{t('sign_out')}</p>
-          </Button>
         )}
 
         <ThemeToggle isCollapsed={isCollapsed} />
+        {isAuth && (
+          <div
+            className={cn(
+              'bg-accent mt-2 text-primary rounded-button p-2 flex items-center justify-between w-full',
+              isPro && 'border border-primary'
+            )}
+          >
+            <div className="flex space-x-2 font-medium">
+              <Gem size={16} />
+              <span>{t('organization_plan')}</span>
+            </div>
+            <span className="font-bold">{isPro ? 'PRO' : 'FREE'}</span>
+          </div>
+        )}
         {!isAuth && (
           <Button className="flex items-center space-x-2 border-none text-sm font-semibold py-0 bg-accent text-primary">
             <TooltipProvider>
@@ -217,11 +219,9 @@ const ExpandedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   )
 }
 
-const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
+const CollapsedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
   const isCollapsed = useLayout((state) => state.isCollapsed)
   const setCollapsed = useLayout((state) => state.setCollapsed)
-  const queryClient = useQueryClient()
-  const router = useRouter()
 
   const { width } = useWindowSize()
 
@@ -229,19 +229,12 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
   const t = useTranslations('common')
 
   const isAuth = useAuthenticated()
+  const openGeneralSetting = useGeneralSetting((state) => state.openDialog)
 
   const handleCollapsedChange = () => {
     setCollapsed(false)
     setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
     onCollapseChanges?.()
-  }
-
-  const handleSignOut = async () => {
-    await signOut({ redirect: false })
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.NOTIF_PERMISSION_KEY)
-    window.history.replaceState({}, '', window.location.pathname)
-    queryClient.clear()
-    router.push('/')
   }
 
   const isTablet = mounted && width > RESPONSIVE_BREAKPOINTS.TABLET
@@ -285,27 +278,37 @@ const CollapsedSidebar = ({ onCollapseChanges }: SidebarChildProps) => {
               'flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg bg-transparent p-2 duration-300'
             )}
           >
-            <GeneralSetting>
+            {isAuth && mounted ? (
+              <UserMenu isCollapsed={isCollapsed} />
+            ) : (
               <Button
                 variant="outline"
                 size="icon"
                 className="border-none text-accent-foreground shadow-none hover:bg-transparent"
+                onClick={openGeneralSetting}
               >
                 <SettingIcon />
               </Button>
-            </GeneralSetting>
-
-            {isAuth && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-none text-accent-foreground shadow-none hover:bg-transparent"
-                onClick={handleSignOut}
-              >
-                <LogOut size={16} />
-              </Button>
             )}
+
             <ThemeToggle isCollapsed={isCollapsed} />
+            {isAuth && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      'bg-accent mt-2 text-primary rounded-button flex justify-center size-9 items-center',
+                      isPro && 'border border-primary'
+                    )}
+                  >
+                    <Gem size={16} className="font-medium" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  <p>{`${t('organization_plan')}: ${isPro ? 'PRO' : 'FREE'}`}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
             {!isAuth && (
               <Button className="flex items-center space-x-2 bg-[#6E4AFF33] border-none hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary p-2">
                 <TooltipProvider>
@@ -375,7 +378,6 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
         'flex w-full items-center justify-between py-[2px] px-2 rounded-input',
         isDisplayed || navigation.isAlwayEnabled ? 'bg-accent ' : ''
       )}
-      // onClick={onSelect}
     >
       <label
         className="flex flex-1 cursor-pointer items-center gap-2 overflow-hidden duration-300 text-accent-foreground font-medium"
@@ -387,6 +389,15 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
           {uppercaseFirstLetter(navigation.title)}
         </div>
       </label>
+
+      {navigation.isPro && !isCollapsed && (
+        <Badge
+          variant="secondary"
+          className="shrink-0 px-2 py-0 text-[10px] bg-accent border border-border rounded-button font-semibold tracking-wide"
+        >
+          PRO
+        </Badge>
+      )}
 
       {navigation.isDynamic && !isCollapsed && (
         <Checkbox

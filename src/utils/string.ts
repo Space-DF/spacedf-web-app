@@ -30,3 +30,14 @@ export const truncateText = (
   if (!text) return fallback
   return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text
 }
+
+export const getInitials = (name: string, email?: string) => {
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+
+  return initials || email?.[0] || ''
+}

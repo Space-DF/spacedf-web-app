@@ -7,6 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
+import { MAX_DASHBOARD_FREE_LIMIT } from '@/constants'
 import {
   Popover,
   PopoverContent,
@@ -40,8 +41,6 @@ interface Props {
   setSearchDashboard: (value: string) => void
   totalDashboardsCount: number
 }
-
-const MAX_DASHBOARD_FREE_LIMIT = 1
 
 export const DashboardList = ({
   open,

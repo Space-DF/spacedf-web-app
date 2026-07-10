@@ -36,6 +36,8 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
     isFetchingNextPage,
   } = useGetDevices({ deviceName: debouncedDeviceName })
 
+  const { data: totalDevices } = useGetDevices()
+
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
     const deviceHasLocation = [] as DeviceDataOriginal[]
@@ -144,7 +146,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
       <div className="flex items-center justify-between">
         <div className="font-semibold text-foreground">{t('devices_list')}</div>
         <div className="flex space-x-1 items-center">
-          <AddDeviceDialog />
+          <AddDeviceDialog totalDevices={totalDevices.length} />
           <div
             className="group h-max cursor-pointer rounded-sm p-1"
             onClick={onClose}

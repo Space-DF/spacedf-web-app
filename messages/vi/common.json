@@ -2,7 +2,6 @@
   "dashboard": "Bảng điều khiển",
   "devices": "thiết bị",
   "maps": "Bản đồ",
-  "digital_twin": "Digital Twins",
   "user": "người dùng",
   "users": "người dùng",
   "workspace_settings": "Cài đặt không gian làm việc",
@@ -23,9 +22,11 @@
   "no_widget": "Không có tiện ích",
   "viewing_dummy": "Bạn đang xem dữ liệu giả. Để tùy chỉnh và thêm dữ liệu và thiết bị của bạn, vui lòng đăng nhập!",
   "profile": "Hồ sơ",
+  "general": "Chung",
+  "security": "Bảo mật",
   "account": "Tài khoản",
   "appearance": "Giao diện",
-  "preference_mode": "Chế độ tuỳ chọn",
+  "plans": "Gói dịch vụ",
   "language": "Ngôn ngữ",
   "delete_account": "Xoá tài khoản",
   "back_to_login": "Trở lại đăng nhập",
@@ -99,5 +100,7 @@
   "please_try_again_or_go_back_to_space_df": "Vui lòng thử lại, hoặc trở về SpaceDF.",
   "try_again": "Thử lại",
   "device_not_found": "Không thể tải thiết bị",
-  "device_not_found_description": "Có thể do lỗi kết nối mạng, hoặc thiết bị không tồn tại trong không gian này. Hãy thử lại hoặc nhấn mũi tên quay lại danh sách thiết bị."
+  "device_not_found_description": "Có thể do lỗi kết nối mạng, hoặc thiết bị không tồn tại trong không gian này. Hãy thử lại hoặc nhấn mũi tên quay lại danh sách thiết bị.",
+  "organization_plan": "Gói tổ chức",
+  "plan_limit_reached": "Tổ chức của bạn đã đạt giới hạn của gói hiện tại. Vui lòng liên hệ quản trị viên tổ chức để nâng cấp gói."
 }

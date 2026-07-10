@@ -96,7 +96,7 @@ const InputWithIcon = React.forwardRef<
     return (
       <div
         className={cn(
-          'relative flex max-w-2xl items-center border-border border rounded-input bg-input transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-0',
+          'relative flex max-w-2xl items-center border-border border rounded-input bg-input transition-shadow focus-within:border-[hsl(var(--primary))] focus-within:ring-2 focus-within:!ring-offset-0 focus-within:ring-[color:color-mix(in_srgb,hsl(var(--primary))_40%,transparent)]',
           wrapperClass
         )}
       >
@@ -105,7 +105,7 @@ const InputWithIcon = React.forwardRef<
         </div>
         <Input
           className={cn(
-            'h-10 border-none bg-input pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-secondary-foreground',
+            'h-9 border-none bg-input pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-secondary-foreground',
             {
               'pr-8': !!suffixCpn,
             },

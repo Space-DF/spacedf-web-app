@@ -9,10 +9,7 @@ export const DEMO_USER = {
   email: 'demo@example.com',
   first_name: 'Demo',
   last_name: 'User',
-  company_name: 'Demo Company',
   avatar: null,
-  title: 'Demo Title',
-  location: 'Demo Location',
   access: 'demo-access-token-' + Date.now(),
   refresh: 'demo-refresh-token-' + Date.now(),
 }
