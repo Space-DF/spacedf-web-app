@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react'
 import { OrganizationLogo } from '@/components/icons/organization-logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
 import { Space } from '@/types/space'
 
 type SpaceMenuItemProps = {
@@ -9,9 +8,8 @@ type SpaceMenuItemProps = {
   position: number
 }
 
-const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
+const SpaceMenuItem = ({ spaceData }: SpaceMenuItemProps) => {
   const { url_logo, name } = spaceData
-  const shortCutText = `⌘⌥${position + 1}`
 
   return (
     <>
@@ -27,10 +25,6 @@ const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
           {name}
         </p>
       </div>
-
-      <DropdownMenuShortcut className="opacity-0">
-        {shortCutText}
-      </DropdownMenuShortcut>
     </>
   )
 }
