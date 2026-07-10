@@ -28,7 +28,7 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData) => string
   tableHeadClass?: string
   tableCellClass?: string
-  emptyLabel?: string
+  emptyLabel?: React.ReactNode
   showPaginate?: boolean
   isLoading?: boolean
   containerClassName?: string
@@ -40,7 +40,7 @@ interface DataTableBodyProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   rowsData: Row<TData>[]
   tableCellClass?: string
-  emptyLabel?: string
+  emptyLabel?: React.ReactNode
   isLoading?: boolean
   pagination: PaginationState
   isEmpty?: boolean

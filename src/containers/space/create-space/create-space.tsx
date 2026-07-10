@@ -96,7 +96,7 @@ const Settings = ({ isCreating }: { isCreating: boolean }) => {
                 <FormControl>
                   <Input
                     placeholder={t('space_name')}
-                    className="border-0 shadow-none"
+                    className="shadow-none"
                     {...field}
                     isError={!!fieldState.error}
                   />

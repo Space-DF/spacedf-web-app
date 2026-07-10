@@ -3,8 +3,13 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/routing'
-import { ChevronLeft, Plus, Power } from 'lucide-react'
+import { Gem, House, Plus, Power } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { AddAutomationDialog } from './components/add-automation-dialog'
 import Image from 'next/image'
 import { StatCard } from './components/stat-card'
@@ -22,9 +27,12 @@ import {
 } from '@/types/automation'
 import { FilterAutomation } from './components/filter-automation'
 import { useAutomationSummary } from './hooks/useAutomationSummary'
+import { useOrganizationValidationStore } from '@/stores'
+import { BreadcrumbHeader } from '@/components/common/breadcrumb-header'
+import { Nodata } from '@/components/ui'
 
 const StatCardSkeleton = ({ iconBgClass }: { iconBgClass: string }) => (
-  <div className="flex items-center gap-3 rounded-lg border border-border p-4 bg-card">
+  <div className="flex items-center gap-4 rounded-xl border border-border p-4 bg-card">
     <div
       className={`flex size-10 items-center justify-center rounded-full ${iconBgClass}`}
       aria-hidden="true"
@@ -44,9 +52,45 @@ const DEFAULT_SUMMARY: AutomationSummary = {
   disabled: 0,
 }
 
+const STAT_CARDS = [
+  {
+    key: 'total',
+    labelKey: 'total_automations',
+    iconBgClass: 'bg-blue-50',
+    icon: <Image src="/images/zap.svg" alt="zap" width={20} height={20} />,
+  },
+  {
+    key: 'active',
+    labelKey: 'active',
+    iconBgClass: 'bg-green-100',
+    icon: <Power size={20} className="text-brand-component-text-positive" />,
+  },
+  {
+    key: 'disabled',
+    labelKey: 'disabled',
+    iconBgClass: 'bg-gray-200',
+    icon: (
+      <Image
+        src="/images/disable-electricity.svg"
+        alt="power-off"
+        width={20}
+        height={20}
+      />
+    ),
+  },
+] as const satisfies readonly {
+  key: keyof AutomationSummary
+  labelKey: string
+  iconBgClass: string
+  icon: React.ReactNode
+}[]
+
 export const AutomationSettings = () => {
   const t = useTranslations('automation')
+  const tCommon = useTranslations('common')
   const router = useRouter()
+
+  const isPro = useOrganizationValidationStore((state) => state.isPro)
 
   const searchParams = useSearchParams()
   const search = searchParams.get('search') || ''
@@ -122,94 +166,104 @@ export const AutomationSettings = () => {
     setIsEditAutomation(false)
   }
 
+  const addAutomationButton = (
+    <Button
+      className="gap-2"
+      onClick={() => setIsAddDialogOpen(true)}
+      disabled={!isPro}
+    >
+      <Plus size={20} />
+      {t('add_automation')}
+    </Button>
+  )
+
   return (
-    <div className="mx-auto flex w-full container flex-col gap-6 p-6 pb-8">
-      <div className="flex items-start justify-between">
-        <div className="flex gap-2 items-start">
-          <button
-            onClick={handleGoback}
-            className="h-6 rounded-md text-brand-component-text-dark transition-colors hover:text-brand-component-text-gray dark:text-white"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="flex flex-col">
-            <h1 className="text-xl font-semibold leading-6 text-brand-component-text-dark dark:text-white">
+    <div className="flex min-h-dvh flex-col bg-brand-background-fill-surface">
+      <BreadcrumbHeader
+        onBack={handleGoback}
+        backLabel={tCommon('back')}
+        items={[
+          {
+            label: tCommon('dashboard'),
+            href: `/spaces/${spaceSlug}`,
+            icon: <House size={16} />,
+          },
+          { label: tCommon('automation') },
+        ]}
+      />
+
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold leading-8 text-brand-component-text-dark dark:text-white">
               {t('automation_settings')}
             </h1>
-            <p className="mt-1 text-sm text-brand-component-text-gray">
-              {t('manage_and_monitor')}
-            </p>
+            <span className="flex items-center gap-1 rounded-button border border-border bg-accent px-2 py-0.5 text-xs font-semibold leading-[18px] text-primary">
+              <Gem size={16} />
+              PRO
+            </span>
           </div>
+          {isPro ? (
+            addAutomationButton
+          ) : (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>{addAutomationButton}</span>
+              </TooltipTrigger>
+              <TooltipContent
+                side="bottom"
+                align="end"
+                className="max-w-60 font-medium text-brand-component-text-light"
+              >
+                <p>{tCommon('available_in_pro_plan')}</p>
+                <p>{tCommon('feature_not_in_current_plan')}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
-        <Button className="gap-2" onClick={() => setIsAddDialogOpen(true)}>
-          {t('add_automation')}
-          <Plus size={16} />
-        </Button>
-      </div>
 
-      <FilterAutomation />
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-4">
+          {STAT_CARDS.map(({ key, labelKey, iconBgClass, icon }) =>
+            isLoadingSummary ? (
+              <StatCardSkeleton key={key} iconBgClass={iconBgClass} />
+            ) : (
+              <StatCard
+                key={key}
+                icon={
+                  <div
+                    className={`flex size-10 items-center justify-center rounded-full ${iconBgClass}`}
+                  >
+                    {icon}
+                  </div>
+                }
+                label={t(labelKey)}
+                value={stats[key]}
+              />
+            )
+          )}
+        </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        {isLoadingSummary ? (
-          <>
-            <StatCardSkeleton iconBgClass="bg-blue-50" />
-            <StatCardSkeleton iconBgClass="bg-green-50" />
-            <StatCardSkeleton iconBgClass="bg-gray-100" />
-          </>
-        ) : (
-          <>
-            <StatCard
-              icon={
-                <div className="flex size-10 items-center justify-center rounded-full bg-blue-50">
-                  <Image
-                    src="/images/zap.svg"
-                    alt="zap"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              }
-              label={t('total_automations')}
-              value={stats.total}
-            />
-            <StatCard
-              icon={
-                <div className="bg-green-50 size-10 rounded-full flex items-center justify-center">
-                  <Power
-                    size={20}
-                    className="text-brand-component-text-positive"
-                  />
-                </div>
-              }
-              label={t('active')}
-              value={stats.active}
-            />
-            <StatCard
-              icon={
-                <div className="flex size-10 items-center justify-center rounded-full bg-gray-100">
-                  <Image
-                    src="/images/disable-electricity.svg"
-                    alt="power-off"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              }
-              label={t('disabled')}
-              value={stats.disabled}
-            />
-          </>
-        )}
-      </div>
+        <div className="flex flex-col gap-4 rounded-xl bg-card p-4">
+          <FilterAutomation />
 
-      <DataTable
-        columns={columns}
-        data={automations}
-        getRowId={(row) => row.id}
-        isLoading={isLoading}
-        tableHeadClass="text-xs font-semibold text-brand-component-text-gray h-5 leading-5 py-2"
-      />
+          <DataTable
+            columns={columns}
+            data={automations}
+            getRowId={(row) => row.id}
+            isLoading={isLoading}
+            containerClassName="rounded-xl"
+            tableHeadClass="bg-brand-component-fill-dark-soft text-xs font-semibold text-brand-component-text-gray h-5 leading-5 py-2"
+            emptyLabel={
+              <Nodata
+                content={t('no_automation')}
+                iconWidth={82}
+                iconHeight={82}
+              />
+            }
+          />
+        </div>
+      </main>
 
       <AddAutomationDialog
         isOpen={isAddDialogOpen}
