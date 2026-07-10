@@ -15,7 +15,9 @@ export const useUpdateProfile = () => {
   >({
     mutationFn: async (arg) => {
       const formData = new FormData()
-      formData.append('avatar', arg.avatar)
+      if (arg.avatar) {
+        formData.append('avatar', arg.avatar)
+      }
       formData.append('first_name', arg.first_name)
       formData.append('last_name', arg.last_name)
       return api.put('/api/me', formData)
