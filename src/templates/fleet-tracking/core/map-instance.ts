@@ -5,6 +5,7 @@ import type { MapOptions, MapEventType } from 'maplibre-gl'
 import type { TerraDraw } from 'terra-draw'
 import { PolygonGeometry } from '@/types/geofence'
 import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
+import { applyVietnamIslandLabels } from './vietnam-island-labels'
 
 type MapProps = {
   container: HTMLElement
@@ -218,12 +219,13 @@ class MapInstance {
       map.resize()
     })
 
-    map.on('style.load', (map: Map) => {
+    map.on('style.load', () => {
       this._reregisterTerraDrawAfterStyleLoad()
+      applyVietnamIslandLabels(map, this.theme)
       this.emitter.emit('style.load', map)
     })
 
-    map.on('styledata', (map: Map) => {
+    map.on('styledata', () => {
       this.emitter.emit('styledata', map)
     })
 
