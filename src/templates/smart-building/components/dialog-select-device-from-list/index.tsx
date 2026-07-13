@@ -134,17 +134,21 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
               <div className="grid grid-cols-4 gap-2 pb-2">
                 {devices.map((device) => {
                   const isCardSelected = selected?.id === device.id
-
+                  const isDisabled = device.device.is_published
                   return (
                     <button
                       key={device.id}
+                      disabled={isDisabled}
                       type="button"
                       onClick={() => setSelected(device)}
                       className={cn(
-                        'flex cursor-pointer flex-col rounded-md border bg-brand-component-fill-gray-soft p-2 text-left text-brand-component-text-dark transition-colors',
-                        isCardSelected
-                          ? 'border-brand-component-stroke-dark'
-                          : 'border-transparent hover:border-brand-stroke-dark-soft'
+                        'flex flex-col rounded-md border bg-card p-2 text-left text-brand-component-text-dark transition-colors',
+                        isDisabled ? 'cursor-default' : 'cursor-pointer',
+                        isCardSelected ? 'border-border' : 'border-transparent',
+                        !isDisabled &&
+                          !isCardSelected &&
+                          'hover:border-border/80',
+                        isDisabled && 'opacity-50'
                       )}
                     >
                       <div className="mb-2 flex items-start justify-between">
@@ -160,7 +164,7 @@ export function DialogSelectDeviceFromList({ open, onOpenChange }: Props) {
                         </div>
                         <Ellipsis
                           size={16}
-                          className="shrink-0 text-brand-component-text-gray"
+                          className="shrink-0 text-muted-foreground"
                         />
                       </div>
                       <div className="mb-2 text-xs font-medium">
