@@ -123,7 +123,7 @@ const Plans = () => {
                 <span className="p-2 text-xs font-medium leading-[18px] text-brand-component-text-gray">
                   {t('per_month')}
                   <br />
-                  {t('billed_yearly')}
+                  {t('billed_monthly')}
                 </span>
               </div>
             </div>

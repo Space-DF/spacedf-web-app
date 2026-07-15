@@ -84,7 +84,7 @@ const Account = () => {
               disabled={!isDirty || !isValid || isLoading}
               loading={isMutating}
               size="lg"
-              className="h-9 w-full bg-brand-component-fill-negative border-none"
+              className="h-9 w-full bg-brand-component-fill-negative"
               variant="destructive"
             >
               {t('permanently_delete_account')}
