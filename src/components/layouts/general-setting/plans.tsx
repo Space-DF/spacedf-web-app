@@ -88,7 +88,8 @@ const Plans = () => {
   }
 
   const priceItem = plan.plan_items?.find((item) => item.is_active)
-  const price = priceItem ? Number(priceItem.price) : undefined
+  const parsedPrice = priceItem ? Number(priceItem.price) : undefined
+  const price = parsedPrice != null && !isNaN(parsedPrice) ? parsedPrice : undefined
   const features = plan.features.filter((feature) => feature.enabled)
   const supports = plan.support.filter((feature) => feature.enabled)
 
