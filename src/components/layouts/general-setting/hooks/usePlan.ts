@@ -4,7 +4,7 @@ import type { PlanCode, PlanResponse } from '@/types/plan'
 import { useQuery } from '@tanstack/react-query'
 
 export const usePlan = (code: PlanCode, enabled = true) => {
-  const { data, isLoading, refetch } = useQuery({
+  return useQuery({
     queryKey: queryKeys.plans.detail(code),
     queryFn: () =>
       api.get<PlanResponse>(`/api/plans?plan=${encodeURIComponent(code)}`),
@@ -13,10 +13,4 @@ export const usePlan = (code: PlanCode, enabled = true) => {
     refetchOnReconnect: false,
     staleTime: Infinity,
   })
-
-  return {
-    data,
-    isLoading,
-    mutate: refetch,
-  }
 }

@@ -7,7 +7,8 @@ type PlanCode = 'free' | 'pro'
 
 export const GET = withAuthApiRequired(async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams
-  const plan = (searchParams.get('plan') as PlanCode) || 'free'
+  const planParam = searchParams.get('plan')
+  const plan: PlanCode = planParam === 'pro' ? 'pro' : 'free'
   try {
     const client = await spaceClient()
     const response = await client.plans.retrieve(plan)
