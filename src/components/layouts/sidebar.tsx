@@ -393,7 +393,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
       {navigation.isPro && !isCollapsed && (
         <Badge
           variant="secondary"
-          className="shrink-0 px-2 py-0 text-[10px] bg-accent border border-border rounded-button font-semibold tracking-wide"
+          className="shrink-0 px-2 py-0 text-[10px] bg-accent border border-border !rounded-md font-semibold tracking-wide"
         >
           PRO
         </Badge>

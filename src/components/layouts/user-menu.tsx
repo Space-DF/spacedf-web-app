@@ -97,7 +97,7 @@ const UserMenu = ({ isCollapsed }: { isCollapsed: boolean }) => {
       <DropdownMenuContent
         align={isCollapsed ? 'end' : 'start'}
         side={isCollapsed ? 'right' : 'top'}
-        className="w-56"
+        className="w-56 rounded-card bg-background"
       >
         {profile?.email && (
           <DropdownMenuLabel className="truncate font-normal text-muted-foreground">
@@ -114,9 +114,11 @@ const UserMenu = ({ isCollapsed }: { isCollapsed: boolean }) => {
         </DropdownMenuItem>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="cursor-pointer gap-2">
-            <Globe size={16} />
-            <span>{t('language')}</span>
+          <DropdownMenuSubTrigger className="group cursor-pointer gap-2">
+            <Globe size={16} className="group-hover:text-accent-foreground" />
+            <span className="group-hover:text-accent-foreground">
+              {t('language')}
+            </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>

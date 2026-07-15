@@ -6,6 +6,12 @@ interface OrgResponse {
   result: string
   template: string
   setting?: OrganizationSetting
+  plan: 'free' | 'pro'
+}
+
+interface OrgCheckResponse extends Omit<OrgResponse, 'result' | 'plan'> {
+  isValid: boolean
+  isPro: boolean
 }
 
 /**
@@ -14,19 +20,18 @@ interface OrgResponse {
  * @returns Promise<boolean> - True if organization exists, false otherwise
  */
 export const checkSlugName = cache(
-  async (
-    slugName: string
-  ): Promise<Omit<OrgResponse, 'result'> & { isValid: boolean }> => {
+  async (slugName: string): Promise<OrgCheckResponse> => {
     try {
       const spaceDFInstance = await SpaceDFClient.getInstance()
       const client = spaceDFInstance.getClient()
 
-      const { result, ...rest } = (await client.organizations.checkSlugName(
-        slugName
-      )) as OrgResponse
+      const { result, plan, ...rest } =
+        (await client.organizations.checkSlugName(slugName)) as OrgResponse
+      const isPro = plan === 'pro'
       // API returns { result: "The organization is valid." } for valid orgs
       return {
         isValid: result === 'The organization is valid.',
+        isPro,
         ...rest,
       }
     } catch (error) {
@@ -34,6 +39,7 @@ export const checkSlugName = cache(
       return {
         isValid: false,
         template: 'fleet-tracking',
+        isPro: false,
       }
     }
   }

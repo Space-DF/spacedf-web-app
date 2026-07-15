@@ -252,8 +252,8 @@ export const AutomationSettings = () => {
             data={automations}
             getRowId={(row) => row.id}
             isLoading={isLoading}
-            containerClassName="rounded-xl"
-            tableHeadClass="bg-brand-component-fill-dark-soft text-xs font-semibold text-brand-component-text-gray h-5 leading-5 py-2"
+            containerClassName="rounded-xl overflow-hidden"
+            tableHeadClass="h-5 leading-5 py-2"
             emptyLabel={
               <Nodata
                 content={t('no_automation')}

@@ -68,7 +68,7 @@ const Account = () => {
               <FormItem className="flex-1">
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 shadow-none"
+                    className="shadow-none"
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     {...field}
@@ -84,7 +84,7 @@ const Account = () => {
               disabled={!isDirty || !isValid || isLoading}
               loading={isMutating}
               size="lg"
-              className="h-9 w-full bg-brand-component-fill-negative"
+              className="h-9 w-full bg-brand-component-fill-negative border-none"
               variant="destructive"
             >
               {t('permanently_delete_account')}

@@ -66,17 +66,14 @@ export function ApiDataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        'rounded-lg border border-brand-stroke-dark-soft',
+        'rounded-lg border overflow-hidden border-brand-stroke-dark-soft',
         containerClassName
       )}
     >
       <div className={cn('w-full', scrollClassName)}>
         <Table>
           <TableHeader
-            className={cn(
-              'bg-brand-fill-dark-soft',
-              stickyHeader && 'sticky top-0 z-[1]'
-            )}
+            className={cn('bg-accent', stickyHeader && 'sticky top-0 z-[1]')}
           >
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
