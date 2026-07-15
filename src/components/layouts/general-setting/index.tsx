@@ -25,7 +25,7 @@ const settings = [
     icon: (
       <CircleUser
         size={16}
-        className="text-brand-component-text-dark size-4 font-medium"
+        className="text-accent-foreground size-4 font-medium"
       />
     ),
     titleKey: 'profile',
@@ -33,10 +33,7 @@ const settings = [
   {
     key: 'security',
     icon: (
-      <Fingerprint
-        size={16}
-        className="text-brand-component-text-dark font-medium"
-      />
+      <Fingerprint size={16} className="text-accent-foreground font-medium" />
     ),
     titleKey: 'security',
   },
@@ -44,7 +41,7 @@ const settings = [
     key: 'appearance',
     icon: (
       <CircleHalfTilt
-        className="text-brand-component-text-dark size-4 font-medium"
+        className="text-accent-foreground size-4 font-medium"
         width={16}
         height={16}
       />
@@ -55,7 +52,7 @@ const settings = [
     key: 'plans',
     icon: (
       <CreditCard
-        className="text-brand-component-text-dark size-4 font-medium"
+        className="text-accent-foreground size-4 font-medium"
         width={16}
         height={16}
       />
@@ -68,7 +65,7 @@ const settings = [
       <Trash2
         width={16}
         height={16}
-        className="text-brand-component-text-dark font-medium"
+        className="text-accent-foreground font-medium"
       />
     ),
     titleKey: 'delete_account',
@@ -154,7 +151,7 @@ const GeneralSetting = () => {
                     )}
                     <div
                       className={cn(
-                        'flex h-8 cursor-pointer items-center gap-2 rounded-[10px] p-1.5 font-medium duration-300 hover:bg-accent/80',
+                        'flex h-8 cursor-pointer text-accent-foreground items-center gap-2 rounded-[10px] p-1.5 font-medium duration-300 hover:bg-accent/80',
                         isActive ? 'bg-accent' : 'bg-transparent'
                       )}
                       onClick={() => handleSettingClick(setting.key)}

@@ -149,9 +149,9 @@ const WidgetSelection = ({
               <div key={`${index + 1}`} className="h-full overflow-visible">
                 <div
                   onClick={() => onSelectWidget(widget.value)}
-                  className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-card bg-brand-component-fill-gray-soft p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
+                  className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-card bg-card border border-border p-2 duration-300 hover:scale-105 dark:bg-brand-component-fill-gray-soft"
                 >
-                  <div className="flex w-full items-center justify-center rounded-lg bg-brand-component-fill-light-fixed dark:bg-brand-heading">
+                  <div className="flex w-full items-center justify-center rounded-card bg-card border border-border">
                     {widget.icon}
                   </div>
                   <div className="text-center text-sm">{widget.title}</div>

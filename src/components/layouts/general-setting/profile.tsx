@@ -122,7 +122,7 @@ const Profile = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="animate-opacity-display-effect space-y-4"
       >
-        <div className="-space-y-1.5">
+        <div className="space-y-1.5">
           <Label>{t('avatar')}</Label>
           <div className="flex items-center gap-2">
             <Avatar className="size-9">

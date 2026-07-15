@@ -114,7 +114,7 @@ const Account = () => {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 shadow-none"
+                    className="shadow-none"
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     disabled
@@ -136,7 +136,7 @@ const Account = () => {
                   <FormLabel>{t('current_password')}</FormLabel>
                   <FormControl>
                     <InputWithIcon
-                      className="h-10 border-none shadow-none"
+                      className="shadow-none"
                       prefixCpn={<LockKeyhole size={16} />}
                       type={isShowPassword ? 'text' : 'password'}
                       suffixCpn={
@@ -169,7 +169,7 @@ const Account = () => {
                 <FormLabel>{t('new_password')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 border-none shadow-none"
+                    className="shadow-none"
                     prefixCpn={<LockKeyhole size={16} />}
                     type={isShowNewPassword ? 'text' : 'password'}
                     suffixCpn={
@@ -204,7 +204,7 @@ const Account = () => {
                 <FormLabel>{t('confirm_new_password')}</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 border-none shadow-none"
+                    className="shadow-none"
                     prefixCpn={<LockKeyhole size={16} />}
                     type={isShowConfirmPassword ? 'text' : 'password'}
                     suffixCpn={

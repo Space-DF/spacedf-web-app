@@ -68,7 +68,7 @@ const Account = () => {
               <FormItem className="flex-1">
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 shadow-none"
+                    className="shadow-none"
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     {...field}

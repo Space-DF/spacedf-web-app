@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        'rounded-lg border border-brand-stroke-dark-soft',
+        'rounded-lg border border-border overflow-hidden',
         containerClassName
       )}
     >
@@ -142,7 +142,13 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead className={tableHeadClass || ''} key={header.id}>
+                    <TableHead
+                      className={cn(
+                        'bg-accent text-xs font-semibold text-muted-foreground',
+                        tableHeadClass
+                      )}
+                      key={header.id}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
