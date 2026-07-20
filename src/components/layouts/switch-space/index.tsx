@@ -143,6 +143,7 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
             <DropdownMenuItem
               key={space.id}
               onClick={() => {
+                if (space.is_deactivated) return
                 handleGoToSpace(space.slug_name)
               }}
               className={cn(
