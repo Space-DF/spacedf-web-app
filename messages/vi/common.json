@@ -106,5 +106,8 @@
   "organization_plan": "Gói tổ chức",
   "plan_limit_reached": "Tổ chức của bạn đã đạt giới hạn của gói hiện tại. Vui lòng liên hệ quản trị viên tổ chức để nâng cấp gói.",
   "available_in_pro_plan": "Chỉ có trong gói Pro",
-  "feature_not_in_current_plan": "Tính năng này không có trong gói hiện tại của tổ chức bạn."
+  "feature_not_in_current_plan": "Tính năng này không có trong gói hiện tại của tổ chức bạn.",
+  "access_restricted": "403 - Truy cập bị hạn chế",
+  "need_help_contact_our_support_team_at": "Cần hỗ trợ? Liên hệ đội ngũ hỗ trợ của chúng tôi tại",
+  "edit_are_disabled": "Tính năng chỉnh sửa và thêm dữ liệu mới bị vô hiệu hóa."
 }

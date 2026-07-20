@@ -58,6 +58,7 @@ export const transformDeviceData = (
       lorawan_device: device.device.lorawan_device,
       deviceInformation: device.device,
       entities: device.entities ?? [],
+      isDeactivated: device.is_deactivated,
       type: deviceType,
       histories: {
         end: historyLngLat,

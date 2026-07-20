@@ -45,6 +45,7 @@ export type Device<T = {}> = {
     z: number
   }
   building?: Building
+  isDeactivated?: boolean
 } & T
 
 type DeviceModelState = {
@@ -232,6 +233,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
               start: [0, 0],
               end: [0, 0],
             },
+            isDeactivated: false,
             deviceProperties: {
               latest_checkpoint_arr: [newLng, newLat, newBear],
               latest_checkpoint: {

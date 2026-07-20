@@ -105,17 +105,18 @@ const MapControls = ({ map }: MapControlsProps) => {
           )}
         </ControlButton>
       </ControlGroup>
-
-      <ControlButton
-        onClick={handleGlobeSwitch}
-        label={globeActive ? 'Switch to map' : 'Switch to globe'}
-      >
-        {globeActive ? (
-          <Map className="size-4 text-brand-icon-light-fixed" />
-        ) : (
-          <Globe className="size-4 text-brand-icon-light-fixed" />
-        )}
-      </ControlButton>
+      <ControlGroup>
+        <ControlButton
+          onClick={handleGlobeSwitch}
+          label={globeActive ? 'Switch to map' : 'Switch to globe'}
+        >
+          {globeActive ? (
+            <Map className="size-4 text-brand-icon-light-fixed" />
+          ) : (
+            <Globe className="size-4 text-brand-icon-light-fixed" />
+          )}
+        </ControlButton>
+      </ControlGroup>
     </div>
   )
 }

@@ -58,6 +58,7 @@
   "select_device_from_list_description": "Chọn một thiết bị để hiển thị tất cả các thực thể của nó trên mô hình 3D. Bạn có thể quản lý khả năng hiển thị thực thể sau trong Chi tiết thiết bị.",
   "select_device_confirm": "Chọn",
   "select_device_no_results": "Không tìm thấy thiết bị",
+  "select_device_published_disabled": "Thiết bị này đã được hiển thị trên một mô hình 3D. Hãy gỡ khỏi mô hình đó trước khi thêm vào đây.",
   "floor_name": "Tên tầng",
   "add_floor_success": "Thêm tầng thành công.",
   "add_floor_error": "Thêm tầng thất bại.",

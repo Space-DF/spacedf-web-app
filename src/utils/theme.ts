@@ -23,20 +23,20 @@ export const defaultLightColors: ThemeColors = {
 }
 
 export const defaultDarkColors: ThemeColors = {
-  primary: '#4006aa',
-  primary_text: '#FFFFFF',
-  secondary: '#202431',
-  secondary_text: '#FFFFFF',
-  accent: '#202431',
-  accent_text: '#6A749C',
-  background: '#171A28',
-  border: '#242A46',
-  text: '#FFFFFF',
-  support_text: '#6A749C',
-  card: '#202431',
-  switch_background: '#242A46',
-  input: '#090c18',
-  input_border: '#242A46',
+  primary: '#6009FF',
+  primary_text: '#FCFCFC',
+  secondary: '#1B1B1B',
+  secondary_text: '#FCFCFC',
+  accent: '#160733',
+  accent_text: '#FCFCFC',
+  background: '#1B1B1B',
+  border: '#4D4D4D',
+  text: '#FCFCFC',
+  support_text: '#A8A8A8',
+  card: '#282828',
+  switch_background: '#282828',
+  input: '#1B1B1B',
+  input_border: '#4D4D4D',
 }
 
 /**

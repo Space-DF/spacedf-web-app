@@ -54,5 +54,8 @@
   "join_space_success": "Bạn đã tham gia không gian",
   "join_space_error": "Tham gia không gian thất bại",
   "space_updated_successfully": "Không gian đã được cập nhật thành công",
-  "failed_to_update_space": "Cập nhật không gian thất bại"
+  "failed_to_update_space": "Cập nhật không gian thất bại",
+  "create_space_is_available_on_pro": "Tạo không gian chỉ có trong gói Pro",
+  "create_space_available_on_pro_description": "Vui lòng liên hệ quản trị viên tổ chức của bạn để yêu cầu nâng cấp gói của tổ chức.",
+  "back_to_your_space": "Quay lại không gian của bạn"
 }

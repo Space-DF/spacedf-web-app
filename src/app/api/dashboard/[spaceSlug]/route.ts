@@ -9,14 +9,17 @@ const DEMO_DASHBOARDS: Dashboard[] = [
   {
     name: 'Smart Fleet Monitor',
     id: '1',
+    is_deactivated: false,
   },
   {
     name: 'Custom Color Dashboard',
     id: '2',
+    is_deactivated: false,
   },
   {
     name: 'Default Monitor',
     id: '3',
+    is_deactivated: false,
   },
 ]
 

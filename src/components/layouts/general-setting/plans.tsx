@@ -38,7 +38,7 @@ const FeatureItemSkeleton = () => (
 
 const PlansSkeleton = () => (
   <div className="flex flex-col">
-    <div className="relative overflow-hidden rounded-5 border border-brand-component-stroke-dark-soft bg-brand-component-fill-light p-3">
+    <div className="relative overflow-hidden rounded-[20px] border border-brand-component-stroke-dark-soft bg-brand-component-fill-light p-3">
       <div className="relative flex items-center gap-3 rounded-xl border border-brand-component-stroke-dark-soft bg-brand-background-fill-surface p-3 shadow-sm">
         <Skeleton className="h-9 flex-1" />
         <div className="flex flex-col items-end gap-2">
@@ -89,7 +89,8 @@ const Plans = () => {
 
   const priceItem = plan.plan_items?.find((item) => item.is_active)
   const parsedPrice = priceItem ? Number(priceItem.price) : undefined
-  const price = parsedPrice != null && !isNaN(parsedPrice) ? parsedPrice : undefined
+  const price =
+    parsedPrice != null && !isNaN(parsedPrice) ? parsedPrice : undefined
   const features = plan.features.filter((feature) => feature.enabled)
   const supports = plan.support.filter((feature) => feature.enabled)
 

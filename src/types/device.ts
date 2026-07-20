@@ -64,6 +64,7 @@ type DeviceDataOriginal = {
   building?: Building
   //*TODO: Remove this after all devices have device_properties
   latest_checkpoint?: Checkpoint | null
+  is_deactivated?: boolean
 }
 
 type DeviceModel = (typeof DEVICE_MODEL)[keyof typeof DEVICE_MODEL]

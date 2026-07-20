@@ -37,6 +37,7 @@
   "select_device_from_list_description": "Select a device to display all of its entities on the 3D model. You can manage entity visibility later in Device Details.",
   "select_device_confirm": "Select",
   "select_device_no_results": "No devices found",
+  "select_device_published_disabled": "This device is already published to a 3D model. Remove it from that model before adding it here.",
   "building_management_title": "{name} Management",
   "building_name": "Building Name",
   "building_name_placeholder": "Building Name",
