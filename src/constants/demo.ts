@@ -27,6 +27,7 @@ export const DEMO_SPACE: PaginationResponse<Space> = {
       updated_at: now,
       default_display: true,
       is_active: true,
+      is_deactivated: false,
       total_devices: 0,
       created_by: `demo-user-id-${idSuffix}`,
     }

@@ -198,10 +198,12 @@ export const AutomationSettings = () => {
             <h1 className="text-xl font-semibold leading-8 text-brand-component-text-dark dark:text-white">
               {t('automation_settings')}
             </h1>
-            <span className="flex items-center gap-1 rounded-button border border-border bg-accent px-2 py-0.5 text-xs font-semibold leading-[18px] text-primary">
-              <Gem size={16} />
-              PRO
-            </span>
+            {!isPro && (
+              <span className="flex items-center gap-1 rounded-button border border-border bg-accent px-2 py-0.5 text-xs font-semibold leading-[18px] text-primary">
+                <Gem size={16} />
+                PRO
+              </span>
+            )}
           </div>
           {isPro ? (
             addAutomationButton

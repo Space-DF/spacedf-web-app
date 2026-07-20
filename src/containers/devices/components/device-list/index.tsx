@@ -18,6 +18,12 @@ import DeviceIcon from '/public/images/device-icon.webp'
 import { Map } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAddDeviceStore } from '@/stores/template/add-device'
+import { Lock } from '@/components/icons'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -243,10 +249,27 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                   sizes="32px"
                                 />
                               </div>
-                              <Ellipsis
-                                size={16}
-                                className="text-muted-foreground"
-                              />
+                              <div className="flex space-x-1 items-center">
+                                {device.is_deactivated && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button className="size-5 rounded-md justify-center flex items-center border border-brand-component-stroke-warning-soft bg-brand-component-fill-warning-soft">
+                                        <Lock className="text-brand-icon-warning-dark" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="max-w-[280px] text-xs"
+                                    >
+                                      {t('device_deactivated_tooltip')}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                <Ellipsis
+                                  size={16}
+                                  className="text-muted-foreground"
+                                />
+                              </div>
                             </div>
                             <div className="text-xs font-medium">
                               <span className="leading-[18px] line-clamp-1 text-brand-component-text-dark">

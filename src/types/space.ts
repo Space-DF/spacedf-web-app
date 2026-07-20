@@ -6,6 +6,7 @@ export interface Space {
   url_logo: string
   slug_name: string
   is_active: boolean
+  is_deactivated: boolean
   total_devices: number
   created_by: string
   default_display: boolean

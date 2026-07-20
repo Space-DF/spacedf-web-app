@@ -29,6 +29,7 @@ import { Dashboard } from '@/types/dashboard'
 import { ArrowUpRight, ChevronsUpDown, PlusIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useShallow } from 'zustand/react/shallow'
+import { Lock } from '@/components/icons'
 
 interface Props {
   open: boolean
@@ -143,12 +144,13 @@ export const DashboardList = ({
                       key={dashboardItem.id}
                       value={dashboardItem.id}
                       onSelect={() => {
+                        if (dashboardItem?.is_deactivated) return
                         setDashboard(dashboardItem)
                         onOpenDashboardChange(false)
                         setEdit(false)
                       }}
                       className={cn(
-                        'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
+                        'cursor-pointer flex items-center justify-between rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
                         {
                           'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
                             dashboard?.id === dashboardItem.id,
@@ -156,6 +158,11 @@ export const DashboardList = ({
                       )}
                     >
                       {dashboardItem.name}
+                      {dashboardItem?.is_deactivated && (
+                        <button className="size-5 rounded-md justify-center flex items-center border border-brand-component-stroke-warning-soft bg-brand-component-fill-warning-soft">
+                          <Lock className="text-brand-icon-warning-dark" />
+                        </button>
+                      )}
                     </CommandItem>
                   ))}
             </CommandGroup>

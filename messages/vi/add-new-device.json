@@ -43,5 +43,6 @@
   "entity_id_temperature": "sensor.temp_01",
   "entity_id_humidity": "sensor.humidity_01",
   "entities_saved_successfully": "Đã cập nhật hiển thị đối tượng",
-  "entities_save_failed": "Không thể cập nhật hiển thị đối tượng"
+  "entities_save_failed": "Không thể cập nhật hiển thị đối tượng",
+  "device_deactivated_tooltip": "Gói đăng ký đã hết hạn. Bạn vẫn có thể xem thiết bị này, nhưng việc chỉnh sửa và nhận dữ liệu mới sẽ bị vô hiệu hóa cho đến khi gói đăng ký của tổ chức được gia hạn."
 }

@@ -113,5 +113,8 @@
   "organization_plan": "Organization Plan",
   "plan_limit_reached": "Your organization has reached its current plan limit. Contact your organization administrator to upgrade the plan.",
   "available_in_pro_plan": "Available in Pro Plan",
-  "feature_not_in_current_plan": "This feature isn't available in your organization's current plan."
+  "feature_not_in_current_plan": "This feature isn't available in your organization's current plan.",
+  "access_restricted": "403 - Access Restricted",
+  "need_help_contact_our_support_team_at": "Need help? Contact our support team at",
+  "edit_are_disabled": "Editing and new data are disabled."
 }

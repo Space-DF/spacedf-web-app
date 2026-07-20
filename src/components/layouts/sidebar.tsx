@@ -197,7 +197,7 @@ const ExpandedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
           </div>
         )}
         {!isAuth && (
-          <Button className="flex items-center space-x-2 border-none text-sm font-semibold py-0 bg-accent text-primary">
+          <Button className="flex items-center space-x-2 border-none text-sm font-semibold py-0 bg-accent text-primary hover:bg-accent/90">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -310,7 +310,7 @@ const CollapsedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
               </Tooltip>
             )}
             {!isAuth && (
-              <Button className="flex items-center space-x-2 bg-[#6E4AFF33] border-none hover:bg-[#A78BF633] text-sm font-semibold text-brand-component-text-secondary p-2">
+              <Button className="flex items-center space-x-2 bg-accent text-primary hover:bg-accent/90 border-none text-sm font-semibold p-2">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -358,6 +358,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   const toggleDynamicLayout = useLayout((state) => state.toggleDynamicLayout)
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
+  const isPro = useOrganizationValidationStore((state) => state.isPro)
 
   const isDisplayed = dynamicLayouts.includes(navigation.href)
 
@@ -390,7 +391,7 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
         </div>
       </label>
 
-      {navigation.isPro && !isCollapsed && (
+      {navigation.isPro && !isPro && !isCollapsed && (
         <Badge
           variant="secondary"
           className="shrink-0 px-2 py-0 text-[10px] bg-accent border border-border !rounded-md font-semibold tracking-wide"

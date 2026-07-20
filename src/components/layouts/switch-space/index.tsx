@@ -21,12 +21,11 @@ import { useDecodedToken } from '@/containers/identity/auth/hooks/useDecodedToke
 import { cn } from '@/lib/utils'
 import { useIdentityStore } from '@/stores/identity-store'
 import AddNewSpace from './add-new-space'
+import { MAX_LIMIT_SPACE_FREE } from '@/constants'
 
 type SwitchSpaceProps = {
   isCollapsed?: boolean
 }
-
-const MAX_LIMIT_SPACE_FREE = 1
 
 const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
   const t = useTranslations('space')

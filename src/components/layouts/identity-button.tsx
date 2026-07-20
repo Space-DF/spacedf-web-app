@@ -1,6 +1,7 @@
 'use client'
 
 import { useIdentityStore } from '@/stores/identity-store'
+import { cn } from '@/lib/utils'
 import { LogIn } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -11,7 +12,10 @@ const IdentityButton = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const t = useTranslations('common')
   return (
     <div
-      className="flex h-10 rounded-button cursor-pointer items-center justify-center bg-primary text-primary-foreground duration-300 group-hover:opacity-80"
+      className={cn(
+        'flex h-9 rounded-button cursor-pointer items-center justify-center bg-primary text-primary-foreground duration-300 group-hover:opacity-80',
+        isCollapsed ? 'size-8' : 'w-full'
+      )}
       onClick={() => setOpenDrawerIdentity(true)}
     >
       {isCollapsed ? (

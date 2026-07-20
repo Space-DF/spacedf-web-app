@@ -8,6 +8,9 @@ export * from './time-zone'
 export * from './demo'
 export * from './pagination'
 export * from './plan'
+
+export const SUPPORT_EMAIL = 'support@spacedf.com'
+
 // Responsive breakpoints and sidebar collapse thresholds
 export const RESPONSIVE_BREAKPOINTS = {
   MOBILE: 768,
