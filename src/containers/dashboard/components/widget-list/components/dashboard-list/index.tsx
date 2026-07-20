@@ -143,6 +143,7 @@ export const DashboardList = ({
                     <CommandItem
                       key={dashboardItem.id}
                       value={dashboardItem.id}
+                      disabled={dashboardItem?.is_deactivated}
                       onSelect={() => {
                         if (dashboardItem?.is_deactivated) return
                         setDashboard(dashboardItem)
