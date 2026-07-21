@@ -143,8 +143,10 @@ const SwitchSpace = ({ isCollapsed }: SwitchSpaceProps) => {
             <DropdownMenuItem
               key={space.id}
               onClick={() => {
+                if (space.is_deactivated) return
                 handleGoToSpace(space.slug_name)
               }}
+              disabled={space.is_deactivated}
               className={cn(
                 'cursor-pointer rounded-xl p-1 focus:bg-accent',
                 space.slug_name === params.spaceSlug && 'bg-accent'
