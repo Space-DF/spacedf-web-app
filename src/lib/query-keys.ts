@@ -6,6 +6,8 @@ export const queryKeys = {
       [...queryKeys.spaces.all, 'detail', slug] as const,
     roles: (slug: string) =>
       [...queryKeys.spaces.detail(slug), 'roles'] as const,
+    check: (slug: string) =>
+      [...queryKeys.spaces.detail(slug), 'check'] as const,
     members: (
       slug: string,
       params: { pageIndex?: number; limit?: number; search?: string } = {}
