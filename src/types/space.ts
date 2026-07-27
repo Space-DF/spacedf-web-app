@@ -15,6 +15,10 @@ export interface Space {
   url_build_artifact?: string
 }
 
+export interface CheckSpaceAccessResponse {
+  is_locked: boolean
+}
+
 export interface SpaceRole {
   id: string
   created_at: string

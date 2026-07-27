@@ -56,5 +56,7 @@
   "failed_to_update_space": "Failed to update space",
   "create_space_is_available_on_pro": "Create Space is available on Pro",
   "create_space_available_on_pro_description": "Please reach out to your organization's administrator to request an upgrade to the organization's plan.",
-  "back_to_your_space": "Back to Your Space"
+  "back_to_your_space": "Back to Your Space",
+  "this_space_is_locked": "This space is locked",
+  "this_space_is_locked_description": "This space is no longer available on your organization's current plan. Please reach out to your organization's administrator to request an upgrade to the organization's plan."
 }

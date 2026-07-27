@@ -156,5 +156,6 @@
   "widget_deleted_successfully": "Xóa tiện ích thành công",
   "widget_delete_failed": "Xóa tiện ích thất bại",
   "delete_widget_confirm_title": "Xóa tiện ích này?",
-  "delete_widget_confirm_description": "Tiện ích sẽ bị gỡ khỏi bảng điều khiển. Bạn không thể hoàn tác thao tác này."
+  "delete_widget_confirm_description": "Tiện ích sẽ bị gỡ khỏi bảng điều khiển. Bạn không thể hoàn tác thao tác này.",
+  "dashboard_deactivated_tooltip": "Bảng điều khiển này đã bị khóa. Chức năng chỉnh sửa và xóa bị vô hiệu hóa."
 }
