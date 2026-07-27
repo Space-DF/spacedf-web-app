@@ -136,6 +136,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   }, [devices])
 
   const handleSelectDevice = (device: DeviceDataOriginal) => {
+    if (device.is_deactivated) return
     setDeviceSelected(device.device.id)
     const deviceBuildingId = device.building?.id
     if (buildingId && deviceBuildingId && deviceBuildingId !== buildingId) {
@@ -225,8 +226,12 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                       return (
                         <div
                           key={device.id}
+                          aria-disabled={device.is_deactivated}
                           className={cn(
-                            'cursor-pointer h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
+                            'h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
+                            device.is_deactivated
+                              ? 'cursor-default opacity-50'
+                              : 'cursor-pointer',
                             {
                               'border-brand-component-stroke-dark':
                                 device?.device.id === deviceSelected,
