@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { withAuthApiRequired } from '@/lib/auth-middleware/with-auth-api'
 import { spaceClient } from '@/lib/spacedf'
-import { ApiResponse } from '@/types/global'
 import { CheckSpaceAccessResponse } from '@/types/space'
 import { handleError } from '@/utils/error'
 import { isDemoSubdomain } from '@/utils/server-actions'
@@ -21,11 +20,6 @@ const GET = withAuthApiRequired(
 
       return NextResponse.json<CheckSpaceAccessResponse>({ is_locked: false })
     } catch (errors) {
-      const { status } = (errors as ApiResponse) || {}
-      if (status && status >= 400 && status < 500) {
-        return NextResponse.json<CheckSpaceAccessResponse>({ is_locked: true })
-      }
-
       return handleError(errors)
     }
   }

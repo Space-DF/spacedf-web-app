@@ -14,11 +14,7 @@ const SpaceLockedGuard = ({ children }: { children: ReactNode }) => {
   const spaceSlug = params?.spaceSlug as string | undefined
 
   const { data: spaces } = useGetSpaces()
-  const {
-    data: accessData,
-    isLoading,
-    isError,
-  } = useCheckSpaceAccess(spaceSlug)
+  const { data: accessData, isLoading } = useCheckSpaceAccess(spaceSlug)
 
   const backHref = useMemo(() => {
     const spaceList = spaces?.data?.results || []
@@ -40,7 +36,7 @@ const SpaceLockedGuard = ({ children }: { children: ReactNode }) => {
     return <LoadingFullScreen className="min-h-dvh" />
   }
 
-  if (accessData?.is_locked || isError) {
+  if (accessData?.is_locked) {
     return <SpaceLocked backHref={backHref} />
   }
 
