@@ -105,6 +105,7 @@
   "device_not_found_description": "Có thể do lỗi kết nối mạng, hoặc thiết bị không tồn tại trong không gian này. Hãy thử lại hoặc nhấn mũi tên quay lại danh sách thiết bị.",
   "organization_plan": "Gói tổ chức",
   "plan_limit_reached": "Tổ chức của bạn đã đạt giới hạn của gói hiện tại. Vui lòng liên hệ quản trị viên tổ chức để nâng cấp gói.",
+  "available_in_pro": "Chỉ có trong gói PRO",
   "available_in_pro_plan": "Chỉ có trong gói Pro",
   "feature_not_in_current_plan": "Tính năng này không có trong gói hiện tại của tổ chức bạn.",
   "access_restricted": "403 - Truy cập bị hạn chế",

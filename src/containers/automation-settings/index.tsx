@@ -30,6 +30,8 @@ import { useAutomationSummary } from './hooks/useAutomationSummary'
 import { useOrganizationValidationStore } from '@/stores'
 import { BreadcrumbHeader } from '@/components/common/breadcrumb-header'
 import { Nodata } from '@/components/ui'
+import { ProLockedTable } from './components/pro-locked-table'
+import { cn } from '@/lib/utils'
 
 const StatCardSkeleton = ({ iconBgClass }: { iconBgClass: string }) => (
   <div className="flex items-center gap-4 rounded-xl border border-border p-4 bg-card">
@@ -152,7 +154,8 @@ export const AutomationSettings = () => {
     handleDelete,
     handleSuccess,
     handleSelectAutomation,
-    handleEditAutomation
+    handleEditAutomation,
+    !isPro
   )
 
   const handleGoback = () => {
@@ -175,6 +178,24 @@ export const AutomationSettings = () => {
       <Plus size={20} />
       {t('add_automation')}
     </Button>
+  )
+
+  const automationTable = (
+    <DataTable
+      columns={columns}
+      data={automations}
+      getRowId={(row) => row.id}
+      isLoading={isLoading}
+      containerClassName={cn(
+        'rounded-xl overflow-hidden',
+        !isPro && 'rounded-none border-0'
+      )}
+      tableHeadClass="h-5 leading-5 py-2"
+      showPaginate={isPro}
+      emptyLabel={
+        <Nodata content={t('no_automation')} iconWidth={82} iconHeight={82} />
+      }
+    />
   )
 
   return (
@@ -247,23 +268,13 @@ export const AutomationSettings = () => {
         </div>
 
         <div className="flex flex-col gap-4 rounded-xl bg-card p-4">
-          <FilterAutomation />
+          <FilterAutomation isPro={isPro} />
 
-          <DataTable
-            columns={columns}
-            data={automations}
-            getRowId={(row) => row.id}
-            isLoading={isLoading}
-            containerClassName="rounded-xl overflow-hidden"
-            tableHeadClass="h-5 leading-5 py-2"
-            emptyLabel={
-              <Nodata
-                content={t('no_automation')}
-                iconWidth={82}
-                iconHeight={82}
-              />
-            }
-          />
+          {isPro ? (
+            automationTable
+          ) : (
+            <ProLockedTable>{automationTable}</ProLockedTable>
+          )}
         </div>
       </main>
 

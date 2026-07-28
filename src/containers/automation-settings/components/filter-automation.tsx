@@ -15,7 +15,11 @@ import { Messages } from '@/types/global'
 
 type StatusFilter = 'all' | 'active' | 'disabled'
 
-export const FilterAutomation = () => {
+interface Props {
+  isPro?: boolean
+}
+
+export const FilterAutomation = ({ isPro }: Props) => {
   const t = useTranslations('automation')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
@@ -47,8 +51,13 @@ export const FilterAutomation = () => {
         delay={300}
         iconSize={16}
         iconClassName="text-brand-component-text-gray"
+        disabled={!isPro}
       />
-      <Select value={statusFilter} onValueChange={handleStatusFilter}>
+      <Select
+        value={statusFilter}
+        onValueChange={handleStatusFilter}
+        disabled={!isPro}
+      >
         <SelectTrigger
           className="w-40 bg-input border border-border"
           icon={

@@ -10,11 +10,13 @@ import { useTranslations } from 'next-intl'
 interface ToggleAutomationSwitchProps {
   automation: Automation
   onSuccess?: () => void
+  disabled?: boolean
 }
 
 export const ToggleAutomationSwitch = ({
   automation,
   onSuccess,
+  disabled = false,
 }: ToggleAutomationSwitchProps) => {
   const serverActive = !!automation.event_rule?.is_active
   const [isActive, setIsActive] = useState(serverActive)
@@ -50,7 +52,7 @@ export const ToggleAutomationSwitch = ({
   return (
     <Switch
       checked={isActive}
-      disabled={isMutating}
+      disabled={isMutating || disabled}
       onCheckedChange={handleChange}
     />
   )
