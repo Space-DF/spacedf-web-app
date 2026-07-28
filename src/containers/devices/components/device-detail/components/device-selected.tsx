@@ -28,7 +28,11 @@ const InformationItem = (props: { label: string; content: string }) => {
   )
 }
 
-const DeviceSelected = () => {
+interface Props {
+  isDeactivated?: boolean
+}
+
+const DeviceSelected = ({ isDeactivated }: Props) => {
   const t = useTranslations('addNewDevice')
 
   const { deviceDataSelected, setDeviceSelected } = useDeviceStore(
@@ -71,7 +75,7 @@ const DeviceSelected = () => {
           </span>
         </div>
         <div className="flex gap-2">
-          <Button size="icon" className="size-8">
+          <Button size="icon" className="size-8" disabled={isDeactivated}>
             <Pencil size={16} />
           </Button>
           <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>

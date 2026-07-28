@@ -6,6 +6,8 @@ export const queryKeys = {
       [...queryKeys.spaces.all, 'detail', slug] as const,
     roles: (slug: string) =>
       [...queryKeys.spaces.detail(slug), 'roles'] as const,
+    check: (slug: string) =>
+      [...queryKeys.spaces.detail(slug), 'check'] as const,
     members: (
       slug: string,
       params: { pageIndex?: number; limit?: number; search?: string } = {}
@@ -42,5 +44,9 @@ export const queryKeys = {
   },
   profile: {
     detail: () => ['profile'] as const,
+  },
+  plans: {
+    all: ['plans'] as const,
+    detail: (code: string) => [...queryKeys.plans.all, 'detail', code] as const,
   },
 } as const

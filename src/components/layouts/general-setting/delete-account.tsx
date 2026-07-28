@@ -10,7 +10,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { InputWithIcon } from '@/components/ui/input'
@@ -55,7 +54,7 @@ const Account = () => {
         className="animate-opacity-display-effect"
       >
         <div className="space-y-4">
-          <div className="flex items-center gap-1 rounded bg-brand-semantic-accent-light p-2 text-xs font-semibold text-brand-semantic-accent dark:bg-brand-semantic-accent-dark-300 dark:text-brand-semantic-accent-300">
+          <div className="flex items-center gap-1 border border-brand-component-stroke-negative-soft rounded bg-brand-component-fill-negative-soft p-2 text-xs font-semibold text-brand-semantic-accent dark:bg-brand-semantic-accent-dark-300 dark:text-brand-semantic-accent-300">
             <TriangleAlert size={16} />
             {t('warning_this_is_a_potentially_destructive_action')}
           </div>
@@ -67,10 +66,9 @@ const Account = () => {
             name="email"
             render={({ field, fieldState }) => (
               <FormItem className="flex-1">
-                <FormLabel className="font-semibold">Email</FormLabel>
                 <FormControl>
                   <InputWithIcon
-                    className="h-10 rounded-lg border-none bg-brand-fill-dark-soft shadow-none"
+                    className="shadow-none"
                     prefixCpn={<Mail size={16} />}
                     placeholder="Email"
                     {...field}
@@ -86,7 +84,7 @@ const Account = () => {
               disabled={!isDirty || !isValid || isLoading}
               loading={isMutating}
               size="lg"
-              className="h-12 w-full border-2 border-brand-semantic-accent-dark bg-brand-semantic-accent-300 dark:bg-brand-semantic-accent-400"
+              className="h-9 w-full bg-brand-component-fill-negative"
               variant="destructive"
             >
               {t('permanently_delete_account')}

@@ -6,12 +6,17 @@ export interface Space {
   url_logo: string
   slug_name: string
   is_active: boolean
+  is_deactivated: boolean
   total_devices: number
   created_by: string
   default_display: boolean
   description?: string
   build_artifact?: string
   url_build_artifact?: string
+}
+
+export interface CheckSpaceAccessResponse {
+  is_locked: boolean
 }
 
 export interface SpaceRole {

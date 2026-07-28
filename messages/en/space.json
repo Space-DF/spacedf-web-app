@@ -1,5 +1,7 @@
 {
   "create_new_space": "Create New Space",
+  "new_space": "New Space",
+  "space_list": "Space List",
   "space_name": "Space Name",
   "space_image": "Space Image",
   "switch_space": "Switch Space",
@@ -51,5 +53,10 @@
   "join_space_success": "You have joined the space",
   "join_space_error": "Failed to join the space",
   "space_updated_successfully": "Space updated successfully",
-  "failed_to_update_space": "Failed to update space"
+  "failed_to_update_space": "Failed to update space",
+  "create_space_is_available_on_pro": "Create Space is available on Pro",
+  "create_space_available_on_pro_description": "Please reach out to your organization's administrator to request an upgrade to the organization's plan.",
+  "back_to_your_space": "Back to Your Space",
+  "this_space_is_locked": "This space is locked",
+  "this_space_is_locked_description": "This space is no longer available on your organization's current plan. Please reach out to your organization's administrator to request an upgrade to the organization's plan."
 }

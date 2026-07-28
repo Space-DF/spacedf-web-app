@@ -1,8 +1,9 @@
 {
   "dashboard": "Dashboard",
+  "back": "Back",
+  "automation": "Automation",
   "devices": "Devices",
   "maps": "Maps",
-  "digital_twin": "Digital Twins",
   "user": "user",
   "users": "users",
   "workspace_settings": "Space Settings",
@@ -23,9 +24,11 @@
   "no_widget": "No widget",
   "viewing_dummy": "You're viewing dummy data. To customize and add your own data and device, please sign in!",
   "profile": "Profile",
+  "general": "General",
+  "security": "Security",
   "account": "Account",
   "appearance": "Appearance",
-  "preference_mode": "Preferences Mode",
+  "plans": "Plans",
   "language": "Language",
   "choose_language": "Choose the language you’d like to use.",
   "time_zone": "Time zone",
@@ -106,5 +109,13 @@
   "please_try_again_or_go_back_to_space_df": "Please try again, or go back to SpaceDF.",
   "try_again": "Try again",
   "device_not_found": "Couldn't load this device",
-  "device_not_found_description": "This might be a connection issue, or the device may not exist in this space. Try again, or use the back arrow to return to the device list."
+  "device_not_found_description": "This might be a connection issue, or the device may not exist in this space. Try again, or use the back arrow to return to the device list.",
+  "organization_plan": "Organization Plan",
+  "plan_limit_reached": "Your organization has reached its current plan limit. Contact your organization administrator to upgrade the plan.",
+  "available_in_pro": "Available in PRO",
+  "available_in_pro_plan": "Available in Pro Plan",
+  "feature_not_in_current_plan": "This feature isn't available in your organization's current plan.",
+  "access_restricted": "403 - Access Restricted",
+  "need_help_contact_our_support_team_at": "Need help? Contact our support team at",
+  "edit_are_disabled": "Editing and new data are disabled."
 }

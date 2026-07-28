@@ -23,20 +23,20 @@ export const defaultLightColors: ThemeColors = {
 }
 
 export const defaultDarkColors: ThemeColors = {
-  primary: '#4006aa',
-  primary_text: '#FFFFFF',
-  secondary: '#202431',
-  secondary_text: '#FFFFFF',
-  accent: '#202431',
-  accent_text: '#6A749C',
-  background: '#171A28',
-  border: '#242A46',
-  text: '#FFFFFF',
-  support_text: '#6A749C',
-  card: '#202431',
-  switch_background: '#242A46',
-  input: '#090c18',
-  input_border: '#242A46',
+  primary: '#6009FF',
+  primary_text: '#FCFCFC',
+  secondary: '#1B1B1B',
+  secondary_text: '#FCFCFC',
+  accent: '#160733',
+  accent_text: '#FCFCFC',
+  background: '#1B1B1B',
+  border: '#4D4D4D',
+  text: '#FCFCFC',
+  support_text: '#A8A8A8',
+  card: '#282828',
+  switch_background: '#282828',
+  input: '#1B1B1B',
+  input_border: '#4D4D4D',
 }
 
 /**
@@ -257,17 +257,18 @@ export function generateThemeStyles(setting?: OrganizationSetting): string {
   styles += getThemeCss(darkColors, '.dark')
 
   if (radiusSetting) {
-    const cardRadius = radiusSetting.card !== undefined ? radiusSetting.card : 8
+    const cardRadius =
+      radiusSetting.card !== undefined ? radiusSetting.card : 12
     const inputRadius =
-      radiusSetting.input !== undefined ? radiusSetting.input : 6
+      radiusSetting.input !== undefined ? radiusSetting.input : 12
     const buttonRadius =
-      radiusSetting.button !== undefined ? radiusSetting.button : 8
+      radiusSetting.button !== undefined ? radiusSetting.button : 12
 
     styles += `
 :root, .dark {
-  --radius: ${cardRadius}px;
   --button-radius: ${buttonRadius}px;
   --input-radius: ${inputRadius}px;
+  --radius-card: ${cardRadius}px;
 }
 `
   }

@@ -4,8 +4,5 @@ export type Profile = {
   last_name: string
   url_avatar?: string
   email?: string
-  company_name?: string
-  title?: string
-  location?: string
   is_set_password?: boolean
 }

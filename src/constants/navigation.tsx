@@ -1,7 +1,6 @@
 'use client'
 import {
   CodeSandbox,
-  CubeFocus,
   Devices,
   Warehouse,
   Square,
@@ -16,7 +15,6 @@ export enum NavigationEnums {
   DASHBOARD = 'dashboard',
   DEVICES = 'devices',
   MAPS = 'maps',
-  DIGITAL_TWIN = 'digital-twin',
   USER = 'user',
   WORKSPACE_SETTINGS = '/workspace-settings',
   PLAN_BILLING = 'plan-billing',
@@ -30,9 +28,9 @@ export type Navigation = {
   icon?: React.ReactElement
   isDynamic?: boolean
   isAlwayEnabled?: boolean
+  isPro?: boolean
   onClick?: () => void
   key:
-    | 'digital_twin'
     | 'devices'
     | 'dashboard'
     | 'workspace_settings'
@@ -56,14 +54,6 @@ export const NavigationData = (
   const hasHydrated = useOrganizationValidationStore((s) => s.hasHydrated)
   const template = useOrganizationValidationStore((s) => s.template)
   const items: Navigation[] = [
-    {
-      key: 'digital_twin',
-      href: NavigationEnums.DIGITAL_TWIN,
-      title: translateFn('digital_twin'),
-      icon: <CubeFocus className="font-bold" />,
-      isDynamic: true,
-      isAlwayEnabled: true,
-    },
     {
       key: 'devices',
       href: NavigationEnums.DEVICES,
@@ -112,6 +102,7 @@ export const NavigationData = (
       href: NavigationEnums.AUTOMATION_SETTINGS,
       title: translateFn('automation_settings'),
       icon: <AutomationSettings className="font-bold" />,
+      isPro: true,
       onClick: () =>
         router.push(
           `/spaces/${params.spaceSlug || currentSpace?.slug_name}/${NavigationEnums.AUTOMATION_SETTINGS}`
@@ -125,11 +116,7 @@ export const NavigationData = (
   ]
   return items.filter((item) => {
     if (!hasHydrated) return true
-    if (
-      template === 'smart_building' &&
-      (item.key === 'digital_twin' || item.key === 'geofences')
-    )
-      return false
+    if (template === 'smart_building' && item.key === 'geofences') return false
     return true
   })
 }

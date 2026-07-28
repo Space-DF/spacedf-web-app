@@ -4,6 +4,8 @@
   "view_all_dashboard": "Xem toàn bộ Bảng điều khiển",
   "all_dashboard": "Toàn bộ Bảng điều khiển",
   "create_new_dashboard": "Tạo mẫu Bảng điều khiển",
+  "dashboard_limit_reached": "Tổ chức của bạn đã đạt giới hạn của gói hiện tại. Vui lòng liên hệ quản trị viên tổ chức để nâng cấp gói.",
+  "select_dashboard": "Chọn Bảng điều khiển",
   "name": "Tên",
   "total_devices": "Tổng số thiết bị",
   "total_members": "Tổng số người dùng",
@@ -154,5 +156,6 @@
   "widget_deleted_successfully": "Xóa tiện ích thành công",
   "widget_delete_failed": "Xóa tiện ích thất bại",
   "delete_widget_confirm_title": "Xóa tiện ích này?",
-  "delete_widget_confirm_description": "Tiện ích sẽ bị gỡ khỏi bảng điều khiển. Bạn không thể hoàn tác thao tác này."
+  "delete_widget_confirm_description": "Tiện ích sẽ bị gỡ khỏi bảng điều khiển. Bạn không thể hoàn tác thao tác này.",
+  "dashboard_deactivated_tooltip": "Bảng điều khiển này đã bị khóa. Chức năng chỉnh sửa và xóa bị vô hiệu hóa."
 }

@@ -33,6 +33,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -69,6 +70,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -105,6 +107,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -141,6 +144,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -177,6 +181,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -213,6 +218,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -249,6 +255,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -285,6 +292,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -321,6 +329,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -357,6 +366,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -393,6 +403,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
     device_properties: {
       latest_checkpoint: {
@@ -429,6 +440,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
 
     device_properties: {
@@ -466,6 +478,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
 
     device_properties: {
@@ -503,6 +516,7 @@ export const deviceSpaces: DeviceDataOriginal[] = [
         claim_code: uuidv4(),
       },
       is_published: false,
+      is_deactivated: false,
     },
 
     device_properties: {

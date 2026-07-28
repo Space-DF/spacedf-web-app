@@ -239,7 +239,7 @@ const DynamicLayout = ({
   }
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (!mounted) return
     const handleResize = () => {
       const screenWidth = window.innerWidth
       if (screenWidth < RESPONSIVE_BREAKPOINTS.TABLET) {
@@ -248,7 +248,7 @@ const DynamicLayout = ({
         const collapsedLayout = calculateCollapsedLayout()
         mainLayoutRefs.current?.setLayout(collapsedLayout)
         setCookie(COOKIES.MAIN_LAYOUTS, collapsedLayout)
-      } else {
+      } else if (!isCollapsed && screenWidth >= RESPONSIVE_BREAKPOINTS.TABLET) {
         setCollapsed(false)
         setCookie(COOKIES.SIDEBAR_COLLAPSED, false)
         mainLayoutRefs.current?.setLayout([sidebarWidth, mainWidth])
@@ -260,7 +260,7 @@ const DynamicLayout = ({
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [mounted, isCollapsed])
 
   const isTablet = mounted && width > RESPONSIVE_BREAKPOINTS.TABLET
 

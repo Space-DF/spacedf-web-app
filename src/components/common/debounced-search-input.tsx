@@ -1,28 +1,21 @@
 import { memo, useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
-import { InputWithIcon } from '@/components/ui/input'
+import { InputProps, InputWithIcon } from '@/components/ui/input'
 import { useDebounce } from '@/hooks'
 import { cn } from '@/lib/utils'
 
-interface DebouncedSearchInputProps {
-  /** Called with the debounced value whenever it changes. Must be stable (useCallback). */
+interface DebouncedSearchInputProps extends InputProps {
   onSearch: (value: string) => void
   placeholder?: string
-  /** Debounce delay in ms. Defaults to useDebounce's default (300ms). */
   delay?: number
   iconSize?: number
   iconClassName?: string
   wrapperClass?: string
   className?: string
   type?: string
+  disabled?: boolean
 }
 
-/**
- * Search input that owns its own text state and debounces internally, reporting
- * only the debounced value up via `onSearch`. Keeping the per-keystroke state
- * local means typing re-renders just this small input — not the parent list it
- * filters — so the list only re-renders when the debounced query actually changes.
- */
 export const DebouncedSearchInput = memo(
   ({
     onSearch,
@@ -33,6 +26,7 @@ export const DebouncedSearchInput = memo(
     wrapperClass = 'w-full',
     className,
     type = 'text',
+    ...props
   }: DebouncedSearchInputProps) => {
     const [value, setValue] = useState('')
     const debouncedValue = useDebounce(value, delay)
@@ -58,6 +52,7 @@ export const DebouncedSearchInput = memo(
           wrapperClass
         )}
         className={className}
+        {...props}
       />
     )
   }

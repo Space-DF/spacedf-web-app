@@ -42,5 +42,6 @@
   "entity_humidity": "Humidity",
   "entity_weight": "Weight",
   "entities_saved_successfully": "Entity visibility updated",
-  "entities_save_failed": "Could not update entity visibility"
+  "entities_save_failed": "Could not update entity visibility",
+  "device_deactivated_tooltip": "Subscription expired. You can still view this device, but editing and receiving new data are disabled until your organization's subscription is renewed."
 }

@@ -1,3 +1,4 @@
+import { MAX_LIMIT_DEVICES } from '@/constants'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
 import { useIdentityStore } from '@/stores/identity-store'
 import { useAddDeviceStore } from '@/stores/template/add-device'
@@ -13,6 +14,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useShallow } from 'zustand/react/shallow'
 import { addDeviceSchema, AddDeviceSchema } from './schema'
 import { queryKeys } from '@/lib/query-keys'
@@ -26,6 +32,7 @@ import { AddDeviceScanQR, Step } from './components/add-device-scan-qr'
 import { AddDeviceForm, Mode } from './components/add-device-form'
 import { AddDeviceSuccess } from './components/add-device-success'
 import { useQueryClient } from '@tanstack/react-query'
+import { useOrganizationValidationStore } from '@/stores'
 
 interface Steps {
   label: string
@@ -33,7 +40,11 @@ interface Steps {
   component: React.ReactNode
 }
 
-export const AddDeviceDialog = () => {
+interface Props {
+  totalDevices: number
+}
+
+export const AddDeviceDialog = ({ totalDevices }: Props) => {
   const queryClient = useQueryClient()
   const tCommon = useTranslations('common')
   const tAddNewDevice = useTranslations('addNewDevice')
@@ -52,6 +63,8 @@ export const AddDeviceDialog = () => {
     (state) => state.setOpenDrawerIdentity
   )
   const isAuth = useAuthenticated()
+
+  const isPro = useOrganizationValidationStore((state) => state.isPro)
 
   const form = useForm<AddDeviceSchema>({
     resolver: zodResolver(addDeviceSchema),
@@ -140,23 +153,44 @@ export const AddDeviceDialog = () => {
     setStep(prevStep)
   }
 
+  const isDeviceReachLimit = !isPro && totalDevices >= MAX_LIMIT_DEVICES
+
+  const handleAddDevice = () => {
+    if (!isAuth) {
+      setOpenDrawerIdentity(true)
+      return
+    }
+    if (isDeviceReachLimit) return
+    setIsOpenDeviceModal(true)
+  }
+
+  const addDeviceButton = (
+    <Button
+      className="h-8 gap-x-2"
+      disabled={isDeviceReachLimit}
+      onClick={handleAddDevice}
+    >
+      <span className="text-xs font-semibold leading-4">
+        {uppercaseFirstLetter(tCommon('add'))} {tCommon('devices')}{' '}
+      </span>
+      <Plus size={16} className="text-primary-foreground" />
+    </Button>
+  )
+
   return (
     <div className="flex items-center justify-center">
-      <Button
-        className="h-8 gap-x-2"
-        onClick={() => {
-          if (!isAuth) {
-            setOpenDrawerIdentity(true)
-            return
-          }
-          setIsOpenDeviceModal(true)
-        }}
-      >
-        <span className="text-xs font-semibold leading-4">
-          {uppercaseFirstLetter(tCommon('add'))} {tCommon('devices')}{' '}
-        </span>
-        <Plus size={16} className="text-primary-foreground" />
-      </Button>
+      {isDeviceReachLimit ? (
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <span tabIndex={0}>{addDeviceButton}</span>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-60">
+            {tCommon('plan_limit_reached')}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        addDeviceButton
+      )}
       <Dialog open={isOpenDeviceModal} onOpenChange={handleReset}>
         <DialogContent className="sm:max-w-[530px]">
           {isShowHeader && (
