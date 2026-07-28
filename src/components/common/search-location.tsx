@@ -7,6 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
+import { InputWithIcon } from '@/components/ui/input'
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import { geocodingService } from '@/utils/map-geocoding'
 import type { GeocodingFeature } from '@maptiler/client'
@@ -91,22 +92,15 @@ export function SearchLocation({ map, className }: SearchLocationProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
-        <div
-          className={cn(
-            'flex min-w-72 max-w-96 outline-none items-center gap-2 bg-input rounded-input px-3 shadow-sm transition-colors',
-            className
-          )}
-        >
-          <Search className="size-4 shrink-0 text-muted-foreground" />
-          <input
+        <div className={cn('min-w-72 max-w-96', className)}>
+          <InputWithIcon
             type="text"
             value={query}
             onChange={handleChange}
             onFocus={handleFocus}
             placeholder="Search Location"
-            className={cn(
-              'h-10 flex-1 min-w-0 text-sm outline-none placeholder:text-brand-component-text-gray rounded-button bg-input text-input-foreground'
-            )}
+            prefixCpn={<Search className="size-4 shrink-0" />}
+            wrapperClass="w-full"
             aria-label="Search location"
             aria-autocomplete="list"
             aria-controls="search-location-list"

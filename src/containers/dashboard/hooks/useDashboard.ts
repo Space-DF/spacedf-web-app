@@ -19,8 +19,5 @@ export const useDashboard = (search?: string) => {
     enabled: !!spaceSlugName,
   })
 
-  return {
-    ...queryResult,
-    mutate: queryResult.refetch,
-  }
+  return queryResult
 }

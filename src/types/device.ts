@@ -42,6 +42,7 @@ type DeviceData = {
   status: string
   lorawan_device: LorawanDevice
   is_published: boolean
+  is_deactivated: boolean
 }
 
 export type DeviceProperties = {

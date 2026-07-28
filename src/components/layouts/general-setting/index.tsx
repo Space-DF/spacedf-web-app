@@ -1,54 +1,78 @@
-import { PropsWithChildren, useEffect, useMemo } from 'react'
+import { Separator } from '@/components/ui/separator'
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+import { cn } from '@/lib/utils'
+import { CircleUser, Fingerprint } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import React, { useEffect, useMemo } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '../../ui/dialog'
-import { CircleUser, Trash } from 'lucide-react'
-import { Laptop, SettingIcon } from '../../icons'
-import { cn } from '@/lib/utils'
-import Profile from './profile'
 import Account from './account'
 import Appearance from './appearance'
-// import Language from './language'
 import DeleteAccount from './delete-account'
-import React from 'react'
-import { Separator } from '@/components/ui/separator'
-import { useTranslations } from 'next-intl'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
+import Plans from './plans'
+import Profile from './profile'
 import { useGeneralSetting } from './store/useGeneralSetting'
+import { CreditCard, Trash2 } from '@/components/icons'
+import { CircleHalfTilt } from '@/components/icons/circle-half-tilt'
 
 const settings = [
   {
-    key: 'profile',
-    icon: <CircleUser size={16} />,
-    label: 'Profile',
+    key: 'general',
+    icon: (
+      <CircleUser
+        size={16}
+        className="text-accent-foreground size-4 font-medium"
+      />
+    ),
+    titleKey: 'profile',
   },
   {
-    key: 'account',
-    icon: <SettingIcon />,
-    label: 'Account',
+    key: 'security',
+    icon: (
+      <Fingerprint size={16} className="text-accent-foreground font-medium" />
+    ),
+    titleKey: 'security',
   },
   {
     key: 'appearance',
-    icon: <Laptop />,
-    label: 'Appearance',
+    icon: (
+      <CircleHalfTilt
+        className="text-accent-foreground size-4 font-medium"
+        width={16}
+        height={16}
+      />
+    ),
+    titleKey: 'appearance',
   },
-  // {
-  //   key: 'language',
-  //   icon: <Globe size={16} />,
-  //   label: 'Language',
-  // },
+  {
+    key: 'plans',
+    icon: (
+      <CreditCard
+        className="text-accent-foreground size-4 font-medium"
+        width={16}
+        height={16}
+      />
+    ),
+    titleKey: 'plans',
+  },
   {
     key: 'delete_account',
-    icon: <Trash size={16} />,
-    label: 'Delete account',
+    icon: (
+      <Trash2
+        width={16}
+        height={16}
+        className="text-accent-foreground font-medium"
+      />
+    ),
+    titleKey: 'delete_account',
   },
 ]
 
-const GeneralSetting = ({ children }: PropsWithChildren) => {
+const GeneralSetting = () => {
   const isOpen = useGeneralSetting((state) => state.isOpen)
   const currentSetting = useGeneralSetting((state) => state.currentSetting)
   const setIsOpen = useGeneralSetting((state) => state.setIsOpen)
@@ -61,9 +85,7 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   const isAuthenticated = useAuthenticated()
 
   useEffect(() => {
-    if (isAuthenticated) {
-      setCurrentSetting('profile')
-    }
+    setCurrentSetting(isAuthenticated ? 'general' : 'appearance')
   }, [isAuthenticated])
 
   const authSettings = useMemo(() => {
@@ -72,20 +94,29 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
     }
     return settings.filter(
       (setting) =>
-        !['delete_account', 'account', 'profile'].includes(setting.key)
+        !['delete_account', 'security', 'general', 'plans'].includes(
+          setting.key
+        )
     )
   }, [isAuthenticated])
 
+  const currentTitleKey = useMemo(
+    () =>
+      settings.find((setting) => setting.key === currentSetting)?.titleKey ??
+      'general_settings',
+    [currentSetting]
+  )
+
   const renderSetting = useMemo(() => {
     switch (currentSetting) {
-      case 'profile':
+      case 'general':
         return <Profile />
-      case 'account':
+      case 'security':
         return <Account />
       case 'appearance':
         return <Appearance />
-      // case 'language':
-      //   return <Language />
+      case 'plans':
+        return <Plans />
       case 'delete_account':
         return <DeleteAccount />
       default:
@@ -100,58 +131,51 @@ const GeneralSetting = ({ children }: PropsWithChildren) => {
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open)
     if (!open) {
-      setCurrentSetting(isAuthenticated ? 'profile' : 'appearance')
+      setCurrentSetting(isAuthenticated ? 'general' : 'appearance')
     }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="text-sm text-brand-component-text-dark sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>{t('general_settings')}</DialogTitle>
-        </DialogHeader>
-        <div className="flex">
-          <div className="w-[200px] border-r border-brand-stroke-dark-soft py-4 dark:border-brand-stroke-outermost">
-            <div className="flex flex-col gap-1">
+      <DialogContent className="gap-0 p-0 text-sm text-brand-component-text-dark sm:max-w-[632px]">
+        <div className="flex items-stretch">
+          <div className="w-[200px] shrink-0 border-r border-brand-stroke-dark-soft p-3 dark:border-brand-stroke-outermost">
+            <div className="flex flex-col gap-[2px]">
               {authSettings.map((setting) => {
                 const isActive = setting.key === currentSetting
 
                 return (
                   <React.Fragment key={setting.key}>
                     {setting.key === 'delete_account' && (
-                      <Separator className="my-1.5" />
+                      <Separator className="my-1" />
                     )}
                     <div
                       className={cn(
-                        'flex cursor-pointer items-center gap-2 px-4 py-[6px] font-medium duration-300 hover:bg-brand-fill-dark-soft/80 hover:dark:bg-brand-text-dark/80',
-                        isActive
-                          ? 'border-r-2 border-primary bg-accent text-primary'
-                          : 'border-none bg-transparent text-brand-text-gray',
-                        {
-                          'text-brand-semantic-accent':
-                            setting.key === 'delete_account',
-                        }
+                        'flex h-8 cursor-pointer text-accent-foreground items-center gap-2 rounded-[10px] p-1.5 font-medium duration-300 hover:bg-accent/80',
+                        isActive ? 'bg-accent' : 'bg-transparent'
                       )}
                       onClick={() => handleSettingClick(setting.key)}
                     >
                       {setting.icon}
-                      {t(setting.key as any)}
+                      <span className="flex-1 truncate">
+                        {t(setting.key as any)}
+                      </span>
                     </div>
                   </React.Fragment>
                 )
               })}
             </div>
           </div>
-          <div
-            className={cn(
-              'min-h-[350px] flex-1 p-4',
-              currentSetting === 'appearance' &&
-                'bg-brand-fill-surface dark:bg-brand-fill-outermost'
-            )}
-          >
-            <div className="text-brand-component-text-dark dark:text-brand-dark-text-gray">
-              {renderSetting}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <DialogHeader className="px-6 pb-3 pt-4">
+              <DialogTitle className="font-semibold text-[16px] text-brand-component-text-dark">
+                {t(currentTitleKey as any)}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="min-h-[350px] flex-1 p-4">
+              <div className="text-brand-component-text-dark">
+                {renderSetting}
+              </div>
             </div>
           </div>
         </div>

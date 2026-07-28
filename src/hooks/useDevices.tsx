@@ -25,12 +25,14 @@ export type GetDevicesQuery = {
 }
 
 function buildDevicesUrl(
-  spaceSlug: string,
+  spaceSlug: string | undefined,
   offset: number,
   query?: GetDevicesQuery
 ) {
   return queryString.stringifyUrl({
-    url: `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}`,
+    url: spaceSlug
+      ? `${SWR_GET_DEVICE_ENDPOINT}/${spaceSlug}`
+      : SWR_GET_DEVICE_ENDPOINT,
     query: {
       offset,
       limit: DEFAULT_PAGE_SIZE,
@@ -50,11 +52,12 @@ export function useGetDevices(query?: GetDevicesQuery, _configs: unknown = {}) {
     query?.deviceName ?? '',
     query?.bbox ?? '',
     query?.buildingId ?? '',
+    isAuthenticated,
   ]
 
   const infinite = useInfiniteQuery({
     queryKey,
-    enabled: Boolean(spaceSlug) && isAuthenticated,
+    enabled: Boolean(spaceSlug) || !isAuthenticated,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
       const offset = typeof pageParam === 'number' ? pageParam : 0

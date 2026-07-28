@@ -18,6 +18,12 @@ import DeviceIcon from '/public/images/device-icon.webp'
 import { Map } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAddDeviceStore } from '@/stores/template/add-device'
+import { Lock } from '@/components/icons'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -35,6 +41,8 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
     fetchNextPage,
     isFetchingNextPage,
   } = useGetDevices({ deviceName: debouncedDeviceName })
+
+  const { data: totalDevices } = useGetDevices()
 
   const { locations, deviceHasLocation } = useMemo(() => {
     const locations = [] as [number, number][]
@@ -128,6 +136,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   }, [devices])
 
   const handleSelectDevice = (device: DeviceDataOriginal) => {
+    if (device.device.is_deactivated) return
     setDeviceSelected(device.device.id)
     const deviceBuildingId = device.building?.id
     if (buildingId && deviceBuildingId && deviceBuildingId !== buildingId) {
@@ -144,7 +153,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
       <div className="flex items-center justify-between">
         <div className="font-semibold text-foreground">{t('devices_list')}</div>
         <div className="flex space-x-1 items-center">
-          <AddDeviceDialog />
+          <AddDeviceDialog totalDevices={totalDevices.length} />
           <div
             className="group h-max cursor-pointer rounded-sm p-1"
             onClick={onClose}
@@ -213,12 +222,16 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         listLocationName[index]?.features?.[0]?.place_name
                           ? listLocationName[index].features[0].place_name
                           : 'Unknown'
-
+                      const isDeviceDeactivated = device.device.is_deactivated
                       return (
                         <div
                           key={device.id}
+                          aria-disabled={isDeviceDeactivated}
                           className={cn(
-                            'cursor-pointer h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
+                            'h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
+                            isDeviceDeactivated
+                              ? 'cursor-default opacity-50'
+                              : 'cursor-pointer',
                             {
                               'border-brand-component-stroke-dark':
                                 device?.device.id === deviceSelected,
@@ -241,10 +254,27 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                   sizes="32px"
                                 />
                               </div>
-                              <Ellipsis
-                                size={16}
-                                className="text-muted-foreground"
-                              />
+                              <div className="flex space-x-1 items-center">
+                                {isDeviceDeactivated && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button className="size-5 rounded-md justify-center flex items-center border border-brand-component-stroke-warning-soft bg-brand-component-fill-warning-soft">
+                                        <Lock className="text-brand-icon-warning-dark" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="max-w-[280px] text-xs"
+                                    >
+                                      {t('device_deactivated_tooltip')}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                <Ellipsis
+                                  size={16}
+                                  className="text-muted-foreground"
+                                />
+                              </div>
                             </div>
                             <div className="text-xs font-medium">
                               <span className="leading-[18px] line-clamp-1 text-brand-component-text-dark">

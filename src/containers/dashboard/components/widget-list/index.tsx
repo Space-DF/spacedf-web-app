@@ -1,41 +1,10 @@
 import { Nodata, RightSideBarLayout } from '@/components/ui'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  ChevronsUpDown,
-  Grid2x2Plus,
-  PlusIcon,
-} from 'lucide-react'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { ArrowLeft, Grid2x2Plus } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { useTranslations } from 'next-intl'
-import { Separator } from '@/components/ui/separator'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Widget, WidgetLayout } from '@/types/widget'
+import { WidgetLayout } from '@/types/widget'
 import { useScreenLayoutStore } from '@/stores/dashboard-layout'
 import { MockData } from '../mock-data/mock-data'
 import { useDeleteDashboard } from '../../hooks/useDeleteDashboard'
@@ -43,8 +12,6 @@ import { useDashboard } from '../../hooks/useDashboard'
 import { useUpdateWidgets } from './hooks/useUpdateWidgets'
 import { toast } from 'sonner'
 import { WidgetAction } from './components/widget-action'
-import { useAuthenticated } from '@/hooks/useAuthenticated'
-import { useIdentityStore } from '@/stores/identity-store'
 import { useShallow } from 'zustand/react/shallow'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Dashboard } from '@/types/dashboard'
@@ -52,6 +19,11 @@ import { sleep } from '@/utils'
 import { useGlobalStore } from '@/stores'
 import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { getLayouts } from './utils'
+import { ConfirmDeleteDashboard } from './components/delete-dialog'
+import { DashboardList } from './components/dashboard-list'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query-keys'
 
 const DashboardTable = dynamic(() => import('./components/dashboard-table'), {
   ssr: false,
@@ -67,17 +39,6 @@ interface Props {
   setIsAddWidgetOpen: (open: boolean) => void
   mutateWidgets: () => void
   onEditWidget: (layout: WidgetLayout) => void
-}
-
-const getLayouts = (widgets: Widget[]) => {
-  const layout = widgets.map((widget) => ({ ...widget, i: widget.id }))
-  return {
-    sm: layout,
-    md: layout,
-    lg: layout,
-    xs: layout,
-    xxs: layout,
-  }
 }
 
 export const WidgetList: React.FC<Props> = ({
@@ -109,11 +70,7 @@ export const WidgetList: React.FC<Props> = ({
   )
 
   const t = useTranslations()
-  const setOpenDrawerIdentity = useIdentityStore(
-    (state) => state.setOpenDrawerIdentity
-  )
   const [open, setOpen] = useState(false)
-  const isAuthenticated = useAuthenticated()
   const { trigger: updateWidgets, isMutating: isUpdatingWidgets } =
     useUpdateWidgets()
   const [isOpenDashboardDialog, setIsOpenDashboardDialog] = useState(false)
@@ -126,20 +83,19 @@ export const WidgetList: React.FC<Props> = ({
   const widgetList = useDashboardStore(useShallow((state) => state.widgetList))
   const [searchDashboard, setSearchDashboard] = useState('')
   const searchDashboardDebounced = useDebounce(searchDashboard, 300)
-  const {
-    data: dashboardList,
-    mutate,
-    isLoading: isLoadingDashboard,
-  } = useDashboard(searchDashboardDebounced)
-
+  const { data: dashboardList, isLoading: isLoadingDashboard } = useDashboard(
+    searchDashboardDebounced
+  )
+  const { data: unfilteredDashboardList } = useDashboard()
   const { trigger: deleteDashboard, isMutating: isDeleting } =
     useDeleteDashboard(deleteId)
+  const queryClient = useQueryClient()
 
   const dashboards = useMemo(() => dashboardList || [], [dashboardList])
 
   const handleDeleteDashboard = async () => {
     await deleteDashboard()
-    await mutate()
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboards.all })
     if (dashboard?.id === deleteId) {
       setDashboard(undefined)
     }
@@ -211,18 +167,6 @@ export const WidgetList: React.FC<Props> = ({
     }
   }, [dashboards, dashboard, spaceSlugName, isLoadingDashboard])
 
-  const currentDashboardName = useMemo(() => {
-    return dashboard?.name || 'Select Dashboard'
-  }, [dashboard])
-
-  const handleOpenDashboardDialog = () => {
-    if (isAuthenticated) {
-      setIsOpenDashboardDialog(true)
-    } else {
-      setOpenDrawerIdentity(true)
-    }
-  }
-
   const handleOpenChangeDashboard = (value: boolean) => {
     setOpen(value)
     if (!value) {
@@ -264,98 +208,17 @@ export const WidgetList: React.FC<Props> = ({
               <div>{t('dashboard.all_dashboard')}</div>
             </div>
           ) : (
-            <Popover open={open} onOpenChange={handleOpenChangeDashboard}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  aria-labelledby="dashboard-combobox"
-                  aria-label="dashboard-label"
-                  className={cn(
-                    'line-clamp-1 border flex h-8 border-border justify-between gap-2 whitespace-normal px-2 py-1 text-foreground bg-input',
-                    {
-                      'border-brand-component-stroke-dark shadow-dashboard':
-                        open,
-                    }
-                  )}
-                >
-                  <div className="line-clamp-1 w-full flex-1 text-left">
-                    {currentDashboardName}
-                  </div>
-                  <ChevronsUpDown className="size-4 shrink-0 opacity-50 text-muted-foreground" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-60 rounded-lg p-2" align="start">
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    classNameContainer=""
-                    placeholder={t('dashboard.search')}
-                    onValueChange={setSearchDashboard}
-                    value={searchDashboard}
-                  />
-                  <CommandList>
-                    {!isLoadingDashboard && !dashboards.length && (
-                      <CommandEmpty>
-                        {t('dashboard.no_dashboard_found')}
-                      </CommandEmpty>
-                    )}
-                    <CommandGroup className="mt-3 p-0">
-                      {isLoadingDashboard
-                        ? Array.from({ length: 3 }).map((_, index) => (
-                            <div
-                              key={index}
-                              className="cursor-pointer rounded-md px-2 py-1.5"
-                            >
-                              <Skeleton className="h-5 w-full" />
-                            </div>
-                          ))
-                        : dashboards.map((dashboardItem) => (
-                            <CommandItem
-                              key={dashboardItem.id}
-                              value={dashboardItem.id}
-                              onSelect={(currentValue) => {
-                                const itemSelect = dashboards.find(
-                                  (dashboardItem) =>
-                                    dashboardItem.id === currentValue
-                                )
-                                setDashboard(itemSelect!)
-                                handleOpenChangeDashboard(false)
-                                setEdit(false)
-                              }}
-                              className={cn(
-                                'cursor-pointer rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
-                                {
-                                  'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
-                                    dashboard?.id === dashboardItem.id,
-                                }
-                              )}
-                            >
-                              {dashboardItem.name}
-                            </CommandItem>
-                          ))}
-                    </CommandGroup>
-                    <Separator className="my-3" />
-                    <Button
-                      className="mb-3 h-8 w-full gap-2 text-sm font-semibold"
-                      variant="outline"
-                      onClick={handleViewAllDashboard}
-                    >
-                      {t('dashboard.view_all_dashboard')}
-                      <ArrowUpRight />
-                    </Button>
-
-                    <Button
-                      className="h-8 w-full gap-2 text-sm font-semibold"
-                      onClick={handleOpenDashboardDialog}
-                    >
-                      {t('dashboard.create_new_dashboard')}
-                      <PlusIcon size={16} />
-                    </Button>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <DashboardList
+              searchDashboard={searchDashboard}
+              setSearchDashboard={setSearchDashboard}
+              open={open}
+              onOpenDashboardChange={handleOpenChangeDashboard}
+              dashboards={dashboards}
+              isLoadingDashboard={isLoadingDashboard}
+              onViewAllDashboard={handleViewAllDashboard}
+              setIsOpenDashboardDialog={setIsOpenDashboardDialog}
+              totalDashboardsCount={unfilteredDashboardList?.length || 0}
+            />
           )
         }
         externalButton={
@@ -397,35 +260,12 @@ export const WidgetList: React.FC<Props> = ({
             </>
           )}
         </div>
-        <AlertDialog
-          open={!!deleteId}
-          onOpenChange={() => setDeleteId(undefined)}
-        >
-          <AlertDialogContent className="dark:bg-brand-component-fill-outermost p-4 sm:max-w-[402px] sm:rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-center text-lg font-bold text-brand-component-text-dark">
-                {t('dashboard.are_you_sure')}?
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-center text-sm font-medium text-brand-component-text-gray">
-                {t(
-                  'dashboard.the_dashboard_will_be_deleted_from_the_system_and_cannot_be_restored'
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex gap-4">
-              <AlertDialogCancel className="h-12 flex-1 border-brand-component-stroke-dark-soft text-base font-semibold text-brand-component-text-gray shadow-none">
-                {t('dashboard.cancel')}
-              </AlertDialogCancel>
-              <Button
-                loading={isDeleting}
-                className="h-12 flex-1 items-center gap-2 rounded-lg border-2 border-brand-component-stroke-dark bg-brand-component-fill-negative text-base font-semibold text-white shadow-sm transition-all hover:bg-brand-component-fill-negative hover:opacity-70 dark:border-brand-component-stroke-light"
-                onClick={handleDeleteDashboard}
-              >
-                {t('dashboard.delete')}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmDeleteDashboard
+          deleteId={deleteId}
+          setDeleteId={setDeleteId}
+          isDeleting={isDeleting}
+          onDeleteDashboard={handleDeleteDashboard}
+        />
       </RightSideBarLayout>
     </>
   )

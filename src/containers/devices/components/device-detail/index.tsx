@@ -18,6 +18,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGetDeviceByDeviceId } from './hooks/useGetDeviceByDeviceId'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
 import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
+import { Lock } from '@/components/icons'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -180,7 +181,16 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
         >
           <div className="h-full mt-4">
             <div className="flex flex-col gap-8 pb-20">
-              <DeviceSelected />
+              <div className="space-y-0">
+                {selectedDevice.isDeactivated && (
+                  <div className="-mx-4 -ml-3">
+                    <div className="w-full border p-1 justify-center border-brand-component-stroke-warning-soft font-semibold text-brand-component-text-warning text-xs rounded-lg bg-brand-component-fill-warning-soft flex items-center space-x-1">
+                      <Lock width={16} height={16} /> {t('edit_are_disabled')}
+                    </div>
+                  </div>
+                )}
+                <DeviceSelected isDeactivated={selectedDevice.isDeactivated} />
+              </div>
               {isSmartBuildingTemplate &&
                 selectedDevice.position &&
                 selectedDevice.building && <ListEntity entities={entities} />}

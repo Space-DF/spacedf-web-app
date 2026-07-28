@@ -1,48 +1,38 @@
-import { useTranslations } from 'next-intl'
 import React, { Suspense } from 'react'
 import { OrganizationLogo } from '@/components/icons/organization-logo'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
 import { Space } from '@/types/space'
+import { Lock } from '@/components/icons'
 
 type SpaceMenuItemProps = {
   spaceData: Space
   position: number
 }
 
-const SpaceMenuItem = ({ spaceData, position }: SpaceMenuItemProps) => {
-  const t = useTranslations('space')
-  const { url_logo, name, total_devices = 0 } = spaceData
-  const shortCutText = `⌘⌥${position + 1}`
+const SpaceMenuItem = ({ spaceData }: SpaceMenuItemProps) => {
+  const { url_logo, name, is_deactivated } = spaceData
 
   return (
-    <>
-      <div className="flex gap-3">
-        <Avatar className="flex items-center justify-center rounded-lg bg-purple-200 dark:bg-purple-700">
-          <AvatarImage src={url_logo} alt={name} className="rounded-lg" />
+    <div className="flex w-full items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <Avatar className="flex size-8 items-center justify-center rounded-[10px] bg-accent">
+          <AvatarImage src={url_logo} alt={name} className="size-full" />
           <Suspense fallback={<AvatarFallback>LG</AvatarFallback>}>
-            <OrganizationLogo
-              className="text-purple-900 dark:text-purple-400"
-              width={28}
-              height={28}
-            />
+            <OrganizationLogo className="text-primary" width={20} height={20} />
           </Suspense>
         </Avatar>
 
-        <div className="flex flex-col justify-between font-medium">
-          <p className={cn('text-xs font-medium leading-normal text-white')}>
-            {name}
-          </p>
-          <span className="text-xs font-medium capitalize leading-normal text-brand-dark-text-gray">
-            {t('devices', { count: total_devices })}
-          </span>
-        </div>
+        <p className="text-[14px] font-medium leading-5 text-popover-foreground">
+          {name}
+        </p>
       </div>
-      <DropdownMenuShortcut className="text-brand-dark-text-gray">
-        {shortCutText}
-      </DropdownMenuShortcut>
-    </>
+
+      {is_deactivated && (
+        <span className="size-5 shrink-0 rounded-md justify-center flex items-center border border-brand-component-stroke-warning-soft bg-brand-component-fill-warning-soft">
+          <Lock className="text-brand-icon-warning-dark" />
+        </span>
+      )}
+    </div>
   )
 }
 
