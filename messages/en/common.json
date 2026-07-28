@@ -112,6 +112,7 @@
   "device_not_found_description": "This might be a connection issue, or the device may not exist in this space. Try again, or use the back arrow to return to the device list.",
   "organization_plan": "Organization Plan",
   "plan_limit_reached": "Your organization has reached its current plan limit. Contact your organization administrator to upgrade the plan.",
+  "available_in_pro": "Available in PRO",
   "available_in_pro_plan": "Available in Pro Plan",
   "feature_not_in_current_plan": "This feature isn't available in your organization's current plan.",
   "access_restricted": "403 - Access Restricted",
