@@ -136,7 +136,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
   }, [devices])
 
   const handleSelectDevice = (device: DeviceDataOriginal) => {
-    if (device.is_deactivated) return
+    if (device.device.is_deactivated) return
     setDeviceSelected(device.device.id)
     const deviceBuildingId = device.building?.id
     if (buildingId && deviceBuildingId && deviceBuildingId !== buildingId) {
@@ -222,14 +222,14 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                         listLocationName[index]?.features?.[0]?.place_name
                           ? listLocationName[index].features[0].place_name
                           : 'Unknown'
-
+                      const isDeviceDeactivated = device.device.is_deactivated
                       return (
                         <div
                           key={device.id}
-                          aria-disabled={device.is_deactivated}
+                          aria-disabled={isDeviceDeactivated}
                           className={cn(
                             'h-fit rounded-card border border-border bg-card p-2 text-brand-component-text-dark',
-                            device.is_deactivated
+                            isDeviceDeactivated
                               ? 'cursor-default opacity-50'
                               : 'cursor-pointer',
                             {
@@ -255,7 +255,7 @@ export const DevicesList = ({ onClose }: { onClose: () => void }) => {
                                 />
                               </div>
                               <div className="flex space-x-1 items-center">
-                                {device.is_deactivated && (
+                                {isDeviceDeactivated && (
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <button className="size-5 rounded-md justify-center flex items-center border border-brand-component-stroke-warning-soft bg-brand-component-fill-warning-soft">

@@ -83,7 +83,7 @@ function DeviceCard({
               />
             </div>
             <div className="flex space-x-1 items-center">
-              {device.is_deactivated && (
+              {device.device.is_deactivated && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
