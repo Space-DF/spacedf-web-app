@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import { useForm } from 'react-hook-form'
 import { createNewPasswordSchema } from './validator/createNewPasswordSchema'
-import { EyeOff, Eye, LockKeyhole } from 'lucide-react'
+import { EyeOff, Eye } from 'lucide-react'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -78,7 +78,6 @@ export const CreateNewPasswordForm = () => {
                   <FormControl>
                     <InputWithIcon
                       type={isShowPassword ? 'text' : 'password'}
-                      prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
                           className="cursor-pointer"
@@ -111,7 +110,6 @@ export const CreateNewPasswordForm = () => {
                   <FormControl>
                     <InputWithIcon
                       type={isShowConfirmPassword ? 'text' : 'password'}
-                      prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
                           className="cursor-pointer"
@@ -137,7 +135,7 @@ export const CreateNewPasswordForm = () => {
             />
             <Button
               type="submit"
-              className="h-12 w-full"
+              className="w-full"
               loading={isMutatingResetPassword}
             >
               {t('continue')}

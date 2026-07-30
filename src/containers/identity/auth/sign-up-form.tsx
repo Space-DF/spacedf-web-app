@@ -1,4 +1,4 @@
-import { CircleUserRound, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { InputWithIcon } from '@/components/ui/input'
+import { Input, InputWithIcon } from '@/components/ui/input'
 import {
   TypographyPrimary,
   TypographySecondary,
@@ -66,8 +66,7 @@ const SignUpForm = () => {
                   <FormItem className="flex-1">
                     <FormLabel>{t('first_name')}</FormLabel>
                     <FormControl>
-                      <InputWithIcon
-                        prefixCpn={<CircleUserRound size={16} />}
+                      <Input
                         {...field}
                         placeholder={t('first_name')}
                         isError={!!fieldState.error}
@@ -84,8 +83,7 @@ const SignUpForm = () => {
                   <FormItem className="flex-1">
                     <FormLabel>{t('last_name')}</FormLabel>
                     <FormControl>
-                      <InputWithIcon
-                        prefixCpn={<CircleUserRound size={16} />}
+                      <Input
                         {...field}
                         placeholder={t('last_name')}
                         isError={!!form.formState.errors.last_name}
@@ -103,8 +101,7 @@ const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <InputWithIcon
-                      prefixCpn={<Mail size={16} />}
+                    <Input
                       {...field}
                       placeholder="Email"
                       isError={!!form.formState.errors.email}
@@ -124,7 +121,6 @@ const SignUpForm = () => {
                   <FormControl>
                     <InputWithIcon
                       type={isShowPassword ? 'text' : 'password'}
-                      prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
                           className="cursor-pointer"
@@ -155,7 +151,6 @@ const SignUpForm = () => {
                   <FormControl>
                     <InputWithIcon
                       type={isShowConfirmPassword ? 'text' : 'password'}
-                      prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
                           className="cursor-pointer"
@@ -182,7 +177,7 @@ const SignUpForm = () => {
           </div>
           <Button
             type="submit"
-            className="mb-2 mt-5 h-11 w-full"
+            className="mb-2 mt-5 w-full"
             loading={isMutatingSendOtp}
           >
             {t('sign_up')}

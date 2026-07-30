@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import React, { useState, useTransition } from 'react'
@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { InputWithIcon } from '@/components/ui/input'
+import { Input, InputWithIcon } from '@/components/ui/input'
 import {
   TypographyPrimary,
   TypographySecondary,
@@ -86,8 +86,7 @@ const SignInForm = () => {
                 <FormItem>
                   <FormLabel className="">Email</FormLabel>
                   <FormControl>
-                    <InputWithIcon
-                      prefixCpn={<Mail size={16} />}
+                    <Input
                       {...field}
                       placeholder="Email"
                       className=""
@@ -110,7 +109,6 @@ const SignInForm = () => {
                   <FormControl>
                     <InputWithIcon
                       type={isShowPassword ? 'text' : 'password'}
-                      prefixCpn={<LockKeyhole size={16} />}
                       suffixCpn={
                         <span
                           className="cursor-pointer"
@@ -144,7 +142,7 @@ const SignInForm = () => {
           </div>
           <Button
             type="submit"
-            className="mb-2 h-11 w-full border-4 shadow-sm"
+            className="mb-2 w-full border-4 shadow-sm"
             loading={isAuthenticating}
           >
             {t('sign_in')}

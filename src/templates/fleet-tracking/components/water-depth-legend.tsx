@@ -3,7 +3,7 @@ import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
 export const WaterDepthLegend = () => {
   return (
     <div
-      className="absolute bottom-10 right-3 w-[200px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
+      className="absolute bottom-10 right-3 w-[200px] rounded-xl h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
       dark:bg-[#171A28CC] dark:text-white"
     >
       <div className="flex items-center gap-2 mb-3">

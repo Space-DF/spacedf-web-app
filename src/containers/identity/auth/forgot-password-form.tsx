@@ -1,5 +1,4 @@
-import { Mail } from 'lucide-react'
-import { InputWithIcon } from '@/components/ui/input'
+import { Input } from '@/components/ui/input'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import {
@@ -80,8 +79,7 @@ export const ForgotPasswordForm = () => {
                       Email
                     </FormLabel>
                     <FormControl>
-                      <InputWithIcon
-                        prefixCpn={<Mail size={16} />}
+                      <Input
                         placeholder={t('your_email')}
                         {...field}
                         isError={!!fieldState.error}
@@ -94,7 +92,7 @@ export const ForgotPasswordForm = () => {
               <div className="space-y-2">
                 <Button
                   type="submit"
-                  className="mb-2 h-11 w-full border-4 shadow-sm"
+                  className="mb-2 w-full"
                   loading={isMutating}
                 >
                   {t('continue')}

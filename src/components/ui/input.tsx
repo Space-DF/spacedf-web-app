@@ -105,9 +105,10 @@ const InputWithIcon = React.forwardRef<
         </div>
         <Input
           className={cn(
-            'h-9 border-none bg-input pl-8 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-secondary-foreground',
+            'h-9 border-none bg-input pl-3 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-secondary-foreground',
             {
               'pr-8': !!suffixCpn,
+              'pl-8': !!prefixCpn,
             },
             className
           )}

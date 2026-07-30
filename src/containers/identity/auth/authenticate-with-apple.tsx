@@ -11,7 +11,7 @@ const AuthenticateWithApple = () => {
   return (
     <div className="mt-2 w-full animate-opacity-display-effect self-start">
       <Button
-        className="h-12 w-full items-center gap-2"
+        className="w-full items-center gap-2"
         onClick={() => {
           toast.success('Scheduled: Catch up')
         }}

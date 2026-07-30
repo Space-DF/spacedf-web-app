@@ -1,7 +1,8 @@
 {
   "we_sent_a_code_to_email": "Chúng tôi đã gửi mã tới {email}",
   "continue": "Tiếp tục",
-  "resend_code": "Gửi lại mã ({time})",
+  "resend_code": "Gửi lại ({time})",
+  "didnt_receive_a_code": "Bạn chưa nhận được mã?",
   "guideline": "Hướng dẫn",
   "or_continue_with_email_address": "Hoặc tiếp tục với địa chỉ email",
   "name": "Tên",

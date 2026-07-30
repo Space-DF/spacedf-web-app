@@ -49,7 +49,7 @@ export function SpacePreviewImage() {
       <Button
         onClick={handleBack}
         size="sm"
-        className="absolute left-4 top-4 z-10 cursor-pointer items-center gap-2 rounded-lg border-4  text-sm font-semibold shadow-sm dark:border-brand-stroke-outermost"
+        className="absolute left-4 top-4 z-10 items-center gap-2 text-sm font-semibold shadow-sm"
       >
         <ArrowLeft size={20} />
         {t('back_to_home')}

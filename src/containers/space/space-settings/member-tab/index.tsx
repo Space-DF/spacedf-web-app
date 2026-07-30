@@ -216,15 +216,14 @@ export function MemberTab() {
           <div className="grid grid-cols-2 gap-2 w-48">
             <Button
               variant="outline"
-              className="h-10 w-full"
+              className="w-full"
               disabled={inviteMembers.length === 0}
               onClick={handleClearAll}
             >
               {t('space.clear_all')}
             </Button>
             <Button
-              className="h-10 w-full items-center gap-2 font-semibold"
-              size="lg"
+              className="w-full items-center gap-2 font-semibold"
               disabled={inviteMembers.length === 0}
               onClick={handleInviteAll}
               loading={isMutating}
@@ -245,8 +244,6 @@ export function MemberTab() {
             onSearch={handleSearch}
             placeholder={t('common.search')}
             delay={500}
-            wrapperClass=""
-            iconClassName=""
           />
         </div>
       </div>
@@ -280,14 +277,14 @@ export function MemberTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="h-12 flex-1 text-brand-text-gray">
+            <AlertDialogCancel className="flex-1 text-brand-text-gray">
               {t('space.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 onClick={handleDelete}
                 loading={isRemoving}
-                className="h-12 flex-1 border-2 border-brand-semantic-accent-dark bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {t('space.delete')}
               </Button>

@@ -39,7 +39,7 @@ interface EventItemProps {
 
 export const EventItemSkeleton = () => {
   return (
-    <div className="flex items-start gap-2 p-2 rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm">
+    <div className="flex items-start gap-2 p-2 rounded-card border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm">
       <div className="flex items-center justify-center">
         <Skeleton className="size-5 rounded-full" />
       </div>
@@ -73,7 +73,7 @@ export const EventItem = ({ item, address }: EventItemProps) => {
     <div
       key={item.id}
       className={cn(
-        'flex items-start gap-2 p-2 rounded-md border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm hover:shadow-md transition-all duration-300'
+        'flex items-start gap-2 p-2 rounded-card border border-brand-component-stroke-dark-soft bg-brand-component-fill-light shadow-sm hover:shadow-md transition-all duration-300'
       )}
     >
       <div className="flex items-center justify-center">
