@@ -39,8 +39,9 @@
     --checkbox-checked-bg: black;
 
     --radius: 0.5rem;
-    --button-radius: 8px;
-    --input-radius: 6px;
+    --button-radius: 12px;
+    --input-radius: 12px;
+    --radius-card: 12px;
 
     --sidebar-background: 0 0% 98%;
 
@@ -57,6 +58,11 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Org palette fallbacks: these are overridden by the injected org theme
+       (see generateThemeStyles), but must exist when there is no org/theme. */
+    --org-switch-background: 0 0% 92.94%; /* #EDEDED */
+    --org-input-border: 222.86 12.73% 89.22%; /* #E0E2E7 */
   }
 
   .dark {
@@ -106,6 +112,9 @@
     --sidebar-border: 240 3.7% 15.9%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --org-switch-background: 0 0% 15.69%; /* #282828 */
+    --org-input-border: 0 0% 30.2%; /* #4D4D4D */
   }
 
   [data-theme='dark'] {

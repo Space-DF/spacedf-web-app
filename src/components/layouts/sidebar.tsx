@@ -334,7 +334,6 @@ const CollapsedSidebar = ({ onCollapseChanges, isPro }: SidebarChildProps) => {
 }
 
 const Navigations = () => {
-  const isAuth = useAuthenticated()
   const t = useTranslations('common')
   return (
     <div
@@ -342,10 +341,7 @@ const Navigations = () => {
         'mt-2 flex flex-1 flex-col gap-1 py-2 transition-all duration-200'
       )}
     >
-      {(isAuth
-        ? NavigationData(t)
-        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
-      ).map((navigation) => {
+      {NavigationData(t).map((navigation) => {
         return <Navigation navigation={navigation} key={navigation.href} />
       })}
     </div>
@@ -376,8 +372,10 @@ const Navigation = ({ navigation }: { navigation: TNavigation }) => {
   return (
     <div
       className={cn(
-        'flex w-full items-center justify-between py-[2px] px-2 rounded-input',
-        isDisplayed || navigation.isAlwayEnabled ? 'bg-accent ' : ''
+        'flex w-full items-center justify-between py-[2px] px-2 rounded-button transition-colors duration-300',
+        isDisplayed || navigation.isAlwayEnabled
+          ? 'bg-accent '
+          : 'hover:bg-accent'
       )}
     >
       <label
@@ -439,14 +437,9 @@ const CollapsedNavigation = () => {
   const setCookieDirty = useLayout((state) => state.setCookieDirty)
   const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
 
-  const isAuth = useAuthenticated()
-
   return (
     <div className="my-4 flex w-full flex-col items-center justify-center gap-1">
-      {(isAuth
-        ? NavigationData(t)
-        : NavigationData(t).filter((n) => n.key !== 'workspace_settings')
-      ).map((navigation) => {
+      {NavigationData(t).map((navigation) => {
         const isDisplayed = dynamicLayouts.includes(navigation.href)
 
         const handleDynamicLayoutChange = () => {

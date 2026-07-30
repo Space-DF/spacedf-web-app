@@ -29,7 +29,7 @@ const TripHistoryItemSkeleton = ({ isExpanded }: { isExpanded: boolean }) => {
   return (
     <div
       className={cn(
-        'border border-brand-component-stroke-dark-soft rounded-md p-2 bg-brand-component-fill-light shadow-sm transition-all duration-200',
+        'border border-brand-component-stroke-dark-soft rounded-card p-2 bg-brand-component-fill-light shadow-sm transition-all duration-200',
         isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
       )}
     >
@@ -97,7 +97,7 @@ const TripHistory = () => {
         <div
           key={item.id}
           className={cn(
-            'border border-brand-component-stroke-dark-soft rounded-md p-2 bg-brand-component-fill-light cursor-pointer shadow-sm hover:shadow-md transition-all duration-200',
+            'border border-brand-component-stroke-dark-soft rounded-card p-2 bg-brand-component-fill-light cursor-pointer shadow-sm hover:shadow-md transition-all duration-200',
             isExpanded
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 -translate-y-4'

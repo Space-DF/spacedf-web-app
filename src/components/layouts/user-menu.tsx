@@ -97,7 +97,7 @@ const UserMenu = ({ isCollapsed }: { isCollapsed: boolean }) => {
       <DropdownMenuContent
         align={isCollapsed ? 'end' : 'start'}
         side={isCollapsed ? 'right' : 'top'}
-        className="w-56 rounded-card bg-background"
+        className="w-56 bg-background"
       >
         {profile?.email && (
           <DropdownMenuLabel className="truncate font-normal text-muted-foreground">
