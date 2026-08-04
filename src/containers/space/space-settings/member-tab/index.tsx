@@ -190,7 +190,7 @@ export function MemberTab() {
           {t('space.invite_list')}
         </Label>
       </div>
-      <div className="rounded-lg border border-brand-component-stroke-dark-soft p-3 space-y-3">
+      <div className="rounded-card border border-border p-3 space-y-3">
         <div className="flex flex-1 flex-col gap-1.5">
           <Label className="text-sm font-semibold text-brand-component-text-dark">
             {t('space.invite_member_by_email')}
