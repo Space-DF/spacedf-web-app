@@ -6,7 +6,7 @@ import ClusterInstance from '@/templates/fleet-tracking/core/cluster-instance'
 import { LocationDeckGLInstance } from '@/templates/fleet-tracking/core/location/deckgl-instance'
 import { LocationMarker } from '@/templates/fleet-tracking/core/location/marker-instance'
 import MapInstance from '@/templates/fleet-tracking/core/map-instance'
-import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-deckgl-instance'
+import { WaterDepthDeckInstance } from '@/templates/fleet-tracking/core/water-depth/water-depth-instance'
 import { Checkpoint } from '@/types/trip'
 import { groupDeviceByFeature } from '@/utils/map'
 import type {

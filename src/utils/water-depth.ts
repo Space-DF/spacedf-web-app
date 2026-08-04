@@ -1,4 +1,4 @@
-const WATER_LEVEL_THRESHOLDS = {
+export const WATER_LEVEL_THRESHOLDS = {
   safe: 0.1,
   warning: 0.3,
   floating: 0.6,

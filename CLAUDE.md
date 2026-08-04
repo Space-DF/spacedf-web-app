@@ -108,6 +108,14 @@ SpaceDF is a Next.js web application for IoT tracking and digital twin visualiza
 - CSS variables for theming in `src/styles/color-variables.css`
 - Component variants using `class-variance-authority`
 
+**Code Comments**:
+
+- Prefer self-explanatory code over comments. Make the code readable through clear naming, small focused functions, and extracted constants instead of explaining it in a comment.
+- Do not write comments that restate what the code already says, label obvious sections, or narrate a change (`// updated`, `// new logic`, commented-out code).
+- Write a comment only when the reader cannot recover the information from the code itself: a non-obvious "why" (business rule, workaround, ordering constraint, performance trade-off), or a link to an external spec/ticket.
+- Keep such comments short and place them directly above the code they explain. Update or delete them when the code changes.
+- Exception: JSDoc on exported utilities and public APIs where it documents contract details (units, edge cases, return semantics) that the signature does not convey.
+
 ## Key Configuration Files
 
 - `next.config.mjs` - Next.js config with next-intl integration

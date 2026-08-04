@@ -5,6 +5,8 @@ import {
 import { Entity } from './entity'
 import { Building } from './building'
 
+type MonitoringArea = GeoJSON.MultiPolygon['coordinates']
+
 type LorawanDevice = {
   join_eui?: string
   dev_eui?: string
@@ -43,6 +45,7 @@ type DeviceData = {
   lorawan_device: LorawanDevice
   is_published: boolean
   is_deactivated: boolean
+  cells?: MonitoringArea | null
 }
 
 export type DeviceProperties = {
@@ -75,4 +78,5 @@ export type {
   DeviceData,
   DeviceDataOriginal,
   DeviceModel,
+  MonitoringArea,
 }

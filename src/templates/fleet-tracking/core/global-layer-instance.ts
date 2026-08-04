@@ -1,14 +1,11 @@
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { MapView, PickingInfo } from 'deck.gl'
+import { MapView } from 'deck.gl'
 import type { IControl, Map as MapType } from 'maplibre-gl'
 
 export const LAYER_IDS = {
   LOCATION_DECKGL_LAYER: 'location-deckgl-layer',
   LOCATION_DECKGL_POINTER_LAYER: 'location-deckgl-pointer-layer',
   LOCATION_OUTLINE_PULSE: 'location-outline-pulse',
-  WATER_DEPTH_POLYGON: 'water-depth-polygon',
-  WATER_DEPTH_COLUMN: 'water-depth-column',
-  WATER_DEPTH_COLUMN_WRAPPER: 'water-depth-column-wrapper',
   WATER_DEPTH_COUNT_CLUSTER_BG_LAYER: 'water-depth-count-cluster-bg-layer',
   WATER_DEPTH_COUNT_TEXT_LAYER: 'water-depth-count-text-layer',
 }
@@ -46,17 +43,6 @@ export class GlobalDeckGLInstance {
         nearZMultiplier: 0.1,
         farZMultiplier: 10,
       }) as any,
-      getTooltip: ({ object, layer }: PickingInfo<any>): any => {
-        const isWaterLevelLayer =
-          layer?.id === LAYER_IDS.WATER_DEPTH_COLUMN_WRAPPER
-
-        if (isWaterLevelLayer && object) {
-          const waterDepthInMeters = (object.waterDepth ?? 0) / 100
-          return `Water Level: ${waterDepthInMeters.toFixed(2)}m`
-        }
-
-        return undefined
-      },
     })
 
     this.globalOverlay = globalOverlay
