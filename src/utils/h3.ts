@@ -1,7 +1,9 @@
 import {
   cellArea,
   cellToBoundary,
+  cellToChildren,
   cellToLatLng,
+  cellToParent,
   getHexagonAreaAvg,
   getHexagonEdgeLengthAvg,
   getResolution,
@@ -51,6 +53,25 @@ const radiusToResolution = (radius: number): number => {
 
 /** The resolution a cell was cut at, which `areaToCells` may have coarsened. */
 export const cellResolution = (h3: string): number => getResolution(h3)
+
+/** The cells that tile `h3` at the finer `resolution`. */
+export const cellChildren = (h3: string, resolution: number): string[] =>
+  cellToChildren(h3, resolution)
+
+/** The coarser cells containing `h3`, down to the coarsest resolution areas are cut at. */
+export const cellAncestors = (h3: string): string[] => {
+  const ancestors: string[] = []
+
+  for (
+    let resolution = getResolution(h3) - 1;
+    resolution >= CELL_SIZE_RESOLUTIONS[0];
+    resolution--
+  ) {
+    ancestors.push(cellToParent(h3, resolution))
+  }
+
+  return ancestors
+}
 
 export const cellCenter = (h3: string): [number, number] => {
   const [lat, lng] = cellToLatLng(h3)

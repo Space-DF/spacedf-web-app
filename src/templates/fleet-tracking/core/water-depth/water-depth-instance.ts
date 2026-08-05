@@ -27,10 +27,11 @@ import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import {
   columnHeight,
   removeWaterLevelLayers,
+  resolveZoneOverlaps,
   syncWaterLevelLayers,
   WATER_LEVEL_LAYER_IDS,
+  type RankedWaterZone,
   type WaterColumn,
-  type WaterZone,
 } from './water-level-layers'
 
 type SyncDeviceFn = {
@@ -245,7 +246,7 @@ class WaterDepthDeckInstance {
       return
     }
 
-    const zones: WaterZone[] = []
+    const rankedZones: RankedWaterZone[] = []
     const columns: WaterColumn[] = []
 
     const setting = findWaterLevelSetting(
@@ -266,7 +267,12 @@ class WaterDepthDeckInstance {
         levelColors[getWaterDepthLevelName(waterDepth, thresholds)].primary
 
       if (cells.length) {
-        zones.push({ deviceId: device.id, cells, color })
+        rankedZones.push({
+          deviceId: device.id,
+          cells,
+          color,
+          severity: waterDepth,
+        })
       }
 
       const h3 = this._columnCell(device)
@@ -282,6 +288,8 @@ class WaterDepthDeckInstance {
         selected: device.id === this.focusedDevice,
       })
     })
+
+    const zones = resolveZoneOverlaps(rankedZones)
 
     // A style swap can land between the check above and the write; retrying is
     // cheaper than letting it bubble up and tear the map layer down.
