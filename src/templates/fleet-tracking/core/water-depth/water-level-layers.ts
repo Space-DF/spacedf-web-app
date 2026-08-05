@@ -42,7 +42,7 @@ const EMPTY_DATA: GeoJSON.FeatureCollection = {
   features: [],
 }
 
-const columnHeight = (resolution: number): number =>
+export const columnHeight = (resolution: number): number =>
   resolutionRadius(resolution) * COLUMN_ASPECT
 
 const coverageData = (zones: WaterZone[]): GeoJSON.FeatureCollection => ({
