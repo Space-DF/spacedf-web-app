@@ -1,4 +1,4 @@
-import { WaterDepthLevelName } from '@/utils/water-depth'
+import type { WaterDepthLevelName } from '@/utils/water-depth'
 
 export const SourceColor = [
   '32BEB1',

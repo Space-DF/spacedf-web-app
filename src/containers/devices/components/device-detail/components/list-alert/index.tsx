@@ -18,7 +18,11 @@ import { useGetAlert } from './hooks/useGetAlert'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { WaterDepthLevelName } from '@/utils/water-depth'
+import {
+  getWaterDepthLevelColors,
+  WaterDepthLevelName,
+} from '@/utils/water-depth'
+import { useWaterLevelSetting } from '@/stores/monitoring-setting-store'
 import { useShallow } from 'zustand/react/shallow'
 import {
   CautionIcon,
@@ -27,7 +31,6 @@ import {
   WarningIcon,
   WaterLevelIllustration,
 } from '@/components/icons/flood-level-illustration'
-import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
 
 dayjs.extend(relativeTime)
 
@@ -126,13 +129,18 @@ const getWaterLevel = (value: number, unit: string) => {
 }
 
 const waterLevelIcon = {
-  critical: <CriticalIcon />,
-  warning: <WarningIcon />,
-  caution: <CautionIcon />,
+  critical: CriticalIcon,
+  warning: WarningIcon,
+  caution: CautionIcon,
 }
 
 export default function ListAlert() {
   const deviceSelected = useDeviceStore((state) => state.deviceSelected)
+  const monitoringSetting = useWaterLevelSetting()
+  const levelColors = useMemo(
+    () => getWaterDepthLevelColors(monitoringSetting),
+    [monitoringSetting]
+  )
   const [selectedDate, setSelectedDate] = useState<string>('today')
   const {
     data: alerts,
@@ -212,6 +220,10 @@ export default function ListAlert() {
 
   const renderAlertItem = useCallback(
     (item: ListItem, _: number, isExpanded: boolean) => {
+      const levelColor = levelColors[item.severity]
+      const LevelIcon =
+        waterLevelIcon[item.severity as keyof typeof waterLevelIcon]
+
       return (
         <div
           key={item.id}
@@ -226,13 +238,10 @@ export default function ListAlert() {
             <div className="flex-shrink-0 mt-1">
               <div
                 className="p-1 rounded-full flex items-center justify-center"
-                style={{
-                  backgroundColor:
-                    WATER_DEPTH_LEVEL_COLOR[item.severity].secondary,
-                }}
+                style={{ backgroundColor: levelColor.secondary }}
                 key={item.severity}
               >
-                {waterLevelIcon[item.severity as keyof typeof waterLevelIcon]}
+                {LevelIcon && <LevelIcon color={levelColor.primary} />}
               </div>
             </div>
 
@@ -246,10 +255,9 @@ export default function ListAlert() {
                     'text-xs font-medium px-2 py-0.5 rounded w-fit capitalize'
                   )}
                   style={{
-                    backgroundColor:
-                      WATER_DEPTH_LEVEL_COLOR[item.severity].secondary,
-                    color: WATER_DEPTH_LEVEL_COLOR[item.severity].primary,
-                    borderColor: WATER_DEPTH_LEVEL_COLOR[item.severity].primary,
+                    backgroundColor: levelColor.secondary,
+                    color: levelColor.primary,
+                    borderColor: levelColor.primary,
                     borderWidth: '1px',
                   }}
                 >
@@ -304,7 +312,7 @@ export default function ListAlert() {
         </div>
       )
     },
-    []
+    [levelColors]
   )
 
   return (

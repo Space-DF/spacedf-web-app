@@ -1,4 +1,7 @@
-import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import {
+  findWaterLevelSetting,
+  useMonitoringSettingStore,
+} from '@/stores/monitoring-setting-store'
 import { Device } from '@/stores/device-store'
 import { MonitoringArea } from '@/types/device'
 import { easeOut } from '@/utils/common'
@@ -6,20 +9,23 @@ import EventEmitter from '@/utils/event'
 import {
   areaCenter,
   areaToCells,
+  cellCenter,
   cellResolution,
   H3_RESOLUTION,
   inferResolution,
   pointToCell,
 } from '@/utils/h3'
 import {
+  getWaterDepthLevelColors,
   getWaterDepthLevelName,
-  WATER_LEVEL_THRESHOLDS,
+  getWaterLevelThresholds,
 } from '@/utils/water-depth'
 import type { MapboxOverlay } from '@deck.gl/mapbox'
 import { ScatterplotLayer, TextLayer } from 'deck.gl'
 import { type Map as MapLibreGLMap, type MapLayerMouseEvent } from 'maplibre-gl'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import {
+  columnHeight,
   removeWaterLevelLayers,
   syncWaterLevelLayers,
   WATER_LEVEL_LAYER_IDS,
@@ -52,10 +58,10 @@ type DeviceGrouping = {
   visibleDevices: Device[]
 }
 
-const CLUSTER_ELEVATION = 80
+const CLUSTER_CLEARANCE_M = 40
 
 /** Full tube depth, so the water reads as half-full at the danger threshold. */
-const COLUMN_DEPTH_RANGE_M = WATER_LEVEL_THRESHOLDS.floating * 2
+const COLUMN_DEPTH_RANGE_FACTOR = 2
 
 const CM_PER_METRE = 100
 
@@ -90,6 +96,7 @@ class WaterDepthDeckInstance {
   private areaCache: Map<string, DeviceArea> = new Map()
   private hoveredColumnId: string | null = null
   private waitingForStyle = false
+  private unsubscribeSetting: (() => void) | null = null
 
   private constructor() {}
 
@@ -241,30 +248,36 @@ class WaterDepthDeckInstance {
     const zones: WaterZone[] = []
     const columns: WaterColumn[] = []
 
+    const setting = findWaterLevelSetting(
+      useMonitoringSettingStore.getState().settings
+    )
+    const thresholds = getWaterLevelThresholds(setting)
+    const levelColors = getWaterDepthLevelColors(setting)
+    const columnDepthRange = thresholds.warning * COLUMN_DEPTH_RANGE_FACTOR
+
     grouping.visibleDevices.forEach((device) => {
       // A device folded into a cluster is represented by its badge instead.
       if (!this.ungroupedDeviceIds.has(device.id)) return
 
       const { resolution, cells } = this._getDeviceArea(device)
-      const depth = (device.deviceProperties?.water_depth ?? 0) / CM_PER_METRE
+      const waterDepth = device.deviceProperties?.water_depth ?? 0
+      const depth = waterDepth / CM_PER_METRE
       const color =
-        WATER_DEPTH_LEVEL_COLOR[
-          getWaterDepthLevelName(device.deviceProperties?.water_depth ?? 0)
-        ].primary
+        levelColors[getWaterDepthLevelName(waterDepth, thresholds)].primary
 
       if (cells.length) {
         zones.push({ deviceId: device.id, cells, color })
       }
 
-      const location = this._deviceLocation(device)
-      if (!location) return
+      const h3 = this._columnCell(device)
+      if (!h3) return
 
       columns.push({
         deviceId: device.id,
-        h3: pointToCell(location[0], location[1], resolution),
+        h3,
         resolution,
         color,
-        fill: Math.min(Math.max(depth / COLUMN_DEPTH_RANGE_M, 0), 1),
+        fill: Math.min(Math.max(depth / columnDepthRange, 0), 1),
         depth,
         selected: device.id === this.focusedDevice,
       })
@@ -279,6 +292,30 @@ class WaterDepthDeckInstance {
     }
   }
 
+  private _columnCell(device: Device): string | null {
+    const location = this._deviceLocation(device)
+    if (!location) return null
+
+    const { resolution } = this._getDeviceArea(device)
+
+    return pointToCell(location[0], location[1], resolution)
+  }
+
+  private _badgeAnchor(group: LocationGroup): [number, number, number] {
+    const displayed = group.devices.find(
+      (device) => device.id === group.displayedDeviceId
+    )
+    const h3 = displayed && this._columnCell(displayed)
+    if (!displayed || !h3) return [...group.location, CLUSTER_CLEARANCE_M]
+
+    const { resolution } = this._getDeviceArea(displayed)
+
+    return [
+      ...cellCenter(h3),
+      columnHeight(resolution) + CLUSTER_CLEARANCE_M,
+    ] as [number, number, number]
+  }
+
   private _buildClusterLayers(grouping = this._groupDevices()) {
     if (!this.hasVisibleBefore || !this.globalOverlay) return
 
@@ -287,6 +324,7 @@ class WaterDepthDeckInstance {
       .map((group) => ({
         ...group,
         visible: group.deviceIds.every((id) => this.ungroupedDeviceIds.has(id)),
+        anchor: this._badgeAnchor(group),
       }))
 
     const clusterRadius = getClusterRadiusByZoom(this.mapZoom)
@@ -295,8 +333,7 @@ class WaterDepthDeckInstance {
     const clusterBackgroundLayer = new ScatterplotLayer({
       id: LAYER_IDS.WATER_DEPTH_COUNT_CLUSTER_BG_LAYER,
       data: deviceCountData,
-      getPosition: (d) =>
-        [...d.location, CLUSTER_ELEVATION] as [number, number, number],
+      getPosition: (d) => d.anchor,
       getRadius: (d) => {
         if (!d.visible) return 0
         return clusterRadius
@@ -341,8 +378,7 @@ class WaterDepthDeckInstance {
     const clusterTextLayer = new TextLayer({
       id: LAYER_IDS.WATER_DEPTH_COUNT_TEXT_LAYER,
       data: deviceCountData,
-      getPosition: (d) =>
-        [...d.location, CLUSTER_ELEVATION] as [number, number, number],
+      getPosition: (d) => d.anchor,
       getText: (d) => `+${d.count - 1}`,
       getSize: (d) => {
         if (!d.visible) return 0
@@ -480,6 +516,14 @@ class WaterDepthDeckInstance {
     this.map.on('zoom', this._handleMapZoom)
     // A theme switch swaps the style, which drops every custom source.
     this.map.on('style.load', this._handleStyleLoad)
+
+    this.unsubscribeSetting = useMonitoringSettingStore.subscribe(
+      (state, previousState) => {
+        if (state.settings === previousState.settings) return
+
+        this._buildWaterDepthLayer()
+      }
+    )
   }
 
   public syncDevice({ devices, allUngroupedDeviceIds }: SyncDeviceFn) {
@@ -515,6 +559,9 @@ class WaterDepthDeckInstance {
     this.map.off('style.load', this._handleStyleLoad)
     this.map.off('idle', this._handleStyleIdle)
     this._unbindLayerInteractions(this.map)
+
+    this.unsubscribeSetting?.()
+    this.unsubscribeSetting = null
 
     this._clearHover()
 

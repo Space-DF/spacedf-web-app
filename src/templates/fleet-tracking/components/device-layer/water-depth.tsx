@@ -15,8 +15,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { getWaterDepthLevelName } from '@/utils/water-depth'
-import { COOKIES, NavigationEnums, WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import {
+  getWaterDepthLevelColors,
+  getWaterDepthLevelName,
+  getWaterLevelThresholds,
+} from '@/utils/water-depth'
+import { COOKIES, NavigationEnums } from '@/constants'
+import { useMonitoringSetting } from '@/hooks'
+import { useWaterLevelSetting } from '@/stores/monitoring-setting-store'
 import { getNewLayouts, useLayout } from '@/stores'
 import { setCookie } from '@/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -69,6 +75,19 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   const [hoverData, setHoverData] = useState<WaterDepthHoverData>(null)
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null)
   const t = useTranslations('dashboard')
+
+  useMonitoringSetting()
+
+  const monitoringSetting = useWaterLevelSetting()
+
+  const levelColors = useMemo(
+    () => getWaterDepthLevelColors(monitoringSetting),
+    [monitoringSetting]
+  )
+  const levelThresholds = useMemo(
+    () => getWaterLevelThresholds(monitoringSetting),
+    [monitoringSetting]
+  )
 
   const { isMapReady, ungroupedDeviceIds } = useFleetTrackingMapStore(
     useShallow((state) => ({
@@ -254,8 +273,11 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
           <ScrollArea className="max-h-56">
             {clusterDevices?.map((device) => {
               const waterLevel = device.deviceProperties?.water_depth || 0
-              const levelName = getWaterDepthLevelName(waterLevel)
-              const levelColor = WATER_DEPTH_LEVEL_COLOR[levelName]?.primary
+              const levelName = getWaterDepthLevelName(
+                waterLevel,
+                levelThresholds
+              )
+              const levelColor = levelColors[levelName]?.primary
               const isSelected =
                 visibleDeviceIds.get(device.id) || device.id === deviceSelected
               return (

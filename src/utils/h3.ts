@@ -52,7 +52,7 @@ const radiusToResolution = (radius: number): number => {
 /** The resolution a cell was cut at, which `areaToCells` may have coarsened. */
 export const cellResolution = (h3: string): number => getResolution(h3)
 
-const cellCenter = (h3: string): [number, number] => {
+export const cellCenter = (h3: string): [number, number] => {
   const [lat, lng] = cellToLatLng(h3)
   return [lng, lat]
 }

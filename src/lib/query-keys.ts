@@ -49,4 +49,9 @@ export const queryKeys = {
     all: ['plans'] as const,
     detail: (code: string) => [...queryKeys.plans.all, 'detail', code] as const,
   },
+  monitoring: {
+    all: ['monitoring'] as const,
+    list: (spaceSlug: string) =>
+      [...queryKeys.monitoring.all, 'list', spaceSlug] as const,
+  },
 } as const
