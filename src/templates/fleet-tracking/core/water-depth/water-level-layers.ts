@@ -1,6 +1,13 @@
 import type { GeoJSONSource, Map as MapLibreGLMap } from 'maplibre-gl'
 
-import { cellToFeature, H3_RESOLUTION, resolutionRadius } from '@/utils/h3'
+import {
+  cellAncestors,
+  cellChildren,
+  cellResolution,
+  cellToFeature,
+  H3_RESOLUTION,
+  resolutionRadius,
+} from '@/utils/h3'
 
 export const WATER_LEVEL_LAYER_IDS = {
   COVERAGE_FILL: 'water-coverage-fill',
@@ -21,11 +28,16 @@ const WATER_INSET = 0.82
 
 const GLASS_OPACITY = 0.16
 
+const MAX_CELL_SPLIT_DEPTH = 2
+
 export type WaterZone = {
   deviceId: string
   cells: string[]
   color: string
 }
+
+/** A zone paired with the reading that decides which area wins an overlap. */
+export type RankedWaterZone = WaterZone & { severity: number }
 
 export type WaterColumn = {
   deviceId: string
@@ -44,6 +56,70 @@ const EMPTY_DATA: GeoJSON.FeatureCollection = {
 
 export const columnHeight = (resolution: number): number =>
   resolutionRadius(resolution) * COLUMN_ASPECT
+
+/** Cells of one area all come from a single cut, so one of them names the whole zone. */
+const zoneResolution = (zone: RankedWaterZone): number =>
+  zone.cells.length ? cellResolution(zone.cells[0]) : H3_RESOLUTION
+
+/**
+ * Two areas covering the same ground would blend their half-transparent fills
+ * into a colour that belongs to neither, so every cell is painted once — by the
+ * deepest reading covering it. The returned zones are ordered deepest last,
+ * which is the order MapLibre draws them in, keeping the most dangerous area on
+ * top wherever geometry still overlaps at the edges.
+ */
+export const resolveZoneOverlaps = (zones: RankedWaterZone[]): WaterZone[] => {
+  const claimed = new Set<string>()
+  /** Cell -> finest resolution a claimed cell sits at inside it. */
+  const claimedWithin = new Map<string, number>()
+
+  // Areas cut at the same resolution share cell ids, so overlaps are exact and
+  // the walk up the parent chain is only worth paying for when they differ.
+  const mixedResolutions = new Set(zones.map(zoneResolution)).size > 1
+
+  const claim = (h3: string): string[] => {
+    if (claimed.has(h3)) return []
+
+    if (!mixedResolutions) {
+      claimed.add(h3)
+      return [h3]
+    }
+
+    const ancestors = cellAncestors(h3)
+    if (ancestors.some((ancestor) => claimed.has(ancestor))) return []
+
+    const finest = claimedWithin.get(h3)
+    if (finest !== undefined) {
+      const depth = finest - cellResolution(h3)
+      // Past a couple of levels the split costs more cells than the overlap is
+      // worth, so the coarse cell is kept whole and simply drawn underneath.
+      if (depth > MAX_CELL_SPLIT_DEPTH) return [h3]
+
+      return cellChildren(h3, finest).flatMap(claim)
+    }
+
+    claimed.add(h3)
+    const resolution = cellResolution(h3)
+    ancestors.forEach((ancestor) =>
+      claimedWithin.set(
+        ancestor,
+        Math.max(claimedWithin.get(ancestor) ?? resolution, resolution)
+      )
+    )
+
+    return [h3]
+  }
+
+  return [...zones]
+    .sort((a, b) => b.severity - a.severity)
+    .map(({ deviceId, cells, color }) => ({
+      deviceId,
+      color,
+      cells: cells.flatMap(claim),
+    }))
+    .filter((zone) => zone.cells.length)
+    .reverse()
+}
 
 const coverageData = (zones: WaterZone[]): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
