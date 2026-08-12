@@ -38,8 +38,8 @@ const resolutionArea = (resolution: number, at?: [number, number]): number =>
     ? cellArea(latLngToCell(at[1], at[0], resolution), 'm2')
     : getHexagonAreaAvg(resolution, 'm2')
 
-const radiusToResolution = (radius: number): number => {
-  if (!Number.isFinite(radius)) return H3_RESOLUTION
+export const radiusToResolution = (radius: number): number => {
+  if (!Number.isFinite(radius) || radius <= 0) return H3_RESOLUTION
 
   return CELL_SIZE_RESOLUTIONS.reduce((closest, resolution) =>
     Math.abs(resolutionRadius(resolution) - radius) <

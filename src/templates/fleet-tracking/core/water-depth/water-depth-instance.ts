@@ -14,6 +14,7 @@ import {
   H3_RESOLUTION,
   inferResolution,
   pointToCell,
+  radiusToResolution,
 } from '@/utils/h3'
 import {
   getWaterDepthLevelColors,
@@ -40,6 +41,7 @@ type SyncDeviceFn = {
 
 type DeviceArea = {
   area: MonitoringArea | null
+  requestedResolution: number
   resolution: number
   cells: string[]
   center: [number, number] | null
@@ -194,6 +196,15 @@ class WaterDepthDeckInstance {
     this.emitter.emit('displayed-device-changed', deviceId)
   }
 
+  private _areaResolution(area: MonitoringArea | null): number {
+    const setting = findWaterLevelSetting(
+      useMonitoringSettingStore.getState().settings
+    )
+    if (setting) return radiusToResolution(setting.cell_size)
+
+    return area ? inferResolution(area) : H3_RESOLUTION
+  }
+
   /**
    * `cells` is the union of the hexagons drawn for the device, so it has to be
    * cut back into cells to be rendered as a grid. That is expensive next to the
@@ -201,18 +212,20 @@ class WaterDepthDeckInstance {
    */
   private _getDeviceArea(device: Device): DeviceArea {
     const area = device.deviceInformation?.cells ?? null
+    const requestedResolution = this._areaResolution(area)
     const cached = this.areaCache.get(device.id)
-    if (cached && cached.area === area) return cached
-
-    const cells = areaToCells(
-      area,
-      area ? inferResolution(area) : H3_RESOLUTION
+    if (
+      cached &&
+      cached.area === area &&
+      cached.requestedResolution === requestedResolution
     )
+      return cached
+
+    const cells = areaToCells(area, requestedResolution)
     const entry: DeviceArea = {
       area,
-      // Read back off the cells so the column matches the hexagons on screen,
-      // including when an oversized area was coarsened to stay drawable.
-      resolution: cells.length ? cellResolution(cells[0]) : H3_RESOLUTION,
+      requestedResolution,
+      resolution: cells.length ? cellResolution(cells[0]) : requestedResolution,
       cells,
       center: areaCenter(area),
     }
