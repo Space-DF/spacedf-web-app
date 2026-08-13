@@ -9,8 +9,10 @@ import { useEffect, useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import OrganizationThumb from '/public/images/organization-thumb.svg'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 const CreateOrganization = () => {
+  const t = useTranslations('common')
   const organizationName = useIdentityStore((state) => state.organizationName)
   const setOrganizationName = useIdentityStore(
     (state) => state.setOrganizationName
@@ -46,7 +48,7 @@ const CreateOrganization = () => {
           </div>
         </div>
         <TypographyPrimary className="text-base font-medium">
-          Organization name
+          {t('organization_name')}
         </TypographyPrimary>
         <Input
           defaultValue={organizationName}
@@ -59,7 +61,7 @@ const CreateOrganization = () => {
         />
 
         <TypographyPrimary className="text-base font-medium">
-          Domain
+          {t('domain')}
         </TypographyPrimary>
 
         <Input
@@ -95,13 +97,13 @@ const CreateOrganization = () => {
             const dataResponse = await response.json()
 
             if (response.ok) {
-              toast.success('Organization created successfully!')
+              toast.success(t('organization_created_successfully'))
               setOrganization(dataResponse.data.slug_name)
             }
           })
         }}
       >
-        Continue
+        {t('continue')}
       </Button>
     </div>
   )

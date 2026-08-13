@@ -3,7 +3,7 @@ import { Slot, Slottable } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
-import { LoadingDots } from './loading-dots'
+import { LoaderCircle } from 'lucide-react'
 
 const buttonVariants = cva(
   'text-[14px] inline-flex items-center justify-center whitespace-nowrap rounded-button font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
@@ -42,28 +42,46 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
   loading?: boolean
+  size?: 'sm' | 'lg' | 'xl' | 'icon' | 'default'
+  prefixCpn?: React.ReactNode
+  suffixCpn?: React.ReactNode
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, loading, children, asChild = false, ...props },
+    {
+      className,
+      variant,
+      size,
+      loading,
+      children,
+      prefixCpn,
+      suffixCpn,
+      disabled,
+      asChild = false,
+      ...props
+    },
     ref
   ) => {
     const Comp = asChild ? Slot : 'button'
+    const spinner = <LoaderCircle className="size-4 shrink-0 animate-spin" />
+
+    const prefixNode = loading ? spinner : prefixCpn
+    const hasAffix = !!prefixNode || !!suffixCpn
+
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          hasAffix && 'gap-2'
+        )}
         ref={ref}
-        disabled={loading}
+        disabled={loading || disabled}
         {...props}
       >
-        <Slottable>
-          {loading ? (
-            <LoadingDots isOutlined={variant === 'outline'} />
-          ) : (
-            children
-          )}
-        </Slottable>
+        {prefixNode}
+        <Slottable>{children}</Slottable>
+        {suffixCpn}
       </Comp>
     )
   }

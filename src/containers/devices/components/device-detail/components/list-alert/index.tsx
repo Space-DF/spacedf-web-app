@@ -9,14 +9,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDeviceStore } from '@/stores/device-store'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useGetAlert } from './hooks/useGetAlert'
 import { useTripAddress } from '../trip-history/hooks/useTripAddress'
-import { ChevronDown, Clock, MapPin } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
+import { Clock, DropHalfBottom, MapPin } from '@/components/icons'
 import { useTranslations } from 'next-intl'
 import {
   getWaterDepthLevelColors,
@@ -269,14 +269,7 @@ export default function ListAlert() {
               <div className="flex flex-col gap-y-2">
                 {/* Water Level */}
                 <div className="flex items-center gap-x-2">
-                  <Image
-                    src="/images/flood-level.svg"
-                    alt="water level"
-                    width={16}
-                    height={10}
-                    quality={100}
-                    className="w-3 text-brand-component-text-gray flex-shrink-0"
-                  />
+                  <DropHalfBottom className="w-4 h-4 text-brand-component-text-gray flex-shrink-0" />
                   <span className="text-xs text-brand-component-text-gray">
                     {item.waterLevel}
                   </span>
