@@ -8,6 +8,7 @@ export const LAYER_IDS = {
   LOCATION_OUTLINE_PULSE: 'location-outline-pulse',
   WATER_DEPTH_COUNT_CLUSTER_BG_LAYER: 'water-depth-count-cluster-bg-layer',
   WATER_DEPTH_COUNT_TEXT_LAYER: 'water-depth-count-text-layer',
+  WATER_DEPTH_DEVICE_ICON_LAYER: 'water-depth-device-icon-layer',
 }
 
 export class GlobalDeckGLInstance {

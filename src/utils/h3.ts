@@ -1,5 +1,6 @@
 import {
   cellArea,
+  cellsToMultiPolygon,
   cellToBoundary,
   cellToChildren,
   cellToLatLng,
@@ -83,6 +84,46 @@ export const pointToCell = (
   lat: number,
   resolution: number = H3_RESOLUTION
 ): string => latLngToCell(lat, lng, resolution)
+
+const OUTLINE_CELL_LIMIT = 20000
+
+/** Outline of a set of cells as one geometry, with the shared edges dropped. */
+export const cellsToOutline = (
+  cells: string[]
+): GeoJSON.MultiPolygon['coordinates'] => {
+  const byResolution = new Map<number, string[]>()
+  cells.forEach((cell) => {
+    const resolution = getResolution(cell)
+    const group = byResolution.get(resolution)
+
+    if (group) group.push(cell)
+    else byResolution.set(resolution, [cell])
+  })
+
+  if (byResolution.size <= 1) return cellsToMultiPolygon(cells, true)
+
+  // Only cells tiling the same grid merge, so a mixed set is lifted to its
+  // finest resolution first — unless that costs more cells than it is worth,
+  // where each grid is outlined on its own and the seam between them shows.
+  const finest = Math.max(...Array.from(byResolution.keys()))
+  const liftedSize = cells.reduce(
+    (total, cell) => total + 7 ** (finest - getResolution(cell)),
+    0
+  )
+
+  if (liftedSize > OUTLINE_CELL_LIMIT) {
+    return Array.from(byResolution.values()).flatMap((group) =>
+      cellsToMultiPolygon(group, true)
+    )
+  }
+
+  return cellsToMultiPolygon(
+    cells.flatMap((cell) =>
+      getResolution(cell) === finest ? [cell] : cellToChildren(cell, finest)
+    ),
+    true
+  )
+}
 
 export const cellToFeature = <P extends GeoJSON.GeoJsonProperties>(
   h3: string,

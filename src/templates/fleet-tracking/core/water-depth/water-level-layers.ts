@@ -4,6 +4,7 @@ import {
   cellAncestors,
   cellChildren,
   cellResolution,
+  cellsToOutline,
   cellToFeature,
   H3_RESOLUTION,
   resolutionRadius,
@@ -12,6 +13,7 @@ import {
 export const WATER_LEVEL_LAYER_IDS = {
   COVERAGE_FILL: 'water-coverage-fill',
   COVERAGE_LINE: 'water-coverage-line',
+  COVERAGE_OUTLINE: 'water-coverage-outline',
   COLUMN_BASE: 'water-column-base',
   COLUMN_SELECTED: 'water-column-selected',
   COLUMN_WATER: 'water-column-water',
@@ -19,12 +21,15 @@ export const WATER_LEVEL_LAYER_IDS = {
 }
 
 const COVERAGE_SOURCE = 'water-coverage'
+const OUTLINE_SOURCE = 'water-coverage-outline'
 const COLUMN_SOURCE = 'water-column'
 
 const REFERENCE_HEIGHT_M = 280
 const COLUMN_ASPECT = REFERENCE_HEIGHT_M / resolutionRadius(H3_RESOLUTION)
 
 const WATER_INSET = 0.82
+
+const OUTLINE_WIDTH = 3
 
 const GLASS_OPACITY = 0.16
 
@@ -128,6 +133,21 @@ const coverageData = (zones: WaterZone[]): GeoJSON.FeatureCollection => ({
   ),
 })
 
+/** One outline per highlighted zone, tracing where its cells meet open ground. */
+const outlineData = (
+  zones: WaterZone[],
+  highlighted: Set<string>
+): GeoJSON.FeatureCollection => ({
+  type: 'FeatureCollection',
+  features: zones
+    .filter(({ deviceId }) => highlighted.has(deviceId))
+    .map(({ deviceId, cells, color }) => ({
+      type: 'Feature',
+      properties: { deviceId, color },
+      geometry: { type: 'MultiPolygon', coordinates: cellsToOutline(cells) },
+    })),
+})
+
 const columnData = (columns: WaterColumn[]): GeoJSON.FeatureCollection => ({
   type: 'FeatureCollection',
   features: columns.flatMap(
@@ -181,6 +201,15 @@ const addWaterLevelLayers = (map: MapLibreGLMap) => {
     },
   })
 
+  map.addSource(OUTLINE_SOURCE, { type: 'geojson', data: EMPTY_DATA })
+  map.addLayer({
+    id: WATER_LEVEL_LAYER_IDS.COVERAGE_OUTLINE,
+    type: 'line',
+    source: OUTLINE_SOURCE,
+    layout: { 'line-join': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': OUTLINE_WIDTH },
+  })
+
   map.addSource(COLUMN_SOURCE, { type: 'geojson', data: EMPTY_DATA })
   map.addLayer({
     id: WATER_LEVEL_LAYER_IDS.COLUMN_BASE,
@@ -229,12 +258,15 @@ const addWaterLevelLayers = (map: MapLibreGLMap) => {
 }
 
 const hasWaterLevelLayers = (map: MapLibreGLMap): boolean =>
-  !!map.getSource(COVERAGE_SOURCE) && !!map.getSource(COLUMN_SOURCE)
+  !!map.getSource(COVERAGE_SOURCE) &&
+  !!map.getSource(OUTLINE_SOURCE) &&
+  !!map.getSource(COLUMN_SOURCE)
 
 export const syncWaterLevelLayers = (
   map: MapLibreGLMap,
   zones: WaterZone[],
-  columns: WaterColumn[]
+  columns: WaterColumn[],
+  highlighted: Set<string>
 ) => {
   if (!hasWaterLevelLayers(map)) {
     // `addWaterLevelLayers` throwing partway leaves sources behind that would
@@ -244,14 +276,26 @@ export const syncWaterLevelLayers = (
   }
 
   setSourceData(map, COVERAGE_SOURCE, coverageData(zones))
+  setSourceData(map, OUTLINE_SOURCE, outlineData(zones, highlighted))
   setSourceData(map, COLUMN_SOURCE, columnData(columns))
+}
+
+/** Redraws the outlines alone, so pointing at a zone leaves the rest be. */
+export const syncCoverageHighlight = (
+  map: MapLibreGLMap,
+  zones: WaterZone[],
+  highlighted: Set<string>
+) => {
+  if (!hasWaterLevelLayers(map)) return
+
+  setSourceData(map, OUTLINE_SOURCE, outlineData(zones, highlighted))
 }
 
 export const removeWaterLevelLayers = (map: MapLibreGLMap) => {
   Object.values(WATER_LEVEL_LAYER_IDS).forEach((id) => {
     if (map.getLayer(id)) map.removeLayer(id)
   })
-  ;[COVERAGE_SOURCE, COLUMN_SOURCE].forEach((id) => {
+  ;[COVERAGE_SOURCE, OUTLINE_SOURCE, COLUMN_SOURCE].forEach((id) => {
     if (map.getSource(id)) map.removeSource(id)
   })
 }

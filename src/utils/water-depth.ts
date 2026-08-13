@@ -5,6 +5,7 @@ import {
 } from '@/stores/monitoring-setting-store'
 import {
   MonitoringColors,
+  MonitoringDisplaySettings,
   MonitoringSetting,
   MonitoringThresholds,
 } from '@/types/organization'
@@ -14,6 +15,13 @@ export const WATER_LEVEL_THRESHOLDS: MonitoringThresholds = {
   safe: 0.1,
   caution: 0.3,
   warning: 0.6,
+}
+
+export const WATER_LEVEL_DEVICE_ICON_URL = '/images/water-flood-device.png'
+
+export const WATER_LEVEL_DISPLAY_SETTINGS: MonitoringDisplaySettings = {
+  coverage: true,
+  water_column: true,
 }
 
 export type WaterDepthLevelName = 'safe' | 'caution' | 'warning' | 'critical'
@@ -43,6 +51,25 @@ const currentSetting = () =>
 export const getWaterLevelThresholds = (
   setting: MonitoringSetting | null = currentSetting()
 ): MonitoringThresholds => setting?.thresholds ?? WATER_LEVEL_THRESHOLDS
+
+export const getWaterLevelDisplaySettings = (
+  setting: MonitoringSetting | null = currentSetting()
+): MonitoringDisplaySettings => {
+  const display = setting?.display_settings
+  if (!display) return WATER_LEVEL_DISPLAY_SETTINGS
+
+  return Object.entries(WATER_LEVEL_DISPLAY_SETTINGS).reduce(
+    (settings, [key, fallback]) => {
+      const name = key as keyof MonitoringDisplaySettings
+
+      return {
+        ...settings,
+        [name]: typeof display[name] === 'boolean' ? display[name] : fallback,
+      }
+    },
+    {} as MonitoringDisplaySettings
+  )
+}
 
 const toLevelColor = (
   hex: string,
