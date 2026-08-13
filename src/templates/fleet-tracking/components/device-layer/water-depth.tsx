@@ -19,6 +19,7 @@ import {
   getWaterDepthLevelColors,
   getWaterDepthLevelName,
   getWaterLevelThresholds,
+  WATER_LEVEL_DEVICE_ICON_URL,
 } from '@/utils/water-depth'
 import { COOKIES, NavigationEnums } from '@/constants'
 import { useMonitoringSetting } from '@/hooks'
@@ -291,7 +292,10 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
                 >
                   <div className="flex items-center space-x-3">
                     <Image
-                      src={'/images/water-flood-device.png'}
+                      src={
+                        device.deviceInformation?.device_profile?.logo ||
+                        WATER_LEVEL_DEVICE_ICON_URL
+                      }
                       alt="water level icon"
                       width={20}
                       height={20}

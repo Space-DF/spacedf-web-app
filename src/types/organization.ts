@@ -76,7 +76,6 @@ export interface MonitoringColors {
 
 export interface MonitoringDisplaySettings {
   coverage: boolean
-  device_icons: boolean
   water_column: boolean
 }
 
