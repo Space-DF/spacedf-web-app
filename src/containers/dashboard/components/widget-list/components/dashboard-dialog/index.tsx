@@ -132,7 +132,7 @@ export const DashboardDialog = ({
               type="submit"
               className="w-full"
             >
-              {selectedDashboard ? t('save') : t('create_dashboard')}
+              {t(selectedDashboard ? 'save' : 'create_dashboard')}
             </Button>
           </form>
         </Form>
