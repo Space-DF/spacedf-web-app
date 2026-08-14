@@ -1,5 +1,6 @@
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
+import { getDeviceLocation } from '@/utils/map'
 import { Map, GeolocateControl } from 'maplibre-gl'
 import type { MapOptions, MapEventType } from 'maplibre-gl'
 import type { TerraDraw } from 'terra-draw'
@@ -63,9 +64,7 @@ class MapInstance {
     if (!this.map) return
     const firstDevice = Object.values(this.devices)[0]
 
-    const [lng, lat] = firstDevice.deviceProperties?.latest_checkpoint_arr ?? [
-      0, 0,
-    ]
+    const [lng, lat] = getDeviceLocation(firstDevice) ?? [0, 0]
 
     this.map.flyTo({
       center: [lng, lat],
@@ -120,11 +119,8 @@ class MapInstance {
 
     const devicesArr = Object.values(this.devices)
     const coordinates = devicesArr
-      .map((d) => d.deviceProperties?.latest_checkpoint_arr)
-      .filter(
-        (loc): loc is [number, number, number] =>
-          Array.isArray(loc) && loc.length >= 2
-      )
+      .map((device) => getDeviceLocation(device))
+      .filter((location): location is [number, number] => !!location)
 
     if (!coordinates.length) return
 
@@ -493,12 +489,11 @@ class MapInstance {
   public onZoomToDevice = (device: Device) => {
     if (!this.map) return
 
+    const location = getDeviceLocation(device)
+    if (!location) return
+
     this.isMapFlying = true
 
-    const location = device.deviceProperties?.latest_checkpoint_arr
-
-    if (!location || location.length < 2 || location.every((loc) => loc === 0))
-      return
     const [lng, lat] = location
     const bounds = this.map.getBounds()
     const isInView = bounds.contains([lng, lat])

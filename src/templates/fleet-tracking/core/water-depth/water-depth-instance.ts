@@ -17,6 +17,7 @@ import {
   pointToCell,
   radiusToResolution,
 } from '@/utils/h3'
+import { getDeviceLocation } from '@/utils/map'
 import {
   getWaterDepthLevelColors,
   getWaterDepthLevelName,
@@ -175,18 +176,12 @@ class WaterDepthDeckInstance {
     this._syncWaterLevelLayers()
   }
 
-  private _reportedLocation(device: Device): [number, number] | null {
-    const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
-
-    return lng || lat ? [lng, lat] : null
-  }
-
   private _deviceLocation(device: Device): [number, number] | null {
-    return this._reportedLocation(device) ?? this._getDeviceArea(device).center
+    return getDeviceLocation(device) ?? this._getDeviceArea(device).center
   }
 
   private _isInsideArea(device: Device): boolean {
-    const location = this._reportedLocation(device)
+    const location = getDeviceLocation(device)
     if (!location) return true
 
     const { resolution, cellSet } = this._getDeviceArea(device)

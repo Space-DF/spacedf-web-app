@@ -81,6 +81,16 @@ export const transformDeviceData = (
   })
 }
 
+const getDeviceLocation = (device: Device): [number, number] | null => {
+  const { longitude = 0, latitude = 0 } =
+    device.deviceInformation?.location ?? {}
+  if (longitude || latitude) return [longitude, latitude]
+
+  const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
+
+  return lng || lat ? [lng, lat] : null
+}
+
 const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
   return devices.reduce(
     (acc, device) => {
@@ -96,5 +106,5 @@ const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
   )
 }
 
-export { groupDeviceByFeature }
+export { getDeviceLocation, groupDeviceByFeature }
 export type { MapType }
