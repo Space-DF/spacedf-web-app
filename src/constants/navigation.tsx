@@ -11,6 +11,8 @@ import { useRouter } from '@/i18n/routing'
 import { useParams } from 'next/navigation'
 import { useGlobalStore, useOrganizationValidationStore } from '@/stores'
 
+import { useAuthenticated } from '@/hooks/useAuthenticated'
+
 export enum NavigationEnums {
   DASHBOARD = 'dashboard',
   DEVICES = 'devices',
@@ -50,6 +52,7 @@ export const NavigationData = (
 ): Navigation[] => {
   const router = useRouter()
   const params = useParams()
+  const isAuth = useAuthenticated()
   const currentSpace = useGlobalStore((state) => state.currentSpace)
   const hasHydrated = useOrganizationValidationStore((s) => s.hasHydrated)
   const template = useOrganizationValidationStore((s) => s.template)
@@ -115,6 +118,11 @@ export const NavigationData = (
     // },
   ]
   return items.filter((item) => {
+    if (
+      !isAuth &&
+      (item.key === 'automation_settings' || item.key === 'workspace_settings')
+    )
+      return false
     if (!hasHydrated) return true
     if (template === 'smart_building' && item.key === 'geofences') return false
     return true

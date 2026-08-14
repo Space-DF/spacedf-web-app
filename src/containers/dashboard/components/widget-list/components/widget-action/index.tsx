@@ -49,7 +49,7 @@ export const WidgetAction: React.FC<Props> = ({
             setEdit(true)
           }}
           size="icon"
-          className="size-8 gap-2 rounded-lg"
+          className="size-8 gap-2"
           aria-label="Edit"
         >
           <Pencil size={16} />

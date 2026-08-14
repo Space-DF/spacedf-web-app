@@ -85,7 +85,7 @@ const ListEvent = ({ deviceId }: ListEventProps) => {
           )}
         </div>
         <Button
-          className="p-1 h-fit flex items-center gap-1 rounded-md leading-4"
+          className="p-1 h-fit flex items-center gap-1 leading-4"
           onClick={() => setOpenAllEvent(true)}
         >
           {t('see_all')} <ChevronRight className="size-4 p-0" />

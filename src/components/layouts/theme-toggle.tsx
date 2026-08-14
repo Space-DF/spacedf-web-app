@@ -47,7 +47,7 @@ const ExpandedToggle = () => {
               setTheme(theme)
             }}
             className={cn(
-              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-button p-1 capitalize duration-300',
+              'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[calc(var(--button-radius)-4px)] p-1 capitalize duration-300',
               isActive
                 ? 'bg-background text-foreground'
                 : 'bg-transparent text-muted-foreground'

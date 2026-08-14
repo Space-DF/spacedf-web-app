@@ -6,7 +6,7 @@ import isEqual from 'fast-deep-equal'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
 import { useShallow } from 'zustand/react/shallow'
 import MapInstance from '../../core/map-instance'
-import { WaterDepthDeckInstance } from '../../core/water-depth/water-depth-deckgl-instance'
+import { WaterDepthDeckInstance } from '../../core/water-depth/water-depth-instance'
 import { WaterDepthLegend } from '../water-depth-legend'
 import {
   DropdownMenu,
@@ -15,11 +15,23 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { getWaterDepthLevelName } from '@/utils/water-depth'
-import { COOKIES, NavigationEnums, WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import {
+  getWaterDepthLevelColors,
+  getWaterDepthLevelName,
+  getWaterLevelThresholds,
+  WATER_LEVEL_DEVICE_ICON_URL,
+} from '@/utils/water-depth'
+import { COOKIES, NavigationEnums } from '@/constants'
+import { useMonitoringSetting } from '@/hooks'
+import { useWaterLevelSetting } from '@/stores/monitoring-setting-store'
 import { getNewLayouts, useLayout } from '@/stores'
 import { setCookie } from '@/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useTranslations } from 'next-intl'
 import { X } from 'lucide-react'
 import Image from 'next/image'
@@ -49,15 +61,34 @@ type ClusterDropdownData = {
   screenPosition: { x: number; y: number }
 } | null
 
+type WaterDepthHoverData = {
+  deviceId: string
+  depth: number
+  screenPosition: { x: number; y: number }
+} | null
+
 const mapInstance = MapInstance.getInstance()
 const waterLevelDeckInstance = WaterDepthDeckInstance.getInstance()
 
 const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
-  const resourceReady = useRef(false)
   const [clusterDropdownData, setClusterDropdownData] =
     useState<ClusterDropdownData>(null)
+  const [hoverData, setHoverData] = useState<WaterDepthHoverData>(null)
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null)
   const t = useTranslations('dashboard')
+
+  useMonitoringSetting()
+
+  const monitoringSetting = useWaterLevelSetting()
+
+  const levelColors = useMemo(
+    () => getWaterDepthLevelColors(monitoringSetting),
+    [monitoringSetting]
+  )
+  const levelThresholds = useMemo(
+    () => getWaterLevelThresholds(monitoringSetting),
+    [monitoringSetting]
+  )
 
   const { isMapReady, ungroupedDeviceIds } = useFleetTrackingMapStore(
     useShallow((state) => ({
@@ -99,10 +130,14 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
     const map = mapInstance.getMap()
     if (!map) return
 
-    if (!resourceReady.current) {
-      waterLevelDeckInstance.init(map)
-      resourceReady.current = true
+    waterLevelDeckInstance.init(map)
+    return () => {
+      waterLevelDeckInstance.destroy()
     }
+  }, [isMapReady])
+
+  useEffect(() => {
+    if (!isMapReady) return
 
     handleResource({
       devices,
@@ -138,6 +173,16 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
       waterLevelDeckInstance.off('cluster-clicked', handleClusterClicked)
     }
   }, [setClusterDropdownOpen])
+
+  useEffect(() => {
+    const handleHover = (data: WaterDepthHoverData) => setHoverData(data)
+
+    waterLevelDeckInstance.on('water-depth-hover', handleHover)
+
+    return () => {
+      waterLevelDeckInstance.off('water-depth-hover', handleHover)
+    }
+  }, [])
 
   useEffect(() => {
     const deviceIds = devices.map((d) => d.id)
@@ -183,6 +228,22 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
   return (
     <>
       <WaterDepthLegend />
+      {hoverData && (
+        <Tooltip key={hoverData.deviceId} open>
+          <TooltipTrigger asChild>
+            <span
+              className="absolute size-0 opacity-0 pointer-events-none"
+              style={{
+                left: hoverData.screenPosition.x,
+                top: hoverData.screenPosition.y,
+              }}
+            />
+          </TooltipTrigger>
+          <TooltipContent side="top" sideOffset={8}>
+            {t('water_level')}: {hoverData.depth.toFixed(2)}m
+          </TooltipContent>
+        </Tooltip>
+      )}
       <DropdownMenu
         open={clusterDropdownOpen}
         onOpenChange={setClusterDropdownOpen}
@@ -213,8 +274,11 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
           <ScrollArea className="max-h-56">
             {clusterDevices?.map((device) => {
               const waterLevel = device.deviceProperties?.water_depth || 0
-              const levelName = getWaterDepthLevelName(waterLevel)
-              const levelColor = WATER_DEPTH_LEVEL_COLOR[levelName]?.primary
+              const levelName = getWaterDepthLevelName(
+                waterLevel,
+                levelThresholds
+              )
+              const levelColor = levelColors[levelName]?.primary
               const isSelected =
                 visibleDeviceIds.get(device.id) || device.id === deviceSelected
               return (
@@ -228,7 +292,10 @@ const WaterDepthLayer = ({ devices }: WaterDepthLayerProps) => {
                 >
                   <div className="flex items-center space-x-3">
                     <Image
-                      src={'/images/water-flood-device.png'}
+                      src={
+                        device.deviceInformation?.device_profile?.logo ||
+                        WATER_LEVEL_DEVICE_ICON_URL
+                      }
                       alt="water level icon"
                       width={20}
                       height={20}

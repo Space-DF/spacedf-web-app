@@ -19,6 +19,7 @@ import BuildingInstance from './core/building-instance'
 import ClusterInstance, { CLUSTER_EVENTS } from './core/cluster-instance'
 import { GlobalDeckGLInstance } from './core/global-layer-instance'
 import MapInstance from './core/map-instance'
+import { WaterDepthDeckInstance } from './core/water-depth/water-depth-instance'
 import GeofenceControls from '@/components/common/geofence-controls'
 import { SearchLocation } from '@/components/common/search-location'
 import SpacedfLogo from '@/components/common/spacedf-logo'
@@ -31,6 +32,7 @@ const mapInstance = MapInstance.getInstance()
 const clusterInstance = ClusterInstance.getInstance()
 const buildingInstance = BuildingInstance.getInstance()
 const globalDeckGLInstance = GlobalDeckGLInstance.getInstance()
+const waterDepthInstance = WaterDepthDeckInstance.getInstance()
 
 export default function FleetTrackingMap() {
   const { resolvedTheme } = useTheme()
@@ -128,6 +130,7 @@ export default function FleetTrackingMap() {
     return () => {
       clusterInstance.removeClusterLayer()
       buildingInstance.removeBuildingLayer()
+      waterDepthInstance.destroy()
       globalDeckGLInstance.destroyGlobalDeckGLLayer()
     }
   }, [isMapReady])

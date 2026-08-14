@@ -57,3 +57,35 @@ export interface OrganizationSetting {
   brand_name: string
   custom_pages?: CustomPage[]
 }
+
+export type MonitoringType = 'water_level'
+
+/** Upper bound, in metres, of the level each key is named after. */
+export interface MonitoringThresholds {
+  safe: number
+  caution: number
+  warning: number
+}
+
+export interface MonitoringColors {
+  safe: string
+  caution: string
+  warning: string
+  danger: string
+}
+
+export interface MonitoringDisplaySettings {
+  coverage: boolean
+  water_column: boolean
+}
+
+export interface MonitoringSetting {
+  id: string
+  cell_size: number
+  type: MonitoringType
+  thresholds: MonitoringThresholds
+  colors: MonitoringColors
+  display_settings: MonitoringDisplaySettings
+  created_at: string
+  updated_at: string
+}

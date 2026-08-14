@@ -12,6 +12,7 @@ import {
   smoothUpdateFocusDeviceSource,
 } from '../../utils/marker'
 import EventEmitter from '@/utils/event'
+import { getDeviceLocation } from '@/utils/map'
 import MapInstance from '../map-instance'
 
 const mapInstance = MapInstance.getInstance()
@@ -72,12 +73,10 @@ export class LocationMarker {
     for (const device of this.devices) {
       if (this.locationMarkers?.[device.id]) continue
 
-      const position = device.deviceProperties?.latest_checkpoint_arr ?? [
-        0, 0, 0,
-      ]
-      const [lng, lat, bearing] = position
+      const [lng, lat] = getDeviceLocation(device) ?? [0, 0]
+      const bearing = device.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
       const el = document.createElement('div')
-      const isHaveDirection = position.length > 2 && !!bearing && bearing !== 0
+      const isHaveDirection = !!bearing
       el.className = isHaveDirection
         ? `location-marker-direction`
         : `location-marker`
@@ -181,15 +180,11 @@ export class LocationMarker {
         marker.setRotation(newBearing)
       }
 
-      if (
-        !isEqual(
-          prevData.deviceProperties?.latest_checkpoint_arr,
-          newData.deviceProperties?.latest_checkpoint_arr
-        )
-      ) {
+      const newLocation = getDeviceLocation(newData)
+
+      if (newLocation && !isEqual(getDeviceLocation(prevData), newLocation)) {
         const { lat: oldLat, lng: oldLng } = marker.getLngLat()
-        const [newLng, newLat] = newData.deviceProperties
-          ?.latest_checkpoint_arr ?? [0, 0]
+        const [newLng, newLat] = newLocation
 
         if (this.focusedMarker === newData.id) {
           const map = mapInstance.getMap()
@@ -367,9 +362,7 @@ export class LocationMarker {
     this.focusedMarker = deviceId
     this._ensurePulseAssets()
 
-    const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr ?? [
-      0, 0, 0,
-    ]
+    const [lng, lat] = getDeviceLocation(device) ?? [0, 0]
 
     this._updateFocusDeviceSource(deviceId, [lng, lat])
   }

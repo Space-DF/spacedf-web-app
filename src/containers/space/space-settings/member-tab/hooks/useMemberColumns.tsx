@@ -79,7 +79,7 @@ export const useMemberColumns = (props: ColumnProps): ColumnDef<Member>[] => {
         <Button
           size="icon"
           variant="outline"
-          className="size-8 border-brand-stroke-dark-soft text-brand-text-gray shadow-none"
+          className="size-8 shadow-none"
           onClick={() => onRemoveMember(original.id)}
           disabled={original.organization_user.is_owner}
         >

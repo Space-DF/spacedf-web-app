@@ -18,7 +18,6 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp'
-import { Separator } from '@/components/ui/separator'
 import { SignUpFormCredentials } from '.'
 import useSendOTP from './hooks/useSendOTP'
 import useJoinSpace from './hooks/useJoinSpace'
@@ -97,12 +96,13 @@ const OTPForm = () => {
       }
     )
 
+    queryClient.clear()
+
     await signIn('credentials', {
       redirect: false,
       signUpSuccessfully: true,
       dataUser: JSON.stringify(res),
     })
-    queryClient.clear()
     setOpenDrawer(false)
     if (!token) {
       setOpenGuideline(true)
@@ -114,59 +114,71 @@ const OTPForm = () => {
   return (
     <div className="w-full animate-opacity-display-effect self-start">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-5">
-          <div className="space-y-3">
-            <FormField
-              control={form.control}
-              name="otp"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-[14px]">
-                    {t('otp_sent')} <span className="font-bold">{email}</span>
-                  </FormLabel>
-                  <FormControl>
-                    <InputOTP maxLength={6} {...field}>
-                      <InputOTPGroup className="w-full gap-6">
-                        {Array.from({ length: 6 }).map((_, index) => (
-                          <InputOTPSlot
-                            key={index}
-                            index={index}
-                            className={cn(
-                              'h-[70px] w-auto flex-1 rounded-lg bg-brand-component-fill-dark-soft dark:bg-brand-component-fill-light text-2xl font-bold',
-                              isInvalidCode &&
-                                'border-red-600 bg-brand-component-fill-negative-soft'
-                            )}
-                          />
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-5"
+        >
+          <FormField
+            control={form.control}
+            name="otp"
+            render={({ field }) => (
+              <FormItem className="flex flex-col items-center gap-4 space-y-0">
+                <FormLabel className="flex w-full items-center justify-center gap-1 text-[14px] font-medium leading-5">
+                  <span className="text-brand-component-text-gray">
+                    {t('otp_sent')}
+                  </span>
+                  <span className="text-brand-component-text-dark dark:text-white">
+                    {email}
+                  </span>
+                </FormLabel>
+                <FormControl>
+                  <InputOTP maxLength={6} {...field}>
+                    <InputOTPGroup className="justify-center gap-[10px]">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <InputOTPSlot
+                          key={index}
+                          index={index}
+                          className={cn(
+                            'h-9 w-9 rounded-xl border bg-input text-[14px] font-medium first:rounded-l-xl last:rounded-r-xl',
+                            isInvalidCode &&
+                              'border-red-600 bg-brand-component-fill-negative-soft'
+                          )}
+                        />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col gap-2">
+            <Button
+              type="submit"
+              className="w-full"
+              loading={isMutatingSignUp}
+              disabled={!isDirty || !isValid || isMutatingSignUp}
+            >
+              {t('continue')}
+            </Button>
+            <div className="flex items-center justify-center">
+              <span className="text-[14px] font-medium leading-5 text-brand-component-text-gray">
+                {t('didnt_receive_a_code')}
+              </span>
+              <Button
+                className="h-8 px-1 text-[12px] font-semibold leading-[18px] text-brand-component-text-gray"
+                variant="ghost"
+                type="button"
+                disabled={timeRemaining > 0}
+                onClick={handleResendOTP}
+                loading={isMutatingSendOtp}
+              >
+                {t('resend_code', {
+                  time: `${String(Math.floor(timeRemaining / 60)).padStart(2, '0')}:${String(timeRemaining % 60).padStart(2, '0')}`,
+                })}
+              </Button>
+            </div>
           </div>
-          <Button
-            type="submit"
-            className="mt-5 h-12 w-full shadow-none"
-            loading={isMutatingSignUp}
-            disabled={!isDirty || !isValid || isMutatingSignUp}
-          >
-            {t('continue')}
-          </Button>
-          <Separator className="my-4" />
-          <Button
-            className="h-12 w-full shadow-none"
-            variant="outline"
-            type="button"
-            disabled={timeRemaining > 0}
-            onClick={handleResendOTP}
-            loading={isMutatingSendOtp}
-          >
-            {t('resend_code', {
-              time: `${String(Math.floor(timeRemaining / 60)).padStart(2, '0')}:${String(timeRemaining % 60).padStart(2, '0')}`,
-            })}
-          </Button>
         </form>
       </Form>
     </div>

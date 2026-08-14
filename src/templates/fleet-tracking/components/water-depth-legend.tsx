@@ -1,9 +1,46 @@
-import { WATER_DEPTH_LEVEL_COLOR } from '@/constants'
+import { useWaterLevelSetting } from '@/stores/monitoring-setting-store'
+import {
+  getWaterDepthLevelColors,
+  getWaterLevelThresholds,
+  WaterDepthLevelName,
+} from '@/utils/water-depth'
+import { useMemo } from 'react'
+
+type LegendEntry = {
+  level: WaterDepthLevelName
+  label: string
+  range: string
+}
+
+const formatDepth = (depth: number) => `${depth}m`
 
 export const WaterDepthLegend = () => {
+  const setting = useWaterLevelSetting()
+
+  const colors = useMemo(() => getWaterDepthLevelColors(setting), [setting])
+
+  const entries = useMemo<LegendEntry[]>(() => {
+    const { safe, caution, warning } = getWaterLevelThresholds(setting)
+
+    return [
+      { level: 'safe', label: 'Safe', range: `0 → <${formatDepth(safe)}` },
+      {
+        level: 'caution',
+        label: 'Caution',
+        range: `${safe} → <${formatDepth(caution)}`,
+      },
+      {
+        level: 'warning',
+        label: 'Warning',
+        range: `${caution} → ≤${formatDepth(warning)}`,
+      },
+      { level: 'critical', label: 'Danger', range: `>${formatDepth(warning)}` },
+    ]
+  }, [setting])
+
   return (
     <div
-      className="absolute bottom-10 right-3 w-[200px] rounded-lg h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
+      className="absolute bottom-10 right-3 w-[200px] rounded-xl h-max bg-white/90 backdrop-blur-sm z-[1000] p-3 shadow-sm
       dark:bg-[#171A28CC] dark:text-white"
     >
       <div className="flex items-center gap-2 mb-3">
@@ -12,40 +49,17 @@ export const WaterDepthLegend = () => {
       </div>
 
       <div className="px-1 space-y-2">
-        <div className="flex items-center gap-2">
-          <div
-            className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
-            style={{ backgroundColor: WATER_DEPTH_LEVEL_COLOR.safe.primary }}
-          />
-          <span>0 &#8594; &lt;0.1m (Safe)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div
-            className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
-            style={{
-              backgroundColor: WATER_DEPTH_LEVEL_COLOR.caution.primary,
-            }}
-          />
-          <span>0.1 &#8594; &lt;0.3m (Caution)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div
-            className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
-            style={{
-              backgroundColor: WATER_DEPTH_LEVEL_COLOR.warning.primary,
-            }}
-          />
-          <span>0.3 &#8594; &le;0.6m (Warning)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div
-            className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90"
-            style={{
-              backgroundColor: WATER_DEPTH_LEVEL_COLOR.critical.primary,
-            }}
-          />
-          <span> &gt;0.6m (Danger)</span>
-        </div>
+        {entries.map(({ level, label, range }) => (
+          <div key={level} className="flex items-center gap-2">
+            <div
+              className="size-5 rounded-full border-2 border-gray-200 dark:border-white/90 shrink-0"
+              style={{ backgroundColor: colors[level].primary }}
+            />
+            <span>
+              {range} ({label})
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )

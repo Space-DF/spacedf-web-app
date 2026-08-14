@@ -235,7 +235,7 @@ const Account = () => {
           />
 
           <div className="mt-4 flex gap-2">
-            <Button size="lg" className="w-full" loading={isChangingPassword}>
+            <Button className="w-full" loading={isChangingPassword}>
               {t('update_password')}
             </Button>
           </div>

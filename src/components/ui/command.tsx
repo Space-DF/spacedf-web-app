@@ -45,7 +45,7 @@ const CommandInput = React.forwardRef<
 >(({ className, classNameContainer, ...props }, ref) => (
   <div
     className={cn(
-      'flex items-center placeholder:text-muted-foreground px-3 bg-input dark:text-white dark:ring-brand-stroke-outermost rounded-input',
+      'flex items-center placeholder:text-muted-foreground px-3 bg-input dark:text-white dark:ring-brand-stroke-outermost rounded-input transition-shadow focus-within:border-[hsl(var(--primary))] focus-within:ring-2 focus-within:!ring-offset-0 focus-within:ring-[color:color-mix(in_srgb,hsl(var(--primary))_40%,transparent)]',
       classNameContainer
     )}
     cmdk-input-wrapper=""

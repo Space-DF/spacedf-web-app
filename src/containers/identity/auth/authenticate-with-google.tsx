@@ -20,11 +20,11 @@ const AuthenticateWithGoogle = () => {
       </p>
       <Button
         variant="outline"
-        className="h-12 w-full items-center gap-2"
+        className="w-full items-center gap-2"
         onClick={handleSocialAuth}
         loading={isMutating}
+        prefixCpn={<GoogleIcon />}
       >
-        <GoogleIcon />
         {t('continue_with_provider', { provider: 'Google' })}
       </Button>
     </div>

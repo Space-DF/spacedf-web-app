@@ -1,6 +1,6 @@
 'use client'
 import { useDeviceStore } from '@/stores/device-store'
-import { WaterDepthDeckInstance } from '../../../core/water-depth/water-depth-deckgl-instance'
+import { WaterDepthDeckInstance } from '../../../core/water-depth/water-depth-instance'
 import { useCallback, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Device } from '@/stores/device-store'

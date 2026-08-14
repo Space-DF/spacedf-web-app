@@ -7,6 +7,7 @@ import type {
 } from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
+import { getDeviceLocation } from '@/utils/map'
 import MapInstance from './map-instance'
 
 const MAX_ZOOM = 11
@@ -25,6 +26,7 @@ class ClusterInstance {
   private originalDevices: Record<string, Device> = {}
   private visible = true
   private isAlreadyShowTripRoute = false
+  private pendingStyleRetry = false
 
   private clusterData: GeoJSON.FeatureCollection<
     GeoJSON.Geometry,
@@ -63,10 +65,33 @@ class ClusterInstance {
     this.emitter.off(event, handler)
   }
 
+  private _handleStyleReady = () => {
+    this.pendingStyleRetry = false
+    this.createClusterLayer()
+  }
+
+  /** Collapses repeated requests into the one retry `removeClusterLayer` can cancel. */
+  private _retryWhenStyleReady() {
+    if (!this.map || this.pendingStyleRetry) return
+
+    this.pendingStyleRetry = true
+    this.map.once('idle', this._handleStyleReady)
+  }
+
+  private _cancelStyleRetry() {
+    if (!this.map || !this.pendingStyleRetry) return
+
+    this.map.off('idle', this._handleStyleReady)
+    this.pendingStyleRetry = false
+  }
+
   createClusterLayer = () => {
     if (!this.map) return
 
-    if (!this.map.isStyleLoaded()) return
+    if (!this.map.isStyleLoaded()) {
+      this._retryWhenStyleReady()
+      return
+    }
 
     if (this.map.getSource(this.sourceId)) return
 
@@ -223,10 +248,23 @@ class ClusterInstance {
     map.on('move', this._handleZoomChange)
   }
 
+  private getEveryDeviceId(): string[] {
+    const ids = this.clusterData.features
+      .map((feature) => feature.properties?.id)
+      .filter(Boolean) as string[]
+
+    return ids.sort((a, b) => a.localeCompare(b))
+  }
+
   public getSingleDeviceIds(): string[] {
-    if (!this.map || !this.map.getSource(this.sourceId)) return []
+    if (!this.map || !this.map.getSource(this.sourceId)) {
+      return this.getEveryDeviceId()
+    }
 
     const features = this.map.querySourceFeatures(this.sourceId)
+    if (!features.length && !this.map.isSourceLoaded(this.sourceId)) {
+      return this.getEveryDeviceId()
+    }
 
     const ids = new Set<string>()
 
@@ -274,7 +312,7 @@ class ClusterInstance {
         },
         geometry: {
           type: 'Point',
-          coordinates: device.deviceProperties?.latest_checkpoint_arr ?? [0, 0],
+          coordinates: getDeviceLocation(device) ?? [0, 0],
         },
       }
 
@@ -283,19 +321,20 @@ class ClusterInstance {
 
     this.clusterData.features = features
     const source = this.map.getSource(this.sourceId) as GeoJSONSource
+    source?.setData(this.clusterData)
 
-    if (source) {
-      source.setData(this.clusterData)
-      this.map.once('idle', () => {
-        if (this.isAlreadyShowTripRoute) return
-        const singleDeviceIds = this.getSingleDeviceIds()
-        this.emitter.emit(CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS, singleDeviceIds)
-      })
-    }
+    this.map.once('idle', () => {
+      if (this.isAlreadyShowTripRoute) return
+      const singleDeviceIds = this.getSingleDeviceIds()
+      this.emitter.emit(CLUSTER_EVENTS.UNGROUPED_CLUSTER_IDS, singleDeviceIds)
+    })
   }
 
   public removeClusterLayer() {
     if (!this.map) return
+
+    this._cancelStyleRetry()
+
     try {
       this.map.off('click', this.clusterLayerId, this._handleClusterClick)
       this.map.off(

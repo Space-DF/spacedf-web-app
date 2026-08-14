@@ -9,7 +9,12 @@ import {
 import { useDashboardStore } from '@/stores/dashboard-store'
 import { Device, useDeviceStore } from '@/stores/device-store'
 import { Alert } from '@/types/alert'
-import { ALERT_MESSAGES, getWaterDepthLevelName } from '@/utils/water-depth'
+import {
+  ALERT_MESSAGES,
+  CM_PER_METRE,
+  getWaterDepthLevelName,
+  getWaterLevelThresholds,
+} from '@/utils/water-depth'
 import { useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useIsDemo } from '@/hooks/useIsDemo'
@@ -194,7 +199,8 @@ export const useMqtt = () => {
   ) => {
     if (typeof data?.water_depth !== 'number') return
 
-    const waterDepthLevel = getWaterDepthLevelName(data.water_depth)
+    const thresholds = getWaterLevelThresholds()
+    const waterDepthLevel = getWaterDepthLevelName(data.water_depth, thresholds)
     const entityId = uuidv4()
     const reportedAt = new Date().toISOString()
 
@@ -209,8 +215,8 @@ export const useMqtt = () => {
       reported_at: reportedAt,
       space_slug: '',
       threshold: {
-        warning: 0,
-        critical: 0,
+        warning: thresholds.caution * CM_PER_METRE,
+        critical: thresholds.warning * CM_PER_METRE,
       },
       type: waterDepthLevel,
       unit: 'cm',

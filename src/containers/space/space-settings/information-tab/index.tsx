@@ -156,7 +156,7 @@ export function InformationTab({
                   <Button
                     type="button"
                     variant="outline"
-                    className="gap-2 rounded-lg text-base font-semibold text-brand-component-text-dark shadow-none"
+                    className="gap-2"
                     onClick={() => fileRef.current?.click()}
                   >
                     {t('upload_image')}
@@ -182,7 +182,7 @@ export function InformationTab({
                   <FormControl>
                     <Input
                       placeholder={t('space_name')}
-                      className="h-10 shadow-none"
+                      className="shadow-none"
                       {...field}
                       isError={!!fieldState.error}
                     />
@@ -201,12 +201,7 @@ export function InformationTab({
                       {t('creation_date')}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        disabled
-                        className="h-10"
-                        {...field}
-                        isError={!!fieldState.error}
-                      />
+                      <Input disabled {...field} isError={!!fieldState.error} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -221,12 +216,7 @@ export function InformationTab({
                       {t('owner_name')}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        disabled
-                        className="h-10"
-                        {...field}
-                        isError={!!fieldState.error}
-                      />
+                      <Input disabled {...field} isError={!!fieldState.error} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -241,12 +231,7 @@ export function InformationTab({
                       {t('space_member')}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        disabled
-                        className="h-10"
-                        {...field}
-                        isError={!!fieldState.error}
-                      />
+                      <Input disabled {...field} isError={!!fieldState.error} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -277,14 +262,14 @@ export function InformationTab({
               <Button
                 onClick={handleCancel}
                 type="button"
-                className="h-12 flex-1 text-base font-semibold  shadow-none"
+                className="flex-1 text-base font-semibold shadow-none"
                 variant="outline"
               >
                 {t('cancel')}
               </Button>
               <Button
                 type="submit"
-                className="h-12 flex-1 items-center  border-4 text-base font-medium shadow-sm"
+                className="flex-1 items-center  border-4 text-base font-medium shadow-sm"
                 loading={isMutating}
                 disabled={!isDirty}
               >

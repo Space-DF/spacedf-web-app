@@ -281,7 +281,7 @@ export const AddAutomationDialog = ({
                       }
                       disabled={!isCanEdit}
                     >
-                      {isCanEdit ? t('save') : t('add')}
+                      {t(isCanEdit ? 'save' : 'add')}
                     </Button>
                   </div>
                 </form>

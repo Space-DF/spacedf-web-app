@@ -10,6 +10,7 @@ import { MAP_PITCH } from '../../constant'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import { pulseController } from '../pulse-controller'
 import { getS3Url, linear } from '@/utils'
+import { getDeviceLocation } from '@/utils/map'
 
 type LayerResource = {
   id: string
@@ -194,17 +195,17 @@ export class LocationDeckGLInstance {
   private _zoomFollowDevice() {
     if (!this.map || !this._deviceSelected) return
 
-    const prevCheckpoint = this.previousDevices.find(
-      (device) => device.id === this._deviceSelected
-    )?.deviceProperties?.latest_checkpoint_arr
+    const selectedLocation = (devices: Device[]) => {
+      const device = devices.find((item) => item.id === this._deviceSelected)
 
-    const currentCheckpoint = this.devices.find(
-      (device) => device.id === this._deviceSelected
-    )?.deviceProperties?.latest_checkpoint_arr
+      return device ? getDeviceLocation(device) : null
+    }
 
-    if (isEqual(prevCheckpoint, currentCheckpoint)) return
+    const currentLocation = selectedLocation(this.devices)
+    if (!currentLocation) return
+    if (isEqual(selectedLocation(this.previousDevices), currentLocation)) return
 
-    const [lng, lat] = currentCheckpoint || [0, 0]
+    const [lng, lat] = currentLocation
     this.map.easeTo({
       center: [lng, lat],
       zoom: 18,
@@ -215,13 +216,14 @@ export class LocationDeckGLInstance {
 
   private _buildLayer() {
     const toResource = (deviceData: Device): LayerResource => {
-      const coordinates = (deviceData.deviceProperties
-        ?.latest_checkpoint_arr ?? [0, 0, 0]) as [number, number, number]
+      const [lng, lat] = getDeviceLocation(deviceData) ?? [0, 0]
+      const elevation =
+        deviceData.deviceProperties?.latest_checkpoint_arr?.[2] ?? 0
 
       const direction = deviceData.deviceProperties?.direction ?? 0
       return {
         id: deviceData.id,
-        position: coordinates,
+        position: [lng, lat, elevation],
         direction,
       }
     }

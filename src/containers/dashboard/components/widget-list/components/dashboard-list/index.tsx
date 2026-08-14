@@ -117,7 +117,10 @@ export const DashboardList = ({
           <ChevronsUpDown className="size-4 shrink-0 opacity-50 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-60 rounded-lg p-2" align="start">
+      <PopoverContent
+        className="w-60 rounded-[calc(var(--button-radius)+8px)] p-1"
+        align="start"
+      >
         <Command shouldFilter={false}>
           <CommandInput
             classNameContainer=""
@@ -134,7 +137,7 @@ export const DashboardList = ({
                 ? Array.from({ length: 3 }).map((_, index) => (
                     <div
                       key={index}
-                      className="cursor-pointer rounded-md px-2 py-1.5"
+                      className="cursor-pointer rounded-button px-2 py-1.5"
                     >
                       <Skeleton className="h-5 w-full" />
                     </div>
@@ -151,7 +154,7 @@ export const DashboardList = ({
                         setEdit(false)
                       }}
                       className={cn(
-                        'cursor-pointer flex items-center justify-between rounded-md hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
+                        'cursor-pointer flex items-center justify-between !rounded-button hover:bg-brand-fill-dark-soft dark:hover:bg-brand-fill-outermost',
                         {
                           'bg-brand-fill-dark-soft dark:bg-brand-fill-outermost':
                             dashboard?.id === dashboardItem.id,
@@ -169,7 +172,7 @@ export const DashboardList = ({
             </CommandGroup>
             <Separator className="my-3" />
             <Button
-              className="mb-3 h-8 w-full gap-2 text-sm font-semibold"
+              className="mb-2 h-8 w-full gap-2 text-sm font-semibold"
               variant="outline"
               onClick={onViewAllDashboard}
             >

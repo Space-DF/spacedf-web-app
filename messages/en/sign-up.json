@@ -1,7 +1,8 @@
 {
   "we_sent_a_code_to_email": "We sent a code to {email}",
   "continue": "Continue",
-  "resend_code": "Resend code ({time})",
+  "resend_code": "Resend ({time})",
+  "didnt_receive_a_code": "Didn’t receive a code?",
   "guideline": "Guideline",
   "or_continue_with_email_address": "Or continue with email address",
   "name": "Name",

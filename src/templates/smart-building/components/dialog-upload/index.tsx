@@ -317,7 +317,7 @@ export function DialogUpload({
                 className="h-12"
                 loading={isUploadingModel}
               >
-                {isEditMode ? t('save') : t('create')}
+                {t(isEditMode ? 'save' : 'create')}
               </Button>
             </div>
           </form>

@@ -20,6 +20,23 @@ type RequestError = Error & {
   endpoint?: string
 }
 
+const TOAST_DEDUPE_WINDOW = 3000
+const recentErrorToasts = new Map<string, number>()
+
+const toastErrorOnce = (key: string, message: string) => {
+  const now = Date.now()
+  const lastShownAt = recentErrorToasts.get(key)
+
+  if (lastShownAt && now - lastShownAt < TOAST_DEDUPE_WINDOW) return
+
+  recentErrorToasts.set(key, now)
+  toast.error(message, {
+    id: key,
+    onAutoClose: () => recentErrorToasts.delete(key),
+    onDismiss: () => recentErrorToasts.delete(key),
+  })
+}
+
 class FetchInstance {
   private interceptors: Interceptor = {}
   private timeout: number
@@ -250,7 +267,13 @@ api.setInterceptors({
     }
 
     if (error.response?.status === 403) {
-      toast.error('You are not authorized to access this resource')
+      const method = error.config?.method || 'GET'
+      const endpoint = error.endpoint || error.response.url
+
+      toastErrorOnce(
+        `403:${method}:${endpoint}`,
+        'You are not authorized to access this resource'
+      )
     }
 
     throw error

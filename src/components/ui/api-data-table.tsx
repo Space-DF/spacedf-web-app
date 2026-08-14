@@ -66,7 +66,7 @@ export function ApiDataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        'rounded-lg border overflow-hidden border-brand-stroke-dark-soft',
+        'rounded-lg border overflow-hidden border-border',
         containerClassName
       )}
     >

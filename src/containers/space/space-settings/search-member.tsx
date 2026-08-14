@@ -112,7 +112,7 @@ export const SearchMember = ({
           placeholder={placeholder}
           disabled={disabled}
           className="fill-dark-soft text-sm"
-          classNameContainer="border h-10 border-border"
+          classNameContainer="border border-border"
         />
       </div>
       <div className="relative">
