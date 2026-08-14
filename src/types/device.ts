@@ -46,6 +46,7 @@ type DeviceData = {
   is_published: boolean
   is_deactivated: boolean
   cells?: MonitoringArea | null
+  location?: Checkpoint
 }
 
 export type DeviceProperties = {

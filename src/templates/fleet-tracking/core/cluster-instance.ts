@@ -7,6 +7,7 @@ import type {
 } from 'maplibre-gl'
 import isEqual from 'fast-deep-equal'
 import EventEmitter from '@/utils/event'
+import { getDeviceLocation } from '@/utils/map'
 import MapInstance from './map-instance'
 
 const MAX_ZOOM = 11
@@ -311,7 +312,7 @@ class ClusterInstance {
         },
         geometry: {
           type: 'Point',
-          coordinates: device.deviceProperties?.latest_checkpoint_arr ?? [0, 0],
+          coordinates: getDeviceLocation(device) ?? [0, 0],
         },
       }
 
