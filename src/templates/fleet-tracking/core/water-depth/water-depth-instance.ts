@@ -57,6 +57,7 @@ type DeviceArea = {
   requestedResolution: number
   resolution: number
   cells: string[]
+  cellSet: Set<string>
   center: [number, number] | null
 }
 
@@ -174,11 +175,23 @@ class WaterDepthDeckInstance {
     this._syncWaterLevelLayers()
   }
 
-  private _deviceLocation(device: Device): [number, number] | null {
+  private _reportedLocation(device: Device): [number, number] | null {
     const [lng, lat] = device.deviceProperties?.latest_checkpoint_arr || [0, 0]
-    if (lng || lat) return [lng, lat]
 
-    return this._getDeviceArea(device).center
+    return lng || lat ? [lng, lat] : null
+  }
+
+  private _deviceLocation(device: Device): [number, number] | null {
+    return this._reportedLocation(device) ?? this._getDeviceArea(device).center
+  }
+
+  private _isInsideArea(device: Device): boolean {
+    const location = this._reportedLocation(device)
+    if (!location) return true
+
+    const { resolution, cellSet } = this._getDeviceArea(device)
+
+    return cellSet.has(pointToCell(location[0], location[1], resolution))
   }
 
   private getLocationKey = (device: Device): string => {
@@ -281,6 +294,7 @@ class WaterDepthDeckInstance {
       requestedResolution,
       resolution: cells.length ? cellResolution(cells[0]) : requestedResolution,
       cells,
+      cellSet: new Set(cells),
       center: areaCenter(area),
     }
 
@@ -333,7 +347,7 @@ class WaterDepthDeckInstance {
       const color =
         levelColors[getWaterDepthLevelName(waterDepth, thresholds)].primary
 
-      if (display.coverage && cells.length) {
+      if (cells.length && this._isInsideArea(device)) {
         rankedZones.push({
           deviceId: device.id,
           cells,
