@@ -96,12 +96,13 @@ const OTPForm = () => {
       }
     )
 
+    queryClient.clear()
+
     await signIn('credentials', {
       redirect: false,
       signUpSuccessfully: true,
       dataUser: JSON.stringify(res),
     })
-    queryClient.clear()
     setOpenDrawer(false)
     if (!token) {
       setOpenGuideline(true)

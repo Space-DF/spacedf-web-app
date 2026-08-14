@@ -57,7 +57,7 @@ export const FleetTrackingProvider = ({ children }: PropsWithChildren) => {
     }
 
     setInitializedSuccess(!isLoadingDevices)
-  }, [isLoadingFirstPaint])
+  }, [isLoadingFirstPaint, isAuthenticated, isLoadingDevices])
 
   const isWaitingForRedirect =
     isAuthenticated &&

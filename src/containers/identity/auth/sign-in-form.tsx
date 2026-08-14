@@ -56,13 +56,13 @@ const SignInForm = () => {
   const onSubmit = async (value: z.infer<typeof singInSchema>) => {
     startAuthentication(async () => {
       try {
+        queryClient.clear()
         const res = await signIn('credentials', { redirect: false, ...value })
         if (res?.error) {
           toast.error(t('sign_in_failed_please_try_again'))
         } else {
           await registerServiceWorker()
           setOpenDrawer(false)
-          queryClient.clear()
         }
       } catch (error) {
         console.error({ error })
