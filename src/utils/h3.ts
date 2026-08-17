@@ -79,6 +79,8 @@ export const cellCenter = (h3: string): [number, number] => {
   return [lng, lat]
 }
 
+export const cellBoundary = (h3: string): number[][] => cellToBoundary(h3, true)
+
 export const pointToCell = (
   lng: number,
   lat: number,

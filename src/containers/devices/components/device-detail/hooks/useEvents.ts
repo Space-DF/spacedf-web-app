@@ -1,10 +1,11 @@
-import { DEFAULT_PAGE_SIZE } from '@/constants'
 import { TelemetryEvent } from '@/types/event'
 import { PaginationResponse } from '@/types/global'
 import { fetcher } from '@/utils/common'
 import { useParams } from 'next/navigation'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/query-keys'
+
+const DEFAULT_PAGE_SIZE = 10
 
 export const useEvents = (deviceId: string, name?: string) => {
   const { spaceSlug } = useParams<{ spaceSlug: string }>()

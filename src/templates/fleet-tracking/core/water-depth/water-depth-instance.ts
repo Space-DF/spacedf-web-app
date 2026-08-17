@@ -12,16 +12,14 @@ import {
   areaToCells,
   cellCenter,
   cellResolution,
-  H3_RESOLUTION,
-  inferResolution,
   pointToCell,
-  radiusToResolution,
 } from '@/utils/h3'
 import { getDeviceLocation } from '@/utils/map'
 import {
   getWaterDepthLevelColors,
   getWaterDepthLevelName,
   getWaterLevelDisplaySettings,
+  getWaterLevelResolution,
   getWaterLevelThresholds,
   WATER_LEVEL_DEVICE_ICON_URL,
 } from '@/utils/water-depth'
@@ -31,7 +29,7 @@ import { type Map as MapLibreGLMap, type MapLayerMouseEvent } from 'maplibre-gl'
 import { GlobalDeckGLInstance, LAYER_IDS } from '../global-layer-instance'
 import {
   createDeviceIconSprite,
-  DEVICE_ICON_BUTTON_RATIO,
+  DEVICE_ICON_SIZE,
   DEVICE_ICON_SPRITE_ANCHOR_Y,
   DEVICE_ICON_SPRITE_SIZE,
   type FrameColors,
@@ -89,12 +87,6 @@ type IconImage = HTMLImageElement | 'loading' | 'failed'
 
 const isLoaded = (image: IconImage): image is HTMLImageElement =>
   typeof image !== 'string'
-
-/** Sized so the button reads at `DEVICE_BUTTON_SIZE` with the ring around it. */
-const DEVICE_BUTTON_SIZE = 34
-const DEVICE_ICON_SIZE = Math.round(
-  DEVICE_BUTTON_SIZE / DEVICE_ICON_BUTTON_RATIO
-)
 
 const FRAME_COLOR_FALLBACK: FrameColors = {
   background: '#ffffff',
@@ -258,15 +250,6 @@ class WaterDepthDeckInstance {
     this.emitter.emit('displayed-device-changed', deviceId)
   }
 
-  private _areaResolution(area: MonitoringArea | null): number {
-    const setting = findWaterLevelSetting(
-      useMonitoringSettingStore.getState().settings
-    )
-    if (setting) return radiusToResolution(setting.cell_size)
-
-    return area ? inferResolution(area) : H3_RESOLUTION
-  }
-
   /**
    * `cells` is the union of the hexagons drawn for the device, so it has to be
    * cut back into cells to be rendered as a grid. That is expensive next to the
@@ -274,7 +257,7 @@ class WaterDepthDeckInstance {
    */
   private _getDeviceArea(device: Device): DeviceArea {
     const area = device.deviceInformation?.cells ?? null
-    const requestedResolution = this._areaResolution(area)
+    const requestedResolution = getWaterLevelResolution(area)
     const cached = this.areaCache.get(device.id)
     if (
       cached &&
