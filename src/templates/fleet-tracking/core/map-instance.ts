@@ -1,12 +1,20 @@
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import EventEmitter from '@/utils/event'
+import { cellBoundary, pointToCell } from '@/utils/h3'
 import { getDeviceLocation } from '@/utils/map'
+import {
+  getWaterLevelDisplaySettings,
+  getWaterLevelResolution,
+} from '@/utils/water-depth'
 import { Map, GeolocateControl } from 'maplibre-gl'
-import type { MapOptions, MapEventType } from 'maplibre-gl'
+import type { MapOptions, MapEventType, PaddingOptions } from 'maplibre-gl'
 import type { TerraDraw } from 'terra-draw'
 import { PolygonGeometry } from '@/types/geofence'
 import { hexWithOpacity } from '@/containers/geofences/components/upseart-geofence/utils'
 import { applyVietnamIslandLabels } from './vietnam-island-labels'
+import { DEVICE_ICON_SIZE } from './water-depth/device-icon-sprite'
+import { columnHeight } from './water-depth/water-level-layers'
 
 type MapProps = {
   container: HTMLElement
@@ -28,11 +36,45 @@ const defaultStyles = {
 
 const VIETNAM_CENTER: [number, number] = [108.2772, 14.0583]
 
+const DEVICE_FOCUS_PADDING = 64
+const DEVICE_FOCUS_MAX_ZOOM = 17
+
+const DEVICE_FOCUS_FOOTPRINT_SHARE = 0.7
+
+const EARTH_CIRCUMFERENCE_M = 40075016.686
+const METRES_PER_DEGREE = EARTH_CIRCUMFERENCE_M / 360
+const MERCATOR_TILE_SIZE = 512
+
+const toRadians = (degrees: number) => (degrees * Math.PI) / 180
+
+const metresPerPixelAtZoom = (zoom: number, latitude: number): number =>
+  (EARTH_CIRCUMFERENCE_M * Math.cos(toRadians(latitude))) /
+  (MERCATOR_TILE_SIZE * 2 ** zoom)
+
+const zoomForMetresPerPixel = (
+  metresPerPixel: number,
+  latitude: number
+): number =>
+  Math.log2(
+    (EARTH_CIRCUMFERENCE_M * Math.cos(toRadians(latitude))) /
+      (MERCATOR_TILE_SIZE * metresPerPixel)
+  )
+
 type Bounds = {
   minLng: number
   minLat: number
   maxLng: number
   maxLat: number
+}
+
+type DeviceFootprint = {
+  coordinates: number[][]
+  riseMetres: number
+}
+
+type FocusCamera = {
+  padding: PaddingOptions
+  maxZoom: number
 }
 
 class MapInstance {
@@ -486,31 +528,68 @@ class MapInstance {
     return this.isMapFlying
   }
 
+  private _getFocusCamera(bounds: Bounds, riseMetres: number): FocusCamera {
+    const base = DEVICE_FOCUS_PADDING
+    const padding = { top: base, bottom: base, left: base, right: base }
+    const camera = { padding, maxZoom: DEVICE_FOCUS_MAX_ZOOM }
+    if (!this.map || !riseMetres) return camera
+
+    const canvas = this.map.getCanvas()
+    const fittableWidth = canvas.clientWidth - base * 2
+    const fittableHeight = canvas.clientHeight - base * 2 - DEVICE_ICON_SIZE
+    if (fittableWidth <= 0 || fittableHeight <= 0) return camera
+
+    const latitude = (bounds.minLat + bounds.maxLat) / 2
+    const rise = riseMetres * Math.sin(toRadians(this.map.getPitch()))
+    const box = {
+      width:
+        (bounds.maxLng - bounds.minLng) *
+        METRES_PER_DEGREE *
+        Math.cos(toRadians(latitude)),
+      height: (bounds.maxLat - bounds.minLat) * METRES_PER_DEGREE,
+    }
+
+    const metresPerPixel = Math.max(
+      box.width / (fittableWidth * DEVICE_FOCUS_FOOTPRINT_SHARE),
+      box.height / (fittableHeight * DEVICE_FOCUS_FOOTPRINT_SHARE),
+      (box.height + rise) / fittableHeight,
+      metresPerPixelAtZoom(DEVICE_FOCUS_MAX_ZOOM, latitude)
+    )
+
+    return {
+      padding: {
+        ...padding,
+        top: base + rise / metresPerPixel + DEVICE_ICON_SIZE,
+      },
+      maxZoom: zoomForMetresPerPixel(metresPerPixel, latitude),
+    }
+  }
+
   public onZoomToDevice = (device: Device) => {
     if (!this.map) return
 
-    const location = getDeviceLocation(device)
-    if (!location) return
+    const { coordinates, riseMetres } = getDeviceFootprint(device)
+    if (!coordinates.length) return
+
+    const [[minLng, minLat], [maxLng, maxLat]] =
+      getBoundsFromCoordinates(coordinates)
+    const { padding, maxZoom } = this._getFocusCamera(
+      { minLng, minLat, maxLng, maxLat },
+      riseMetres
+    )
+    const center: [number, number] = [
+      (minLng + maxLng) / 2,
+      (minLat + maxLat) / 2,
+    ]
 
     this.isMapFlying = true
 
-    const [lng, lat] = location
-    const bounds = this.map.getBounds()
-    const isInView = bounds.contains([lng, lat])
-
-    if (isInView) {
-      this.map.easeTo({
-        center: [lng, lat],
-        zoom: 18,
-        duration: 500,
-      })
-    } else {
-      this.map.flyTo({
-        center: [lng, lat],
-        zoom: 18,
-        duration: 500,
-      })
-    }
+    this.map.fitBounds([minLng, minLat, maxLng, maxLat], {
+      padding,
+      maxZoom,
+      duration: 500,
+      linear: this.map.getBounds().contains(center),
+    })
 
     setTimeout(() => {
       this.isMapFlying = false
@@ -591,6 +670,34 @@ class MapInstance {
 
   public isReadyForLogic() {
     return this.isReady
+  }
+}
+
+const drawsWaterColumn = (device: Device): boolean =>
+  device.deviceInformation?.device_profile?.key_feature ===
+    DEVICE_FEATURE_SUPPORTED.WATER_DEPTH &&
+  getWaterLevelDisplaySettings().water_column
+
+const getDeviceFootprint = (device: Device): DeviceFootprint => {
+  const location = getDeviceLocation(device)
+  const area = device.deviceInformation?.cells ?? null
+  const coordinates = [
+    ...(location ? [location] : []),
+    ...(area?.flatMap((polygon) => polygon.flat()) ?? []),
+  ]
+
+  if (!drawsWaterColumn(device)) return { coordinates, riseMetres: 0 }
+
+  const resolution = getWaterLevelResolution(area)
+
+  return {
+    coordinates: location
+      ? [
+          ...coordinates,
+          ...cellBoundary(pointToCell(location[0], location[1], resolution)),
+        ]
+      : coordinates,
+    riseMetres: columnHeight(resolution),
   }
 }
 
