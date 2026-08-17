@@ -3,12 +3,14 @@ import {
   findWaterLevelSetting,
   useMonitoringSettingStore,
 } from '@/stores/monitoring-setting-store'
+import { MonitoringArea } from '@/types/device'
 import {
   MonitoringColors,
   MonitoringDisplaySettings,
   MonitoringSetting,
   MonitoringThresholds,
 } from '@/types/organization'
+import { H3_RESOLUTION, inferResolution, radiusToResolution } from './h3'
 import { hexToRgb } from './helper'
 
 export const WATER_LEVEL_THRESHOLDS: MonitoringThresholds = {
@@ -47,6 +49,15 @@ const MONITORING_COLOR_KEYS: Record<
 
 const currentSetting = () =>
   findWaterLevelSetting(useMonitoringSettingStore.getState().settings)
+
+export const getWaterLevelResolution = (
+  area: MonitoringArea | null = null,
+  setting: MonitoringSetting | null = currentSetting()
+): number => {
+  if (setting) return radiusToResolution(setting.cell_size)
+
+  return area ? inferResolution(area) : H3_RESOLUTION
+}
 
 export const getWaterLevelThresholds = (
   setting: MonitoringSetting | null = currentSetting()

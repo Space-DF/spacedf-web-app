@@ -95,4 +95,10 @@ export const DEVICE_ICON_SPRITE_SIZE = SPRITE_SIZE
 export const DEVICE_ICON_SPRITE_ANCHOR_Y = SPRITE_SIZE - RING_SPREAD
 
 /** Share of the sprite the button itself takes up, for sizing it on screen. */
-export const DEVICE_ICON_BUTTON_RATIO = BUTTON_SIZE / SPRITE_SIZE
+const DEVICE_ICON_BUTTON_RATIO = BUTTON_SIZE / SPRITE_SIZE
+
+const DEVICE_BUTTON_SIZE = 34
+
+export const DEVICE_ICON_SIZE = Math.round(
+  DEVICE_BUTTON_SIZE / DEVICE_ICON_BUTTON_RATIO
+)
