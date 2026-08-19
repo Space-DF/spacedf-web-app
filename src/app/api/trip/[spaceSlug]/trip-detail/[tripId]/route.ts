@@ -6,8 +6,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { tripId: string; spaceSlug: string } }
+  props: { params: Promise<{ tripId: string; spaceSlug: string }> }
 ) => {
+  const params = await props.params
   try {
     const { tripId, spaceSlug } = params
     const isDemo = await isDemoSubdomain(request)

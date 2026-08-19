@@ -7,7 +7,8 @@ import { handleError } from '@/utils/error'
 import { isDemoSubdomain } from '@/utils/server-actions'
 
 const GET = withAuthApiRequired(
-  async (req: NextRequest, { params }: { params: { slug: string } }) => {
+  async (req: NextRequest, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     const isDemo = await isDemoSubdomain(req)
 
     if (isDemo || !params.slug || params.slug === 'undefined') {

@@ -35,7 +35,9 @@ export const POST = async (request: NextRequest) => {
       .setAudience('space-df-dev-token')
       .setExpirationTime('2h')
       .encrypt(secret)
-    cookies().set('dev-token', devToken, {
+
+    const cookieStore = await cookies()
+    cookieStore.set('dev-token', devToken, {
       httpOnly: true,
       maxAge: 60 * 60 * 2,
       path: '/',

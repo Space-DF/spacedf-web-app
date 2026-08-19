@@ -3,7 +3,8 @@ import { spaceClient } from '@/lib/spacedf'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const DELETE = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: number } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: number }> }) => {
+    const params = await props.params
     const { id } = params
     const searchParams = request.nextUrl.searchParams
     const spaceSlug = searchParams.get('spaceSlug')
@@ -18,7 +19,8 @@ export const DELETE = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const { id } = params
     const body = await request.json()
     const searchParams = request.nextUrl.searchParams
@@ -34,7 +36,8 @@ export const PATCH = withAuthApiRequired(
 )
 
 export const PUT = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const { id } = params
     const searchParams = request.nextUrl.searchParams
     const spaceSlug = searchParams.get('spaceSlug')

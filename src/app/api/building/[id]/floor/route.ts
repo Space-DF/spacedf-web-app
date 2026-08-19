@@ -4,7 +4,8 @@ import { spaceClient } from '@/lib/spacedf'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: number } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: number }> }) => {
+    const params = await props.params
     const { id } = params
     const searchParams = request.nextUrl.searchParams
     const limit = searchParams.get('limit') || DEFAULT_PAGE_SIZE
@@ -28,7 +29,8 @@ export const GET = withAuthApiRequired(
 )
 
 export const POST = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const { id } = params
     const searchParams = request.nextUrl.searchParams
     const spaceSlug = searchParams.get('spaceSlug')

@@ -48,11 +48,16 @@ type DynamicLayoutProps = {
   defaultCollapsed: boolean
 } & PropsWithChildren
 
+const MAX_COLLAPSED_LEFT_SIZE = 4
+
 const calculateCollapsedLayout = () => {
   const maxLeftCollapsedSize = 50 //max left size when collapsed with pixels value
   const percentMaxLeftCollapsedSize =
     (maxLeftCollapsedSize / window.innerWidth) * 100
-  const finalLeftSize = Math.min(percentMaxLeftCollapsedSize, 4)
+  const finalLeftSize = Math.min(
+    percentMaxLeftCollapsedSize,
+    MAX_COLLAPSED_LEFT_SIZE
+  )
   return [finalLeftSize, 100 - finalLeftSize]
 }
 
@@ -132,15 +137,18 @@ const DynamicLayout = ({
     toggleDynamicLayout,
   ])
 
-  useEffect(() => {
-    setCollapsed(defaultCollapsed)
-  }, [])
-
   const prevLayouts = useRef<TDynamicLayout[]>([])
 
   const refs = useRef<ImperativePanelGroupHandle | null>(null)
   const rightLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
   const mainLayoutRefs = useRef<ImperativePanelGroupHandle | null>(null)
+
+  useEffect(() => {
+    setCollapsed(defaultCollapsed)
+    if (defaultCollapsed) {
+      mainLayoutRefs.current?.setLayout(calculateCollapsedLayout())
+    }
+  }, [])
 
   const dynamicLayoutRight = useMemo(
     () => getDynamicLayoutRight(dynamicLayouts as NavigationEnums[]),
@@ -336,7 +344,9 @@ const DynamicLayout = ({
         <ResizablePanel
           minSize={minLeftSize}
           maxSize={maxLeftSize}
-          defaultSize={sidebarWidth}
+          defaultSize={
+            defaultCollapsed ? MAX_COLLAPSED_LEFT_SIZE : sidebarWidth
+          }
           className="duration-200"
         >
           <Sidebar ref={mainLayoutRefs} />

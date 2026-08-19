@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import createMiddleware from 'next-intl/middleware'
-import { cookies } from 'next/headers'
-import { locales } from './i18n/request'
+import { defaultLocale, locales } from './i18n/request'
 import { Locale } from './types/global'
 import { getValidSubdomain } from './utils/subdomain'
 import { readSession } from './utils/server-actions'
@@ -13,22 +12,28 @@ import * as jose from 'jose'
 // RegExp for public files
 const PUBLIC_FILE = /\.(.*)$/ // Files
 
+const PUBLIC_ROUTES = ['', 'invitation', 'protected']
+const ORGANIZATION_INDEX_PATH = 'digital-twins'
+
+const handleI18nRouting = createMiddleware({ locales, defaultLocale })
+
+const isLocale = (value?: string): value is Locale =>
+  locales.includes(value as Locale)
+
 export default async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
 
   if (PUBLIC_FILE.test(url.pathname) || url.pathname.includes('_next')) return
 
-  // Step 1: Use the incoming request (example)
-  const defaultLocale = (cookies().get('NEXT_LOCALE')?.value || 'en') as Locale
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+  const preferredLocale = isLocale(cookieLocale) ? cookieLocale : defaultLocale
 
   let [, locale, ...segments] = request.nextUrl.pathname.split('/')
   const host = request.headers.get('host')
 
-  const isLocaleValid = locales.includes(locale as Locale)
-
-  // If the first segment isn't a valid locale, default to the defaultLocale
-  if (!isLocaleValid) {
-    locale = defaultLocale
+  // If the first segment isn't a valid locale, default to the preferredLocale
+  if (!isLocale(locale)) {
+    locale = preferredLocale
     segments = url.pathname.split('/').filter(Boolean) // Reset segments without locale
   }
 
@@ -65,13 +70,6 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}`, url))
   }
 
-  // Step 2: Create and call the next-intl middleware (example)
-  const handleI18nRouting = createMiddleware({
-    locales,
-    defaultLocale,
-    // localePrefix: 'as-needed',
-  })
-
   const subdomain = await getValidSubdomain(host)
   if (!subdomain) {
     const demoUrl = `${request.nextUrl.protocol}//demo.${url.host}`
@@ -81,10 +79,8 @@ export default async function middleware(request: NextRequest) {
 
   const userIsAuthenticated = await readSession()
 
-  const publicRoutes = ['', 'invitation', 'protected']
-
   const pathAfterSubdomain = segments.join('/')
-  const isPublicRoute = publicRoutes.includes(pathAfterSubdomain)
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathAfterSubdomain)
   const isApiRoute = segments[0] === 'api'
 
   if (!userIsAuthenticated && !isPublicRoute && !isApiRoute) {
@@ -92,27 +88,23 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (subdomain) {
-    url.pathname = `/${locale}/${subdomain}/${segments.join('/') || ''}` // Rewrite path for dynamic subdomain
-    // let pathWithoutLocale = url.pathname.replace(`/${locale}`, '')
+  const publicUrl = new URL(request.url)
+  publicUrl.pathname = `/${locale}${segments.length ? `/${segments.join('/')}` : ''}`
 
-    if (
-      locale != null &&
-      !segments.length && // No additional path segments
-      locales.includes(locale as Locale)
-    ) {
-      url.pathname = `/${locale}/${subdomain}/digital-twins`
-    }
-  } else {
-    url.pathname = `/${locale}/${segments.join('/') || ''}`
-  }
+  const i18nResponse = handleI18nRouting(
+    new NextRequest(publicUrl, { headers: request.headers })
+  )
+  if (i18nResponse.headers.has('location')) return i18nResponse
 
-  request.nextUrl.pathname = url.pathname
+  const internalUrl = request.nextUrl.clone()
+  internalUrl.pathname = `/${locale}/${subdomain}/${
+    segments.join('/') || ORGANIZATION_INDEX_PATH
+  }`
 
-  // Handle the locale routing
-  const response = handleI18nRouting(request)
-
-  response.cookies.set('organization', subdomain || '')
+  const response = NextResponse.rewrite(internalUrl, {
+    headers: i18nResponse.headers,
+  })
+  response.cookies.set('organization', subdomain)
   return response
 }
 

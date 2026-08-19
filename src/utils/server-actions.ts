@@ -7,11 +7,11 @@ import { decode } from 'next-auth/jwt'
 import { Session } from 'next-auth'
 import { NEXTAUTH_SECRET } from '@/shared/env'
 
-export const getCookieServer = <TDefaultValue = any>(
+export const getCookieServer = async <TDefaultValue = any>(
   key: string,
   defaultValue: TDefaultValue
 ) => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const cookie = cookieStore.get(encodeURIComponent(key))
   if (cookie)
     return isJsonString(cookie.value)
@@ -22,7 +22,7 @@ export const getCookieServer = <TDefaultValue = any>(
 }
 
 export const getServerOrganization = async () => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   return (cookieStore.get('organization')?.value || '') as string
 }
 
@@ -46,7 +46,7 @@ const SESSION_SALT = SESSION_SECURE
 export async function readSession(): Promise<Session | null> {
   try {
     // This handles chunked cookies (.0, .1, .2, etc.) for large sessions
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const allCookies = cookieStore.getAll()
 
     // Find the main session cookie or chunked cookies

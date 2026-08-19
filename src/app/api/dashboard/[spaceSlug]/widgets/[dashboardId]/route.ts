@@ -9,8 +9,9 @@ import { uuidv4 } from '@/utils'
 export const POST = withAuthApiRequired(
   async (
     request: NextRequest,
-    { params }: { params: { dashboardId: string; spaceSlug: string } }
+    props: { params: Promise<{ dashboardId: string; spaceSlug: string }> }
   ) => {
+    const params = await props.params
     try {
       const isDemo = await isDemoSubdomain(request)
       const body = await request.json()
@@ -43,8 +44,9 @@ export const POST = withAuthApiRequired(
 export const GET = withAuthApiRequired(
   async (
     request: NextRequest,
-    { params }: { params: { dashboardId: string; spaceSlug: string } }
+    props: { params: Promise<{ dashboardId: string; spaceSlug: string }> }
   ) => {
+    const params = await props.params
     const dashboardId = params.dashboardId
     if (!dashboardId) {
       return NextResponse.json(
@@ -84,8 +86,9 @@ export const GET = withAuthApiRequired(
 export const PUT = withAuthApiRequired(
   async (
     req,
-    { params }: { params: { dashboardId: string; spaceSlug: string } }
+    props: { params: Promise<{ dashboardId: string; spaceSlug: string }> }
   ) => {
+    const params = await props.params
     try {
       const body = await req.json()
       const spacedfClient = await spaceClient()
