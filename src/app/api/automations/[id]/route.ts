@@ -4,7 +4,8 @@ import { handleError } from '@/utils/error'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
 
     try {
@@ -25,7 +26,8 @@ export const GET = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
 
     try {
@@ -48,7 +50,8 @@ export const PATCH = withAuthApiRequired(
 )
 
 export const DELETE = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const spaceSlug = request.nextUrl.searchParams.get('spaceSlug') || ''
 
     try {

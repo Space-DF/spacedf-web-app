@@ -6,8 +6,9 @@ import { DEFAULT_PAGE_SIZE } from '@/constants'
 export const GET = withAuthApiRequired(
   async (
     request: NextRequest,
-    { params }: { params: { deviceId: string } }
+    props: { params: Promise<{ deviceId: string }> }
   ) => {
+    const params = await props.params
     const { deviceId } = params
     const spaceSlug = request.nextUrl.searchParams.get('spaceSlug')
     const limit = request.nextUrl.searchParams.get('limit') || DEFAULT_PAGE_SIZE

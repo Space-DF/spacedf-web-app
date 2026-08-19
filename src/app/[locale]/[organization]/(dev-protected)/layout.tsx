@@ -14,7 +14,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode
 }) {
-  const headersList = headers()
+  const headersList = await headers()
 
   // Get the 'host' header
   const host = headersList.get('host') || 'localhost'

@@ -6,8 +6,9 @@ import { NextRequest, NextResponse } from 'next/server'
 export const DELETE = withAuthApiRequired(
   async (
     _: NextRequest,
-    { params }: { params: { id: number; spaceSlug: string } }
+    props: { params: Promise<{ id: number; spaceSlug: string }> }
   ) => {
+    const params = await props.params
     try {
       const spacedfClient = await spaceClient()
       const dashboard = await spacedfClient.dashboards.delete(params.id, {
@@ -23,7 +24,11 @@ export const DELETE = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (req, { params }: { params: { spaceSlug: string; id: string } }) => {
+  async (
+    req,
+    props: { params: Promise<{ spaceSlug: string; id: string }> }
+  ) => {
+    const params = await props.params
     try {
       const body = await req.json()
       const spacedfClient = await spaceClient()

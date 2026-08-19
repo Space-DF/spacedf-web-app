@@ -9,8 +9,9 @@ import { DEMO_SPACE } from '@/constants'
 
 const GET = async (
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  props: { params: Promise<{ slug: string }> }
 ) => {
+  const params = await props.params
   const isDemo = await isDemoSubdomain(req)
   const spacedfClient = await spaceClient()
   const session = await readSession()
@@ -39,7 +40,8 @@ const GET = async (
 }
 
 const DELETE = withAuthApiRequired(
-  async (_, { params }: { params: { slug: string } }) => {
+  async (_, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     try {
       const spacedfClient = await spaceClient()
       const deleteSpaceResponse = await spacedfClient.spaces.delete({

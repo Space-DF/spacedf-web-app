@@ -7,8 +7,9 @@ import dayjs from 'dayjs'
 export const GET = withAuthApiRequired(
   async (
     req: NextRequest,
-    { params }: { params: { spaceSlug: string; deviceId: string } }
+    props: { params: Promise<{ spaceSlug: string; deviceId: string }> }
   ) => {
+    const params = await props.params
     try {
       const startDate = req.nextUrl.searchParams.get('start_date')
       const endDate = req.nextUrl.searchParams.get('end_date')

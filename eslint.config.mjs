@@ -25,6 +25,7 @@ const eslintConfig = [
     },
     ignorePatterns: [
       'node_modules/',
+      'next-env.d.ts',
       '**/*.test.ts',
       '**/*.test.tsx',
       'dist/',

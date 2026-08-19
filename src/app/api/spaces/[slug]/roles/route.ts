@@ -8,7 +8,8 @@ import { isDemoSubdomain } from '@/utils/server-actions'
 import { DEMO_SPACE_ROLES } from '@/constants'
 
 const GET = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (req, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     const isDemo = await isDemoSubdomain(req)
     if (isDemo) {
       return NextResponse.json(DEMO_SPACE_ROLES)

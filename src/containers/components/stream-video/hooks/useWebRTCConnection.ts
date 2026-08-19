@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { WebRTCOptimizer, scheduleWork } from '@/utils/webrtc-optimizer'
 
 interface UseWebRTCConnectionProps {
-  videoRef: React.RefObject<HTMLVideoElement>
+  videoRef: React.RefObject<HTMLVideoElement | null>
   isFullscreen: boolean
 }
 

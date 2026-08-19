@@ -6,7 +6,7 @@ import { Session } from 'next-auth'
 import { SessionProvider, signIn, useSession } from 'next-auth/react'
 import { PropsWithChildren, useCallback, useEffect } from 'react'
 import LoadingFullScreen from '../ui/loading-fullscreen'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import useJoinSpace from '@/containers/identity/auth/hooks/useJoinSpace'
 import { useSubscribeNotification } from '@/hooks/useSubscribeNotification'
 import { useAuthenticated } from '@/hooks/useAuthenticated'
@@ -55,7 +55,6 @@ export const NextAuthSessionProvider = ({
   const { trigger: joinSpace } = useJoinSpace()
   const token = searchParams.get('token')
   const { data: googleSignInData, isLoading } = useGoogleSignIn(code)
-  const router = useRouter()
   const handleSignIn = useCallback(async () => {
     if (googleSignInData) {
       const result = await signIn('credentials', {
@@ -65,10 +64,12 @@ export const NextAuthSessionProvider = ({
       })
       if (!result?.ok) return
       if (token) return await joinSpace(token)
+      const url = new URL(window.location.href)
+      url.searchParams.delete('code')
+      window.history.replaceState({}, '', `${url.pathname}${url.search}`)
       await registerServiceWorker()
-      router.push('/')
     }
-  }, [googleSignInData, token, joinSpace, router, registerServiceWorker])
+  }, [googleSignInData, token, joinSpace, registerServiceWorker])
 
   useEffect(() => {
     handleSignIn()
