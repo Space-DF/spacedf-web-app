@@ -10,7 +10,7 @@ interface UseExpandableProps<T> {
 interface UseExpandableReturn<T> {
   isExpanded: boolean
   maxHeight: string
-  contentRef: React.RefObject<HTMLDivElement>
+  contentRef: React.RefObject<HTMLDivElement | null>
   toggleExpand: () => void
   visibleItems: T[]
 }

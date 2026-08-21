@@ -1,6 +1,5 @@
 import AppProvider from '@/components/providers'
 import '@/styles/globals.css'
-import { Locale } from '@/types/global'
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
@@ -14,7 +13,7 @@ import { headers } from 'next/headers'
 import { getValidSubdomain } from '@/utils/subdomain'
 import { checkSlugName } from '@/lib/organizations'
 export async function generateMetadata(): Promise<Metadata> {
-  const host = headers().get('host') || 'localhost'
+  const host = (await headers()).get('host') || 'localhost'
   const org = await getValidSubdomain(host)
 
   const defaultMetadata = {
@@ -76,13 +75,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const GA_ID = process.env.GA_ID
 
-export default async function RootLayout({
-  children,
-  params: { locale },
-}: Readonly<{
-  children: React.ReactNode
-  params: { locale: Locale }
-}>) {
+export default async function RootLayout(
+  props: Readonly<{
+    children: React.ReactNode
+    params: Promise<{ locale: string }>
+  }>
+) {
+  const { children } = props
+  const { locale } = await props.params
   // Ensure that the incoming `locale` is valid
   if (!routing.locales.includes(locale as any)) {
     notFound()
@@ -90,7 +90,7 @@ export default async function RootLayout({
 
   const [messages, session] = await Promise.all([getMessages(), readSession()])
 
-  const host = headers().get('host') || 'localhost'
+  const host = (await headers()).get('host') || 'localhost'
   const org = await getValidSubdomain(host)
 
   let themeStyles = ''

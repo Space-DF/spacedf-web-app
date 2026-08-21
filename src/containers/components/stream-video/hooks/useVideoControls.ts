@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 
 interface UseVideoControlsProps {
-  videoRef: React.RefObject<HTMLVideoElement>
+  videoRef: React.RefObject<HTMLVideoElement | null>
 }
 
 export const useVideoControls = ({ videoRef }: UseVideoControlsProps) => {

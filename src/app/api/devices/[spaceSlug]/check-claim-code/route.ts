@@ -4,7 +4,11 @@ import { handleError } from '@/utils/error'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const POST = withAuthApiRequired(
-  async (req: NextRequest, { params }: { params: { spaceSlug: string } }) => {
+  async (
+    req: NextRequest,
+    props: { params: Promise<{ spaceSlug: string }> }
+  ) => {
+    const params = await props.params
     try {
       const body = await req.json()
       const { code } = body

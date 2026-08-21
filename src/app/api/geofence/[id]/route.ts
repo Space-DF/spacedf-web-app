@@ -5,7 +5,8 @@ import { isDemoSubdomain } from '@/utils/server-actions'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const DELETE = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     try {
       const isDemo = await isDemoSubdomain(request)
       if (isDemo) {
@@ -27,7 +28,8 @@ export const DELETE = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     try {
       const isDemo = await isDemoSubdomain(request)
       if (isDemo) {

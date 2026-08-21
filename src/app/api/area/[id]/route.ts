@@ -3,7 +3,8 @@ import { spaceClient } from '@/lib/spacedf'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const PATCH = withAuthApiRequired(
-  async (request: NextRequest, { params }: { params: { id: string } }) => {
+  async (request: NextRequest, props: { params: Promise<{ id: string }> }) => {
+    const params = await props.params
     const { id } = params
     const searchParams = request.nextUrl.searchParams
     const spaceSlug = searchParams.get('spaceSlug')

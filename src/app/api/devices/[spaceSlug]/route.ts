@@ -7,9 +7,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const GET = async (
   request: NextRequest,
-  { params }: { params: { spaceSlug: string } }
+  props: { params: Promise<{ spaceSlug: string }> }
 ) => {
-  const { spaceSlug } = params
+  const { spaceSlug } = await props.params
   const searchParams = request.nextUrl.searchParams
   const limit = searchParams.get('limit') || '10'
   const offset = searchParams.get('offset') || '0'
@@ -35,7 +35,7 @@ const GET = async (
     }
     const client = await spaceClient()
     client.setAccessToken(session?.user?.access as string)
-    const params = {
+    const query = {
       include_latest_checkpoint: true,
       offset: +offset,
       limit: +limit,
@@ -44,7 +44,7 @@ const GET = async (
       device_id,
       building_id: buildingId,
     }
-    const devices = await client.deviceSpaces.list(params, {
+    const devices = await client.deviceSpaces.list(query, {
       headers: {
         'X-Space': spaceSlug,
       },
@@ -59,7 +59,8 @@ const GET = async (
 }
 
 export const POST = withAuthApiRequired(
-  async (request, { params }: { params: { spaceSlug: string } }) => {
+  async (request, props: { params: Promise<{ spaceSlug: string }> }) => {
+    const params = await props.params
     try {
       const body = await request.json()
       const client = await spaceClient()
@@ -76,7 +77,8 @@ export const POST = withAuthApiRequired(
 )
 
 export const PUT = withAuthApiRequired(
-  async (request, { params }: { params: { spaceSlug: string } }) => {
+  async (request, props: { params: Promise<{ spaceSlug: string }> }) => {
+    const params = await props.params
     try {
       const body = await request.json()
       const client = await spaceClient()

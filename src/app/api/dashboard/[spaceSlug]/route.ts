@@ -25,8 +25,9 @@ const DEMO_DASHBOARDS: Dashboard[] = [
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { spaceSlug: string } }
+  props: { params: Promise<{ spaceSlug: string }> }
 ) => {
+  const params = await props.params
   try {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') as string
@@ -57,8 +58,9 @@ export const GET = async (
 export const POST = withAuthApiRequired(
   async (
     request: NextRequest,
-    { params }: { params: { spaceSlug: string } }
+    props: { params: Promise<{ spaceSlug: string }> }
   ) => {
+    const params = await props.params
     try {
       const body = await request.json()
       const spacedfClient = await spaceClient()

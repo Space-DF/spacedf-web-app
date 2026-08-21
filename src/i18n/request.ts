@@ -9,10 +9,14 @@ import type { Locale } from '@/types/global'
  */
 
 export const locales = ['en', 'vi'] as const
+export const defaultLocale: Locale = 'en'
+
+const isSupportedLocale = (value: string | undefined): value is Locale =>
+  locales.includes(value as Locale)
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale
-  if (!locales.includes(locale as Locale)) notFound()
+  if (!isSupportedLocale(locale)) notFound()
 
   // Combine all messages into a single object
   const messages = {

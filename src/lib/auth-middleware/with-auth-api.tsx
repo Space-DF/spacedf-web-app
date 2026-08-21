@@ -4,10 +4,15 @@ import { SpaceDFClient } from '../spacedf'
 import { readSession } from '@/utils/server-actions'
 import { handleError } from '@/utils/error'
 
-type Handler = (req: NextRequest, options: any) => Promise<NextResponse>
+type RouteContext = { params: Promise<any> }
+
+type Handler = (
+  req: NextRequest,
+  context: RouteContext
+) => Promise<NextResponse>
 
 export function withAuthApiRequired(handler: Handler) {
-  return async (req: NextRequest, options: any) => {
+  return async (req: NextRequest, context: RouteContext) => {
     try {
       const session = await readSession()
       const spacedf = await SpaceDFClient.getInstance()
@@ -18,7 +23,7 @@ export function withAuthApiRequired(handler: Handler) {
           { status: 401 }
         )
       spacedf.setToken(accessToken as string)
-      return await handler(req, options)
+      return await handler(req, context)
     } catch (error) {
       return handleError(error)
     }

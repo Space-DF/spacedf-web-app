@@ -39,6 +39,8 @@ import { toast } from 'sonner'
 import Pen from '@/components/icons/pen'
 import { useParams } from 'next/navigation'
 
+const REDIRECT_FALLBACK_TIMEOUT = 5000
+
 export default function SmartBuilding() {
   const t = useTranslations('smartBuilding')
 
@@ -91,14 +93,22 @@ export default function SmartBuilding() {
 
   useEffect(() => {
     if (!isAuthenticated) return
-    if (isFirstLoadRef.current) {
-      if (!building || !spaceSlug) {
-        setGlobalLoading(true)
-        return
-      }
+    if (!isFirstLoadRef.current) return
+
+    if (building && spaceSlug) {
       setGlobalLoading(false)
       isFirstLoadRef.current = false
+      return
     }
+
+    setGlobalLoading(true)
+    const timeoutId = setTimeout(() => {
+      if (!isFirstLoadRef.current) return
+      isFirstLoadRef.current = false
+      setGlobalLoading(false)
+    }, REDIRECT_FALLBACK_TIMEOUT)
+
+    return () => clearTimeout(timeoutId)
   }, [isAuthenticated, building, spaceSlug, setGlobalLoading])
 
   const modelUrl = useMemo(() => {

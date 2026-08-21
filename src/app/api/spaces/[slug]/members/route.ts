@@ -8,7 +8,8 @@ import { isDemoSubdomain } from '@/utils/server-actions'
 import { DEMO_SPACE_MEMBERS } from '@/constants'
 
 export const POST = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (req, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     const isDemo = await isDemoSubdomain(req)
     if (isDemo) {
       return NextResponse.json({})
@@ -28,7 +29,8 @@ export const POST = withAuthApiRequired(
 )
 
 export const GET = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (req, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     const searchParams = req.nextUrl.searchParams
     const {
       pageIndex = 0,
@@ -50,7 +52,8 @@ export const GET = withAuthApiRequired(
 )
 
 export const DELETE = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (req, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     try {
       const spacedfClient = await spaceClient()
       const { id } = await req.json()
@@ -65,7 +68,8 @@ export const DELETE = withAuthApiRequired(
 )
 
 export const PATCH = withAuthApiRequired(
-  async (req, { params }: { params: { slug: string } }) => {
+  async (req, props: { params: Promise<{ slug: string }> }) => {
+    const params = await props.params
     try {
       const spacedfClient = await spaceClient()
       const { id, space_role } = await req.json()

@@ -6,8 +6,9 @@ import { NextRequest, NextResponse } from 'next/server'
 export const DELETE = withAuthApiRequired(
   async (
     _,
-    { params }: { params: { spaceSlug: string; deviceId: string } }
+    props: { params: Promise<{ spaceSlug: string; deviceId: string }> }
   ) => {
+    const params = await props.params
     const { spaceSlug, deviceId } = params
     try {
       const client = await spaceClient()
@@ -28,8 +29,9 @@ export const DELETE = withAuthApiRequired(
 export const GET = withAuthApiRequired(
   async (
     _,
-    { params }: { params: { spaceSlug: string; deviceId: string } }
+    props: { params: Promise<{ spaceSlug: string; deviceId: string }> }
   ) => {
+    const params = await props.params
     const { spaceSlug, deviceId } = params
     const client = await spaceClient()
     const device = await client.deviceSpaces.retrieveByDeviceId(deviceId, {
@@ -44,8 +46,9 @@ export const GET = withAuthApiRequired(
 export const PATCH = withAuthApiRequired(
   async (
     request: NextRequest,
-    { params }: { params: { spaceSlug: string; deviceId: string } }
+    props: { params: Promise<{ spaceSlug: string; deviceId: string }> }
   ) => {
+    const params = await props.params
     const { spaceSlug, deviceId } = params
     const body = await request.json()
     const client = await spaceClient()

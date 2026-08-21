@@ -6,10 +6,15 @@ import { NextRequest, NextResponse } from 'next/server'
 export const DELETE = withAuthApiRequired(
   async (
     request: NextRequest,
-    {
-      params,
-    }: { params: { dashboardId: string; widgetId: number; spaceSlug: string } }
+    props: {
+      params: Promise<{
+        dashboardId: string
+        widgetId: number
+        spaceSlug: string
+      }>
+    }
   ) => {
+    const params = await props.params
     const isDemo = await isDemoSubdomain(request)
     const { dashboardId, widgetId, spaceSlug } = params
     if (isDemo) {

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 
 interface UseFullscreenProps {
-  containerRef: React.RefObject<HTMLDivElement>
-  videoRef: React.RefObject<HTMLVideoElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
+  videoRef: React.RefObject<HTMLVideoElement | null>
 }
 
 export const useFullscreen = ({
