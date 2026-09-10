@@ -96,6 +96,26 @@ const reduceDevices = (data: Device[]) => {
   return acc
 }
 
+const applyLatestCheckpoint = (
+  device: Device,
+  [longitude, latitude, bearing]: [number, number, number]
+) => {
+  device.deviceProperties = {
+    ...device.deviceProperties,
+    latest_checkpoint_arr: [longitude, latitude, bearing],
+    latest_checkpoint: { latitude, longitude, bearing },
+  } as Device['deviceProperties']
+
+  device.deviceInformation = {
+    ...device.deviceInformation,
+    location: {
+      ...device.deviceInformation?.location,
+      longitude,
+      latitude,
+    },
+  } as Device['deviceInformation']
+}
+
 const reduceDeviceFleetTracking = (data: Device[]) => {
   const acc: Record<string, Device> = {}
   for (const device of data) {
@@ -174,6 +194,9 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
             ...data,
           } as Device['deviceProperties']
 
+          const newCheckpoint = data?.latest_checkpoint_arr
+          if (newCheckpoint) applyLatestCheckpoint(device, newCheckpoint)
+
           const latLng = device.deviceProperties?.latest_checkpoint_arr
           const isEligibleForFleetTracking =
             latLng && latLng.length >= 2 && latLng[0] && latLng[1]
@@ -209,17 +232,8 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
         if (!newLat || !newLng) return
 
         if (currentDevice) {
-          const newDeviceProperties = {
-            ...currentDevice?.deviceProperties,
-            latest_checkpoint_arr: [newLng, newLat, newBear],
-            latest_checkpoint: {
-              latitude: newLat,
-              longitude: newLng,
-              bearing: newBear,
-            },
-          } as Device['deviceProperties']
-          state.devices[deviceId].deviceProperties = newDeviceProperties
-          state.devicesFleetTracking[deviceId] = state.devices[deviceId]
+          applyLatestCheckpoint(currentDevice, [newLng, newLat, newBear])
+          state.devicesFleetTracking[deviceId] = currentDevice
         } else {
           const newDevice: Device = {
             type: DEVICE_MODEL.RAK,
@@ -234,19 +248,13 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
               end: [0, 0],
             },
             isDeactivated: false,
-            deviceProperties: {
-              latest_checkpoint_arr: [newLng, newLat, newBear],
-              latest_checkpoint: {
-                latitude: newLat,
-                longitude: newLng,
-                bearing: newBear,
-              },
-            },
             deviceId: deviceId,
             lorawan_device: {
               dev_eui: data.device_eui,
             } as LorawanDevice,
           }
+
+          applyLatestCheckpoint(newDevice, [newLng, newLat, newBear])
 
           state.devices = {
             ...state.devices,
