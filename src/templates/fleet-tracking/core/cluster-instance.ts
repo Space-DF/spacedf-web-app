@@ -148,18 +148,6 @@ class ClusterInstance {
         'text-color': '#fff',
       },
     })
-
-    // Add unclustered point layer
-    this.map.addLayer({
-      id: this.unclusteredLayerId,
-      type: 'circle',
-      source: this.sourceId,
-      filter: ['!', ['has', 'point_count']],
-      paint: {
-        'circle-color': this.styleProps.pointColor,
-        'circle-radius': 4,
-      },
-    })
   }
 
   private _handleClusterClick = async (
