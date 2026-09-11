@@ -5,6 +5,7 @@
   "enter_device_name": "Nhập tên thiết bị",
   "description": "Chi tiết",
   "deveui": "DevUI",
+  "serial_number": "Số serial",
   "joineui": "JoinEUI",
   "device_name": "Tên thiết bị",
   "scan_qr_code_successfully": "Quét QR Code thành công",
