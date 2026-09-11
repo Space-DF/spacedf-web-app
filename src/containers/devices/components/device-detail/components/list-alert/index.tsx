@@ -14,7 +14,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useGetAlert } from './hooks/useGetAlert'
-import { useTripAddress } from '../trip-history/hooks/useTripAddress'
+// import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { ChevronDown } from 'lucide-react'
 import { Clock, DropHalfBottom, MapPin } from '@/components/icons'
 import { useTranslations } from 'next-intl'
@@ -170,17 +170,17 @@ export default function ListAlert() {
     setDeviceAlertDevice(deviceSelected, 'water_depth', newDeviceAlerts)
   }, [isValidating])
 
-  const listLocation: [number, number][] = useMemo(() => {
-    return (
-      alerts?.results?.map((alert) => [
-        alert.location.longitude,
-        alert.location.latitude,
-      ]) || []
-    )
-  }, [alerts])
+  // const listLocation: [number, number][] = useMemo(() => {
+  //   return (
+  //     alerts?.results?.map((alert) => [
+  //       alert.location.longitude,
+  //       alert.location.latitude,
+  //     ]) || []
+  //   )
+  // }, [alerts])
 
-  const { data: alertAddresses, isLoading: isLoadingAlertAddress } =
-    useTripAddress(listLocation)
+  // const { data: alertAddresses, isLoading: isLoadingAlertAddress } =
+  //   useTripAddress(listLocation)
 
   const alertAvailableList = useMemo(() => {
     return (
@@ -194,28 +194,27 @@ export default function ListAlert() {
 
   const alertList: ListItem[] = useMemo(
     () =>
-      [...alertAvailableList, ...(alerts?.results || [])].map(
-        (alert, index) => {
-          const timestamp = new Date(alert.reported_at)
-          const relativeTimeStr = dayjs(timestamp).fromNow(true)
+      [...alertAvailableList, ...(alerts?.results || [])].map((alert) => {
+        const timestamp = new Date(alert.reported_at)
+        const relativeTimeStr = dayjs(timestamp).fromNow(true)
 
-          return {
-            id: alert.reported_at,
-            title: alert.message,
-            severity: alert.level,
-            waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
-            location: isLoadingAlertAddress ? (
-              <Skeleton className="w-20 h-4" />
-            ) : (
-              alertAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
-            ),
-            time: dayjs(timestamp).format('hh:mm a'),
-            timestamp,
-            relativeTime: relativeTimeStr,
-          }
+        return {
+          id: alert.reported_at,
+          title: alert.message,
+          severity: alert.level,
+          waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
+          // location: isLoadingAlertAddress ? (
+          //   <Skeleton className="w-20 h-4" />
+          // ) : (
+          //   alertAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
+          // ),
+          location: '-',
+          time: dayjs(timestamp).format('hh:mm a'),
+          timestamp,
+          relativeTime: relativeTimeStr,
         }
-      ) || [],
-    [alerts, alertAddresses, alertAvailableList]
+      }) || [],
+    [alerts, alertAvailableList]
   )
 
   const renderAlertItem = useCallback(
