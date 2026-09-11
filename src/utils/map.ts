@@ -1,7 +1,6 @@
 import {
-  DEVICE_LAYER_PROPERTIES,
-  LayerProperties,
-  SupportedModels,
+  DEVICE_FEATURE_SUPPORTED,
+  DeviceFeatureSupported,
 } from '@/constants/device-property'
 import { Device } from '@/stores/device-store'
 import { DeviceDataOriginal } from '@/types/device'
@@ -23,33 +22,21 @@ const formatCheckpoint = (
   ]
 }
 
-const detectDeviceType = (deviceModelName: string): SupportedModels => {
-  const lowerCaseDeviceModelName = deviceModelName?.toLowerCase() || ''
-  if (lowerCaseDeviceModelName.startsWith('rak')) return 'rak'
-
-  if (lowerCaseDeviceModelName.startsWith('tracki')) return 'tracki'
-
-  if (lowerCaseDeviceModelName.startsWith('wlb')) return 'wlb'
-
-  return 'rak'
-}
-
 export const transformDeviceData = (
   deviceSpace: DeviceDataOriginal[]
 ): Device[] => {
   return deviceSpace.map((device) => {
     const checkpoint = formatCheckpoint(
-      device.device_properties?.latest_checkpoint || device.latest_checkpoint
-    )
-    const deviceType = detectDeviceType(
-      device.device.device_profile?.device_type.toLowerCase() || ''
+      device.device_properties?.latest_checkpoint ||
+        device.latest_checkpoint ||
+        device.device.location
     )
 
     const historyLngLat: [number, number] = [checkpoint[0], checkpoint[1]]
 
     return {
-      name: device.name,
       status: device.device.status as 'active' | 'inactive',
+      name: device.name,
       id: device.device.id,
       deviceId: device.device.id,
       deviceSpaceId: device.id,
@@ -59,7 +46,9 @@ export const transformDeviceData = (
       deviceInformation: device.device,
       entities: device.entities ?? [],
       isDeactivated: device.device.is_deactivated,
-      type: deviceType,
+      type:
+        device.device.device_profile?.key_feature ??
+        DEVICE_FEATURE_SUPPORTED.LOCATION,
       histories: {
         end: historyLngLat,
         start: historyLngLat,
@@ -73,9 +62,6 @@ export const transformDeviceData = (
       },
       position: device.position,
       building: device.building,
-      layerProps:
-        (DEVICE_LAYER_PROPERTIES[deviceType] as LayerProperties) ||
-        ({} as LayerProperties),
       origin: 'Vietnam',
     }
   })
@@ -91,18 +77,15 @@ const getDeviceLocation = (device: Device): [number, number] | null => {
   return lng || lat ? [lng, lat] : null
 }
 
-const groupDeviceByFeature = (devices: Device[]): Record<string, Device[]> => {
+const groupDeviceByFeature = (
+  devices: Device[]
+): Partial<Record<DeviceFeatureSupported, Device[]>> => {
   return devices.reduce(
     (acc, device) => {
-      const feature = device.deviceInformation?.device_profile?.key_feature
-      if (feature) {
-        acc[feature] = acc[feature] || []
-        acc[feature].push(device)
-      }
-
+      ;(acc[device.type] ??= []).push(device)
       return acc
     },
-    {} as Record<string, Device[]>
+    {} as Partial<Record<DeviceFeatureSupported, Device[]>>
   )
 }
 

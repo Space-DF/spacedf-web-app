@@ -1,7 +1,6 @@
 import {
-  DEVICE_LAYER_PROPERTIES,
-  DEVICE_MODEL,
-  LayerProperties,
+  DEVICE_FEATURE_SUPPORTED,
+  DeviceFeatureSupported,
   SupportedModels,
 } from '@/constants/device-property'
 import { Alert } from '@/types/alert'
@@ -22,8 +21,7 @@ export type Device<T = {}> = {
   description?: string
   id: string
   status: 'active' | 'inactive'
-  type: SupportedModels
-  layerProps?: LayerProperties
+  type: DeviceFeatureSupported
   histories?: {
     end: [number, number]
     start: [number, number]
@@ -236,10 +234,7 @@ export const useDeviceStore = create<DeviceModelState & DeviceModelAction>()(
           state.devicesFleetTracking[deviceId] = currentDevice
         } else {
           const newDevice: Device = {
-            type: DEVICE_MODEL.RAK,
-            layerProps: DEVICE_LAYER_PROPERTIES[
-              DEVICE_MODEL.RAK
-            ] as LayerProperties,
+            type: DEVICE_FEATURE_SUPPORTED.LOCATION,
             id: deviceId,
             name: 'Unknown-' + deviceId,
             status: 'active',

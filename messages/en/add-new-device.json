@@ -5,6 +5,7 @@
   "enter_device_name": "Enter Device Name",
   "description": "Description",
   "deveui": "DevEUI",
+  "serial_number": "Serial Number",
   "joineui": "JoinEUI",
   "device_name": "Device Name",
   "scan_qr_code_successfully": "Scan QR Code Successfully",

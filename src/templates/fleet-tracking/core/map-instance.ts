@@ -674,8 +674,7 @@ class MapInstance {
 }
 
 const drawsWaterColumn = (device: Device): boolean =>
-  device.deviceInformation?.device_profile?.key_feature ===
-    DEVICE_FEATURE_SUPPORTED.WATER_DEPTH &&
+  device.type === DEVICE_FEATURE_SUPPORTED.WATER_DEPTH &&
   getWaterLevelDisplaySettings().water_column
 
 const getDeviceFootprint = (device: Device): DeviceFootprint => {

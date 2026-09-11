@@ -19,6 +19,7 @@ import { useGetDeviceByDeviceId } from './hooks/useGetDeviceByDeviceId'
 import { useFleetTrackingMapStore } from '@/stores/template/fleet-tracking-map'
 import { useOrganizationValidationStore } from '@/stores/organization-validation-store'
 import { Lock } from '@/components/icons'
+import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 
 const mapInstance = MapInstance.getInstance()
 
@@ -68,7 +69,8 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
 
   const selectedDevice = !open ? undefined : deviceDataSelected || mappedFromApi
 
-  const isWlb = selectedDevice?.type === 'wlb'
+  const isWaterDepthDevice =
+    selectedDevice?.type === DEVICE_FEATURE_SUPPORTED.WATER_DEPTH
 
   const entities = selectedDevice?.entities ?? []
 
@@ -189,14 +191,14 @@ const DeviceDetail = ({ onClose, open }: DeviceDetailProps) => {
                     </div>
                   </div>
                 )}
-                <DeviceSelected isDeactivated={selectedDevice.isDeactivated} />
+                <DeviceSelected device={selectedDevice} />
               </div>
               {isSmartBuildingTemplate &&
                 selectedDevice.position &&
                 selectedDevice.building && <ListEntity entities={entities} />}
               <ListEvent deviceId={selectedDevice.id} />
               {!isSmartBuildingTemplate &&
-                (isWlb ? <ListAlert /> : <TripHistory />)}
+                (isWaterDepthDevice ? <ListAlert /> : <TripHistory />)}
             </div>
           </div>
         </RightSideBarLayout>

@@ -47,6 +47,9 @@ type DeviceData = {
   is_deactivated: boolean
   cells?: MonitoringArea | null
   location?: Checkpoint
+  api_device?: {
+    serial_number: string
+  }
 }
 
 export type DeviceProperties = {

@@ -10,9 +10,8 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
-import { Pencil, Trash2 } from 'lucide-react'
-import { useDeviceStore } from '@/stores/device-store'
-import { useShallow } from 'zustand/react/shallow'
+import { Trash2 } from 'lucide-react'
+import { Device, useDeviceStore } from '@/stores/device-store'
 import { useRemoveDevice } from '../hooks/useRemoveDevice'
 import { useState } from 'react'
 import Image from 'next/image'
@@ -29,23 +28,19 @@ const InformationItem = (props: { label: string; content: string }) => {
 }
 
 interface Props {
-  isDeactivated?: boolean
+  device: Device
 }
 
-const DeviceSelected = ({ isDeactivated }: Props) => {
+const DeviceSelected = ({ device }: Props) => {
   const t = useTranslations('addNewDevice')
-
-  const { deviceDataSelected, setDeviceSelected } = useDeviceStore(
-    useShallow((state) => ({
-      deviceDataSelected: state.devices[state.deviceSelected] || {},
-      setDeviceSelected: state.setDeviceSelected,
-    }))
-  )
+  const setDeviceSelected = useDeviceStore((state) => state.setDeviceSelected)
 
   const [openDialog, setOpenDialog] = useState(false)
 
   const { mutateAsync: deleteDevice, isPending: isDeletingDevice } =
-    useRemoveDevice(deviceDataSelected?.deviceSpaceId)
+    useRemoveDevice(device.deviceSpaceId)
+
+  const logo = device.deviceInformation?.device_profile?.logo
 
   const handleDeleteDevice = async () => {
     await deleteDevice()
@@ -57,27 +52,26 @@ const DeviceSelected = ({ isDeactivated }: Props) => {
     <div className="flex flex-col gap-2 rounded-xl bg-card p-4 border border-border">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          <div className="px-1">
-            <Image
-              src={
-                deviceDataSelected?.deviceInformation?.device_profile?.logo ||
-                ''
-              }
-              alt="rak"
-              width={42}
-              height={42}
-              quality={100}
-            />
-          </div>
+          {logo && (
+            <div className="px-1">
+              <Image
+                src={logo}
+                alt="rak"
+                width={42}
+                height={42}
+                quality={100}
+              />
+            </div>
+          )}
           <span className="size-2 rounded-full bg-brand-component-fill-positive" />
           <span className="text-xs font-medium text-brand-component-text-dark">
             {t('online')}
           </span>
         </div>
         <div className="flex gap-2">
-          <Button size="icon" className="size-8" disabled={isDeactivated}>
+          {/* <Button size="icon" className="size-8" disabled={isDeactivated}>
             <Pencil size={16} />
-          </Button>
+          </Button> */}
           <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
             <AlertDialogTrigger asChild>
               <Button
@@ -117,21 +111,27 @@ const DeviceSelected = ({ isDeactivated }: Props) => {
         <div className="flex flex-col gap-2 gap-y-1">
           <InformationItem
             label={`${t('device_id')}:`}
-            content={deviceDataSelected?.deviceId || ''}
+            content={device.deviceId || ''}
           />
           <InformationItem
             label={`${t('device_name')}:`}
-            content={deviceDataSelected?.name || ''}
+            content={device.name || ''}
           />
-          <InformationItem
-            label={`${t('deveui')}:`}
-            content={
-              deviceDataSelected?.lorawan_device?.dev_eui?.toUpperCase() || ''
-            }
-          />
+          {device.lorawan_device?.dev_eui && (
+            <InformationItem
+              label={`${t('deveui')}:`}
+              content={device.lorawan_device?.dev_eui?.toUpperCase() || ''}
+            />
+          )}
+          {device.deviceInformation?.api_device?.serial_number && (
+            <InformationItem
+              label={`${t('serial_number')}:`}
+              content={device.deviceInformation.api_device.serial_number || ''}
+            />
+          )}
           <InformationItem
             label={`${t('description')}:`}
-            content={deviceDataSelected?.description || ''}
+            content={device.description || ''}
           />
         </div>
       </div>
