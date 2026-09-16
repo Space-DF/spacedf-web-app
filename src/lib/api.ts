@@ -1,7 +1,7 @@
 import { signOut } from 'next-auth/react'
 import { getClientOrganization } from '@/utils'
 import { toast } from 'sonner'
-import { LOCAL_STORAGE_KEYS } from '@/constants'
+import { DEMO_SUBDOMAIN, LOCAL_STORAGE_KEYS } from '@/constants'
 
 type RequestConfig = RequestInit & {
   baseURL?: string
@@ -267,13 +267,21 @@ api.setInterceptors({
     }
 
     if (error.response?.status === 403) {
-      const method = error.config?.method || 'GET'
-      const endpoint = error.endpoint || error.response.url
+      const isDemo =
+        getClientOrganization() === DEMO_SUBDOMAIN ||
+        (typeof window !== 'undefined' &&
+          (window.location.hostname.split('.')[0] === DEMO_SUBDOMAIN ||
+            window.location.pathname.split('/').includes(DEMO_SUBDOMAIN)))
 
-      toastErrorOnce(
-        `403:${method}:${endpoint}`,
-        'You are not authorized to access this resource'
-      )
+      if (!isDemo) {
+        const method = error.config?.method || 'GET'
+        const endpoint = error.endpoint || error.response.url
+
+        toastErrorOnce(
+          `403:${method}:${endpoint}`,
+          'You are not authorized to access this resource'
+        )
+      }
     }
 
     throw error
