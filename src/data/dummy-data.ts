@@ -4,6 +4,7 @@ import { Trip } from '@/types/trip'
 import { PaginationResponse } from './../types/global.d'
 import { DEVICE_FEATURE_SUPPORTED } from '@/constants/device-property'
 import { uuidv4 } from '@/utils'
+import { MonitoringSetting } from '@/types/organization'
 
 export const deviceSpaces: DeviceDataOriginal[] = [
   {
@@ -1105,3 +1106,30 @@ export const dummyGeofences = [
     updated_at: '2026-03-21T14:09:31.000000Z',
   },
 ]
+
+export const dummyMonitoringSettings: MonitoringSetting[] = [
+  {
+    id: 'demo-monitoring-setting-id',
+    cell_size: 65.9,
+    type: 'water_level',
+    thresholds: {
+      safe: 0.1,
+      caution: 0.3,
+      warning: 0.6,
+    },
+    colors: {
+      safe: '#00836B',
+      caution: '#DAAE00',
+      warning: '#F58851',
+      danger: '#FB564B',
+    },
+    display_settings: {
+      coverage: true,
+      water_column: true,
+    },
+    created_at: '2025-01-01T00:00:00.000000Z',
+    updated_at: '2025-01-01T00:00:00.000000Z',
+  },
+]
+
+export const dummyMonitoringSetting = dummyMonitoringSettings[0]
