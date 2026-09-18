@@ -44,6 +44,9 @@ export type Device<T = {}> = {
   }
   building?: Building
   isDeactivated?: boolean
+  api_device?: {
+    serial_number: string
+  }
 } & T
 
 type DeviceModelState = {
