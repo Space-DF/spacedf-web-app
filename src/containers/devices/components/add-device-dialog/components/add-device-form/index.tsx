@@ -13,10 +13,6 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { CircleCheck } from 'lucide-react'
-import {
-  countTwoDigitNumbers,
-  formatValueEUI,
-} from '@/containers/devices/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 
@@ -38,20 +34,14 @@ export const AddDeviceForm = ({
   const { trigger: addDevice, isMutating } = useAddDeviceManually()
 
   async function onSubmit(values: AddDeviceSchema) {
-    await addDevice(
-      {
-        ...values,
-        dev_eui: values.dev_eui.replace(/\s+/g, ''),
+    await addDevice(values, {
+      onSuccess: async () => {
+        await onSuccess()
+        toast.success(t('add_device_successfully'))
       },
-      {
-        onSuccess: async () => {
-          await onSuccess()
-          toast.success(t('add_device_successfully'))
-        },
-        onError: (error) =>
-          toast.error(error.message || t('failed_to_add_device')),
-      }
-    )
+      onError: (error) =>
+        toast.error(error.message || t('failed_to_add_device')),
+    })
   }
 
   const isModeAuto = mode === 'auto'
@@ -67,11 +57,11 @@ export const AddDeviceForm = ({
         )}
         <FormField
           control={form.control}
-          name="dev_eui"
+          name="identifier"
           render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="font-semibold text-brand-component-text-dark">
-                {t('deveui')}
+                {t('deveui')}/{t('serial_number')}
                 <span className="text-brand-component-text-accent">*</span>
               </FormLabel>
               <FormControl>
@@ -79,23 +69,6 @@ export const AddDeviceForm = ({
                   disabled={isModeAuto}
                   placeholder="00 04 A3 0B  00 1B B0 DF"
                   {...field}
-                  value={field.value}
-                  onChange={(e) => {
-                    const rawValue = e.target.value
-                      .replace(/\s/g, '')
-                      .toUpperCase()
-
-                    if (/^[0-9A-Fa-f]*$/.test(rawValue)) {
-                      const binaryValue = formatValueEUI(rawValue)
-
-                      if (
-                        countTwoDigitNumbers(binaryValue) <= 8 &&
-                        binaryValue.split(' ').length <= 8
-                      ) {
-                        field.onChange(binaryValue)
-                      }
-                    }
-                  }}
                   isError={!!fieldState.error}
                 />
               </FormControl>
