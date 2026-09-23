@@ -5,7 +5,6 @@ import { useFormContext } from 'react-hook-form'
 import { useCheckClaimCode } from '@/containers/devices/hooks/useCheckClaimCode'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
-import { formatValueEUI } from '@/containers/devices/utils'
 import { LoaderCircle } from 'lucide-react'
 import type { IDetectedBarcode } from '@yudiel/react-qr-scanner'
 
@@ -39,10 +38,10 @@ export const AddDeviceScanQR: React.FC<AddDeviceScanQRProps> = ({
         toast.error(error.message || t('failed_to_scan_qr_code'))
       },
     })
-    form.setValue(
-      'dev_eui',
-      formatValueEUI(response.lorawan_device?.dev_eui || '').toUpperCase()
-    )
+    const identifier =
+      response.lorawan_device?.dev_eui || response.api_device?.serial_number
+    if (!identifier) return
+    form.setValue('identifier', identifier)
     setStep('add_device_auto')
   }
 
