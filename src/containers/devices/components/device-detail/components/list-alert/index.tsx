@@ -14,7 +14,7 @@ import { useDeviceStore } from '@/stores/device-store'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useGetAlert } from './hooks/useGetAlert'
-// import { useTripAddress } from '../trip-history/hooks/useTripAddress'
+import { useTripAddress } from '../trip-history/hooks/useTripAddress'
 import { ChevronDown } from 'lucide-react'
 import { Clock, DropHalfBottom, MapPin } from '@/components/icons'
 import { useTranslations } from 'next-intl'
@@ -170,18 +170,6 @@ export default function ListAlert() {
     setDeviceAlertDevice(deviceSelected, 'water_depth', newDeviceAlerts)
   }, [isValidating])
 
-  // const listLocation: [number, number][] = useMemo(() => {
-  //   return (
-  //     alerts?.results?.map((alert) => [
-  //       alert.location.longitude,
-  //       alert.location.latitude,
-  //     ]) || []
-  //   )
-  // }, [alerts])
-
-  // const { data: alertAddresses, isLoading: isLoadingAlertAddress } =
-  //   useTripAddress(listLocation)
-
   const alertAvailableList = useMemo(() => {
     return (
       deviceAlerts?.filter(
@@ -192,29 +180,67 @@ export default function ListAlert() {
     )
   }, [deviceAlerts, selectedDate])
 
+  const combinedAlerts = useMemo(
+    () => [...alertAvailableList, ...(alerts?.results || [])],
+    [alertAvailableList, alerts?.results]
+  )
+
+  const { validLocations, addressIndexMap } = useMemo(() => {
+    const validLocations: [number, number][] = []
+    const addressIndexMap: Record<number, number> = {}
+
+    combinedAlerts.forEach((alert, index) => {
+      const longitude = alert.location?.longitude
+      const latitude = alert.location?.latitude
+
+      if (
+        typeof longitude === 'number' &&
+        typeof latitude === 'number' &&
+        !isNaN(longitude) &&
+        !isNaN(latitude)
+      ) {
+        addressIndexMap[index] = validLocations.length
+        validLocations.push([longitude, latitude])
+      }
+    })
+
+    return { validLocations, addressIndexMap }
+  }, [combinedAlerts])
+
+  const { data: alertAddresses, isLoading: isLoadingAlertAddress } =
+    useTripAddress(validLocations)
+
   const alertList: ListItem[] = useMemo(
     () =>
-      [...alertAvailableList, ...(alerts?.results || [])].map((alert) => {
+      combinedAlerts.map((alert, index) => {
         const timestamp = new Date(alert.reported_at)
         const relativeTimeStr = dayjs(timestamp).fromNow(true)
+        const addressIndex = addressIndexMap[index]
+        const hasLocation = addressIndex !== undefined
+
+        let location: React.ReactNode = '-'
+        if (hasLocation) {
+          if (isLoadingAlertAddress) {
+            location = <Skeleton className="w-20 h-4" />
+          } else {
+            const placeName =
+              alertAddresses?.[addressIndex]?.features?.[0]?.place_name
+            location = placeName && placeName.trim() ? placeName : '-'
+          }
+        }
 
         return {
           id: alert.reported_at,
           title: alert.message,
           severity: alert.level,
           waterLevel: `${getWaterLevel(alert.water_depth, alert.unit)} m`,
-          // location: isLoadingAlertAddress ? (
-          //   <Skeleton className="w-20 h-4" />
-          // ) : (
-          //   alertAddresses?.[index]?.features?.[0]?.place_name || 'Unknown'
-          // ),
-          location: '-',
+          location,
           time: dayjs(timestamp).format('hh:mm a'),
           timestamp,
           relativeTime: relativeTimeStr,
         }
-      }) || [],
-    [alerts, alertAvailableList]
+      }),
+    [combinedAlerts, addressIndexMap, isLoadingAlertAddress, alertAddresses]
   )
 
   const renderAlertItem = useCallback(
